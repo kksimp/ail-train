@@ -198,6 +198,8 @@ report in the thread and its checkboxes updated here.
 ## 10. Repository layout
 
 ```
+AGENTS.md, CLAUDE.md     rules for AI agents working here (CLAUDE.md imports AGENTS.md)
+LICENSE                  AGPL-3.0
 PLAN.md                  this plan
 CONTEXT.md               everything a new project needs to know about AIL, the machines and the rules
 data/raw/                committed raw inputs from the AIL project (see data/raw/MANIFEST.md)
