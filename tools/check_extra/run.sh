@@ -12,6 +12,12 @@ if [ ! -x "$ail" ]; then
     echo "no ail at $ail; pass the path of an ail checkout" >&2
     exit 2
 fi
+want="$(cat "$root/.ail-version" 2>/dev/null || true)"
+have="$(cd "$ail_root" && git rev-parse HEAD 2>/dev/null || true)"
+if [ -n "$want" ] && [ "$want" != "$have" ]; then
+    echo "the ail checkout is at ${have:-unknown}, but .ail-version pins $want; check out that commit first" >&2
+    exit 2
+fi
 work="$HOME/ail-train-work/check_extra"
 mkdir -p "$work"
 out="$root/data/extra/RESULTS.txt"
