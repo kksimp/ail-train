@@ -9,6 +9,12 @@ Everything a new project or agent needs that is not in [PLAN.md](PLAN.md). Facts
 - The AI implements and plans. It decides routine questions itself and escalates anything that involves money,
   licences, publishing or accounts, or that changes a decision Kaleb made.
 
+## Licence
+
+This repo is AGPL-3.0 (`LICENSE`, the same text as kksimp/ail-edit), decided by Kaleb on 2026-11-20. It covers
+the scripts, plan and committed data. AIL itself stays Apache 2.0; a base model and any adapter keep their own
+licence questions (PLAN.md section 4).
+
 ## AIL in one paragraph
 
 AIL (AI-First Language, by Voltare) is a native, garbage-collected, memory-safe systems language with

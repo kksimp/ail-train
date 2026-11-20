@@ -1,5 +1,7 @@
 # ail-train
 
+License: AGPL-3.0 (see `LICENSE`).
+
 Teaching a small local model the AIL language with LoRA on Apple Silicon (MLX), to show that training data closes the
 agent-unfamiliarity gap, and to back an optional local helper in ail-edit.
 
