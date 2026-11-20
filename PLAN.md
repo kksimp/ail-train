@@ -27,6 +27,7 @@ other languages; teach through docs, diagnostics and auto-fix).
 | D6 | No model or model identifier is written into any committed file. The base model is named only in the untracked `config.local` on the Mac and in chat. | standing rule |
 | D7 | Everything runs on Kaleb's machines, never in a cloud container, and costs nothing (no paid API). | standing rule |
 | D8 | Training starts only after AIL 0.2.0 is tagged and Kaleb says go. | Kaleb |
+| D9 | The core card stays as the system prompt on every training example (2026-11-20). The sequence cap rises to about 4096 to hold it; the preflight measures memory and speed at that length. | Kaleb |
 
 Open (ask Kaleb with a tappable card when reached): which concrete base model (section 4), whether a published
 adapter is wanted at all (licence, section 4), whether the eval report goes on the public AIL benchmarks page.
@@ -101,7 +102,7 @@ Target mix by tokens (adjust after the first run): write 35%, fix 25%, port 15%,
 Optional later: ~10% general code instruction data under a permissive licence, to limit forgetting.
 
 System prompt: the **core card** (~3k tokens), not the full card. The full card does not fit at sequence 2048 on 8 GB,
-and the model should carry the language in its weights. Examples longer than 2048 tokens with the core card are
+and the model should carry the language in its weights. Examples longer than the sequence cap (about 4096, D9) with the core card are
 split (multi-file tasks) or dropped and counted.
 
 ### 5.3 Contamination rules
@@ -129,7 +130,7 @@ split (multi-file tasks) or dropped and counted.
 ## 6. Training recipe (first run)
 
 - `mlx_lm.lora --train` with LoRA on attention and MLP projections, rank 16, scale 32, 16 layers, batch 1 with
-  gradient accumulation 8, `--grad-checkpoint`, max sequence 2048, learning rate 1e-4 cosine with warm-up, 2-3 epochs,
+  gradient accumulation 8, `--grad-checkpoint`, max sequence about 4096 (D9), learning rate 1e-4 cosine with warm-up, 2-3 epochs,
   validation every 100 steps, adapters saved every 200 steps, `--mask-prompt` (loss on the answer only).
 - Stop early when validation loss rises for two evaluations.
 - After training: `mlx_lm.fuse` to a standalone model; keep the adapter too.
@@ -223,10 +224,11 @@ config.local             untracked: base model id, paths (D6)
 
 Findings from a review of this plan against current published methods. Items marked **card** wait for Kaleb.
 
-- **The core card does not fit the sequence.** The core card is ~3k tokens and the sequence cap is 2048, so with the
-  card as the system prompt every example is over the cap (sections 5.2 and 6 contradict). Activation memory and step
-  time grow with sequence length, so the prompt is also the largest cost on 8 GB. Proposed: a short system prompt
-  (under 200 tokens) on most examples, the core card on a minority, and eval arm C run both ways. **card**
+- **The core card does not fit the sequence.** The core card is ~3k tokens and the sequence cap was 2048, so with the
+  card as the system prompt every example was over the cap. Decided (D9): keep the card on every example and raise
+  the cap to about 4096. Cost: roughly double the activation memory and step time of 2048, so the preflight must
+  measure the peak at 4096 for each candidate, and a base that passes 6 GB at that length is out. Sections 3, 5.2
+  and 6 read "2048" as "about 4096" from here on. Rejected: a short prompt with the card on a minority of examples.
 - **Model size.** Published low-resource-language results: a 1B base gained 3.5 to 8 points of pass@1 from ~40k
   verified examples per language (arXiv 2308.09895); a reinforcement method gained nothing at 1.7B and 3B and gained
   clearly at 4B (arXiv 2508.04865). On-device work trains a 4B base at 4 bits on 8 GB phones under ~1 GB at sequence
