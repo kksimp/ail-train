@@ -1,0 +1,37 @@
+## Reading ease: splits a text into sentences and words, then reports words per sentence,
+## average word length to one decimal and the longest sentence.
+
+fn sentences(text str) List[str]
+    mut out := List[str]()
+    mut cur := List[char]()
+    for c in text.chars()
+        cur.push(c)
+        if c == '.' or c == '!' or c == '?'
+            s := cur.join("").trim()
+            if not s.is_empty()
+                out.push(s)
+            cur.clear()
+    rest := cur.join("").trim()
+    if not rest.is_empty()
+        out.push(rest)
+    out
+
+fn clean_words(s str) List[str]
+    s.words().map(|w| w.chars().filter(|c| c.is_alpha()).join("")).filter(|w| not w.is_empty())
+
+fn main()
+    text := "The cat sat. It was warm in the sun! Why would anyone move from such a lovely spot? Nobody knows"
+    ss := sentences(text)
+    mut all_words := List[str]()
+    for s in ss
+        ws := clean_words(s)
+        print("{ws.len():>2} words: {s}")
+        all_words.extend(ws)
+    letters := all_words.map(|w| w.len()).sum()
+    avg := letters.to_float() / all_words.len().to_float()
+    print("{ss.len()} sentences, {all_words.len()} words, {all_words.len() / ss.len()} per sentence, {avg:.1} letters per word")
+    longest := ss.max(by: |s| clean_words(s).len()) else ""
+    print("longest: {longest}")
+
+@test fn trailing_text_is_a_sentence()
+    assert_eq(sentences("a. b"), ["a.", "b"])

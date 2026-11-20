@@ -1,0 +1,30 @@
+## Username ideas: builds candidate usernames from a full name (initials, first name plus
+## surname, numbered variants) and picks the first that is not already taken.
+
+fn candidates(full str) List[str]
+    parts := full.to_lower().words()
+    if parts.is_empty()
+        return []
+    first := parts[0]
+    last := parts[parts.len() - 1]
+    initials := parts.map(|p| p.slice(0, 1)).join("")
+    mut out := [first, "{first}.{last}", "{first.slice(0, 1)}{last}", initials]
+    for n in 2..=4
+        out.push("{first}{n}")
+    out
+
+fn pick(full str, taken Set[str]) str?
+    candidates(full).find(|c| not taken.contains(c))
+
+fn main()
+    mut taken := {"anna", "anna.lee", "alee", "bob", "bob.smith", "bsmith", "bjs", "bob2"}
+    for name in ["Anna Lee", "Bob James Smith", "Cleo", "Anna Lee", "  "]
+        if u := pick(name, taken)
+            taken.add(u)
+            print("{name}: {u}")
+        else
+            print("'{name}': no username")
+    print("taken now: {taken.len()}")
+
+@test fn initials_used()
+    assert_eq(candidates("Ada Byron King")[3], "abk")

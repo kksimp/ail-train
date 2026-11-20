@@ -1,0 +1,10 @@
+Mon || 2
+Tue | 1
+Wed ||| 3
+Thu  0
+Fri | 1
+Sat |||| 4
+Sun | 1
+busiest: Sat
+regulars: ana, ben
+no visits: Thu

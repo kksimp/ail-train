@@ -1,0 +1,24 @@
+## Adler sum: the Adler-32 checksum of text, two running sums mod 65521 combined with
+## `<<` and `|`, printed in hex; a one-letter change gives a different sum.
+
+MOD := 65521
+
+fn adler32(text str) int
+    mut a := 1
+    mut b := 0
+    for x in text.to_bytes()
+        a = (a + x.to_int()) % MOD
+        b = (b + a) % MOD
+    (b << 16) | a
+
+fn main()
+    for t in ["Wikipedia", "wikipedia", "", "a", "The quick brown fox jumps over the lazy dog"]
+        print("{adler32(t):08x}  '{t}'")
+    long := "ab".repeat(5000)
+    print("{adler32(long):08x}  ab x 5000")
+
+@test fn empty_is_one()
+    assert_eq(adler32(""), 1)
+
+@test fn known_value()
+    assert_eq(adler32("Wikipedia"), 300286872)

@@ -1,0 +1,32 @@
+## Taxi fare: a flag fall, a rate per started 200 metres, a waiting charge per minute and a
+## night surcharge in percent, all in cents, with the fare rounded up to 10 cents.
+
+struct Trip
+    metres int
+    waiting int
+    night bool
+
+fn fare(t Trip) int
+    units := (t.metres + 199) / 200
+    base := 390 + units * 55 + t.waiting * 60
+    with_night := if t.night then base * 125 / 100 else base
+    (with_night + 9) / 10 * 10
+
+fn main()
+    trips := [
+        Trip(metres: 1500, waiting: 0, night: false),
+        Trip(metres: 1501, waiting: 0, night: false),
+        Trip(metres: 8200, waiting: 6, night: true),
+        Trip(metres: 0, waiting: 0, night: false),
+        Trip(metres: 23000, waiting: 15, night: false),
+    ]
+    mut total := 0
+    for i, t in trips.enumerate()
+        f := fare(t)
+        total += f
+        period := if t.night then "night" else "day"
+        print("trip {i + 1}: {t.metres:>6} m, {t.waiting:>2} min wait, {period:<5} {f / 100}.{f % 100:02}")
+    print("shift takings: {total / 100}.{total % 100:02}")
+
+@test fn started_units_count()
+    assert(fare(Trip(metres: 201, waiting: 0, night: false)) > fare(Trip(metres: 200, waiting: 0, night: false)))

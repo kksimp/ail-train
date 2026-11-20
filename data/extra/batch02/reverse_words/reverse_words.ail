@@ -1,0 +1,25 @@
+## Reverse words: reverses the order of words in a sentence, reverses each word in place,
+## and keeps punctuation at the end of the sentence where it was.
+
+fn reverse_order(s str) str
+    s.words().reversed().join(" ")
+
+fn reverse_each(s str) str
+    s.words().map(|w| w.chars().reversed().join("")).join(" ")
+
+fn keep_end(s str) str
+    t := s.trim()
+    if t.is_empty()
+        return t
+    last := t.char_at(t.len() - 1) else return t
+    if last == '.' or last == '!' or last == '?'
+        body := t.slice(0, t.len() - 1)
+        return "{reverse_order(body)}{last}"
+    reverse_order(t)
+
+fn main()
+    for s in ["the quick brown fox", "  hello   world  ", "Is this the end?", "One.", ""]
+        print("[{reverse_order(s)}] [{reverse_each(s)}] [{keep_end(s)}]")
+
+@test fn punctuation_stays()
+    assert_eq(keep_end("a b c!"), "c b a!")

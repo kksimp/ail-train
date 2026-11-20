@@ -1,0 +1,7 @@
+GB82 WEST 1234 5698 7654 32: valid
+GB82 WEST 1234 5698 7654 33: wrong check digits
+DE89 3704 0044 0532 0130 00: valid
+NL91ABNA0417164300: valid
+XX12: length 4 is out of range
+FR14 2004 1010 0505 0001 3M02 606: valid
+GB82 WEST 1234 5698 7654 3!: bad character '!'

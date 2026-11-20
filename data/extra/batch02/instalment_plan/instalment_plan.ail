@@ -1,0 +1,36 @@
+## Instalment plan: splits a purchase into equal monthly instalments in cents, puts the
+## rounding remainder on the first payment, and lists the balance after each month.
+
+fn plan(price int, months int) List[int] ! str
+    if months <= 0
+        return "months must be positive, got {months}"
+    if price < 0
+        return "price cannot be negative"
+    each := price / months
+    rest := price % months
+    mut out := [each for _ in 0..months]
+    out[0] += rest
+    out
+
+fn cents(c int) str
+    "{c / 100}.{c % 100:02}"
+
+fn main()
+    for p in [(120000, 12), (99999, 4), (500, 3), (1000, 0), (-5, 2)]
+        price, months := p
+        pays := plan(price, months) else err
+            print("{cents(price.abs())} over {months}: {err}")
+            continue
+        mut balance := price
+        mut lines := List[str]()
+        for i, amount in pays.enumerate()
+            balance -= amount
+            if i < 2 or i == pays.len() - 1
+                lines.push("m{i + 1} {cents(amount)} left {cents(balance)}")
+        print("{cents(price)} over {months}: {lines.join("; ")}")
+
+@test fn remainder_goes_first()
+    assert_eq(plan(10, 3) else [], [4, 3, 3])
+
+@test fn zero_months_fails()
+    assert_err(plan(10, 0))

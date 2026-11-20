@@ -1,0 +1,25 @@
+## Headline case: capitalises each word of a title except short joining words, which
+## stay lower case unless they are the first or last word.
+
+SMALL := ["a", "an", "the", "and", "or", "of", "in", "on", "to", "for"]
+
+fn cap(w str) str
+    if w.is_empty()
+        return w
+    "{w.slice(0, 1).to_upper()}{w.slice(1).to_lower()}"
+
+fn headline(title str) str
+    ws := title.words()
+    mut out := List[str]()
+    for i, w in ws.enumerate()
+        lower := w.to_lower()
+        edge := i == 0 or i == ws.len() - 1
+        out.push(if SMALL.contains(lower) and not edge then lower else cap(w))
+    out.join(" ")
+
+fn main()
+    for t in ["the lord OF the rings", "a tale of two cities", "war and peace", "what to look for", "of"]
+        print(headline(t))
+
+@test fn last_word_capitalised()
+    assert_eq(headline("where to"), "Where To")

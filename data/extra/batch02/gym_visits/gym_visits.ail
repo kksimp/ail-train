@@ -1,0 +1,27 @@
+## Gym visits: counts check-ins per weekday and per member from a log, finds the busiest
+## day with `max(by:)`, and members who came at least three times.
+
+DAYS := ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+
+fn main()
+    log := ["Mon ana", "Mon ben", "Tue ana", "Wed cai", "Wed ana", "Wed ben", "Fri dee", "Sat ana", "Sat cai", "Sat ben", "Sat dee", "Sun ben"]
+    mut per_day := Map[str, int]()
+    mut per_member := Map[str, int]()
+    for entry in log
+        parts := entry.words()
+        per_day[parts[0]] += 1
+        per_member[parts[1]] += 1
+    for d in DAYS
+        n := per_day.get_or(d, 0)
+        print("{d} {"|".repeat(n)} {n}")
+    busiest := DAYS.max(by: |d| per_day.get_or(d, 0)) else "?"
+    print("busiest: {busiest}")
+    regulars := per_member.keys().filter(|m| per_member[m] >= 3).sorted()
+    print("regulars: {regulars.join(", ")}")
+    quiet := DAYS.filter(|d| not per_day.contains(d))
+    print("no visits: {quiet.join(", ")}")
+
+@test fn counting_starts_at_zero()
+    mut m := Map[str, int]()
+    m["x"] += 1
+    assert_eq(m["x"], 1)

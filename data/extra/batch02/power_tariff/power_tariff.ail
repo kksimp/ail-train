@@ -1,0 +1,36 @@
+## Power tariff: hourly meter readings priced by time band (night, day, peak) chosen with
+## a `match` on the hour range, with the cost per band and the cheapest hour to run.
+
+fn band(hour int) str
+    match hour
+        0..=6 | 23 => "night"
+        17..=20 => "peak"
+        _ => "day"
+
+fn rate(b str) int
+    match b
+        "night" => 12
+        "peak" => 41
+        _ => 24
+
+fn main()
+    usage := [3, 2, 2, 2, 2, 3, 5, 9, 7, 5, 4, 4, 5, 4, 4, 5, 7, 12, 14, 13, 10, 8, 6, 4]
+    mut cost := Map[str, int]()
+    mut kwh := Map[str, int]()
+    for hour, u in usage.enumerate()
+        b := band(hour)
+        cost[b] += u * rate(b)
+        kwh[b] += u
+    for b in ["night", "day", "peak"]
+        print("{b:<6} {kwh.get_or(b, 0):>3} kWh  {cost.get_or(b, 0):>5}c")
+    total := cost.values().sum()
+    print("total {total / 100}.{total % 100:02}")
+    flat := usage.sum() * 24
+    print("on a flat 24c rate: {flat / 100}.{flat % 100:02}")
+    hours := [h for h in 0..24 if band(h) == "night"]
+    print("night hours: {hours.join(",")}")
+
+@test fn bands()
+    assert_eq(band(23), "night")
+    assert_eq(band(18), "peak")
+    assert_eq(band(12), "day")

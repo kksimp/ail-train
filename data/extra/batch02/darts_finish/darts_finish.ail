@@ -1,0 +1,46 @@
+## Darts finish: lists every way to check out a score with at most three darts where the
+## last dart must be a double, counting finishes and showing the shortest ones.
+
+fn throws() List[(str, int)]
+    mut out := List[(str, int)]()
+    for n in 1..=20
+        out.push(("S{n}", n))
+        out.push(("D{n}", 2 * n))
+        out.push(("T{n}", 3 * n))
+    out.push(("SB", 25))
+    out.push(("DB", 50))
+    out
+
+fn doubles() List[(str, int)]
+    mut out := List[(str, int)]()
+    for n in 1..=20
+        out.push(("D{n}", 2 * n))
+    out.push(("DB", 50))
+    out
+
+fn finishes(score int) List[List[str]]
+    mut out := List[List[str]]()
+    every := throws()
+    for d in doubles()
+        if d.1 == score
+            out.push([d.0])
+    for a in every
+        for d in doubles()
+            if a.1 + d.1 == score
+                out.push([a.0, d.0])
+    for a in every
+        for b in every
+            for d in doubles()
+                if a.1 + b.1 + d.1 == score
+                    out.push([a.0, b.0, d.0])
+    out
+
+fn main()
+    for score in [2, 40, 50, 99, 170, 169]
+        fs := finishes(score)
+        darts := fs.map(|f| f.len()).min() else 0
+        print("{score}: {fs.len()} finishes, fewest darts {darts}")
+
+@test fn top_finish()
+    assert_eq(finishes(170).len(), 1)
+    assert_eq(finishes(169).len(), 0)

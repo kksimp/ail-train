@@ -1,0 +1,29 @@
+## IBAN check: moves the first four characters to the end, turns letters into numbers
+## (A=10 ... Z=35) and checks the remainder mod 97 digit by digit, so no big numbers.
+
+fn iban_ok(text str) bool ! str
+    s := text.replace(" ", "").to_upper()
+    if s.len() < 15 or s.len() > 34
+        return "length {s.len()} is out of range"
+    moved := "{s.slice(4)}{s.slice(0, 4)}"
+    mut rem := 0
+    for c in moved.chars()
+        if c.is_digit()
+            rem = (rem * 10 + (c.to_digit(10) else 0)) % 97
+        elif c >= 'A' and c <= 'Z'
+            v := c.code() - 55
+            rem = (rem * 100 + v) % 97
+        else
+            return "bad character '{c}'"
+    rem == 1
+
+fn main()
+    for iban in ["GB82 WEST 1234 5698 7654 32", "GB82 WEST 1234 5698 7654 33", "DE89 3704 0044 0532 0130 00", "NL91ABNA0417164300", "XX12", "FR14 2004 1010 0505 0001 3M02 606", "GB82 WEST 1234 5698 7654 3!"]
+        if ok := iban_ok(iban)
+            verdict := if ok then "valid" else "wrong check digits"
+            print("{iban}: {verdict}")
+        else err
+            print("{iban}: {err}")
+
+@test fn known_good()
+    assert(iban_ok("GB82WEST12345698765432")?)

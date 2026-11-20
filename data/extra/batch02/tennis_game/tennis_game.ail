@@ -1,0 +1,51 @@
+## Tennis game: scores one game point by point with an enum for the state (points,
+## deuce, advantage, won) and prints the call after every point.
+
+enum Game
+    Points(a int, b int)
+    Deuce
+    Advantage(player str)
+    Won(player str)
+
+fn call(n int) str
+    match n
+        0 => "love"
+        1 => "15"
+        2 => "30"
+        _ => "40"
+
+fn point(g Game, winner str) Game
+    match g
+        Points(a, b) =>
+            na := if winner == "A" then a + 1 else a
+            nb := if winner == "B" then b + 1 else b
+            if na == 4 and nb <= 2
+                Won(player: "A")
+            elif nb == 4 and na <= 2
+                Won(player: "B")
+            elif na == 3 and nb == 3
+                Deuce
+            else
+                Points(a: na, b: nb)
+        Deuce => Advantage(player: winner)
+        Advantage(player) => if player == winner then Won(player: winner) else Deuce
+        Won(_) => g
+
+fn show(g Game) str
+    match g
+        Points(a, b) => if a == b then "{call(a)} all" else "{call(a)}-{call(b)}"
+        Deuce => "deuce"
+        Advantage(player) => "advantage {player}"
+        Won(player) => "game {player}"
+
+fn main()
+    for rally in ["AAAA", "ABABABBB", "ABABABABAA", "BBAB"]
+        mut g := Game.Points(a: 0, b: 0)
+        mut calls := List[str]()
+        for c in rally.chars()
+            g = point(g, "{c}")
+            calls.push(show(g))
+        print("{rally}: {calls.join(", ")}")
+
+@test fn deuce_then_advantage()
+    assert_eq(point(Game.Deuce, "B"), Game.Advantage(player: "B"))

@@ -1,0 +1,23 @@
+## Letter squeeze: collapses runs of the same character to one, or only runs of chosen
+## characters (like repeated spaces), and reports how many characters were removed.
+
+fn squeeze(s str, only Set[char]?) str
+    mut out := List[char]()
+    for c in s.chars()
+        if out.is_empty() or (out.last() else ' ') != c
+            out.push(c)
+        elif keep := only
+            if not keep.contains(c)
+                out.push(c)
+    out.join("")
+
+fn main()
+    texts := ["aaabccddddde", "too    many     spaces  here", "Mississippi", "", "zzz"]
+    for t in texts
+        every := squeeze(t, none)
+        spaces := squeeze(t, {' '})
+        print("'{every}' (-{t.len() - every.len()}) | '{spaces}'")
+
+@test fn only_listed_chars()
+    assert_eq(squeeze("aabb  cc", {' '}), "aabb cc")
+    assert_eq(squeeze("aabb", none), "ab")

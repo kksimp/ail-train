@@ -1,0 +1,27 @@
+## Palindrome core: the longest palindromic piece of a string, by expanding around each
+## centre (odd and even lengths) over the list of characters.
+
+fn expand(cs List[char], lo0 int, hi0 int) (int, int)
+    mut lo := lo0
+    mut hi := hi0
+    while lo >= 0 and hi < cs.len() and cs[lo] == cs[hi]
+        lo -= 1
+        hi += 1
+    (lo + 1, hi)
+
+fn longest_palindrome(s str) str
+    cs := s.chars()
+    mut best := (0, 0)
+    for i in 0..cs.len()
+        for span in [expand(cs, i, i), expand(cs, i, i + 1)]
+            if span.1 - span.0 > best.1 - best.0
+                best = span
+    s.slice(best.0, best.1)
+
+fn main()
+    for s in ["babad", "cbbd", "forgeeksskeegfor", "a", "", "abacdfgdcaba", "racecar level"]
+        p := longest_palindrome(s)
+        print("'{s}': '{p}' ({p.len()})")
+
+@test fn even_length()
+    assert_eq(longest_palindrome("cbbd"), "bb")

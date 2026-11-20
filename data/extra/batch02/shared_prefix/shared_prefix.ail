@@ -1,0 +1,21 @@
+## Shared prefix: the longest prefix common to a list of words, found by shrinking a
+## candidate with `starts_with`, and used to group file names by their shared start.
+
+fn common_prefix(words List[str]) str
+    mut p := words.first() else return ""
+    for w in words
+        while not w.starts_with(p)
+            p = p.slice(0, p.len() - 1)
+    p
+
+fn main()
+    for ws in [["flower", "flow", "flight"], ["interview", "internet", "interval"], ["dog", "car"], ["solo"], List[str]()]
+        cp := common_prefix(ws)
+        print("[{ws.join(" ")}] -> '{cp}'")
+    files := ["report_2024_q1.csv", "report_2024_q2.csv", "report_2023_q4.csv"]
+    cp := common_prefix(files)
+    print("shared: {cp}")
+    print(files.map(|f| f.slice(cp.len())).join(" "))
+
+@test fn empty_list_has_empty_prefix()
+    assert_eq(common_prefix([]), "")
