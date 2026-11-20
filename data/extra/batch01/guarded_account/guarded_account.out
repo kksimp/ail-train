@@ -1,0 +1,7 @@
+deposit 40: balance 140
+withdraw 120: ok, balance 20
+withdraw 80: refused, balance 20
+withdraw 60: ok, balance -40
+deposit 25: balance -15
+withdraw 10: ok, balance -25
+Noor ends at -25, headroom 25

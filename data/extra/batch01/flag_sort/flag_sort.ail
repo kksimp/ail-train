@@ -1,0 +1,55 @@
+## Flag sort: sorts a list of red, white and blue tiles in one pass with three pointers
+## and `swap`, then checks the result against an ordinary sort by enum position.
+
+enum Tile
+    Red
+    White
+    Blue
+
+fn rank(t Tile) int
+    match t
+        Red => 0
+        White => 1
+        Blue => 2
+
+fn flag_sort(mut tiles List[Tile]) int
+    mut low := 0
+    mut mid := 0
+    mut high := tiles.len() - 1
+    mut swaps := 0
+    while mid <= high
+        match tiles[mid]
+            Red =>
+                tiles.swap(low, mid)
+                low += 1
+                mid += 1
+                swaps += 1
+            White => mid += 1
+            Blue =>
+                tiles.swap(mid, high)
+                high -= 1
+                swaps += 1
+    swaps
+
+fn to_tile(c char) Tile
+    match c
+        'R' => Red
+        'W' => White
+        _ => Blue
+
+fn letters(tiles List[Tile]) str
+    tiles.map(|t| t.name().slice(0, 1)).join("")
+
+fn main()
+    mut tiles := "BWRBRWWRBR".chars().map(to_tile)
+    print("before: {letters(tiles)}")
+    expected := tiles.sorted(by: |t| rank(t))
+    n := flag_sort(mut tiles)
+    print("after:  {letters(tiles)} ({n} swaps)")
+    print("matches sort: {letters(tiles) == letters(expected)}")
+    mut empty := List[Tile]()
+    print(flag_sort(mut empty))
+
+@test fn single_colour_needs_no_red_swaps()
+    mut ts := [Tile.White, Tile.White]
+    assert_eq(flag_sort(mut ts), 0)

@@ -1,0 +1,38 @@
+## Exam seating: places candidates in a `Grid` row by row, leaving every other seat empty,
+## then prints the plan and finds a candidate's seat.
+
+fn seat_plan(names List[str], rows int, cols int) Grid[str]
+    mut g := Grid.fill(rows, cols, ".")
+    mut i := 0
+    for r in 0..rows
+        for c in 0..cols
+            if (r + c) % 2 == 1 or i >= names.len()
+                continue
+            g[r, c] = names[i]
+            i += 1
+    g
+
+fn find_seat(g Grid[str], name str) (int, int)?
+    for r in 0..g.rows
+        for c in 0..g.cols
+            if g[r, c] == name
+                return (r, c)
+    none
+
+fn main()
+    names := ["Ada", "Ben", "Cal", "Dee", "Eli", "Fay", "Gus", "Hal", "Ivy"]
+    g := seat_plan(names, 4, 4)
+    for r in 0..g.rows
+        print(g.row(r).map(|s| s.pad_right(4, ' ')).join("").trim_end())
+    for who in ["Eli", "Ivy", "Zoe"]
+        if pos := find_seat(g, who)
+            print("{who}: row {pos.0 + 1}, seat {pos.1 + 1}")
+        else
+            print("{who}: no seat")
+    seated := g.to_list().flatten().count(|s| s != ".")
+    print("seated {seated} of {names.len()}")
+
+@test fn neighbours_stay_empty()
+    g := seat_plan(["a", "b"], 1, 3)
+    assert_eq(g[0, 1], ".")
+    assert_eq(g[0, 2], "b")

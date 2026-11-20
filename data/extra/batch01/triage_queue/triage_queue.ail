@@ -1,0 +1,33 @@
+## Triage queue: patients wait in a `Heap` ordered by urgency, then arrival number, so the
+## most urgent is seen first and equal urgency keeps arrival order.
+
+struct Patient
+    urgency int
+    arrival int
+    name str
+
+impl Ord for Patient
+
+fn main()
+    arrivals := [("Ray", 3), ("Sue", 1), ("Tim", 2), ("Una", 1), ("Vic", 3), ("Wes", 2)]
+    mut waiting := Heap[Patient]()
+    for i, a in arrivals.enumerate()
+        name, urgency := a
+        waiting.push(Patient(urgency: urgency, arrival: i, name: name))
+    print("waiting: {waiting.len()}")
+    if first := waiting.peek()
+        print("next: {first.name}")
+    mut slot := 1
+    while p := waiting.pop()
+        print("{slot}. {p.name} (urgency {p.urgency}, arrived {p.arrival + 1})")
+        slot += 1
+    print("empty: {waiting.is_empty()}")
+    order := Heap.from([5, 1, 4, 1]).to_sorted()
+    print(order)
+
+@test fn lower_urgency_number_first()
+    mut h := Heap[Patient]()
+    h.push(Patient(urgency: 2, arrival: 0, name: "a"))
+    h.push(Patient(urgency: 1, arrival: 1, name: "b"))
+    top := h.pop() else return
+    assert_eq(top.name, "b")

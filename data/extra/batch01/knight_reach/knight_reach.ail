@@ -1,0 +1,38 @@
+## Knight reach: breadth-first search over a chessboard with a `Deque`, giving the fewest
+## knight moves from a square to every other, and the squares farthest away.
+
+fn square(c int, r int) str
+    "{char.from_code(97 + c) else '?'}{r + 1}"
+
+fn distances(c0 int, r0 int, size int) Grid[int]
+    mut dist := Grid.fill(size, size, -1)
+    dist[r0, c0] = 0
+    mut q := Deque[(int, int)]()
+    q.push_back((c0, r0))
+    jumps := [(1, 2), (2, 1), (2, -1), (1, -2), (-1, -2), (-2, -1), (-2, 1), (-1, 2)]
+    while cur := q.pop_front()
+        c, r := cur
+        for j in jumps
+            nc := c + j.0
+            nr := r + j.1
+            if nc >= 0 and nr >= 0 and nc < size and nr < size and dist[nr, nc] == -1
+                dist[nr, nc] = dist[r, c] + 1
+                q.push_back((nc, nr))
+    dist
+
+fn main()
+    d := distances(0, 0, 8)
+    for k in 0..8
+        r := 7 - k
+        print("{r + 1} {d.row(r).map(|x| "{x}").join(" ")}")
+    far := d.to_list().flatten().max() else 0
+    mut spots := List[str]()
+    for r in 0..8
+        for c in 0..8
+            if d[r, c] == far
+                spots.push(square(c, r))
+    print("farthest from a1: {far} moves, at {spots.join(" ")}")
+    print("a1 to h8: {d[7, 7]}")
+
+@test fn corner_to_next_diagonal_needs_four()
+    assert_eq(distances(0, 0, 8)[1, 1], 4)

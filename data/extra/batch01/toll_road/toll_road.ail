@@ -1,0 +1,46 @@
+## Toll road: vehicles implement a `Tolled` trait; a generic function totals any list of
+## one kind, and a mixed list of `any Tolled` gives the day's takings by kind.
+
+trait Tolled
+    fn toll(self) int
+    fn kind(self) str
+
+struct Car
+    passengers int
+
+struct Truck
+    axles int
+
+impl Tolled for Car
+    fn toll(self) int
+        if passengers >= 3 then 200 else 400
+    fn kind(self) str
+        "car"
+
+impl Tolled for Truck
+    fn toll(self) int
+        500 * axles
+    fn kind(self) str
+        "truck"
+
+fn total_of[T Tolled](xs List[T]) int
+    xs.fold(0, |acc, x| acc + x.toll())
+
+fn main()
+    cars := [Car(passengers: 1), Car(passengers: 4), Car(passengers: 2)]
+    trucks := [Truck(axles: 2), Truck(axles: 5)]
+    print("cars: {total_of(cars)}")
+    print("trucks: {total_of(trucks)}")
+    mut day := List[any Tolled]()
+    for c in cars
+        day.push(c)
+    for t in trucks
+        day.push(t)
+    mut by_kind := Map[str, int]()
+    for v in day
+        by_kind[v.kind()] += v.toll()
+    for k, v in by_kind
+        print("{k}: {v / 100}.{v % 100:02}")
+
+@test fn carpool_discount()
+    assert_eq(Car(passengers: 3).toll(), 200)

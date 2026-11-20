@@ -12,9 +12,18 @@ Each `drills/NAME/` follows the corpus layout: `NAME.ail` (a `##` header that st
 `NAME.py` (a Python twin that prints the same output) and `NAME.out` (written by the twin).
 They feed the `write`, `port` and `complete` families.
 
+## batchNN/
+
+The D11 growth to about 3,000 checked programs (PLAN.md section 2): batches of about 100 programs in the same
+`NAME/{NAME.ail,NAME.py,NAME.out}` layout, each a small realistic task (a header comment states it) that mixes
+everyday forms with less common built-ins. Each batch is checked on the Mac before the next one is written.
+
+- `batch01/`: 100 programs. First Mac check of 40: 36 passed; the 4 failures were `char.from_code` used as a `char`
+  (it is a `char?`) and a `{...}` set comprehension inside a string interpolation (lexed as `{{`). All 100 pass.
+
 ## Status
 
-**Checked: 40 of 40 pass** with ail 3d0c5c913 (0.2.0 release candidate) on 2026-11-20 (`RESULTS.txt`). On the first
+**Checked: 140 of 140 pass** (40 drills, 100 in batch01) with ail 3d0c5c913 (0.2.0 release candidate) on 2026-11-20 (`RESULTS.txt`). On the drills' first
 run 34 passed; 6 were fixed (four AIL forms guessed wrong: `str ! str`, calling a `fn` field as a method,
 `Grid.to_list().sum()` on rows, an `if :=` on a failing result with no `else`; two Python twins were wrong).
 These were written in a cloud session, where AIL builds are not allowed.

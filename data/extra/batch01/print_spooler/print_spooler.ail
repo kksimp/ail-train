@@ -1,0 +1,33 @@
+## Print spooler: jobs wait in a `Deque`; each turn the printer prints up to 3 pages of the
+## front job and sends an unfinished job to the back (round robin).
+
+struct Job
+    owner str
+    pages int
+
+fn main()
+    mut queue := Deque[Job]()
+    for j in [Job(owner: "ana", pages: 5), Job(owner: "bo", pages: 2), Job(owner: "cy", pages: 7), Job(owner: "di", pages: 3)]
+        queue.push_back(j)
+    mut tick := 0
+    mut done := List[str]()
+    while job := queue.pop_front()
+        tick += 1
+        printed := job.pages.min(3)
+        left := job.pages - printed
+        if left > 0
+            queue.push_back(Job(owner: job.owner, pages: left))
+            print("t{tick}: {job.owner} printed {printed}, {left} left")
+        else
+            print("t{tick}: {job.owner} printed {printed}, finished")
+            done.push(job.owner)
+    print("finish order: {done.join(" ")}")
+    print("turns: {tick}")
+
+@test fn deque_round_robin()
+    mut d := Deque[int]()
+    d.push_back(1)
+    d.push_back(2)
+    x := d.pop_front() else 0
+    d.push_back(x)
+    assert_eq(d.to_list(), [2, 1])

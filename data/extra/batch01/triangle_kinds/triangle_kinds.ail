@@ -1,0 +1,39 @@
+## Triangle kinds: classifies side lengths as equilateral, isosceles or scalene and as
+## right, acute or obtuse, rejecting sides that break the triangle inequality.
+
+enum Sides
+    Equilateral
+    Isosceles
+    Scalene
+
+fn sides_kind(a int, b int, c int) Sides
+    if a == b and b == c
+        Equilateral
+    elif a == b or b == c or a == c
+        Isosceles
+    else
+        Scalene
+
+fn angle_kind(t List[int]) str
+    s := t.sorted()
+    lhs := s[0] * s[0] + s[1] * s[1]
+    rhs := s[2] * s[2]
+    if lhs == rhs then "right" elif lhs > rhs then "acute" else "obtuse"
+
+fn valid(t List[int]) bool
+    s := t.sorted()
+    s[0] > 0 and s[0] + s[1] > s[2]
+
+fn main()
+    for t in [[3, 4, 5], [2, 2, 2], [5, 5, 8], [7, 10, 5], [1, 2, 3], [0, 4, 4], [6, 6, 1]]
+        label := t.map(|x| "{x}").join("-")
+        if not valid(t)
+            print("{label}: not a triangle")
+            continue
+        print("{label}: {sides_kind(t[0], t[1], t[2]).name().to_lower()}, {angle_kind(t)}")
+
+@test fn degenerate_is_invalid()
+    assert(not valid([1, 2, 3]))
+
+@test fn right_angle()
+    assert_eq(angle_kind([5, 3, 4]), "right")

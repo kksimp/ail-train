@@ -1,0 +1,29 @@
+## Warmer days: for each day, how many days until a warmer temperature, using a stack of
+## waiting day indexes (a monotonic stack); zero when no warmer day comes.
+
+fn wait_days(temps List[int]) List[int]
+    mut out := [0 for _ in 0..temps.len()]
+    mut stack := List[int]()
+    for i, t in temps.enumerate()
+        while j := stack.last()
+            if temps[j] >= t
+                break
+            out[j] = i - j
+            _ := stack.pop()
+        stack.push(i)
+    out
+
+fn main()
+    temps := [13, 14, 15, 11, 9, 12, 16, 13]
+    waits := wait_days(temps)
+    for i, t in temps.enumerate()
+        note := if waits[i] == 0 then "none warmer" else "wait {waits[i]}"
+        print("day {i + 1}: {t:>2}C {note}")
+    longest := waits.max() else 0
+    print("longest wait: {longest}")
+
+@test fn falling_temps_never_warm()
+    assert_eq(wait_days([5, 4, 3]), [0, 0, 0])
+
+@test fn rising_temps_wait_one()
+    assert_eq(wait_days([1, 2, 3]), [1, 1, 0])

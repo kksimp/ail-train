@@ -1,0 +1,45 @@
+## Browser history: back and forward stacks for a browser tab; visiting a new page clears
+## the forward stack, and `back`/`forward` beyond the ends are ignored.
+
+struct Tab
+    current str
+    back List[str]
+    forward List[str]
+
+fn Tab.visit(mut self, url str)
+    self.back.push(self.current)
+    self.current = url
+    self.forward.clear()
+
+fn Tab.go_back(mut self) bool
+    prev := self.back.pop() else return false
+    self.forward.push(self.current)
+    self.current = prev
+    true
+
+fn Tab.go_forward(mut self) bool
+    nxt := self.forward.pop() else return false
+    self.back.push(self.current)
+    self.current = nxt
+    true
+
+fn main()
+    mut tab := Tab(current: "home", back: [], forward: [])
+    for cmd in ["visit news", "visit sport", "back", "back", "back", "forward", "visit weather", "forward", "back"]
+        moved := if cmd == "back"
+            tab.go_back()
+        elif cmd == "forward"
+            tab.go_forward()
+        else
+            tab.visit(cmd.slice(6))
+            true
+        note := if moved then "" else " (nothing there)"
+        print("{cmd:<14} -> {tab.current}{note}")
+    print("back stack: {tab.back.join(" > ")}")
+
+@test fn visit_clears_forward()
+    mut t := Tab(current: "a", back: [], forward: [])
+    t.visit("b")
+    _ := t.go_back()
+    t.visit("c")
+    assert(not t.go_forward())

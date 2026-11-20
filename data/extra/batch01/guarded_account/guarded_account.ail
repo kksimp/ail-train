@@ -1,0 +1,41 @@
+## Guarded account: a bank account with a struct `invariant` (never below the overdraft
+## limit), `requires` on amounts, and an `ensures` that checks the new balance.
+
+struct Account
+    owner str
+    balance int
+    limit int
+    invariant balance >= -limit
+
+fn Account.deposit(mut self, amount int)
+    requires amount > 0
+    ensures self.balance == old(self.balance) + amount
+    self.balance += amount
+
+fn Account.can_take(self, amount int) bool
+    self.balance - amount >= -self.limit
+
+fn Account.withdraw(mut self, amount int) bool
+    requires amount > 0
+    if not self.can_take(amount)
+        return false
+    self.balance -= amount
+    true
+
+fn main()
+    mut acc := Account(owner: "Noor", balance: 100, limit: 50)
+    for step in [("in", 40), ("out", 120), ("out", 80), ("out", 60), ("in", 25), ("out", 10)]
+        kind, amount := step
+        if kind == "in"
+            acc.deposit(amount)
+            print("deposit {amount}: balance {acc.balance}")
+        else
+            ok := acc.withdraw(amount)
+            verdict := if ok then "ok" else "refused"
+            print("withdraw {amount}: {verdict}, balance {acc.balance}")
+    print("{acc.owner} ends at {acc.balance}, headroom {acc.balance + acc.limit}")
+
+@test fn overdraft_stops_at_limit()
+    mut a := Account(owner: "t", balance: 0, limit: 10)
+    assert(a.withdraw(10))
+    assert(not a.withdraw(1))

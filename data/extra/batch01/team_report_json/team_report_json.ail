@@ -1,0 +1,36 @@
+## Team report as JSON: derives `ToJson` for nested structs and an enum, builds a report
+## and prints it with `print_json`, including an optional field that is `none`.
+
+enum Status
+    Active
+    Away
+
+struct Member
+    name str
+    hours int
+    status Status
+    lead str?
+
+struct Report
+    team str
+    total int
+    members List[Member]
+
+impl ToJson for Status
+impl ToJson for Member
+impl ToJson for Report
+
+fn main()
+    members := [
+        Member(name: "Ivo", hours: 32, status: Active, lead: none),
+        Member(name: "Pia", hours: 0, status: Away, lead: "Ivo"),
+        Member(name: "Qin", hours: 40, status: Active, lead: "Ivo"),
+    ]
+    report := Report(team: "infra", total: members.map(|m| m.hours).sum(), members: members)
+    print_json(report)
+    print_json(members.filter(|m| m.status == Away).map(|m| m.name))
+    print(members[0].to_json().to_text().len())
+
+@test fn none_becomes_null()
+    m := Member(name: "a", hours: 1, status: Active, lead: none)
+    assert(m.to_json().to_text().contains("\"lead\":null"))

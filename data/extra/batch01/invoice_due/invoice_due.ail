@@ -1,0 +1,58 @@
+## Invoice due dates: turns `YYYY-MM-DD` into a day number and back with leap years, adds
+## payment terms, and flags invoices that are overdue on a given day.
+
+DAYS_IN := [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+
+fn leap(y int) bool
+    (y % 4 == 0 and y % 100 != 0) or y % 400 == 0
+
+fn month_len(y int, m int) int
+    if m == 2 and leap(y) then 29 else DAYS_IN[m - 1]
+
+fn to_day(text str) int?
+    p := text.split("-")
+    if p.len() != 3
+        return none
+    y := p[0].to_int() else return none
+    m := p[1].to_int() else return none
+    d := p[2].to_int() else return none
+    if m < 1 or m > 12 or d < 1 or d > month_len(y, m)
+        return none
+    mut n := 0
+    for yy in 2000..y
+        n += if leap(yy) then 366 else 365
+    for mm in 1..m
+        n += month_len(y, mm)
+    n + d - 1
+
+fn from_day(n int) str
+    mut left := n
+    mut y := 2000
+    while left >= (if leap(y) then 366 else 365)
+        left -= if leap(y) then 366 else 365
+        y += 1
+    mut m := 1
+    while left >= month_len(y, m)
+        left -= month_len(y, m)
+        m += 1
+    "{y}-{m:02}-{left + 1:02}"
+
+fn main()
+    today := to_day("2024-03-10") else 0
+    invoices := [("A-1", "2024-01-15", 30), ("A-2", "2024-02-20", 14), ("A-3", "2024-02-28", 30), ("A-4", "2023-02-29", 30), ("A-5", "2023-12-20", 60)]
+    for inv in invoices
+        id, issued, terms := inv
+        start := to_day(issued) else
+            print("{id}: bad date {issued}")
+            continue
+        due := start + terms
+        state := if due < today then "OVERDUE by {today - due}" else "due in {due - today}"
+        print("{id}: due {from_day(due)}, {state}")
+
+@test fn round_trip()
+    assert_eq(from_day(to_day("2024-02-29") else 0), "2024-02-29")
+    assert_eq(from_day(to_day("2001-01-01") else 0), "2001-01-01")
+
+@test fn leap_rules()
+    assert(leap(2000))
+    assert(not leap(1900))

@@ -1,0 +1,28 @@
+## Weekday finder: the day of the week for any Gregorian date with Zeller's congruence,
+## and a count of how many months in a year start on a Friday the 13th.
+
+NAMES := ["Saturday", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
+
+fn zeller(year int, month int, day int) int
+    m := if month < 3 then month + 12 else month
+    y := if month < 3 then year - 1 else year
+    k := y % 100
+    j := y / 100
+    (day + 13 * (m + 1) / 5 + k + k / 4 + j / 4 + 5 * j) % 7
+
+fn weekday(year int, month int, day int) str
+    NAMES[zeller(year, month, day)]
+
+fn friday_13ths(year int) List[int]
+    [m for m in 1..=12 if weekday(year, m, 13) == "Friday"]
+
+fn main()
+    for d in [(2000, 1, 1), (1969, 7, 20), (2024, 2, 29), (1900, 3, 1), (2038, 1, 19)]
+        y, m, day := d
+        print("{y}-{m:02}-{day:02} is a {weekday(y, m, day)}")
+    for y in 2023..=2026
+        months := friday_13ths(y)
+        print("{y}: Friday 13th in months {months.map(|m| "{m}").join(", ")}")
+
+@test fn new_year_2000_was_saturday()
+    assert_eq(weekday(2000, 1, 1), "Saturday")

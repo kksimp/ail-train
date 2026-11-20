@@ -1,0 +1,30 @@
+## Abacus rows: draws a number on a simple abacus, one row per digit, with beads shown as
+## `o` on the left of the bar and empty wire as `-`, and reads a drawing back.
+
+fn row(d int) str
+    "{"o".repeat(d)}|{"-".repeat(9 - d)}"
+
+fn draw(n int) List[str]
+    "{n}".chars().map(|c| row(c.to_digit(10) else 0))
+
+fn read_back(rows List[str]) int
+    mut n := 0
+    for r in rows
+        beads := r.find('|') else 0
+        n = n * 10 + beads
+    n
+
+fn main()
+    for n in [7, 305, 2024]
+        print("{n}:")
+        for r in draw(n)
+            print("  {r}")
+    rows := draw(98765)
+    print("read back: {read_back(rows)}")
+    print("beads used: {rows.map(|r| r.count("o")).sum()}")
+
+@test fn rows_have_ten_cells()
+    assert(draw(1234).all(|r| r.len() == 10))
+
+@test fn round_trip()
+    assert_eq(read_back(draw(4096)), 4096)

@@ -1,0 +1,35 @@
+## Typed ids: distinct types `CustomerId` and `OrderId` over `int` keep two kinds of id
+## from being mixed up; they still work as map keys, compare and print like ints.
+
+type CustomerId = int
+type OrderId = int
+
+struct Order
+    id OrderId
+    customer CustomerId
+    cents int
+
+fn orders_of(orders List[Order], who CustomerId) List[OrderId]
+    [o.id for o in orders if o.customer == who]
+
+fn main()
+    orders := [
+        Order(id: OrderId(1001), customer: CustomerId(7), cents: 2599),
+        Order(id: OrderId(1002), customer: CustomerId(9), cents: 1250),
+        Order(id: OrderId(1003), customer: CustomerId(7), cents: 899),
+        Order(id: OrderId(1004), customer: CustomerId(12), cents: 4000),
+    ]
+    mut spent := Map[CustomerId, int]()
+    for o in orders
+        spent[o.customer] += o.cents
+    for who, cents in spent
+        ids := orders_of(orders, who).map(|i| "#{i}")
+        print("customer {who}: {cents} cents over {ids.join(", ")}")
+    top := spent.keys().max(by: |k| spent[k]) else CustomerId(0)
+    print("top customer: {int(top)}")
+    print(OrderId(5) < OrderId(6))
+
+@test fn filter_by_customer()
+    os := [Order(id: OrderId(1), customer: CustomerId(2), cents: 3)]
+    assert_eq(orders_of(os, CustomerId(2)), [OrderId(1)])
+    assert_eq(orders_of(os, CustomerId(3)).len(), 0)

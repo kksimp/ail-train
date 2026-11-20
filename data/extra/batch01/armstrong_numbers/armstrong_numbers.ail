@@ -1,0 +1,29 @@
+## Armstrong numbers: a number equal to the sum of its digits each raised to the number of
+## digits; uses an integer power helper and lists every one below 100000.
+
+fn ipow(base int, exp int) int
+    mut r := 1
+    for _ in 0..exp
+        r *= base
+    r
+
+fn is_armstrong(n int) bool
+    ds := "{n}".chars().map(|c| c.to_digit(10) else 0)
+    ds.fold(0, |acc, d| acc + ipow(d, ds.len())) == n
+
+fn main()
+    found := [n for n in 1..100000 if is_armstrong(n)]
+    print(found.join(", "))
+    by_len := found.group_by(|n| "{n}".len())
+    for k, v in by_len
+        print("{k} digits: {v.len()}")
+    print(is_armstrong(9474))
+    print(is_armstrong(9475))
+
+@test fn powers()
+    assert_eq(ipow(3, 4), 81)
+    assert_eq(ipow(5, 0), 1)
+
+@test fn known_ones()
+    assert(is_armstrong(153))
+    assert(not is_armstrong(154))

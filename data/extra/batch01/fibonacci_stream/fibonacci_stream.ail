@@ -1,0 +1,32 @@
+## Fibonacci stream: a `Seq[int]` generator of Fibonacci numbers, read with `take_while`,
+## `enumerate` and a plain `for` loop that stops before the numbers overflow.
+
+fn fib() Seq[int]
+    yield 0
+    mut a := 0
+    mut b := 1
+    while true
+        yield b
+        c := a.checked_add(b) else return
+        a = b
+        b = c
+
+fn main()
+    print(fib().take(10).collect().join(", "))
+    small := fib().take_while(|x| x < 1000).collect()
+    print("below 1000: {small.len()} numbers, sum {small.sum()}")
+    evens := fib().take_while(|x| x < 4000000).filter(|x| x % 2 == 0).collect()
+    print("even sum below 4 million: {evens.sum()}")
+    mut count := 0
+    mut last := 0
+    for x in fib()
+        count += 1
+        last = x
+    print("{count} numbers fit in an int; the last is {last}")
+    for i, x in fib().enumerate()
+        if "{x}".len() >= 10
+            print("first with 10 digits: F({i}) = {x}")
+            break
+
+@test fn starts_zero_one()
+    assert_eq(fib().take(4).collect(), [0, 1, 1, 2])

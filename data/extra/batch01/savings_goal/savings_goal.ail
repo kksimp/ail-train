@@ -1,0 +1,32 @@
+## Savings goal: months needed to reach a goal with a monthly deposit and monthly interest
+## in basis points, all in cents, with a cap so an impossible goal stops.
+
+fn months_to_goal(start int, deposit int, bps int, goal int) int?
+    mut balance := start
+    mut months := 0
+    while balance < goal
+        if months >= 600
+            return none
+        balance += balance * bps / 10000
+        balance += deposit
+        months += 1
+    months
+
+fn euros(cents int) str
+    "{cents / 100:,}.{cents % 100:02}"
+
+fn main()
+    plans := [(0, 20000, 25, 500000), (100000, 5000, 40, 1000000), (0, 0, 50, 100), (250000, 0, 100, 500000)]
+    for p in plans
+        start, deposit, bps, goal := p
+        label := "start {euros(start)}, +{euros(deposit)}/m, {bps}bp"
+        if m := months_to_goal(start, deposit, bps, goal)
+            print("{label}: {m} months ({m / 12}y {m % 12}m) to {euros(goal)}")
+        else
+            print("{label}: never reaches {euros(goal)}")
+
+@test fn no_interest_is_division()
+    assert_eq(months_to_goal(0, 100, 0, 1000) else 0, 10)
+
+@test fn already_there()
+    assert_eq(months_to_goal(500, 0, 0, 500) else -1, 0)

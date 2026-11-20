@@ -1,0 +1,10 @@
+waiting: 6
+next: Sue
+1. Sue (urgency 1, arrived 2)
+2. Una (urgency 1, arrived 4)
+3. Tim (urgency 2, arrived 3)
+4. Wes (urgency 2, arrived 6)
+5. Ray (urgency 3, arrived 1)
+6. Vic (urgency 3, arrived 5)
+empty: true
+[1, 1, 4, 5]

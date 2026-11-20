@@ -1,0 +1,8 @@
+jane.doe@example.com   j******e@example.com
+al@site.org            **@site.org
+x@y.io                 *@y.io
+nobody                 (invalid)
+two@@signs.com         (invalid)
+@lost.net              (invalid)
+me@localhost           (invalid)
+{"example.com": 2, "site.org": 1}

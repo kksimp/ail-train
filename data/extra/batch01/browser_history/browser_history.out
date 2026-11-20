@@ -1,0 +1,10 @@
+visit news     -> news
+visit sport    -> sport
+back           -> news
+back           -> home
+back           -> home (nothing there)
+forward        -> news
+visit weather  -> weather
+forward        -> weather (nothing there)
+back           -> news
+back stack: home

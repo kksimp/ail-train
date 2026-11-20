@@ -1,0 +1,44 @@
+## Digit persistence: the digital root and the additive and multiplicative persistence of
+## numbers, computed by repeatedly summing or multiplying their digits.
+
+fn digits(n int) List[int]
+    if n == 0
+        return [0]
+    mut out := List[int]()
+    mut v := n
+    while v > 0
+        out.push(v % 10)
+        v /= 10
+    out.reversed()
+
+fn additive(n int) (int, int)
+    mut v := n
+    mut steps := 0
+    while v >= 10
+        v = digits(v).sum()
+        steps += 1
+    (v, steps)
+
+fn multiplicative(n int) (int, int)
+    mut v := n
+    mut steps := 0
+    while v >= 10
+        v = digits(v).fold(1, |acc, d| acc * d)
+        steps += 1
+    (v, steps)
+
+fn main()
+    print("{"n":>8} root add mul-root mul")
+    for n in [0, 7, 39, 999, 2718, 277777788888899]
+        root, a := additive(n)
+        mroot, m := multiplicative(n)
+        print("{n:>8} {root:>4} {a:>3} {mroot:>8} {m:>3}")
+    stubborn := [n for n in 10..1000 if multiplicative(n).1 >= 4]
+    print("persistence 4+ below 1000: {stubborn.join(" ")}")
+
+@test fn digits_keep_order()
+    assert_eq(digits(507), [5, 0, 7])
+
+@test fn root_of_39()
+    assert_eq(additive(39), (3, 2))
+    assert_eq(multiplicative(39), (4, 3))

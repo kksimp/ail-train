@@ -1,0 +1,9 @@
+t1: ana printed 3, 2 left
+t2: bo printed 2, finished
+t3: cy printed 3, 4 left
+t4: di printed 3, finished
+t5: ana printed 2, finished
+t6: cy printed 3, 1 left
+t7: cy printed 1, finished
+finish order: bo di ana cy
+turns: 7

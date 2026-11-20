@@ -1,0 +1,30 @@
+## Bill splitter: adds a tip to a restaurant bill in cents and splits it between diners so
+## the shares differ by at most one cent, giving the extra cents to the first diners.
+
+fn with_tip(cents int, pct int) int
+    (cents * (100 + pct) + 50) / 100
+
+fn split(total int, people int) List[int]
+    base := total / people
+    extra := total % people
+    [base + (if i < extra then 1 else 0) for i in 0..people]
+
+fn show(c int) str
+    "{c / 100}.{c % 100:02}"
+
+fn main()
+    bills := [(8650, 15, 3), (12000, 10, 4), (999, 20, 7), (4321, 0, 2)]
+    for b in bills
+        cents, pct, people := b
+        total := with_tip(cents, pct)
+        shares := split(total, people)
+        print("{show(cents)} +{pct}% = {show(total)}: {shares.map(show).join(" ")}")
+        assert(shares.sum() == total, "shares must add up")
+
+@test fn shares_add_up()
+    s := split(1001, 3)
+    assert_eq(s, [334, 334, 333])
+    assert_eq(s.sum(), 1001)
+
+@test fn tip_rounds_half_up()
+    assert_eq(with_tip(1, 50), 2)

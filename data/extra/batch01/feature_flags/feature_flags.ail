@@ -1,0 +1,33 @@
+## Feature flags: stores on/off features in one int with `<<`, `|`, `&` and `~`, turns
+## flags on and off from commands, and lists the active ones by name.
+
+NAMES := ["dark_mode", "beta_search", "new_checkout", "offline", "telemetry"]
+
+fn bit(name str) int?
+    i := NAMES.index_of(name) else return none
+    1 << i
+
+fn active(flags int) List[str]
+    [NAMES[i] for i in 0..NAMES.len() if (flags & (1 << i)) != 0]
+
+fn main()
+    mut flags := 0
+    for cmd in ["on dark_mode", "on offline", "on telemetry", "off offline", "toggle beta_search", "on warp_drive", "toggle dark_mode"]
+        parts := cmd.split(" ")
+        b := bit(parts[1]) else
+            print("unknown flag {parts[1]}")
+            continue
+        match parts[0]
+            "on" => flags = flags | b
+            "off" => flags = flags & (~b)
+            "toggle" => flags = flags ^ b
+            _ => print("bad command {cmd}")
+        print("{cmd:<20} {flags:05b} [{active(flags).join(" ")}]")
+    print("count: {active(flags).len()}, value {flags}")
+
+@test fn bits_are_powers_of_two()
+    assert_eq(bit("dark_mode") else 0, 1)
+    assert_eq(bit("telemetry") else 0, 16)
+
+@test fn active_reads_bits()
+    assert_eq(active(5), ["dark_mode", "new_checkout"])

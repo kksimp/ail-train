@@ -1,0 +1,29 @@
+## Win streaks: reads a season of results as a string of W, D and L, finds the longest
+## winning and unbeaten streaks, and the current streak at the end.
+
+fn longest(results str, ok fn(char) bool) int
+    mut best := 0
+    mut run := 0
+    for c in results.chars()
+        if ok(c)
+            run += 1
+            best = best.max(run)
+        else
+            run = 0
+    best
+
+fn current(results str) str
+    cs := results.chars()
+    last := cs.last() else return "none"
+    n := cs.reversed().take_while(|c| c == last).len()
+    "{n}{last}"
+
+fn main()
+    for season in ["WWDLWWWLDDW", "LLLL", "WDWDWDW", "", "DWWWWWL"]
+        wins := longest(season, |c| c == 'W')
+        unbeaten := longest(season, |c| c != 'L')
+        print("'{season}': best win run {wins}, unbeaten {unbeaten}, now {current(season)}")
+
+@test fn unbeaten_counts_draws()
+    assert_eq(longest("WDW", |c| c != 'L'), 3)
+    assert_eq(longest("WDW", |c| c == 'W'), 1)

@@ -1,0 +1,34 @@
+## Range bounds: a generic function with an `Ord` bound returns the smallest and largest
+## item of a list as a pair, used on ints, strings and an ordered struct.
+
+struct Version
+    major int
+    minor int
+
+impl Ord for Version
+
+fn bounds[T Ord](xs List[T]) (T, T)?
+    mut lo := xs.first() else return none
+    mut hi := lo
+    for x in xs
+        if x < lo
+            lo = x
+        if x > hi
+            hi = x
+    (lo, hi)
+
+fn show(v Version) str
+    "{v.major}.{v.minor}"
+
+fn main()
+    if b := bounds([7, -3, 12, 0])
+        print("ints: {b.0} .. {b.1}")
+    if w := bounds(["pear", "apple", "zest", "fig"])
+        print("words: {w.0} .. {w.1}")
+    vs := [Version(major: 1, minor: 10), Version(major: 1, minor: 2), Version(major: 0, minor: 9), Version(major: 2, minor: 0)]
+    if v := bounds(vs)
+        print("versions: {show(v.0)} .. {show(v.1)}")
+    print(bounds(List[int]()) == none)
+
+@test fn single_item()
+    assert_eq(bounds([5]) else (0, 0), (5, 5))

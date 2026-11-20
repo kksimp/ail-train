@@ -1,0 +1,36 @@
+## Stamp combinations: counts the ways to pay exact postage with unlimited stamps of given
+## values (order ignored) by dynamic programming, and finds the fewest stamps needed.
+
+fn ways(values List[int], target int) int
+    mut table := [0 for _ in 0..=target]
+    table[0] = 1
+    for v in values
+        for amount in v..=target
+            table[amount] += table[amount - v]
+    table[target]
+
+fn fewest(values List[int], target int) int?
+    big := target + 1
+    mut best := [big for _ in 0..=target]
+    best[0] = 0
+    for amount in 1..=target
+        for v in values
+            if v <= amount and best[amount - v] + 1 < best[amount]
+                best[amount] = best[amount - v] + 1
+    if best[target] == big then none else best[target]
+
+fn main()
+    stamps := [1, 5, 12, 25]
+    for postage in [0, 7, 16, 29, 50, 63]
+        n := fewest(stamps, postage)
+        shown := if n == none then "-" else "{n else 0}"
+        print("{postage:>3}c: {ways(stamps, postage):>4} ways, fewest {shown}")
+    odd := [5, 12]
+    impossible := [p for p in 1..30 if fewest(odd, p) == none]
+    print("with 5c and 12c, cannot make: {impossible.join(" ")}")
+
+@test fn greedy_is_not_always_best()
+    assert_eq(fewest([1, 5, 12], 15) else 0, 3)
+
+@test fn zero_has_one_way()
+    assert_eq(ways([2, 3], 0), 1)

@@ -1,0 +1,45 @@
+## Word chain: checks a word-chain game where each word must start with the last letter
+## of the one before and never repeat; reports the first broken link with its reason.
+
+enum Verdict
+    Valid
+    Repeat(word str)
+    Broken(prev str, word str)
+
+fn check_chain(words List[str]) Verdict
+    mut used := Set[str]()
+    mut prev := ""
+    for w in words
+        if not used.add(w)
+            return Repeat(word: w)
+        if prev != ""
+            last := prev.char_at(prev.len() - 1) else ' '
+            first := w.char_at(0) else ' '
+            if last != first
+                return Broken(prev: prev, word: w)
+        prev = w
+    Valid
+
+fn describe(v Verdict) str
+    match v
+        Valid => "valid chain"
+        Repeat(word) => "'{word}' was used twice"
+        Broken(prev, word) => "'{word}' does not start with the end of '{prev}'"
+
+fn main()
+    games := [
+        ["apple", "egg", "giraffe", "eel", "lemon"],
+        ["tree", "eagle", "eagle"],
+        ["sun", "night", "tiger", "rose", "moon"],
+        List[str](),
+    ]
+    for g in games
+        print("{g.len()} words: {describe(check_chain(g))}")
+    longest := games[0].max(by: |w| w.len()) else ""
+    print("longest word: {longest}")
+
+@test fn empty_game_is_valid()
+    assert_eq(check_chain([]), Verdict.Valid)
+
+@test fn break_is_reported()
+    assert_eq(check_chain(["ab", "cd"]), Verdict.Broken(prev: "ab", word: "cd"))

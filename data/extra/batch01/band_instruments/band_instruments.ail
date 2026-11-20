@@ -1,0 +1,60 @@
+## Band instruments: a `trait` with a required method and a default method, three structs
+## that implement it, and a mixed `List[any Instrument]` played in order.
+
+trait Instrument
+    fn name(self) str
+    fn notes(self) int
+    fn describe(self) str
+        "{name()} plays {notes()} notes"
+
+struct Drum
+    size int
+
+struct Flute
+    keys int
+
+struct Piano
+    octaves int
+
+impl Instrument for Drum
+    fn name(self) str
+        "drum ({size} in)"
+    fn notes(self) int
+        1
+
+impl Instrument for Flute
+    fn name(self) str
+        "flute"
+    fn notes(self) int
+        keys + 3
+
+impl Instrument for Piano
+    fn name(self) str
+        "piano"
+    fn notes(self) int
+        octaves * 12
+    fn describe(self) str
+        "a grand piano over {octaves} octaves"
+
+fn widest(band List[any Instrument]) str
+    mut best := ""
+    mut most := -1
+    for i in band
+        if i.notes() > most
+            most = i.notes()
+            best = i.name()
+    best
+
+fn main()
+    mut band := List[any Instrument]()
+    band.push(Drum(size: 14))
+    band.push(Flute(keys: 16))
+    band.push(Piano(octaves: 7))
+    band.push(Drum(size: 22))
+    for i in band
+        print(i.describe())
+    print("total notes: {band.map(|i| i.notes()).sum()}")
+    print("widest range: {widest(band)}")
+
+@test fn default_uses_methods()
+    assert_eq(Flute(keys: 1).describe(), "flute plays 4 notes")

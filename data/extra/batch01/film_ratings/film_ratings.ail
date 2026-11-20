@@ -1,0 +1,28 @@
+## Film ratings: groups star ratings by film with `group_by`, prints each film's mean to one
+## decimal and its vote count, and ranks films with at least three votes.
+
+struct Vote
+    film str
+    stars int
+
+fn mean(xs List[int]) float
+    xs.sum().to_float() / xs.len().to_float()
+
+fn main()
+    votes := [
+        Vote(film: "Harbour", stars: 4), Vote(film: "Quiet Hill", stars: 5),
+        Vote(film: "Harbour", stars: 3), Vote(film: "Neon Rain", stars: 2),
+        Vote(film: "Quiet Hill", stars: 4), Vote(film: "Harbour", stars: 5),
+        Vote(film: "Neon Rain", stars: 3), Vote(film: "Quiet Hill", stars: 5),
+        Vote(film: "Paper Moon", stars: 5),
+    ]
+    groups := votes.group_by(|v| v.film)
+    for film, vs in groups
+        stars := vs.map(|v| v.stars)
+        print("{film:<11} {mean(stars):.1} from {stars.len()} votes")
+    ranked := groups.keys().filter(|f| groups[f].len() >= 3).sorted(by: |f| -mean(groups[f].map(|v| v.stars)))
+    for i, f in ranked.enumerate()
+        print("#{i + 1} {f}")
+
+@test fn mean_of_two()
+    assert_near(mean([3, 4]), 3.5, 0.0001)

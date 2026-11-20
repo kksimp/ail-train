@@ -1,0 +1,33 @@
+## Look and say: each term describes the previous one by runs of equal digits ("1211" is
+## one 1, one 2, two 1s), built with a run counter over `chars()`.
+
+fn say(term str) str
+    cs := term.chars()
+    if cs.is_empty()
+        return ""
+    mut out := List[str]()
+    mut run := 1
+    for i in 1..=cs.len()
+        if i < cs.len() and cs[i] == cs[i - 1]
+            run += 1
+        else
+            out.push("{run}{cs[i - 1]}")
+            run = 1
+    out.join("")
+
+fn main()
+    mut t := "1"
+    for i in 1..=8
+        print("{i}: {t}")
+        t = say(t)
+    mut lens := List[int]()
+    mut u := "1"
+    for _ in 0..20
+        lens.push(u.len())
+        u = say(u)
+    print(lens.join(" "))
+    print(say("3333"))
+
+@test fn describes_runs()
+    assert_eq(say("1211"), "111221")
+    assert_eq(say(""), "")

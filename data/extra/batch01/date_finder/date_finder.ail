@@ -1,0 +1,29 @@
+## Date finder: pulls ISO dates out of free text with a compiled `regex`, reorders them to
+## day/month/year with `replace`, and counts dates per year with capture groups.
+
+fn main()
+    re := regex.compile(r"(\d{4})-(\d{2})-(\d{2})") else
+        print("bad pattern")
+        return
+    notes := [
+        "Kick-off 2024-03-05, review 2024-04-19.",
+        "Holiday from 2023-12-22 to 2024-01-02",
+        "no dates here",
+        "Deadline 2025-06-30",
+    ]
+    mut per_year := Map[str, int]()
+    for n in notes
+        found := re.find_all(n).map(|m| m.text)
+        print("{found.len()}: {found.join(" ")}")
+        print("   {re.replace(n, "$3/$2/$1")}")
+        for d in found
+            c := re.captures(d) else continue
+            year := c.groups[1] else "?"
+            per_year[year] += 1
+    for y in per_year.keys().sorted()
+        print("{y}: {per_year[y]}")
+
+@test fn matches_shape_only()
+    re := regex.compile(r"^\d{4}-\d{2}-\d{2}$")?
+    assert(re.is_match("2024-01-01"))
+    assert(not re.is_match("24-01-01"))

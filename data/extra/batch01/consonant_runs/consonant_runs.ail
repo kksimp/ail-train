@@ -1,0 +1,32 @@
+## Consonant runs: finds the longest run of consonants in each word, ignoring case, and
+## ranks words by it, with ties broken alphabetically.
+
+fn is_vowel(c char) bool
+    "aeiou".contains(c.to_lower())
+
+fn longest_run(word str) str
+    mut best := ""
+    mut cur := List[char]()
+    for c in word.chars()
+        if c.is_alpha() and not is_vowel(c)
+            cur.push(c)
+            if cur.len() > best.len()
+                best = cur.join("")
+        else
+            cur.clear()
+    best
+
+fn main()
+    words := ["strengths", "rhythm", "banana", "twelfths", "Schwartz", "aeiou", "crypts"]
+    for w in words.sorted(by: |w| (-longest_run(w).len(), w))
+        run := longest_run(w)
+        shown := if run == "" then "(none)" else run
+        print("{w:<10}{run.len()} {shown}")
+    total := words.map(|w| w.chars().count(|c| not is_vowel(c))).sum()
+    print("consonants in all: {total}")
+
+@test fn y_counts_as_consonant()
+    assert_eq(longest_run("rhythm"), "rhythm")
+
+@test fn vowels_break_runs()
+    assert_eq(longest_run("abstract"), "bstr")

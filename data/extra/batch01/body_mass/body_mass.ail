@@ -1,0 +1,32 @@
+## Body mass: computes the body mass index from kilograms and centimetres as a float,
+## rounds it to one decimal for display, and names the band it falls in.
+
+fn bmi(kg float, cm float) float
+    m := cm / 100.0
+    kg / (m * m)
+
+fn band(v float) str
+    if v < 18.5
+        "under"
+    elif v < 25.0
+        "healthy"
+    elif v < 30.0
+        "over"
+    else
+        "obese"
+
+fn main()
+    people := [("Ana", 52.0, 165.0), ("Raj", 81.5, 178.0), ("Lu", 95.0, 170.0), ("Kim", 70.0, 182.0), ("Ole", 49.0, 172.0)]
+    mut total := 0.0
+    for p in people
+        name, kg, cm := p
+        v := bmi(kg, cm)
+        total += v
+        print("{name:<4}{kg:>6.1}kg {cm:>4.0}cm  bmi {v:>5.1} {band(v)}")
+    print("mean bmi {total / people.len().to_float():.2}")
+    healthy := people.filter(|p| band(bmi(p.1, p.2)) == "healthy").map(|p| p.0)
+    print("healthy: {healthy.join(", ")}")
+
+@test fn known_value()
+    assert_near(bmi(72.0, 180.0), 22.222, 0.001)
+    assert_eq(band(25.0), "over")

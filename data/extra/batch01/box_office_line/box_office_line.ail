@@ -1,0 +1,36 @@
+## Box office line: a `Deque` of customers; people with a booking jump to the front, the
+## clerk serves from the front, and the last person leaves when the wait grows too long.
+
+struct Customer
+    name str
+    booked bool
+
+fn main()
+    mut line := Deque[Customer]()
+    events := ["join Ana", "join Ben", "book Cleo", "serve", "join Dev", "join Eve", "leave", "book Fin", "serve", "serve", "serve", "serve"]
+    mut served := List[str]()
+    for ev in events
+        parts := ev.split(" ")
+        match parts[0]
+            "join" => line.push_back(Customer(name: parts[1], booked: false))
+            "book" => line.push_front(Customer(name: parts[1], booked: true))
+            "leave" =>
+                gone := line.pop_back() else continue
+                print("{gone.name} gave up")
+            "serve" =>
+                c := line.pop_front() else
+                    print("nobody to serve")
+                    continue
+                tag := if c.booked then " (booked)" else ""
+                print("served {c.name}{tag}")
+                served.push(c.name)
+            _ => print("unknown event {ev}")
+        waiting := line.to_list().map(|c| c.name)
+        print("  line: [{waiting.join(" ")}]")
+    print("served in order: {served.join(", ")}")
+
+@test fn booked_people_go_first()
+    mut d := Deque[int]()
+    d.push_back(1)
+    d.push_front(0)
+    assert_eq(d.pop_front() else -1, 0)

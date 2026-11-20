@@ -1,0 +1,19 @@
+  line: [Ana]
+  line: [Ana Ben]
+  line: [Cleo Ana Ben]
+served Cleo (booked)
+  line: [Ana Ben]
+  line: [Ana Ben Dev]
+  line: [Ana Ben Dev Eve]
+Eve gave up
+  line: [Ana Ben Dev]
+  line: [Fin Ana Ben Dev]
+served Fin (booked)
+  line: [Ana Ben Dev]
+served Ana
+  line: [Ben Dev]
+served Ben
+  line: [Dev]
+served Dev
+  line: []
+served in order: Cleo, Fin, Ana, Ben, Dev

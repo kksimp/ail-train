@@ -1,0 +1,51 @@
+## Rail fence: writes text in a zigzag over N rails and reads the rails off in order; the
+## decoder rebuilds the zigzag pattern to put each letter back.
+
+fn rail_pattern(n int, rails int) List[int]
+    mut out := List[int]()
+    mut r := 0
+    mut step := 1
+    for _ in 0..n
+        out.push(r)
+        if rails > 1
+            if r == 0
+                step = 1
+            elif r == rails - 1
+                step = -1
+            r += step
+    out
+
+fn encode(text str, rails int) str
+    cs := text.chars()
+    pat := rail_pattern(cs.len(), rails)
+    mut out := List[char]()
+    for r in 0..rails
+        for i in 0..cs.len()
+            if pat[i] == r
+                out.push(cs[i])
+    out.join("")
+
+fn decode(text str, rails int) str
+    cs := text.chars()
+    pat := rail_pattern(cs.len(), rails)
+    order := [i for r in 0..rails for i in 0..cs.len() if pat[i] == r]
+    mut out := List[char]()
+    for _ in 0..cs.len()
+        out.push(' ')
+    for k, i in order.enumerate()
+        out[i] = cs[k]
+    out.join("")
+
+fn main()
+    msg := "WEAREDISCOVEREDFLEEATONCE"
+    for rails in [2, 3, 4]
+        enc := encode(msg, rails)
+        print("{rails} rails: {enc} -> {decode(enc, rails) == msg}")
+    print(rail_pattern(8, 3).map(|r| "{r}").join(""))
+    print(encode("hi", 5))
+
+@test fn three_rails_known()
+    assert_eq(encode("WEAREDISCOVEREDFLEEATONCE", 3), "WECRLTEERDSOEEFEAOCAIVDEN")
+
+@test fn one_rail_is_identity()
+    assert_eq(encode("abc", 1), "abc")

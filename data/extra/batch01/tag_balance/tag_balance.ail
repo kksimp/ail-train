@@ -1,0 +1,41 @@
+## Tag balance: checks that HTML-like tags open and close in order with a stack, skipping
+## self-closing tags, and reports the first problem with its position.
+
+fn tags(text str) List[str]
+    mut out := List[str]()
+    mut rest := text
+    while start := rest.find('<')
+        after := rest.slice(start + 1)
+        stop := after.find('>') else break
+        out.push(after.slice(0, stop))
+        rest = after.slice(stop + 1)
+    out
+
+fn check(text str) str
+    mut open := List[str]()
+    for i, t in tags(text).enumerate()
+        if t.ends_with("/")
+            continue
+        if name := t.strip_prefix("/")
+            top := open.pop() else return "tag {i + 1}: </{name}> closes nothing"
+            if top != name
+                return "tag {i + 1}: </{name}> closes <{top}>"
+        else
+            open.push(t.words().first() else t)
+    if open.is_empty() then "balanced" else "unclosed <{open.last() else ""}>"
+
+fn main()
+    docs := [
+        "<p><b>hi</b> there</p>",
+        "<div><p>text</div></p>",
+        "<ul><li>one<li>two</ul>",
+        "</em>",
+        "<img src=x/><br/><p class=a>ok</p>",
+        "<p>left open",
+    ]
+    for d in docs
+        print("{check(d)}: {d}")
+    print(tags("<a><b/></a>").join(","))
+
+@test fn attributes_are_ignored()
+    assert_eq(check("<a href=x>y</a>"), "balanced")

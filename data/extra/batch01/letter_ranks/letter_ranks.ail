@@ -1,0 +1,28 @@
+## Letter ranks: counts letters in a passage ignoring case, ranks them with `top`, shows the
+## share of each of the top five, and compares vowels with consonants.
+
+fn main()
+    text := """
+        It was a bright cold day in April, and the clocks were striking thirteen.
+        Winston Smith, his chin nuzzled into his breast in an effort to escape the vile wind,
+        slipped quickly through the glass doors.
+        """
+    mut counts := Map[char, int]()
+    for c in text.to_lower().chars()
+        if c.is_alpha()
+            counts[c] += 1
+    total := counts.values().sum()
+    print("letters: {total}, distinct: {counts.len()}")
+    for c in counts.top(5)
+        n := counts[c]
+        print("{c}: {n:>3} {n * 1000 / total / 10}.{n * 1000 / total % 10}%")
+    vowels := "aeiou".chars().map(|v| counts.get_or(v, 0)).sum()
+    print("vowels {vowels}, consonants {total - vowels}")
+    unused := [c for c in "abcdefghijklmnopqrstuvwxyz".chars() if not counts.contains(c)]
+    print("unused: {unused.join("")}")
+
+@test fn map_counts_from_zero()
+    mut m := Map[char, int]()
+    m['a'] += 1
+    m['a'] += 1
+    assert_eq(m['a'], 2)

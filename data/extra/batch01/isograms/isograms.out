@@ -1,0 +1,8 @@
+'lumberjacks': isogram
+'background': isogram
+'six-year-old': isogram
+'Alphabet': repeats 'a'
+'isograms': repeats 's'
+'Emily Jung Schwartzkopf': isogram
+'': isogram
+17 letters, 17 distinct

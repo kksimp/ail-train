@@ -1,0 +1,8 @@
+on dark_mode         00001 [dark_mode]
+on offline           01001 [dark_mode offline]
+on telemetry         11001 [dark_mode offline telemetry]
+off offline          10001 [dark_mode telemetry]
+toggle beta_search   10011 [dark_mode beta_search telemetry]
+unknown flag warp_drive
+toggle dark_mode     10010 [beta_search telemetry]
+count: 2, value 18

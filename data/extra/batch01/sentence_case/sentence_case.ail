@@ -1,0 +1,34 @@
+## Sentence case: lowercases shouted text and capitalises the first letter of each
+## sentence, working on `chars()` and joining them back.
+
+fn sentence_case(text str) str
+    mut out := List[char]()
+    mut start := true
+    for c in text.chars()
+        if c.is_alpha()
+            if start
+                out.push(c.to_upper())
+                start = false
+            else
+                out.push(c.to_lower())
+        else
+            out.push(c)
+            if c == '.' or c == '!' or c == '?'
+                start = true
+    out.join("")
+
+fn shouting(text str) bool
+    letters := text.chars().filter(|c| c.is_alpha())
+    letters.len() > 0 and letters.count(|c| c.is_upper()) * 2 > letters.len()
+
+fn main()
+    lines := ["HELLO THERE. HOW ARE YOU?", "this is fine! really. ok", "ALREADY Fine.", "42 is THE answer. yes"]
+    for l in lines
+        tag := if shouting(l) then "loud" else "calm"
+        print("[{tag}] {sentence_case(l)}")
+
+@test fn capitals_after_stops()
+    assert_eq(sentence_case("a. b"), "A. B")
+
+@test fn digits_do_not_start()
+    assert_eq(sentence_case("1 abc"), "1 Abc")

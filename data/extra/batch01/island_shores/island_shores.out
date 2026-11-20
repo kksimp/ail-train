@@ -1,0 +1,6 @@
+islands: 4
+island 1: 3 cells, shore 8
+island 2: 2 cells, shore 6
+island 3: 4 cells, shore 10
+island 4: 1 cells, shore 4
+land cells: 10

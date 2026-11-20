@@ -1,0 +1,35 @@
+## Catalan numbers: counts balanced bracket strings by the recurrence, checks the counts by
+## generating every balanced string for small sizes, and prints them for n = 3.
+
+fn catalan(n int) List[int]
+    mut c := [1]
+    for i in 1..=n
+        mut s := 0
+        for j in 0..i
+            s += c[j] * c[i - 1 - j]
+        c.push(s)
+    c
+
+fn grow(open int, close int, cur str, n int, mut out List[str])
+    if cur.len() == 2 * n
+        out.push(cur)
+        return
+    if open < n
+        grow(open + 1, close, "{cur}(", n, mut out)
+    if close < open
+        grow(open, close + 1, "{cur})", n, mut out)
+
+fn balanced(n int) List[str]
+    mut out := List[str]()
+    grow(0, 0, "", n, mut out)
+    out
+
+fn main()
+    cs := catalan(15)
+    print(cs.join(" "))
+    for n in 0..=6
+        print("n={n}: {balanced(n).len()} generated, formula {cs[n]}")
+    print(balanced(3).join(" "))
+
+@test fn first_values()
+    assert_eq(catalan(5), [1, 1, 2, 5, 14, 42])

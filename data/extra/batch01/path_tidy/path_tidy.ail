@@ -1,0 +1,34 @@
+## Path tidy: normalises a Unix-style path by dropping `.` and empty parts and resolving
+## `..` with a stack, keeping leading `..` on relative paths.
+
+fn tidy(path str) str
+    absolute := path.starts_with("/")
+    mut parts := List[str]()
+    for p in path.split("/")
+        if p == "" or p == "."
+            continue
+        if p == ".."
+            if parts.is_empty() or (parts.last() else "") == ".."
+                if not absolute
+                    parts.push("..")
+            else
+                _ := parts.pop()
+        else
+            parts.push(p)
+    joined := parts.join("/")
+    if absolute
+        "/{joined}"
+    elif joined == ""
+        "."
+    else
+        joined
+
+fn main()
+    for p in ["/home//user/./docs/../pics/", "a/b/../../..", "./x/./y", "/../etc", "", "../../a/b/..", "/"]
+        print("'{p}' -> '{tidy(p)}'")
+
+@test fn root_stays_root()
+    assert_eq(tidy("/.."), "/")
+
+@test fn relative_keeps_ups()
+    assert_eq(tidy("../a/../.."), "../..")

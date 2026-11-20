@@ -1,0 +1,5 @@
+0, 1, 1, 2, 3, 5, 8, 13, 21, 34
+below 1000: 17 numbers, sum 2583
+even sum below 4 million: 4613732
+93 numbers fit in an int; the last is 7540113804746346429
+first with 10 digits: F(45) = 1134903170

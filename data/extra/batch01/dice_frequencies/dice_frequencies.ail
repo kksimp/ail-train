@@ -1,0 +1,28 @@
+## Dice frequencies: rolls two dice many times with a seeded generator, counts each total
+## with `counts()`, and draws a histogram scaled to the most common total.
+
+fn roll(mut state int) int
+    state = (state * 75 + 74) % 65537
+    state % 6 + 1
+
+fn main()
+    mut s := 12345
+    mut totals := List[int]()
+    for _ in 0..3600
+        a := roll(mut s)
+        b := roll(mut s)
+        totals.push(a + b)
+    counts := totals.counts()
+    most := counts.values().max() else 1
+    for t in 2..=12
+        n := counts.get_or(t, 0)
+        bar := "*".repeat(n * 40 / most)
+        print("{t:>2} {n:>4} {bar}")
+    sevens := counts.get_or(7, 0)
+    print("sevens: {sevens * 100 / 3600}%")
+
+@test fn rolls_stay_in_range()
+    mut s := 1
+    for _ in 0..100
+        r := roll(mut s)
+        assert(r >= 1 and r <= 6)

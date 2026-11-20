@@ -1,0 +1,40 @@
+## Parcel boxes: finds the smallest box an item fits in, allowing rotation, by sorting
+## both sizes and comparing with `all`; reports items that fit no box.
+
+struct Box
+    name str
+    dims List[int]
+
+fn fits(item List[int], b Box) bool
+    a := item.sorted()
+    c := b.dims.sorted()
+    [0, 1, 2].all(|i| a[i] <= c[i])
+
+fn volume(dims List[int]) int
+    dims.fold(1, |acc, d| acc * d)
+
+fn smallest_box(item List[int], boxes List[Box]) Box?
+    fitting := boxes.filter(|b| fits(item, b))
+    fitting.min(by: |b| volume(b.dims))
+
+fn main()
+    boxes := [
+        Box(name: "large", dims: [60, 40, 40]),
+        Box(name: "small", dims: [20, 15, 10]),
+        Box(name: "long", dims: [100, 12, 12]),
+        Box(name: "medium", dims: [35, 25, 20]),
+    ]
+    items := [[10, 18, 9], [90, 10, 5], [30, 30, 30], [70, 50, 10], [24, 22, 34]]
+    for item in items
+        label := item.map(|d| "{d}").join("x")
+        if b := smallest_box(item, boxes)
+            spare := volume(b.dims) - volume(item)
+            print("{label}: {b.name} (spare {spare})")
+        else
+            print("{label}: no box")
+
+@test fn rotation_is_allowed()
+    assert(fits([15, 10, 20], Box(name: "s", dims: [20, 15, 10])))
+
+@test fn volume_multiplies()
+    assert_eq(volume([2, 3, 4]), 24)

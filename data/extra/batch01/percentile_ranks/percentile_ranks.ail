@@ -1,0 +1,23 @@
+## Percentile ranks: for each score, the share of scores strictly below it plus half the
+## equal ones, in tenths of a percent, and the score at the 25th, 50th and 90th percentile.
+
+fn rank_tenths(scores List[int], s int) int
+    below := scores.count(|x| x < s)
+    equal := scores.count(|x| x == s)
+    (below * 2 + equal) * 1000 / (scores.len() * 2)
+
+fn nearest_rank(scores List[int], p int) int
+    sorted := scores.sorted()
+    k := (p * sorted.len() + 99) / 100
+    sorted[(k - 1).max(0)]
+
+fn main()
+    scores := [72, 85, 91, 60, 85, 77, 98, 85, 66, 70]
+    for s in scores.sorted()
+        r := rank_tenths(scores, s)
+        print("{s}: {r / 10}.{r % 10}")
+    for p in [25, 50, 90]
+        print("p{p} = {nearest_rank(scores, p)}")
+
+@test fn single_score_is_fifty()
+    assert_eq(rank_tenths([5], 5), 500)

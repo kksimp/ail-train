@@ -1,0 +1,4 @@
+example.org:9000 debug=true tags=2
+10.0.0.2:8080 debug=false tags=0
+localhost:8080 debug=false tags=0
+bad settings: unexpected end of input

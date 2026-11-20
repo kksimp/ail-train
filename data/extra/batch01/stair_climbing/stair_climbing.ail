@@ -1,0 +1,44 @@
+## Stair climbing: counts the ways up a staircase taking steps from an allowed set, with a
+## memo `Map`, and lists every route for a short staircase.
+
+fn count_ways(n int, steps List[int], mut memo Map[int, int]) int
+    if n == 0
+        return 1
+    if n < 0
+        return 0
+    if memo.contains(n)
+        return memo[n]
+    mut total := 0
+    for s in steps
+        total += count_ways(n - s, steps, mut memo)
+    memo[n] = total
+    total
+
+fn routes(n int, steps List[int]) List[List[int]]
+    if n == 0
+        return [List[int]()]
+    mut out := List[List[int]]()
+    for s in steps
+        if s <= n
+            for rest in routes(n - s, steps)
+                mut r := [s]
+                r.extend(rest)
+                out.push(r)
+    out
+
+fn main()
+    for steps in [[1, 2], [1, 3], [2, 3, 5]]
+        mut memo := Map[int, int]()
+        mut counts := List[int]()
+        for n in 1..=10
+            counts.push(count_ways(n, steps, mut memo))
+        print("steps {steps.map(|s| "{s}").join("/")}: {counts.join(" ")}")
+    for r in routes(4, [1, 2])
+        print(r.map(|s| "{s}").join("+"))
+    mut m := Map[int, int]()
+    print("50 stairs by 1 or 2: {count_ways(50, [1, 2], mut m)}")
+
+@test fn four_stairs_five_ways()
+    mut memo := Map[int, int]()
+    assert_eq(count_ways(4, [1, 2], mut memo), 5)
+    assert_eq(routes(4, [1, 2]).len(), 5)

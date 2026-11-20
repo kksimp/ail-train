@@ -1,0 +1,48 @@
+## Vector moves: a 2-D `Vec2` with `+`, `-` and unary `-` operators and `+=` in a loop,
+## used to replay a robot's moves and walk them back.
+
+struct Vec2
+    x int
+    y int
+
+impl Add for Vec2
+    fn add(self, o Vec2) Vec2
+        Vec2(x: x + o.x, y: y + o.y)
+
+impl Sub for Vec2
+    fn sub(self, o Vec2) Vec2
+        Vec2(x: x - o.x, y: y - o.y)
+
+impl Neg for Vec2
+    fn neg(self) Vec2
+        Vec2(x: -x, y: -y)
+
+fn parse_move(text str) Vec2?
+    parts := text.split(",")
+    if parts.len() != 2
+        return none
+    x := parts[0].trim().to_int() else return none
+    y := parts[1].trim().to_int() else return none
+    Vec2(x: x, y: y)
+
+fn main()
+    moves := ["3,1", "-2, 4", "oops", "0,-6", "5,5"]
+    mut pos := Vec2(x: 0, y: 0)
+    mut done := List[Vec2]()
+    for m in moves
+        v := parse_move(m) else
+            print("skip '{m}'")
+            continue
+        pos += v
+        done.push(v)
+        print("after {m}: ({pos.x}, {pos.y})")
+    mut back := pos
+    for v in done.reversed()
+        back += -v
+    print("walked back to ({back.x}, {back.y})")
+    gap := pos - Vec2(x: 10, y: 10)
+    print("from (10, 10): ({gap.x}, {gap.y})")
+
+@test fn negation_undoes()
+    v := Vec2(x: 2, y: -3)
+    assert_eq(v + -v, Vec2(x: 0, y: 0))

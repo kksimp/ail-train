@@ -1,0 +1,35 @@
+## Best stretch: the run of consecutive days with the largest total profit (Kadane's
+## method), returning where it starts and ends; an all-loss list picks its best single day.
+
+struct Stretch
+    total int
+    start int
+    stop int
+
+fn best_stretch(xs List[int]) Stretch?
+    first := xs.first() else return none
+    mut best := Stretch(total: first, start: 0, stop: 0)
+    mut cur := first
+    mut cur_start := 0
+    for i in 1..xs.len()
+        if cur < 0
+            cur = xs[i]
+            cur_start = i
+        else
+            cur += xs[i]
+        if cur > best.total
+            best = Stretch(total: cur, start: cur_start, stop: i)
+    best
+
+fn main()
+    for xs in [[-2, 1, -3, 4, -1, 2, 1, -5, 4], [3, -1, 2], [-4, -2, -7], [5], List[int]()]
+        label := "[{xs.map(|x| "{x}").join(" ")}]"
+        if s := best_stretch(xs)
+            print("{label}: {s.total} from day {s.start + 1} to {s.stop + 1}")
+        else
+            print("{label}: no days")
+
+@test fn classic_example()
+    s := best_stretch([-2, 1, -3, 4, -1, 2, 1, -5, 4]) else return
+    assert_eq(s.total, 6)
+    assert_eq((s.start, s.stop), (3, 6))

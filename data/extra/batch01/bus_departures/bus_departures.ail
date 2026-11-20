@@ -1,0 +1,45 @@
+## Bus departures: stores departure times as minutes after midnight, prints them as `hh:mm`
+## with `pad_left`, and finds the next bus after a given time with `find`.
+
+fn clock(minutes int) str
+    h := (minutes / 60) % 24
+    m := minutes % 60
+    "{"{h}".pad_left(2, '0')}:{"{m}".pad_left(2, '0')}"
+
+fn parse_clock(text str) int?
+    parts := text.split(":")
+    if parts.len() != 2
+        return none
+    h := parts[0].to_int() else return none
+    m := parts[1].to_int() else return none
+    if h < 0 or h > 23 or m < 0 or m > 59
+        return none
+    h * 60 + m
+
+fn next_after(times List[int], now int) int?
+    times.find(|t| t >= now)
+
+fn main()
+    mut times := List[int]()
+    mut t := 6 * 60 + 15
+    while t < 9 * 60
+        times.push(t)
+        t += 25
+    print("buses: {times.len()}")
+    print(times.map(clock).take(4).join(" "))
+    for asked in ["06:00", "07:41", "08:59", "9:5", "25:00"]
+        now := parse_clock(asked) else
+            print("{asked}: not a time")
+            continue
+        if bus := next_after(times, now)
+            print("{asked}: next bus {clock(bus)}, wait {bus - now} min")
+        else
+            print("{asked}: no more buses")
+
+@test fn clock_pads_both_parts()
+    assert_eq(clock(65), "01:05")
+    assert_eq(clock(0), "00:00")
+
+@test fn bad_times_are_none()
+    assert(parse_clock("12:60") == none)
+    assert(parse_clock("noon") == none)

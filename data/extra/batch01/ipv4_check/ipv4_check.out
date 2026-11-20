@@ -1,0 +1,9 @@
+192.168.1.20     3232235796 private
+8.8.8.8           134744072 public
+10.0.0.256       invalid: 256 is out of range
+172.20.3.4       2886992644 private
+172.32.0.1       2887778305 public
+1.2.3            invalid: needs 4 parts, has 3
+01.2.3.4         invalid: leading zero in '01'
+a.b.c.d          invalid: 'a' is not a number
+255.255.255.255  4294967295 public

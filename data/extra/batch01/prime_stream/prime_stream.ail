@@ -1,0 +1,37 @@
+## Prime stream: a generator function returning `Seq[int]` yields primes lazily; the caller
+## takes as many as it needs, filters them and finds twin primes.
+
+fn is_prime(n int) bool
+    if n < 2
+        return false
+    mut d := 2
+    while d * d <= n
+        if n % d == 0
+            return false
+        d += 1
+    true
+
+fn primes() Seq[int]
+    mut n := 2
+    while true
+        if is_prime(n)
+            yield n
+        n += 1
+
+fn main()
+    print(primes().take(12).collect().join(" "))
+    print(primes().filter(|p| p % 10 == 3).take(5).collect().join(" "))
+    mut twins := List[str]()
+    mut prev := 0
+    for p in primes()
+        if p > 200
+            break
+        if p - prev == 2
+            twins.push("({prev},{p})")
+        prev = p
+    print("twin pairs below 200: {twins.len()}")
+    print(twins.take(6).join(" "))
+    print(primes().skip(99).take(1).collect())
+
+@test fn first_primes()
+    assert_eq(primes().take(5).collect(), [2, 3, 5, 7, 11])

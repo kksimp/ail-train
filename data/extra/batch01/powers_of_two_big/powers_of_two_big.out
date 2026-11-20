@@ -1,0 +1,11 @@
+2^10: 4 digits, starts 1024, ends 1024
+2^63: 19 digits, starts 922337, ends 5808
+2^64: 20 digits, starts 184467, ends 1616
+2^100: 31 digits, starts 126765, ends 5376
+2^200: 61 digits, starts 160693, ends 1376
+true
+true
+2
+456
+true
+true
