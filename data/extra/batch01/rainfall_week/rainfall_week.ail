@@ -1,0 +1,41 @@
+## Rainfall week: daily rainfall in millimetres as floats, the weekly total and mean with
+## `{x:.1}`, the wettest day, and the wettest three-day run with `windows`.
+
+DAYS := ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+
+fn mean(xs List[float]) float
+    if xs.is_empty()
+        return 0.0
+    xs.sum() / xs.len().to_float()
+
+fn wettest_run(xs List[float], size int) (int, float)
+    mut best := (0, -1.0)
+    for i, w in xs.windows(size).enumerate()
+        total := w.sum()
+        if total > best.1
+            best = (i, total)
+    best
+
+fn main()
+    rain := [2.5, 0.0, 11.25, 4.0, 0.5, 7.75, 3.0]
+    print("total {rain.sum():.1} mm, mean {mean(rain):.2} mm")
+    mut wettest := 0
+    for i in 1..rain.len()
+        if rain[i] > rain[wettest]
+            wettest = i
+    print("wettest day: {DAYS[wettest]} ({rain[wettest]:.1} mm)")
+    dry := [DAYS[i] for i in 0..rain.len() if rain[i] < 1.0]
+    print("dry days: {dry.join(", ")}")
+    start, total := wettest_run(rain, 3)
+    print("wettest run: {DAYS[start]}-{DAYS[start + 2]} {total:.1} mm")
+    for i, r in rain.enumerate()
+        bar := "#".repeat((r / 2.0).round().to_int())
+        print("{DAYS[i]} {r:>6.2} {bar}")
+
+@test fn mean_of_nothing_is_zero()
+    assert_near(mean([]), 0.0, 0.0001)
+
+@test fn run_finds_the_middle()
+    i, t := wettest_run([1.0, 5.0, 5.0, 1.0], 2)
+    assert_eq(i, 1)
+    assert_near(t, 10.0, 0.0001)

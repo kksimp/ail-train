@@ -1,0 +1,27 @@
+## Powers of two, big: computes 2^n past 64 bits with `bigint`, prints digit counts and the
+## leading and trailing digits, and checks a sum against a doubled value.
+
+fn power_of_two(n int) bigint.BigInt
+    mut p := bigint.from_int(1)
+    two := bigint.from_int(2)
+    for _ in 0..n
+        p = p * two
+    p
+
+fn main()
+    for n in [10, 63, 64, 100, 200]
+        text := "{power_of_two(n)}"
+        head := text.slice(0, if text.len() < 6 then text.len() else 6)
+        tail := text.slice(if text.len() > 4 then text.len() - 4 else 0)
+        print("2^{n}: {text.len()} digits, starts {head}, ends {tail}")
+    a := power_of_two(127)
+    b := power_of_two(128)
+    print(a + a == b)
+    print(b - a == a)
+    print((b / a).as_int() else -1)
+    print((b % bigint.from_int(1000)).as_int() else -1)
+    print(power_of_two(62).as_int() != none)
+    print(power_of_two(64).as_int() == none)
+
+@test fn small_power_matches_int()
+    assert_eq(power_of_two(20).as_int() else 0, 1048576)

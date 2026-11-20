@@ -1,0 +1,27 @@
+## Binary gaps: the longest run of zeros enclosed by ones in a number's binary form, found
+## by scanning bits with `>>` and `&`, and checked against the `{n:b}` text.
+
+fn longest_gap(n int) int
+    mut v := n
+    while v > 0 and (v & 1) == 0
+        v = v >> 1
+    mut best := 0
+    mut run := 0
+    while v > 0
+        if (v & 1) == 1
+            best = best.max(run)
+            run = 0
+        else
+            run += 1
+        v = v >> 1
+    best
+
+fn main()
+    for n in [9, 529, 20, 15, 32, 1041, 0, 561892]
+        bits := "{n:b}"
+        print("{n:>7} {bits:>20} gap {longest_gap(n)}")
+
+@test fn known_gaps()
+    assert_eq(longest_gap(9), 2)
+    assert_eq(longest_gap(32), 0)
+    assert_eq(longest_gap(1041), 5)

@@ -1,0 +1,36 @@
+## Watering rota: each plant is watered every N days; prints which plants need water on
+## each day of a fortnight and the days when nothing is due, using a `Set`.
+
+struct Plant
+    name str
+    every int
+    first int
+
+fn due(p Plant, day int) bool
+    day >= p.first and (day - p.first) % p.every == 0
+
+fn main()
+    plants := [
+        Plant(name: "fern", every: 2, first: 1),
+        Plant(name: "cactus", every: 7, first: 3),
+        Plant(name: "basil", every: 1, first: 5),
+        Plant(name: "orchid", every: 4, first: 2),
+    ]
+    mut quiet := Set[int]()
+    mut waterings := 0
+    for day in 1..=14
+        names := [p.name for p in plants if due(p, day)]
+        waterings += names.len()
+        if names.is_empty()
+            quiet.add(day)
+        else
+            print("day {day:>2}: {names.join(", ")}")
+    print("quiet days: {quiet.sorted().join(" ")}")
+    print("waterings: {waterings}")
+
+@test fn first_day_counts()
+    p := Plant(name: "x", every: 3, first: 2)
+    assert(due(p, 2))
+    assert(due(p, 5))
+    assert(not due(p, 4))
+    assert(not due(p, 1))

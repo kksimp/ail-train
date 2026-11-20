@@ -1,0 +1,26 @@
+## Isograms: a word is an isogram when no letter repeats (ignoring case, spaces and
+## hyphens); prints each word's verdict and the first repeated letter.
+
+fn first_repeat(word str) char?
+    mut seen := Set[char]()
+    for c in word.to_lower().chars()
+        if c == ' ' or c == '-'
+            continue
+        if not seen.add(c)
+            return c
+    none
+
+fn main()
+    for w in ["lumberjacks", "background", "six-year-old", "Alphabet", "isograms", "Emily Jung Schwartzkopf", ""]
+        if c := first_repeat(w)
+            print("'{w}': repeats '{c}'")
+        else
+            print("'{w}': isogram")
+    letters := "subdermatoglyphic".chars()
+    print("{letters.len()} letters, {{c for c in letters}.len()} distinct")
+
+@test fn case_is_ignored()
+    assert_eq(first_repeat("Aa") else ' ', 'a')
+
+@test fn hyphens_are_skipped()
+    assert(first_repeat("a-b-c") == none)

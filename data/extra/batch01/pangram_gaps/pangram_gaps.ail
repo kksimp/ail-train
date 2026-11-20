@@ -1,0 +1,23 @@
+## Pangram gaps: tells whether a sentence uses every letter a to z, and if not lists the
+## missing letters, built from `char.from_code` and a `Set` difference.
+
+fn alphabet() Set[char]
+    {char.from_code(n) for n in 97..123}
+
+fn missing(text str) List[char]
+    used := {c for c in text.to_lower().chars() if c.is_alpha()}
+    alphabet().difference(used).sorted()
+
+fn main()
+    for s in ["The quick brown fox jumps over the lazy dog", "Hello world", "Pack my box with five dozen liquor jugs", "Sphinx of black quartz judge my vow", ""]
+        gaps := missing(s)
+        if gaps.is_empty()
+            print("pangram: {s}")
+        else
+            print("{26 - gaps.len()}/26, missing {gaps.len()}: {gaps.join("")}")
+
+@test fn alphabet_has_26()
+    assert_eq(alphabet().len(), 26)
+
+@test fn empty_misses_all()
+    assert_eq(missing("").len(), 26)

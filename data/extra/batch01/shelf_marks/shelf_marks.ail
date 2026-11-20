@@ -1,0 +1,42 @@
+## Shelf marks: parses library shelf marks like `QA 76.9 B12` into a struct and sorts
+## them by a tuple key (letters, number, decimal, cutter).
+
+struct Mark
+    letters str
+    whole int
+    part int
+    cutter str
+
+fn parse_mark(text str) Mark?
+    words := text.words()
+    if words.len() != 3
+        return none
+    nums := words[1].split(".")
+    whole := nums[0].to_int() else return none
+    part_text := if nums.len() > 1 then nums[1] else "0"
+    part := part_text.to_int() else return none
+    Mark(letters: words[0], whole: whole, part: part, cutter: words[2])
+
+fn show(m Mark) str
+    "{m.letters} {m.whole}.{m.part} {m.cutter}"
+
+fn main()
+    raw := ["QA 76.9 B12", "PS 3545 W5", "QA 76.73 P98", "QA 9 A1", "PS 3545.2 A3", "Z 1 x.y Q", "QA 76.9 A7"]
+    mut marks := List[Mark]()
+    for r in raw
+        if m := parse_mark(r)
+            marks.push(m)
+        else
+            print("skipped: {r}")
+    for m in marks.sorted(by: |m| (m.letters, m.whole, m.part, m.cutter))
+        print(show(m))
+    letters := marks.map(|m| m.letters).counts()
+    for k, n in letters
+        print("{k}: {n}")
+
+@test fn missing_decimal_is_zero()
+    m := parse_mark("PS 3545 W5") else return
+    assert_eq(m.part, 0)
+
+@test fn wrong_shape_is_none()
+    assert(parse_mark("QA") == none)

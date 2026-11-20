@@ -1,0 +1,27 @@
+## Beat counter: a drum pattern where beats divisible by 3 get a kick and by 4 a snare,
+## chosen by matching a tuple of remainders, with a running count per sound.
+
+fn sound(beat int) str
+    match (beat % 3, beat % 4)
+        (0, 0) => "KICK+SNARE"
+        (0, _) => "kick"
+        (_, 0) => "snare"
+        _ => "."
+
+fn main()
+    mut line := List[str]()
+    mut tally_of := Map[str, int]()
+    for beat in 1..=24
+        s := sound(beat)
+        line.push(if s == "." then "." else s.slice(0, 1))
+        tally_of[s] += 1
+    for bar in line.chunks(8)
+        print(bar.join(" "))
+    for name in ["kick", "snare", "KICK+SNARE", "."]
+        print("{name:>10}: {tally_of.get_or(name, 0)}")
+
+@test fn twelve_is_both()
+    assert_eq(sound(12), "KICK+SNARE")
+    assert_eq(sound(9), "kick")
+    assert_eq(sound(8), "snare")
+    assert_eq(sound(7), ".")

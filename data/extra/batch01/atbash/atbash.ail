@@ -1,0 +1,25 @@
+## Atbash: the mirror cipher where a becomes z and b becomes y, keeping case, digits and
+## punctuation; encoding twice gives the text back.
+
+fn mirror(c char) char
+    if c.is_lower()
+        return char.from_code(219 - c.code())
+    if c.is_upper()
+        return char.from_code(155 - c.code())
+    c
+
+fn atbash(text str) str
+    text.chars().map(mirror).join("")
+
+fn main()
+    for t in ["Hello, World!", "wizard", "Atbash 2024", "zyx ABC"]
+        enc := atbash(t)
+        print("{t} -> {enc} -> {atbash(enc)}")
+    same := [w for w in ["wizard", "hold", "glow", "bevy", "girt"] if atbash(w) == w.chars().reversed().join("")]
+    print("mirror-reverse words: {same.join(", ")}")
+
+@test fn twice_is_identity()
+    assert_eq(atbash(atbash("Mixed Case 9")), "Mixed Case 9")
+
+@test fn ends_swap()
+    assert_eq(atbash("az"), "za")

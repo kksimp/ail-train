@@ -1,0 +1,38 @@
+## Safe budget: adds up very large budget lines with `checked_add` and `checked_mul`, so an
+## overflow is reported as a problem instead of stopping the program.
+
+fn line_cost(qty int, unit int) int?
+    qty.checked_mul(unit)
+
+fn total(lines List[(int, int)]) int?
+    mut sum := 0
+    for l in lines
+        cost := line_cost(l.0, l.1) else return none
+        sum = sum.checked_add(cost) else return none
+    sum
+
+fn main()
+    budgets := [
+        ("office", [(3, 1200), (10, 45)]),
+        ("rockets", [(2, 4000000000000000000), (1, 3000000000000000000)]),
+        ("atoms", [(9000000000, 9000000000)]),
+        ("empty", List[(int, int)]()),
+    ]
+    for b in budgets
+        name, lines := b
+        if t := total(lines)
+            print("{name}: {t:,}")
+        else
+            print("{name}: too large to count")
+    big := 9223372036854775807
+    print(big.checked_add(1) == none)
+    print(big.checked_sub(1) else 0)
+    print(big.saturating_add(5) == big)
+    ten := 10
+    print(ten.checked_div(0) == none)
+
+@test fn overflow_is_none()
+    assert(line_cost(9223372036854775807, 2) == none)
+
+@test fn small_sums_work()
+    assert_eq(total([(2, 3), (4, 5)]) else 0, 26)

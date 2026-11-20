@@ -1,0 +1,41 @@
+## League standings: reads match results, awards 3 points for a win and 1 for a draw,
+## and sorts the table by points, goal difference, goals scored and name.
+
+struct Row
+    team str
+    played int
+    points int
+    scored int
+    against int
+
+fn Row.diff(self) int
+    self.scored - self.against
+
+fn record(mut table Map[str, Row], team str, gf int, ga int)
+    if not table.contains(team)
+        table[team] = Row(team: team, played: 0, points: 0, scored: 0, against: 0)
+    table[team].played += 1
+    table[team].scored += gf
+    table[team].against += ga
+    table[team].points += if gf > ga then 3 elif gf == ga then 1 else 0
+
+fn main()
+    results := ["Lions 2-1 Bears", "Hawks 0-0 Lions", "Bears 3-3 Wolves", "Wolves 1-2 Hawks", "Lions 4-0 Wolves", "Bears 1-0 Hawks"]
+    mut table := Map[str, Row]()
+    for line in results
+        w := line.words()
+        goals := w[1].split("-")
+        a := goals[0].to_int() else 0
+        b := goals[1].to_int() else 0
+        record(mut table, w[0], a, b)
+        record(mut table, w[2], b, a)
+    rows := table.values().sorted(by: |r| (-r.points, -r.diff(), -r.scored, r.team))
+    print("{"team":<8}{"P":>2}{"GD":>4}{"Pts":>5}")
+    for r in rows
+        gd := if r.diff() > 0 then "+{r.diff()}" else "{r.diff()}"
+        print("{r.team:<8}{r.played:>2}{gd:>4}{r.points:>5}")
+
+@test fn draw_gives_one_point()
+    mut t := Map[str, Row]()
+    record(mut t, "x", 1, 1)
+    assert_eq(t["x"].points, 1)

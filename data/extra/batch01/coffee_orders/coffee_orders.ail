@@ -1,0 +1,32 @@
+## Coffee orders: counts drinks with `counts()`, names the two most ordered with `top`,
+## and totals the takings per size from a price map with `get_or`.
+
+PRICES := {"S": 280, "M": 330, "L": 380}
+
+fn money(cents int) str
+    "{cents / 100}.{"{cents % 100}".pad_left(2, '0')}"
+
+fn main()
+    orders := ["latte M", "flat white S", "latte L", "mocha M", "latte M", "tea S", "flat white M", "latte S", "mocha X"]
+    mut drinks := List[str]()
+    mut by_size := Map[str, int]()
+    for o in orders
+        cut := o.rfind(' ') else continue
+        drink := o.slice(0, cut)
+        size := o.slice(cut + 1)
+        price := PRICES.get_or(size, 0)
+        if price == 0
+            print("unknown size in '{o}'")
+            continue
+        drinks.push(drink)
+        by_size[size] += price
+    counts := drinks.counts()
+    print("kinds: {counts.len()}")
+    print("most ordered: {counts.top(2).join(", ")}")
+    for size in ["S", "M", "L"]
+        print("{size}: {money(by_size.get_or(size, 0))}")
+    print("takings: {money(by_size.values().sum())}")
+
+@test fn money_pads_cents()
+    assert_eq(money(305), "3.05")
+    assert_eq(money(1000), "10.00")

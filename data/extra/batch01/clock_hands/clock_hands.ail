@@ -1,0 +1,26 @@
+## Clock hands: the smaller angle between the hour and minute hands for a time, in
+## half-degree units to stay in integers, printed as degrees with `.5` when needed.
+
+fn half_degrees(h int, m int) int
+    hour := (h % 12) * 60 + m
+    minute := m * 12
+    diff := (hour - minute).abs()
+    diff.min(720 - diff)
+
+fn show(halves int) str
+    if halves % 2 == 0 then "{halves / 2}" else "{halves / 2}.5"
+
+fn main()
+    for t in ["3:00", "12:30", "9:45", "6:00", "2:20", "11:59", "0:00"]
+        p := t.split(":")
+        h := p[0].to_int() else 0
+        m := p[1].to_int() else 0
+        print("{t:>5} {show(half_degrees(h, m)):>6} degrees")
+    overlaps := [h for h in 0..12 if half_degrees(h, (h * 60) / 11) <= 2]
+    print("hours with an overlap within 1 degree: {overlaps.len()}")
+
+@test fn quarter_to_ten()
+    assert_eq(show(half_degrees(9, 45)), "22.5")
+
+@test fn right_angle_at_three()
+    assert_eq(half_degrees(3, 0), 180)

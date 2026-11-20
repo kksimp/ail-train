@@ -1,0 +1,38 @@
+## Kaprekar steps: for a four-digit number with at least two different digits, subtract
+## the ascending arrangement from the descending one until 6174 is reached.
+
+fn arrange(n int) (int, int)
+    ds := "{n}".pad_left(4, '0').chars().sorted()
+    low := ds.join("").to_int() else 0
+    high := ds.reversed().join("").to_int() else 0
+    (high, low)
+
+fn steps(start int) List[int]?
+    ds := "{start}".pad_left(4, '0').chars()
+    if ds.all(|c| c == ds[0])
+        return none
+    mut seq := [start]
+    mut v := start
+    while v != 6174
+        high, low := arrange(v)
+        v = high - low
+        seq.push(v)
+        if seq.len() > 10
+            return none
+    seq
+
+fn main()
+    for n in [3524, 2111, 9831, 6174, 1000, 7777]
+        if seq := steps(n)
+            print("{n}: {seq.len() - 1} steps ({seq.map(|x| "{x}".pad_left(4, '0')).join(" -> ")})")
+        else
+            print("{n}: all digits equal")
+    mut most := 0
+    for n in 1000..10000
+        k := (steps(n) else []).len()
+        if k > most
+            most = k
+    print("longest: {most - 1} steps")
+
+@test fn arrange_pads_zeros()
+    assert_eq(arrange(1000), (1000, 1))

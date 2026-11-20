@@ -1,0 +1,29 @@
+## Email masking: hides most of the local part of an email address, keeping the first
+## and last letter, using `find`, `slice` and `repeat`; rejects malformed addresses.
+
+fn mask(addr str) str?
+    at := addr.find('@') else return none
+    if addr.count("@") != 1 or at == 0
+        return none
+    user := addr.slice(0, at)
+    domain := addr.slice(at + 1)
+    if not domain.contains('.')
+        return none
+    if user.len() <= 2
+        return "{"*".repeat(user.len())}@{domain}"
+    first := user.char_at(0) else return none
+    last := user.char_at(user.len() - 1) else return none
+    "{first}{"*".repeat(user.len() - 2)}{last}@{domain}"
+
+fn main()
+    for a in ["jane.doe@example.com", "al@site.org", "x@y.io", "nobody", "two@@signs.com", "@lost.net", "me@localhost"]
+        shown := mask(a) else "(invalid)"
+        print("{a:<22} {shown}")
+    domains := ["jane.doe@example.com", "bob@example.com", "al@site.org"].map(|a| a.slice((a.find('@') else 0) + 1))
+    print(domains.counts())
+
+@test fn keeps_ends()
+    assert_eq(mask("abcd@e.f") else "", "a**d@e.f")
+
+@test fn needs_a_dot()
+    assert(mask("a@b") == none)

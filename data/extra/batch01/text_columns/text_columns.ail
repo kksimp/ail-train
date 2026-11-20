@@ -1,0 +1,36 @@
+## Text columns: turns rows of words into columns (a transpose), padding short rows, and
+## prints both layouts aligned to the widest cell of each column.
+
+fn cell(r List[str], c int) str
+    if c < r.len() then r[c] else "-"
+
+fn transpose(rows List[List[str]]) List[List[str]]
+    width := rows.map(|r| r.len()).max() else 0
+    mut out := List[List[str]]()
+    for c in 0..width
+        out.push([cell(r, c) for r in rows])
+    out
+
+fn render(rows List[List[str]]) List[str]
+    cols := rows.map(|r| r.len()).max() else 0
+    mut widths := List[int]()
+    for c in 0..cols
+        widths.push(rows.map(|r| if c < r.len() then r[c].len() else 0).max() else 0)
+    mut lines := List[str]()
+    for r in rows
+        cells := [r[i].pad_right(widths[i], ' ') for i in 0..r.len()]
+        lines.push(cells.join(" | ").trim_end())
+    lines
+
+fn main()
+    rows := [["name", "role", "team"], ["Mira", "lead"], ["Joaquin", "dev", "core", "x"], ["Li", "qa", "web"]]
+    for l in render(rows)
+        print(l)
+    print("")
+    t := transpose(rows)
+    for l in render(t)
+        print(l)
+    print("{t.len()} x {t[0].len()}")
+
+@test fn transpose_fills_gaps()
+    assert_eq(transpose([["a", "b"], ["c"]]), [["a", "c"], ["b", "-"]])

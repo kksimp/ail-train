@@ -1,0 +1,45 @@
+## Quiz marking: pairs each student's answers with the key using `zip`, counts the right
+## ones, and lists which questions most students got wrong.
+
+struct Sheet
+    name str
+    answers str
+
+fn score(key str, answers str) int
+    mut right := 0
+    for k, a in zip(key.chars(), answers.chars())
+        if k == a
+            right += 1
+    right
+
+fn wrong_questions(key str, answers str) List[int]
+    mut out := List[int]()
+    for i, pair in key.chars().zip(answers.chars()).enumerate()
+        if pair.0 != pair.1
+            out.push(i + 1)
+    out
+
+fn main()
+    key := "BCADDACB"
+    sheets := [
+        Sheet(name: "Ama", answers: "BCADDACB"),
+        Sheet(name: "Bo", answers: "BCDDDACA"),
+        Sheet(name: "Cy", answers: "ACADBACB"),
+        Sheet(name: "Di", answers: "BCA"),
+    ]
+    mut misses := Map[int, int]()
+    for s in sheets
+        got := score(key, s.answers)
+        pct := got * 100 / key.len()
+        print("{s.name:<4}{got}/{key.len()} {pct:>3}%")
+        for q in wrong_questions(key, s.answers)
+            misses[q] += 1
+    hard := misses.keys().sorted(by: |q| (-misses[q], q))
+    print("hardest: {hard.take(2).map(|q| "Q{q}").join(" ")}")
+    print("unanswered by Di: {key.len() - sheets[3].answers.len()}")
+
+@test fn perfect_sheet_scores_all()
+    assert_eq(score("ABC", "ABC"), 3)
+
+@test fn short_sheet_stops_early()
+    assert_eq(wrong_questions("ABCD", "AXC"), [2])

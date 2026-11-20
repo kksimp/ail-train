@@ -1,0 +1,32 @@
+## Vigenere: shifts each letter by the matching letter of a repeating key, skipping
+## non-letters without using up the key; decrypting reverses it.
+
+fn shift(c char, k int) char
+    base := if c.is_upper() then 65 else 97
+    char.from_code((c.code() - base + k + 26) % 26 + base)
+
+fn vigenere(text str, key str, sign int) str
+    ks := key.to_lower().chars().map(|c| c.code() - 97)
+    mut out := List[char]()
+    mut i := 0
+    for c in text.chars()
+        if c.is_alpha()
+            out.push(shift(c, sign * ks[i % ks.len()]))
+            i += 1
+        else
+            out.push(c)
+    out.join("")
+
+fn main()
+    plain := "Attack at dawn, then Rest."
+    for key in ["lemon", "b", "Key"]
+        enc := vigenere(plain, key, 1)
+        dec := vigenere(enc, key, -1)
+        print("{key}: {enc} | back: {dec == plain}")
+    print(vigenere("abc xyz", "a", 1))
+
+@test fn key_b_shifts_by_one()
+    assert_eq(vigenere("az", "b", 1), "ba")
+
+@test fn spaces_keep_key_position()
+    assert_eq(vigenere("a a", "ab", 1), "a b")

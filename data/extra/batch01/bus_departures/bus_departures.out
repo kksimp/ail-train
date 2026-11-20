@@ -1,0 +1,7 @@
+buses: 7
+06:15 06:40 07:05 07:30
+06:00: next bus 06:15, wait 15 min
+07:41: next bus 07:55, wait 14 min
+08:59: no more buses
+9:5: no more buses
+25:00: not a time

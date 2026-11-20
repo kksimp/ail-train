@@ -1,0 +1,10 @@
+name    | role | team
+Mira    | lead
+Joaquin | dev  | core | x
+Li      | qa   | web
+
+name | Mira | Joaquin | Li
+role | lead | dev     | qa
+team | -    | core    | web
+-    | -    | x       | -
+4 x 4

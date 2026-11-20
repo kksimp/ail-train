@@ -1,0 +1,47 @@
+## Ski pass prices: picks a price band with `match` on integer ranges and a guard,
+## applies a multi-day discount, and prints a priced list of a group.
+
+enum Band
+    Child
+    Youth
+    Adult
+    Senior
+
+fn band(age int) Band
+    match age
+        0..=11 => Child
+        12..=17 => Youth
+        _ if age >= 65 => Senior
+        _ => Adult
+
+fn day_price(b Band) int
+    match b
+        Child => 20
+        Youth => 32
+        Adult => 45
+        Senior => 30
+
+fn pass_price(age int, days int) int
+    base := day_price(band(age)) * days
+    off := if days >= 6 then 20 elif days >= 3 then 10 else 0
+    base - base * off / 100
+
+fn main()
+    group := [("Ines", 42, 3), ("Tom", 9, 3), ("Ola", 70, 6), ("Raf", 16, 1), ("Uma", 12, 7)]
+    mut total := 0
+    for who in group
+        name, age, days := who
+        p := pass_price(age, days)
+        total += p
+        print("{name:<5} {band(age).name():<7}{days} days {p:>4}")
+    print("group total: {total}")
+    print(Band.variants().map(|b| "{b.name()}={day_price(b)}").join(" "))
+
+@test fn bands_have_edges()
+    assert_eq(band(11), Band.Child)
+    assert_eq(band(12), Band.Youth)
+    assert_eq(band(65), Band.Senior)
+    assert_eq(band(64), Band.Adult)
+
+@test fn long_passes_are_cheaper()
+    assert_eq(pass_price(30, 6), 216)

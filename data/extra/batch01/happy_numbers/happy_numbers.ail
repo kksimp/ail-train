@@ -1,0 +1,35 @@
+## Happy numbers: repeatedly replaces a number by the sum of the squares of its digits; it
+## is happy if this reaches 1, and a `Set` of seen values detects the endless loops.
+
+fn next_value(n int) int
+    mut v := n
+    mut s := 0
+    while v > 0
+        d := v % 10
+        s += d * d
+        v /= 10
+    s
+
+fn path(n int) (bool, List[int])
+    mut seen := Set[int]()
+    mut steps := [n]
+    mut v := n
+    while v != 1 and seen.add(v)
+        v = next_value(v)
+        steps.push(v)
+    (v == 1, steps)
+
+fn main()
+    for n in [7, 19, 4, 100, 2]
+        happy, steps := path(n)
+        verdict := if happy then "happy" else "unhappy"
+        print("{n}: {verdict} after {steps.len() - 1} steps: {steps.take(6).join(" > ")}")
+    happies := [n for n in 1..=50 if path(n).0]
+    print("happy up to 50: {happies.join(" ")}")
+    print("count: {happies.len()}")
+
+@test fn seven_is_happy()
+    assert(path(7).0)
+
+@test fn four_is_not()
+    assert(not path(4).0)

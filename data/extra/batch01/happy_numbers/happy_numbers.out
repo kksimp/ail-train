@@ -1,0 +1,7 @@
+7: happy after 5 steps: 7 > 49 > 97 > 130 > 10 > 1
+19: happy after 4 steps: 19 > 82 > 68 > 100 > 1
+4: unhappy after 8 steps: 4 > 16 > 37 > 58 > 89 > 145
+100: happy after 1 steps: 100 > 1
+2: unhappy after 9 steps: 2 > 4 > 16 > 37 > 58 > 89
+happy up to 50: 1 7 10 13 19 23 28 31 32 44 49
+count: 11
