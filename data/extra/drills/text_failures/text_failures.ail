@@ -31,6 +31,8 @@ fn main()
     print(fallback)
     if t := parse_time("23:59")
         print(t)
+    else e
+        print("error: {e}")
 
 @test fn midnight_is_zero()
     assert_eq(parse_time("00:00")?, 0)

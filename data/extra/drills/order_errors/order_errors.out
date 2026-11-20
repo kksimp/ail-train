@@ -4,5 +4,5 @@ jam: 420
 [tea two] failed: bad quantity two (quantity 'two' is not a number)
 [milk 1] failed: unknown item milk (we do not sell milk)
 1190
-order failed: line 2: unknown item milk
+order failed: unknown item milk
 -1

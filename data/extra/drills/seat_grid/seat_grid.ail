@@ -30,7 +30,7 @@ fn main()
     print(draw(seats))
     for r in 0..seats.rows
         print("row {r}: {free_in_row(seats, r)} free")
-    print(seats.to_list().sum())
+    print(seats.to_list().flatten().sum())
     mut tally := Grid.fill(2, 2, 0)
     tally[0, 1] += 5
     tally[0, 1] += 2

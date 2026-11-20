@@ -21,7 +21,7 @@ fn is_even(n int) bool
     n % 2 == 0
 
 fn failing(rules List[Rule], n int) List[str]
-    [r.name for r in rules if not r.test(n)]
+    [r.name for r in rules if not (r.test)(n)]
 
 fn main()
     print(apply_twice(double, 5))

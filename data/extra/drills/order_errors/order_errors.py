@@ -22,5 +22,5 @@ for line in ["tea 2", "jam", "", "tea two", "milk 1"]:
     except OrderError as e:
         print(f"[{line}] failed: {e} ({e.why})")
 print(350 + 840)
-print("order failed: line 2: unknown item milk")
+print("order failed: unknown item milk")
 print(-1)

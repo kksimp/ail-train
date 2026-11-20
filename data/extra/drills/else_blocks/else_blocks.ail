@@ -1,10 +1,10 @@
 ## Else blocks: the ways to handle a missing or failed value: `else VALUE`, `else return`,
 ## `else continue`, an `else` block that ends in a value, and `if v := ... else err`.
 
-fn load(store Map[str, str], key str) str ! str
-    v := store.get(key) else return "missing key {key}"
+fn load(store Map[str, str], key str) str ! Fail
+    v := store.get(key) else return Fail(msg: "missing key {key}")
     if v == ""
-        return "empty value for {key}"
+        return Fail(msg: "empty value for {key}")
     v
 
 fn port(store Map[str, str]) int

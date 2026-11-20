@@ -1,0 +1,44 @@
+ail commit: 3d0c5c913
+checked: 2026-11-20T23:13:38Z
+pass big_factorials
+pass billing_traits
+pass cart_updates
+pass char_classes
+pass checked_totals
+pass comprehension_forms
+pass else_blocks
+pass find_in_text
+pass float_geometry
+pass fold_and_tests
+pass format_table
+pass function_values
+pass generic_containers
+pass grouped_entries
+pass job_queue_heap
+pass labelled_search
+pass list_edits
+pass nested_lists
+pass number_fields
+pass optional_lookups
+pass order_errors
+pass paired_lists
+pass permission_bits
+pass ranges_and_slices
+pass ranked_players
+pass receipt_columns
+pass recent_window_deque
+pass seat_grid
+pass shape_report
+pass sliding_windows
+pass stock_defaults
+pass take_and_skip
+pass team_skills
+pass text_builder
+pass text_failures
+pass trim_and_strip
+pass tuple_records
+pass value_branches
+pass weekday_names
+pass word_ranking
+total: 40 pass, 0 fail
+

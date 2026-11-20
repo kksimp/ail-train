@@ -10,4 +10,11 @@ print("true")
 print(sum(1 for row in [[1, 2], [3, -1, 4], [], [0], [-5]] if all(c >= 0 for c in row)))
 print(collatz(6))
 print("3 30 2 1")
-print(2)
+skipped = 0
+for n in range(1, 11):
+    if n % 3 == 0:
+        skipped += 1
+        continue
+    if n > 8:
+        break
+print(skipped)

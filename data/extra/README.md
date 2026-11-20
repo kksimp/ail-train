@@ -14,7 +14,10 @@ They feed the `write`, `port` and `complete` families.
 
 ## Status
 
-**Not yet checked by the compiler.** These were written in a cloud session, where AIL builds are not allowed.
+**Checked: 40 of 40 pass** with ail 3d0c5c913 (0.2.0 release candidate) on 2026-11-20 (`RESULTS.txt`). On the first
+run 34 passed; 6 were fixed (four AIL forms guessed wrong: `str ! str`, calling a `fn` field as a method,
+`Grid.to_list().sum()` on rows, an `if :=` on a failing result with no `else`; two Python twins were wrong).
+These were written in a cloud session, where AIL builds are not allowed.
 `tools/check_extra/run.sh` checks all of them on the Mac and writes `RESULTS.txt` here. The builder keeps only
 programs that pass (PLAN.md section 5), so an unchecked or failing program never reaches training.
 
