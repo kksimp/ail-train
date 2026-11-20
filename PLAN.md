@@ -59,8 +59,13 @@ M1 presents two or three concrete candidates on a decision card with measured me
 
 ## 5. Data
 
-Everything AIL that enters training must pass `ail check` with the AIL 0.2.0 compiler, and every program with a known
+Everything AIL that enters training must pass `ail check` with the AIL 0.2 compiler (baseline commit `3d0c5c91`, below), and every program with a known
 expected output must reproduce it. The builder drops failures and reports counts.
+
+**Baseline:** kksimp/ail main at `3d0c5c9135d28ca36c14342bbf20251f8c2602cf`, the 0.2.0 release candidate
+(2026-11-20). The code is frozen there; only docs and version data change before the v0.2.0 tag, so the language and
+compiler at this commit are what 0.2.0 ships. Pin all data building and validation to it. Docs (cards, how-to) may be
+re-read from the v0.2.0 tag once it exists.
 
 ### 5.1 Sources
 
@@ -119,7 +124,7 @@ split (multi-file tasks) or dropped and counted.
 ### 5.4 Builder
 
 `tools/build_data.py` (to write in M2), run on the Mac:
-- inputs: an ail checkout at the 0.2.0 tag (path argument), this repo's `data/raw/`;
+- inputs: an ail checkout at the baseline commit `3d0c5c9135d28ca36c14342bbf20251f8c2602cf` (path argument), this repo's `data/raw/`;
 - runs the tree's `ail check` (and `ail run` where an `.out` exists) on every program, records the output;
 - emits `data/build/{train,valid,quick-eval}.jsonl` and `manifest.json` (counts per family and source, token
   totals with the chosen tokenizer, ail commit, seed, dropped items and reasons);
@@ -179,7 +184,7 @@ report in the thread and its checkboxes updated here.
   `pip install mlx-lm`, record chip, macOS, free memory and disk; download 2-3 candidate bases (4-bit); tokenise 20
   corpus programs per candidate; a 50-example, 20-step LoRA smoke run per candidate recording peak memory and tok/s.
   Done when: a decision card with the measured numbers is answered (base model chosen).
-- **M2 Data builder.** `tools/build_data.py` as in 5.4; Mac job against ail 0.2.0. Done when: manifest counts
+- **M2 Data builder.** `tools/build_data.py` as in 5.4; Mac job against the baseline commit. Done when: manifest counts
   reported, every kept item passed `ail check`, and the deterministic rebuild matches.
 - **M3 Fresh eval tasks** (separate lane, must not read `data/`). 12-20 tasks in agentbench format, AIL reference
   solutions validated with `agentbench.py validate` on the Mac, sealed in `~/ail-heldout/train-eval/`. Can run in
@@ -212,7 +217,7 @@ config.local             untracked: base model id, paths (D6)
 - **Card memorisation** instead of language learning: the port, fix and change families force real use.
 - **Python-shaped AIL** from port tasks: the quick eval and loop eval catch non-idiomatic code by compile errors;
   keep port at 15%.
-- **Stale diagnostics**: the drafts carry diagnostics from older compilers; the builder regenerates them with 0.2.0.
+- **Stale diagnostics**: the drafts carry diagnostics from older compilers; the builder regenerates them with the baseline compiler.
 - **Memory**: swap makes training crawl and starves the gate. Never train while a gate runs on the Mac.
 - **Licence** of the base blocks bundling (section 4).
 - **Language drift** after 0.2: the manifest pins the ail commit; rebuild and re-validate data on each AIL release.
