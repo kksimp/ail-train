@@ -1,0 +1,8 @@
+ca: 7
+car: 6
+care: 2
+do: 3
+x: 0
+cards: 0
+complete 'car': card, car, care
+complete 'do': dog, door, dot

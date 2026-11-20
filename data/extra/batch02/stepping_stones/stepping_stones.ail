@@ -1,0 +1,28 @@
+## Stepping stones: each stone says how far you may jump from it; finds the fewest jumps to
+## the last stone with a greedy reach scan, or reports that it cannot be reached.
+
+fn fewest_jumps(stones List[int]) int?
+    if stones.len() <= 1
+        return 0
+    mut jumps := 0
+    mut reach := 0
+    mut edge := 0
+    for i in 0..stones.len() - 1
+        if i > reach
+            return none
+        reach = reach.max(i + stones[i])
+        if i == edge
+            jumps += 1
+            edge = reach
+            if edge >= stones.len() - 1
+                return jumps
+    if edge >= stones.len() - 1 then jumps else none
+
+fn main()
+    for s in [[2, 3, 1, 1, 4], [3, 2, 1, 0, 4], [1, 1, 1, 1], [5], [0, 1], [4, 1, 1, 3, 1, 1, 1]]
+        j := fewest_jumps(s)
+        shown := if j == none then "stuck" else "{j else 0} jumps"
+        print("{s.map(|x| "{x}").join(" ")}: {shown}")
+
+@test fn blocked_by_zero()
+    assert(fewest_jumps([3, 2, 1, 0, 4]) == none)

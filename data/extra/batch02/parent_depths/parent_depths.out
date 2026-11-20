@@ -1,0 +1,8 @@
+depths: 0 1 1 2 2 2 3 3 4 2
+height: 4
+level 0: 0
+level 1: 1 2
+level 2: 3 4 5 9
+level 3: 6 7
+level 4: 8
+leaves: 3 5 7 8 9

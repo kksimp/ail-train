@@ -1,0 +1,13 @@
+    0 ms: ok (2 left)
+   10 ms: ok (1 left)
+   20 ms: ok (0 left)
+   30 ms: rejected (0 left)
+  260 ms: ok (0 left)
+  270 ms: rejected (0 left)
+  520 ms: ok (0 left)
+ 1000 ms: ok (1 left)
+ 1001 ms: ok (0 left)
+ 1002 ms: rejected (0 left)
+ 1003 ms: rejected (0 left)
+ 1004 ms: rejected (0 left)
+allowed 7 of 12

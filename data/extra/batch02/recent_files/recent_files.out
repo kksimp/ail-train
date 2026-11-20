@@ -1,0 +1,11 @@
+open a.ail   [a.ail]
+open b.md    [b.md a.ail]
+open c.txt   [c.txt b.md a.ail]
+open a.ail   [a.ail c.txt b.md]
+open d.ail   [d.ail a.ail c.txt b.md]
+open e.ail   [e.ail d.ail a.ail c.txt b.md]
+open f.ail   [f.ail e.ail d.ail a.ail c.txt]
+close c.txt  [f.ail e.ail d.ail a.ail]
+zzz was not open
+close zzz    [f.ail e.ail d.ail a.ail]
+open b.md    [b.md f.ail e.ail d.ail a.ail]

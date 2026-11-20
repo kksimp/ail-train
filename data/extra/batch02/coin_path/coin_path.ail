@@ -1,0 +1,43 @@
+## Coin path: a robot moves only right or down across a grid of coins; dynamic programming
+## gives the most coins it can collect, and the path is rebuilt from the table.
+
+fn best_path(g List[List[int]]) (int, str)
+    rows := g.len()
+    cols := g[0].len()
+    mut t := Grid.fill(rows, cols, 0)
+    for r in 0..rows
+        for c in 0..cols
+            up := if r > 0 then t[r - 1, c] else 0
+            left := if c > 0 then t[r, c - 1] else 0
+            t[r, c] = g[r][c] + up.max(left)
+    mut moves := List[str]()
+    mut r := rows - 1
+    mut c := cols - 1
+    while r > 0 or c > 0
+        if r == 0
+            moves.push("R")
+            c -= 1
+        elif c == 0
+            moves.push("D")
+            r -= 1
+        elif t[r - 1, c] >= t[r, c - 1]
+            moves.push("D")
+            r -= 1
+        else
+            moves.push("R")
+            c -= 1
+    (t[rows - 1, cols - 1], moves.reversed().join(""))
+
+fn main()
+    grids := [
+        [[0, 3, 1, 1], [2, 0, 0, 4], [1, 5, 3, 1]],
+        [[5]],
+        [[1, 1, 1], [1, 9, 1], [1, 1, 1]],
+    ]
+    for g in grids
+        coins, path := best_path(g)
+        shown := if path == "" then "-" else path
+        print("{coins} coins via {shown}")
+
+@test fn single_row()
+    assert_eq(best_path([[1, 2, 3]]), (6, "RR"))

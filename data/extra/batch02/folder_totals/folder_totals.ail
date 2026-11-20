@@ -1,0 +1,44 @@
+## Folder totals: adds file sizes from `path size` lines up to every parent folder, then
+## prints folders by total size with their depth shown by indentation.
+
+fn parents(path str) List[str]
+    parts := path.split("/")
+    mut out := List[str]()
+    for i in 1..parts.len()
+        out.push(parts.slice(0, i).join("/"))
+    out
+
+fn human(n int) str
+    if n >= 1048576
+        "{n / 1048576}.{n % 1048576 * 10 / 1048576}M"
+    elif n >= 1024
+        "{n / 1024}K"
+    else
+        "{n}B"
+
+fn main()
+    listing := [
+        "src/main.ail 4200",
+        "src/parse/lexer.ail 15800",
+        "src/parse/tree.ail 9100",
+        "docs/guide.md 2300000",
+        "docs/img/logo.png 840000",
+        "README.md 900",
+    ]
+    mut totals := Map[str, int]()
+    mut files := 0
+    for line in listing
+        parts := line.words()
+        size := parts[1].to_int() else 0
+        files += 1
+        for dir in parents(parts[0])
+            totals[dir] += size
+    for dir in totals.keys().sorted()
+        depth := dir.count("/")
+        print("{"  ".repeat(depth)}{dir.split("/").last() else dir}/ {human(totals[dir])}")
+    biggest := totals.keys().max(by: |d| totals[d]) else ""
+    print("{files} files; biggest folder: {biggest}")
+
+@test fn parents_of_nested_file()
+    assert_eq(parents("a/b/c.txt"), ["a", "a/b"])
+    assert_eq(parents("top.txt").len(), 0)

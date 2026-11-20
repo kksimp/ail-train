@@ -1,0 +1,40 @@
+## Limited stops: the cheapest fare between two airports using at most k stops, by
+## relaxing every flight k+1 times from a copy of the previous round (Bellman-Ford).
+
+struct Flight
+    from str
+    to str
+    price int
+
+fn cheapest(flights List[Flight], src str, dst str, stops int) int?
+    mut cost := Map[str, int]()
+    cost[src] = 0
+    for _ in 0..=stops
+        prev := cost
+        for f in flights
+            if base := prev.get(f.from)
+                candidate := base + f.price
+                if candidate < cost.get_or(f.to, 1000000000)
+                    cost[f.to] = candidate
+    cost.get(dst)
+
+fn main()
+    flights := [
+        Flight(from: "LIS", to: "MAD", price: 60),
+        Flight(from: "MAD", to: "BER", price: 90),
+        Flight(from: "LIS", to: "BER", price: 210),
+        Flight(from: "LIS", to: "PAR", price: 70),
+        Flight(from: "PAR", to: "AMS", price: 40),
+        Flight(from: "AMS", to: "BER", price: 30),
+        Flight(from: "BER", to: "WAW", price: 50),
+    ]
+    for k in 0..=3
+        c := cheapest(flights, "LIS", "BER", k)
+        shown := if c == none then "none" else "{c else 0}"
+        print("LIS to BER with at most {k} stops: {shown}")
+    print("LIS to WAW, 1 stop: {cheapest(flights, "LIS", "WAW", 1) else -1}")
+    print("BER to LIS: {cheapest(flights, "BER", "LIS", 5) else -1}")
+
+@test fn direct_only()
+    fs := [Flight(from: "a", to: "b", price: 5)]
+    assert_eq(cheapest(fs, "a", "b", 0) else -1, 5)

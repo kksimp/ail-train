@@ -1,0 +1,31 @@
+## Latin squares: a grid is a Latin square when every symbol appears once in each row and
+## each column; reports the first repeated symbol and builds a cyclic square of size n.
+
+fn first_problem(g List[str]) str?
+    n := g.len()
+    for r in 0..n
+        row := g[r].chars()
+        if row.len() != n
+            return "row {r + 1} has {row.len()} cells"
+        if {c for c in row}.len() != n
+            return "row {r + 1} repeats a symbol"
+    for c in 0..n
+        mut seen := Set[char]()
+        for r in 0..n
+            ch := g[r].char_at(c) else ' '
+            if not seen.add(ch)
+                return "column {c + 1} repeats '{ch}'"
+    none
+
+fn cyclic(n int) List[str]
+    letters := "ABCDEFGHIJ".chars()
+    [[letters[(r + c) % n] for c in 0..n].join("") for r in 0..n]
+
+fn main()
+    grids := [["ABC", "BCA", "CAB"], ["ABC", "BAC", "CAB"], ["AB", "AB"], ["ABCD", "BCDA", "CD", "DABC"], cyclic(5)]
+    for g in grids
+        verdict := first_problem(g) else "latin square"
+        print("{g.join("/")}: {verdict}")
+
+@test fn cyclic_is_latin()
+    assert(first_problem(cyclic(7)) == none)

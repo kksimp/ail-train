@@ -1,0 +1,43 @@
+## Two colour: decides whether a graph's nodes can be split into two groups with every
+## edge crossing between them, by breadth-first colouring; reports a clashing edge.
+
+fn two_colour(n int, edges List[(int, int)]) Map[int, int] ! str
+    mut adj := Map[int, List[int]]()
+    for e in edges
+        adj.push(e.0, e.1)
+        adj.push(e.1, e.0)
+    mut colour := Map[int, int]()
+    for start in 0..n
+        if colour.contains(start)
+            continue
+        colour[start] = 0
+        mut queue := Deque[int]()
+        queue.push_back(start)
+        while u := queue.pop_front()
+            nbrs := adj.get(u) else []
+            for v in nbrs
+                if not colour.contains(v)
+                    colour[v] = 1 - colour[u]
+                    queue.push_back(v)
+                elif colour[v] == colour[u]
+                    return "edge {u}-{v} joins two nodes of one colour"
+    colour
+
+fn main()
+    graphs := [
+        (4, [(0, 1), (1, 2), (2, 3), (3, 0)]),
+        (3, [(0, 1), (1, 2), (2, 0)]),
+        (6, [(0, 3), (1, 4), (2, 5), (0, 4)]),
+        (2, List[(int, int)]()),
+    ]
+    for g in graphs
+        n, edges := g
+        c := two_colour(n, edges) else err
+            print("{n} nodes: not two-colourable ({err})")
+            continue
+        left := [i for i in 0..n if c[i] == 0]
+        right := [i for i in 0..n if c[i] == 1]
+        print("{n} nodes: {left.map(|i| "{i}").join(",")} | {right.map(|i| "{i}").join(",")}")
+
+@test fn odd_cycle_fails()
+    assert_err(two_colour(3, [(0, 1), (1, 2), (2, 0)]))

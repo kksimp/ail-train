@@ -1,0 +1,49 @@
+## Rover commands: a rover on a fenced grid takes L, R and F commands; it refuses to drive
+## into rocks or off the grid, logs each refusal, and reports where it ends up facing.
+
+enum Facing
+    North
+    East
+    South
+    West
+
+fn turn(f Facing, right bool) Facing
+    order := Facing.variants()
+    i := order.index_of(f) else 0
+    order[(i + (if right then 1 else 3)) % 4]
+
+fn ahead(p (int, int), f Facing) (int, int)
+    x, y := p
+    match f
+        North => (x, y + 1)
+        East => (x + 1, y)
+        South => (x, y - 1)
+        West => (x - 1, y)
+
+fn main()
+    rocks := {(1, 2), (3, 3), (0, 4)}
+    size := 5
+    mut pos := (0, 0)
+    mut facing := Facing.North
+    mut refused := 0
+    for i, c in "FFRFFLFFFLFFRRF".chars().enumerate()
+        match c
+            'L' => facing = turn(facing, false)
+            'R' => facing = turn(facing, true)
+            _ =>
+                nxt := ahead(pos, facing)
+                if nxt.0 < 0 or nxt.1 < 0 or nxt.0 >= size or nxt.1 >= size
+                    print("step {i + 1}: edge ahead")
+                    refused += 1
+                elif rocks.contains(nxt)
+                    print("step {i + 1}: rock at ({nxt.0}, {nxt.1})")
+                    refused += 1
+                else
+                    pos = nxt
+    print("ends at ({pos.0}, {pos.1}) facing {facing.name()}, {refused} refused")
+
+@test fn four_rights_return()
+    mut f := Facing.West
+    for _ in 0..4
+        f = turn(f, true)
+    assert_eq(f, Facing.West)

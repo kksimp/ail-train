@@ -1,0 +1,35 @@
+## Token bucket: a rate limiter that refills tokens over time up to a capacity; requests
+## at given milliseconds are allowed while a token is left, otherwise rejected.
+
+struct Bucket
+    capacity int
+    tokens int
+    per_token_ms int
+    last_ms int
+
+fn Bucket.allow(mut self, now int) bool
+    gained := (now - self.last_ms) / self.per_token_ms
+    if gained > 0
+        self.tokens = (self.tokens + gained).min(self.capacity)
+        self.last_ms += gained * self.per_token_ms
+    if self.tokens == 0
+        return false
+    self.tokens -= 1
+    true
+
+fn main()
+    mut b := Bucket(capacity: 3, tokens: 3, per_token_ms: 250, last_ms: 0)
+    times := [0, 10, 20, 30, 260, 270, 520, 1000, 1001, 1002, 1003, 1004]
+    mut allowed := 0
+    for t in times
+        ok := b.allow(t)
+        if ok
+            allowed += 1
+        verdict := if ok then "ok" else "rejected"
+        print("{t:>5} ms: {verdict} ({b.tokens} left)")
+    print("allowed {allowed} of {times.len()}")
+
+@test fn refill_caps_at_capacity()
+    mut b := Bucket(capacity: 2, tokens: 0, per_token_ms: 10, last_ms: 0)
+    assert(b.allow(1000))
+    assert_eq(b.tokens, 1)

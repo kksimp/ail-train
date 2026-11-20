@@ -1,0 +1,40 @@
+## Fleet shots: ships placed on a grid by start, length and direction; shots are called as
+## `B4` style squares and reported as miss, hit or sunk, with the fleet's state at the end.
+
+struct Ship
+    name str
+    cells List[(int, int)]
+
+fn place(name str, start str, size int, across bool) Ship
+    row := (start.char_at(0) else 'A').code() - 65
+    col := (start.slice(1).to_int() else 1) - 1
+    mut cells := List[(int, int)]()
+    for i in 0..size
+        if across
+            cells.push((row, col + i))
+        else
+            cells.push((row + i, col))
+    Ship(name: name, cells: cells)
+
+fn target(call str) (int, int)
+    ((call.char_at(0) else 'A').code() - 65, (call.slice(1).to_int() else 1) - 1)
+
+fn main()
+    fleet := [place("carrier", "A1", 4, true), place("sub", "C3", 3, false), place("boat", "F6", 2, true)]
+    mut hits := Set[(int, int)]()
+    for call in ["A1", "B2", "C3", "A2", "D3", "E3", "A3", "A4", "F7", "F6", "J9"]
+        t := target(call)
+        owner := fleet.find(|s| s.cells.contains(t))
+        if s := owner
+            hits.add(t)
+            sunk := s.cells.all(|c| hits.contains(c))
+            result := if sunk then "sunk {s.name}" else "hit"
+            print("{call}: {result}")
+        else
+            print("{call}: miss")
+    afloat := fleet.filter(|s| not s.cells.all(|c| hits.contains(c))).map(|s| s.name)
+    print("still afloat: {afloat.join(", ")}")
+
+@test fn down_placement()
+    s := place("x", "B2", 3, false)
+    assert_eq(s.cells, [(1, 1), (2, 1), (3, 1)])

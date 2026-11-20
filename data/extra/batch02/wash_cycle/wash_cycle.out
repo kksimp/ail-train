@@ -1,0 +1,13 @@
+fill   starts at  0 min
+wash   starts at  4 min
+rinse  starts at 39 min
+spin   starts at 54 min
+drain  starts at 64 min
+minute  0: fill, 67 min left
+minute  3: fill, 64 min left
+minute  4: wash, 63 min left
+minute 50: rinse, 17 min left
+minute 60: spin, 7 min left
+minute 66: drain, 1 min left
+minute 67: done, 0 min left
+minute 90: done, 0 min left

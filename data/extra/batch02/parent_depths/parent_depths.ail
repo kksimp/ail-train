@@ -1,0 +1,29 @@
+## Parent depths: a tree stored as a parent list (-1 for the root); computes each node's
+## depth with memoised walks up, the tree height and the nodes on each level.
+
+fn depth(parents List[int], i int, mut memo Map[int, int]) int
+    if memo.contains(i)
+        return memo[i]
+    p := parents[i]
+    d := if p < 0 then 0 else depth(parents, p, mut memo) + 1
+    memo[i] = d
+    d
+
+fn main()
+    parents := [-1, 0, 0, 1, 1, 2, 4, 4, 6, 2]
+    mut memo := Map[int, int]()
+    mut depths := List[int]()
+    for i in 0..parents.len()
+        depths.push(depth(parents, i, mut memo))
+    print("depths: {depths.map(|d| "{d}").join(" ")}")
+    height := depths.max() else 0
+    print("height: {height}")
+    for level in 0..=height
+        nodes := [i for i in 0..parents.len() if depths[i] == level]
+        print("level {level}: {nodes.map(|n| "{n}").join(" ")}")
+    leaves := [i for i in 0..parents.len() if not parents.contains(i)]
+    print("leaves: {leaves.map(|n| "{n}").join(" ")}")
+
+@test fn root_is_zero()
+    mut m := Map[int, int]()
+    assert_eq(depth([-1, 0], 1, mut m), 1)

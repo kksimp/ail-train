@@ -1,0 +1,25 @@
+## Rise and fall: the longest subsequence that first strictly increases and then strictly
+## decreases (bitonic), from longest-increasing runs computed in both directions.
+
+fn lis_ending(xs List[int]) List[int]
+    mut out := [1 for _ in 0..xs.len()]
+    for i in 0..xs.len()
+        for j in 0..i
+            if xs[j] < xs[i] and out[j] + 1 > out[i]
+                out[i] = out[j] + 1
+    out
+
+fn bitonic(xs List[int]) int
+    up := lis_ending(xs)
+    down := lis_ending(xs.reversed()).reversed()
+    mut best := 0
+    for i in 0..xs.len()
+        best = best.max(up[i] + down[i] - 1)
+    best
+
+fn main()
+    for xs in [[1, 11, 2, 10, 4, 5, 2, 1], [12, 11, 40, 5, 3, 1], [80, 60, 30, 40, 20, 10], [1, 2, 3], List[int]()]
+        print("{xs.map(|x| "{x}").join(" ")}: {bitonic(xs)}")
+
+@test fn increasing_only()
+    assert_eq(bitonic([1, 2, 3, 4]), 4)

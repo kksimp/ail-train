@@ -1,0 +1,6 @@
+LIS to BER with at most 0 stops: 210
+LIS to BER with at most 1 stops: 150
+LIS to BER with at most 2 stops: 140
+LIS to BER with at most 3 stops: 140
+LIS to WAW, 1 stop: 260
+BER to LIS: -1

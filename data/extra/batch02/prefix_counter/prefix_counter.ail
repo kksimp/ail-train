@@ -1,0 +1,21 @@
+## Prefix counter: counts how many words start with every prefix by adding each prefix of
+## each word to a `Map`, then answers prefix queries and suggests the top completions.
+
+fn main()
+    words := ["car", "card", "care", "careful", "cart", "cat", "dog", "dot", "door", "card"]
+    mut counts := Map[str, int]()
+    for w in words
+        for i in 1..=w.len()
+            counts[w.slice(0, i)] += 1
+    for q in ["ca", "car", "care", "do", "x", "cards"]
+        print("{q}: {counts.get_or(q, 0)}")
+    uniq := words.counts()
+    for q in ["car", "do"]
+        matches := uniq.keys().filter(|w| w.starts_with(q)).sorted(by: |w| (-uniq[w], w)).take(3)
+        print("complete '{q}': {matches.join(", ")}")
+
+@test fn empty_prefix_not_stored()
+    mut m := Map[str, int]()
+    for i in 1..=2
+        m["ab".slice(0, i)] += 1
+    assert_eq(m.len(), 2)

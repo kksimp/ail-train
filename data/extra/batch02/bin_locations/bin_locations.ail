@@ -1,0 +1,37 @@
+## Bin locations: a warehouse map from bin code to a list of SKUs; moves, adds and picks
+## items, keeps empty bins out of the map, and finds which bins hold a SKU.
+
+fn find_sku(bins Map[str, List[str]], sku str) List[str]
+    bins.keys().filter(|b| bins[b].contains(sku)).sorted()
+
+fn main()
+    mut bins := Map[str, List[str]]()
+    for entry in ["A1 bolt", "A1 nut", "A2 washer", "B1 bolt", "B1 hinge", "C3 nut"]
+        p := entry.split(" ")
+        bins.push(p[0], p[1])
+    for cmd in ["pick A1 nut", "move A2 washer B1", "pick C3 nut", "pick C3 nut", "add D4 bracket"]
+        w := cmd.split(" ")
+        match w[0]
+            "pick" =>
+                held := bins.get(w[1]) else []
+                i := held.index_of(w[2]) else
+                    print("{cmd}: not there")
+                    continue
+                bins[w[1]].remove_at(i)
+                if bins[w[1]].is_empty()
+                    _ := bins.remove(w[1])
+            "move" =>
+                if j := (bins.get(w[1]) else []).index_of(w[2])
+                    bins[w[1]].remove_at(j)
+                    bins.push(w[3], w[2])
+                    if bins[w[1]].is_empty()
+                        _ := bins.remove(w[1])
+            "add" => bins.push(w[1], w[2])
+            _ => print("unknown {cmd}")
+        print("{cmd}: ok")
+    for b in bins.keys().sorted()
+        print("{b}: {bins[b].join(", ")}")
+    print("bolt in: {find_sku(bins, "bolt").join(" ")}")
+
+@test fn find_none()
+    assert_eq(find_sku(Map[str, List[str]](), "x").len(), 0)

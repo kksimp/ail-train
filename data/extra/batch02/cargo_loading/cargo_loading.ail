@@ -1,0 +1,35 @@
+## Cargo loading: fills a van by weight with goods that can be split (grain, sand, oil),
+## taking the best value per kilo first; the last item may be taken in part, as a float.
+
+struct Good
+    name str
+    kilos float
+    value float
+
+fn load(goods List[Good], capacity float) (float, List[str])
+    mut room := capacity
+    mut total := 0.0
+    mut steps := List[str]()
+    for g in goods.sorted(by: |g| -(g.value / g.kilos * 1000.0).to_int())
+        if room <= 0.0
+            break
+        take := if g.kilos <= room then g.kilos else room
+        total += g.value * take / g.kilos
+        room -= take
+        steps.push("{g.name} {take:.1}kg")
+    (total, steps)
+
+fn main()
+    goods := [
+        Good(name: "rice", kilos: 50.0, value: 60.0),
+        Good(name: "saffron", kilos: 2.0, value: 300.0),
+        Good(name: "oil", kilos: 30.0, value: 90.0),
+        Good(name: "sand", kilos: 100.0, value: 10.0),
+    ]
+    for cap in [10.0, 60.0, 120.0, 500.0]
+        total, steps := load(goods, cap)
+        print("capacity {cap:.0}: {total:.2} ({steps.join(", ")})")
+
+@test fn small_van_takes_best()
+    total, _ := load([Good(name: "a", kilos: 10.0, value: 50.0)], 5.0)
+    assert_near(total, 25.0, 0.001)
