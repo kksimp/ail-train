@@ -22,7 +22,7 @@ other languages; teach through docs, diagnostics and auto-fix).
 | D1 | First run: a ~1.5B-parameter base at 4 bits with LoRA. Try ~3B only after the 1.5B result is in. | Kaleb |
 | D2 | The E14/final-run agent programs and drafts are training data, minus every task in the new eval pool. | Kaleb |
 | D3 | All scripts live in this private repo (kksimp/ail-train), not in kksimp/ail. Data built from them and adapters stay out of git. | Kaleb |
-| D4 | Pass bar: the tuned model's first-correct rate is at least **2x** the same model untrained, on fresh sealed tasks. | Kaleb |
+| D4 | Pass bar: the tuned model's first-correct rate is at least **2x** the same model untrained, **and at least 25%** of trials, on fresh sealed tasks (floor added 2026-11-20). | Kaleb |
 | D5 | ail-edit: an optional setting that points at a local model, **off by default**, Mac first, shown as unavailable on Linux and Windows. | Kaleb |
 | D6 | No model or model identifier is written into any committed file. The base model is named only in the untracked `config.local` on the Mac and in chat. | standing rule |
 | D7 | Everything runs on Kaleb's machines, never in a cloud container, and costs nothing (no paid API). | standing rule |
@@ -157,7 +157,7 @@ Stages:
 3. **Fresh sealed tasks** (D4): 12-20 new from-scratch tasks in agentbench format with AIL reference solutions,
    authored in M3. 5 trials per task per arm.
 
-Pass bar (D4): arm C first-correct >= 2 x arm A first-correct on the sealed tasks. Also report final-correct and
+Pass bar (D4): arm C first-correct >= 2 x arm A first-correct, and >= 25% of trials, on the sealed tasks. Also report final-correct and
 mean versions to correct, beside the frontier figures from CONTEXT.md, with the caveat that a 1.5B model is not
 expected to match a frontier model. A failed bar is still reported honestly; it tells us whether data volume or
 model size is the limit.
@@ -234,8 +234,8 @@ Findings from a review of this plan against current published methods. Items mar
   verified examples per language (arXiv 2308.09895); a reinforcement method gained nothing at 1.7B and 3B and gained
   clearly at 4B (arXiv 2508.04865). On-device work trains a 4B base at 4 bits on 8 GB phones under ~1 GB at sequence
   256 with exact gradients (arXiv 2510.03425). Decided (D10): the M1 preflight measures 1.5B, 3B and ~4B candidates.
-- **Pass bar.** An untrained small base writes almost no correct AIL, so "2x the base" (D4) can be met by a model that
-  is still unusable. Proposed: keep 2x and add an absolute floor. **card**
+- **Pass bar.** An untrained small base writes almost no correct AIL, so "2x the base" alone could be met by a model
+  that is still unusable. Decided: D4 keeps 2x and adds a floor of 25% first-correct. Rejected: 2x only; a 50% floor.
 - **Data volume.** The training set holds about 1,000 distinct verified programs (the 333 agent trials cover 16
   tasks). The cited work used tens of thousands, and found unverified data useless or harmful, so growth must go
   through `ail check` and expected output. Proposed: grow the set with compiler-verified generated programs. **card**
