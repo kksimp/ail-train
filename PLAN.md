@@ -29,6 +29,7 @@ other languages; teach through docs, diagnostics and auto-fix).
 | D8 | Training starts only after AIL 0.2.0 is tagged and Kaleb says go. | Kaleb |
 | D9 | The core card stays as the system prompt on every training example (2026-11-20). The sequence cap rises to about 4096 to hold it; the preflight measures memory and speed at that length. | Kaleb |
 | D10 | The M1 preflight measures three candidate sizes, about 1.5B, 3B and 4B, each at the D9 sequence length; the base is picked from the measured numbers (2026-11-20). D1's order still holds unless that card says otherwise. | Kaleb |
+| D11 | Grow the training set to about 3,000 distinct compiler-checked programs (2026-11-20). Project threads write them in batches under `data/extra/`; the Mac checks each with `tools/check_extra/run.sh`; only passing programs are kept. No paid service. | Kaleb |
 
 Open (ask Kaleb with a tappable card when reached): which concrete base model (section 4), whether a published
 adapter is wanted at all (licence, section 4), whether the eval report goes on the public AIL benchmarks page.
@@ -223,7 +224,7 @@ config.local             untracked: base model id, paths (D6)
 
 ## 12. Review of 2026-11-20 (8 GB methods)
 
-Findings from a review of this plan against current published methods. Items marked **card** wait for Kaleb.
+Findings from a review of this plan against current published methods. Kaleb answered the four decisions on 2026-11-20 (D4 floor, D9, D10, D11).
 
 - **The core card does not fit the sequence.** The core card is ~3k tokens and the sequence cap was 2048, so with the
   card as the system prompt every example was over the cap. Decided (D9): keep the card on every example and raise
@@ -238,7 +239,8 @@ Findings from a review of this plan against current published methods. Items mar
   that is still unusable. Decided: D4 keeps 2x and adds a floor of 25% first-correct. Rejected: 2x only; a 50% floor.
 - **Data volume.** The training set holds about 1,000 distinct verified programs (the 333 agent trials cover 16
   tasks). The cited work used tens of thousands, and found unverified data useless or harmful, so growth must go
-  through `ail check` and expected output. Proposed: grow the set with compiler-verified generated programs. **card**
+  through `ail check` and expected output. Decided (D11): grow the set to about 3,000 compiler-checked programs. Each batch is checked on the Mac before the next
+  is written, so the failures of one batch correct the next. Rejected: stopping at the 40 drills; waiting for the public corpus.
 - **Coverage.** Of the methods the language card names, most appear under five times in the corpus and examples
   (`center`, `rfind`, `get_or`, `map_values`, `zip`, `windows`, `chunks`, `flatten`, `take_while`, `checked_*`, ...).
   Guessed method names are the top draft error. `data/extra/drills/` starts to close this; `tests/cases/*.ail` with
