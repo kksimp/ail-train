@@ -1,0 +1,15 @@
+Mon workday -> Tue
+Tue workday -> Wed
+Wed workday -> Thu
+Thu workday -> Fri
+Fri workday -> Sat
+Sat weekend -> Sun
+Sun weekend -> Mon
+7
+fri is Fri
+SUNDAY is Sun
+Mon is Mon
+xx is not a day
+noday is not a day
+true
+true

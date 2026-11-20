@@ -1,0 +1,40 @@
+## Text failures: functions that fail with plain text (`T ! str`): `return "message"` is
+## the failure, `?` passes it on, and `else e` binds the text.
+
+fn parse_time(text str) int ! str
+    parts := text.split(":")
+    if parts.len() != 2
+        return "expected HH:MM, got '{text}'"
+    h := parts[0].to_int() else return "bad hour '{parts[0]}'"
+    m := parts[1].to_int() else return "bad minute '{parts[1]}'"
+    if h < 0 or h > 23
+        return "hour {h} out of range"
+    if m < 0 or m > 59
+        return "minute {m} out of range"
+    h * 60 + m
+
+fn span(start str, finish str) int ! str
+    a := parse_time(start)?
+    b := parse_time(finish)?
+    if b < a
+        return "{finish} is before {start}"
+    b - a
+
+fn main()
+    pairs := [("09:00", "17:30"), ("9:5", "9:50"), ("12:00", "11:00"), ("noon", "13:00"), ("10:00", "25:00"), ("08:xx", "09:00")]
+    for start, finish in pairs
+        mins := span(start, finish) else e
+            print("{start}-{finish}: error: {e}")
+            continue
+        print("{start}-{finish}: {mins / 60}h {mins % 60}m")
+    fallback := parse_time("bad") else 0
+    print(fallback)
+    if t := parse_time("23:59")
+        print(t)
+
+@test fn midnight_is_zero()
+    assert_eq(parse_time("00:00")?, 0)
+
+@test fn out_of_range_fails()
+    assert_err(parse_time("24:00"))
+    assert_err(span("10:00", "09:00"))

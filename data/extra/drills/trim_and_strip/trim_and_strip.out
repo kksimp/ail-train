@@ -1,0 +1,8 @@
+PATH -> [/usr/bin]
+name -> [ale]
+  depth -> [3]
+comment [# a comment]
+skip [broken line]
+[both  ] [  both] [both]
+x
+no suffix

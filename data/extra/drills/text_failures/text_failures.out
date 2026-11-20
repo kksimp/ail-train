@@ -1,0 +1,8 @@
+09:00-17:30: 8h 30m
+9:5-9:50: 0h 45m
+12:00-11:00: error: 11:00 is before 12:00
+noon-13:00: error: expected HH:MM, got 'noon'
+10:00-25:00: error: hour 25 out of range
+08:xx-09:00: error: bad minute 'xx'
+0
+1439

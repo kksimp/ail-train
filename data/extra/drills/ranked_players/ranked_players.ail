@@ -1,0 +1,46 @@
+## Ranked players: orders structs by a key with `sorted(by:)` and `sort(by:)`; a tuple key
+## orders by its first part, then its second, and a negated number sorts descending.
+
+struct Player
+    name str
+    score int
+    age int
+
+fn ranking(players List[Player]) List[Player]
+    players.sorted(by: |p| (-p.score, p.name))
+
+fn names(players List[Player]) str
+    [p.name for p in players].join(" ")
+
+fn main()
+    players := [
+        Player(name: "cy", score: 70, age: 31),
+        Player(name: "ann", score: 90, age: 25),
+        Player(name: "bob", score: 70, age: 44),
+        Player(name: "dee", score: 85, age: 25),
+    ]
+    for i, p in ranking(players).enumerate()
+        print("{i + 1}. {p.name} {p.score}")
+    print(names(players.sorted(by: |p| p.age)))
+    print(names(players.sorted(by: |p| p.name).reversed()))
+    mut by_age := players
+    by_age.sort(by: |p| (p.age, -p.score))
+    print(names(by_age))
+    print(names(players))
+    youngest := players.min(by: |p| p.age)
+    if y := youngest
+        print(y.name)
+    words := ["pear", "fig", "banana", "kiwi"]
+    print(words.sorted(by: |w| w.len()).join(" "))
+    print(words.sorted().join(" "))
+    print([3, 1, 2].sorted().reversed().join(" "))
+
+@test fn ties_break_by_name()
+    r := ranking([Player(name: "b", score: 1, age: 1), Player(name: "a", score: 1, age: 1)])
+    assert_eq(r[0].name, "a")
+
+@test fn sorted_leaves_the_list_alone()
+    xs := [2, 1]
+    ys := xs.sorted()
+    assert_eq(xs[0], 2)
+    assert_eq(ys[0], 1)

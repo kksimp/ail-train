@@ -1,0 +1,55 @@
+## Float geometry: `float` maths that never mixes with `int`: `to_float()` and `to_int()`
+## convert, `sqrt`, `floor`, `ceil`, `round`, `pow` and `hypot` compute, `{x:.2}` formats.
+
+struct Point
+    x float
+    y float
+
+fn distance(a Point, b Point) float
+    (b.x - a.x).hypot(b.y - a.y)
+
+fn path_length(points List[Point]) float
+    mut total := 0.0
+    for pair in points.windows(2)
+        total += distance(pair[0], pair[1])
+    total
+
+fn mean(xs List[int]) float
+    if xs.is_empty()
+        return 0.0
+    xs.sum().to_float() / xs.len().to_float()
+
+fn boxes_needed(items int, per_box int) int
+    (items.to_float() / per_box.to_float()).ceil().to_int()
+
+fn main()
+    a := Point(x: 0.0, y: 0.0)
+    b := Point(x: 3.0, y: 4.0)
+    print("{distance(a, b):.2}")
+    print("{path_length([a, b, Point(x: 3.0, y: 10.0)]):.1}")
+    print("{mean([1, 2, 4]):.3}")
+    print("{mean([]):.1}")
+    print(boxes_needed(10, 4))
+    print(boxes_needed(8, 4))
+    r := 2.0
+    print("{3.14159 * r.pow(2.0):.2}")
+    print("{2.0.sqrt():.4}")
+    x := 7.6
+    print("{x.floor():.1} {x.ceil():.1} {x.round():.1}")
+    print(x.to_int())
+    print((0.0 - x).to_int())
+    celsius := [12, 25, 31]
+    fahrenheit := [c.to_float() * 1.8 + 32.0 for c in celsius]
+    print(["{f:.1}" for f in fahrenheit].join(" "))
+    print(0.1 + 0.2 == 0.3)
+    print((0.1 + 0.2 - 0.3).abs() < 0.000001)
+
+@test fn distance_is_symmetric()
+    p := Point(x: 1.0, y: 1.0)
+    q := Point(x: 4.0, y: 5.0)
+    assert_near(distance(p, q), distance(q, p), 0.0001)
+    assert_near(distance(p, q), 5.0, 0.0001)
+
+@test fn partial_boxes_round_up()
+    assert_eq(boxes_needed(1, 4), 1)
+    assert_eq(boxes_needed(0, 4), 0)

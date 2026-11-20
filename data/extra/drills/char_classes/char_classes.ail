@@ -1,0 +1,59 @@
+## Char classes: classifies each character of a password with `is_digit`, `is_alpha`,
+## `is_upper`, `is_lower` and `is_space`, and converts with `to_upper`, `to_digit` and `code`.
+
+struct Counts
+    upper int
+    lower int
+    digits int
+    spaces int
+    other int
+
+fn classify(text str) Counts
+    mut c := Counts(upper: 0, lower: 0, digits: 0, spaces: 0, other: 0)
+    for ch in text.chars()
+        if ch.is_digit()
+            c.digits += 1
+        elif ch.is_upper()
+            c.upper += 1
+        elif ch.is_lower()
+            c.lower += 1
+        elif ch.is_space()
+            c.spaces += 1
+        else
+            c.other += 1
+    c
+
+fn strong(text str) bool
+    c := classify(text)
+    text.len() >= 8 and c.upper > 0 and c.lower > 0 and c.digits > 0 and c.spaces == 0
+
+fn digit_sum(text str) int
+    mut total := 0
+    for ch in text.chars()
+        total += ch.to_digit(10) else 0
+    total
+
+fn capitalise(word str) str
+    first := word.char_at(0) else return ""
+    "{first.to_upper()}{word.slice(1)}"
+
+fn main()
+    for p in ["Tr0ub4dor", "password", "Ab1 cd2 ef", "SHORT1a"]
+        c := classify(p)
+        print("{p}: U{c.upper} L{c.lower} D{c.digits} S{c.spaces} O{c.other} strong={strong(p)}")
+    print(digit_sum("a1b2c3"))
+    print('f'.to_digit(16) else -1)
+    print('g'.to_digit(16) else -1)
+    print('A'.code())
+    letter := char.from_code(97) else '?'
+    print(letter)
+    print(capitalise("ale"))
+    print("x9_".chars().count(|ch| ch.is_alnum()))
+    print('a' < 'b' and 'Z' < 'a')
+
+@test fn empty_text_has_no_classes()
+    assert_eq(classify("").other, 0)
+    assert(not strong(""))
+
+@test fn digits_add_up()
+    assert_eq(digit_sum("99"), 18)

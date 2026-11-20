@@ -1,0 +1,57 @@
+## Function values: passes declared functions and `|x|` literals as arguments, returns a
+## closure that captured a local, and keeps functions in a list and a struct field.
+
+struct Rule
+    name str
+    test fn(int) bool
+
+fn apply_twice(f fn(int) int, x int) int
+    f(f(x))
+
+fn adder(n int) fn(int) int
+    |x| x + n
+
+fn compose(f fn(int) int, g fn(int) int) fn(int) int
+    |x| g(f(x))
+
+fn double(x int) int
+    x * 2
+
+fn is_even(n int) bool
+    n % 2 == 0
+
+fn failing(rules List[Rule], n int) List[str]
+    [r.name for r in rules if not r.test(n)]
+
+fn main()
+    print(apply_twice(double, 5))
+    add3 := adder(3)
+    print(add3(4))
+    print(apply_twice(add3, 0))
+    both := compose(double, adder(1))
+    print(both(10))
+    steps := [double, adder(10), |x| x - 1]
+    mut v := 1
+    for f in steps
+        v = f(v)
+    print(v)
+    limit := 50
+    rules := [
+        Rule(name: "even", test: is_even),
+        Rule(name: "positive", test: |n| n > 0),
+        Rule(name: "small", test: |n| n < limit),
+    ]
+    for n in [4, 7, -2, 80]
+        bad := failing(rules, n)
+        verdict := if bad.is_empty() then "ok" else "fails {bad.join("+")}"
+        print("{n}: {verdict}")
+    print([1, 2, 3].map(double).filter(is_even).len())
+
+@test fn adders_keep_their_own_number()
+    a := adder(1)
+    b := adder(100)
+    assert_eq(a(1) + b(1), 103)
+
+@test fn compose_runs_left_then_right()
+    f := compose(adder(1), double)
+    assert_eq(f(1), 4)

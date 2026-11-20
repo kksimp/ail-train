@@ -1,0 +1,54 @@
+## Text builder: builds text without `+`: interpolation, pieces pushed to a list and joined,
+## `repeat`, `replace`, `to_upper`, `to_lower`, `words`, `lines`, and `split` with a piece limit.
+
+fn title_case(text str) str
+    mut out := List[str]()
+    for w in text.words()
+        out.push("{w.slice(0, 1).to_upper()}{w.slice(1).to_lower()}")
+    out.join(" ")
+
+fn boxed(text str) str
+    mut rows := List[str]()
+    width := text.lines().map(|l| l.len()).max() else 0
+    rows.push("+{"-".repeat(width + 2)}+")
+    for l in text.lines()
+        rows.push("| {l.pad_right(width, ' ')} |")
+    rows.push("+{"-".repeat(width + 2)}+")
+    rows.join("\n")
+
+fn key_value(line str) (str, str)
+    parts := line.split("=", 2)
+    if parts.len() < 2
+        return (line.trim(), "")
+    (parts[0].trim(), parts[1].trim())
+
+fn main()
+    print(title_case("the QUICK  brown fOX"))
+    print(boxed("hello\nto\neveryone"))
+    k, v := key_value("url = http://x/?a=1&b=2")
+    print("{k} -> {v}")
+    k2, v2 := key_value("flag")
+    print("{k2} -> [{v2}]")
+    print("a-b-c".replace("-", "+"))
+    print("2026-11-20".split("-").reversed().join("/"))
+    mut csv := List[str]()
+    for i in 1..=3
+        csv.push("{i},{i * i}")
+    print(csv.join(";"))
+    print("ab".repeat(3))
+    print("\{\"id\": {7}}")
+    multi := """
+        first
+          second
+        """
+    print(multi.lines().len())
+    print("one two  three".words().len())
+    print("a,b,,c".split(",").len())
+
+@test fn title_case_fixes_each_word()
+    assert_eq(title_case("aB cD"), "Ab Cd")
+
+@test fn split_limit_keeps_the_rest()
+    k, v := key_value("a=b=c")
+    assert_eq(k, "a")
+    assert_eq(v, "b=c")

@@ -1,0 +1,56 @@
+## Else blocks: the ways to handle a missing or failed value: `else VALUE`, `else return`,
+## `else continue`, an `else` block that ends in a value, and `if v := ... else err`.
+
+fn load(store Map[str, str], key str) str ! str
+    v := store.get(key) else return "missing key {key}"
+    if v == ""
+        return "empty value for {key}"
+    v
+
+fn port(store Map[str, str]) int
+    text := load(store, "port") else return 80
+    text.to_int() else 80
+
+fn total(lines List[str]) int
+    mut sum := 0
+    for line in lines
+        n := line.trim().to_int() else continue
+        sum += n
+    sum
+
+fn describe(store Map[str, str], key str) str
+    value := load(store, key) else err
+        print("note: {err}")
+        "(default)"
+    "{key}={value}"
+
+fn main()
+    store := {"host": "example.org", "port": "8080", "user": ""}
+    print(port(store))
+    print(port({"port": "http"}))
+    print(port({}))
+    print(describe(store, "host"))
+    print(describe(store, "user"))
+    print(describe(store, "path"))
+    print(total(["4", " 5 ", "six", "", "-1"]))
+    if v := load(store, "port")
+        print("port text {v}")
+    else err
+        print("no port: {err}")
+    if v2 := load(store, "nope")
+        print("found {v2}")
+    else err2
+        print("failed: {err2}")
+    mut level := 0
+    level = "3".to_int() else 0
+    level = (store.get("depth") else "7").to_int() else 0
+    print(level)
+    size := (store.get("host") else "").len() + 1
+    print(size)
+
+@test fn missing_port_uses_the_default()
+    assert_eq(port({}), 80)
+
+@test fn bad_lines_are_skipped()
+    assert_eq(total(["x", "2"]), 2)
+    assert_err(load({"k": ""}, "k"))

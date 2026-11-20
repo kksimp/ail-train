@@ -1,0 +1,35 @@
+## Paired lists: walks two lists together with `zip`, numbers rows with `enumerate`,
+## and compares an expected list with an actual one position by position.
+
+fn dot(a List[int], b List[int]) int
+    mut total := 0
+    for x, y in zip(a, b)
+        total += x * y
+    total
+
+fn mismatches(want List[str], got List[str]) List[int]
+    mut out := List[int]()
+    for i, pair in zip(want, got).enumerate()
+        if pair.0 != pair.1
+            out.push(i)
+    out
+
+fn main()
+    names := ["ann", "bob", "cy"]
+    scores := [71, 88, 64]
+    for name, score in zip(names, scores)
+        print("{name}: {score}")
+    for i, name in names.enumerate()
+        print("{i + 1}. {name}")
+    print(dot([1, 2, 3], [4, 5, 6]))
+    print(dot([1, 2, 3], [10]))
+    bad := mismatches(["a", "b", "c", "d"], ["a", "x", "c", "y"])
+    print(bad.join(","))
+    labels := ["{n}={s}" for n, s in zip(names, scores) if s > 70]
+    print(labels.join(" "))
+
+@test fn dot_stops_at_the_shorter_list()
+    assert_eq(dot([2, 2], [3]), 6)
+
+@test fn equal_lists_have_no_mismatch()
+    assert(mismatches(["a"], ["a"]).is_empty())

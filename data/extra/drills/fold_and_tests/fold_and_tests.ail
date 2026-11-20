@@ -1,0 +1,36 @@
+## Fold and tests: summarises order amounts with `fold`, `sum`, `min`, `max`, `count`,
+## `any` and `all`. `min` and `max` give optionals because a list can be empty.
+
+fn total(xs List[int]) int
+    xs.fold(0, |acc, x| acc + x)
+
+fn spread(xs List[int]) int
+    hi := xs.max() else return 0
+    lo := xs.min() else return 0
+    hi - lo
+
+fn describe(xs List[int]) str
+    if xs.is_empty()
+        return "no orders"
+    big := xs.count(|x| x >= 100)
+    flag := if xs.all(|x| x > 0) then "valid" else "has refunds"
+    "{xs.len()} orders, total {total(xs)}, {big} large, spread {spread(xs)}, {flag}"
+
+fn main()
+    orders := [120, 35, 250, 99, 100]
+    print(describe(orders))
+    print(describe([10, -5, 30]))
+    print(describe([]))
+    print(orders.any(|x| x > 200))
+    print(orders.any(|x| x > 900))
+    print(orders.sum() == total(orders))
+    longest := ["tea", "biscuit", "jam"].fold("", |best, w| if w.len() > best.len() then w else best)
+    print(longest)
+    print(orders.filter(|x| x < 100).map(|x| x * 2).join(" "))
+
+@test fn empty_list_has_no_spread()
+    assert_eq(spread([]), 0)
+    assert_eq(total([]), 0)
+
+@test fn spread_is_max_minus_min()
+    assert_eq(spread([3, 9, 4]), 6)

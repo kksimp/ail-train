@@ -1,0 +1,9 @@
+boot, mount, net up
+halt
+0
+From: ann / To: bob
+hello /  / bye
+login ann
+none
+2 4 6
+7 8 10

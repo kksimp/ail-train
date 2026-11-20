@@ -1,0 +1,11 @@
+ann: manager (none)
+bob: manager ann
+cy: manager bob
+dan: manager (no such user)
+ann age known, next year 42
+bob age unknown, next year 1
+cy age known, next year 30
+3
+0
+cy reports to bob
+2

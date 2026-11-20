@@ -1,0 +1,11 @@
+rw-
+rwx
+r-x
+--x
+rwxr-xr-x
+rw-r--r--
+1024 128 5
+8
+1
+ff 1010 ff
+true

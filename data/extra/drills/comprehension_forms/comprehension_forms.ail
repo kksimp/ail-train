@@ -1,0 +1,38 @@
+## Comprehension forms: list, set and map comprehensions with a filter, over ranges, lists,
+## map entries and pairs, used to index and invert a small price table.
+
+fn squares_of_even(n int) List[int]
+    [i * i for i in 0..n if i % 2 == 0]
+
+fn invert(m Map[str, int]) Map[int, str]
+    {v: k for k, v in m}
+
+fn initials(names List[str]) Set[str]
+    {n.slice(0, 1) for n in names}
+
+fn main()
+    print(squares_of_even(9).join(" "))
+    prices := {"tea": 350, "jam": 420, "oats": 180}
+    cheap := [k for k, v in prices if v < 400]
+    print(cheap.join(","))
+    by_price := invert(prices)
+    print(by_price[420])
+    doubled := {k: v * 2 for k, v in prices}
+    print(doubled["oats"])
+    lengths := {w: w.len() for w in ["a", "bcd", "ef"]}
+    print([ "{w}{lengths[w]}" for w in lengths.keys().sorted() ].join(" "))
+    print(initials(["ann", "bob", "alice", "cy"]).sorted().join(""))
+    grid := ["{r}{c}" for r in 1..=2 for c in ["a", "b", "c"]]
+    print(grid.join(" "))
+    idx := [i for i, w in ["x", "skip", "y"].enumerate() if w != "skip"]
+    print(idx.join(","))
+    total := [v for _, v in prices].sum()
+    print(total)
+    evens := {n % 3 for n in 0..10}
+    print(evens.len())
+
+@test fn zero_has_no_squares()
+    assert(squares_of_even(0).is_empty())
+
+@test fn invert_swaps_keys_and_values()
+    assert_eq(invert({"a": 1})[1], "a")

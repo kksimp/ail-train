@@ -1,0 +1,54 @@
+## Permission bits: flags packed in an `int` with `&`, `|`, `^`, `~`, `<<` and `>>`. A bit
+## operator needs parentheses next to any other operator, as in `(mode & READ) != 0`.
+
+READ := 4
+WRITE := 2
+EXEC := 1
+
+fn has(mode int, flag int) bool
+    (mode & flag) != 0
+
+fn describe(mode int) str
+    r := if has(mode, READ) then "r" else "-"
+    w := if has(mode, WRITE) then "w" else "-"
+    x := if has(mode, EXEC) then "x" else "-"
+    "{r}{w}{x}"
+
+fn unix_mode(octal int) str
+    owner := (octal >> 6) & 7
+    group := (octal >> 3) & 7
+    other := octal & 7
+    "{describe(owner)}{describe(group)}{describe(other)}"
+
+fn bits_set(n int) int
+    mut count := 0
+    mut rest := n
+    while rest != 0
+        count += rest & 1
+        rest = rest >> 1
+    count
+
+fn main()
+    mut mode := READ | WRITE
+    print(describe(mode))
+    mode |= EXEC
+    print(describe(mode))
+    mode = mode & ~WRITE
+    print(describe(mode))
+    mode ^= READ
+    print(describe(mode))
+    print(unix_mode(493))
+    print(unix_mode(420))
+    print("{1 << 10} {1024 >> 3} {(6 ^ 3)}")
+    print(bits_set(255))
+    print(bits_set(1 << 40))
+    print("{255.to_hex()} {10:b} {255:x}")
+    print((5 & 3) == 1)
+
+@test fn no_bits_no_permissions()
+    assert_eq(describe(0), "---")
+    assert_eq(describe(7), "rwx")
+
+@test fn counting_bits()
+    assert_eq(bits_set(0), 0)
+    assert_eq(bits_set(5), 2)

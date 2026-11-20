@@ -1,0 +1,44 @@
+## Optional lookups: works with values that may be absent: `== none`, `if v := x`, a fallback
+## with `else`, `else` inside a larger expression (in parentheses), and `?.` before an `else`.
+
+struct User
+    name str
+    manager str?
+    age int?
+
+fn find_user(users List[User], name str) User?
+    users.find(|u| u.name == name)
+
+fn manager_of(users List[User], name str) str
+    u := find_user(users, name) else return "(no such user)"
+    u.manager else "(none)"
+
+fn age_next_year(u User) int
+    (u.age else 0) + 1
+
+fn main()
+    users := [
+        User(name: "ann", manager: none, age: 41),
+        User(name: "bob", manager: "ann", age: none),
+        User(name: "cy", manager: "bob", age: 29),
+    ]
+    for name in ["ann", "bob", "cy", "dan"]
+        print("{name}: manager {manager_of(users, name)}")
+    for u in users
+        known := if u.age == none then "unknown" else "known"
+        print("{u.name} age {known}, next year {age_next_year(u)}")
+    first_len := users.first()?.name.len() else 0
+    print(first_len)
+    empty := List[User]()
+    none_len := empty.first()?.name.len() else 0
+    print(none_len)
+    if boss := users[2].manager
+        print("cy reports to {boss}")
+    with_age := users.count(|u| u.age != none)
+    print(with_age)
+
+@test fn missing_user_has_a_placeholder()
+    assert_eq(manager_of([], "x"), "(no such user)")
+
+@test fn unknown_age_counts_from_zero()
+    assert_eq(age_next_year(User(name: "x", manager: none, age: none)), 1)

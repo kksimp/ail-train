@@ -1,0 +1,72 @@
+## Billing traits: a trait with a default method, three implementations held in one
+## `List[any Billable]`, and a version struct ordered by `impl Ord` with no body.
+
+trait Billable
+    fn cents(self) int
+    fn label(self) str
+    fn line(self) str
+        "{self.label():<12}{self.cents():>6}"
+
+struct Product
+    name str
+    price int
+
+struct Service
+    hours int
+    rate int
+
+struct Coupon
+    off int
+
+impl Billable for Product
+    fn cents(self) int
+        self.price
+    fn label(self) str
+        self.name
+
+impl Billable for Service
+    fn cents(self) int
+        self.hours * self.rate
+    fn label(self) str
+        "{self.hours}h service"
+
+impl Billable for Coupon
+    fn cents(self) int
+        -self.off
+    fn label(self) str
+        "coupon"
+    fn line(self) str
+        "{self.label():<12}{self.cents():>6} *"
+
+struct Version
+    major int
+    minor int
+
+impl Ord for Version
+
+fn invoice_total(items List[any Billable]) int
+    items.fold(0, |acc, it| acc + it.cents())
+
+fn main()
+    mut items := List[any Billable]()
+    items.push(Product(name: "kettle", price: 2500))
+    items.push(Service(hours: 3, rate: 400))
+    items.push(Coupon(off: 300))
+    for it in items
+        print(it.line())
+    print(invoice_total(items))
+    a := Version(major: 1, minor: 9)
+    b := Version(major: 2, minor: 0)
+    print(a < b)
+    print(b <= a)
+    newest := [a, b, Version(major: 1, minor: 10)].max() else a
+    print("{newest.major}.{newest.minor}")
+
+@test fn coupons_reduce_the_total()
+    mut xs := List[any Billable]()
+    xs.push(Product(name: "x", price: 100))
+    xs.push(Coupon(off: 30))
+    assert_eq(invoice_total(xs), 70)
+
+@test fn minor_breaks_ties()
+    assert(Version(major: 1, minor: 2) < Version(major: 1, minor: 3))

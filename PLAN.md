@@ -75,6 +75,7 @@ expected output must reproduce it. The builder drops failures and reports counts
 | Docs | kksimp/ail `docs/language-card.md` (~16k tokens), `docs/language-card-core.md` (~3k tokens), `docs/how-to.md`, `llms-full.txt`, `docs/quick-reference.md` | ~95 KB | the core card is the system prompt; how-to rows become short Q&A |
 | Doc snippets | `ail` blocks in kksimp/ail `docs/` (checked by `tools/check-doc-snippets.py`) | hundreds | `complete` |
 | Explain texts | `ail explain RULE` for every rule ID | a few hundred | `explain` (diagnostic -> cause and fix) |
+| Drill programs with Python twins | this repo `data/extra/drills/NAME/{NAME.ail,NAME.py,NAME.out}` | 40 programs, ~56 KB AIL | `write`, `port`, `complete`; each targets built-in methods the corpus uses under five times and the top draft mistakes (see `data/extra/README.md`) |
 | Future public corpus | planned after 0.2 in kksimp/ail | - | same families; retrain when it lands |
 
 The agent programs are agent-written and correct by the benchmark's hidden cases, so they teach the shape of real
@@ -199,6 +200,7 @@ CONTEXT.md               everything a new project needs to know about AIL, the m
 data/raw/                committed raw inputs from the AIL project (see data/raw/MANIFEST.md)
 data/build/              builder output (git-ignored)
 tools/extract_trials.py  pulls AIL trials out of agentbench result archives
+data/extra/              programs written for training (drills); checked on the Mac by tools/check_extra/run.sh
 tools/preflight.sh       M1 (to write)
 tools/build_data.py      M2 (to write)
 tools/local_agent.py     M4 (to write)
@@ -217,7 +219,36 @@ config.local             untracked: base model id, paths (D6)
 - **Licence** of the base blocks bundling (section 4).
 - **Language drift** after 0.2: the manifest pins the ail commit; rebuild and re-validate data on each AIL release.
 
-## 12. Rejected alternatives
+## 12. Review of 2026-11-20 (8 GB methods)
+
+Findings from a review of this plan against current published methods. Items marked **card** wait for Kaleb.
+
+- **The core card does not fit the sequence.** The core card is ~3k tokens and the sequence cap is 2048, so with the
+  card as the system prompt every example is over the cap (sections 5.2 and 6 contradict). Activation memory and step
+  time grow with sequence length, so the prompt is also the largest cost on 8 GB. Proposed: a short system prompt
+  (under 200 tokens) on most examples, the core card on a minority, and eval arm C run both ways. **card**
+- **Model size.** Published low-resource-language results: a 1B base gained 3.5 to 8 points of pass@1 from ~40k
+  verified examples per language (arXiv 2308.09895); a reinforcement method gained nothing at 1.7B and 3B and gained
+  clearly at 4B (arXiv 2508.04865). On-device work trains a 4B base at 4 bits on 8 GB phones under ~1 GB at sequence
+  256 with exact gradients (arXiv 2510.03425). Proposed: the M1 preflight also measures a ~4B candidate. **card**
+- **Pass bar.** An untrained small base writes almost no correct AIL, so "2x the base" (D4) can be met by a model that
+  is still unusable. Proposed: keep 2x and add an absolute floor. **card**
+- **Data volume.** The training set holds about 1,000 distinct verified programs (the 333 agent trials cover 16
+  tasks). The cited work used tens of thousands, and found unverified data useless or harmful, so growth must go
+  through `ail check` and expected output. Proposed: grow the set with compiler-verified generated programs. **card**
+- **Coverage.** Of the methods the language card names, most appear under five times in the corpus and examples
+  (`center`, `rfind`, `get_or`, `map_values`, `zip`, `windows`, `chunks`, `flatten`, `take_while`, `checked_*`, ...).
+  Guessed method names are the top draft error. `data/extra/drills/` starts to close this; `tests/cases/*.ail` with
+  a `.out` (470 files) already exercises every method and should also feed a `predict output` family.
+- **Memory settings for the first run** (no decision needed; confirm flag names in the preflight): batch 1 with
+  gradient accumulation, gradient checkpointing, loss on the answer only, examples sorted into length buckets,
+  sequence cap chosen from the token histogram instead of a fixed 2048, LoRA on the last 8 to 16 layers only (a
+  shorter backward pass), no other heavy app open, abort on swap. Second run only if the first shows headroom:
+  DoRA, and a loss computed in chunks.
+- **Not adopted now.** Hand-written memory-efficient backward passes (arXiv 2602.13069, 2510.03425) need custom code
+  for a saving the settings above mostly reach. Reinforcement training with compiler reward is a candidate after M6.
+
+## 13. Rejected alternatives
 
 - Full fine-tune: does not fit 8 GB.
 - The full card in every example: too long for 8 GB and teaches the card text more than the language.

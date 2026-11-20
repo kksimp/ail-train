@@ -1,0 +1,35 @@
+## Take and skip: pages through a log with `take`, `skip`, `take_while` and `skip_while`,
+## and looks up the first matching entry with `find`, which gives an optional.
+
+fn page(xs List[str], number int, size int) List[str]
+    xs.skip((number - 1) * size).take(size)
+
+fn header(lines List[str]) List[str]
+    lines.take_while(|l| l != "")
+
+fn body(lines List[str]) List[str]
+    lines.skip_while(|l| l != "").skip(1)
+
+fn main()
+    entries := ["boot", "mount", "net up", "login ann", "login bob", "sync", "halt"]
+    print(page(entries, 1, 3).join(", "))
+    print(page(entries, 3, 3).join(", "))
+    print(page(entries, 4, 3).len())
+    message := ["From: ann", "To: bob", "", "hello", "", "bye"]
+    print(header(message).join(" / "))
+    print(body(message).join(" / "))
+    first_login := entries.find(|e| e.starts_with("login")) else "none"
+    print(first_login)
+    missing := entries.find(|e| e.starts_with("panic")) else "none"
+    print(missing)
+    nums := [2, 4, 6, 7, 8, 10]
+    print(nums.take_while(|n| n % 2 == 0).join(" "))
+    print(nums.skip_while(|n| n % 2 == 0).join(" "))
+
+@test fn pages_do_not_overlap()
+    xs := ["a", "b", "c", "d", "e"]
+    assert_eq(page(xs, 1, 2), ["a", "b"])
+    assert_eq(page(xs, 3, 2), ["e"])
+
+@test fn message_without_blank_line_has_no_body()
+    assert(body(["From: x"]).is_empty())

@@ -1,0 +1,73 @@
+## Generic containers: a generic `Stack[T]` with methods, a generic function with an `Ord`
+## bound, and a generic pair, used with ints and strings.
+
+struct Stack[T]
+    items List[T]
+
+fn Stack[T].push(mut self, x T)
+    self.items.push(x)
+
+fn Stack[T].pop(mut self) T?
+    self.items.pop()
+
+fn Stack[T].peek(self) T?
+    self.items.last()
+
+fn Stack[T].size(self) int
+    self.items.len()
+
+struct Pair[A, B]
+    left A
+    right B
+
+fn largest[T Ord](items List[T]) T?
+    mut best := items.first() else return none
+    for x in items
+        if x > best
+            best = x
+    best
+
+fn swap_pair[A, B](p Pair[A, B]) Pair[B, A]
+    Pair[B, A](left: p.right, right: p.left)
+
+fn balanced(text str) bool
+    mut open := Stack[char](items: [])
+    for c in text.chars()
+        match c
+            '(' | '[' => open.push(c)
+            ')' =>
+                top := open.pop() else return false
+                if top != '('
+                    return false
+            ']' =>
+                top2 := open.pop() else return false
+                if top2 != '['
+                    return false
+            _ => continue
+    open.size() == 0
+
+fn main()
+    mut nums := Stack[int](items: [])
+    nums.push(3)
+    nums.push(8)
+    print(nums.peek() else -1)
+    print(nums.pop() else -1)
+    print(nums.size())
+    mut words := Stack[str](items: ["a"])
+    words.push("b")
+    print(words.pop() else "-")
+    print(largest([4, 9, 2]) else 0)
+    print(largest(["pear", "fig", "plum"]) else "")
+    print(largest(List[int]()) else -1)
+    p := swap_pair(Pair[int, str](left: 1, right: "one"))
+    print("{p.left} {p.right}")
+    for t in ["(a[b])", "(]", "((", ""]
+        print("[{t}] {balanced(t)}")
+
+@test fn empty_stack_pops_none()
+    mut s := Stack[int](items: [])
+    assert(s.pop() == none)
+
+@test fn closers_need_an_opener()
+    assert(not balanced(")"))
+    assert(balanced("[()]"))

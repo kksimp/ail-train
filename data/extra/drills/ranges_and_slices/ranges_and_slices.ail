@@ -1,0 +1,57 @@
+## Ranges and slices: `0..n` leaves out `n`, `1..=n` includes it; a list slice `xs[a..b]`
+## is a copy, with open ends `xs[..b]` and `xs[a..]`; text is sliced by characters with `slice`.
+
+fn middle(xs List[int]) List[int]
+    if xs.len() < 3
+        return []
+    xs[1..xs.len() - 1]
+
+fn halves(xs List[int]) (List[int], List[int])
+    mid := xs.len() / 2
+    (xs[..mid], xs[mid..])
+
+fn initials(text str, n int) str
+    if text.len() <= n
+        return text
+    "{text.slice(0, n)}..."
+
+fn countdown(from int) List[int]
+    mut out := List[int]()
+    for i in 0..from
+        out.push(from - i)
+    out
+
+fn main()
+    xs := [10, 20, 30, 40, 50]
+    print(middle(xs).join(" "))
+    print(middle([1, 2]).len())
+    left, right := halves(xs)
+    print("{left.join(" ")} | {right.join(" ")}")
+    mut copy := xs[0..2]
+    copy[0] = 99
+    print("{copy[0]} {xs[0]}")
+    print([i for i in 0..5].join(""))
+    print([i for i in 1..=5].join(""))
+    print(countdown(4).join(" "))
+    print(xs.slice(3).join(" "))
+    print(xs.slice(1, 2).join(" "))
+    print(xs.take(2).join(" "))
+    print(initials("international", 5))
+    print(initials("ail", 5))
+    word := "héllo wörld"
+    print(word.slice(1, 5))
+    print(word.slice(6))
+    print("{word.len()} {word.byte_len()}")
+    mut total := 0
+    for i in 0..xs.len()
+        if i % 2 == 0
+            total += xs[i]
+    print(total)
+
+@test fn short_lists_have_no_middle()
+    assert(middle([1]).is_empty())
+    assert_eq(middle([1, 2, 3]), [2])
+
+@test fn halves_cover_the_list()
+    l, r := halves([1, 2, 3])
+    assert_eq(l.len() + r.len(), 3)

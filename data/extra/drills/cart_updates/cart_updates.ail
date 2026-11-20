@@ -1,0 +1,55 @@
+## Cart updates: changes values in place. `for mut item in items` changes the elements, a
+## `mut` parameter changes the caller's value, and `it := m[k]` is a copy that must be stored back.
+
+struct Item
+    name str
+    qty int
+    cents int
+
+fn Item.total(self) int
+    self.qty * self.cents
+
+fn Item.add(mut self, n int)
+    self.qty += n
+
+fn discount(mut items List[Item], percent int)
+    for mut item in items
+        item.cents = item.cents * (100 - percent) / 100
+
+fn cart_total(items List[Item]) int
+    items.fold(0, |acc, it| acc + it.total())
+
+fn main()
+    mut items := [Item(name: "tea", qty: 1, cents: 400), Item(name: "jam", qty: 2, cents: 250)]
+    print(cart_total(items))
+    items[0].add(2)
+    items[1].qty = 1
+    print(cart_total(items))
+    for item in items
+        copy := item
+        print("{copy.name} x{copy.qty}")
+    discount(mut items, 50)
+    print(cart_total(items))
+    mut by_name := Map[str, Item]()
+    for entry in items
+        by_name[entry.name] = entry
+    by_name["tea"].qty += 10
+    print(by_name["tea"].qty)
+    mut it := by_name["jam"]
+    it.qty = 7
+    print(by_name["jam"].qty)
+    by_name["jam"] = it
+    print(by_name["jam"].qty)
+    snapshot := items
+    items[0].qty = 0
+    print("{snapshot[0].qty} {items[0].qty}")
+
+@test fn discount_changes_the_callers_list()
+    mut xs := [Item(name: "a", qty: 1, cents: 200)]
+    discount(mut xs, 25)
+    assert_eq(xs[0].cents, 150)
+
+@test fn add_increases_quantity()
+    mut i := Item(name: "a", qty: 1, cents: 1)
+    i.add(4)
+    assert_eq(i.total(), 5)

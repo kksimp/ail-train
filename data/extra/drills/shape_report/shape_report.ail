@@ -1,0 +1,48 @@
+## Shape report: an enum whose variants carry fields, matched by position, with `_` to
+## skip a field, a guard arm, and a nested pattern for a shape inside a frame.
+
+enum Shape
+    Circle(r int)
+    Rect(w int, h int)
+    Line(len int)
+    Framed(inner Shape, border int)
+
+fn area(s Shape) int
+    match s
+        Circle(r) => 3 * r * r
+        Rect(w, h) => w * h
+        Line => 0
+        Framed(inner, border) => area(inner) + border
+
+fn label(s Shape) str
+    match s
+        Circle(_) => "circle"
+        Rect(w, h) if w == h => "square"
+        Rect(_, _) => "rectangle"
+        Line(n) => "line of {n}"
+        Framed(Shape.Line, _) => "framed line"
+        Framed(inner, _) => "framed {label(inner)}"
+
+fn main()
+    shapes := [
+        Shape.Circle(r: 2),
+        Shape.Rect(w: 3, h: 3),
+        Shape.Rect(w: 2, h: 5),
+        Shape.Line(len: 7),
+        Shape.Framed(inner: Shape.Rect(w: 4, h: 4), border: 2),
+        Shape.Framed(inner: Shape.Line(len: 1), border: 1),
+    ]
+    mut total := 0
+    for s in shapes
+        print("{label(s)}: {area(s)}")
+        total += area(s)
+    print("total {total}")
+    squares := shapes.count(|s| label(s) == "square")
+    print(squares)
+
+@test fn frame_adds_its_border()
+    assert_eq(area(Shape.Framed(inner: Shape.Circle(r: 1), border: 4)), 7)
+
+@test fn equal_sides_make_a_square()
+    assert_eq(label(Shape.Rect(w: 1, h: 1)), "square")
+    assert_eq(label(Shape.Rect(w: 1, h: 2)), "rectangle")
