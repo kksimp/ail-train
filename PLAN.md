@@ -28,6 +28,7 @@ other languages; teach through docs, diagnostics and auto-fix).
 | D7 | Everything runs on Kaleb's machines, never in a cloud container, and costs nothing (no paid API). | standing rule |
 | D8 | Training starts only after AIL 0.2.0 is tagged and Kaleb says go. | Kaleb |
 | D9 | The core card stays as the system prompt on every training example (2026-11-20). The sequence cap rises to about 4096 to hold it; the preflight measures memory and speed at that length. | Kaleb |
+| D10 | The M1 preflight measures three candidate sizes, about 1.5B, 3B and 4B, each at the D9 sequence length; the base is picked from the measured numbers (2026-11-20). D1's order still holds unless that card says otherwise. | Kaleb |
 
 Open (ask Kaleb with a tappable card when reached): which concrete base model (section 4), whether a published
 adapter is wanted at all (licence, section 4), whether the eval report goes on the public AIL benchmarks page.
@@ -178,7 +179,7 @@ report in the thread and its checkboxes updated here.
 
 - **M0 Plan and raw data** (done 2026-11-20): this file, CONTEXT.md, `data/raw/`, `tools/extract_trials.py`.
 - **M1 Preflight** (Mac, ~30 min). Self-setting-up `tools/preflight.sh`: Python venv in `~/ail-train-work/venv`,
-  `pip install mlx-lm`, record chip, macOS, free memory and disk; download 2-3 candidate bases (4-bit); tokenise 20
+  `pip install mlx-lm`, record chip, macOS, free memory and disk; download three candidate bases at 4 bits, about 1.5B, 3B and 4B (D10); tokenise 20
   corpus programs per candidate; a 50-example, 20-step LoRA smoke run per candidate recording peak memory and tok/s.
   Done when: a decision card with the measured numbers is answered (base model chosen).
 - **M2 Data builder.** `tools/build_data.py` as in 5.4; Mac job against ail 0.2.0. Done when: manifest counts
@@ -232,7 +233,7 @@ Findings from a review of this plan against current published methods. Items mar
 - **Model size.** Published low-resource-language results: a 1B base gained 3.5 to 8 points of pass@1 from ~40k
   verified examples per language (arXiv 2308.09895); a reinforcement method gained nothing at 1.7B and 3B and gained
   clearly at 4B (arXiv 2508.04865). On-device work trains a 4B base at 4 bits on 8 GB phones under ~1 GB at sequence
-  256 with exact gradients (arXiv 2510.03425). Proposed: the M1 preflight also measures a ~4B candidate. **card**
+  256 with exact gradients (arXiv 2510.03425). Decided (D10): the M1 preflight measures 1.5B, 3B and ~4B candidates.
 - **Pass bar.** An untrained small base writes almost no correct AIL, so "2x the base" (D4) can be met by a model that
   is still unusable. Proposed: keep 2x and add an absolute floor. **card**
 - **Data volume.** The training set holds about 1,000 distinct verified programs (the 333 agent trials cover 16
