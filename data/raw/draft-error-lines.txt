@@ -1,0 +1,314 @@
+## expr.name.1: 35 versions, 55 error lines
+   6x unknown type `Entry`
+   4x `str` has no method `trim_start_chars`
+   4x unknown name `Problem`
+   3x `int` has no method `pad_left`
+   ail-e14-results/calc/ail-core-card-12#v1 [ail-core-card] line 177: t := raw.trim_start_spaces()
+   ail-e14-results/calc/ail-core-card-2#v1 [ail-core-card] line 117: if b == -1 and a == int.MIN
+   ail-e14-results/calc/ail-core-card-2#v2 [ail-core-card] line 117: if b == -1 and a == int.MIN
+   ail-e14-results/calc/ail-core-card-4#v1 [ail-core-card] line 202: t := raw.trim_matches(" ")
+   ail-e14-results/calc/ail-tools-1#v1 [ail-tools] line 39: self.toks.get(self.pos) else ""
+   ail-e14-results/calc/ail-tools-10#v1 [ail-tools] line 60: self.out.push(Item(kind: 3, val: op.char_at(0).map(|c| c.code()) else 0, name: ""))
+## err.use.1: 14 versions, 17 error lines
+   17x this can fail, and the failure isn't handled
+   ail-e14-results/ledger/ail-core-card-1#v1 [ail-core-card] line 98: r := parse_line(l)
+   ail-e14-results/ledger/ail-plain-10#v1 [ail-plain] line 90: r := parse_line(line)
+   ail-e14-results/ledger/ail-plain-11#v1 [ail-plain] line 84: r := parse_line(lines[i])
+   ail-e14-results/ledger/ail-tools-2#v1 [ail-tools] line 81: r := parse_line(lines[i])
+   e14-confirm-results/calc/ail-plain-10#v2 [ail-plain] line 189: r := run_line(lines[i], vars)
+   e14-confirm-results/ledger/ail-plain-12#v1 [ail-plain] line 87: r := parse_line(ls[i])
+## expr.block.2: 9 versions, 16 error lines
+   2x expected `str ! str`, found `int`
+   2x this function returns `?` with inferred errors (`!?`), so `return` needs a value
+   2x `P.unary` returns `int ! CalcErr`, but its body ends with `str`
+   1x `Parser.expr` must end with an expression of type `int ! str`
+   ail-e14-results/calc/ail-plain-10#v3 [ail-plain] line 45: fn Parser.expr(mut self) int ! str
+   ail-e14-results/calc/ail-plain-10#v3 [ail-plain] line 53: fn Parser.term(mut self) int ! str
+   ail-e14-results/calc/ail-plain-10#v3 [ail-plain] line 120: return
+   ail-e14-results/calc/ail-plain-3#v2 [ail-plain] line 151: return 0
+   ail-e14-results/calc/ail-plain-3#v2 [ail-plain] line 177: 0
+   ail-e14-results/calc/ail-plain-5#v3 [ail-plain] line 59: 0
+## err.else.1: 9 versions, 11 error lines
+   4x `usage(...)` returns no value, so it can't stand in for `int`
+   2x `else` handles a value that can be absent (`T?`) or fail (`T ! E`), but this is `str`
+   2x expected `int`, found `bool`
+   1x expected `char`, found `str`
+   ail-e14-results/maze/ail-core-card-4#v1 [ail-core-card] line 130: line.push(rows[y].char_at(x) else '.' .to_str())
+   ail-e14-results/maze/ail-tools-8#v1 [ail-tools] line 97: text := io.read_all() else ""
+   ail-e14-results/stock/ail-core-card-11#v1 [ail-core-card] line 64: ok = f[2].to_int() else 0 > 0
+   ail-e14-results/stock/ail-core-card-11#v1 [ail-core-card] line 66: ok = f[2].to_int() else 0 > 0
+   e14-confirm-results/calc/ail-plain-10#v2 [ail-plain] line 192: m := r else
+   e13/ledger/ail-core-card-11#v1 [ail-core-card] line 72: n := args[1].to_int() else usage()
+## expr.if.1: 8 versions, 10 error lines
+   5x expected an indented block after the `if` condition
+   2x expected end of line after the `if` condition, found the keyword `else`
+   2x `elif` without a matching `if`
+   1x `else` without a matching `if`
+   ail-e14-results/calc/ail-core-card-3#v1 [ail-core-card] line 128: if a == (0).checked_sub(9223372036854775807) - 1 else 0
+   ail-e14-results/stock-refactor/ail-core-card-5#v1 [ail-core-card] line 46: out = output.total(stock)
+   ail-e14-results/stock-refactor/ail-core-card-8#v1 [ail-core-card] line 27: bad += 1
+   ail-e14-results/stock-refactor/ail-plain-6#v1 [ail-plain] line 29: if bad > 0
+   ail-e14-results/till-returns/ail-tools-5#v1 [ail-tools] line 43: History(cust) =>
+   e13/ledger/ail-tools-5#v1 [ail-tools] line 69: if lines.is_empty() or lines[0].strip_suffix("\r") else lines[0] != "date,account,amount_cents,memo"
+## lex.stmt.1: 8 versions, 8 error lines
+   4x expected end of line after the statement, found `is`
+   2x expected end of line after the statement, found `if`
+   1x expected end of line after the statement, found the keyword `else`
+   1x expected end of line, found `int`
+   ail-e14-results/calc/ail-plain-9#v1 [ail-plain] line 32: return t.text.to_int() else
+   e14-calc-rerun-results/calc/ail-core-card-11#v1 [ail-core-card] line 5: mut pos int
+   e14-calc-rerun-results/calc/ail-plain-12#v1 [ail-plain] line 53: self.toks[self.pos] if self.pos < self.toks.len() else ""
+   e13/ledger/ail-tools-7#v1 [ail-tools] line 90: amt := parse_amount(f[2]) if reason == "ok" else none
+   e13/stock-locations/ail-plain-6#v1 [ail-plain] line 38: out = stock.where(args[1])
+   e13/stock-locations/ail-plain-8#v1 [ail-plain] line 28: bad += 1
+## lex.block.1: 6 versions, 13 error lines
+   9x unexpected indentation
+   4x this line's indentation doesn't match any enclosing block
+   ail-e14-results/stock-bugfix/ail-tools-11#v1 [ail-tools] line 32: mut out := List[str]()
+   ail-e14-results/stock-refactor/ail-core-card-5#v1 [ail-core-card] line 5: for sku in s.skus()
+   ail-e14-results/stock-refactor/ail-core-card-5#v1 [ail-core-card] line 3: use output
+   ail-e14-results/stock-refactor/ail-core-card-5#v1 [ail-core-card] line 4: 
+   ail-e14-results/stock-refactor/ail-core-card-8#v1 [ail-core-card] line 5: args.len() == 2 and args[0] == "low" and (parse.number(args[1]) else -1) >= 0
+   ail-e14-results/stock-refactor/ail-core-card-8#v1 [ail-core-card] line 3: use output
+## mod.use.2: 6 versions, 15 error lines
+   9x `store` is not an imported module
+   3x `parse` is not an imported module
+   2x module `output` has no item `total`
+   1x module `output` has no item `report`
+   ail-e14-results/stock-refactor/ail-core-card-5#v1 [ail-core-card] line 46: out = output.total(stock)
+   ail-e14-results/stock-refactor/ail-plain-11#v1 [ail-plain] line 9: 
+   ail-e14-results/stock-refactor/ail-plain-11#v1 [ail-plain] line 16: if (lines.last() else "x") == ""
+   ail-e14-results/stock-refactor/ail-plain-11#v1 [ail-plain] line 23: continue
+   ail-e14-results/stock-refactor/ail-plain-11#v1 [ail-plain] line 26: bad += 1
+   ail-e14-results/stock-refactor/ail-plain-4#v1 [ail-plain] line 41: out = output.total(stock)
+## expr.if.4: 5 versions, 17 error lines
+   16x this branch produces no value, but the `if` is used as a value
+   1x this branch is `std.bigint.BigInt`, but `int` is expected
+   ail-e14-results/calc/ail-plain-10#v3 [ail-plain] line 65: self.out.push(Tok(kind: "neg", text: "neg"))
+   ail-e14-results/calc/ail-plain-10#v3 [ail-plain] line 73: self.pos += 1
+   ail-e14-results/calc/ail-plain-10#v3 [ail-plain] line 79: self.pos += 1
+   ail-e14-results/calc/ail-plain-10#v3 [ail-plain] line 130: print(v)
+   ail-e14-results/calc/ail-plain-10#v3 [ail-plain] line 142: vars[toks[1].text] = v
+   ail-e14-results/calc/ail-plain-5#v1 [ail-plain] line 76: self.out.push("~")
+## trait.op.1: 5 versions, 5 error lines
+   4x `+` doesn't join strings
+   1x `*` is not defined for `int?`
+   ail-e14-results/stock-locations/ail-tools-5#v1 [ail-tools] line 63: ?
+   e13/ledger/ail-core-card-6#v1 [ail-core-card] line 102: key := t.date.split("-", 3)[0] + "-" + t.date.split("-", 3)[1]
+   e13/ledger/ail-plain-9#v1 [ail-plain] line 27: d := if digs.len() < 3 then "0".repeat(3 - digs.len()) + digs else digs
+   e13/ledger/ail-tools-9#v1 [ail-tools] line 75: digits = "{h}" + "{l}".pad_left(9, '0')
+   e13/stock/ail-core-card-7#v1 [ail-core-card] line 70: cost[s] = cost[s] + q * p
+## type.coll.3: 4 versions, 7 error lines
+   7x the element type of this empty list isn't known
+   ail-e14-results/depgraph/ail-core-card-11#v1 [ail-core-card] line 70: mut adj := [[] for i in 0..n]
+   ail-e14-results/depgraph/ail-core-card-11#v1 [ail-core-card] line 71: mut radj := [[] for i in 0..n]
+   ail-e14-results/depgraph/ail-plain-10#v1 [ail-plain] line 70: mut adj := [[] for i in 0..n]
+   ail-e14-results/depgraph/ail-plain-10#v1 [ail-plain] line 77: mut rev := [[] for i in 0..n]
+   ail-e14-results/depgraph/ail-tools-5#v1 [ail-tools] line 62: mut adj := [[] for i in 0..n]
+   ail-e14-results/depgraph/ail-tools-5#v1 [ail-tools] line 63: mut radj := [[] for i in 0..n]
+## expr.call.2: 4 versions, 6 error lines
+   5x expected `str`, found `str?`
+   1x expected `str`, found `char`
+   ail-e14-results/maze/ail-core-card-4#v1 [ail-core-card] line 130: line.push(rows[y].char_at(x) else '.' .to_str())
+   e13/depgraph/ail-core-card-11#v1 [ail-core-card] line 15: for nx in adj.get_or(cur, Set[str]()).sorted()
+   e13/depgraph/ail-core-card-4#v1 [ail-core-card] line 16: if not seen.contains(n)
+   e13/depgraph/ail-core-card-4#v1 [ail-core-card] line 17: seen.add(n)
+   e13/depgraph/ail-core-card-4#v1 [ail-core-card] line 18: for m in adj.get_or(n, [])
+   e13/depgraph/ail-core-card-5#v1 [ail-core-card] line 18: elif seen.contains(v)
+## gram.fn.1: 4 versions, 4 error lines
+   2x expected an indented block after the signature of `Store.entry`
+   1x expected an indented block after the signature of `low`
+   1x expected an indented block after the signature of `report`
+   ail-e14-results/stock-locations/ail-core-card-1#v1 [ail-core-card] line 25: continue
+   ail-e14-results/stock-locations/ail-core-card-9#v1 [ail-core-card] line 25: continue
+   ail-e14-results/stock-refactor/ail-core-card-5#v1 [ail-core-card] line 1: use parse
+   ail-e14-results/stock-refactor/ail-plain-6#v1 [ail-plain] line 3: use output
+## expr.if.8: 3 versions, 3 error lines
+   3x `if c then a` needs a final `else` and its value on the same line
+   ail-e14-results/calc/ail-plain-4#v1 [ail-plain] line 133: bad := if a > 0 and b > 0 then a > MAXV / b
+   e13/stock/ail-core-card-10#v1 [ail-core-card] line 53: valid := if kind == "receive" then f.len() == 4 and is_sku(f[1]) and is_digits(f[2], 5) and is_digits(f[3], 5) and num(f[2]) >= 1
+   e13/stock/ail-plain-4#v1 [ail-plain] line 62: valid := if kind == "receive" then n == 4 and is_sku(f[1]) and is_num(f[2]) and is_num(f[3]) and (f[2].to_int() else 0) >= 1
+## type.fn.4: 3 versions, 4 error lines
+   2x the type of `c` isn't known here
+   1x the type of `s` isn't known here
+   1x the type of `e` isn't known here
+   ail-e14-results/calc/ail-tools-10#v1 [ail-tools] line 60: self.out.push(Item(kind: 3, val: op.char_at(0).map(|c| c.code()) else 0, name: ""))
+   ail-e14-results/calc/ail-tools-10#v1 [ail-tools] line 74: self.out.push(Item(kind: 3, val: op.char_at(0).map(|c| c.code()) else 0, name: ""))
+   ail-e14-results/depgraph/ail-tools-12#v1 [ail-tools] line 21: mut stack := g.get(start).map(|s| s.to_list()) else List[str]()
+   ail-e14-results/stock-locations/ail-tools-3#v1 [ail-tools] line 29: continue
+## gram.syntax.1: 3 versions, 8 error lines
+   4x expected a declaration (`fn`, `struct`, `enum`, `error`, `unique`, `trait`, `impl` or a constant), found the keyword `if`
+   2x expected a declaration (`fn`, `struct`, `enum`, `error`, `unique`, `trait`, `impl` or a constant), found the keyword `for`
+   1x expected a declaration (`fn`, `struct`, `enum`, `error`, `unique`, `trait`, `impl` or a constant), found `s`
+   1x expected an expression, found the keyword `fn`
+   ail-e14-results/stock-bugfix/ail-tools-11#v1 [ail-tools] line 21: s
+   ail-e14-results/stock-bugfix/ail-tools-11#v1 [ail-tools] line 33: if args[0] == "report"
+   ail-e14-results/stock-bugfix/ail-tools-11#v1 [ail-tools] line 39: for l in out
+   ail-e14-results/stock-bugfix/ail-tools-11#v1 [ail-tools] line 41: if bad > 0
+   ail-e14-results/stock-refactor/ail-tools-7#v1 [ail-tools] line 16: if args[0] == "report"
+   ail-e14-results/stock-refactor/ail-tools-7#v1 [ail-tools] line 22: for l in res
+## err.msg.3: 3 versions, 3 error lines
+   3x the message of `Bad` shows `msg`, but `Bad` has no field of that name
+   e14-confirm-results/calc/ail-core-card-10#v2 [ail-core-card] line 1: error struct Bad "{msg}"
+   e14-confirm-results/calc/ail-core-card-11#v2 [ail-core-card] line 1: error struct Bad "{msg}"
+   e14-confirm-results/calc/ail-core-card-4#v2 [ail-core-card] line 96: error struct Bad "{msg}"
+## lex.str.2: 3 versions, 3 error lines
+   2x this `{` in a string is never closed
+   1x expected `}` after the interpolated expression, found the keyword `if`
+   e14-confirm-results/ledger/ail-core-card-11#v1 [ail-core-card] line 119: print("{t.date}\t{t.account}\t{fmt(0, 0) if false else fmt(t.amount / 1000000000, t.amount % 1000000000)}\t{t.memo}")
+   e14-calc-rerun-results/calc/ail-core-card-1#v1 [ail-core-card] line 149: return "unknown {u else \"\"}"
+   e14-calc-rerun-results/calc/ail-core-card-6#v1 [ail-core-card] line 179: return "unknown {u else \"\"}"
+## err.else.4: 3 versions, 3 error lines
+   3x this can fail, and has a value (`int ! str`); `else` on its own handles only results with no value
+   e14-calc-rerun-results/calc/ail-core-card-2#v2 [ail-core-card] line 168: run_line(line, mut vars, mut out) else err
+   e14-calc-rerun-results/calc/ail-core-card-2#v3 [ail-core-card] line 170: run_line(line, mut vars, mut out) else err
+   e14-calc-rerun-results/calc/ail-plain-12#v1 [ail-plain] line 177: run_line(line, mut vars) else err
+## type.coll.13: 3 versions, 3 error lines
+   1x nothing fixes the type of `names`
+   1x the type of `names` isn't known yet
+   1x the type of `m` isn't known yet
+   e13/depgraph/ail-core-card-10#v1 [ail-core-card] line 47: mut names := []
+   e13/depgraph/ail-core-card-6#v1 [ail-core-card] line 61: idx[p] = names.len()
+   e13/ledger/ail-core-card-4#v1 [ail-core-card] line 101: m[key] = m.get(key) else 0 + t.amount
+## expr.bind.6: 2 versions, 3 error lines
+   2x expected `bool`, found `int`
+   1x expected `int`, found `int?`
+   ail-e14-results/stock/ail-core-card-11#v1 [ail-core-card] line 64: ok = f[2].to_int() else 0 > 0
+   ail-e14-results/stock/ail-core-card-11#v1 [ail-core-card] line 66: ok = f[2].to_int() else 0 > 0
+   e13/stock/ail-core-card-7#v1 [ail-core-card] line 95: qty[s] = q
+## trait.method.5: 2 versions, 2 error lines
+   2x methods of `int` can only be declared where `int` is declared
+   ail-e14-results/stock/ail-tools-10#v1 [ail-tools] line 12: fn int.to_str_pad(self) str
+   e14-confirm-results/ledger/ail-plain-3#v1 [ail-plain] line 20: fn int.to_text_pad(self) str
+## expr.bind.1: 2 versions, 2 error lines
+   2x `it` would be bound to an expression that produces no value
+   ail-e14-results/stock-locations/ail-core-card-1#v1 [ail-core-card] line 13: args := env.args()
+   ail-e14-results/stock-locations/ail-core-card-9#v1 [ail-core-card] line 13: args := env.args()
+## type.struct.6: 2 versions, 6 error lines
+   6x no value has no fields
+   ail-e14-results/stock-locations/ail-core-card-1#v1 [ail-core-card] line 14: if not usage_ok(args)
+   ail-e14-results/stock-locations/ail-core-card-1#v1 [ail-core-card] line 20: mut stock := store.Store.new()
+   ail-e14-results/stock-locations/ail-core-card-1#v1 [ail-core-card] line 27: io.eprint("error: line {k + 1}: {err}")
+   ail-e14-results/stock-locations/ail-core-card-9#v1 [ail-core-card] line 14: if not usage_ok(args)
+   ail-e14-results/stock-locations/ail-core-card-9#v1 [ail-core-card] line 20: mut stock := store.Store.new()
+   ail-e14-results/stock-locations/ail-core-card-9#v1 [ail-core-card] line 27: io.eprint("error: line {k + 1}: {err}")
+## mod.use.4: 2 versions, 6 error lines
+   2x there is no module `store`
+   2x there is no module `output`
+   1x there is no module `parse`
+   1x there is no module `event`
+   ail-e14-results/stock-refactor/ail-core-card-12#v1 [ail-core-card] line 1: use parse
+   ail-e14-results/stock-refactor/ail-core-card-12#v1 [ail-core-card] line 2: use store
+   ail-e14-results/stock-refactor/ail-core-card-12#v1 [ail-core-card] line 3: use output
+   e13/stock-refactor/ail-core-card-6#v1 [ail-core-card] line 1: use event
+   e13/stock-refactor/ail-core-card-6#v1 [ail-core-card] line 2: use store
+   e13/stock-refactor/ail-core-card-6#v1 [ail-core-card] line 3: use output
+## err.type.3: 2 versions, 2 error lines
+   2x `apply` is public, so its return type must name the errors it can fail with
+   ail-e14-results/stock-refactor/ail-core-card-8#v1 [ail-core-card] line 19: if line.is_empty() or line.starts_with("#")
+   ail-e14-results/stock-refactor/ail-plain-6#v1 [ail-plain] line 19: bad += 1
+## expr.call.1: 2 versions, 2 error lines
+   1x `trim_start` takes no arguments, but one was given
+   1x `min` takes 1 argument, but 0 were given
+   e14-confirm-results/ledger/ail-core-card-1#v1 [ail-core-card] line 101: reason := if parts.len() != 4 then "wrong field count" elif not check_date(parts[0]) then "bad date" elif parts[1] == "" then "empty account" elif not all_digits(parts[2].trim_start("-")) then "bad am
+   e14-calc-rerun-results/calc/ail-plain-3#v1 [ail-plain] line 136: if a == a.min()
+## type.coll.4: 2 versions, 2 error lines
+   1x a list index must be `int`, found `int?`
+   1x expected `]` after the index, found the keyword `else`
+   e13/depgraph/ail-core-card-12#v1 [ail-core-card] line 20: for v in adj[u]
+   e13/depgraph/ail-core-card-6#v1 [ail-core-card] line 71: adj[ps[0].to_int() else 0].push(ps[1].to_int() else 0)
+## expr.loop.4: 2 versions, 2 error lines
+   2x `for` can't iterate over a `str`
+   e13/depgraph/ail-core-card-8#v1 [ail-core-card] line 6: for c in s
+   e13/ledger/ail-core-card-12#v1 [ail-core-card] line 10: for ch in s
+## trait.method.3: 1 versions, 1 error lines
+   1x the parameter `out` is read-only, so it can't be the receiver of `push`
+   ail-e14-results/calc/ail-core-card-1#v1 [ail-core-card] line 178: out.push("{v}")
+## err.else.2: 1 versions, 1 error lines
+   1x this `else` block must leave (with `return`, `break` or `continue`) or end with `str`
+   ail-e14-results/calc/ail-plain-3#v2 [ail-plain] line 192: _ := exec(line, mut vars) else err
+## err.ret.1: 1 versions, 1 error lines
+   1x `Fail` is an error, but this function can't fail
+   ail-e14-results/calc/ail-tools-3#v1 [ail-tools] line 150: return e
+## lex.block.3: 1 versions, 1 error lines
+   1x indentation increases by 8 spaces; a block is indented by exactly 4
+   ail-e14-results/stock-bugfix/ail-tools-11#v1 [ail-tools] line 22: if line.is_empty() or line.starts_with("#")
+## mod.use.6: 1 versions, 1 error lines
+   1x `store` is already imported in this file
+   ail-e14-results/stock-refactor/ail-plain-11#v3 [ail-plain] line 3: use render
+## expr.match.2: 1 versions, 1 error lines
+   1x this `match` doesn't cover `Return`
+   ail-e14-results/till-returns/ail-core-card-1#v1 [ail-core-card] line 54: print(l)
+## err.str.4: 1 versions, 2 error lines
+   2x `! str` declares a `str` result; a function with no result that fails with text is `! Fail`
+   e14-confirm-results/calc/ail-core-card-11#v1 [ail-core-card] line 87: fn Parser.unary(mut self) ! str
+   e14-confirm-results/calc/ail-core-card-11#v1 [ail-core-card] line 95: fn Parser.primary(mut self) ! str
+## lex.str.4: 1 versions, 1 error lines
+   1x a character literal holds exactly one character
+   e14-confirm-results/calc/ail-core-card-5#v1 [ail-core-card] line 195: io.eprint("error: line {k}: {r else ''}")
+## mod.const.1: 1 versions, 1 error lines
+   1x AIL has no `const`; a constant is declared `NAME := value`
+   e14-confirm-results/calc/ail-core-card-7#v1 [ail-core-card] line 103: const MIN := -9223372036854775807 - 1
+## expr.bind.4: 1 versions, 1 error lines
+   1x `text` is already declared in this function
+   e14-confirm-results/calc/ail-core-card-8#v1 [ail-core-card] line 156: Name(text) =>
+## err.str.2: 1 versions, 1 error lines
+   1x `str ! str` can't tell the result from the error
+   e14-confirm-results/calc/ail-plain-10#v1 [ail-plain] line 146: fn run_line(line str, env Map[str, int]) str ! str
+## err.prop.2: 1 versions, 1 error lines
+   1x `?` on an optional only works in a function that returns an optional or infers its errors, or before an `else`
+   e14-confirm-results/calc/ail-plain-6#v1 [ail-plain] line 110: elif b == -1 and a == (0).checked_sub(9223372036854775807)? - 1
+## own.param.1: 1 versions, 1 error lines
+   1x the parameter `env` is read-only, so it can't be assigned
+   e14-calc-rerun-results/calc/ail-core-card-10#v1 [ail-core-card] line 145: env[n] = v
+## expr.match.4: 1 versions, 2 error lines
+   1x a `match` works on an enum, `int`, `char`, `str` or `bool`, not `char?`
+   1x expected a pattern (a variant name or `_`), found the keyword `none`
+   e14-calc-rerun-results/calc/ail-core-card-4#v1 [ail-core-card] line 48: match t.char_at(0)
+   e14-calc-rerun-results/calc/ail-core-card-4#v1 [ail-core-card] line 49: none => false
+## own.param.2: 1 versions, 1 error lines
+   1x the parameter `env` is read-only, so it can't be passed `mut`
+   e14-calc-rerun-results/calc/ail-core-card-8#v1 [ail-core-card] line 151: return exec(toks, mut env)
+## lex.str.8: 1 versions, 1 error lines
+   1x `${...}` is not interpolation in AIL: the `$` stays in the text
+   e14-calc-rerun-results/calc/ail-plain-2#v1 [ail-plain] line 72: toks.push("${w}")
+## type.map.3: 1 versions, 1 error lines
+   1x expected `str`, found `str?`
+   e13/depgraph/ail-core-card-5#v1 [ail-core-card] line 22: for w in adj[v].sorted()
+## expr.match.14: 1 versions, 2 error lines
+   1x `Ok` doesn't name the struct of this value, `Tx`
+   1x `Err` doesn't name the struct of this value, `Tx`
+   e13/ledger/ail-core-card-4#v1 [ail-core-card] line 84: Ok(t) => txs.push(t)
+   e13/ledger/ail-core-card-4#v1 [ail-core-card] line 85: Err(e) =>
+## expr.loop.3: 1 versions, 1 error lines
+   1x a range `a..b` is only a `for` bound, a slice index `xs[a..b]` or a `match` pattern
+   e13/ledger/ail-tools-1#v1 [ail-tools] line 110: idx := (0..txs.len()).map(|i| i).sorted(by: |i| (-akey(txs[i].amount), i))
+## expr.cmp.1: 1 versions, 3 error lines
+   2x `>=` needs a type that implements `Ord`, and `int?` doesn't
+   1x `>` needs a type that implements `Ord`, and `int?` doesn't
+   e13/stock/ail-core-card-7#v1 [ail-core-card] line 64: if sku_ok(f[1]) and q != none and p != none and q >= 1
+   e13/stock/ail-core-card-7#v1 [ail-core-card] line 75: if sku_ok(f[1]) and q != none and q >= 1
+   e13/stock/ail-core-card-7#v1 [ail-core-card] line 79: elif q > qty[s]
+## trait.op.3: 1 versions, 4 error lines
+   2x `*` needs operands of one type, found `int` and `int?`
+   1x `+` needs operands of one type, found `int` and `int?`
+   1x `-` needs operands of one type, found `int` and `int?`
+   e13/stock/ail-core-card-7#v1 [ail-core-card] line 69: qty[s] = qty[s] + q
+   e13/stock/ail-core-card-7#v1 [ail-core-card] line 82: cost[s] = cost[s] - cost[s] * q / qty[s]
+   e13/stock/ail-core-card-7#v1 [ail-core-card] line 83: qty[s] = qty[s] - q
+   e13/stock/ail-core-card-7#v1 [ail-core-card] line 94: cost[s] = cost[s] * q / qty[s]
+## type.bool.1: 1 versions, 1 error lines
+   1x `and` needs `bool` operands, found `int?`
+   e13/stock/ail-tools-10#v1 [ail-tools] line 47: ok = f.len() == 4 and is_num(f[3]) and f[2].to_int() else 0 >= 1
+## type.opt.4: 1 versions, 2 error lines
+   2x the type of `none` isn't known here
+   e13/stock/ail-tools-11#v1 [ail-tools] line 97: if qty[p[1]] == none
+   e13/stock/ail-tools-11#v1 [ail-tools] line 113: if qty[p[1]] == none
+## type.str.2: 1 versions, 2 error lines
+   2x a `str` can't be indexed
+   e13/stock-locations/ail-plain-6#v1 [ail-plain] line 30: stock.apply(e) else err
+   e13/stock-locations/ail-plain-6#v1 [ail-plain] line 32: bad += 1
+## mod.unit.4: 1 versions, 1 error lines
+   1x a method is declared in the module of its type
+   e13/stock-refactor/ail-core-card-10#v1 [ail-core-card] line 72: fn store.Store.new() Store
+DONE lines
