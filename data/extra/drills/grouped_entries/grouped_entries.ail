@@ -1,0 +1,35 @@
+## Grouped entries: builds a map of lists with `m.push(k, x)` and with `group_by`, to list
+## files by extension and people by the first letter of their name.
+
+fn ext(name str) str
+    dot := name.rfind(".") else return "(none)"
+    name.slice(dot + 1)
+
+fn by_ext(names List[str]) Map[str, List[str]]
+    mut groups := Map[str, List[str]]()
+    for n in names
+        groups.push(ext(n), n)
+    groups
+
+fn show(groups Map[str, List[str]])
+    for key in groups.keys().sorted()
+        print("{key}: {groups[key].join(" ")} ({groups[key].len()})")
+
+fn main()
+    files := ["a.ail", "notes.txt", "b.ail", "Makefile", "c.txt", "d.ail"]
+    show(by_ext(files))
+    people := ["ann", "bob", "alice", "cy", "bea"]
+    initials := people.group_by(|p| p.slice(0, 1))
+    show(initials)
+    sizes := [3, 14, 7, 20, 1].group_by(|n| n >= 10)
+    small := sizes.get(false) else []
+    large := sizes.get(true) else []
+    print("{small.join(",")} | {large.join(",")}")
+
+@test fn files_without_a_dot_share_a_group()
+    g := by_ext(["README", "LICENSE"])
+    assert_eq(g["(none)"].len(), 2)
+
+@test fn groups_keep_first_seen_order()
+    g := by_ext(["b.x", "a.x"])
+    assert_eq(g["x"], ["b.x", "a.x"])

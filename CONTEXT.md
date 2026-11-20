@@ -21,8 +21,9 @@ AIL (AI-First Language, by Voltare) is a native, garbage-collected, memory-safe 
 indentation-based syntax, written so humans and AI agents are both first-class programmers. Repo: kksimp/ail
 (Apache 2.0 with a Runtime Library Exception). The compiler is self-hosted in AIL. CLI: `ail check`, `ail run`,
 `ail build`, `ail test`, `ail fmt`, `ail explain RULE`, `ail fix`. Diagnostics carry spec rule IDs such as
-`expr.name.1` or `err.use.1`. Version 0.1.0 shipped 2026-11-15. 0.2.0 is in release on 2026-11-20 (pin this project's
-data to the 0.2.0 tag). Read in kksimp/ail: `docs/language-card-core.md` (the short card), `docs/language-card.md`
+`expr.name.1` or `err.use.1`. Version 0.1.0 shipped 2026-11-15. The 0.2.0 release candidate is kksimp/ail main at `3d0c5c9` (2026-11-20); only docs and
+version numbers change before the tag (Kaleb), so this project pins that commit in `.ail-version`: all data is
+checked with it. Read in kksimp/ail: `docs/language-card-core.md` (the short card), `docs/language-card.md`
 (the full card), `docs/how-to.md`, `docs/for-agents.md`, `llms-full.txt`.
 
 Traps agents hit most (from the drafts in `data/raw/`): guessed std method names (`trim_start_chars`, `pad_left`),

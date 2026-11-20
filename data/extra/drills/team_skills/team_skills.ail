@@ -1,0 +1,41 @@
+## Team skills: compares sets with `union`, `intersect`, `difference` and `is_subset`, and
+## uses the `bool` that `add` returns to spot repeats. A set is printed through `sorted()`.
+
+fn show(s Set[str]) str
+    if s.is_empty()
+        return "-"
+    s.sorted().join(",")
+
+fn repeats(xs List[str]) List[str]
+    mut seen := Set[str]()
+    mut out := List[str]()
+    for x in xs
+        if not seen.add(x)
+            out.push(x)
+    out
+
+fn main()
+    ann := {"ail", "sql", "css"}
+    bob := {"sql", "go"}
+    need := {"ail", "sql"}
+    print(show(ann.union(bob)))
+    print(show(ann.intersect(bob)))
+    print(show(ann.difference(bob)))
+    print(show(bob.difference(ann)))
+    print(need.is_subset(ann))
+    print(need.is_subset(bob))
+    print(show(need.difference(bob)))
+    print(show(Set[str]()))
+    print(repeats(["a", "b", "a", "c", "b", "a"]).join(" "))
+    print(ann.contains("css") and not bob.contains("css"))
+    print(ann.len() + bob.len() - ann.intersect(bob).len() == ann.union(bob).len())
+    letters := {c for c in "mississippi".chars()}
+    print(letters.sorted().join(""))
+
+@test fn a_set_is_a_subset_of_itself()
+    s := {1, 2}
+    assert(s.is_subset(s))
+
+@test fn first_occurrence_is_not_a_repeat()
+    assert_eq(repeats(["x", "y"]).len(), 0)
+    assert_eq(repeats(["x", "x"]), ["x"])

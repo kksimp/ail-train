@@ -1,0 +1,59 @@
+## Labelled search: nested loops left with `break outer` and `continue outer`, a `while`
+## that binds an optional (`while top := xs.pop()`), and a `while true` loop ended by `break`.
+
+fn find_pair(xs List[int], target int) (int, int)?
+    mut found := none
+    outer: for i in 0..xs.len()
+        for j in i + 1..xs.len()
+            if xs[i] + xs[j] == target
+                found = (xs[i], xs[j])
+                break outer
+    found
+
+fn clean_rows(rows List[List[int]]) int
+    mut clean := 0
+    rows_loop: for row in rows
+        for cell in row
+            if cell < 0
+                continue rows_loop
+        clean += 1
+    clean
+
+fn collatz_steps(start int) int
+    mut n := start
+    mut steps := 0
+    while true
+        if n == 1
+            break
+        n = if n % 2 == 0 then n / 2 else 3 * n + 1
+        steps += 1
+    steps
+
+fn main()
+    if pair := find_pair([8, 3, 5, 11, 2], 13)
+        print("{pair.0}+{pair.1}")
+    print(find_pair([1, 2, 3], 99) == none)
+    print(clean_rows([[1, 2], [3, -1, 4], [], [0], [-5]]))
+    print(collatz_steps(6))
+    mut stack := [1, 2, 3]
+    mut order := List[int]()
+    while top := stack.pop()
+        order.push(top)
+        if top == 3
+            stack.push(30)
+    print(order.join(" "))
+    mut skipped := 0
+    for n in 1..=10
+        if n % 3 == 0
+            skipped += 1
+            continue
+        if n > 8
+            break
+    print(skipped)
+
+@test fn first_pair_wins()
+    p := find_pair([1, 4, 2, 3], 5) else (0, 0)
+    assert_eq(p, (1, 4))
+
+@test fn one_takes_no_steps()
+    assert_eq(collatz_steps(1), 0)

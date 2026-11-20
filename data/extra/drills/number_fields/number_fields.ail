@@ -1,0 +1,41 @@
+## Number fields: reads integers from messy text. `to_int()` gives `int?` and accepts
+## only an optional `-` and digits, so each field is trimmed first and bad fields are reported.
+
+fn parse_field(raw str) int?
+    raw.trim().to_int()
+
+fn sum_fields(line str) int
+    mut total := 0
+    for field in line.split(",")
+        total += parse_field(field) else 0
+    total
+
+fn bad_fields(line str) List[str]
+    mut bad := List[str]()
+    for field in line.split(",")
+        if parse_field(field) == none
+            bad.push(field.trim())
+    bad
+
+fn main()
+    lines := ["1, 2,3", " 10 ,x, -4", "+7,7", ",,", "0x1f, 31"]
+    for line in lines
+        bad := bad_fields(line)
+        note := if bad.is_empty() then "clean" else "bad: [{bad.join("|")}]"
+        print("{sum_fields(line)} {note}")
+    print("ff".to_int(16) else -1)
+    print("101".to_int(2) else -1)
+    print("12".to_int(2) else -1)
+    print(" 7".to_int() else -1)
+    print("-7".to_int() else -1)
+    half := "2.5".to_float() else 0.0
+    print("{half * 2.0:.1}")
+    if n := parse_field(" 42 ")
+        print("got {n + 1}")
+
+@test fn trims_before_parsing()
+    assert_eq(parse_field(" 5 ") else -1, 5)
+    assert(parse_field("5 apples") == none)
+
+@test fn bad_fields_count_as_zero()
+    assert_eq(sum_fields("1,x,2"), 3)

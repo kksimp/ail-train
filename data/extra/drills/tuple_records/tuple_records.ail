@@ -1,0 +1,52 @@
+## Tuple records: tuples as small records: fields `t.0` and `t.1`, destructuring with
+## `a, b := t`, tuple map keys, `match` on a tuple, and comparison that goes element by element.
+
+fn min_max(xs List[int]) (int, int)
+    mut lo := xs[0]
+    mut hi := xs[0]
+    for x in xs
+        lo = lo.min(x)
+        hi = hi.max(x)
+    (lo, hi)
+
+fn step(pos (int, int), dir str) (int, int)
+    match dir
+        "N" => (pos.0, pos.1 - 1)
+        "S" => (pos.0, pos.1 + 1)
+        "E" => (pos.0 + 1, pos.1)
+        "W" => (pos.0 - 1, pos.1)
+        _ => pos
+
+fn quadrant(p (int, int)) str
+    match p
+        (0, 0) => "origin"
+        (0, _) => "y axis"
+        (_, 0) => "x axis"
+        _ => if p.0 > 0 then "right" else "left"
+
+fn main()
+    lo, hi := min_max([4, -2, 9, 0])
+    print("{lo}..{hi}")
+    mut pos := (0, 0)
+    mut visits := Map[(int, int), int]()
+    visits[pos] += 1
+    for d in ["E", "E", "S", "W", "W", "N", "?"]
+        pos = step(pos, d)
+        visits[pos] += 1
+    print("{pos.0},{pos.1}")
+    print(visits[(0, 0)])
+    print(visits.len())
+    for p in [(0, 0), (0, 3), (2, 0), (5, 5), (-1, 2)]
+        print("{p.0},{p.1}: {quadrant(p)}")
+    print((1, "b") < (1, "c"))
+    print((2, "a") < (1, "z"))
+    pairs := [(3, "c"), (1, "z"), (3, "a")]
+    print([ "{n}{s}" for n, s in pairs.sorted() ].join(" "))
+
+@test fn single_element_is_both_ends()
+    lo, hi := min_max([7])
+    assert_eq(lo, 7)
+    assert_eq(hi, 7)
+
+@test fn unknown_direction_stays_put()
+    assert_eq(step((1, 1), "?"), (1, 1))

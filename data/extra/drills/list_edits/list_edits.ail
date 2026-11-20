@@ -1,0 +1,49 @@
+## List edits: a playlist changed with `insert`, `remove_at`, `extend`, `swap`, `reverse`
+## and `clear`, and searched with `index_of` (an optional), `contains`, `first` and `last`.
+
+fn move_to_front(mut xs List[str], name str) bool
+    i := xs.index_of(name) else return false
+    xs.remove_at(i)
+    xs.insert(0, name)
+    true
+
+fn show(xs List[str]) str
+    if xs.is_empty()
+        return "(empty)"
+    xs.join(" > ")
+
+fn main()
+    mut songs := ["intro", "verse", "chorus"]
+    songs.push("outro")
+    songs.insert(1, "bridge")
+    print(show(songs))
+    print(move_to_front(mut songs, "chorus"))
+    print(move_to_front(mut songs, "solo"))
+    print(show(songs))
+    songs.swap(0, 1)
+    songs.remove_at(2)
+    print(show(songs))
+    songs.extend(["encore", "bow"])
+    print("{songs.len()} {songs.first() else "-"} {songs.last() else "-"}")
+    print(songs.contains("encore"))
+    print(songs.index_of("bow") else -1)
+    last := songs.pop() else "-"
+    print(last)
+    print(show(songs.reversed()))
+    songs.reverse()
+    print(show(songs))
+    print(show(songs.slice(1, 3)))
+    print(show(songs[3..]))
+    songs.clear()
+    print(show(songs))
+    print(songs.pop() else "nothing to pop")
+
+@test fn moving_keeps_the_length()
+    mut xs := ["a", "b", "c"]
+    assert(move_to_front(mut xs, "c"))
+    assert_eq(xs, ["c", "a", "b"])
+
+@test fn missing_names_change_nothing()
+    mut xs := ["a"]
+    assert(not move_to_front(mut xs, "z"))
+    assert_eq(xs, ["a"])

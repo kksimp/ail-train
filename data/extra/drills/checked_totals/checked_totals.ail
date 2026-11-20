@@ -1,0 +1,41 @@
+## Checked totals: adds and multiplies without trapping on overflow, using `checked_add`,
+## `checked_mul`, `checked_div` (each gives `int?`) and `saturating_add` (which clamps).
+
+BIG := 9223372036854775807
+
+fn safe_sum(xs List[int]) int?
+    mut total := 0
+    for x in xs
+        total = total.checked_add(x) else return none
+    total
+
+fn safe_product(xs List[int]) int?
+    mut total := 1
+    for x in xs
+        total = total.checked_mul(x) else return none
+    total
+
+fn show(v int?) str
+    if n := v
+        return "{n}"
+    "overflow"
+
+fn main()
+    print(show(safe_sum([1, 2, 3])))
+    print(show(safe_sum([BIG, 1])))
+    print(show(safe_sum([BIG, -1])))
+    print(show(safe_product([1000000, 1000000, 1000000])))
+    print(show(safe_product([1000000, 1000000, 1000000, 1000000])))
+    print(show(10.checked_div(0)))
+    print(show(10.checked_div(3)))
+    print(BIG.saturating_add(5) == BIG)
+    print(40.saturating_add(2))
+    print((0 - 17).abs())
+    print("{3.max(9)} {3.min(9)}")
+
+@test fn sums_small_lists()
+    assert_eq(safe_sum([4, 5]) else -1, 9)
+
+@test fn reports_overflow()
+    assert(safe_sum([BIG, BIG]) == none)
+    assert(safe_product([BIG, 2]) == none)

@@ -22,11 +22,14 @@ other languages; teach through docs, diagnostics and auto-fix).
 | D1 | First run: a ~1.5B-parameter base at 4 bits with LoRA. Try ~3B only after the 1.5B result is in. | Kaleb |
 | D2 | The E14/final-run agent programs and drafts are training data, minus every task in the new eval pool. | Kaleb |
 | D3 | All scripts live in this private repo (kksimp/ail-train), not in kksimp/ail. Data built from them and adapters stay out of git. | Kaleb |
-| D4 | Pass bar: the tuned model's first-correct rate is at least **2x** the same model untrained, on fresh sealed tasks. | Kaleb |
+| D4 | Pass bar: the tuned model's first-correct rate is at least **2x** the same model untrained, **and at least 25%** of trials, on fresh sealed tasks (floor added 2026-11-20). | Kaleb |
 | D5 | ail-edit: an optional setting that points at a local model, **off by default**, Mac first, shown as unavailable on Linux and Windows. | Kaleb |
 | D6 | No model or model identifier is written into any committed file. The base model is named only in the untracked `config.local` on the Mac and in chat. | standing rule |
 | D7 | Everything runs on Kaleb's machines, never in a cloud container, and costs nothing (no paid API). | standing rule |
 | D8 | Training starts only after AIL 0.2.0 is tagged and Kaleb says go. | Kaleb |
+| D9 | The core card stays as the system prompt on every training example (2026-11-20). The sequence cap rises to about 4096 to hold it; the preflight measures memory and speed at that length. | Kaleb |
+| D10 | The M1 preflight measures three candidate sizes, about 1.5B, 3B and 4B, each at the D9 sequence length; the base is picked from the measured numbers (2026-11-20). D1's order still holds unless that card says otherwise. | Kaleb |
+| D11 | Grow the training set to about 3,000 distinct compiler-checked programs (2026-11-20). Project threads write them in batches under `data/extra/`; the Mac checks each with `tools/check_extra/run.sh`; only passing programs are kept. No paid service. | Kaleb |
 
 Open (ask Kaleb with a tappable card when reached): which concrete base model (section 4), whether a published
 adapter is wanted at all (licence, section 4), whether the eval report goes on the public AIL benchmarks page.
@@ -75,6 +78,7 @@ expected output must reproduce it. The builder drops failures and reports counts
 | Docs | kksimp/ail `docs/language-card.md` (~16k tokens), `docs/language-card-core.md` (~3k tokens), `docs/how-to.md`, `llms-full.txt`, `docs/quick-reference.md` | ~95 KB | the core card is the system prompt; how-to rows become short Q&A |
 | Doc snippets | `ail` blocks in kksimp/ail `docs/` (checked by `tools/check-doc-snippets.py`) | hundreds | `complete` |
 | Explain texts | `ail explain RULE` for every rule ID | a few hundred | `explain` (diagnostic -> cause and fix) |
+| Drill programs with Python twins | this repo `data/extra/drills/NAME/{NAME.ail,NAME.py,NAME.out}` | 40 programs, ~56 KB AIL | `write`, `port`, `complete`; each targets built-in methods the corpus uses under five times and the top draft mistakes (see `data/extra/README.md`) |
 | Future public corpus | planned after 0.2 in kksimp/ail | - | same families; retrain when it lands |
 
 The agent programs are agent-written and correct by the benchmark's hidden cases, so they teach the shape of real
@@ -100,7 +104,7 @@ Target mix by tokens (adjust after the first run): write 35%, fix 25%, port 15%,
 Optional later: ~10% general code instruction data under a permissive licence, to limit forgetting.
 
 System prompt: the **core card** (~3k tokens), not the full card. The full card does not fit at sequence 2048 on 8 GB,
-and the model should carry the language in its weights. Examples longer than 2048 tokens with the core card are
+and the model should carry the language in its weights. Examples longer than the sequence cap (about 4096, D9) with the core card are
 split (multi-file tasks) or dropped and counted.
 
 ### 5.3 Contamination rules
@@ -128,7 +132,7 @@ split (multi-file tasks) or dropped and counted.
 ## 6. Training recipe (first run)
 
 - `mlx_lm.lora --train` with LoRA on attention and MLP projections, rank 16, scale 32, 16 layers, batch 1 with
-  gradient accumulation 8, `--grad-checkpoint`, max sequence 2048, learning rate 1e-4 cosine with warm-up, 2-3 epochs,
+  gradient accumulation 8, `--grad-checkpoint`, max sequence about 4096 (D9), learning rate 1e-4 cosine with warm-up, 2-3 epochs,
   validation every 100 steps, adapters saved every 200 steps, `--mask-prompt` (loss on the answer only).
 - Stop early when validation loss rises for two evaluations.
 - After training: `mlx_lm.fuse` to a standalone model; keep the adapter too.
@@ -154,7 +158,7 @@ Stages:
 3. **Fresh sealed tasks** (D4): 12-20 new from-scratch tasks in agentbench format with AIL reference solutions,
    authored in M3. 5 trials per task per arm.
 
-Pass bar (D4): arm C first-correct >= 2 x arm A first-correct on the sealed tasks. Also report final-correct and
+Pass bar (D4): arm C first-correct >= 2 x arm A first-correct, and >= 25% of trials, on the sealed tasks. Also report final-correct and
 mean versions to correct, beside the frontier figures from CONTEXT.md, with the caveat that a 1.5B model is not
 expected to match a frontier model. A failed bar is still reported honestly; it tells us whether data volume or
 model size is the limit.
@@ -176,7 +180,7 @@ report in the thread and its checkboxes updated here.
 
 - **M0 Plan and raw data** (done 2026-11-20): this file, CONTEXT.md, `data/raw/`, `tools/extract_trials.py`.
 - **M1 Preflight** (Mac, ~30 min). Self-setting-up `tools/preflight.sh`: Python venv in `~/ail-train-work/venv`,
-  `pip install mlx-lm`, record chip, macOS, free memory and disk; download 2-3 candidate bases (4-bit); tokenise 20
+  `pip install mlx-lm`, record chip, macOS, free memory and disk; download three candidate bases at 4 bits, about 1.5B, 3B and 4B (D10); tokenise 20
   corpus programs per candidate; a 50-example, 20-step LoRA smoke run per candidate recording peak memory and tok/s.
   Done when: a decision card with the measured numbers is answered (base model chosen).
 - **M2 Data builder.** `tools/build_data.py` as in 5.4; Mac job against ail 0.2.0. Done when: manifest counts
@@ -201,6 +205,7 @@ CONTEXT.md               everything a new project needs to know about AIL, the m
 data/raw/                committed raw inputs from the AIL project (see data/raw/MANIFEST.md)
 data/build/              builder output (git-ignored)
 tools/extract_trials.py  pulls AIL trials out of agentbench result archives
+data/extra/              programs written for training (drills); checked on the Mac by tools/check_extra/run.sh
 tools/preflight.sh       M1 (to write)
 tools/build_data.py      M2 (to write)
 tools/local_agent.py     M4 (to write)
@@ -219,7 +224,38 @@ config.local             untracked: base model id, paths (D6)
 - **Licence** of the base blocks bundling (section 4).
 - **Language drift** after 0.2: the manifest pins the ail commit; rebuild and re-validate data on each AIL release.
 
-## 12. Rejected alternatives
+## 12. Review of 2026-11-20 (8 GB methods)
+
+Findings from a review of this plan against current published methods. Kaleb answered the four decisions on 2026-11-20 (D4 floor, D9, D10, D11).
+
+- **The core card does not fit the sequence.** The core card is ~3k tokens and the sequence cap was 2048, so with the
+  card as the system prompt every example was over the cap. Decided (D9): keep the card on every example and raise
+  the cap to about 4096. Cost: roughly double the activation memory and step time of 2048, so the preflight must
+  measure the peak at 4096 for each candidate, and a base that passes 6 GB at that length is out. Sections 3, 5.2
+  and 6 read "2048" as "about 4096" from here on. Rejected: a short prompt with the card on a minority of examples.
+- **Model size.** Published low-resource-language results: a 1B base gained 3.5 to 8 points of pass@1 from ~40k
+  verified examples per language (arXiv 2308.09895); a reinforcement method gained nothing at 1.7B and 3B and gained
+  clearly at 4B (arXiv 2508.04865). On-device work trains a 4B base at 4 bits on 8 GB phones under ~1 GB at sequence
+  256 with exact gradients (arXiv 2510.03425). Decided (D10): the M1 preflight measures 1.5B, 3B and ~4B candidates.
+- **Pass bar.** An untrained small base writes almost no correct AIL, so "2x the base" alone could be met by a model
+  that is still unusable. Decided: D4 keeps 2x and adds a floor of 25% first-correct. Rejected: 2x only; a 50% floor.
+- **Data volume.** The training set holds about 1,000 distinct verified programs (the 333 agent trials cover 16
+  tasks). The cited work used tens of thousands, and found unverified data useless or harmful, so growth must go
+  through `ail check` and expected output. Decided (D11): grow the set to about 3,000 compiler-checked programs. Each batch is checked on the Mac before the next
+  is written, so the failures of one batch correct the next. Rejected: stopping at the 40 drills; waiting for the public corpus.
+- **Coverage.** Of the methods the language card names, most appear under five times in the corpus and examples
+  (`center`, `rfind`, `get_or`, `map_values`, `zip`, `windows`, `chunks`, `flatten`, `take_while`, `checked_*`, ...).
+  Guessed method names are the top draft error. `data/extra/drills/` starts to close this; `tests/cases/*.ail` with
+  a `.out` (470 files) already exercises every method and should also feed a `predict output` family.
+- **Memory settings for the first run** (no decision needed; confirm flag names in the preflight): batch 1 with
+  gradient accumulation, gradient checkpointing, loss on the answer only, examples sorted into length buckets,
+  sequence cap chosen from the token histogram instead of a fixed 2048, LoRA on the last 8 to 16 layers only (a
+  shorter backward pass), no other heavy app open, abort on swap. Second run only if the first shows headroom:
+  DoRA, and a loss computed in chunks.
+- **Not adopted now.** Hand-written memory-efficient backward passes (arXiv 2602.13069, 2510.03425) need custom code
+  for a saving the settings above mostly reach. Reinforcement training with compiler reward is a candidate after M6.
+
+## 13. Rejected alternatives
 
 - Full fine-tune: does not fit 8 GB.
 - The full card in every example: too long for 8 GB and teaches the card text more than the language.

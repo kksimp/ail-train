@@ -1,0 +1,44 @@
+## Big factorials: numbers past 64 bits with `bigint`: `bigint.from_int`, the operators
+## `+ * <`, and text through interpolation, next to `checked_mul` showing where `int` ends.
+
+fn factorial(n int) bigint.BigInt
+    mut f := bigint.from_int(1)
+    for i in 2..=n
+        f = f * bigint.from_int(i)
+    f
+
+fn last_int_factorial() int
+    mut f := 1
+    mut n := 1
+    while true
+        next := f.checked_mul(n + 1) else break
+        f = next
+        n += 1
+    n
+
+fn digit_count(b bigint.BigInt) int
+    "{b}".len()
+
+fn main()
+    print(factorial(5))
+    print(factorial(20))
+    print(factorial(25))
+    print(digit_count(factorial(50)))
+    print(last_int_factorial())
+    mut sum := bigint.from_int(0)
+    for k in 1..=30
+        sum += factorial(k)
+    print(sum)
+    print(factorial(21) < factorial(22))
+    two := bigint.from_int(2)
+    mut power := bigint.from_int(1)
+    for step in 0..100
+        power = power * two
+    print(power)
+
+@test fn small_factorials_match_ints()
+    assert_eq("{factorial(10)}", "3628800")
+
+@test fn zero_and_one_are_one()
+    assert_eq("{factorial(0)}", "1")
+    assert_eq("{factorial(1)}", "1")

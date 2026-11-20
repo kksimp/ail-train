@@ -1,0 +1,8 @@
+tea 2: 700
+jam: 420
+[] failed: empty line (nothing to order)
+[tea two] failed: bad quantity two (quantity 'two' is not a number)
+[milk 1] failed: unknown item milk (we do not sell milk)
+1190
+order failed: unknown item milk
+-1

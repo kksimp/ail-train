@@ -1,0 +1,34 @@
+## Sliding windows: splits readings into pages with `chunks` and finds the best run of
+## three with `windows`; a window list is empty when the list is shorter than the window.
+
+fn window_sums(xs List[int], size int) List[int]
+    [w.sum() for w in xs.windows(size)]
+
+fn best_window(xs List[int], size int) int
+    window_sums(xs, size).max() else 0
+
+fn rising(xs List[int]) int
+    mut count := 0
+    for pair in xs.windows(2)
+        if pair[1] > pair[0]
+            count += 1
+    count
+
+fn main()
+    readings := [4, 9, 2, 7, 7, 1, 8, 3]
+    for i, page in readings.chunks(3).enumerate()
+        print("page {i + 1}: {page.join(" ")} (sum {page.sum()})")
+    print(window_sums(readings, 3).join(","))
+    print(best_window(readings, 3))
+    print(best_window(readings, 20))
+    print(rising(readings))
+    print(readings.chunks(8).len())
+    print(readings.windows(8).len())
+    print(readings.windows(9).len())
+
+@test fn window_sums_slide_by_one()
+    assert_eq(window_sums([1, 2, 3, 4], 2), [3, 5, 7])
+
+@test fn short_lists_have_no_window()
+    assert_eq(best_window([1], 2), 0)
+    assert_eq(rising([5]), 0)

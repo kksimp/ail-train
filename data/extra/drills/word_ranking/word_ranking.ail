@@ -1,0 +1,36 @@
+## Word ranking: counts words in a map, lists the most frequent with `top`, and derives a
+## percentage map with `map_values`. `top` breaks ties by insertion order.
+
+fn count_words(text str) Map[str, int]
+    mut counts := Map[str, int]()
+    for w in text.to_lower().words()
+        counts[w] += 1
+    counts
+
+fn shares(counts Map[str, int]) Map[str, int]
+    total := counts.values().sum()
+    counts.map_values(|k, v| v * 100 / total)
+
+fn main()
+    text := "the cat and the dog and the bird saw the cat"
+    counts := count_words(text)
+    print(counts.len())
+    for w in counts.top(3)
+        print("{w}: {counts[w]}")
+    pct := shares(counts)
+    for w in pct.keys().sorted()
+        print("{w:<5}{pct[w]:>3}%")
+    print(counts.top(0).len())
+    print(counts.top(99).len())
+    print(counts.values().max() else 0)
+    rare := [k for k, v in counts if v == 1]
+    print(rare.join(","))
+
+@test fn counts_ignore_case()
+    c := count_words("A a B")
+    assert_eq(c["a"], 2)
+    assert_eq(c.top(1), ["a"])
+
+@test fn shares_add_up_for_even_splits()
+    s := shares({"x": 1, "y": 1})
+    assert_eq(s["x"], 50)

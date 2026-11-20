@@ -1,0 +1,42 @@
+## Recent window deque: keeps the last few readings in a `Deque` with `push_back` and
+## `pop_front`, and uses both ends (`push_front`, `pop_back`, `first`, `last`) for an undo list.
+
+fn rolling_max(xs List[int], size int) List[int]
+    mut window := Deque[int]()
+    mut out := List[int]()
+    for x in xs
+        window.push_back(x)
+        if window.len() > size
+            window.pop_front()
+        out.push(window.to_list().max() else 0)
+    out
+
+fn main()
+    print(rolling_max([3, 1, 4, 1, 5, 9, 2, 6], 3).join(" "))
+    mut d := Deque[str]()
+    d.push_back("b")
+    d.push_back("c")
+    d.push_front("a")
+    print(d.to_list().join(""))
+    print("{d.first() else "-"} {d.last() else "-"} {d.len()}")
+    print(d[1])
+    d.set(1, "B")
+    print(d.pop_back() else "-")
+    print(d.pop_front() else "-")
+    print(d.to_list().join(""))
+    print(d.pop_front() else "-")
+    print(d.pop_front() else "-")
+    print(d.is_empty())
+    mut line := Deque[int]()
+    for i in 1..=4
+        line.push_back(i * 10)
+    mut total := 0
+    for v in line
+        total += v
+    print(total)
+
+@test fn window_never_grows_past_its_size()
+    assert_eq(rolling_max([1, 2, 3], 1), [1, 2, 3])
+
+@test fn window_remembers_recent_values()
+    assert_eq(rolling_max([9, 1, 1, 1], 2), [9, 9, 1, 1])

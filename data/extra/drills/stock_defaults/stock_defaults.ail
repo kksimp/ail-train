@@ -1,0 +1,49 @@
+## Stock defaults: reads map entries that may be missing with `get ... else`, `get_or` and
+## `contains`, counts with `+=` on a missing key, and deletes entries with `remove`.
+
+fn restock(stock Map[str, int], item str, qty int) Map[str, int]
+    mut next := stock
+    next[item] = next.get_or(item, 0) + qty
+    next
+
+fn sell(mut stock Map[str, int], item str, qty int) bool
+    have := stock.get(item) else return false
+    if have < qty
+        return false
+    if have == qty
+        stock.remove(item)
+    else
+        stock[item] = have - qty
+    true
+
+fn report(stock Map[str, int]) str
+    [ "{k}={stock[k]}" for k in stock.keys().sorted() ].join(" ")
+
+fn main()
+    mut stock := {"tea": 4, "jam": 1}
+    stock = restock(stock, "tea", 6)
+    stock = restock(stock, "oats", 2)
+    print(report(stock))
+    print(sell(mut stock, "jam", 1))
+    print(sell(mut stock, "jam", 1))
+    print(sell(mut stock, "tea", 99))
+    print(sell(mut stock, "tea", 3))
+    print(report(stock))
+    print(stock.contains("jam"))
+    print(stock.get_or("jam", 0))
+    print(stock.len())
+    mut visits := Map[str, int]()
+    for who in ["ann", "bob", "ann", "ann"]
+        visits[who] += 1
+    print(report(visits))
+
+@test fn restock_leaves_the_argument_alone()
+    before := {"a": 1}
+    after := restock(before, "a", 2)
+    assert_eq(before["a"], 1)
+    assert_eq(after["a"], 3)
+
+@test fn selling_everything_removes_the_entry()
+    mut s := {"a": 2}
+    assert(sell(mut s, "a", 2))
+    assert(not s.contains("a"))

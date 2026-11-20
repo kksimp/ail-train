@@ -1,0 +1,40 @@
+## Receipt columns: prints a receipt with a centred title, item names padded on the
+## right, and quantities and prices padded on the left with `pad_left`, `pad_right` and `center`.
+
+struct Line
+    name str
+    qty int
+    cents int
+
+fn money(cents int) str
+    whole := cents / 100
+    part := "{cents % 100}".pad_left(2, '0')
+    "{whole}.{part}"
+
+fn row(l Line) str
+    name := l.name.pad_right(12, '.')
+    qty := "{l.qty}".pad_left(3, ' ')
+    price := money(l.qty * l.cents).pad_left(8, ' ')
+    "{name}{qty}{price}"
+
+fn main()
+    items := [
+        Line(name: "tea", qty: 2, cents: 349),
+        Line(name: "oat biscuits", qty: 1, cents: 205),
+        Line(name: "jam", qty: 12, cents: 99),
+    ]
+    print("[{"RECEIPT".center(23, '=')}]")
+    mut total := 0
+    for l in items
+        print(row(l))
+        total += l.qty * l.cents
+    print("-".repeat(23))
+    print("{"total".pad_right(15, ' ')}{money(total).pad_left(8, ' ')}")
+    print("[{"ok".center(5, '*')}]")
+
+@test fn money_pads_cents()
+    assert_eq(money(205), "2.05")
+    assert_eq(money(1200), "12.00")
+
+@test fn rows_have_one_width()
+    assert_eq(row(Line(name: "a", qty: 1, cents: 1)).len(), 23)

@@ -1,0 +1,43 @@
+## Job queue heap: schedules jobs by priority with `Heap`: `push`, `pop` and `peek` (both
+## give optionals), a largest-first heap with `max_first: true`, and `Heap.from(xs).to_sorted()`.
+
+fn drain(mut h Heap[int]) List[int]
+    mut out := List[int]()
+    while top := h.pop()
+        out.push(top)
+    out
+
+fn smallest(xs List[int], n int) List[int]
+    Heap.from(xs).to_sorted().take(n)
+
+fn main()
+    mut jobs := Heap[int]()
+    for p in [5, 1, 4, 1, 9]
+        jobs.push(p)
+    print(jobs.len())
+    print(jobs.peek() else -1)
+    print(drain(mut jobs).join(" "))
+    print(jobs.is_empty())
+    print(jobs.pop() else -1)
+    mut big := Heap[int](max_first: true)
+    for q in [5, 1, 4, 1, 9]
+        big.push(q)
+    print(drain(mut big).join(" "))
+    print(smallest([8, 3, 6, 2, 7], 3).join(" "))
+    mut names := Heap[str]()
+    for n in ["pear", "apple", "fig"]
+        names.push(n)
+    print(names.pop() else "")
+    mut tasks := Heap[(int, str)]()
+    tasks.push((2, "write"))
+    tasks.push((1, "plan"))
+    tasks.push((3, "ship"))
+    while t := tasks.pop()
+        print("{t.0} {t.1}")
+
+@test fn drain_gives_ascending_order()
+    mut h := Heap.from([3, 1, 2])
+    assert_eq(drain(mut h), [1, 2, 3])
+
+@test fn smallest_handles_short_lists()
+    assert_eq(smallest([4], 3), [4])

@@ -1,0 +1,44 @@
+## Nested lists: turns lists of lists into one list with `flatten` and `flat_map`, to list
+## every tag of a set of posts and every cell of a table.
+
+struct Post
+    title str
+    tags List[str]
+
+fn tags_of(p Post) List[str]
+    p.tags
+
+fn all_tags(posts List[Post]) List[str]
+    posts.flat_map(tags_of)
+
+fn unique_sorted(xs List[str]) List[str]
+    mut seen := Set[str]()
+    for x in xs
+        seen.add(x)
+    seen.sorted()
+
+fn main()
+    posts := [
+        Post(title: "intro", tags: ["ail", "start"]),
+        Post(title: "empty", tags: []),
+        Post(title: "tasks", tags: ["ail", "tasks", "channels"]),
+    ]
+    tags := all_tags(posts)
+    print(tags.join(" "))
+    print(unique_sorted(tags).join(" "))
+    table := [[1, 2, 3], [], [4], [5, 6]]
+    cells := table.flatten()
+    print(cells.join(","))
+    print(cells.sum())
+    widths := [row.len() for row in table]
+    print(widths.join(","))
+    pairs := [1, 2, 3].flat_map(|n| [n, n * n])
+    print(pairs.join(" "))
+    words := ["a b", "c", "d e f"].flat_map(|s| s.split(" "))
+    print(words.len())
+
+@test fn posts_without_tags_add_nothing()
+    assert(all_tags([Post(title: "x", tags: [])]).is_empty())
+
+@test fn duplicates_are_removed()
+    assert_eq(unique_sorted(["b", "a", "b"]), ["a", "b"])

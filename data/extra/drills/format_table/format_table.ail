@@ -1,0 +1,36 @@
+## Format table: lays out numbers with format specs inside `{}`: width and alignment,
+## zero padding, a thousands separator, hex and binary, a fill character, and float decimals.
+
+struct Row
+    name str
+    count int
+    ratio float
+
+fn line(r Row) str
+    "{r.name:<8}|{r.count:>9,}|{r.ratio:>7.2}|{r.count:>6x}"
+
+fn main()
+    rows := [
+        Row(name: "alpha", count: 1234567, ratio: 0.5),
+        Row(name: "beta", count: 42, ratio: 12.347),
+        Row(name: "gamma", count: 0, ratio: 100.0),
+    ]
+    print("{"name":<8}|{"count":>9}|{"ratio":>7}|{"hex":>6}")
+    for r in rows
+        print(line(r))
+    n := 37
+    print("[{n:5}] [{n:<5}] [{n:^5}] [{n:05}] [{n:+}]")
+    print("[{n:b}] [{n:x}] [{n:08b}]")
+    s := "ail"
+    print("[{s:>6}] [{s:*^9}] [{s:-<6}] [{s:0>6}]")
+    x := 3.14159
+    print("[{x:.0}] [{x:.2}] [{x:8.3}] [{x:<8.1}]")
+    print("{1000000:,} {999:,} {-1234:,}")
+    id := 7
+    print("order-{id:04}")
+
+@test fn lines_have_one_width()
+    assert_eq(line(Row(name: "a", count: 1, ratio: 1.0)).len(), 33)
+
+@test fn zero_padding_keeps_width()
+    assert_eq("{5:03}", "005")

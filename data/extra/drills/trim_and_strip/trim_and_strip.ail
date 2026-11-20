@@ -1,0 +1,41 @@
+## Trim and strip: cleans configuration lines with `trim`, `trim_start`, `trim_end`,
+## `strip_prefix` and `strip_suffix`. The strip methods give `str?`, so each use has an `else`.
+
+fn clean_key(raw str) str
+    t := raw.trim()
+    no_export := t.strip_prefix("export ") else t
+    no_export.trim_end()
+
+fn clean_value(raw str) str
+    t := raw.trim()
+    no_semi := t.strip_suffix(";") else t
+    inner := no_semi.strip_prefix("\"") else no_semi
+    inner.strip_suffix("\"") else inner
+
+fn main()
+    lines := [
+        "  export PATH = \"/usr/bin\";  ",
+        "name=  ale  ",
+        "export   depth =3;",
+        "   # a comment",
+        "broken line",
+    ]
+    for line in lines
+        if line.trim_start().starts_with("#")
+            print("comment [{line.trim_start()}]")
+            continue
+        parts := line.split("=", 2)
+        if parts.len() != 2
+            print("skip [{line.trim_end()}]")
+            continue
+        print("{clean_key(parts[0])} -> [{clean_value(parts[1])}]")
+    print("[{"  both  ".trim_start()}] [{"  both  ".trim_end()}] [{"  both  ".trim()}]")
+    print("x.ail".strip_suffix(".ail") else "no suffix")
+    print("x.txt".strip_suffix(".ail") else "no suffix")
+
+@test fn keys_lose_export()
+    assert_eq(clean_key(" export A "), "A")
+    assert_eq(clean_key("B"), "B")
+
+@test fn values_lose_quotes()
+    assert_eq(clean_value(" \"v\"; "), "v")

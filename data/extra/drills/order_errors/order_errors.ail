@@ -1,0 +1,54 @@
+## Order errors: parses order lines with a typed `error enum`, passes failures on with `?`
+## and context, and handles them with `else err` and a `match` on the error.
+
+error enum OrderError
+    Empty "empty line"
+    BadQty(text str) "bad quantity {text}"
+    Unknown(item str) "unknown item {item}"
+
+fn price_of(item str) int ! OrderError
+    match item
+        "tea" => 350
+        "jam" => 420
+        _ => return Unknown(item: item)
+
+fn line_total(line str) int ! OrderError
+    parts := line.trim().words()
+    if parts.is_empty()
+        return Empty
+    qty := if parts.len() > 1 then parts[1] else "1"
+    n := qty.to_int() else return BadQty(text: qty)
+    price := price_of(parts[0])?
+    price * n
+
+fn order_total(lines List[str]) !int
+    mut sum := 0
+    for i, line in lines.enumerate()
+        sum += line_total(line)? "line {i + 1}"
+    sum
+
+fn explain(err OrderError) str
+    match err
+        Empty => "nothing to order"
+        BadQty(text) => "quantity '{text}' is not a number"
+        Unknown(item) => "we do not sell {item}"
+
+fn main()
+    for line in ["tea 2", "jam", "", "tea two", "milk 1"]
+        if total := line_total(line)
+            print("{line}: {total}")
+        else err
+            print("[{line}] failed: {err} ({explain(err)})")
+    good := order_total(["tea 1", "jam 2"]) else 0
+    print(good)
+    bad := order_total(["tea 1", "milk 2"]) else err
+        print("order failed: {err}")
+        -1
+    print(bad)
+
+@test fn one_is_the_default_quantity()
+    assert_eq(line_total("jam")?, 420)
+
+@test fn unknown_items_fail()
+    assert_err(line_total("milk 1"), OrderError.Unknown)
+    assert_err(line_total("  "), OrderError.Empty)

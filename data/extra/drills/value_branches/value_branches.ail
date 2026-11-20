@@ -1,0 +1,54 @@
+## Value branches: `if` and `match` used as values: the one-line `if ... then ... elif ...
+## else` form, the block form whose branches end in a value, and a `match` that gives a value.
+
+fn grade(score int) str
+    if score >= 90 then "A" elif score >= 75 then "B" elif score >= 60 then "C" else "F"
+
+fn shipping(weight int, express bool) int
+    base := if weight <= 1
+        300
+    elif weight <= 5
+        550
+    else
+        550 + (weight - 5) * 80
+    if express then base * 2 else base
+
+fn bucket(n int) str
+    match n
+        0 => "zero"
+        1 | 2 | 3 => "few"
+        4..=9 => "some"
+        _ if n < 0 => "negative"
+        _ => "many"
+
+fn sign(n int) int
+    if n > 0
+        1
+    elif n < 0
+        -1
+    else
+        0
+
+fn main()
+    for s in [95, 80, 61, 12]
+        print("{s}: {grade(s)}")
+    print("{shipping(1, false)} {shipping(4, false)} {shipping(8, false)} {shipping(8, true)}")
+    for n in [0, 2, 7, 40, -3]
+        print("{n} is {bucket(n)}")
+    print("{sign(9)} {sign(-9)} {sign(0)}")
+    count := 3
+    noun := if count == 1 then "item" else "items"
+    print("{count} {noun}")
+    width := match grade(80)
+        "A" => 3
+        "B" => 2
+        _ => 1
+    print("*".repeat(width))
+
+@test fn boundaries_belong_to_the_higher_grade()
+    assert_eq(grade(90), "A")
+    assert_eq(grade(75), "B")
+    assert_eq(grade(59), "F")
+
+@test fn express_doubles_the_price()
+    assert_eq(shipping(2, true), 1100)
