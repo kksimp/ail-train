@@ -1,0 +1,37 @@
+## Seeded shuffle: a small linear congruential generator gives repeatable numbers, used for
+## a Fisher-Yates shuffle that is the same on every run with the same seed.
+
+struct Lcg
+    state int
+
+fn Lcg.next(mut self) int
+    self.state = (self.state * 1103515245 + 12345) % 2147483648
+    self.state
+
+fn Lcg.below(mut self, n int) int
+    self.next() % n
+
+fn shuffle(xs List[str], seed int) List[str]
+    mut out := xs
+    mut rng := Lcg(state: seed)
+    mut i := out.len() - 1
+    while i > 0
+        j := rng.below(i + 1)
+        out.swap(i, j)
+        i -= 1
+    out
+
+fn main()
+    deck := ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"]
+    for seed in [1, 42, 2024]
+        print("seed {seed}: {shuffle(deck, seed).join(" ")}")
+    print("repeatable: {shuffle(deck, 7) == shuffle(deck, 7)}")
+    mut rng := Lcg(state: 99)
+    mut draws := List[int]()
+    for _ in 0..5
+        draws.push(rng.below(100))
+    print(draws.join(" "))
+
+@test fn keeps_every_card()
+    s := shuffle(["a", "b", "c", "d"], 5)
+    assert_eq(s.sorted(), ["a", "b", "c", "d"])

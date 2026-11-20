@@ -1,0 +1,26 @@
+## Shelf labels: prints fixed-width labels with a centred title, left-aligned names and
+## right-aligned quantities using `center`, `pad_right` and `pad_left`, inside a box.
+
+fn label(title str, rows List[(str, int)], width int) List[str]
+    inner := width - 2
+    mut out := ["+{"-".repeat(inner)}+"]
+    out.push("|{title.to_upper().center(inner, ' ')}|")
+    out.push("+{"-".repeat(inner)}+")
+    for r in rows
+        name, qty := r
+        q := "{qty}"
+        room := inner - q.len() - 2
+        shown := if name.len() > room then "{name.slice(0, room - 1)}~" else name
+        out.push("| {shown.pad_right(room, '.')}{q.pad_left(q.len(), ' ')} |")
+    out.push("+{"-".repeat(inner)}+")
+    out
+
+fn main()
+    for line in label("aisle 4", [("bolts M6", 120), ("washers", 8), ("extra long wood screws", 45)], 26)
+        print(line)
+    for line in label("x", [("a", 1)], 9)
+        print(line)
+
+@test fn lines_have_equal_width()
+    ls := label("t", [("name", 12345)], 20)
+    assert(ls.all(|l| l.len() == 20))

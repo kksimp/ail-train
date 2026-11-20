@@ -1,0 +1,7 @@
+balanced: <p><b>hi</b> there</p>
+tag 3: </div> closes <p>: <div><p>text</div></p>
+tag 4: </ul> closes <li>: <ul><li>one<li>two</ul>
+tag 1: </em> closes nothing: </em>
+balanced: <img src=x/><br/><p class=a>ok</p>
+unclosed <p>: <p>left open
+a,b/,/a

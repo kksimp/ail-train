@@ -3,9 +3,9 @@
 
 fn mirror(c char) char
     if c.is_lower()
-        return char.from_code(219 - c.code())
+        return char.from_code(219 - c.code()) else c
     if c.is_upper()
-        return char.from_code(155 - c.code())
+        return char.from_code(155 - c.code()) else c
     c
 
 fn atbash(text str) str

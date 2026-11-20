@@ -1,0 +1,27 @@
+## Packet checksum: builds `bytes` from text and from hex, computes an XOR checksum and an
+## additive checksum mod 256 over the bytes, and prints them as hex.
+
+fn xor_sum(data bytes) int
+    mut x := 0
+    for b in data
+        x = x ^ b.to_int()
+    x
+
+fn add_sum(data bytes) int
+    mut s := 0
+    for b in data
+        s = (s + b.to_int()) % 256
+    s
+
+fn main()
+    packets := ["HELLO", "ping 42", ""]
+    for p in packets
+        data := p.to_bytes()
+        print("'{p}': {data.len()} bytes, hex [{data.hex(" ")}], xor {xor_sum(data):02x}, sum {add_sum(data):02x}")
+    raw := bytes.from_hex("deadbeef") else b""
+    print("{raw.len()} bytes: xor {xor_sum(raw):02x}, sum {add_sum(raw):02x}")
+    print(bytes.from_hex("xyz") == none)
+    print("AB".to_bytes().base64())
+
+@test fn xor_of_pair_is_zero()
+    assert_eq(xor_sum("aa".to_bytes()), 0)

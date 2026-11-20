@@ -1,0 +1,25 @@
+## Vote bars: draws a horizontal bar chart of votes scaled to 30 characters, labels each bar
+## with its count and percentage, and sorts the bars by votes, ties by name.
+
+fn bars(votes Map[str, int], width int) List[str]
+    total := votes.values().sum()
+    most := votes.values().max() else 0
+    names := votes.keys().sorted(by: |k| (-votes[k], k))
+    pad := (names.map(|n| n.len()).max() else 0)
+    mut out := List[str]()
+    for n in names
+        v := votes[n]
+        size := if most == 0 then 0 else v * width / most
+        pct := if total == 0 then 0 else v * 100 / total
+        out.push("{n.pad_right(pad, ' ')} {"#".repeat(size)}{" ".repeat(width - size)} {v:>3} ({pct}%)")
+    out
+
+fn main()
+    votes := {"oak": 41, "birch": 17, "maple": 41, "ash": 6, "elm": 0}
+    for l in bars(votes, 30)
+        print(l.trim_end())
+    print(bars({"x": 0}, 10)[0].trim_end())
+
+@test fn biggest_bar_is_full()
+    b := bars({"a": 5, "b": 1}, 10)
+    assert(b[0].contains("##########"))

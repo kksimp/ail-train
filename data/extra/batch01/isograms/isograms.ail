@@ -17,7 +17,8 @@ fn main()
         else
             print("'{w}': isogram")
     letters := "subdermatoglyphic".chars()
-    print("{letters.len()} letters, {{c for c in letters}.len()} distinct")
+    distinct := {c for c in letters}
+    print("{letters.len()} letters, {distinct.len()} distinct")
 
 @test fn case_is_ignored()
     assert_eq(first_repeat("Aa") else ' ', 'a')

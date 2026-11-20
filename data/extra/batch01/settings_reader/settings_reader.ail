@@ -1,0 +1,24 @@
+## Settings reader: parses a JSON settings document with `parse_json`, reads members with
+## defaults (`int`, `text`, `flag`), and reports a parse error with its message.
+
+fn describe(text str) str
+    doc := parse_json(text) else err
+        return "bad settings: {err.message}"
+    port := doc.int("port") else 8080
+    host := doc.text("host", "localhost")
+    debug := doc.flag("debug", false)
+    tags := doc.arr("tags") else []
+    "{host}:{port} debug={debug} tags={tags.len()}"
+
+fn main()
+    docs := [
+        "\{\"port\": 9000, \"host\": \"example.org\", \"debug\": true, \"tags\": [\"a\", \"b\"]}",
+        "\{\"host\": \"10.0.0.2\"}",
+        "\{}",
+        "\{\"port\": 70,",
+    ]
+    for d in docs
+        print(describe(d))
+
+@test fn defaults_apply()
+    assert_eq(describe("\{}"), "localhost:8080 debug=false tags=0")

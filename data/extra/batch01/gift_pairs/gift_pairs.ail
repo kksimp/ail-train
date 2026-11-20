@@ -1,0 +1,32 @@
+## Gift pairs: finds pairs of gift prices that use a voucher exactly, in one pass with a
+## `Map` from price to position, and counts all pairs for several voucher values.
+
+fn first_pair(prices List[int], voucher int) (int, int)?
+    mut seen := Map[int, int]()
+    for i, p in prices.enumerate()
+        if j := seen.get(voucher - p)
+            return (j, i)
+        if not seen.contains(p)
+            seen[p] = i
+    none
+
+fn all_pairs(prices List[int], voucher int) int
+    mut counts := Map[int, int]()
+    mut pairs := 0
+    for p in prices
+        pairs += counts.get_or(voucher - p, 0)
+        counts[p] += 1
+    pairs
+
+fn main()
+    prices := [12, 30, 18, 25, 7, 30, 5, 20]
+    for v in [37, 60, 50, 100, 25]
+        if pair := first_pair(prices, v)
+            a, b := pair
+            print("{v}: items {a + 1} and {b + 1} ({prices[a]} + {prices[b]}), {all_pairs(prices, v)} pairs in all")
+        else
+            print("{v}: no pair")
+
+@test fn same_price_twice()
+    assert_eq(first_pair([30, 1, 30], 60) else (0, 0), (0, 2))
+    assert_eq(all_pairs([5, 5, 5], 10), 3)

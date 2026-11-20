@@ -1,0 +1,30 @@
+## Repeated codes: scans rows of ticket codes and reports, per row, the first code seen in
+## an earlier row, using a labelled `continue` to move to the next row early.
+
+fn main()
+    rows := [
+        ["A12", "B07", "C33"],
+        ["D10", "B07", "E05"],
+        ["F01", "G02"],
+        ["C33", "H09", "A12"],
+        ["I11"],
+    ]
+    mut seen := Set[str]()
+    mut clashes := 0
+    rows_loop: for i, row in rows.enumerate()
+        for code in row
+            if seen.contains(code)
+                print("row {i + 1}: {code} already used")
+                clashes += 1
+                for c in row
+                    seen.add(c)
+                continue rows_loop
+        for c in row
+            seen.add(c)
+        print("row {i + 1}: all new")
+    print("clashing rows: {clashes}, distinct codes: {seen.len()}")
+
+@test fn sets_report_new_items()
+    mut s := Set[str]()
+    assert(s.add("x"))
+    assert(not s.add("x"))

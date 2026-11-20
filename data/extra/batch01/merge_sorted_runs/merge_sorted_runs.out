@@ -1,0 +1,6 @@
+3 9 14 (0 compares)
+1 2 3 9 14 20 21 (5 compares)
+1 2 3 9 14 20 21 (0 compares)
+1 2 3 5 9 9 14 20 21 (6 compares)
+0 1 2 3 5 9 9 14 20 21 30 (10 compares)
+total compares: 21, sorted: true

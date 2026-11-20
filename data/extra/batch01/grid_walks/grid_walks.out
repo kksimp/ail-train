@@ -1,0 +1,4 @@
+'NNEESW': ends at (1, 1), distance 2, farthest 4, 7 cells
+'EEEENNNNWWWWSSSS': ends at (0, 0), distance 0, farthest 8, 16 cells
+'NXNXS': ends at (0, 1), distance 1, farthest 2, 3 cells
+'': ends at (0, 0), distance 0, farthest 0, 1 cells

@@ -1,0 +1,40 @@
+## Domino line: checks whether dominoes laid in a row match end to end, flipping a tile
+## when that makes it fit, and reports the first tile that cannot be placed.
+
+fn lay(tiles List[(int, int)]) (List[(int, int)], int?)
+    mut placed := List[(int, int)]()
+    for i, t in tiles.enumerate()
+        a, b := t
+        if last := placed.last()
+            if last.1 == a
+                placed.push((a, b))
+            elif last.1 == b
+                placed.push((b, a))
+            else
+                return (placed, i)
+        else
+            placed.push(t)
+    (placed, none)
+
+fn show(ts List[(int, int)]) str
+    ts.map(|t| "[{t.0}|{t.1}]").join("")
+
+fn main()
+    rows := [
+        [(1, 2), (2, 5), (5, 5), (5, 3)],
+        [(4, 1), (6, 1), (6, 2)],
+        [(3, 3), (2, 4)],
+        List[(int, int)](),
+    ]
+    for r in rows
+        placed, stuck := lay(r)
+        if i := stuck
+            print("{show(placed)} stuck at tile {i + 1}")
+        else
+            pips := placed.map(|t| t.0 + t.1).sum()
+            print("{show(placed)} complete, {pips} pips")
+
+@test fn flips_to_fit()
+    placed, stuck := lay([(1, 2), (3, 2)])
+    assert(stuck == none)
+    assert_eq(placed[1], (2, 3))

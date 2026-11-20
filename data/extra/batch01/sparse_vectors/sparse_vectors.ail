@@ -1,0 +1,44 @@
+## Sparse vectors: stores only the non-zero entries of long vectors in a `Map[int, int]`,
+## and computes dot products, sums and the number of stored entries.
+
+fn sparse(xs List[int]) Map[int, int]
+    mut out := Map[int, int]()
+    for i, x in xs.enumerate()
+        if x != 0
+            out[i] = x
+    out
+
+fn dot(a Map[int, int], b Map[int, int]) int
+    mut s := 0
+    for i, x in a
+        s += x * b.get_or(i, 0)
+    s
+
+fn plus(a Map[int, int], b Map[int, int]) Map[int, int]
+    mut out := a
+    for i, x in b
+        out[i] += x
+        if out[i] == 0
+            _ := out.remove(i)
+    out
+
+fn show(v Map[int, int]) str
+    v.keys().sorted().map(|i| "{i}:{v[i]}").join(" ")
+
+fn main()
+    mut a := Map[int, int]()
+    a[3] = 2
+    a[1000] = -4
+    a[77] = 5
+    b := sparse([0, 0, 0, 7, 0, 1])
+    mut c := Map[int, int]()
+    c[1000] = 4
+    c[5] = 3
+    print("a = {show(a)}")
+    print("b = {show(b)}")
+    print("a.b = {dot(a, b)}, a.c = {dot(a, c)}")
+    s := plus(a, c)
+    print("a+c = {show(s)} ({s.len()} stored)")
+
+@test fn dot_with_empty_is_zero()
+    assert_eq(dot(sparse([1, 2]), Map[int, int]()), 0)

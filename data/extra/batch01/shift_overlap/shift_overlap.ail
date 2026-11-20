@@ -1,0 +1,47 @@
+## Shift overlap: merges each worker's shifts (minutes) into continuous blocks, sums the
+## hours, and finds the time when two named workers are both on shift.
+
+fn merge(shifts List[(int, int)]) List[(int, int)]
+    mut out := List[(int, int)]()
+    for s in shifts.sorted()
+        if last := out.last()
+            lo, hi := last
+            a, b := s
+            if a <= hi
+                out[out.len() - 1] = (lo, hi.max(b))
+                continue
+        out.push(s)
+    out
+
+fn overlap(a List[(int, int)], b List[(int, int)]) int
+    mut total := 0
+    for x in a
+        for y in b
+            x0, x1 := x
+            y0, y1 := y
+            lo := x0.max(y0)
+            hi := x1.min(y1)
+            if hi > lo
+                total += hi - lo
+    total
+
+fn hm(m int) str
+    "{m / 60}h{m % 60:02}"
+
+fn main()
+    raw := {
+        "Ola": [(540, 720), (700, 780), (900, 1020)],
+        "Pat": [(600, 660), (660, 840)],
+        "Rui": [(480, 500), (1000, 1100), (490, 530)],
+    }
+    mut merged := Map[str, List[(int, int)]]()
+    for name, shifts in raw
+        m := merge(shifts)
+        merged[name] = m
+        blocks := m.map(|s| "{hm(s.0)}-{hm(s.1)}").join(", ")
+        print("{name}: {blocks} = {hm(m.map(|s| s.1 - s.0).sum())}")
+    print("Ola and Pat together: {hm(overlap(merged["Ola"], merged["Pat"]))}")
+    print("Ola and Rui together: {hm(overlap(merged["Ola"], merged["Rui"]))}")
+
+@test fn touching_shifts_join()
+    assert_eq(merge([(60, 120), (120, 180)]), [(60, 180)])

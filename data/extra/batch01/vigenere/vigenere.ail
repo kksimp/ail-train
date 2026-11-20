@@ -3,7 +3,7 @@
 
 fn shift(c char, k int) char
     base := if c.is_upper() then 65 else 97
-    char.from_code((c.code() - base + k + 26) % 26 + base)
+    char.from_code((c.code() - base + k + 26) % 26 + base) else c
 
 fn vigenere(text str, key str, sign int) str
     ks := key.to_lower().chars().map(|c| c.code() - 97)

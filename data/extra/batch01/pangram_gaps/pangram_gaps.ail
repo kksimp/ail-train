@@ -2,7 +2,10 @@
 ## missing letters, built from `char.from_code` and a `Set` difference.
 
 fn alphabet() Set[char]
-    {char.from_code(n) for n in 97..123}
+    mut letters := Set[char]()
+    for n in 97..123
+        letters.add(char.from_code(n) else '?')
+    letters
 
 fn missing(text str) List[char]
     used := {c for c in text.to_lower().chars() if c.is_alpha()}

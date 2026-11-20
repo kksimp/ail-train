@@ -1,0 +1,51 @@
+## Polynomials: coefficient lists (lowest power first) evaluated with Horner's rule,
+## differentiated, multiplied, and printed in the usual `3x^2 - x + 4` form.
+
+fn value_at(p List[int], x int) int
+    p.reversed().fold(0, |acc, c| acc * x + c)
+
+fn deriv(p List[int]) List[int]
+    [p[i] * i for i in 1..p.len()]
+
+fn times(a List[int], b List[int]) List[int]
+    mut out := [0 for _ in 0..(a.len() + b.len() - 1)]
+    for i, x in a.enumerate()
+        for j, y in b.enumerate()
+            out[i + j] += x * y
+    out
+
+fn term(c int, k int) str
+    n := c.abs()
+    body := if k == 0 then "{n}" elif n == 1 then "x" else "{n}x"
+    if k > 1 then "{body}^{k}" else body
+
+fn show(p List[int]) str
+    mut parts := List[str]()
+    for k in 0..p.len()
+        i := p.len() - 1 - k
+        c := p[i]
+        if c == 0
+            continue
+        sign := if c < 0 then "-" else "+"
+        if parts.is_empty()
+            parts.push(if c < 0 then "-{term(c, i)}" else term(c, i))
+        else
+            parts.push("{sign} {term(c, i)}")
+    if parts.is_empty() then "0" else parts.join(" ")
+
+fn main()
+    p := [4, -1, 3]
+    q := [-2, 1]
+    print("p = {show(p)}")
+    print("q = {show(q)}")
+    print("p(2) = {value_at(p, 2)}, p(-3) = {value_at(p, -3)}")
+    print("p' = {show(deriv(p))}")
+    print("p*q = {show(times(p, q))}")
+    print("(p*q)' = {show(deriv(times(p, q)))}")
+    print(show([0, 0]))
+
+@test fn horner()
+    assert_eq(value_at([1, 1, 1], 10), 111)
+
+@test fn product_degree()
+    assert_eq(times([1, 1], [1, -1]), [1, 0, -1])

@@ -1,0 +1,38 @@
+## Next taller: for each person in a queue, the first taller person behind them, scanning
+## from the back with a stack; prints the name or a dash.
+
+struct Person
+    name str
+    height int
+
+fn next_taller(q List[Person]) List[str?]
+    mut out := List[str?]()
+    mut stack := List[Person]()
+    for k in 0..q.len()
+        i := q.len() - 1 - k
+        while top := stack.last()
+            if top.height > q[i].height
+                break
+            _ := stack.pop()
+        if above := stack.last()
+            out.push(above.name)
+        else
+            out.push(none)
+        stack.push(q[i])
+    out.reversed()
+
+fn main()
+    q := [
+        Person(name: "Asha", height: 160),
+        Person(name: "Ben", height: 175),
+        Person(name: "Chen", height: 168),
+        Person(name: "Dora", height: 181),
+        Person(name: "Eko", height: 150),
+        Person(name: "Fia", height: 150),
+    ]
+    for i, t in next_taller(q).enumerate()
+        print("{q[i].name:<5} -> {t else "-"}")
+
+@test fn equal_height_is_not_taller()
+    r := next_taller([Person(name: "a", height: 1), Person(name: "b", height: 1)])
+    assert(r[0] == none)

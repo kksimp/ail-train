@@ -1,0 +1,30 @@
+## Grid walks: follows move strings over a grid of tuples, tracks the Manhattan distance
+## from the start, and finds the farthest point reached on each walk.
+
+fn step(p (int, int), c char) (int, int)
+    x, y := p
+    match c
+        'N' => (x, y + 1)
+        'S' => (x, y - 1)
+        'E' => (x + 1, y)
+        'W' => (x - 1, y)
+        _ => p
+
+fn distance(p (int, int)) int
+    x, y := p
+    x.abs() + y.abs()
+
+fn main()
+    for walk in ["NNEESW", "EEEENNNNWWWWSSSS", "NXNXS", ""]
+        mut pos := (0, 0)
+        mut far := 0
+        mut visited := Set[(int, int)]()
+        visited.add(pos)
+        for c in walk.chars()
+            pos = step(pos, c)
+            visited.add(pos)
+            far = far.max(distance(pos))
+        print("'{walk}': ends at ({pos.0}, {pos.1}), distance {distance(pos)}, farthest {far}, {visited.len()} cells")
+
+@test fn unknown_moves_stay()
+    assert_eq(step((1, 1), 'X'), (1, 1))

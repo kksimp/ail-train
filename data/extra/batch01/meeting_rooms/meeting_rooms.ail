@@ -1,0 +1,42 @@
+## Meeting rooms: the fewest rooms needed for a day of meetings, by sweeping start and end
+## times in order, and which meetings clash with the longest one.
+
+struct Meeting
+    name str
+    start int
+    stop int
+
+fn rooms_needed(ms List[Meeting]) int
+    mut events := List[(int, int)]()
+    for m in ms
+        events.push((m.start, 1))
+        events.push((m.stop, -1))
+    mut cur := 0
+    mut most := 0
+    for e in events.sorted()
+        cur += e.1
+        most = most.max(cur)
+    most
+
+fn clash(a Meeting, b Meeting) bool
+    a.start < b.stop and b.start < a.stop
+
+fn main()
+    ms := [
+        Meeting(name: "standup", start: 900, stop: 915),
+        Meeting(name: "design", start: 910, stop: 1030),
+        Meeting(name: "1:1", start: 1000, stop: 1030),
+        Meeting(name: "lunch", start: 1200, stop: 1300),
+        Meeting(name: "review", start: 1030, stop: 1130),
+        Meeting(name: "sync", start: 905, stop: 1005),
+    ]
+    print("rooms needed: {rooms_needed(ms)}")
+    longest := ms.max(by: |m| m.stop - m.start) else ms[0]
+    others := [m.name for m in ms if m.name != longest.name and clash(m, longest)]
+    print("{longest.name} clashes with {others.join(", ")}")
+    print("lunch alone: {rooms_needed([ms[3]])}")
+
+@test fn back_to_back_share_a_room()
+    a := Meeting(name: "a", start: 900, stop: 1000)
+    b := Meeting(name: "b", start: 1000, stop: 1100)
+    assert_eq(rooms_needed([a, b]), 1)

@@ -1,0 +1,7 @@
+  0c:    1 ways, fewest 0
+  7c:    2 ways, fewest 3
+ 16c:    5 ways, fewest 4
+ 29c:   13 ways, fewest 3
+ 50c:   40 ways, fewest 2
+ 63c:   65 ways, fewest 4
+with 5c and 12c, cannot make: 1 2 3 4 6 7 8 9 11 13 14 16 18 19 21 23 26 28

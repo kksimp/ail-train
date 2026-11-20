@@ -1,0 +1,31 @@
+## Riffle cycles: how many perfect out-shuffles (split the deck in half and interleave,
+## top card staying on top) bring a deck of n cards back to its starting order.
+
+fn riffle(deck List[int]) List[int]
+    half := deck.len() / 2
+    top := deck.slice(0, half)
+    bottom := deck.slice(half)
+    mut out := List[int]()
+    for a, b in zip(top, bottom)
+        out.push(a)
+        out.push(b)
+    out
+
+fn cycles(n int) int
+    start := [i for i in 0..n]
+    mut deck := riffle(start)
+    mut count := 1
+    while deck != start
+        deck = riffle(deck)
+        count += 1
+    count
+
+fn main()
+    print(riffle([1, 2, 3, 4, 5, 6, 7, 8]).map(|x| "{x}").join(" "))
+    for n in [2, 4, 8, 10, 14, 52, 64]
+        print("{n:>2} cards: {cycles(n)} shuffles")
+    worst := [n for n in 2..=40 if n % 2 == 0].max(by: |n| cycles(n)) else 0
+    print("most shuffles up to 40 cards: {worst} cards, {cycles(worst)}")
+
+@test fn fifty_two_needs_eight()
+    assert_eq(cycles(52), 8)

@@ -1,0 +1,26 @@
+## MAC addresses: accepts hardware addresses written with colons, dashes or dots, checks
+## the hex digits, and prints them in one canonical lower-case colon form.
+
+fn normalise(text str) str?
+    hex := text.to_lower().chars().filter(|c| c != ':' and c != '-' and c != '.')
+    if hex.len() != 12 or not hex.all(|c| c.to_digit(16) != none)
+        return none
+    pairs := hex.chunks(2).map(|p| p.join(""))
+    pairs.join(":")
+
+fn multicast(mac str) bool
+    first := mac.slice(0, 2).to_int(16) else 0
+    (first & 1) == 1
+
+fn main()
+    for m in ["00:1A:2b:3C:4d:5E", "00-1a-2b-3c-4d-5e", "001a.2b3c.4d5e", "01:00:5e:00:00:fb", "00:1a:2b:3c:4d", "zz:1a:2b:3c:4d:5e"]
+        if n := normalise(m)
+            kind := if multicast(n) then "multicast" else "unicast"
+            print("{m:<20} {n} {kind}")
+        else
+            print("{m:<20} invalid")
+    same := normalise("00:1A:2b:3C:4d:5E") == normalise("001a.2b3c.4d5e")
+    print("same device: {same}")
+
+@test fn dots_and_dashes_agree()
+    assert_eq(normalise("aabb.ccdd.eeff") else "", "aa:bb:cc:dd:ee:ff")

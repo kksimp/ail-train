@@ -1,0 +1,10 @@
+party of 4: row 1, seats 1-4
+party of 5: row 2, seats 1-5
+party of 2: row 1, seats 7-8
+party of 7: row 4, seats 1-7
+party of 3: row 2, seats 6-8
+party of 9: no room
+row 1 XXXXXXXX..
+row 2 XXXXXXXX..
+row 3 XXXXXXXXXX
+row 4 XXXXXXX...

@@ -1,0 +1,42 @@
+## Rotate playlist: rotates a playlist left or right by k places with slices, by the
+## three-reversal method in place, and checks both give the same order.
+
+fn rotate_left(xs List[str], k int) List[str]
+    if xs.is_empty()
+        return xs
+    n := k % xs.len()
+    mut out := xs.slice(n)
+    out.extend(xs.slice(0, n))
+    out
+
+fn reverse_range(mut xs List[str], lo int, hi int)
+    mut a := lo
+    mut b := hi - 1
+    while a < b
+        xs.swap(a, b)
+        a += 1
+        b -= 1
+
+fn rotate_in_place(mut xs List[str], k int)
+    n := xs.len()
+    if n == 0
+        return
+    s := k % n
+    reverse_range(mut xs, 0, s)
+    reverse_range(mut xs, s, n)
+    reverse_range(mut xs, 0, n)
+
+fn main()
+    songs := ["intro", "rain", "drive", "glow", "echo", "outro"]
+    for k in [0, 1, 2, 6, 8]
+        a := rotate_left(songs, k)
+        mut b := songs
+        rotate_in_place(mut b, k)
+        same := if a == b then "ok" else "MISMATCH"
+        print("left {k}: {a.join(" ")} {same}")
+    right := rotate_left(songs, songs.len() - 2)
+    print("right 2: {right.join(" ")}")
+    print(songs.join(" "))
+
+@test fn rotation_keeps_length()
+    assert_eq(rotate_left(["a", "b", "c"], 4), ["b", "c", "a"])

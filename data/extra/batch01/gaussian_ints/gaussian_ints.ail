@@ -1,0 +1,50 @@
+## Gaussian integers: complex numbers with integer parts, with `+`, `-`, `*` and unary `-`
+## from operator traits, a norm, and powers of i shown in `a+bi` form.
+
+struct Gauss
+    re int
+    im int
+
+impl Add for Gauss
+    fn add(self, o Gauss) Gauss
+        Gauss(re: re + o.re, im: im + o.im)
+
+impl Sub for Gauss
+    fn sub(self, o Gauss) Gauss
+        Gauss(re: re - o.re, im: im - o.im)
+
+impl Mul for Gauss
+    fn mul(self, o Gauss) Gauss
+        Gauss(re: re * o.re - im * o.im, im: re * o.im + im * o.re)
+
+impl Neg for Gauss
+    fn neg(self) Gauss
+        Gauss(re: -re, im: -im)
+
+fn show(g Gauss) str
+    sign := if g.im < 0 then "-" else "+"
+    "{g.re}{sign}{g.im.abs()}i"
+
+fn norm(g Gauss) int
+    g.re * g.re + g.im * g.im
+
+fn main()
+    a := Gauss(re: 3, im: 2)
+    b := Gauss(re: 1, im: -4)
+    print("a = {show(a)}, b = {show(b)}")
+    print("a + b = {show(a + b)}")
+    print("a - b = {show(a - b)}")
+    print("a * b = {show(a * b)}")
+    print("-a = {show(-a)}")
+    print("N(a) * N(b) = {norm(a) * norm(b)} = N(a*b) = {norm(a * b)}")
+    i := Gauss(re: 0, im: 1)
+    mut p := Gauss(re: 1, im: 0)
+    mut powers := List[str]()
+    for _ in 0..5
+        powers.push(show(p))
+        p = p * i
+    print("powers of i: {powers.join(", ")}")
+
+@test fn i_squared_is_minus_one()
+    i := Gauss(re: 0, im: 1)
+    assert_eq(i * i, Gauss(re: -1, im: 0))

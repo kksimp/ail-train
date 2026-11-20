@@ -1,0 +1,4 @@
+ints: -3 .. 12
+words: apple .. zest
+versions: 0.9 .. 2.0
+true

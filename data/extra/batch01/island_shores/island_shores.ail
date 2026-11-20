@@ -1,0 +1,54 @@
+## Island shores: counts land cells, islands (4-connected, found with an explicit stack)
+## and each island's shoreline length on a small map of `#` and `.`.
+
+fn parse(lines List[str]) List[List[bool]]
+    lines.map(|l| l.chars().map(|c| c == '#'))
+
+fn shoreline(g List[List[bool]], r int, c int) int
+    mut edges := 0
+    for d in [(-1, 0), (1, 0), (0, -1), (0, 1)]
+        nr := r + d.0
+        nc := c + d.1
+        if nr < 0 or nc < 0 or nr >= g.len() or nc >= g[0].len() or not g[nr][nc]
+            edges += 1
+    edges
+
+fn islands(g List[List[bool]]) List[(int, int)]
+    mut seen := Set[(int, int)]()
+    mut out := List[(int, int)]()
+    for r in 0..g.len()
+        for c in 0..g[0].len()
+            if not g[r][c] or seen.contains((r, c))
+                continue
+            mut stack := [(r, c)]
+            seen.add((r, c))
+            mut size := 0
+            mut shore := 0
+            while cell := stack.pop()
+                size += 1
+                shore += shoreline(g, cell.0, cell.1)
+                for d in [(-1, 0), (1, 0), (0, -1), (0, 1)]
+                    nr := cell.0 + d.0
+                    nc := cell.1 + d.1
+                    if nr >= 0 and nc >= 0 and nr < g.len() and nc < g[0].len() and g[nr][nc] and seen.add((nr, nc))
+                        stack.push((nr, nc))
+            out.push((size, shore))
+    out
+
+fn main()
+    rows := [
+        "##..#",
+        "#...#",
+        "..#..",
+        ".###.",
+        "....#",
+    ]
+    g := parse(rows)
+    found := islands(g)
+    print("islands: {found.len()}")
+    for i, isl in found.enumerate()
+        print("island {i + 1}: {isl.0} cells, shore {isl.1}")
+    print("land cells: {found.map(|x| x.0).sum()}")
+
+@test fn single_cell_has_four_edges()
+    assert_eq(islands(parse(["#"])), [(1, 4)])

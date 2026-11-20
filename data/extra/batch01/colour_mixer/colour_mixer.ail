@@ -1,0 +1,42 @@
+## Colour mixer: reads `#rrggbb` colours, mixes two by averaging each channel, makes a
+## lighter tint, and writes the results back as hex with `{n:02x}`-style padding.
+
+struct Rgb
+    r int
+    g int
+    b int
+
+fn parse_hex(text str) Rgb?
+    h := text.strip_prefix("#") else return none
+    if h.len() != 6
+        return none
+    r := h.slice(0, 2).to_int(16) else return none
+    g := h.slice(2, 4).to_int(16) else return none
+    b := h.slice(4, 6).to_int(16) else return none
+    Rgb(r: r, g: g, b: b)
+
+fn to_hex(c Rgb) str
+    "#{c.r:02x}{c.g:02x}{c.b:02x}"
+
+fn mix(a Rgb, b Rgb) Rgb
+    Rgb(r: (a.r + b.r) / 2, g: (a.g + b.g) / 2, b: (a.b + b.b) / 2)
+
+fn tint(c Rgb, pct int) Rgb
+    Rgb(r: c.r + (255 - c.r) * pct / 100, g: c.g + (255 - c.g) * pct / 100, b: c.b + (255 - c.b) * pct / 100)
+
+fn main()
+    pairs := [("#ff0000", "#0000ff"), ("#123456", "#abcdef"), ("#000000", "#ffffff"), ("#fff", "#000000")]
+    for p in pairs
+        a := parse_hex(p.0) else
+            print("bad colour {p.0}")
+            continue
+        b := parse_hex(p.1) else
+            print("bad colour {p.1}")
+            continue
+        m := mix(a, b)
+        print("{p.0} + {p.1} = {to_hex(m)}, tint 50% {to_hex(tint(m, 50))}")
+    print(parse_hex("#0A0b0C") else Rgb(r: 0, g: 0, b: 0))
+
+@test fn round_trip()
+    c := parse_hex("#0a0b0c") else return
+    assert_eq(to_hex(c), "#0a0b0c")

@@ -1,0 +1,13 @@
+   C     F gas
+ 140   284   1
+ 150   302   2
+ 170   338   3
+ 180   356   4
+ 190   374   5
+ 200   392   6
+ 220   428   7
+ 230   446   8
+350F is closest to gas 4 (180C)
+400F is closest to gas 6 (200C)
+275F is closest to gas 1 (140C)
+500F is closest to gas 8 (230C)

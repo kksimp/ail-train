@@ -1,0 +1,36 @@
+## Card hands: scores a hand in a twenty-one style game where aces count 11 unless that
+## busts the hand, then 1; face cards are 10. Reports bust, blackjack or the total.
+
+fn card_value(card str) int
+    match card
+        "A" => 11
+        "K" | "Q" | "J" => 10
+        _ => card.to_int() else 0
+
+fn score(hand List[str]) int
+    mut total := hand.map(card_value).sum()
+    mut aces := hand.count(|c| c == "A")
+    while total > 21 and aces > 0
+        total -= 10
+        aces -= 1
+    total
+
+fn verdict(hand List[str]) str
+    s := score(hand)
+    if s > 21
+        "bust ({s})"
+    elif s == 21 and hand.len() == 2
+        "blackjack"
+    else
+        "{s}"
+
+fn main()
+    hands := [["A", "K"], ["A", "A", "9"], ["10", "6", "K"], ["7", "A", "3"], ["A", "A", "A", "A"], ["5", "5", "A", "Q"]]
+    for h in hands
+        print("{h.join(" "):<10} {verdict(h)}")
+    best := hands.filter(|h| score(h) <= 21).max(by: |h| score(h)) else []
+    print("best hand: {best.join(" ")}")
+
+@test fn soft_aces()
+    assert_eq(score(["A", "A", "9"]), 21)
+    assert_eq(score(["A", "A", "A", "A"]), 14)

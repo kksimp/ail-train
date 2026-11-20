@@ -1,0 +1,35 @@
+## Street stalls: picks stalls along a street to maximise takings when two neighbouring
+## stalls may not both open, keeping the choice as well as the best total.
+
+fn best_choice(takings List[int]) (int, List[int])
+    n := takings.len()
+    if n == 0
+        return (0, [])
+    mut best := [0 for _ in 0..n]
+    best[0] = takings[0]
+    for i in 1..n
+        skip := best[i - 1]
+        take := takings[i] + (if i >= 2 then best[i - 2] else 0)
+        best[i] = skip.max(take)
+    mut chosen := List[int]()
+    mut i := n - 1
+    while i >= 0
+        prev := if i >= 1 then best[i - 1] else 0
+        if best[i] != prev
+            chosen.push(i)
+            i -= 2
+        else
+            i -= 1
+    (best[n - 1], chosen.reversed())
+
+fn main()
+    for street in [[6, 7, 1, 30, 8, 2, 4], [5, 5, 10, 100, 10, 5], [3], List[int](), [4, 1, 1, 4]]
+        total, picks := best_choice(street)
+        print("{street.map(|t| "{t}").join(",")}: {total} from stalls {picks.map(|p| "{p + 1}").join(" ")}")
+
+@test fn no_neighbours_chosen()
+    _, picks := best_choice([9, 9, 9, 9, 9])
+    assert(picks.windows(2).all(|w| w[1] - w[0] >= 2))
+
+@test fn simple_case()
+    assert_eq(best_choice([2, 7, 9, 3, 1]).0, 12)

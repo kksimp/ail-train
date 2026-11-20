@@ -1,0 +1,34 @@
+## Cinema rows: each row's seats are bits in an int; books the first run of k free seats
+## in the frontmost row that has one, and draws the hall after each booking.
+
+fn free_run(row int, width int, k int) int?
+    for start in 0..=(width - k)
+        mask := ((1 << k) - 1) << start
+        if (row & mask) == 0
+            return start
+    none
+
+fn seat(row int, i int) str
+    if (row & (1 << i)) != 0 then "X" else "."
+
+fn draw(row int, width int) str
+    [seat(row, i) for i in 0..width].join("")
+
+fn main()
+    width := 10
+    mut hall := [48, 0, 1023, 0]
+    for k in [4, 5, 2, 7, 3, 9]
+        mut booked := false
+        for r in 0..hall.len()
+            if start := free_run(hall[r], width, k)
+                hall[r] = hall[r] | (((1 << k) - 1) << start)
+                print("party of {k}: row {r + 1}, seats {start + 1}-{start + k}")
+                booked = true
+                break
+        if not booked
+            print("party of {k}: no room")
+    for i, row in hall.enumerate()
+        print("row {i + 1} {draw(row, width)}")
+
+@test fn finds_gap_after_taken_seats()
+    assert_eq(free_run(3, 6, 2) else -1, 2)

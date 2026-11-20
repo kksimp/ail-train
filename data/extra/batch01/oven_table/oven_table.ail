@@ -1,0 +1,28 @@
+## Oven table: a conversion table between Celsius, Fahrenheit and gas marks, with floats
+## formatted to whole degrees, and a lookup that rounds to the nearest listed setting.
+
+struct Setting
+    celsius int
+    mark int
+
+fn fahrenheit(c int) float
+    c.to_float() * 9.0 / 5.0 + 32.0
+
+fn nearest(settings List[Setting], f float) Setting?
+    settings.min(by: |s| ((fahrenheit(s.celsius) - f).abs() * 100.0).to_int())
+
+fn main()
+    settings := [
+        Setting(celsius: 140, mark: 1), Setting(celsius: 150, mark: 2), Setting(celsius: 170, mark: 3),
+        Setting(celsius: 180, mark: 4), Setting(celsius: 190, mark: 5), Setting(celsius: 200, mark: 6),
+        Setting(celsius: 220, mark: 7), Setting(celsius: 230, mark: 8),
+    ]
+    print("{"C":>4} {"F":>5} gas")
+    for s in settings
+        print("{s.celsius:>4} {fahrenheit(s.celsius):>5.0} {s.mark:>3}")
+    for f in [350.0, 400.0, 275.0, 500.0]
+        if s := nearest(settings, f)
+            print("{f:.0}F is closest to gas {s.mark} ({s.celsius}C)")
+
+@test fn boiling_point()
+    assert_near(fahrenheit(100), 212.0, 0.0001)

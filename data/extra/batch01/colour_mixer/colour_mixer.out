@@ -1,0 +1,5 @@
+#ff0000 + #0000ff = #7f007f, tint 50% #bf7fbf
+#123456 + #abcdef = #5e80a2, tint 50% #aebfd0
+#000000 + #ffffff = #7f7f7f, tint 50% #bfbfbf
+bad colour #fff
+Rgb(r: 10, g: 11, b: 12)
