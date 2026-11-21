@@ -1,0 +1,24 @@
+## Small CRC: an 8-bit CRC (polynomial 0x07) computed bit by bit over the bytes of a
+## message, shown in hex, and used to spot a corrupted copy.
+
+fn crc8(data bytes) int
+    mut crc := 0
+    for x in data
+        crc = crc ^ x.to_int()
+        for _ in 0..8
+            if (crc & 128) != 0
+                crc = ((crc << 1) ^ 7) & 255
+            else
+                crc = (crc << 1) & 255
+    crc
+
+fn main()
+    for m in ["123456789", "hello", "hellp", "", "AAAA"]
+        print("{crc8(m.to_bytes()):02x} {m}")
+    sent := "transfer 100 to bob"
+    got := "transfer 900 to bob"
+    same := crc8(sent.to_bytes()) == crc8(got.to_bytes())
+    print("corruption detected: {not same}")
+
+@test fn check_value()
+    assert_eq(crc8("123456789".to_bytes()), 244)

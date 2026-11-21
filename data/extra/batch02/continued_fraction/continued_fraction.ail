@@ -1,0 +1,43 @@
+## Continued fraction: expands a fraction into its continued fraction terms with Euclid's
+## algorithm, then rebuilds the convergents p/q from the terms and checks the last one.
+
+fn terms(num int, den int) List[int]
+    mut out := List[int]()
+    mut a := num
+    mut b := den
+    while b != 0
+        out.push(a / b)
+        r := a % b
+        a = b
+        b = r
+    out
+
+fn convergents(ts List[int]) List[(int, int)]
+    mut out := List[(int, int)]()
+    mut p_prev := 1
+    mut q_prev := 0
+    mut p := ts[0]
+    mut q := 1
+    out.push((p, q))
+    for t in ts.skip(1)
+        p_next := t * p + p_prev
+        q_next := t * q + q_prev
+        p_prev = p
+        q_prev = q
+        p = p_next
+        q = q_next
+        out.push((p, q))
+    out
+
+fn main()
+    for f in [(415, 93), (355, 113), (103993, 33102), (13, 8)]
+        ts := terms(f.0, f.1)
+        cs := convergents(ts).map(|c| "{c.0}/{c.1}").join(", ")
+        print("{f.0}/{f.1} = {ts}: {cs}")
+    golden := terms(1597, 987)
+    ones := golden.take(golden.len() - 1).all(|t| t == 1)
+    print("1597/987 has {golden.len()} terms, all ones but the last: {ones}")
+
+@test fn simple_terms()
+    assert_eq(terms(415, 93), [4, 2, 6, 7])
+    assert_eq(convergents([4, 2, 6, 7]).last() else (0, 0), (415, 93))

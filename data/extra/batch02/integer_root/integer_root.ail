@@ -1,0 +1,30 @@
+## Integer root: the floor of the square root of a 64-bit integer by Newton's method on
+## ints only, checked by squaring, and used to test for perfect squares.
+
+fn isqrt(n int) int
+    requires n >= 0
+    if n < 2
+        return n
+    mut x := n
+    mut y := x / 2 + x % 2
+    while y < x
+        x = y
+        y = (x + n / x) / 2
+    x
+
+fn is_square(n int) bool
+    r := isqrt(n)
+    r * r == n
+
+fn main()
+    for n in [0, 1, 15, 16, 17, 1000000, 999999999999, 9223372036854775807]
+        r := isqrt(n)
+        print("isqrt({n}) = {r}, square: {is_square(n)}")
+    squares := [n for n in 1..200 if is_square(n)]
+    print("squares below 200: {squares.len()}")
+    print([isqrt(n) for n in 0..10].map(|x| "{x}").join(" "))
+
+@test fn floor_property()
+    for n in [2, 99, 12345, 4000000]
+        r := isqrt(n)
+        assert(r * r <= n and (r + 1) * (r + 1) > n)

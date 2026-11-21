@@ -1,0 +1,49 @@
+## Reversi flips: on an 8x8 board, counts how many discs a move would flip in each of the
+## eight directions, lists the legal moves for a player and the best one.
+
+DIRS := [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]
+
+fn at(board List[str], r int, c int) char
+    if r < 0 or c < 0 or r >= 8 or c >= 8
+        return ' '
+    board[r].char_at(c) else ' '
+
+fn flips(board List[str], r int, c int, me char) int
+    if at(board, r, c) != '.'
+        return 0
+    them := if me == 'B' then 'W' else 'B'
+    mut total := 0
+    for d in DIRS
+        mut k := 1
+        while at(board, r + d.0 * k, c + d.1 * k) == them
+            k += 1
+        if k > 1 and at(board, r + d.0 * k, c + d.1 * k) == me
+            total += k - 1
+    total
+
+fn main()
+    board := [
+        "........",
+        "........",
+        "...W....",
+        "...WB...",
+        "...BW...",
+        "..W.....",
+        "........",
+        "........",
+    ]
+    for me in ['B', 'W']
+        mut moves := List[(int, int, int)]()
+        for r in 0..8
+            for c in 0..8
+                n := flips(board, r, c, me)
+                if n > 0
+                    moves.push((n, r, c))
+        names := moves.map(|m| "{char.from_code(97 + m.2) else '?'}{m.1 + 1}:{m.0}")
+        print("{me} can play {moves.len()}: {names.join(" ")}")
+        best := moves.sorted(by: |m| (-m.0, m.1, m.2)).first()
+        if b := best
+            print("  best: {char.from_code(97 + b.2) else '?'}{b.1 + 1} flips {b.0}")
+
+@test fn occupied_square_flips_nothing()
+    assert_eq(flips(["W......."], 0, 0, 'B'), 0)

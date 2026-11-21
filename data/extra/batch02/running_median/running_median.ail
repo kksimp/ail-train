@@ -1,0 +1,32 @@
+## Running median: keeps the lower half of the numbers in a max-heap and the upper half in
+## a min-heap, so the median of everything seen so far is always at hand.
+
+fn median_text(lo Heap[int], hi Heap[int]) str
+    if lo.len() > hi.len()
+        return "{lo.peek() else 0}"
+    twice := (lo.peek() else 0) + (hi.peek() else 0)
+    if twice % 2 == 0 then "{twice / 2}" else "{twice / 2}.5"
+
+fn main()
+    stream := [5, 15, 1, 3, 8, 7, 9, 10, 20, 2]
+    mut lo := Heap[int](max_first: true)
+    mut hi := Heap[int]()
+    mut out := List[str]()
+    for x in stream
+        if lo.is_empty() or x <= (lo.peek() else 0)
+            lo.push(x)
+        else
+            hi.push(x)
+        if lo.len() > hi.len() + 1
+            hi.push(lo.pop() else 0)
+        elif hi.len() > lo.len()
+            lo.push(hi.pop() else 0)
+        out.push(median_text(lo, hi))
+    print(out.join(" "))
+    print("halves: {lo.len()} and {hi.len()}")
+
+@test fn heaps_order()
+    mut h := Heap[int](max_first: true)
+    h.push(1)
+    h.push(9)
+    assert_eq(h.peek() else 0, 9)

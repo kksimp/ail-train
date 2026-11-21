@@ -1,0 +1,28 @@
+## Shared substring: the longest run of characters two strings have in common, by dynamic
+## programming over a `Grid`, with where it starts in each string.
+
+fn longest_common(a str, b str) (str, int, int)
+    xs := a.chars()
+    ys := b.chars()
+    mut g := Grid.fill(xs.len() + 1, ys.len() + 1, 0)
+    mut best := 0
+    mut end_a := 0
+    mut end_b := 0
+    for i in 1..=xs.len()
+        for j in 1..=ys.len()
+            if xs[i - 1] == ys[j - 1]
+                g[i, j] = g[i - 1, j - 1] + 1
+                if g[i, j] > best
+                    best = g[i, j]
+                    end_a = i
+                    end_b = j
+    (a.slice(end_a - best, end_a), end_a - best, end_b - best)
+
+fn main()
+    for pair in [("photograph", "tomography"), ("abcdef", "zcdemn"), ("same", "same"), ("abc", "xyz"), ("", "abc")]
+        s, i, j := longest_common(pair.0, pair.1)
+        print("{pair.0} / {pair.1}: '{s}' at {i} and {j}")
+
+@test fn finds_middle_run()
+    s, _, _ := longest_common("xxhelloyy", "hello")
+    assert_eq(s, "hello")

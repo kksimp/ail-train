@@ -1,0 +1,24 @@
+## Shared birthdays: the chance that at least two people in a group share a birthday,
+## computed exactly as a product of floats, and the smallest group where it passes 50%.
+
+fn chance(n int) float
+    mut none_shared := 1.0
+    for i in 0..n
+        none_shared = none_shared * (365 - i).to_float() / 365.0
+    1.0 - none_shared
+
+fn main()
+    for n in [2, 10, 23, 30, 50, 70]
+        p := chance(n)
+        print("{n:>2} people: {p * 100.0:>6.2}%")
+    mut n := 1
+    while chance(n) < 0.5
+        n += 1
+    print("first group over 50%: {n}")
+    mut k := 1
+    while chance(k) < 0.99
+        k += 1
+    print("first group over 99%: {k}")
+
+@test fn one_person_never_shares()
+    assert_near(chance(1), 0.0, 0.0000001)

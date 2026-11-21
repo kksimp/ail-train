@@ -1,0 +1,37 @@
+## Digit factorials: numbers equal to the sum of the factorials of their digits, found with
+## a precomputed table of 0! to 9!, plus the chain each start number follows until a repeat.
+
+fn fact_table() List[int]
+    mut t := [1]
+    for i in 1..10
+        t.push(t[i - 1] * i)
+    t
+
+fn digit_sum(n int, t List[int]) int
+    mut total := 0
+    mut v := n
+    if v == 0
+        return t[0]
+    while v > 0
+        total += t[v % 10]
+        v = v / 10
+    total
+
+fn chain_length(start int, t List[int]) int
+    mut seen := Set[int]()
+    mut v := start
+    while not seen.contains(v)
+        seen.add(v)
+        v = digit_sum(v, t)
+    seen.len()
+
+fn main()
+    t := fact_table()
+    print("0! to 9!: {t}")
+    found := [n for n in 10..100000 if digit_sum(n, t) == n]
+    print("equal to their digit factorial sum: {found}")
+    for s in [69, 145, 169, 540, 871]
+        print("{s}: chain of {chain_length(s, t)}")
+
+@test fn one_forty_five()
+    assert_eq(digit_sum(145, fact_table()), 145)

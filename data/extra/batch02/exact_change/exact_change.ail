@@ -1,0 +1,44 @@
+## Exact change: can a set of coins in a jar pay an amount exactly, each coin used once?
+## A boolean table answers it, and a second pass recovers which coins to use.
+
+fn reachable(coins List[int], target int) List[bool]
+    mut can := [false for _ in 0..=target]
+    can[0] = true
+    for c in coins
+        mut s := target
+        while s >= c
+            if can[s - c]
+                can[s] = true
+            s -= 1
+    can
+
+fn pick(coins List[int], target int) List[int]?
+    if target == 0
+        return []
+    if coins.is_empty()
+        return none
+    last := coins[coins.len() - 1]
+    rest := coins.slice(0, coins.len() - 1)
+    if last <= target
+        if part := pick(rest, target - last)
+            mut out := part
+            out.push(last)
+            return out
+    pick(rest, target)
+
+fn main()
+    jar := [50, 20, 20, 10, 5, 2, 2]
+    can := reachable(jar, 120)
+    impossible := [s for s in 1..=110 if not can[s]]
+    print("cannot pay {impossible.len()} amounts, first: {impossible.take(8).map(|s| "{s}").join(" ")}")
+    for amount in [37, 64, 109, 8]
+        if used := pick(jar, amount)
+            print("{amount}: {used.map(|c| "{c}").join("+")}")
+        else
+            print("{amount}: impossible")
+
+@test fn table_agrees_with_pick()
+    coins := [3, 5, 7]
+    t := reachable(coins, 15)
+    for s in 0..=15
+        assert_eq(t[s], pick(coins, s) != none)

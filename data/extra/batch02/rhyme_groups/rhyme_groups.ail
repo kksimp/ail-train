@@ -1,0 +1,19 @@
+## Rhyme groups: groups words by their last two letters with `group_by`, keeps groups of
+## two or more as rhymes, and lists words that rhyme with nothing.
+
+fn ending(w str) str
+    if w.len() <= 2 then w else w.slice(w.len() - 2)
+
+fn main()
+    words := ["cat", "hat", "moon", "spoon", "tree", "sky", "bat", "noon", "free", "dog", "fly"]
+    groups := words.group_by(ending)
+    for k, ws in groups
+        if ws.len() >= 2
+            print("-{k}: {ws.join(" ")}")
+    loners := [w for w in words if groups[ending(w)].len() == 1]
+    print("no rhyme: {loners.join(" ")}")
+    print("groups: {groups.len()}, rhyming groups: {groups.count(|k, v| v.len() >= 2)}")
+
+@test fn short_words_are_their_own_ending()
+    assert_eq(ending("a"), "a")
+    assert_eq(ending("moon"), "on")

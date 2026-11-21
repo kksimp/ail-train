@@ -1,0 +1,27 @@
+## Rod pricing: the best way to cut a rod into pieces given a price for each length, by
+## dynamic programming, with the list of cuts recovered from the first-cut table.
+
+fn best_cuts(prices List[int], n int) (int, List[int])
+    mut value := [0 for _ in 0..=n]
+    mut first := [0 for _ in 0..=n]
+    for size in 1..=n
+        for cut in 1..=size.min(prices.len())
+            v := prices[cut - 1] + value[size - cut]
+            if v > value[size]
+                value[size] = v
+                first[size] = cut
+    mut pieces := List[int]()
+    mut left := n
+    while left > 0
+        pieces.push(first[left])
+        left -= first[left]
+    (value[n], pieces)
+
+fn main()
+    prices := [1, 5, 8, 9, 10, 17, 17, 20]
+    for n in [1, 4, 7, 8, 10, 13]
+        v, pieces := best_cuts(prices, n)
+        print("length {n:>2}: {v:>2} from {pieces.map(|p| "{p}").join("+")}")
+
+@test fn four_is_two_twos()
+    assert_eq(best_cuts([1, 5, 8, 9], 4), (10, [2, 2]))

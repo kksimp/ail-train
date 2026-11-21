@@ -1,0 +1,56 @@
+## Door keypad: a lock that opens on the right four-digit code, locks out for a while after
+## three wrong tries, and clears a half-typed code on `*`, modelled as a state machine.
+
+enum Pad
+    Idle
+    Typing(code str)
+    Open
+    Locked(ticks int)
+
+fn press(state Pad, key char, secret str, mut misses int) Pad
+    match state
+        Open => Idle
+        Locked(t) => if t > 1 then Locked(ticks: t - 1) else Idle
+        Idle => if key.is_digit() then Typing(code: "{key}") else Idle
+        Typing(code) =>
+            if key == '*'
+                return Idle
+            next_code := "{code}{key}"
+            if next_code.len() < 4
+                return Typing(code: next_code)
+            if next_code == secret
+                misses = 0
+                return Open
+            misses += 1
+            if misses >= 3
+                misses = 0
+                return Locked(ticks: 3)
+            Idle
+
+fn show(p Pad) str
+    match p
+        Idle => "idle"
+        Typing(code) => "typing {"*".repeat(code.len())}"
+        Open => "OPEN"
+        Locked(t) => "locked ({t})"
+
+fn main()
+    keys := "1234 12*4321 1111 2222 3333 xxx 4321"
+    mut state := Pad.Idle
+    mut misses := 0
+    mut opens := 0
+    for k in keys.chars()
+        if k == ' '
+            continue
+        state = press(state, k, "4321", mut misses)
+        if state == Open
+            opens += 1
+        print("{k} -> {show(state)}")
+    print("opened {opens} times")
+
+@test fn right_code_opens()
+    mut m := 0
+    mut s := Pad.Idle
+    for k in "4321".chars()
+        s = press(s, k, "4321", mut m)
+    assert_eq(s, Pad.Open)

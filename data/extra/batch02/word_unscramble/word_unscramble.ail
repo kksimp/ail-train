@@ -1,0 +1,20 @@
+## Word unscramble: indexes a word list by its sorted letters, then answers scrambled
+## words with every matching word, so anagram lookups take one map read.
+
+fn key_of(w str) str
+    w.to_lower().chars().sorted().join("")
+
+fn main()
+    words := ["listen", "silent", "enlist", "google", "stone", "tones", "notes", "onset", "banana", "inlets", "tinsel"]
+    mut index := Map[str, List[str]]()
+    for w in words
+        index.push(key_of(w), w)
+    for scrambled in ["tsilen", "otnes", "nabana", "xyz", "ELGOOG"]
+        found := index.get(key_of(scrambled)) else []
+        shown := if found.is_empty() then "no match" else found.join(", ")
+        print("{scrambled}: {shown}")
+    biggest := index.keys().max(by: |k| index[k].len()) else ""
+    print("largest family: {index[biggest].len()} words ({biggest})")
+
+@test fn keys_ignore_case()
+    assert_eq(key_of("Cab"), "abc")

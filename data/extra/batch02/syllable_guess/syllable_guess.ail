@@ -1,0 +1,30 @@
+## Syllable guess: estimates syllables by counting groups of vowels, dropping a silent
+## final `e`, with at least one per word; then counts syllables per line of a short poem.
+
+fn is_vowel(c char) bool
+    "aeiouy".contains(c)
+
+fn syllables(word str) int
+    w := word.to_lower().chars().filter(|c| c.is_alpha())
+    mut groups := 0
+    mut prev := false
+    for c in w
+        v := is_vowel(c)
+        if v and not prev
+            groups += 1
+        prev = v
+    if w.len() > 2 and (w.last() else ' ') == 'e' and not is_vowel(w[w.len() - 2]) and groups > 1
+        groups -= 1
+    groups.max(1)
+
+fn main()
+    for w in ["cake", "banana", "rhythm", "the", "beautiful", "queue", "make", "table"]
+        print("{w}: {syllables(w)}")
+    poem := ["An old silent pond", "A frog jumps into the pond", "Splash! Silence again"]
+    for line in poem
+        counts := line.words().map(syllables)
+        print("{counts.sum():>2} {line}")
+
+@test fn silent_e()
+    assert_eq(syllables("cake"), 1)
+    assert_eq(syllables("the"), 1)

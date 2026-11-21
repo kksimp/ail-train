@@ -1,0 +1,25 @@
+## Hamming gaps: the number of positions where two equal-length strings differ, an error
+## for unequal lengths, and the closest pair among a set of DNA strands.
+
+fn hamming(a str, b str) int ! str
+    if a.len() != b.len()
+        return "lengths differ: {a.len()} and {b.len()}"
+    zip(a.chars(), b.chars()).count(|p| p.0 != p.1)
+
+fn main()
+    print(hamming("karolin", "kathrin") else -1)
+    bad := hamming("abc", "abcd") else err
+        print("error: {err}")
+        -1
+    print(bad)
+    strands := ["GATTACA", "GACTATA", "CATTAGA", "GATTACC", "TTTTTTT"]
+    mut best := (999, "", "")
+    for i in 0..strands.len()
+        for j in (i + 1)..strands.len()
+            d := hamming(strands[i], strands[j]) else continue
+            if d < best.0
+                best = (d, strands[i], strands[j])
+    print("closest: {best.1} and {best.2}, distance {best.0}")
+
+@test fn same_is_zero()
+    assert_eq(hamming("abc", "abc") else -1, 0)

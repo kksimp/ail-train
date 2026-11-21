@@ -1,0 +1,36 @@
+## LCG pi estimate: a linear congruential generator makes repeatable pseudo-random points in
+## a square, and the share inside the quarter circle estimates pi at several sample sizes.
+
+struct Lcg
+    state int
+
+fn step(mut g Lcg) int
+    g.state = (g.state * 1103515245 + 12345) % 2147483648
+    g.state
+
+fn estimate(seed int, samples int) float
+    mut g := Lcg(state: seed)
+    mut inside := 0
+    for _ in 0..samples
+        x := step(mut g) % 10000
+        y := step(mut g) % 10000
+        if x * x + y * y < 100000000
+            inside += 1
+    4.0 * inside.to_float() / samples.to_float()
+
+fn main()
+    mut g := Lcg(state: 42)
+    mut firsts := List[int]()
+    for _ in 0..4
+        firsts.push(step(mut g))
+    print("first values: {firsts}")
+    for n in [100, 1000, 10000, 50000]
+        e := estimate(7, n)
+        print("{n:>6} samples: {e:.4}")
+    print("same seed, same answer: {estimate(3, 500) == estimate(3, 500)}")
+
+@test fn values_stay_in_range()
+    mut g := Lcg(state: 1)
+    for _ in 0..100
+        v := step(mut g)
+        assert(v >= 0 and v < 2147483648)

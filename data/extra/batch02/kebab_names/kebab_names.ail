@@ -1,0 +1,40 @@
+## Kebab names: turns names written in camelCase, PascalCase, snake_case or with spaces
+## into kebab-case, splitting before capitals and on separators, and back to camelCase.
+
+fn words_of(name str) List[str]
+    mut out := List[str]()
+    mut cur := List[char]()
+    mut prev_lower := false
+    for c in name.chars()
+        if c == '_' or c == '-' or c == ' '
+            if not cur.is_empty()
+                out.push(cur.join(""))
+                cur.clear()
+        elif c.is_upper() and prev_lower
+            out.push(cur.join(""))
+            cur.clear()
+            cur.push(c.to_lower())
+        else
+            cur.push(c.to_lower())
+        prev_lower = c.is_lower()
+    if not cur.is_empty()
+        out.push(cur.join(""))
+    out
+
+fn kebab(name str) str
+    words_of(name).join("-")
+
+fn camel(name str) str
+    ws := words_of(name)
+    mut out := List[str]()
+    for i, w in ws.enumerate()
+        out.push(if i == 0 then w else "{w.slice(0, 1).to_upper()}{w.slice(1)}")
+    out.join("")
+
+fn main()
+    for n in ["userName", "HTTPServer", "max_retry_count", "  Total Price ", "already-kebab", "x"]
+        print("{n:<18} {kebab(n):<18} {camel(n)}")
+
+@test fn snake_to_kebab()
+    assert_eq(kebab("a_b_c"), "a-b-c")
+    assert_eq(camel("a-b-c"), "aBC")

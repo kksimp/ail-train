@@ -1,0 +1,26 @@
+## Overtime pay: weekly hours in minutes per worker; the first 40 hours are paid at the
+## base rate, the next 10 at time and a half and the rest at double time.
+
+fn pay(minutes int, rate_cents int) (int, int, int, int)
+    base_m := minutes.min(40 * 60)
+    half_m := (minutes - 40 * 60).max(0).min(10 * 60)
+    double_m := (minutes - 50 * 60).max(0)
+    total := (base_m * rate_cents + half_m * rate_cents * 3 / 2 + double_m * rate_cents * 2) / 60
+    (base_m, half_m, double_m, total)
+
+fn hours(m int) str
+    "{m / 60}:{m % 60:02}"
+
+fn main()
+    staff := [("Ana", 2280, 1850), ("Bram", 2730, 2100), ("Chi", 3330, 1600), ("Dov", 0, 2500)]
+    mut bill := 0
+    for s in staff
+        name, minutes, rate := s
+        b, h, d, total := pay(minutes, rate)
+        bill += total
+        print("{name:<5} {hours(minutes):>6} = {hours(b)} + {hours(h)} x1.5 + {hours(d)} x2 -> {total / 100}.{total % 100:02}")
+    print("payroll: {bill / 100}.{bill % 100:02}")
+
+@test fn no_overtime_under_forty()
+    _, h, d, _ := pay(30 * 60, 1000)
+    assert_eq(h + d, 0)

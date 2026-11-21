@@ -1,0 +1,6 @@
+first values: [1250496027, 1116302264, 1000676753, 1668674806]
+   100 samples: 3.2000
+  1000 samples: 3.1200
+ 10000 samples: 3.1380
+ 50000 samples: 3.1443
+same seed, same answer: true

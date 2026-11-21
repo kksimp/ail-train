@@ -1,0 +1,36 @@
+## Ant on tiles: an ant on a grid of white and black tiles turns right on white and left on
+## black, flips the tile and steps forward; prints the pattern after a number of steps.
+
+fn run(steps int, size int) (Set[(int, int)], (int, int))
+    mut black := Set[(int, int)]()
+    mut pos := (size / 2, size / 2)
+    mut dir := 0
+    moves := [(-1, 0), (0, 1), (1, 0), (0, -1)]
+    for _ in 0..steps
+        if black.contains(pos)
+            dir = (dir + 3) % 4
+            _ := black.remove(pos)
+        else
+            dir = (dir + 1) % 4
+            black.add(pos)
+        r := (pos.0 + moves[dir].0 + size) % size
+        c := (pos.1 + moves[dir].1 + size) % size
+        pos = (r, c)
+    (black, pos)
+
+fn main()
+    size := 11
+    black, pos := run(200, size)
+    for r in 0..size
+        mut line := List[str]()
+        for c in 0..size
+            line.push(if (r, c) == pos then "A" elif black.contains((r, c)) then "#" else ".")
+        print(line.join(""))
+    print("black tiles: {black.len()}")
+    for n in [10, 100, 500]
+        b, _ := run(n, 41)
+        print("after {n}: {b.len()} black")
+
+@test fn first_steps()
+    b, _ := run(4, 9)
+    assert_eq(b.len(), 4)

@@ -1,0 +1,36 @@
+## Boarding groups: assigns passengers to boarding groups by seat row (back rows first),
+## with priority passengers in group 0, and prints the groups in boarding order.
+
+struct Passenger
+    name str
+    row int
+    priority bool
+
+fn group_of(p Passenger) int
+    if p.priority
+        return 0
+    match p.row
+        25..=40 => 1
+        13..=24 => 2
+        _ => 3
+
+fn main()
+    people := [
+        Passenger(name: "Abe", row: 3, priority: false),
+        Passenger(name: "Bia", row: 30, priority: false),
+        Passenger(name: "Cem", row: 14, priority: true),
+        Passenger(name: "Dag", row: 22, priority: false),
+        Passenger(name: "Eve", row: 38, priority: false),
+        Passenger(name: "Fox", row: 9, priority: false),
+        Passenger(name: "Gil", row: 25, priority: false),
+    ]
+    groups := people.group_by(group_of)
+    for g in groups.keys().sorted()
+        names := groups[g].sorted(by: |p| -p.row).map(|p| "{p.name}({p.row})")
+        print("group {g}: {names.join(" ")}")
+    order := people.sorted(by: |p| (group_of(p), -p.row)).map(|p| p.name)
+    print("boarding order: {order.join(" ")}")
+
+@test fn priority_first()
+    assert_eq(group_of(Passenger(name: "x", row: 40, priority: true)), 0)
+    assert_eq(group_of(Passenger(name: "y", row: 13, priority: false)), 2)

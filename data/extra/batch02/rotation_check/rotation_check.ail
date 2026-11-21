@@ -1,0 +1,21 @@
+## Rotation check: a string is a rotation of another when it appears inside the other
+## doubled; finds the rotation amount with `find` and lists all rotations of a word.
+
+fn rotation_amount(a str, b str) int?
+    if a.len() != b.len()
+        return none
+    "{a}{a}".find(b)
+
+fn main()
+    pairs := [("waterbottle", "erbottlewat"), ("abcd", "cdab"), ("abcd", "acbd"), ("aa", "aaa")]
+    for p in pairs
+        if k := rotation_amount(p.0, p.1)
+            print("{p.1} is {p.0} rotated by {k}")
+        else
+            print("{p.1} is not a rotation of {p.0}")
+    w := "stop"
+    rs := [w.slice(i) for i in 0..w.len()]
+    print(rs.join(" "))
+
+@test fn rotation_by_two()
+    assert_eq(rotation_amount("abcd", "cdab") else -1, 2)

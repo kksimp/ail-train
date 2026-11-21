@@ -1,0 +1,37 @@
+## Pantry expiry: items with a best-before day number, sorted by how soon they expire;
+## groups them into expired, this week and later with a `match` on the days left.
+
+struct Item
+    name str
+    best_before int
+
+fn bucket(days_left int) str
+    match days_left
+        _ if days_left < 0 => "expired"
+        0..=6 => "this week"
+        _ => "later"
+
+fn main()
+    today := 100
+    pantry := [
+        Item(name: "milk", best_before: 102),
+        Item(name: "yoghurt", best_before: 98),
+        Item(name: "rice", best_before: 400),
+        Item(name: "eggs", best_before: 106),
+        Item(name: "bread", best_before: 100),
+        Item(name: "cheese", best_before: 95),
+        Item(name: "jam", best_before: 160),
+    ]
+    mut groups := Map[str, List[str]]()
+    for it in pantry.sorted(by: |i| (i.best_before, i.name))
+        left := it.best_before - today
+        groups.push(bucket(left), "{it.name} ({left})")
+    for b in ["expired", "this week", "later"]
+        items := groups.get(b) else []
+        print("{b}: {items.join(", ")}")
+    print("throw out: {pantry.count(|i| i.best_before < today)}")
+
+@test fn buckets_by_days()
+    assert_eq(bucket(-1), "expired")
+    assert_eq(bucket(0), "this week")
+    assert_eq(bucket(7), "later")

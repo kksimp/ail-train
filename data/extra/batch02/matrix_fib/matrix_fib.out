@@ -1,0 +1,6 @@
+F(1) = 1 in 1 multiplications, loop agrees: true
+F(2) = 1 in 2 multiplications, loop agrees: true
+F(10) = 55 in 5 multiplications, loop agrees: true
+F(30) = 832040 in 8 multiplications, loop agrees: true
+F(60) = 1548008755920 in 9 multiplications, loop agrees: true
+F(90) = 2880067194370816120 in 10 multiplications, loop agrees: true

@@ -1,0 +1,44 @@
+## Farey sequence: all reduced fractions between 0 and 1 with denominators up to n, built
+## in order with the next-term rule, and checked against a sort of every reduced fraction.
+
+fn farey(n int) List[(int, int)]
+    mut out := [(0, 1)]
+    mut a := 0
+    mut b := 1
+    mut c := 1
+    mut d := n
+    while c <= n
+        k := (n + b) / d
+        e := k * c - a
+        f := k * d - b
+        a = c
+        b = d
+        c = e
+        d = f
+        out.push((a, b))
+    out
+
+fn gcd(a int, b int) int
+    if b == 0 then a else gcd(b, a % b)
+
+fn main()
+    for n in [1, 3, 5]
+        shown := farey(n).map(|t| "{t.0}/{t.1}").join(" ")
+        print("F{n}: {shown}")
+    mut by_sort := List[(int, int)]()
+    for den in 1..=7
+        for num in 0..=den
+            if gcd(num, den) == 1
+                by_sort.push((num, den))
+    ordered := by_sort.sorted(by: |t| t.0.to_float() / t.1.to_float())
+    same := ordered == farey(7)
+    print("F7 has {farey(7).len()} terms, matches sorted list: {same}")
+    lengths := [farey(n).len() for n in 1..=10]
+    print("lengths: {lengths}")
+
+@test fn neighbours_differ_by_one()
+    fs := farey(6)
+    for i in 1..fs.len()
+        a, b := fs[i - 1]
+        c, d := fs[i]
+        assert_eq(c * b - a * d, 1)

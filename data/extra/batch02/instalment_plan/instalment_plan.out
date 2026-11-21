@@ -1,0 +1,5 @@
+1200.00 over 12: m1 100.00 left 1100.00; m2 100.00 left 1000.00; m12 100.00 left 0.00
+999.99 over 4: m1 250.02 left 749.97; m2 249.99 left 499.98; m4 249.99 left 0.00
+5.00 over 3: m1 1.68 left 3.32; m2 1.66 left 1.66; m3 1.66 left 0.00
+10.00 over 0: months must be positive, got 0
+0.05 over 2: price cannot be negative

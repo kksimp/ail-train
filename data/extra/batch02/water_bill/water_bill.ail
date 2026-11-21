@@ -1,0 +1,36 @@
+## Water bill: charges usage in litres by rising tiers, adds a fixed standing charge, and
+## prints an itemised bill per household with each tier's share.
+
+struct Tier
+    upto int
+    cents_per_kl int
+
+fn charges(litres int, tiers List[Tier]) List[(int, int)]
+    mut out := List[(int, int)]()
+    mut start := 0
+    for t in tiers
+        if litres <= start
+            break
+        top := litres.min(t.upto)
+        used := top - start
+        out.push((used, used * t.cents_per_kl / 1000))
+        start = t.upto
+    out
+
+fn money(c int) str
+    dollar := "$"
+    "{dollar}{c / 100}.{c % 100:02}"
+
+fn main()
+    tiers := [Tier(upto: 6000, cents_per_kl: 150), Tier(upto: 15000, cents_per_kl: 280), Tier(upto: 1000000000, cents_per_kl: 520)]
+    standing := 1250
+    for home in [("flat 2", 4200), ("house 7", 13900), ("farm", 41000), ("empty", 0)]
+        name, litres := home
+        parts := charges(litres, tiers)
+        total := standing + parts.map(|p| p.1).sum()
+        tiers_text := parts.map(|p| "{p.0}L={money(p.1)}").join(" + ")
+        shown := if tiers_text == "" then "no use" else tiers_text
+        print("{name:<8} {shown}, standing {money(standing)}, total {money(total)}")
+
+@test fn first_tier_only()
+    assert_eq(charges(1000, [Tier(upto: 6000, cents_per_kl: 150)]), [(1000, 150)])

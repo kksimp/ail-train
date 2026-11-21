@@ -1,0 +1,45 @@
+## Deadline jobs: each one-day job has a deadline and a profit; schedules the most
+## profitable set by taking jobs in profit order and placing each in the latest free day.
+
+struct Job
+    id str
+    deadline int
+    profit int
+
+fn schedule(jobs List[Job]) List[str?]
+    last := jobs.map(|j| j.deadline).max() else 0
+    mut days := List[str?]()
+    for _ in 0..last
+        days.push(none)
+    for j in jobs.sorted(by: |j| -j.profit)
+        mut d := j.deadline - 1
+        while d >= 0
+            if days[d] == none
+                days[d] = j.id
+                break
+            d -= 1
+    days
+
+fn main()
+    jobs := [
+        Job(id: "a", deadline: 2, profit: 100),
+        Job(id: "b", deadline: 1, profit: 19),
+        Job(id: "c", deadline: 2, profit: 27),
+        Job(id: "d", deadline: 1, profit: 25),
+        Job(id: "e", deadline: 3, profit: 15),
+    ]
+    days := schedule(jobs)
+    mut total := 0
+    for i, d in days.enumerate()
+        if id := d
+            p := (jobs.find(|j| j.id == id) else jobs[0]).profit
+            total += p
+            print("day {i + 1}: job {id} ({p})")
+        else
+            print("day {i + 1}: idle")
+    print("profit: {total}")
+
+@test fn single_job()
+    days := schedule([Job(id: "x", deadline: 2, profit: 1)])
+    assert(days[0] == none)
+    assert_eq(days[1] else "", "x")

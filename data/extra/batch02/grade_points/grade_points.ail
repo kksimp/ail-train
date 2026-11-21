@@ -1,0 +1,44 @@
+## Grade points: converts letter grades to points with a `match`, weights them by course
+## credits, and prints the grade point average to two decimals per student.
+
+fn points(grade str) float?
+    match grade
+        "A" => 4.0
+        "A-" => 3.7
+        "B+" => 3.3
+        "B" => 3.0
+        "B-" => 2.7
+        "C+" => 2.3
+        "C" => 2.0
+        "D" => 1.0
+        "F" => 0.0
+        _ => none
+
+fn gpa(courses List[(str, int)]) float?
+    mut weighted := 0.0
+    mut credits := 0
+    for c in courses
+        grade, cr := c
+        p := points(grade) else return none
+        weighted += p * cr.to_float()
+        credits += cr
+    if credits == 0
+        return none
+    weighted / credits.to_float()
+
+fn main()
+    students := [
+        ("Iris", [("A", 4), ("B+", 3), ("A-", 3)]),
+        ("Jon", [("C", 4), ("B", 4), ("F", 2)]),
+        ("Kai", [("A", 1), ("E", 3)]),
+        ("Lea", List[(str, int)]()),
+    ]
+    for s in students
+        name, courses := s
+        if g := gpa(courses)
+            print("{name}: {g:.2}")
+        else
+            print("{name}: no GPA")
+
+@test fn single_course()
+    assert_near(gpa([("B", 3)]) else -1.0, 3.0, 0.0001)

@@ -1,0 +1,37 @@
+## Juggler steps: each term is the floor of the square root of the previous term (even)
+## or of its 1.5 power (odd); prints sequences, step counts and peaks, with an integer
+## square root so no floats are involved.
+
+fn isqrt(n int) int
+    if n < 2
+        return n
+    mut x := n
+    mut y := x / 2 + x % 2
+    while y < x
+        x = y
+        y = (x + n / x) / 2
+    x
+
+fn next_term(a int) int
+    if a % 2 == 0 then isqrt(a) else isqrt(a * a * a)
+
+fn juggler(start int) List[int]
+    mut seq := [start]
+    mut a := start
+    while a != 1
+        a = next_term(a)
+        seq.push(a)
+    seq
+
+fn main()
+    for start in [3, 9, 20, 30]
+        seq := juggler(start)
+        peak := seq.max() else 0
+        print("{start}: {seq.len() - 1} steps, peak {peak}")
+    nine := juggler(9).map(|x| "{x}").join(" ")
+    print("9 -> {nine}")
+    longest := [n for n in 2..30].max(by: |n| juggler(n).len()) else 0
+    print("most steps below 30: {longest} ({juggler(longest).len() - 1})")
+
+@test fn even_start()
+    assert_eq(juggler(16), [16, 4, 2, 1])

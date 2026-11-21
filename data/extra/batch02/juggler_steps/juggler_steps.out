@@ -1,0 +1,6 @@
+3: 6 steps, peak 36
+9: 7 steps, peak 140
+20: 3 steps, peak 20
+30: 6 steps, peak 36
+9 -> 9 27 140 11 36 6 2 1
+most steps below 30: 25 (11)

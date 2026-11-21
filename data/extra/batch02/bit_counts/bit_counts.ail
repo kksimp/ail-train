@@ -1,0 +1,22 @@
+## Bit counts: counts set bits with the `x & (x - 1)` trick, builds a table for 0 to 15,
+## and finds numbers with exactly k bits set, smallest first.
+
+fn popcount(x int) int
+    mut v := x
+    mut c := 0
+    while v != 0
+        v = v & (v - 1)
+        c += 1
+    c
+
+fn main()
+    print([popcount(n) for n in 0..16].map(|c| "{c}").join(""))
+    for k in 1..=4
+        firsts := [n for n in 0..256 if popcount(n) == k].take(6)
+        print("{k} bits: {firsts.map(|n| "{n}").join(" ")}")
+    total := [popcount(n) for n in 0..1024].sum()
+    print("bits set in 0..1023: {total}")
+    print(popcount(9223372036854775807))
+
+@test fn powers_have_one_bit()
+    assert([1, 2, 4, 1024].all(|n| popcount(n) == 1))

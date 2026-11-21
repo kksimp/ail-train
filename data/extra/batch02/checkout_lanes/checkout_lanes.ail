@@ -1,0 +1,36 @@
+## Checkout lanes: shoppers join the lane with the fewest items waiting (the first such
+## lane on a tie); each minute every lane scans up to 5 items; prints when lanes empty.
+
+fn main()
+    arrivals := [(0, 12), (0, 3), (1, 20), (1, 7), (2, 4), (3, 9), (5, 15), (6, 2)]
+    lanes := 3
+    mut load := [0 for _ in 0..lanes]
+    mut served_at := [0 for _ in 0..lanes]
+    mut minute := 0
+    mut nxt := 0
+    while nxt < arrivals.len() or load.any(|x| x > 0)
+        while nxt < arrivals.len() and arrivals[nxt].0 == minute
+            items := arrivals[nxt].1
+            mut best := 0
+            for i in 1..lanes
+                if load[i] < load[best]
+                    best = i
+            load[best] += items
+            print("t{minute}: shopper {nxt + 1} ({items} items) -> lane {best + 1}")
+            nxt += 1
+        for i in 0..lanes
+            if load[i] > 0
+                load[i] = (load[i] - 5).max(0)
+                if load[i] == 0
+                    served_at[i] = minute + 1
+        minute += 1
+    print("lanes last empty at: {served_at.map(|t| "t{t}").join(" ")}")
+    print("total minutes: {minute}")
+
+@test fn ties_pick_first_lane()
+    load := [2, 1, 1]
+    mut best := 0
+    for i in 1..3
+        if load[i] < load[best]
+            best = i
+    assert_eq(best, 1)

@@ -1,0 +1,9 @@
+pick A1 nut: ok
+move A2 washer B1: ok
+pick C3 nut: ok
+pick C3 nut: not there
+add D4 bracket: ok
+A1: bolt
+B1: bolt, hinge, washer
+D4: bracket
+bolt in: A1 B1

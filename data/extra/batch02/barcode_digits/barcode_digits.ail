@@ -1,0 +1,29 @@
+## Barcode digits: computes and checks the EAN-13 check digit (weights 1 and 3), and
+## completes 12-digit codes by appending the digit.
+
+fn check_digit(digits List[int]) int
+    mut sum := 0
+    for i, d in digits.enumerate()
+        sum += if i % 2 == 0 then d else d * 3
+    (10 - sum % 10) % 10
+
+fn parse(code str) List[int]?
+    mut out := List[int]()
+    for c in code.chars()
+        d := c.to_digit(10) else return none
+        out.push(d)
+    out
+
+fn valid(code str) bool
+    ds := parse(code) else return false
+    ds.len() == 13 and check_digit(ds.take(12)) == ds[12]
+
+fn main()
+    for code in ["4006381333931", "4006381333932", "9780306406157", "12345", "97803064061x7"]
+        print("{code}: {valid(code)}")
+    for stem in ["590123412345", "978014300723", "000000000000"]
+        ds := parse(stem) else continue
+        print("{stem} -> {stem}{check_digit(ds)}")
+
+@test fn known_code()
+    assert(valid("4006381333931"))

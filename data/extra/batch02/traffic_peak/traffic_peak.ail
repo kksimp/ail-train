@@ -1,0 +1,25 @@
+## Traffic peak: cars counted every 15 minutes; finds the busiest hour as the best window of
+## four counts, the quietest single slot, and prints an hourly summary with `chunks`.
+
+fn slot_time(i int) str
+    m := 6 * 60 + i * 15
+    "{m / 60:02}:{m % 60:02}"
+
+fn main()
+    counts := [12, 18, 25, 40, 66, 81, 77, 59, 44, 38, 35, 41, 50, 47, 30, 22]
+    sums := counts.windows(4).map(|w| w.sum())
+    mut best := 0
+    for i in 1..sums.len()
+        if sums[i] > sums[best]
+            best = i
+    print("busiest hour: {slot_time(best)}-{slot_time(best + 4)} with {sums[best]} cars")
+    quiet := counts.index_of(counts.min() else 0) else 0
+    print("quietest slot: {slot_time(quiet)} ({counts[quiet]})")
+    for h, hour in counts.chunks(4).enumerate()
+        print("{slot_time(h * 4)} {hour.sum():>4} {"=".repeat(hour.sum() / 10)}")
+    rising := counts.windows(2).count(|w| w[1] > w[0])
+    print("rising steps: {rising} of {counts.len() - 1}")
+
+@test fn times()
+    assert_eq(slot_time(0), "06:00")
+    assert_eq(slot_time(5), "07:15")

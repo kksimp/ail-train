@@ -1,0 +1,5 @@
+  1  1  2  2  4  2  6  4  6  4
+ 10  4 12  6  8  8 16  6 18  8
+ 12 10 22  8 20 12 18 12 28  8
+sieve agrees with gcd count: true
+fractions with denominator up to 100: 3043

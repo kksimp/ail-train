@@ -1,0 +1,12 @@
+(3, -1) is 3 steps away
+(-2, 4) is 4 steps away
+(0, 0) is 0 steps away
+(5, -5) is 5 steps away
+(-3, -2) is 5 steps away
+neighbours of (2, 2): (3,2) (1,2) (2,3) (2,1) (3,1) (1,3)
+all at distance 1: true
+radius 0: 1 cells
+radius 1: 7 cells
+radius 2: 19 cells
+radius 3: 37 cells
+radius 4: 61 cells

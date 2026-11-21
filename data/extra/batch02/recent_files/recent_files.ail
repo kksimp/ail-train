@@ -1,0 +1,35 @@
+## Recent files: an editor's most-recently-used list capped at five entries; opening a
+## file moves it to the front, and closing removes it.
+
+struct Recent
+    items List[str]
+    cap int
+
+fn Recent.open(mut self, path str)
+    if i := self.items.index_of(path)
+        self.items.remove_at(i)
+    self.items.insert(0, path)
+    while self.items.len() > self.cap
+        _ := self.items.pop()
+
+fn Recent.close(mut self, path str) bool
+    i := self.items.index_of(path) else return false
+    self.items.remove_at(i)
+    true
+
+fn main()
+    mut r := Recent(items: [], cap: 5)
+    for cmd in ["open a.ail", "open b.md", "open c.txt", "open a.ail", "open d.ail", "open e.ail", "open f.ail", "close c.txt", "close zzz", "open b.md"]
+        parts := cmd.split(" ")
+        if parts[0] == "open"
+            r.open(parts[1])
+        elif not r.close(parts[1])
+            print("{parts[1]} was not open")
+        print("{cmd:<12} [{r.items.join(" ")}]")
+
+@test fn reopening_moves_to_front()
+    mut r := Recent(items: [], cap: 3)
+    r.open("x")
+    r.open("y")
+    r.open("x")
+    assert_eq(r.items, ["x", "y"])

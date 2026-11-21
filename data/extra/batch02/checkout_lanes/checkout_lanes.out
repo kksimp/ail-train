@@ -1,0 +1,10 @@
+t0: shopper 1 (12 items) -> lane 1
+t0: shopper 2 (3 items) -> lane 2
+t1: shopper 3 (20 items) -> lane 2
+t1: shopper 4 (7 items) -> lane 3
+t2: shopper 5 (4 items) -> lane 1
+t3: shopper 6 (9 items) -> lane 3
+t5: shopper 7 (15 items) -> lane 1
+t6: shopper 8 (2 items) -> lane 2
+lanes last empty at: t8 t7 t5
+total minutes: 8

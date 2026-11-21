@@ -1,0 +1,24 @@
+## Approval vote: each ballot approves any number of candidates; counts approvals, ranks
+## candidates with ties broken by name, and flags ballots naming an unknown candidate.
+
+fn main()
+    candidates := {"Ito", "Mbeki", "Novak", "Ruiz"}
+    ballots := ["Ito,Novak", "Ruiz", "Novak,Ruiz,Ito", "Mbeki,Novak", "Smith,Ito", "", "Ruiz,Novak"]
+    mut approvals := Map[str, int]()
+    for c in candidates
+        approvals[c] = 0
+    mut spoiled := 0
+    for b in ballots
+        names := b.split(",").filter(|n| not n.is_empty())
+        if names.any(|n| not candidates.contains(n))
+            spoiled += 1
+            continue
+        for n in names
+            approvals[n] += 1
+    ranked := approvals.keys().sorted(by: |c| (-approvals[c], c))
+    for i, c in ranked.enumerate()
+        print("{i + 1}. {c:<6} {approvals[c]}")
+    print("spoiled: {spoiled}, counted: {ballots.len() - spoiled}")
+
+@test fn empty_ballot_counts_nothing()
+    assert_eq("".split(",").filter(|n| not n.is_empty()).len(), 0)

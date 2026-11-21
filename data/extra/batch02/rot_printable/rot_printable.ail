@@ -1,0 +1,20 @@
+## ROT47: rotates every printable ASCII character from `!` to `~` by 47 places, leaving
+## spaces alone; applying it twice restores the text.
+
+fn rot47(s str) str
+    mut out := List[char]()
+    for c in s.chars()
+        k := c.code()
+        if k >= 33 and k <= 126
+            out.push(char.from_code(33 + (k - 33 + 47) % 94) else c)
+        else
+            out.push(c)
+    out.join("")
+
+fn main()
+    for s in ["Hello, World!", "The Quick Brown Fox", "1+1=2", "~!"]
+        e := rot47(s)
+        print("{s} => {e} => {rot47(e)}")
+
+@test fn self_inverse()
+    assert_eq(rot47(rot47("anything at all 123")), "anything at all 123")

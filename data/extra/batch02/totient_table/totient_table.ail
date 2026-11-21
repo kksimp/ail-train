@@ -1,0 +1,28 @@
+## Totient table: Euler's phi for 1 to 30 by sieving over primes, checked against a gcd
+## count, and the sum of phi up to 100 (the number of reduced fractions).
+
+fn gcd(a int, b int) int
+    if b == 0 then a else gcd(b, a % b)
+
+fn phi_sieve(limit int) List[int]
+    mut phi := [i for i in 0..=limit]
+    for p in 2..=limit
+        if phi[p] == p
+            mut m := p
+            while m <= limit
+                phi[m] -= phi[m] / p
+                m += p
+    phi
+
+fn main()
+    phi := phi_sieve(100)
+    for row in [1, 11, 21]
+        cells := [phi[n] for n in row..row + 10].map(|x| "{x:>3}")
+        print(cells.join(""))
+    by_gcd := [[k for k in 1..=n if gcd(k, n) == 1].len() for n in 1..=100]
+    print("sieve agrees with gcd count: {by_gcd == phi.slice(1)}")
+    print("fractions with denominator up to 100: {phi.slice(2).sum()}")
+
+@test fn phi_of_prime()
+    assert_eq(phi_sieve(13)[13], 12)
+    assert_eq(phi_sieve(12)[12], 4)

@@ -1,0 +1,30 @@
+## Pig Latin: words starting with a vowel get `way`; otherwise the leading consonants
+## (with `qu` kept together) move to the end before `ay`; capitals are kept on the front.
+
+fn is_vowel(c char) bool
+    "aeiou".contains(c.to_lower())
+
+fn pig(word str) str
+    cs := word.chars()
+    first := cs.first() else return word
+    if is_vowel(first)
+        return "{word}way"
+    mut k := 0
+    while k < cs.len() and not is_vowel(cs[k])
+        k += 1
+    if k < cs.len() and k > 0 and cs[k - 1].to_lower() == 'q' and cs[k].to_lower() == 'u'
+        k += 1
+    moved := "{word.slice(k)}{word.slice(0, k).to_lower()}ay"
+    if first.is_upper()
+        head := moved.slice(0, 1).to_upper()
+        return "{head}{moved.slice(1)}"
+    moved
+
+fn main()
+    for s in ["Hello world", "apple pie", "Queen square", "rhythm and blues", "String theory"]
+        print("{s} -> {s.words().map(pig).join(" ")}")
+
+@test fn consonant_cluster()
+    assert_eq(pig("string"), "ingstray")
+    assert_eq(pig("quiet"), "ietquay")
+    assert_eq(pig("egg"), "eggway")

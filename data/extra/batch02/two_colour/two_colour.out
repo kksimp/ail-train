@@ -1,0 +1,4 @@
+4 nodes: 0,2 | 1,3
+3 nodes: not two-colourable (edge 1-2 joins two nodes of one colour)
+6 nodes: 0,1,2 | 3,4,5
+2 nodes: 0,1 | 

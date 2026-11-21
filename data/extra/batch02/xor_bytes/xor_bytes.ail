@@ -1,0 +1,22 @@
+## XOR bytes: encrypts text with a repeating key by XOR on bytes, prints the result as hex,
+## decodes the hex back with `bytes.from_hex` and recovers the text.
+
+fn xor_with(data bytes, key bytes) List[u8]
+    mut out := List[u8]()
+    for i in 0..data.len()
+        out.push((data[i].to_int() ^ key[i % key.len()].to_int()).to_u8())
+    out
+
+fn main()
+    key := "k3y".to_bytes()
+    for msg in ["attack at dawn", "hello", ""]
+        enc := bytes.from_list(xor_with(msg.to_bytes(), key))
+        h := enc.hex()
+        back := bytes.from_hex(h) else b""
+        plain := bytes.from_list(xor_with(back, key)).to_str() else "?"
+        print("'{msg}' -> {h} -> '{plain}'")
+
+@test fn xor_twice_is_identity()
+    k := "ab".to_bytes()
+    once := bytes.from_list(xor_with("xyz".to_bytes(), k))
+    assert_eq(bytes.from_list(xor_with(once, k)).to_str() else "", "xyz")

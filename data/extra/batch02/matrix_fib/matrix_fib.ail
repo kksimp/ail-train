@@ -1,0 +1,45 @@
+## Matrix Fibonacci: raises the 2x2 matrix [[1,1],[1,0]] to a power by repeated squaring,
+## giving Fibonacci numbers in O(log n) multiplications, checked against a loop.
+
+struct M2
+    a int
+    b int
+    c int
+    d int
+
+fn mul(x M2, y M2) M2
+    M2(a: x.a * y.a + x.b * y.c, b: x.a * y.b + x.b * y.d, c: x.c * y.a + x.d * y.c, d: x.c * y.b + x.d * y.d)
+
+fn power(m M2, n int) (M2, int)
+    mut result := M2(a: 1, b: 0, c: 0, d: 1)
+    mut base := m
+    mut e := n
+    mut steps := 0
+    while e > 0
+        if (e & 1) == 1
+            result = mul(result, base)
+            steps += 1
+        e = e >> 1
+        if e > 0
+            base = mul(base, base)
+            steps += 1
+    (result, steps)
+
+fn fib_loop(n int) int
+    mut a := 0
+    mut b := 1
+    for _ in 0..n
+        t := a + b
+        a = b
+        b = t
+    a
+
+fn main()
+    q := M2(a: 1, b: 1, c: 1, d: 0)
+    for n in [1, 2, 10, 30, 60, 90]
+        m, steps := power(q, n)
+        print("F({n}) = {m.b} in {steps} multiplications, loop agrees: {m.b == fib_loop(n)}")
+
+@test fn identity_power()
+    m, _ := power(M2(a: 1, b: 1, c: 1, d: 0), 0)
+    assert_eq(m, M2(a: 1, b: 0, c: 0, d: 1))

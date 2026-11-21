@@ -1,0 +1,45 @@
+## Crossing lights: a pedestrian crossing as a state machine; a button press during green
+## shortens the wait, and each state lasts a set number of ticks before moving on.
+
+enum Light
+    CarsGo
+    CarsAmber
+    WalkOn
+    WalkFlash
+
+fn duration(l Light) int
+    match l
+        CarsGo => 6
+        CarsAmber => 2
+        WalkOn => 4
+        WalkFlash => 2
+
+fn after(l Light) Light
+    match l
+        CarsGo => CarsAmber
+        CarsAmber => WalkOn
+        WalkOn => WalkFlash
+        WalkFlash => CarsGo
+
+fn main()
+    presses := {3, 20}
+    mut state := Light.CarsGo
+    mut left := duration(state)
+    mut events := List[str]()
+    for tick in 0..26
+        if presses.contains(tick) and state == CarsGo and left > 2
+            left = 2
+            events.push("t{tick}: button")
+        left -= 1
+        if left == 0
+            state = after(state)
+            left = duration(state)
+            events.push("t{tick + 1}: {state.name()}")
+    for e in events
+        print(e)
+
+@test fn cycle_returns()
+    mut s := Light.WalkOn
+    for _ in 0..4
+        s = after(s)
+    assert_eq(s, Light.WalkOn)

@@ -1,0 +1,37 @@
+## Wash cycle: a washing machine program as a list of stages with durations; computes the
+## start time of each stage, the stage running at given minutes and the minutes left.
+
+struct Stage
+    name str
+    minutes int
+
+fn starts(stages List[Stage]) List[int]
+    mut out := List[int]()
+    mut t := 0
+    for s in stages
+        out.push(t)
+        t += s.minutes
+    out
+
+fn running_at(stages List[Stage], minute int) str
+    mut t := 0
+    for s in stages
+        if minute < t + s.minutes
+            return s.name
+        t += s.minutes
+    "done"
+
+fn main()
+    cotton := [Stage(name: "fill", minutes: 4), Stage(name: "wash", minutes: 35), Stage(name: "rinse", minutes: 15), Stage(name: "spin", minutes: 10), Stage(name: "drain", minutes: 3)]
+    total := cotton.map(|s| s.minutes).sum()
+    for i, st in starts(cotton).enumerate()
+        print("{cotton[i].name:<6} starts at {st:>2} min")
+    for m in [0, 3, 4, 50, 60, 66, 67, 90]
+        left := (total - m).max(0)
+        print("minute {m:>2}: {running_at(cotton, m)}, {left} min left")
+
+@test fn boundaries()
+    s := [Stage(name: "a", minutes: 2), Stage(name: "b", minutes: 1)]
+    assert_eq(running_at(s, 1), "a")
+    assert_eq(running_at(s, 2), "b")
+    assert_eq(running_at(s, 3), "done")

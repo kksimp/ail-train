@@ -1,0 +1,39 @@
+## Talk picker: from a conference day, picks the most talks one person can attend without
+## overlap by always taking the talk that ends first (greedy by end time).
+
+struct Talk
+    title str
+    start int
+    stop int
+
+fn pick(talks List[Talk]) List[Talk]
+    mut out := List[Talk]()
+    mut free_at := 0
+    for t in talks.sorted(by: |t| (t.stop, t.start))
+        if t.start >= free_at
+            out.push(t)
+            free_at = t.stop
+    out
+
+fn hhmm(m int) str
+    "{m / 60:02}:{m % 60:02}"
+
+fn main()
+    talks := [
+        Talk(title: "Keynote", start: 540, stop: 600),
+        Talk(title: "Rust in prod", start: 570, stop: 630),
+        Talk(title: "Typed errors", start: 600, stop: 660),
+        Talk(title: "Lunch demo", start: 690, stop: 780),
+        Talk(title: "GC tuning", start: 660, stop: 720),
+        Talk(title: "Closing", start: 960, stop: 1000),
+        Talk(title: "Workshop", start: 720, stop: 990),
+    ]
+    chosen := pick(talks)
+    for t in chosen
+        print("{hhmm(t.start)}-{hhmm(t.stop)} {t.title}")
+    print("{chosen.len()} of {talks.len()} talks")
+
+@test fn back_to_back_allowed()
+    a := Talk(title: "a", start: 0, stop: 10)
+    b := Talk(title: "b", start: 10, stop: 20)
+    assert_eq(pick([b, a]).len(), 2)

@@ -1,0 +1,32 @@
+## Prime gaps: the gaps between consecutive primes below a limit, the first time each gap
+## size appears, the largest gap, and twin prime counts, all from one sieve.
+
+fn primes_below(n int) List[int]
+    mut is_p := [true for _ in 0..n]
+    is_p[0] = false
+    is_p[1] = false
+    mut i := 2
+    while i * i < n
+        if is_p[i]
+            mut m := i * i
+            while m < n
+                is_p[m] = false
+                m += i
+        i += 1
+    [k for k in 0..n if is_p[k]]
+
+fn main()
+    ps := primes_below(10000)
+    gaps := [ps[i] - ps[i - 1] for i in 1..ps.len()]
+    mut first_seen := Map[int, int]()
+    for i, g in gaps.enumerate()
+        if not first_seen.contains(g)
+            first_seen[g] = ps[i]
+    for g in first_seen.keys().sorted().take(8)
+        print("gap {g:>2} first after {first_seen[g]}")
+    widest := gaps.max() else 0
+    twins := gaps.filter(|g| g == 2).len()
+    print("{ps.len()} primes, widest gap {widest}, twin pairs {twins}")
+
+@test fn small_primes()
+    assert_eq(primes_below(20), [2, 3, 5, 7, 11, 13, 17, 19])

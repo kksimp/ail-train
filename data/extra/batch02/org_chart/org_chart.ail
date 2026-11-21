@@ -1,0 +1,31 @@
+## Org chart: builds a reporting tree from `name: manager` lines, prints it indented by
+## level with a recursive function, and counts everyone under each manager.
+
+fn print_tree(name str, reports Map[str, List[str]], level int)
+    print("{"  ".repeat(level)}{name}")
+    for r in (reports.get(name) else []).sorted()
+        print_tree(r, reports, level + 1)
+
+fn headcount(name str, reports Map[str, List[str]]) int
+    mut n := 0
+    direct := reports.get(name) else []
+    for r in direct
+        n += 1 + headcount(r, reports)
+    n
+
+fn main()
+    lines := ["Ana: -", "Ben: Ana", "Cho: Ana", "Dev: Ben", "Eli: Ben", "Fay: Cho", "Gus: Eli", "Hal: Ana"]
+    mut reports := Map[str, List[str]]()
+    mut root := ""
+    for l in lines
+        parts := l.split(": ")
+        if parts[1] == "-"
+            root = parts[0]
+        else
+            reports.push(parts[1], parts[0])
+    print_tree(root, reports, 0)
+    for m in reports.keys().sorted()
+        print("{m} leads {headcount(m, reports)}")
+
+@test fn leaf_has_no_reports()
+    assert_eq(headcount("x", Map[str, List[str]]()), 0)

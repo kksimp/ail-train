@@ -1,0 +1,5 @@
+ABC/BCA/CAB: latin square
+ABC/BAC/CAB: column 2 repeats 'A'
+AB/AB: column 1 repeats 'A'
+ABCD/BCDA/CD/DABC: row 3 has 2 cells
+ABCDE/BCDEA/CDEAB/DEABC/EABCD: latin square

@@ -1,0 +1,32 @@
+## Gray code: the reflected binary code where neighbours differ in one bit, with `^` and
+## `>>` to encode and a loop to decode, and a check that each step flips one bit.
+
+fn gray(n int) int
+    n ^ (n >> 1)
+
+fn from_gray(g int) int
+    mut n := g
+    mut shift := g >> 1
+    while shift != 0
+        n = n ^ shift
+        shift = shift >> 1
+    n
+
+fn bits_set(x int) int
+    mut v := x
+    mut c := 0
+    while v != 0
+        c += (v & 1)
+        v = v >> 1
+    c
+
+fn main()
+    for n in 0..8
+        g := gray(n)
+        print("{n} {n:03b} -> {g:03b} -> {from_gray(g)}")
+    one_flip := [n for n in 0..255 if bits_set(gray(n) ^ gray(n + 1)) == 1].len()
+    print("single-bit steps: {one_flip} of 255")
+    print("wraps: {bits_set(gray(0) ^ gray(255)) == 1}")
+
+@test fn decode_inverts()
+    assert_eq(from_gray(gray(1000)), 1000)

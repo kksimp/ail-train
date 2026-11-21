@@ -1,0 +1,31 @@
+## Reverse and add: adds a number to its digit reversal until a palindrome appears, using
+## `bigint` because the values outgrow 64 bits; numbers that never get there within
+## 60 steps are flagged as Lychrel candidates.
+
+fn reverse_text(s str) str
+    s.chars().reversed().join("")
+
+fn steps_to_palindrome(n int, limit int) (int, str)?
+    mut v := bigint.from_int(n)
+    for step in 1..=limit
+        text := "{v}"
+        r := bigint.parse(reverse_text(text)) else return none
+        v = v + r
+        t := "{v}"
+        if t == reverse_text(t)
+            return (step, t)
+    none
+
+fn main()
+    for n in [56, 57, 59, 89, 10, 196, 295]
+        if res := steps_to_palindrome(n, 60)
+            steps, value := res
+            print("{n}: {steps} steps -> {value}")
+        else
+            print("{n}: no palindrome in 60 steps")
+    candidates := [n for n in 1..300 if steps_to_palindrome(n, 60) == none]
+    shown := candidates.map(|c| "{c}").join(" ")
+    print("candidates below 300: {shown}")
+
+@test fn one_step()
+    assert_eq(steps_to_palindrome(56, 10) else (0, ""), (1, "121"))
