@@ -11,6 +11,7 @@
 #   PREFLIGHT_MODELS="org/first-model-4bit org/second-model-4bit org/third-model-4bit"
 #   AIL_ROOT="$HOME/ail-train-work/ail-pinned"      # an ail checkout at .ail-version (for the core card and corpus)
 # Optional environment: ITERS (default 20), SEQ (default 4096), NUM_LAYERS (LoRA layers, default 16),
+# SYSTEM_FILE (system prompt for the smoke data instead of the core card, e.g. tools/preflight/short-system.txt),
 # SWAP_ABORT_MB (default 1536), ONLY_CANDIDATE=N (or a list, "1 3").
 # 512 MB of swap growth was too tight: macOS pages idle apps out as soon as a 4096-token run loads, before step 1.
 #
@@ -81,7 +82,7 @@ mkdir -p "$run"
     echo "free disk: $(free_disk_gb) GB; load: $(load1); swap used: $(swap_used_mb) MB"
     echo "mlx-lm $("$vpy" -c 'import importlib.metadata as m; print(m.version("mlx-lm"))'), mlx $("$vpy" -c 'import importlib.metadata as m; print(m.version("mlx"))'), python $("$vpy" -c 'import platform; print(platform.python_version())')"
     echo "ail: $(cd "$ail_root" && git rev-parse --short HEAD 2>/dev/null || echo unknown); ail-train: $(cd "$root" && git rev-parse --short HEAD)"
-    echo "smoke run: $iters steps, sequence $seq, batch 1, LoRA rank 16 on $layers layers, grad checkpoint, prompt masked"
+    echo "smoke run: $iters steps, sequence $seq, batch 1, LoRA rank 16 on $layers layers, grad checkpoint, prompt masked, system prompt ${SYSTEM_FILE:-core card}"
 } > "$run/system.txt"
 cat "$run/system.txt"
 
@@ -103,7 +104,7 @@ for model in $PREFLIGHT_MODELS; do
     fi
     du -skL "$mdir" | awk '{printf "%.1f\n", $1 / 1048576}' > "$d/disk_gb.txt"
 
-    if ! "$vpy" "$root/tools/preflight/smoke_data.py" "$mdir" "$card" "$ail_root" "$root" "$d" "$seq" > "$d/tokens.log" 2>&1; then
+    if ! "$vpy" "$root/tools/preflight/smoke_data.py" "$mdir" "${SYSTEM_FILE:-$card}" "$ail_root" "$root" "$d" "$seq" > "$d/tokens.log" 2>&1; then
         echo "token step failed" > "$d/status.txt"
         echo "   token step failed; see $d/tokens.log"
         continue

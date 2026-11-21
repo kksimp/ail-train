@@ -29,7 +29,8 @@ def read(path):
 
 
 # mlx-lm 0.32 prints a table instead: "iter train_loss tok/s tokens" rows.
-TABLE = re.compile(r"^\s*(\d+)\s+([\d.]+)\s+([\d.]+)\s+(\d+)\s*$", re.M)
+# Rows look like "     2    0.554 ▼       60      1.4k" (the arrow is optional; tokens may carry a k suffix).
+TABLE = re.compile(r"^\s*(\d+)\s+([\d.]+)\s+(?:[^\s\d.]+\s+)?([\d.]+)\s+([\d.]+k?)\s*$", re.M)
 
 
 def lora_numbers(log, peak):
