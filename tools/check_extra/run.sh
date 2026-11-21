@@ -2,7 +2,7 @@
 # Checks every program under data/extra/ with the AIL compiler: `ail check`, `ail run` against NAME.out, `ail test`.
 # Run on the Mac from the repository root:   tools/check_extra/run.sh [PATH_TO_AIL_CHECKOUT]
 # Writes data/extra/RESULTS.txt (one line per program, then the output of each failure). Exit 1 if any fails.
-# Light work: one small program at a time. bash 3.2 compatible.
+# One program at a time unless JOBS is set. bash 3.2 compatible.
 set -u
 export AIL_FIX=0   # never let the checker rewrite training data silently
 root="$(cd "$(dirname "$0")/../.." && pwd)"
@@ -20,45 +20,51 @@ if [ -n "$want" ] && [ "$want" != "$have" ]; then
 fi
 work="$HOME/ail-train-work/check_extra"
 mkdir -p "$work"
+# JOBS=N checks N programs at once (default 1). ONLY="batch09 batch10" checks just those directories and writes
+# $work/RESULTS-partial.txt instead of data/extra/RESULTS.txt.
+jobs="${JOBS:-1}"
+only="${ONLY:-}"
 out="$root/data/extra/RESULTS.txt"
-detail="$work/detail.txt"
-: > "$detail"
+if [ -n "$only" ]; then out="$work/RESULTS-partial.txt"; fi
+res="$work/res"
+rm -rf "$res"
+mkdir -p "$res"
+list="$work/list.txt"
+: > "$list"
+for dir in "$root"/data/extra/*/*/; do
+    group="$(basename "$(dirname "$dir")")"
+    if [ -n "$only" ]; then
+        case " $only " in *" $group "*) ;; *) continue ;; esac
+    fi
+    name="$(basename "$dir")"
+    [ -f "$dir$name.ail" ] || continue
+    echo "${dir%/}" >> "$list"
+done
+tr '\n' '\0' < "$list" | xargs -0 -n 1 -P "$jobs" "$root/tools/check_extra/check_one.sh" "$ail" "$res"
 pass=0
 fail=0
+detail="$work/detail.txt"
+: > "$detail"
 {
     echo "ail commit: $(cd "$ail_root" && git rev-parse --short HEAD 2>/dev/null || echo unknown)"
     echo "checked: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
 } > "$out"
-for dir in "$root"/data/extra/*/*/; do
+while IFS= read -r dir; do
     name="$(basename "$dir")"
-    src="$dir$name.ail"
-    [ -f "$src" ] || continue
-    why=""
-    if ! "$ail" check --no-fix "$src" > "$work/check.txt" 2>&1; then
-        why="check"
-        { echo "== $name: ail check"; cat "$work/check.txt"; } >> "$detail"
-    elif ! "$ail" run "$src" > "$work/run.txt" 2> "$work/run.err"; then
-        why="run"
-        { echo "== $name: ail run"; cat "$work/run.txt" "$work/run.err"; } >> "$detail"
-    elif ! diff "$dir$name.out" "$work/run.txt" > "$work/diff.txt" 2>&1; then
-        why="output"
-        { echo "== $name: output differs (< expected, > got)"; cat "$work/diff.txt"; } >> "$detail"
-    elif ! "$ail" test "$src" > "$work/test.txt" 2>&1; then
-        why="test"
-        { echo "== $name: ail test"; cat "$work/test.txt"; } >> "$detail"
-    fi
-    if [ -z "$why" ]; then
+    status="$(cat "$res/$name.status" 2>/dev/null || echo missing)"
+    if [ "$status" = "pass" ]; then
         pass=$((pass + 1))
         echo "pass $name" >> "$out"
     else
         fail=$((fail + 1))
-        echo "FAIL $name ($why)" >> "$out"
+        echo "FAIL $name ($status)" >> "$out"
+        cat "$res/$name.detail" >> "$detail" 2>/dev/null
     fi
-done
+done < "$list"
 {
     echo "total: $pass pass, $fail fail"
     echo
     cat "$detail"
 } >> "$out"
-echo "$pass pass, $fail fail; see data/extra/RESULTS.txt"
+echo "$pass pass, $fail fail; see $out"
 [ "$fail" -eq 0 ]
