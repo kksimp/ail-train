@@ -1,0 +1,31 @@
+## ROC curve: sweeps the decision threshold over a classifier's scores, recording the true and
+## false positive rates at each step, and measures the area under the curve with trapezoids.
+
+fn main()
+    scores := [0.95, 0.9, 0.82, 0.77, 0.7, 0.64, 0.55, 0.48, 0.4, 0.33, 0.25, 0.12]
+    labels := [1, 1, 0, 1, 1, 0, 1, 0, 0, 1, 0, 0]
+    mut pos := 0
+    for l in labels
+        pos += l
+    neg := labels.len() - pos
+    mut tp := 0
+    mut fp := 0
+    mut prev_x := 0.0
+    mut prev_y := 0.0
+    mut area := 0.0
+    print("threshold  TPR    FPR")
+    for i in 0..scores.len()
+        if labels[i] == 1
+            tp += 1
+        else
+            fp += 1
+        y := tp.to_float() / pos.to_float()
+        x := fp.to_float() / neg.to_float()
+        area += (x - prev_x) * (y + prev_y) / 2.0
+        prev_x = x
+        prev_y = y
+        print("{scores[i]:>9.2} {y:>6.3} {x:>6.3}")
+    print("area under curve {area:.3}")
+
+@test fn half()
+    assert_eq((1.0 - 0.0) * (1.0 + 0.0) / 2.0, 0.5)

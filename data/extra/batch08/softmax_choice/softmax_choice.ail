@@ -1,0 +1,28 @@
+## Softmax: turns raw scores into probabilities with exp(score / T) / sum; a low temperature T
+## makes the top choice dominate and a high one spreads the chances out.
+
+fn softmax(scores List[float], temp float) List[float]
+    mut top := scores[0]
+    for s in scores
+        if s > top
+            top = s
+    mut exps := List[float]()
+    for s in scores
+        z := (s - top) / temp
+        exps.push(z.exp())
+    total := exps.sum()
+    exps.map(|e| e / total)
+
+fn main()
+    names := ["pasta", "curry", "salad", "tacos"]
+    scores := [2.0, 1.5, 0.3, 1.0]
+    for temp in [0.25, 0.5, 1.0, 2.0, 10.0]
+        probs := softmax(scores, temp)
+        mut parts := List[str]()
+        for i in 0..names.len()
+            parts.push("{names[i]} {probs[i]:.3}")
+        shown := parts.join(", ")
+        print("T {temp:>5.2}: {shown}")
+
+@test fn equal()
+    assert_eq(softmax([1.0, 1.0], 1.0)[0], 0.5)

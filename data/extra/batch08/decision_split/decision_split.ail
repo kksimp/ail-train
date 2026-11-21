@@ -1,0 +1,49 @@
+## Decision split: information gain is the drop in label entropy after splitting the days by
+## one feature; the feature with the largest gain is the best first question for a decision tree.
+
+fn entropy(yes int, no int) float
+    total := (yes + no).to_float()
+    two := 2.0
+    mut h := 0.0
+    for k in [yes, no]
+        if k > 0
+            p := k.to_float() / total
+            h -= p * p.ln() / two.ln()
+    h
+
+fn main()
+    days := [("sunny", "hot", "high", "weak", "no"), ("sunny", "hot", "high", "strong", "no"), ("cloudy", "hot", "high", "weak", "yes"), ("rain", "mild", "high", "weak", "yes"), ("rain", "cool", "normal", "weak", "yes"), ("rain", "cool", "normal", "strong", "no"), ("cloudy", "cool", "normal", "strong", "yes"), ("sunny", "mild", "high", "weak", "no"), ("sunny", "cool", "normal", "weak", "yes"), ("rain", "mild", "normal", "weak", "yes"), ("sunny", "mild", "normal", "strong", "yes"), ("cloudy", "mild", "high", "strong", "yes"), ("cloudy", "hot", "normal", "weak", "yes"), ("rain", "mild", "high", "strong", "no")]
+    mut yes_all := 0
+    for d in days
+        if d.4 == "yes"
+            yes_all += 1
+    base := entropy(yes_all, days.len() - yes_all)
+    print("label entropy {base:.3}")
+    features := ["outlook", "temperature", "humidity", "wind"]
+    mut best := ""
+    mut best_gain := -1.0
+    for f in 0..4
+        mut yes := Map[str, int]()
+        mut no := Map[str, int]()
+        mut values := Set[str]()
+        for d in days
+            v := if f == 0 then d.0 elif f == 1 then d.1 elif f == 2 then d.2 else d.3
+            values.add(v)
+            if d.4 == "yes"
+                yes[v] += 1
+            else
+                no[v] += 1
+        mut rest := 0.0
+        for v in values
+            y := yes.get_or(v, 0)
+            n := no.get_or(v, 0)
+            rest += (y + n).to_float() / days.len().to_float() * entropy(y, n)
+        gain := base - rest
+        print("{features[f]:<11} gain {gain:.3}")
+        if gain > best_gain
+            best = features[f]
+            best_gain = gain
+    print("split first on {best}")
+
+@test fn even_split()
+    assert_eq(entropy(3, 3), 1.0)

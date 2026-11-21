@@ -1,0 +1,34 @@
+## Confusion matrix: compares a screening test's calls with the truth to count true and false
+## positives and negatives, then accuracy, precision, recall and F1 for two versions of the test.
+
+fn report(name str, truth List[int], calls List[int])
+    mut tp := 0
+    mut fp := 0
+    mut tn := 0
+    mut fn_count := 0
+    for i in 0..truth.len()
+        if calls[i] == 1 and truth[i] == 1
+            tp += 1
+        elif calls[i] == 1
+            fp += 1
+        elif truth[i] == 1
+            fn_count += 1
+        else
+            tn += 1
+    total := truth.len().to_float()
+    accuracy := (tp + tn).to_float() / total
+    precision := tp.to_float() / (tp + fp).to_float()
+    recall := tp.to_float() / (tp + fn_count).to_float()
+    f1 := 2.0 * precision * recall / (precision + recall)
+    print("{name}: TP {tp} FP {fp} TN {tn} FN {fn_count}")
+    print("  accuracy {accuracy:.3}, precision {precision:.3}, recall {recall:.3}, F1 {f1:.3}")
+
+fn main()
+    truth := [1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0]
+    cautious := [1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0]
+    eager := [1, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0]
+    report("cautious", truth, cautious)
+    report("eager", truth, eager)
+
+@test fn ratio()
+    assert_eq(2.0 * 0.5 * 0.5 / (0.5 + 0.5), 0.5)
