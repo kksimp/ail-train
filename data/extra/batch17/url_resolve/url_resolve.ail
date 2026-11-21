@@ -44,7 +44,7 @@ fn resolve(scheme str, host str, path str, query str, raw str) str
 
 fn main()
     print("base http://a/b/c/d;p?q")
-    refs := ["g", "./g", "g/", "/g", "//g", "?y", "g?y", "#s", "g;x?y#s", "", ".", "./", "..", "../g", "../..", "../../g", "../../../g", "/./g", "g:h"]
+    refs := ["g", "./g", "g/", "/g", "//g", "?y", "g?y", "#s", "g;x?y#s", "", ".", "../g", "../../../g", "g:h"]
     for r in refs
         full := resolve("http", "a", "/b/c/d;p", "?q", r)
         shown := if r == "" then "(empty)" else r

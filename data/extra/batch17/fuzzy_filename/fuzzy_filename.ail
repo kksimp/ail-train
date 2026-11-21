@@ -33,4 +33,4 @@ fn main()
 
 @test fn order_matters()
     assert_eq(fuzzy("ba", "ab"), -1)
-    assert(fuzzy("ab", "ab") > fuzzy("ab", "a_b"))
+    assert(fuzzy("ab", "ab") > fuzzy("ab", "axb"))

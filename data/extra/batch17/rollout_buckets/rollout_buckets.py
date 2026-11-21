@@ -5,8 +5,9 @@ def bucket(user, feature):
     return h % 100
 
 users = ["ana", "ben", "cy", "dev", "eli", "fay", "gus", "hal", "ivy", "jon", "kai", "liv"]
-for u in users:
-    print(f"{u:<4} bucket {bucket(u, 'new-checkout'):>2}")
+for i in range(0, len(users), 6):
+    cells = " ".join(f"{u}:{bucket(u, 'new-checkout')}" for u in users[i:i + 6])
+    print(f"buckets {cells}")
 before = []
 for pct in [20, 25, 50, 100]:
     on = [u for u in users if bucket(u, "new-checkout") < pct]

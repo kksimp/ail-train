@@ -17,5 +17,5 @@ for n in names:
     ext = "(none)" if parts[1] == "" else parts[1]
     kinds[ext] = kinds.get(ext, 0) + 1
     print(f"{n:<17} stem {parts[0]:<14} ext {ext}")
-for k in sorted(kinds.keys()):
-    print(f"{k:<8} {kinds[k]}")
+summary = ", ".join(f"{k} {kinds[k]}" for k in sorted(kinds.keys()))
+print(f"kinds: {summary}")

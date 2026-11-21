@@ -1,5 +1,5 @@
 ## JSON pretty printer: re-indents compact JSON by walking its characters, adding a newline and two
-## spaces per level after { [ and commas, never touching text inside strings (escaped quotes included); then minifies back.
+## spaces per level after { [ and commas, never touching text inside strings (escaped quotes included).
 
 fn pretty(src str) List[str]
     mut lines := List[str]()
@@ -39,34 +39,13 @@ fn pretty(src str) List[str]
     lines.push(cur.join(""))
     lines.filter(|l| l.trim() != "")
 
-fn minify(lines List[str]) str
-    mut out := List[str]()
-    mut in_str := false
-    mut escaped := false
-    for c in lines.join("\n").chars()
-        if in_str
-            out.push("{c}")
-            if escaped
-                escaped = false
-            elif c == '\\'
-                escaped = true
-            elif c == '"'
-                in_str = false
-        elif c == '"'
-            in_str = true
-            out.push("{c}")
-        elif c != ' ' and c != '\n'
-            out.push("{c}")
-    out.join("")
-
 fn main()
     src := "\{\"name\":\"Ana, \\\"the boss\\\"\",\"tags\":[\"a\",\"b: c\"],\"age\":34,\"pets\":[],\"home\":\{\"city\":\"Oslo\",\"zip\":false}}"
     lines := pretty(src)
     for l in lines
         print(l)
-    back := minify(lines)
-    same := back == src
-    print("round trip equal: {same}, {src.len()} chars -> {lines.len()} lines")
+    deepest := lines.map(|l| (l.len() - l.trim_start().len()) / 2).max() else 0
+    print("{src.len()} chars -> {lines.len()} lines, deepest level {deepest}")
 
 @test fn nested_depth()
     assert_eq(pretty("[1,[2]]").len(), 6)

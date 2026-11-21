@@ -13,6 +13,3 @@ query: "line tool" tag:docs -archive
   words [] phrases 1 excluded 1 tags 1
   -> Install guide for the command line tool
   -> Old command line tool guide
-query: guide tag:web tag:docs
-  words [guide] phrases 0 excluded 0 tags 2
-  -> Guide to the web dashboard

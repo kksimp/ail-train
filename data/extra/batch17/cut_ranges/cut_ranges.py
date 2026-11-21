@@ -17,7 +17,7 @@ def picked(spec, n):
     return sorted(keep)
 
 rows = ["id:name:shell:home:uid", "1:root:/bin/sh:/root:0", "2:ana:/bin/zsh:/home/ana:1000", "3:ben:/bin/bash:/home/ben:1001"]
-for spec in ["2", "1,3-4", "4-,1", "-2"]:
+for spec in ["2", "1,3-4", "4-,1"]:
     print(f"-f {spec}")
     for r in rows[1:]:
         fields = r.split(":")

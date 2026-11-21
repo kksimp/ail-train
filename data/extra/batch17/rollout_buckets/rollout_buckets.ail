@@ -7,11 +7,15 @@ fn bucket(user str, feature str) int
         h = (h * 31 + c.code()) % 4294967296
     h % 100
 
+fn tag(u str) str
+    b := bucket(u, "new-checkout")
+    "{u}:{b}"
+
 fn main()
     users := ["ana", "ben", "cy", "dev", "eli", "fay", "gus", "hal", "ivy", "jon", "kai", "liv"]
-    for u in users
-        b := bucket(u, "new-checkout")
-        print("{u:<4} bucket {b:>2}")
+    for row in users.chunks(6)
+        cells := row.map(|u| tag(u)).join(" ")
+        print("buckets {cells}")
     mut before := Set[str]()
     for pct in [20, 25, 50, 100]
         on := users.filter(|u| bucket(u, "new-checkout") < pct)

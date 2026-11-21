@@ -9,10 +9,4 @@ README.md         stem README         ext md
 scan.pdf          stem scan           ext pdf
 img.jpg           stem img            ext jpg
 .config.json      stem .config        ext json
-(none)   3
-jpg      2
-json     1
-md       1
-pdf      2
-tar.bz2  1
-tar.gz   1
+kinds: (none) 3, jpg 2, json 1, md 1, pdf 2, tar.bz2 1, tar.gz 1

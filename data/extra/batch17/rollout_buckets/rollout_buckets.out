@@ -1,15 +1,5 @@
-ana  bucket 20
-ben  bucket 15
-cy   bucket 30
-dev  bucket 45
-eli  bucket 10
-fay  bucket 46
-gus  bucket 21
-hal  bucket 55
-ivy  bucket 80
-jon  bucket 13
-kai  bucket 35
-liv  bucket 57
+buckets ana:20 ben:15 cy:30 dev:45 eli:10 fay:46
+buckets gus:21 hal:55 ivy:80 jon:13 kai:35 liv:57
  20% ->  3 users, earlier users kept: true: ben eli jon
  25% ->  5 users, earlier users kept: true: ana ben eli gus jon
  50% ->  9 users, earlier users kept: true: ana ben cy dev eli fay gus jon kai

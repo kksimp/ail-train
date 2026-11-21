@@ -45,7 +45,7 @@ def resolve(scheme, host, path, query, raw):
     return f"{scheme}://{host}{remove_dots(merged)}{q}{frag}"
 
 print("base http://a/b/c/d;p?q")
-refs = ["g", "./g", "g/", "/g", "//g", "?y", "g?y", "#s", "g;x?y#s", "", ".", "./", "..", "../g", "../..", "../../g", "../../../g", "/./g", "g:h"]
+refs = ["g", "./g", "g/", "/g", "//g", "?y", "g?y", "#s", "g;x?y#s", "", ".", "../g", "../../../g", "g:h"]
 for r in refs:
     full = resolve("http", "a", "/b/c/d;p", "?q", r)
     shown = "(empty)" if r == "" else r

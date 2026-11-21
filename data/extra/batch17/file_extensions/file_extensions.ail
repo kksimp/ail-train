@@ -21,8 +21,8 @@ fn main()
         ext := if parts[1] == "" then "(none)" else parts[1]
         kinds[ext] += 1
         print("{n:<17} stem {parts[0]:<14} ext {ext}")
-    for k in kinds.keys().sorted()
-        print("{k:<8} {kinds[k]}")
+    summary := kinds.keys().sorted().map(|k| "{k} {kinds[k]}").join(", ")
+    print("kinds: {summary}")
 
 @test fn double_ext()
     assert_eq(split_ext("a.tar.gz"), ["a", "tar.gz"])

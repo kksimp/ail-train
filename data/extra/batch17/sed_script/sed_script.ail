@@ -44,22 +44,19 @@ fn main()
     script := ["s/colour/color/g", "2d", "/TODO/s/TODO/DONE/", "3,4s/ /_/g", "s/a/A/"]
     cmds := script.map(|s| parse(s))
     text := ["the colour of a colour wheel", "line to drop", "TODO: TODO list for today", "a b c", "banana bread"]
-    for i, line in text.enumerate()
+    outer: for i, line in text.enumerate()
         mut cur := line
-        mut deleted := false
         for c in cmds
             if not applies(c, i + 1, cur)
                 continue
             if c.op == "d"
-                deleted = true
-                break
+                continue outer
             if c.global
                 cur = cur.replace(c.old, c.new)
             else
                 if at := cur.find(c.old)
                     cur = "{cur.slice(0, at)}{c.new}{cur.slice(at + c.old.len())}"
-        if not deleted
-            print(cur)
+        print(cur)
     print("({script.len()} commands, {text.len()} input lines)")
 
 @test fn range_address()

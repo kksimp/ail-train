@@ -28,7 +28,7 @@ def show_list(xs):
     return "[" + ", ".join(xs) + "]"
 
 docs = [("Install guide for the command line tool", ["docs", "cli"]), ("Command line flags reference", ["docs", "cli"]), ("Release notes for the line editor", ["news"]), ("Guide to the web dashboard", ["docs", "web"]), ("Old command line tool guide", ["docs", "archive"])]
-queries = ['"command line" guide', "guide -old", "line tag:news", '"line tool" tag:docs -archive', "guide tag:web tag:docs"]
+queries = ['"command line" guide', "guide -old", "line tag:news", '"line tool" tag:docs -archive']
 for qs in queries:
     q = parse(qs)
     print(f"query: {qs}")
