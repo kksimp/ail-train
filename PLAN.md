@@ -184,6 +184,22 @@ report in the thread and its checkboxes updated here.
   `pip install mlx-lm`, record chip, macOS, free memory and disk; download three candidate bases at 4 bits, about 1.5B, 3B and 4B (D10); tokenise 20
   corpus programs per candidate; a 50-example, 20-step LoRA smoke run per candidate recording peak memory and tok/s.
   Done when: a decision card with the measured numbers is answered (base model chosen).
+  Written 2026-11-21. Candidates are read from `PREFLIGHT_MODELS` in `config.local`; the smoke data is the 50 longest
+  `port` examples (core card + Python twin + AIL) that fit the sequence cap, so the peak is the worst case at 4096.
+  AIL 0.2.0 was tagged on 2026-11-21 (`v0.2.0`); its compiler and core card are unchanged from the pinned RC
+  `3d0c5c9`, so the pin stays and D8 is met.
+  Results (2026-11-21, M2 8 GB, mlx-lm 0.32, batch 1, rank 16, grad checkpoint, prompt masked; model names in chat only):
+
+  | System prompt, sequence | LoRA layers | ~1.5B | ~3B | ~4B |
+  |---|---|---|---|---|
+  | core card (2,867 tokens), 4096 | 8 | 5.19 GB, 64 tok/s | Metal out of memory at step 1 | out of memory at step 1 |
+  | core card, 4096 | 16 | swap +1.6 GB at step 2 (stopped) | - | - |
+  | one line (29 tokens), 2048 | 8 | 4.19 GB, 236 tok/s | 4.97 GB, 138 tok/s | swap +1.5 GB at step 2 (stopped) |
+  | one line, 2048 | 16 | 4.60 GB, 182 tok/s | 5.18 GB, 109 tok/s | - |
+
+  Inference with the core card: ~1.5B 76 tok/s, ~3B 43, ~4B 28. With the card every example is over 3,072 tokens
+  (port p90 4,142, 333 over 4,096); with the one-line prompt port p50 815, p90 1,304, 38 over 2,048, write max 1,897.
+  The card is about 80% of every example's tokens, so D9 makes a full epoch roughly 15x slower and rules out ~3B.
 - **M2 Data builder.** `tools/build_data.py` as in 5.4; Mac job against ail 0.2.0. Done when: manifest counts
   reported, every kept item passed `ail check`, and the deterministic rebuild matches.
 - **M3 Fresh eval tasks** (separate lane, must not read `data/`). 12-20 tasks in agentbench format, AIL reference
@@ -207,7 +223,7 @@ data/raw/                committed raw inputs from the AIL project (see data/raw
 data/build/              builder output (git-ignored)
 tools/extract_trials.py  pulls AIL trials out of agentbench result archives
 data/extra/              programs written for training (drills); checked on the Mac by tools/check_extra/run.sh
-tools/preflight.sh       M1 (to write)
+tools/preflight.sh       M1: measures each candidate base (tools/preflight/ holds its Python steps)
 tools/build_data.py      M2 (to write)
 tools/local_agent.py     M4 (to write)
 tools/eval_quick.py      M5 (to write)
