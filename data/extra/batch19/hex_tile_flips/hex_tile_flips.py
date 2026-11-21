@@ -19,7 +19,7 @@ def neighbours(k):
     q = k // 1000 - 100; r = k % 1000 - 100
     return [key(q + 1, r), key(q - 1, r), key(q + 1, r - 1), key(q, r - 1), key(q, r + 1), key(q - 1, r + 1)]
 
-paths = ["esenee", "wnwsw", "nwwswee", "seswneswwn", "eee", "nenene", "wwsese", "esenee", "swswne", "neenw", "sesww"]
+paths = ["esenee", "wnwsw", "nwwswee", "seswneswnw", "eee", "nenene", "wwsese", "esenee", "swswne", "neenw", "sesww"]
 black = set()
 for p in paths:
     black ^= {walk(p)}

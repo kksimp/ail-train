@@ -1,5 +1,5 @@
 ## Barter post rounds: market stalls inspect each traded item, change its worry score by their rule, and
-## pass it on by a divisibility test; busiest-two product after 20 calm rounds (/3) and 600 tense rounds (mod lcm).
+## pass it on by a divisibility test; busiest-two product after 20 calm rounds (/3, then mod) and 600 tense rounds (mod lcm).
 
 enum Op
     Plus(n int)
@@ -30,7 +30,7 @@ fn play(start List[Stall], rounds int, calm bool) int
             stalls[i].seen += held.len()
             for v in held
                 mut w := stalls[i].apply(v)
-                w = if calm then w / 3 else w % modulus
+                w = if calm then w / 3 % modulus else w % modulus
                 to := if w % stalls[i].div == 0 then stalls[i].yes else stalls[i].no
                 stalls[to].items.push(w)
     counts := stalls.map(|s| s.seen).sorted().reversed()

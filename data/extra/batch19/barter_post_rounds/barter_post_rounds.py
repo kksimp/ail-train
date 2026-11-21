@@ -19,7 +19,7 @@ def play(stalls, rounds, calm):
             st.seen += len(held)
             for v in held:
                 w = st.apply(v)
-                w = w // 3 if calm else w % modulus
+                w = w // 3 % modulus if calm else w % modulus
                 to = st.yes if w % st.div == 0 else st.no
                 stalls[to].items.append(w)
     counts = sorted([s.seen for s in stalls], reverse=True)
