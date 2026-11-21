@@ -26,7 +26,7 @@ fn check(s str) str
     "balanced, depth {deepest}"
 
 fn main()
-    for s in ["(a[b]{c})", "((()))", "([)]", "{[}", "a)b", "[[{}]", "x"]
+    for s in ["(a[b]\{c})", "((()))", "([)]", "\{[}", "a)b", "[[\{}]", "x"]
         print("{s}: {check(s)}")
 
 @test fn simple()
