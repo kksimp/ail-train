@@ -1,0 +1,16 @@
+## Inflation adjust: turns past prices into today's money using a yearly inflation index,
+## and shows which items really got cheaper or dearer.
+
+fn main()
+    index := {2015: 100.0, 2018: 105.9, 2020: 108.7, 2022: 121.7, 2024: 131.5, 2026: 136.8}
+    items := [("bread", 2015, 1.10, 1.45), ("cinema", 2018, 8.50, 11.20), ("laptop", 2020, 899.0, 749.0), ("coffee", 2022, 2.80, 3.40), ("bus", 2024, 1.75, 1.75)]
+    now := index[2026]
+    for it in items
+        name, year, old_price, today := it
+        in_today := old_price * now / index[year]
+        change := (today / in_today - 1.0) * 100.0
+        verdict := if change > 0.5 then "dearer" elif change < -0.5 then "cheaper" else "about the same"
+        print("{name}: {old_price:.2} in {year} = {in_today:.2} today vs {today:.2}, {verdict}")
+
+@test fn base()
+    assert_eq(1.0 * 100.0 / 100.0, 1.0)

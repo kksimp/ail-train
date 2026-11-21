@@ -1,0 +1,14 @@
+## Markup and margin: from cost and selling price in cents, gives markup (on cost) and margin
+## (on price), and the price needed for a target 40% margin.
+
+fn main()
+    goods := [("lamp", 2400, 3990), ("chair", 5500, 8900), ("rug", 12000, 15900), ("vase", 800, 2500)]
+    for g in goods
+        name, cost, price := g
+        markup := (price - cost) * 1000 / cost
+        margin := (price - cost) * 1000 / price
+        target := (cost * 100 + 59) / 60
+        print("{name}: markup {markup / 10}.{markup % 10}%, margin {margin / 10}.{margin % 10}%, 40% margin needs {target / 100}.{target % 100:02}")
+
+@test fn target()
+    assert_eq((600 * 100 + 59) / 60, 1000)

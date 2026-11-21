@@ -1,0 +1,16 @@
+## Break-even: units a product must sell to cover fixed costs from its price and unit cost,
+## and the profit at a forecast volume.
+
+fn main()
+    products := [("mug", 450000, 1200, 450, 900), ("tote bag", 300000, 1500, 700, 300), ("poster", 120000, 800, 150, 250), ("hoodie", 800000, 4000, 2200, 380)]
+    for p in products
+        name, fixed, price, unit_cost, forecast := p
+        margin := price - unit_cost
+        units := (fixed + margin - 1) / margin
+        profit := forecast * margin - fixed
+        sign := if profit < 0 then "-" else ""
+        amount := profit.abs()
+        print("{name}: break even at {units} units; at {forecast}: {sign}{amount / 100}.{amount % 100:02}")
+
+@test fn round_up()
+    assert_eq((450000 + 749) / 750, 600)

@@ -1,0 +1,13 @@
+## Affordability: checks loan applicants by debt-to-income ratio (monthly debts plus the new
+## payment over gross monthly income), approving at 36% or less and referring up to 43%.
+
+fn main()
+    applicants := [("Ade", 5200, 400, 1150), ("Bea", 3900, 650, 1100), ("Col", 7400, 1200, 1900), ("Dia", 2800, 150, 900), ("Eli", 6100, 300, 1450)]
+    for a in applicants
+        name, income, debts, payment := a
+        ratio := (debts + payment) * 1000 / income
+        verdict := if ratio <= 360 then "approve" elif ratio <= 430 then "refer" else "decline"
+        print("{name}: income {income}, outgoings {debts + payment}, ratio {ratio / 10}.{ratio % 10}% -> {verdict}")
+
+@test fn ratio()
+    assert_eq((400 + 1150) * 1000 / 5200, 298)

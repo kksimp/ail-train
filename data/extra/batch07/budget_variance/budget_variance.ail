@@ -1,0 +1,20 @@
+## Budget variance: compares planned and actual monthly spending by category in whole
+## pounds, flagging categories more than 10% over plan, and the overall variance.
+
+fn main()
+    lines := [("rent", 950, 950), ("food", 320, 371), ("transport", 120, 98), ("energy", 140, 162), ("fun", 100, 87), ("phone", 30, 30), ("gifts", 40, 75)]
+    mut planned := 0
+    mut actual := 0
+    for l in lines
+        name, plan, spent := l
+        planned += plan
+        actual += spent
+        diff := spent - plan
+        pct := diff * 1000 / plan
+        sign := if diff > 0 then "+" else ""
+        flag := if pct > 100 then " OVER" else ""
+        print("{name:<10} {plan:>4} {spent:>4} {sign}{diff} ({sign}{pct / 10}.{pct.abs() % 10}%){flag}")
+    print("total plan {planned}, spent {actual}, difference {actual - planned}")
+
+@test fn pct()
+    assert_eq(51 * 1000 / 320, 159)

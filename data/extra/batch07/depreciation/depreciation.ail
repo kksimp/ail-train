@@ -1,0 +1,19 @@
+## Depreciation: book value of a 12,000 van over 5 years by straight-line (to a 2,000 salvage
+## value) and by 30% declining balance, side by side in whole units.
+
+fn main()
+    cost := 12000
+    salvage := 2000
+    years := 5
+    yearly := (cost - salvage) / years
+    mut straight := cost
+    mut declining := cost
+    print("year  straight  declining")
+    for y in 1..=years
+        straight -= yearly
+        declining = declining * 70 / 100
+        print("{y:>4} {straight:>9} {declining:>10}")
+    print("straight-line charge {yearly} a year")
+
+@test fn charge()
+    assert_eq((12000 - 2000) / 5, 2000)
