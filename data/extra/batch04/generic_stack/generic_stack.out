@@ -1,0 +1,3 @@
+reversed: [5, 4, 3, 2, 1]
+text: the quick brown fox (4 undo steps)
+after two undos: the quick; next undo gives "the"

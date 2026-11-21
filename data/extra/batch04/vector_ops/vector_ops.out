@@ -1,0 +1,5 @@
+to (3, 4): step (3, 4)
+to (-2, 7): step (-5, 3)
+to (5, -1): step (7, -8)
+to (0, 0): step (-5, 1)
+travelled 36, final (0, 0), negated (-3, 4)

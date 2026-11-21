@@ -1,0 +1,26 @@
+## Inventory units: a warehouse count kept with a generic `Pair[A, B]` struct; restocks and
+## picks are applied, a pick larger than the count is refused, and low lines are flagged.
+
+struct Pair[A, B]
+    first A
+    second B
+
+fn main()
+    mut counts := Map[str, int]()
+    shelf := [Pair(first: "bolts", second: 120), Pair(first: "nuts", second: 300), Pair(first: "hinges", second: 18)]
+    for p in shelf
+        counts[p.first] = p.second
+    moves := [Pair(first: "bolts", second: -50), Pair(first: "hinges", second: -20), Pair(first: "nuts", second: -290), Pair(first: "hinges", second: 40), Pair(first: "washers", second: 500), Pair(first: "bolts", second: -60)]
+    for m in moves
+        have := counts.get(m.first) else 0
+        if have + m.second < 0
+            print("refused: pick {-m.second} {m.first}, only {have}")
+            continue
+        counts[m.first] = have + m.second
+    for k in counts.keys().sorted()
+        flag := if counts[k] < 20 then "  low" else ""
+        print("{k:<8} {counts[k]:>4}{flag}")
+
+@test fn pair_fields()
+    p := Pair(first: 1, second: "x")
+    assert_eq(p.second, "x")

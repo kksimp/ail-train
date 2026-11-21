@@ -1,0 +1,37 @@
+## Traffic states: an enum with a payload for a traffic light controller; each tick moves the
+## light on, a pedestrian button shortens green, and a fault puts it into flashing amber.
+
+enum Light
+    Red(left int)
+    Green(left int)
+    Amber(left int)
+    Flashing
+
+fn tick(l Light, button bool, fault bool) Light
+    if fault
+        return Flashing
+    match l
+        Red(n) => if n > 1 then Red(left: n - 1) else Green(left: 5)
+        Green(n) =>
+            if button and n > 2
+                return Green(left: 2)
+            if n > 1 then Green(left: n - 1) else Amber(left: 2)
+        Amber(n) => if n > 1 then Amber(left: n - 1) else Red(left: 4)
+        Flashing => Flashing
+
+fn show(l Light) str
+    match l
+        Red(n) => "red {n}"
+        Green(n) => "green {n}"
+        Amber(n) => "amber {n}"
+        Flashing => "flashing"
+
+fn main()
+    mut l := Light.Red(left: 2)
+    presses := [4]
+    for t in 1..=16
+        l = tick(l, presses.contains(t), t == 15)
+        print("t={t:>2} {show(l)}")
+
+@test fn fault_wins()
+    assert_eq(show(tick(Light.Green(left: 3), false, true)), "flashing")

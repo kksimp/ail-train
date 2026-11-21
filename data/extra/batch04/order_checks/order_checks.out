@@ -1,0 +1,4 @@
+["2x150", "1x999", "3x20"]: total 1359
+["1x100", "two x 5"]: rejected, line 2: bad quantity
+["4x25", "0x10"]: rejected, line 2: quantity must be positive
+["5"]: rejected, line 1: expected QTYxPRICE

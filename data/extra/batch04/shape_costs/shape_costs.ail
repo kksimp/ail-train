@@ -1,0 +1,46 @@
+## Shape costs: a trait for floor shapes with an area in square centimetres and a default
+## description; tiles are priced per started square metre for a mixed list of rooms.
+
+trait Floor
+    fn area(self) int
+    fn label(self) str
+        "floor"
+    fn describe(self) str
+        "{label()} of {area()} cm2"
+
+struct Rect
+    w int
+    h int
+
+struct Tri
+    base int
+    height int
+
+impl Floor for Rect
+    fn area(self) int
+        w * h
+    fn label(self) str
+        "rectangle {w}x{h}"
+
+impl Floor for Tri
+    fn area(self) int
+        base * height / 2
+
+fn tile_cost(f Floor) int
+    started_m2 := (f.area() + 9999) / 10000
+    started_m2 * 2450
+
+fn main()
+    mut floors := List[any Floor]()
+    floors.push(Rect(w: 300, h: 400))
+    floors.push(Tri(base: 200, height: 150))
+    floors.push(Rect(w: 250, h: 250))
+    mut total := 0
+    for f in floors
+        cost := tile_cost(f)
+        total += cost
+        print("{f.describe()}: {cost / 100}.{cost % 100:02}")
+    print("total {total / 100}.{total % 100:02}")
+
+@test fn triangle_area()
+    assert_eq(Tri(base: 10, height: 4).area(), 20)

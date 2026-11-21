@@ -1,0 +1,6 @@
+skipped: empty line
+skipped: no value in t=hot
+skipped: 99 is out of range
+skipped: no value in temp 7
+4 good readings: [12, 15, -4, 9], low -4, high 15
+4 bad lines
