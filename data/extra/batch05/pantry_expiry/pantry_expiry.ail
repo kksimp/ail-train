@@ -1,0 +1,19 @@
+## Pantry expiry: items with best-before day numbers are sorted by urgency on a given day,
+## grouped as expired, use soon (3 days) or fine.
+
+fn main()
+    today := 120
+    pantry := [("yogurt", 118), ("rice", 400), ("spinach", 121), ("eggs", 126), ("milk", 122), ("cheese", 140), ("bread", 119), ("tofu", 123)]
+    ordered := pantry.sorted(by: |p| (p.1, p.0))
+    mut groups := {"expired": List[str](), "use soon": List[str](), "fine": List[str]()}
+    for p in ordered
+        name, day := p
+        left := day - today
+        group := if left < 0 then "expired" elif left <= 3 then "use soon" else "fine"
+        groups.push(group, "{name}({left})")
+    for g in ["expired", "use soon", "fine"]
+        shown := groups[g].join(" ")
+        print("{g}: {shown}")
+
+@test fn order()
+    assert_eq([("b", 2), ("a", 1)].sorted(by: |p| (p.1, p.0))[0].0, "a")

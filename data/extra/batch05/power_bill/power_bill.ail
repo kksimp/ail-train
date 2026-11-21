@@ -1,0 +1,25 @@
+## Power bill: tiered electricity pricing (first 100 kWh cheap, next 200 standard, the rest
+## peak) plus a daily standing charge, for several households, in cents.
+
+fn energy_cost(kwh int) int
+    tiers := [(100, 18), (200, 26), (1000000, 34)]
+    mut left := kwh
+    mut cost := 0
+    for t in tiers
+        size, rate := t
+        used := if left < size then left else size
+        cost += used * rate
+        left -= used
+        if left == 0
+            break
+    cost
+
+fn main()
+    homes := [("flat 1", 85, 30), ("flat 2", 240, 30), ("house", 610, 31), ("cottage", 300, 28)]
+    for h in homes
+        name, kwh, days := h
+        total := energy_cost(kwh) + days * 45
+        print("{name:<8} {kwh:>4} kWh {days} days: {total / 100}.{total % 100:02}")
+
+@test fn first_tier()
+    assert_eq(energy_cost(100), 1800)

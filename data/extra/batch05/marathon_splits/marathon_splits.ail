@@ -1,0 +1,23 @@
+## Marathon splits: 5 km split times in seconds; prints each split's pace per km, the
+## running total, a negative-split verdict and the projected finish.
+
+fn hms(s int) str
+    "{s / 3600}:{s / 60 % 60:02}:{s % 60:02}"
+
+fn main()
+    splits := [1502, 1488, 1495, 1510, 1476, 1469, 1490, 1455]
+    mut total := 0
+    for i, s in splits.enumerate()
+        total += s
+        pace := s / 5
+        print("{(i + 1) * 5:>2} km: split {hms(s)}, pace {pace / 60}:{pace % 60:02}/km, total {hms(total)}")
+    first := splits[0..4].sum()
+    second := splits[4..].sum()
+    verdict := if second < first then "negative split" else "positive split"
+    print("halves {hms(first)} / {hms(second)}: {verdict}")
+    per_km := total.to_float() / 40.0
+    finish := (per_km * 42.195).round().to_int()
+    print("projected finish {hms(finish)}")
+
+@test fn fmt()
+    assert_eq(hms(3725), "1:02:05")

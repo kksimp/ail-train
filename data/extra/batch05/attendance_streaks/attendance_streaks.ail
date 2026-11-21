@@ -1,0 +1,30 @@
+## Attendance streaks: a register of present/absent marks per pupil over three weeks;
+## prints attendance percent, the longest present streak and pupils under 90%.
+
+fn longest_run(marks str) int
+    mut best := 0
+    mut run := 0
+    for c in marks.chars()
+        if c == 'P'
+            run += 1
+            if run > best
+                best = run
+        else
+            run = 0
+    best
+
+fn main()
+    register := [("Ada", "PPPPPPPAPPPPPPP"), ("Ben", "PPAPPAPPPPAPPPP"), ("Cal", "PPPPPPPPPPPPPPP"), ("Dee", "APPPPPPPPPPPPPA"), ("Eve", "PPPPAAAPPPPPPPP")]
+    mut low := List[str]()
+    for r in register
+        name, marks := r
+        present := marks.chars().filter(|c| c == 'P').len()
+        pct := present * 100 / marks.len()
+        print("{name}: {pct}% present, longest streak {longest_run(marks)}")
+        if pct < 90
+            low.push(name)
+    shown := low.join(", ")
+    print("under 90%: {shown}")
+
+@test fn run()
+    assert_eq(longest_run("PPAPPP"), 3)

@@ -1,0 +1,31 @@
+## Relay team: picks the fastest four swimmers for a medley, one per stroke, trying every
+## assignment of distinct swimmers and printing the best total time.
+
+fn main()
+    swimmers := ["Ama", "Bex", "Cho", "Dru", "Eko"]
+    strokes := ["back", "breast", "fly", "free"]
+    times := [
+        [31.2, 36.0, 30.1, 27.8],
+        [30.4, 35.1, 31.0, 28.3],
+        [32.0, 33.9, 29.5, 27.1],
+        [33.5, 34.2, 30.8, 26.9],
+        [31.0, 35.6, 29.9, 28.0],
+    ]
+    mut best := 1000.0
+    mut pick := [0, 0, 0, 0]
+    n := swimmers.len()
+    for a in 0..n
+        for b in 0..n
+            for c in 0..n
+                for d in 0..n
+                    if a != b and a != c and a != d and b != c and b != d and c != d
+                        t := times[a][0] + times[b][1] + times[c][2] + times[d][3]
+                        if t < best - 0.0001
+                            best = t
+                            pick = [a, b, c, d]
+    for i in 0..4
+        print("{strokes[i]:<7} {swimmers[pick[i]]} {times[pick[i]][i]:.1}")
+    print("total {best:.1}")
+
+@test fn distinct()
+    assert(1 != 2)
