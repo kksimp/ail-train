@@ -1,0 +1,14 @@
+## Thunder distance: the speed of sound grows with air temperature (331.3 + 0.606 T m/s);
+## counts seconds between flash and thunder to estimate how far away the storm is.
+
+fn main()
+    storms := [(3.0, 20.0), (6.5, 20.0), (12.0, 5.0), (2.0, 30.0), (9.0, -2.0)]
+    for s in storms
+        seconds, temp := s
+        speed := 331.3 + 0.606 * temp
+        km := seconds * speed / 1000.0
+        warning := if km < 3.0 then " - go inside" else ""
+        print("{seconds:.1} s at {temp:.0} C: sound {speed:.1} m/s, {km:.2} km away{warning}")
+
+@test fn cold()
+    assert_eq(331.3 + 0.606 * 0.0, 331.3)

@@ -1,0 +1,15 @@
+## Pendulums: period T = 2 pi sqrt(L / g) for several lengths on Earth and the Moon, and the
+## length needed for a clock pendulum that beats once per second (T = 2 s).
+
+fn period(length float, g float) float
+    2.0 * 3.141592653589793 * (length / g).sqrt()
+
+fn main()
+    for l in [0.25, 0.5, 1.0, 2.0, 10.0]
+        print("{l:>5.2} m: Earth {period(l, 9.81):.3} s, Moon {period(l, 1.62):.3} s")
+    pi := 3.141592653589793
+    seconds_length := 9.81 * (2.0 / (2.0 * pi)) * (2.0 / (2.0 * pi))
+    print("seconds pendulum: {seconds_length:.4} m")
+
+@test fn grows()
+    assert(period(2.0, 9.81) > period(1.0, 9.81))
