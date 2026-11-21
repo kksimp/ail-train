@@ -1,0 +1,27 @@
+## Bus fares: journeys are charged by zones crossed with a daily cap per rider; prints each
+## charge and each rider's day total.
+
+fn fare(zones int) int
+    match zones
+        1 => 180
+        2 => 240
+        3 => 310
+        _ => 380
+
+fn main()
+    cap := 690
+    trips := [("Ivy", 1), ("Joe", 3), ("Ivy", 2), ("Ivy", 1), ("Joe", 4), ("Ivy", 3), ("Kim", 2), ("Joe", 1)]
+    mut spent := Map[str, int]()
+    for t in trips
+        who, zones := t
+        before := spent.get(who) else 0
+        full := fare(zones)
+        charge := if before + full > cap then cap - before else full
+        spent[who] = before + charge
+        note := if charge < full then " (capped)" else ""
+        print("{who} {zones} zones: {charge}{note}")
+    for who in spent.keys().sorted()
+        print("{who}: {spent[who] / 100}.{spent[who] % 100:02}")
+
+@test fn top_fare()
+    assert_eq(fare(6), 380)

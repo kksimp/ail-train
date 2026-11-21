@@ -1,0 +1,18 @@
+## Two counters: customers join the shorter of two counter queues on arrival; service times
+## vary, and each customer's counter, start and finish are printed.
+
+fn main()
+    arrivals := [(0, 5), (1, 3), (2, 8), (3, 2), (4, 4), (6, 6), (7, 1), (9, 3)]
+    mut free := [0, 0]
+    for i, a in arrivals.enumerate()
+        at, service := a
+        pick := if free[0] <= free[1] then 0 else 1
+        start := if free[pick] > at then free[pick] else at
+        finish := start + service
+        free[pick] = finish
+        print("customer {i + 1} (arrives {at}): counter {pick + 1}, {start}-{finish}")
+    last := if free[0] > free[1] then free[0] else free[1]
+    print("all served by {last}")
+
+@test fn pick()
+    assert_eq([0, 0].len(), 2)

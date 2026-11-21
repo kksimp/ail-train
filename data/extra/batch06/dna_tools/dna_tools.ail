@@ -1,0 +1,33 @@
+## DNA tools: GC content, reverse complement, and codon translation of a short DNA string
+## up to the first stop codon, using a small codon table.
+
+fn complement(c char) char
+    match c
+        'A' => 'T'
+        'T' => 'A'
+        'G' => 'C'
+        _ => 'G'
+
+fn main()
+    dna := "ATGGCCATTGTAATGGGCCGCTGAAAGGGTGCCCGATAG"
+    cs := dna.chars()
+    gc := cs.filter(|c| c == 'G' or c == 'C').len()
+    pct := gc.to_float() * 100.0 / cs.len().to_float()
+    print("length {cs.len()}, GC {pct:.1}%")
+    rc := cs.reversed().map(complement)
+    rc_text := rc.join("")
+    print("reverse complement: {rc_text}")
+    table := {"ATG": "M", "GCC": "A", "ATT": "I", "GTA": "V", "GGC": "G", "CGC": "R", "TGA": "*", "AAG": "K", "GGT": "G", "TAG": "*"}
+    mut protein := ""
+    mut i := 0
+    while i + 3 <= cs.len()
+        codon := dna.slice(i, i + 3)
+        aa := table.get(codon) else "?"
+        if aa == "*"
+            break
+        protein = "{protein}{aa}"
+        i += 3
+    print("protein: {protein} ({protein.len()} residues)")
+
+@test fn comp()
+    assert_eq(complement('A'), 'T')

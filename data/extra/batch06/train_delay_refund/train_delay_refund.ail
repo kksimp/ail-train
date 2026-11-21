@@ -1,0 +1,26 @@
+## Delay refunds: train journeys with ticket prices and delays get refunds by band (25% for
+## 15-29 min, 50% for 30-59, 100% for an hour or more), totalled per passenger.
+
+fn refund_pct(delay int) int
+    if delay >= 60
+        return 100
+    if delay >= 30
+        return 50
+    if delay >= 15
+        return 25
+    0
+
+fn main()
+    journeys := [("Uma", 2450, 12), ("Vic", 3800, 35), ("Uma", 1990, 61), ("Wes", 5600, 15), ("Vic", 1200, 29), ("Wes", 2200, 5)]
+    mut back := Map[str, int]()
+    for j in journeys
+        who, price, delay := j
+        pct := refund_pct(delay)
+        amount := price * pct / 100
+        back[who] += amount
+        print("{who}: {delay} min late, {pct}% of {price / 100}.{price % 100:02} = {amount / 100}.{amount % 100:02}")
+    for who in back.keys().sorted()
+        print("{who} total {back[who] / 100}.{back[who] % 100:02}")
+
+@test fn bands()
+    assert_eq(refund_pct(30), 50)

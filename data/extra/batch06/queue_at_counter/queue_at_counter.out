@@ -1,0 +1,9 @@
+customer 1 (arrives 0): counter 1, 0-5
+customer 2 (arrives 1): counter 2, 1-4
+customer 3 (arrives 2): counter 2, 4-12
+customer 4 (arrives 3): counter 1, 5-7
+customer 5 (arrives 4): counter 1, 7-11
+customer 6 (arrives 6): counter 1, 11-17
+customer 7 (arrives 7): counter 2, 12-13
+customer 8 (arrives 9): counter 2, 13-16
+all served by 17
