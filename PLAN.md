@@ -200,7 +200,12 @@ report in the thread and its checkboxes updated here.
   Inference with the core card: ~1.5B 76 tok/s, ~3B 43, ~4B 28. With the card every example is over 3,072 tokens
   (port p90 4,142, 333 over 4,096); with the one-line prompt port p50 815, p90 1,304, 38 over 2,048, write max 1,897.
   The card is about 80% of every example's tokens, so D9 makes a full epoch roughly 15x slower and rules out ~3B.
-- **M2 Data builder.** `tools/build_data.py` as in 5.4; Mac job against ail 0.2.0. Done when: manifest counts
+- **M2 Data builder.** First build 2026-11-21 (one-line system prompt, cap 2048, tokens measured): train 8,122 items,
+  5.62M tokens (write 1.89M, port 2.36M, complete 1.24M, fix 53k, change 56k, explain 17k); valid 406; quick-eval 119
+  (32 corpus programs, 28 mistakes). Deterministic rebuild matched. Gaps: fix is ~1% of tokens against a 25% target
+  (only 3 drafts sit close enough to a correct final), change is one task. A later build should add fix items made by
+  injecting the drafts' known mistakes into checked programs.
+- **M2 (plan).** `tools/build_data.py` as in 5.4; Mac job against ail 0.2.0. Done when: manifest counts
   reported, every kept item passed `ail check`, and the deterministic rebuild matches.
 - **M3 Fresh eval tasks** (separate lane, must not read `data/`). 12-20 tasks in agentbench format, AIL reference
   solutions validated with `agentbench.py validate` on the Mac, sealed in `~/ail-heldout/train-eval/`. Can run in
@@ -224,7 +229,7 @@ data/build/              builder output (git-ignored)
 tools/extract_trials.py  pulls AIL trials out of agentbench result archives
 data/extra/              programs written for training (drills); checked on the Mac by tools/check_extra/run.sh
 tools/preflight.sh       M1: measures each candidate base (tools/preflight/ holds its Python steps)
-tools/build_data.py      M2 (to write)
+tools/build_data.py      M2: the data builder; tools/build_data.sh runs it on the Mac twice and compares
 tools/local_agent.py     M4 (to write)
 tools/eval_quick.py      M5 (to write)
 config.local             untracked: base model id, paths (D6)
