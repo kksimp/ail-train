@@ -1,0 +1,40 @@
+## URL parts: splits simple URLs into scheme, host, port, path and query by hand, filling in
+## the default port for http and https and reporting URLs with no scheme.
+
+struct Url
+    scheme str
+    host str
+    port int
+    path str
+    query str
+
+fn parse_url(text str) Url?
+    i := text.find("://") else return none
+    scheme := text.slice(0, i)
+    rest := text.slice(i + 3)
+    slash := rest.find("/") else rest.len()
+    authority := rest.slice(0, slash)
+    mut tail := rest.slice(slash)
+    mut query := ""
+    if q := tail.find("?")
+        query = tail.slice(q + 1)
+        tail = tail.slice(0, q)
+    path := if tail == "" then "/" else tail
+    default_port := if scheme == "https" then 443 else 80
+    mut host := authority
+    mut port := default_port
+    if c := authority.find(":")
+        host = authority.slice(0, c)
+        port = authority.slice(c + 1).to_int() else return none
+    Url(scheme: scheme, host: host, port: port, path: path, query: query)
+
+fn main()
+    for t in ["https://example.org/docs/intro?lang=en", "http://localhost:8080", "https://shop.test:8443/cart", "ftp://files.test/pub/", "example.org/no-scheme", "http://bad:port/x"]
+        if u := parse_url(t)
+            print("{u.scheme} | {u.host} | {u.port} | {u.path} | {u.query}")
+        else
+            print("cannot parse {t}")
+
+@test fn default_port()
+    u := parse_url("https://a.b") else Url(scheme: "", host: "", port: 0, path: "", query: "")
+    assert_eq(u.port, 443)

@@ -1,0 +1,39 @@
+## Version order: compares dotted version numbers part by part as integers (so 1.10 comes
+## after 1.9), treating missing parts as zero, and sorts a list of releases.
+
+fn parts(v str) List[int]
+    v.split(".").map(|p| p.to_int() else 0)
+
+fn compare(a str, b str) int
+    pa := parts(a)
+    pb := parts(b)
+    n := pa.len().max(pb.len())
+    for i in 0..n
+        x := if i < pa.len() then pa[i] else 0
+        y := if i < pb.len() then pb[i] else 0
+        if x != y
+            return if x < y then -1 else 1
+    0
+
+fn sign_of(c int) str
+    if c < 0
+        return "<"
+    if c > 0
+        return ">"
+    "="
+
+fn key(v str) int
+    mut p := parts(v)
+    while p.len() < 4
+        p.push(0)
+    ((p[0] * 1000 + p[1]) * 1000 + p[2]) * 1000 + p[3]
+
+fn main()
+    for pair in [("1.9", "1.10"), ("2.0", "2"), ("0.2.0", "0.10"), ("3.1.4", "3.1.3")]
+        a, b := pair
+        print("{a} {sign_of(compare(a, b))} {b}")
+    releases := ["1.10.0", "1.2", "1.9.3", "0.9", "1.2.10", "1.2.2", "2.0.0"]
+    print(releases.sorted(by: |v| key(v)).join(" "))
+
+@test fn missing_parts_are_zero()
+    assert_eq(compare("1.0.0", "1"), 0)

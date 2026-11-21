@@ -1,0 +1,8 @@
+line 8: cannot read "broken line"
+line 10: cannot read "=novalue"
+HOST=[localhost]
+PORT=[5432]
+NAME=[my app]
+GREETING=[hi there]
+DB_HOST=[localhost]
+MISSING=[]

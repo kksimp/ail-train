@@ -1,0 +1,29 @@
+## Unit converter: converts lengths between units through metres using a table of factors,
+## prints results to three decimals, and reports unknown units.
+
+fn factor(unit str) float?
+    match unit
+        "mm" => 0.001
+        "cm" => 0.01
+        "m" => 1.0
+        "km" => 1000.0
+        "in" => 0.0254
+        "ft" => 0.3048
+        "mi" => 1609.344
+        _ => none
+
+fn convert(value float, from str, to str) float?
+    a := factor(from)?
+    b := factor(to)?
+    value * a / b
+
+fn main()
+    for q in [(5.0, "km", "mi"), (12.0, "in", "cm"), (6.0, "ft", "m"), (1.0, "mi", "ft"), (3.0, "yd", "m"), (250.0, "mm", "in")]
+        v, from, to := q
+        if r := convert(v, from, to)
+            print("{v} {from} = {r:.3} {to}")
+        else
+            print("{v} {from}: cannot convert to {to}")
+
+@test fn same_unit()
+    assert_eq(convert(2.5, "m", "m") else 0.0, 2.5)

@@ -1,0 +1,48 @@
+## Cron minutes: expands the minute field of a cron line ("*", "*/15", "5,20", "10-14",
+## "0-30/10") into the list of matching minutes, rejecting values outside 0 to 59.
+
+fn expand_part(p str) List[int]?
+    mut step := 1
+    mut body := p
+    if slash := p.find("/")
+        step = p.slice(slash + 1).to_int() else return none
+        body = p.slice(0, slash)
+    mut lo := 0
+    mut hi := 59
+    if body != "*"
+        if dash := body.find("-")
+            lo = body.slice(0, dash).to_int() else return none
+            hi = body.slice(dash + 1).to_int() else return none
+        else
+            lo = body.to_int() else return none
+            hi = if step > 1 then 59 else lo
+    if lo < 0 or hi > 59 or lo > hi or step < 1
+        return none
+    mut out := List[int]()
+    mut m := lo
+    while m <= hi
+        out.push(m)
+        m += step
+    out
+
+fn expand(field str) List[int]?
+    mut all_minutes := Set[int]()
+    for part in field.split(",")
+        got := expand_part(part)?
+        for m in got
+            all_minutes.add(m)
+    mut out := List[int]()
+    for m in 0..60
+        if all_minutes.contains(m)
+            out.push(m)
+    out
+
+fn main()
+    for f in ["*/15", "5,20,35", "10-14", "0-30/10", "45,0-5/2", "61", "*/0", "a-b"]
+        if ms := expand(f)
+            print("{f:<9} {ms.len():>2}: {ms.take(8)}")
+        else
+            print("{f:<9} invalid")
+
+@test fn single()
+    assert_eq(expand("7") else List[int](), [7])

@@ -1,0 +1,22 @@
+## Slug maker: turns titles into URL slugs: lower case, letters and digits kept, every run
+## of other characters becomes one hyphen, and no hyphen at either end.
+
+fn slug(title str) str
+    mut out := ""
+    mut pending := false
+    for c in title.to_lower().chars()
+        if c.is_alnum()
+            if pending and out != ""
+                out = "{out}-"
+            pending = false
+            out = "{out}{c}"
+        else
+            pending = true
+    out
+
+fn main()
+    for t in ["Hello, World!", "  AIL 0.2: What's new?  ", "C++ & Rust -- a comparison", "100% Pure", "---", "Already-a-slug"]
+        print("\"{t}\" -> \"{slug(t)}\"")
+
+@test fn collapses_runs()
+    assert_eq(slug("a  ,  b"), "a-b")
