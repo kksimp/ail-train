@@ -1,0 +1,6 @@
+market   50 with 10+ days left: L1 x40, L4 x10
+hospital 45 with 30+ days left: L2 x25, L3 x20
+export   40 with 60+ days left: L5 x40
+market   30 with 10+ days left: L4 x20, L3 x10
+export   20 with 60+ days left: L5 x10, short 10
+left: L3:30

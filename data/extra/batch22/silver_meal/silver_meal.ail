@@ -1,0 +1,43 @@
+## Silver-Meal lot sizing: a batch keeps covering one more period while that lowers the average cost per period
+## (setup plus holding, over the periods covered); compared with a batch every period and every second period.
+
+fn lot_cost(demand List[int], from int, upto int, setup int, hold int) int
+    mut c := setup
+    for k in from..=upto
+        c += (k - from) * hold * demand[k]
+    c
+
+fn fixed_cost(demand List[int], every int, setup int, hold int) int
+    mut total := 0
+    mut i := 0
+    while i < demand.len()
+        last := (i + every - 1).min(demand.len() - 1)
+        total += lot_cost(demand, i, last, setup, hold)
+        i += every
+    total
+
+fn main()
+    demand := [40, 70, 20, 60, 80, 30, 50]
+    setup := 120
+    hold := 2
+    mut i := 0
+    mut total := 0
+    while i < demand.len()
+        mut end := i
+        while end + 1 < demand.len()
+            now := lot_cost(demand, i, end, setup, hold)
+            more := lot_cost(demand, i, end + 1, setup, hold)
+            periods := end - i + 1
+            if more * periods < now * (periods + 1)
+                end += 1
+            else
+                break
+        c := lot_cost(demand, i, end, setup, hold)
+        q := demand[i..(end + 1)].sum()
+        print("period {i + 1}: make {q} for periods {i + 1}-{end + 1}, cost {c}")
+        total += c
+        i = end + 1
+    print("Silver-Meal {total}, every period {fixed_cost(demand, 1, setup, hold)}, every second period {fixed_cost(demand, 2, setup, hold)}")
+
+@test fn holding_grows()
+    assert_eq(lot_cost([10, 10, 10], 0, 2, 100, 1), 130)

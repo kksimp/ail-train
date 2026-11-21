@@ -1,0 +1,39 @@
+## Clearance markdowns: 120 coats start at 80; each week max(0, 50 - price / 2) sell at the shelf price and
+## the price is then cut by a fixed percentage; after 8 weeks the rest go to a jobber at 10 each.
+
+struct Outcome
+    revenue int
+    left int
+    weeks int
+
+fn weekly_demand(price int) int
+    (50 - price / 2).max(0)
+
+fn clear(qty int, start int, cut int) Outcome
+    mut left := qty
+    mut price := start
+    mut revenue := 0
+    mut week := 0
+    while week < 8 and left > 0
+        sold := weekly_demand(price).min(left)
+        revenue += sold * price
+        left -= sold
+        price = price * (100 - cut) / 100
+        week += 1
+    Outcome(revenue: revenue + left * 10, left: left, weeks: week)
+
+fn main()
+    mut price := 80
+    mut left := 120
+    for week in 1..=4
+        sold := weekly_demand(price).min(left)
+        left -= sold
+        print("week {week}: price {price}, sold {sold}, left {left}")
+        price = price * 80 / 100
+    for cut in [0, 10, 20, 30]
+        o := clear(120, 80, cut)
+        print("cut {cut:>2}% a week: revenue {o.revenue} after {o.weeks} weeks, {o.left} to the jobber")
+
+@test fn demand_line()
+    assert_eq(weekly_demand(80), 10)
+    assert_eq(weekly_demand(120), 0)

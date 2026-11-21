@@ -1,0 +1,28 @@
+## Rebalancing bands: a portfolio aims for 60% equity, 25% bonds, 10% property and 5% cash; nothing is traded
+## until some holding drifts more than 5 points from its target, then every holding is traded back to target.
+
+fn check(names List[str], values List[int], targets List[int])
+    total := values.fold(0, |a, v| a + v)
+    mut worst := 0
+    for i in 0..values.len()
+        drift := (values[i] * 1000 / total - targets[i] * 10).abs()
+        worst = worst.max(drift)
+    print("total {total}, largest drift {worst / 10}.{worst % 10} points")
+    if worst <= 50
+        print("  inside the band: no trades")
+        return
+    for i in 0..values.len()
+        goal := total * targets[i] / 100
+        trade := goal - values[i]
+        verb := if trade > 0 then "buy" else "sell"
+        print("  {names[i]:<8} {values[i]:>6} -> {goal:>6}: {verb} {trade.abs()}")
+
+fn main()
+    names := ["equity", "bonds", "property", "cash"]
+    targets := [60, 25, 10, 5]
+    check(names, [61000, 24000, 10500, 4500], targets)
+    check(names, [72000, 20000, 9000, 4000], targets)
+    check(names, [55000, 31000, 9500, 4500], targets)
+
+@test fn targets_whole()
+    assert_eq([60, 25, 10, 5].fold(0, |a, t| a + t), 100)

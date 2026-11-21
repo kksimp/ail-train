@@ -1,0 +1,37 @@
+## Min-max review: each evening the inventory position (on hand plus on order) is checked; at or below the minimum
+## of 20 an order brings it up to 60, arriving two days later; demand that cannot be met that day is lost.
+
+fn order_qty(position int, top int) int
+    top - position
+
+fn main()
+    demand := [8, 12, 5, 9, 14, 7, 10, 6, 11, 13, 4, 9, 15, 8, 6, 12, 10, 7, 9, 11]
+    mut on_hand := 40
+    mut arrivals := Map[int, int]()
+    mut lost := 0
+    mut held := 0
+    mut orders := 0
+    for day in 1..=demand.len()
+        got := arrivals.get_or(day, 0)
+        if got > 0
+            on_hand += got
+            arrivals.remove(day)
+            print("day {day:>2}: received {got}")
+        d := demand[day - 1]
+        served := d.min(on_hand)
+        on_hand -= served
+        lost += d - served
+        mut on_order := 0
+        for k, v in arrivals
+            on_order += v
+        position := on_hand + on_order
+        if position <= 20
+            q := order_qty(position, 60)
+            arrivals[day + 2] = q
+            orders += 1
+            print("day {day:>2}: on hand {on_hand}, ordered {q}")
+        held += on_hand
+    print("{orders} orders, {lost} units lost, average on hand {held / demand.len()}")
+
+@test fn up_to_level()
+    assert_eq(order_qty(15, 60), 45)

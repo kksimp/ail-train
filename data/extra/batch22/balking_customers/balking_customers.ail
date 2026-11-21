@@ -1,0 +1,28 @@
+## Balking customers: one clerk serves in arrival order, but each arriving customer counts the people already
+## there (in service or waiting) and walks away if more than they will accept; served and lost customers are listed.
+
+struct Customer
+    name str
+    arrive int
+    service int
+    accept int
+
+fn main()
+    people := [Customer(name: "Ann", arrive: 0, service: 5, accept: 3), Customer(name: "Ben", arrive: 1, service: 4, accept: 2), Customer(name: "Cal", arrive: 2, service: 6, accept: 1), Customer(name: "Dee", arrive: 3, service: 3, accept: 3), Customer(name: "Eve", arrive: 4, service: 2, accept: 2), Customer(name: "Fay", arrive: 9, service: 4, accept: 1), Customer(name: "Gus", arrive: 10, service: 3, accept: 4), Customer(name: "Hal", arrive: 12, service: 5, accept: 0), Customer(name: "Ivy", arrive: 24, service: 2, accept: 0)]
+    mut finishes := List[int]()
+    mut free := 0
+    mut lost := 0
+    for c in people
+        ahead := finishes.count(|f| f > c.arrive)
+        if ahead > c.accept
+            lost += 1
+            print("{c.name} at {c.arrive:>2}: {ahead} ahead, walks away")
+            continue
+        start := c.arrive.max(free)
+        free = start + c.service
+        finishes.push(free)
+        print("{c.name} at {c.arrive:>2}: {ahead} ahead, served {start:>2}-{free:>2}")
+    print("served {finishes.len()}, lost {lost}, clerk done at {free}")
+
+@test fn counting_ahead()
+    assert_eq([5, 9, 12].count(|f| f > 6), 2)

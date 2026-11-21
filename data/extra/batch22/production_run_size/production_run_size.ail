@@ -1,0 +1,27 @@
+## Production run size: when a batch is made at rate P while used at rate D, inventory builds only at P - D, so the best
+## run is Q = sqrt(2 D S / (H (1 - D / P))), larger than the plain order quantity; costs over a 250-day year.
+
+struct Product
+    name str
+    demand float
+    rate float
+    setup float
+    hold float
+
+fn run_size(p Product) float
+    p.demand * 2.0 * p.setup / (p.hold * (1.0 - p.demand / p.rate))
+
+fn main()
+    products := [Product(name: "bolts", demand: 12000.0, rate: 48000.0, setup: 200.0, hold: 3.0), Product(name: "gears", demand: 5000.0, rate: 8000.0, setup: 450.0, hold: 6.0), Product(name: "shafts", demand: 2400.0, rate: 30000.0, setup: 300.0, hold: 10.0)]
+    for p in products
+        q := run_size(p).sqrt()
+        plain := (2.0 * p.demand * p.setup / p.hold).sqrt()
+        peak := q * (1.0 - p.demand / p.rate)
+        run_days := q / p.rate * 250.0
+        cycle_days := q / p.demand * 250.0
+        cost := p.demand / q * p.setup + p.hold * peak / 2.0
+        print("{p.name:<6} run {q:.1} (plain {plain:.1}), peak {peak:.1}, makes for {run_days:.1} of every {cycle_days:.1} days, cost {cost:.2} a year")
+
+@test fn slow_use_matches_plain()
+    p := Product(name: "t", demand: 100.0, rate: 1000000000.0, setup: 2.0, hold: 1.0)
+    assert((run_size(p).sqrt() - 20.0).abs() < 0.001)

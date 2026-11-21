@@ -1,0 +1,30 @@
+## Final salary pension: the yearly pension is service years / 60 of the best three consecutive years'
+## average salary, cut by 4% for each year retired before 65; at 65 a quarter can be swapped for 12 times its value in cash.
+
+fn best_three(pay List[int]) int
+    mut best := 0
+    for w in pay.windows(3)
+        s := w[0] + w[1] + w[2]
+        if s > best
+            best = s
+    best / 3
+
+fn pension(avg int, service int, age int) int
+    full := service * avg / 60
+    full * (100 - 4 * (65 - age)) / 100
+
+fn main()
+    salaries := [41000, 42500, 44000, 47000, 46000, 48500, 50000, 49000, 51500, 50500]
+    avg := best_three(salaries)
+    print("best three-year average {avg}")
+    for age in 60..=65
+        service := age - 33
+        p := pension(avg, service, age)
+        print("retire at {age}: {service} years, pension {p} a year")
+    p65 := pension(avg, 32, 65)
+    given := p65 / 4
+    print("at 65: keep {p65 - given} a year and take {given * 12} as cash")
+
+@test fn best_window()
+    assert_eq(best_three([1, 5, 5, 5, 1]), 5)
+    assert_eq(pension(60000, 30, 65), 30000)

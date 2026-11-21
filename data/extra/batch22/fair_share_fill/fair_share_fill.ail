@@ -1,0 +1,47 @@
+## Fair share fill: when 100 units must cover store orders totalling more, each round offers every unserved store
+## an equal share, stores asking less take only what they asked, and the rest is shared again (max-min fairness).
+
+fn fair(demand List[int], supply int) List[int]
+    n := demand.len()
+    mut got := List[int]()
+    mut done := List[bool]()
+    for k in 0..n
+        got.push(0)
+        done.push(false)
+    mut left := supply
+    mut active := n
+    while active > 0
+        share := left / active
+        mut settled := 0
+        for i in 0..n
+            if not done[i] and demand[i] <= share
+                got[i] = demand[i]
+                left -= demand[i]
+                done[i] = true
+                settled += 1
+        if settled == 0
+            mut extra := left % active
+            for i in 0..n
+                if not done[i]
+                    got[i] = share
+                    if extra > 0
+                        got[i] += 1
+                        extra -= 1
+            left = 0
+            active = 0
+        else
+            active -= settled
+    got
+
+fn main()
+    stores := ["north", "south", "east", "west", "centre"]
+    demand := [10, 40, 25, 60, 30]
+    shares := fair(demand, 100)
+    total := demand.fold(0, |a, d| a + d)
+    for i in 0..stores.len()
+        prop := 100 * demand[i] / total
+        print("{stores[i]:<6} asks {demand[i]:>2}: fair share {shares[i]:>2}, proportional {prop:>2}")
+    print("asked {total}, shared {shares.fold(0, |a, s| a + s)}")
+
+@test fn enough_for_all()
+    assert_eq(fair([5, 7], 100), [5, 7])

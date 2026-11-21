@@ -1,0 +1,6 @@
+station 1: A, idle 15 s
+station 2: B C, idle 5 s
+station 3: D E, idle 0 s
+station 4: F, idle 25 s
+station 5: G H, idle 15 s
+takt 60 s, work 240 s: 5 stations (at least 4), efficiency 80.0%

@@ -1,0 +1,5 @@
+lot 1: values [120, 95, 80]; second-price: bidder 1 pays 95; first-price bids [80, 63, 53]: bidder 1 pays 80
+lot 2: values [60, 150, 140, 70]; second-price: bidder 2 pays 140; first-price bids [45, 112, 105, 52]: bidder 2 pays 112
+lot 3: values [200, 90]; second-price: bidder 1 pays 90; first-price bids [100, 45]: bidder 1 pays 100
+lot 4: values [75, 85, 80, 90, 70]; second-price: bidder 4 pays 85; first-price bids [60, 68, 64, 72, 56]: bidder 4 pays 72
+revenue: second-price 410, first-price 364

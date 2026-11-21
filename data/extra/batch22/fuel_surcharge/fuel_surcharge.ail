@@ -1,0 +1,29 @@
+## Fuel surcharge: carriers add 0.5% to the line-haul charge for every full 3 cents the weekly diesel price per
+## litre stands above a base of 1.40; nothing is added at or below the base. Charges are in cents.
+
+fn surcharge_tenths(price int) int
+    if price <= 140
+        return 0
+    (price - 140) / 3 * 5
+
+fn money(c int) str
+    cents := c % 100
+    "{c / 100}.{cents:02}"
+
+fn main()
+    weeks := [(138, 125000), (146, 98000), (152, 143500), (161, 110000), (149, 87500), (171, 132000)]
+    mut haul := 0
+    mut extra := 0
+    for i, w in weeks.enumerate()
+        price, charge := w
+        t := surcharge_tenths(price)
+        add := charge * t / 1000
+        haul += charge
+        extra += add
+        print("week {i + 1}: diesel {money(price)}, surcharge {t / 10}.{t % 10}%, line haul {money(charge):>8} + {money(add):>6}")
+    print("line haul {money(haul)}, fuel surcharge {money(extra)} ({extra * 1000 / haul / 10}.{extra * 1000 / haul % 10}%)")
+
+@test fn steps()
+    assert_eq(surcharge_tenths(140), 0)
+    assert_eq(surcharge_tenths(146), 10)
+    assert_eq(surcharge_tenths(148), 10)

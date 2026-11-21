@@ -1,0 +1,8 @@
+arrivals 0.8 a minute, service 1 minute on average
+fixed        variance 0.0: waiting 1.600, wait 2.000 min, in system 2.400
+two-phase    variance 0.5: waiting 2.400, wait 3.000 min, in system 3.200
+exponential  variance 1.0: waiting 3.200, wait 4.000 min, in system 4.000
+very uneven  variance 4.0: waiting 8.000, wait 10.000 min, in system 8.800
+load 0.5: fixed 0.250 against exponential 0.500
+load 0.7: fixed 0.817 against exponential 1.633
+load 0.9: fixed 4.050 against exponential 8.100

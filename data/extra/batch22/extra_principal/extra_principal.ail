@@ -1,0 +1,36 @@
+## Extra principal: a 200,000 loan at 0.5% a month with a fixed 1,199.10 payment, paid off with and without
+## an extra amount each month; interest is charged in whole cents, rounded down, on the balance owed.
+
+struct Payoff
+    months int
+    interest int
+
+fn money(c int) str
+    cents := c % 100
+    "{c / 100}.{cents:02}"
+
+fn run(principal int, payment int, extra int) Payoff
+    mut bal := principal
+    mut months := 0
+    mut interest := 0
+    while bal > 0
+        i := bal * 5 / 1000
+        interest += i
+        bal += i
+        bal -= (payment + extra).min(bal)
+        months += 1
+    Payoff(months: months, interest: interest)
+
+fn main()
+    base := run(20000000, 119910, 0)
+    for extra in [0, 10000, 20000, 50000]
+        p := run(20000000, 119910, extra)
+        years := p.months / 12
+        rest := p.months % 12
+        saved := base.interest - p.interest
+        print("extra {money(extra):>6}: {p.months} months ({years} y {rest} m), interest {money(p.interest):>9}, saved {money(saved)}")
+
+@test fn one_month()
+    p := run(1000, 2000, 0)
+    assert_eq(p.months, 1)
+    assert_eq(p.interest, 5)

@@ -1,0 +1,40 @@
+## Bonus pool: 50,000 is shared in proportion to salary times a rating multiplier (0% to 150%), in whole
+## cents rounded down; the cents left over go to the highest-rated employee; listed largest share first.
+
+struct Staff
+    name str
+    salary int
+    rating int
+    share int
+
+fn multiplier(rating int) int
+    table := [0, 50, 100, 125, 150]
+    table[rating - 1]
+
+fn money(c int) str
+    cents := c % 100
+    "{c / 100}.{cents:02}"
+
+fn main()
+    pool := 5000000
+    mut staff := [Staff(name: "Ines", salary: 62000, rating: 4, share: 0), Staff(name: "Tom", salary: 48000, rating: 3, share: 0), Staff(name: "Wu", salary: 75000, rating: 5, share: 0), Staff(name: "Pia", salary: 54000, rating: 2, share: 0), Staff(name: "Sam", salary: 39000, rating: 3, share: 0), Staff(name: "Eve", salary: 58000, rating: 1, share: 0)]
+    weight_total := staff.fold(0, |acc, x| acc + x.salary * multiplier(x.rating))
+    mut given := 0
+    for mut s in staff
+        s.share = pool * (s.salary * multiplier(s.rating)) / weight_total
+        given += s.share
+    mut top := 0
+    for i in 0..staff.len()
+        if staff[i].rating > staff[top].rating
+            top = i
+    left := pool - given
+    staff[top].share += left
+    print("{left} cents left over go to {staff[top].name}")
+    for p in staff.sorted(by: |x| -x.share)
+        bp := p.share * 100 / p.salary
+        frac := bp % 100
+        print("{p.name:<5} rating {p.rating}: {money(p.share):>9} ({bp / 100}.{frac:02}% of salary)")
+
+@test fn middle_rating()
+    assert_eq(multiplier(3), 100)
+    assert_eq(multiplier(1), 0)

@@ -1,0 +1,6 @@
+month  4: pays 2400, balance -600
+month  7: pays 1500, balance -900
+month 10: pays 2400, balance -2100
+yearly bills 6300, cushion 1050, lowest -2100 in month 10
+shortage 3150
+new monthly deposit 788 (was 400)

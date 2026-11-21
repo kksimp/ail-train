@@ -1,0 +1,4 @@
+arrival  ABCDE: mean flow 15.4 days, mean lateness 2.2, 3 late
+shortest BDACE: mean flow 13.0 days, mean lateness 1.8, 3 late
+due date BADCE: mean flow 13.6 days, mean lateness 1.2, 2 late
+ratio    ACEBD: mean flow 19.2 days, mean lateness 6.4, 2 late

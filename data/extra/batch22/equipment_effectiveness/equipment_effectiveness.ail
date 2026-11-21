@@ -1,0 +1,36 @@
+## Equipment effectiveness (OEE): availability (run time / planned time) x performance (ideal cycle x parts / run
+## time) x quality (good parts / all parts); the weakest of the three factors shows where each machine loses time.
+
+struct Machine
+    name str
+    planned int
+    down int
+    cycle int
+    made int
+    good int
+
+fn factors(m Machine) List[float]
+    run := (m.planned - m.down).to_float()
+    a := run / m.planned.to_float()
+    p := (m.cycle * m.made).to_float() / (run * 60.0)
+    q := m.good.to_float() / m.made.to_float()
+    [a, p, q]
+
+fn main()
+    machines := [Machine(name: "press", planned: 480, down: 47, cycle: 9, made: 2400, good: 2316), Machine(name: "lathe", planned: 480, down: 88, cycle: 30, made: 700, good: 672), Machine(name: "mill", planned: 450, down: 30, cycle: 20, made: 1150, good: 1081)]
+    labels := ["availability", "performance", "quality"]
+    for m in machines
+        f := factors(m)
+        oee := f[0] * f[1] * f[2] * 100.0
+        mut weak := 0
+        for i in 1..3
+            if f[i] < f[weak]
+                weak = i
+        a := f[0] * 100.0
+        p := f[1] * 100.0
+        q := f[2] * 100.0
+        print("{m.name:<5} A {a:.1}%, P {p:.1}%, Q {q:.1}%: OEE {oee:.1}%, weakest {labels[weak]}")
+
+@test fn perfect_shift()
+    f := factors(Machine(name: "x", planned: 480, down: 0, cycle: 60, made: 480, good: 480))
+    assert_eq(f[0] * f[1] * f[2], 1.0)

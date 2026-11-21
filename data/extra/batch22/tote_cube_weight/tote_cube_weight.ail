@@ -1,0 +1,43 @@
+## Tote packing by cube and weight: items go into 50-litre totes that also hold at most 15 kg; first fit
+## decreasing is run sorted by volume and sorted by weight, and the fewer totes wins.
+
+struct Item
+    name str
+    litres int
+    tenths int
+
+struct Tote
+    names List[str]
+    litres int
+    tenths int
+
+fn pack(items List[Item]) List[Tote]
+    mut totes := List[Tote]()
+    for it in items
+        mut placed := false
+        for mut t in totes
+            if not placed and t.litres + it.litres <= 50 and t.tenths + it.tenths <= 150
+                t.names.push(it.name)
+                t.litres += it.litres
+                t.tenths += it.tenths
+                placed = true
+        if not placed
+            totes.push(Tote(names: [it.name], litres: it.litres, tenths: it.tenths))
+    totes
+
+fn main()
+    items := [Item(name: "books", litres: 12, tenths: 95), Item(name: "towels", litres: 18, tenths: 20), Item(name: "pans", litres: 15, tenths: 60), Item(name: "jars", litres: 8, tenths: 70), Item(name: "pillow", litres: 30, tenths: 10), Item(name: "lamp", litres: 14, tenths: 25), Item(name: "tins", litres: 6, tenths: 55), Item(name: "rug", litres: 25, tenths: 40), Item(name: "mugs", litres: 9, tenths: 30), Item(name: "shoes", litres: 16, tenths: 15)]
+    by_volume := pack(items.sorted(by: |i| -i.litres))
+    by_weight := pack(items.sorted(by: |i| -i.tenths))
+    print("sorted by volume: {by_volume.len()} totes")
+    for t in by_volume
+        names := t.names.join(", ")
+        print("  {names}: {t.litres} l, {t.tenths / 10}.{t.tenths % 10} kg")
+    print("sorted by weight: {by_weight.len()} totes")
+    for t in by_weight
+        names := t.names.join(", ")
+        print("  {names}: {t.litres} l, {t.tenths / 10}.{t.tenths % 10} kg")
+
+@test fn heavy_split()
+    two := [Item(name: "a", litres: 1, tenths: 100), Item(name: "b", litres: 1, tenths: 100)]
+    assert_eq(pack(two).len(), 2)

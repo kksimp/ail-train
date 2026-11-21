@@ -1,0 +1,7 @@
+join 1 and 2 (saves 8): [1, 2]
+join 3 and 4 (saves 8): [3, 4]
+join 1 and 6 (saves 4): [2, 1, 6]
+route [2, 1, 6]: load 10, length 26
+route [3, 4]: load 7, length 18
+route [5]: load 6, length 12
+total 56 against 76 for one trip per customer

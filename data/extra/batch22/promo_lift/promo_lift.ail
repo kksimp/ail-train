@@ -1,0 +1,29 @@
+## Promotion lift: a price-cut week for cola is judged by its extra units over a usual week, less the margin
+## lost on units that would have sold anyway and on the sister drink whose sales it took; prices in cents.
+
+struct Promo
+    label str
+    price int
+    units int
+    sister_units int
+
+fn main()
+    base_units := 400
+    full_price := 200
+    cost := 120
+    sister_base := 300
+    sister_margin := 70
+    usual := (full_price - cost) * base_units
+    promos := [Promo(label: "10% off", price: 180, units: 560, sister_units: 270), Promo(label: "25% off", price: 150, units: 900, sister_units: 220), Promo(label: "2 for 3.20", price: 160, units: 900, sister_units: 260)]
+    print("usual week: {base_units} units, margin {usual / 100}")
+    for p in promos
+        margin := (p.price - cost) * p.units
+        lost := (sister_base - p.sister_units) * sister_margin
+        change := margin - usual - lost
+        lift := (p.units - base_units) * 100 / base_units
+        needed := (usual + lost + p.price - cost - 1) / (p.price - cost)
+        verdict := if change >= 0 then "pays" else "loses"
+        print("{p.label:<10} lift {lift:>3}%, margin {margin / 100}, sister loss {lost / 100}, change {change / 100}: {verdict}; break-even {needed} units")
+
+@test fn usual_margin()
+    assert_eq((200 - 120) * 400, 32000)

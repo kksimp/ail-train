@@ -1,0 +1,12 @@
+arrival order, late orders only:
+  order 7 (express) done 15:30, misses the 14:30 collection
+earliest cutoff first:
+  order 2 (express) done 13:15, makes the 14:30 collection
+  order 4 (express) done 13:25, makes the 14:30 collection
+  order 7 (express) done 13:40, makes the 14:30 collection
+  order 5 (freight) done 14:00, makes the 16:00 collection
+  order 8 (freight) done 14:25, makes the 16:00 collection
+  order 1 (ground) done 14:50, makes the 17:00 collection
+  order 3 (ground) done 15:20, makes the 17:00 collection
+  order 6 (ground) done 15:55, makes the 17:00 collection
+missed: 1 in arrival order, 0 by cutoff

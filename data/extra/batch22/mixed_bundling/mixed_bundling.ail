@@ -1,0 +1,47 @@
+## Mixed bundling: four customers value a game and a film differently; selling each alone, only as a pair,
+## or both ways at once is searched over candidate prices, each customer taking the option with most surplus.
+
+fn profit(vals List[List[int]], pa int, pb int, pab int) int
+    mut total := 0
+    for v in vals
+        mut best := -1
+        mut gain := 0
+        options := [(v[0] + v[1] - pab, pab - 40), (v[0] - pa, pa - 20), (v[1] - pb, pb - 20)]
+        for o in options
+            surplus, margin := o
+            if surplus > best
+                best = surplus
+                gain = margin
+        if best >= 0
+            total += gain
+    total
+
+fn main()
+    vals := [[100, 10], [70, 50], [50, 70], [10, 100]]
+    singles := [10, 50, 70, 100, 1000]
+    pairs := [110, 120, 1000]
+    mut sep := 0
+    mut sep_price := 0
+    for p in singles
+        got := profit(vals, p, p, 1000)
+        if got > sep
+            sep = got
+            sep_price = p
+    print("separate only: price {sep_price} each, profit {sep}")
+    mut pure := 0
+    for q in pairs
+        pure = pure.max(profit(vals, 1000, 1000, q))
+    print("pair only: profit {pure}")
+    mut best := 0
+    mut plan := ""
+    for a in singles
+        for b in singles
+            for q in pairs
+                got := profit(vals, a, b, q)
+                if got > best
+                    best = got
+                    plan = "game {a}, film {b}, pair {q}"
+    print("mixed: {plan}, profit {best}")
+
+@test fn nobody_buys_at_1000()
+    assert_eq(profit([[100, 10]], 1000, 1000, 1000), 0)

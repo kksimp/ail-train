@@ -1,0 +1,6 @@
+free trade: demand 120, home supply 60, imports 60
+tariff  3: price 43, imports  48, revenue 144, consumers lose  351, producers gain  189, deadweight 18
+tariff  6: price 46, imports  36, revenue 216, consumers lose  684, producers gain  396, deadweight 72
+tariff  9: price 49, imports  24, revenue 216, consumers lose  999, producers gain  621, deadweight 162
+tariff 12: price 52, imports  12, revenue 144, consumers lose 1296, producers gain  864, deadweight 288
+tariff 15: price 55, imports   0, revenue   0, consumers lose 1575, producers gain 1125, deadweight 450

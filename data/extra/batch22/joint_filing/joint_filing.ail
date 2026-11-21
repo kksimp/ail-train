@@ -1,0 +1,31 @@
+## Joint filing: a couple's tax filed separately on single brackets and together on joint brackets, which
+## are twice as wide except the top one; one-earner couples gain, two high earners pay a marriage penalty.
+
+fn tax(income int, limits List[int]) int
+    rates := [10, 12, 22, 24, 32]
+    mut owed := 0
+    mut lower := 0
+    for i in 0..4
+        top := limits[i]
+        if income > lower
+            owed += (income.min(top) - lower) * rates[i] / 100
+        lower = top
+    if income > lower
+        owed += (income - lower) * rates[4] / 100
+    owed
+
+fn main()
+    single := [11000, 44725, 95375, 182100]
+    joint := [22000, 89450, 190750, 300000]
+    couples := [(64725, 64725), (120000, 0), (90000, 30000), (200000, 190000)]
+    for c in couples
+        a, b := c
+        apart := tax(a, single) + tax(b, single)
+        together := tax(a + b, joint)
+        diff := apart - together
+        loss := 0 - diff
+        verdict := if diff > 0 then "bonus {diff}" elif diff < 0 then "penalty {loss}" else "no difference"
+        print("{a:>6} + {b:>6}: separate {apart:>6}, joint {together:>6}, {verdict}")
+
+@test fn first_band()
+    assert_eq(tax(11000, [11000, 44725, 95375, 182100]), 1100)

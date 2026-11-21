@@ -1,0 +1,32 @@
+## Moving-average crossover: a 3-day average crossing above a 6-day average signals buy and crossing below
+## signals sell; 2 x the 3-day sum is compared with the 6-day sum, so no fractions are needed.
+
+fn window_sum(xs List[int], end int, n int) int
+    mut s := 0
+    for i in (end - n + 1)..=end
+        s += xs[i]
+    s
+
+fn main()
+    prices := [50, 51, 53, 52, 54, 56, 55, 53, 50, 48, 47, 49, 52, 55, 57, 60, 62, 61, 58, 55, 52, 54, 57, 59]
+    mut state := 0
+    mut holding := -1
+    mut profit := 0
+    for day in 5..prices.len()
+        gap := 2 * window_sum(prices, day, 3) - window_sum(prices, day, 6)
+        now := if gap > 0 then 1 elif gap < 0 then -1 else state
+        if now != state and state != 0
+            if now == 1
+                holding = prices[day]
+                print("day {day + 1}: buy at {prices[day]}")
+            elif holding >= 0
+                profit += prices[day] - holding
+                print("day {day + 1}: sell at {prices[day]} (made {prices[day] - holding})")
+                holding = -1
+            else
+                print("day {day + 1}: sell signal, nothing held")
+        state = now
+    print("total made {profit}")
+
+@test fn sums()
+    assert_eq(window_sum([1, 2, 3, 4], 3, 3), 9)

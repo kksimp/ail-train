@@ -1,0 +1,13 @@
+order 1-2-3-4:
+  stop 1: arrive 08:20, window 08:30-09:30, waits
+  stop 2: arrive 08:50, window 09:00-10:00, waits
+  stop 3: arrive 09:30, window 08:00-09:00, late
+  stop 4: arrive 10:08, window 10:00-11:00, on time
+  back at depot 10:48, 1 late
+order 3-1-2-4:
+  stop 3: arrive 08:15, window 08:00-09:00, on time
+  stop 1: arrive 08:43, window 08:30-09:30, on time
+  stop 2: arrive 09:03, window 09:00-10:00, on time
+  stop 4: arrive 09:28, window 10:00-11:00, waits
+  back at depot 10:40, 0 late
+use 3-1-2-4

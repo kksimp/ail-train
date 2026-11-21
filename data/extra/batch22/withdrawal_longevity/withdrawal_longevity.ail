@@ -1,0 +1,26 @@
+## Withdrawal longevity: a 500,000 retirement pot pays a first-year withdrawal of 4% to 7% of the start, raised
+## 3% a year for prices, while a repeating run of yearly returns grows what is left; how many years it lasts.
+
+fn years_lasting(start int, pct int, returns List[int]) int
+    mut bal := start
+    mut w := start * pct / 100
+    mut year := 0
+    while year < 40 and bal >= w
+        r := returns[year % returns.len()]
+        bal = (bal - w) * (100 + r) / 100
+        w = w * 103 / 100
+        year += 1
+    year
+
+fn main()
+    returns := [7, -12, 15, 4, -3, 9, 11, -8, 6, 2, 13, -5]
+    for pct in [4, 5, 6, 7]
+        n := years_lasting(500000, pct, returns)
+        note := if n == 40 then "40 years or more" else "{n} years"
+        print("withdraw {pct}% ({500000 * pct / 100} in year 1): lasts {note}")
+    bad := [-12, -3, -8, -5, 7, 15, 4, 9, 11, 6, 2, 13]
+    n := years_lasting(500000, 5, bad)
+    print("5% with the bad years first: lasts {n} years")
+
+@test fn no_returns()
+    assert_eq(years_lasting(1000, 10, [0]), 9)

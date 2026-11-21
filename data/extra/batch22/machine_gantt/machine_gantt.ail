@@ -1,0 +1,31 @@
+## Machine Gantt chart: jobs are sorted longest first and each goes to the machine with the least work so far
+## (LPT); the plan is drawn as one row of letters per machine against the time axis, with dots for idle time.
+
+fn main()
+    jobs := [("A", 7), ("B", 5), ("C", 4), ("D", 3), ("E", 3), ("F", 2), ("G", 6)]
+    order := jobs.sorted(by: |j| -j.1)
+    mut loads := [0, 0, 0]
+    mut rows := ["", "", ""]
+    for j in order
+        name, time := j
+        mut m := 0
+        for i in 1..3
+            if loads[i] < loads[m]
+                m = i
+        bar := name.repeat(time)
+        rows[m] = "{rows[m]}{bar}"
+        loads[m] += time
+    span := loads.max() else 0
+    mut ticks := List[str]()
+    for t in 0..span
+        ticks.push("{t % 10}")
+    axis := ticks.join("")
+    print("     {axis}")
+    for i in 0..3
+        pad := ".".repeat(span - loads[i])
+        print("M{i + 1}  |{rows[i]}{pad}| {loads[i]}")
+    total := jobs.fold(0, |a, j| a + j.1)
+    print("finish {span}, lower bound {(total + 2) / 3}")
+
+@test fn bars()
+    assert_eq("C".repeat(4), "CCCC")

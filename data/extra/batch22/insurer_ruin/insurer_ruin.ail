@@ -1,0 +1,28 @@
+## Insurer ruin: a fund takes 110 of premium a period and, half the time, pays a claim of 50 to 400 chosen by a
+## seeded generator; over 50 periods and 400 runs the share of runs that ever go below zero falls as capital grows.
+
+fn ruined(capital int, seed int) bool
+    sizes := [50, 100, 150, 250, 400]
+    mut x := seed
+    mut fund := capital
+    for _ in 0..50
+        fund += 110
+        x = (x * 1103515245 + 12345) % 2147483648
+        roll := (x >> 16) % 10
+        if roll >= 5
+            fund -= sizes[roll - 5]
+        if fund < 0
+            return true
+    false
+
+fn main()
+    print("expected claims 95 a period against 110 of premium")
+    for capital in [0, 100, 300, 600, 1000]
+        mut count := 0
+        for run in 0..400
+            if ruined(capital, run * 7919 + 1)
+                count += 1
+        print("start {capital:>4}: ruined in {count:>3} of 400 runs ({count * 100 / 400}%)")
+
+@test fn rich_never_ruined()
+    assert(not ruined(100000, 5))

@@ -1,0 +1,9 @@
+claim  40: insurer  40, layer 1   0, layer 2   0
+claim 130: insurer 100, layer 1  30, layer 2   0
+claim 260: insurer 100, layer 1 160, layer 2   0
+claim 450: insurer 100, layer 1 200, layer 2 150
+claim 900: insurer 200, layer 1 200, layer 2 500
+claim  75: insurer  75, layer 1   0, layer 2   0
+claim 320: insurer 100, layer 1 200, layer 2  20
+totals: insurer 715, layer 1 790, layer 2 670 of 2175
+3 claims reached the second layer

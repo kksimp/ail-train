@@ -1,0 +1,8 @@
+tote 1: lines [3, 1, 4], leaves zones at [3, 4, 8]
+tote 2: lines [2, 5, 1], leaves zones at [5, 10, 11]
+tote 3: lines [4, 2, 2], leaves zones at [9, 12, 14]
+tote 4: lines [1, 3, 5], leaves zones at [10, 15, 20]
+tote 5: lines [2, 2, 3], leaves zones at [12, 17, 23]
+zone 1: busy 12 of 23 minutes (52%)
+zone 2: busy 13 of 23 minutes (56%)
+zone 3: busy 15 of 23 minutes (65%)

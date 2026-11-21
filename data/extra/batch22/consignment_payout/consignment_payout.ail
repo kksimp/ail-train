@@ -1,0 +1,35 @@
+## Consignment payout: a shop sells goods for owners and keeps 40% of a sale under 100 or 30% from 100 up; on
+## day 90 sold items are paid out per owner, and unsold items listed more than 60 days ago go back to their owners.
+
+struct Item
+    owner str
+    name str
+    price int
+    listed int
+    sold int?
+
+fn commission(price int) int
+    if price < 100 then price * 40 / 100 else price * 30 / 100
+
+fn main()
+    today := 90
+    items := [Item(owner: "May", name: "lamp", price: 45, listed: 5, sold: 30), Item(owner: "May", name: "desk", price: 180, listed: 12, sold: 70), Item(owner: "May", name: "vase", price: 25, listed: 20, sold: none), Item(owner: "Jon", name: "coat", price: 120, listed: 40, sold: 55), Item(owner: "Jon", name: "boots", price: 60, listed: 50, sold: none), Item(owner: "Kai", name: "guitar", price: 250, listed: 2, sold: none), Item(owner: "Kai", name: "amp", price: 95, listed: 33, sold: 88)]
+    mut payout := Map[str, int]()
+    mut kept := 0
+    for it in items
+        if d := it.sold
+            cut := commission(it.price)
+            kept += cut
+            payout[it.owner] += it.price - cut
+            print("{it.name:<6} sold day {d} for {it.price}: owner {it.price - cut}, shop {cut}")
+        elif today - it.listed > 60
+            print("{it.name:<6} unsold after {today - it.listed} days: returned to {it.owner}")
+        else
+            print("{it.name:<6} on the floor")
+    for owner, amount in payout
+        print("pay {owner} {amount}")
+    print("shop keeps {kept}")
+
+@test fn bands()
+    assert_eq(commission(50), 20)
+    assert_eq(commission(100), 30)

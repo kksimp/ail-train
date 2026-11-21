@@ -1,0 +1,28 @@
+## Kanban cards: a part needs enough cards to cover demand over the refill lead time plus a safety margin,
+## cards = ceil(daily use x lead days x (1 + safety) / container size); the cards cap what can sit on the line.
+
+struct Part
+    name str
+    daily int
+    lead int
+    container int
+    safety int
+
+fn cards(daily int, lead int, safety int, container int) int
+    need := daily * lead * (100 + safety)
+    per := container * 100
+    (need + per - 1) / per
+
+fn main()
+    parts := [Part(name: "bracket", daily: 400, lead: 2, container: 50, safety: 10), Part(name: "hinge", daily: 120, lead: 3, container: 40, safety: 20), Part(name: "panel", daily: 60, lead: 5, container: 12, safety: 15), Part(name: "screw pack", daily: 900, lead: 1, container: 250, safety: 25)]
+    mut total := 0
+    for p in parts
+        n := cards(p.daily, p.lead, p.safety, p.container)
+        total += n
+        cover := n * p.container * 10 / p.daily
+        print("{p.name:<10} {n:>2} cards of {p.container:>3}: at most {n * p.container} on hand, {cover / 10}.{cover % 10} days of use")
+    print("{total} cards in the loop")
+
+@test fn rounds_up()
+    assert_eq(cards(100, 2, 10, 50), 5)
+    assert_eq(cards(100, 2, 0, 50), 4)

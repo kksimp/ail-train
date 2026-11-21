@@ -1,0 +1,7 @@
+A: sends 28, receives 22, 3 hub trucks over 40 km
+B: sends 26, receives 28, 3 hub trucks over 45 km
+C: sends 21, receives 30, 3 hub trucks over 50 km
+D: sends 27, receives 25, 3 hub trucks over 50 km
+E: sends 20, receives 17, 2 hub trucks over 55 km
+direct: 20 lanes, 20 trucks, 1500 truck-km, fill 23%
+hub: 10 lanes, 14 trucks, 665 truck-km, fill 67%

@@ -1,0 +1,30 @@
+## Call abandonment: two agents answer calls in arrival order; a caller hangs up if the wait would pass their
+## patience, so agents are never held by them; abandon rate and the share answered within 20 seconds follow.
+
+fn main()
+    calls := [(0, 60, 180), (10, 30, 240), (25, 45, 120), (40, 90, 200), (55, 20, 150), (70, 120, 90), (95, 40, 160), (130, 25, 100), (150, 200, 140), (175, 15, 110), (240, 60, 130), (300, 30, 90)]
+    mut agents := [0, 0]
+    mut answered := 0
+    mut quick := 0
+    mut gave_up := 0
+    for i, c in calls.enumerate()
+        arrive, patience, talk := c
+        a := if agents[0] <= agents[1] then 0 else 1
+        start := arrive.max(agents[a])
+        wait := start - arrive
+        if wait > patience
+            gave_up += 1
+            print("call {i + 1:>2} at {arrive:>3}s: would wait {wait}s, hangs up after {patience}s")
+            continue
+        agents[a] = start + talk
+        answered += 1
+        if wait <= 20
+            quick += 1
+        print("call {i + 1:>2} at {arrive:>3}s: agent {a + 1} answers after {wait}s")
+    n := calls.len()
+    print("answered {answered}, abandoned {gave_up} ({gave_up * 100 / n}%), within 20 s {quick * 100 / n}% of calls")
+
+@test fn first_free_agent()
+    agents := [300, 120]
+    a := if agents[0] <= agents[1] then 0 else 1
+    assert_eq(a, 1)

@@ -1,0 +1,8 @@
+week 1: price 80, sold 10, left 110
+week 2: price 64, sold 18, left 92
+week 3: price 51, sold 25, left 67
+week 4: price 40, sold 30, left 37
+cut  0% a week: revenue 6800 after 8 weeks, 40 to the jobber
+cut 10% a week: revenue 6869 after 7 weeks, 0 to the jobber
+cut 20% a week: revenue 5590 after 6 weeks, 0 to the jobber
+cut 30% a week: revenue 4600 after 5 weeks, 0 to the jobber

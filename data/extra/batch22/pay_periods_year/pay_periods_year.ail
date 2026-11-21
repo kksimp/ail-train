@@ -1,0 +1,29 @@
+## Pay periods: a payday every 14 days gives 26 paydays in most years but 27 in some; paydays are stepped
+## through calendar years with leap years, and a 52,000 salary is divided by the year's payday count.
+
+fn leap(y int) bool
+    (y % 4 == 0 and y % 100 != 0) or y % 400 == 0
+
+fn money(c int) str
+    cents := c % 100
+    "{c / 100}.{cents:02}"
+
+fn main()
+    mut day := 4
+    for y in 2024..=2033
+        length := if leap(y) then 366 else 365
+        first := day
+        mut count := 0
+        mut last := day
+        while day < length
+            count += 1
+            last = day
+            day += 14
+        day -= length
+        per := 5200000 / count
+        print("{y}: {count} paydays, days {first + 1} to {last + 1}, {money(per)} per payday")
+
+@test fn leap_rules()
+    assert(leap(2000))
+    assert(not leap(1900))
+    assert(leap(2028))

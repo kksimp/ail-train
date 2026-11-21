@@ -1,0 +1,22 @@
+## Historical value at risk: twenty daily returns in basis points are sorted; at confidence c the k = n(100 - c)/100
+## worst days are beyond the line, the next-worst loss is the VaR and the average of those k is the expected shortfall.
+
+fn main()
+    returns := [35, -120, 80, 15, -45, 210, -310, 60, -15, 95, -80, 40, -190, 120, 5, -60, 150, -25, 70, -240]
+    ordered := returns.sorted()
+    n := ordered.len()
+    position := 1000000
+    for c in [95, 90, 80]
+        k := n * (100 - c) / 100
+        var_bp := 0 - ordered[k]
+        mut tail := 0
+        for i in 0..k
+            tail += 0 - ordered[i]
+        es_bp := tail / k
+        print("{c}%: {k} days beyond, VaR {var_bp} bp = {var_bp * position / 10000}, shortfall {es_bp} bp = {es_bp * position / 10000}")
+    worst := ordered[0]
+    best := ordered[n - 1]
+    print("worst day {worst} bp, best day {best} bp")
+
+@test fn tail_size()
+    assert_eq(20 * (100 - 95) / 100, 1)

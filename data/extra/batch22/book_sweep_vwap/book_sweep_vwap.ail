@@ -1,0 +1,25 @@
+## Order book sweep: a market buy takes the cheapest sell levels in turn; the fill's volume-weighted average
+## price, and its slippage from the best ask in basis points, show how cost grows with order size.
+
+fn sweep(levels List[List[int]], qty int) int
+    mut left := qty
+    mut cost := 0
+    for lv in levels
+        take := lv[1].min(left)
+        cost += take * lv[0]
+        left -= take
+    cost
+
+fn main()
+    levels := [[10010, 300], [10015, 250], [10020, 400], [10030, 500], [10050, 800]]
+    best := levels[0][0].to_float()
+    for qty in [200, 700, 1200, 1900]
+        cost := sweep(levels, qty)
+        vwap := cost.to_float() / qty.to_float()
+        slip := (vwap - best) / best * 10000.0
+        price := vwap / 100.0
+        print("buy {qty:>4}: cost {cost / 100}, average price {price:.4}, slippage {slip:.2} bp")
+
+@test fn one_level()
+    assert_eq(sweep([[100, 10], [200, 10]], 5), 500)
+    assert_eq(sweep([[100, 10], [200, 10]], 15), 2000)

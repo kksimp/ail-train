@@ -1,0 +1,43 @@
+## Vehicle chaining: timetabled trips are taken in start order and each goes to the first bus that is free in time
+## to drive empty from where it stopped to the trip's start; a new bus is added only when none can make it.
+
+struct Trip
+    id str
+    start int
+    finish int
+    origin int
+    dest int
+
+fn clock(m int) str
+    h := m / 60
+    mm := m % 60
+    "{h:02}:{mm:02}"
+
+fn main()
+    places := ["Airport", "Bay", "City"]
+    empty := [[0, 20, 30], [20, 0, 15], [30, 15, 0]]
+    trips := [Trip(id: "T1", start: 360, finish: 430, origin: 0, dest: 1), Trip(id: "T2", start: 390, finish: 440, origin: 1, dest: 2), Trip(id: "T3", start: 450, finish: 520, origin: 1, dest: 0), Trip(id: "T4", start: 460, finish: 510, origin: 2, dest: 0), Trip(id: "T5", start: 480, finish: 540, origin: 0, dest: 2), Trip(id: "T6", start: 540, finish: 610, origin: 0, dest: 1), Trip(id: "T7", start: 550, finish: 590, origin: 2, dest: 1), Trip(id: "T8", start: 630, finish: 680, origin: 1, dest: 2)]
+    mut free_at := List[int]()
+    mut place := List[int]()
+    mut chains := List[List[str]]()
+    for t in trips
+        mut bus := -1
+        for b in 0..free_at.len()
+            if bus == -1 and free_at[b] + empty[place[b]][t.origin] <= t.start
+                bus = b
+        if bus == -1
+            bus = free_at.len()
+            free_at.push(0)
+            place.push(t.origin)
+            chains.push(List[str]())
+        free_at[bus] = t.finish
+        place[bus] = t.dest
+        chains[bus].push(t.id)
+        print("{t.id} {clock(t.start)} {places[t.origin]} -> {places[t.dest]}: bus {bus + 1}")
+    for b in 0..chains.len()
+        joined := chains[b].join(" ")
+        print("bus {b + 1}: {joined}")
+
+@test fn empty_runs()
+    assert_eq(430 + 15, 445)
+    assert_eq(clock(445), "07:25")

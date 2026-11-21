@@ -1,0 +1,44 @@
+## Card minimum payment: a 3,000 card balance at 2% interest a month, paid at the minimum (3% of the
+## balance after interest, at least 25) or at a fixed amount; counts months and interest, all in cents.
+
+struct Plan
+    months int
+    interest int
+
+fn money(c int) str
+    cents := c % 100
+    "{c / 100}.{cents:02}"
+
+fn min_due(bal int) int
+    (bal * 3 / 100).max(2500)
+
+fn payoff(start int, fixed int) Plan
+    mut bal := start
+    mut months := 0
+    mut interest := 0
+    while bal > 0 and months < 600
+        i := bal * 2 / 100
+        interest += i
+        bal += i
+        due := if fixed > 0 then fixed else min_due(bal)
+        bal -= due.min(bal)
+        months += 1
+    Plan(months: months, interest: interest)
+
+fn main()
+    mut bal := 300000
+    for m in 1..=3
+        i := bal * 2 / 100
+        bal += i
+        due := min_due(bal)
+        bal -= due
+        print("month {m}: interest {money(i)}, minimum {money(due)}, left {money(bal)}")
+    for fixed in [0, 15000, 30000]
+        p := payoff(300000, fixed)
+        label := if fixed == 0 then "minimum only" else "fixed {money(fixed)}"
+        total := 300000 + p.interest
+        print("{label:<13}: {p.months:>3} months, interest {money(p.interest):>8}, paid {money(total)}")
+
+@test fn minimum_floor()
+    assert_eq(min_due(10000), 2500)
+    assert_eq(min_due(200000), 6000)

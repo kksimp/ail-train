@@ -1,0 +1,54 @@
+## Changeover sequence: a paint line starting on white must run five more colours; changeover minutes are cheap from
+## light to dark and dear the other way; every order is searched recursively against the nearest-next-colour rule.
+
+fn best(cur int, seen int, m List[List[int]]) int
+    if seen == 63
+        return 0
+    mut b := -1
+    for nxt in 0..6
+        if (seen & (1 << nxt)) == 0
+            c := m[cur][nxt] + best(nxt, seen | (1 << nxt), m)
+            if b < 0 or c < b
+                b = c
+    b
+
+fn main()
+    names := ["white", "yellow", "orange", "red", "blue", "black"]
+    m := [[0, 10, 15, 20, 25, 30], [40, 0, 10, 15, 30, 25], [45, 35, 0, 10, 28, 22], [50, 40, 30, 0, 20, 15], [45, 38, 35, 25, 0, 12], [60, 55, 50, 45, 35, 0]]
+    mut cur := 0
+    mut seen := 1
+    mut path := ["white"]
+    total := best(0, 1, m)
+    while seen != 63
+        mut pick := -1
+        for nxt in 0..6
+            if (seen & (1 << nxt)) == 0 and pick == -1
+                if m[cur][nxt] + best(nxt, seen | (1 << nxt), m) == best(cur, seen, m)
+                    pick = nxt
+        print("  {names[cur]} -> {names[pick]}: {m[cur][pick]} min")
+        path.push(names[pick])
+        seen = seen | (1 << pick)
+        cur = pick
+    best_text := path.join(" -> ")
+    print("best order: {best_text}, {total} minutes")
+    cur = 0
+    seen = 1
+    mut greedy := 0
+    mut gpath := ["white"]
+    while seen != 63
+        mut pick := -1
+        for nxt in 0..6
+            if (seen & (1 << nxt)) == 0
+                if pick == -1 or m[cur][nxt] < m[cur][pick]
+                    pick = nxt
+        greedy += m[cur][pick]
+        gpath.push(names[pick])
+        seen = seen | (1 << pick)
+        cur = pick
+    greedy_text := gpath.join(" -> ")
+    print("nearest next: {greedy_text}, {greedy} minutes")
+
+@test fn last_colour()
+    m := [[0, 5], [7, 0]]
+    assert_eq(best(0, 63, m), 0)
+    assert_eq(best(1, 62, m), 40)

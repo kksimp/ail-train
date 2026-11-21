@@ -1,0 +1,34 @@
+## Double marginalisation: a maker with unit cost 20 sells through a shop facing demand 100 - p; the shop
+## sets p = (100 + w) / 2 for wholesale price w, so two markups give a higher price and less total profit.
+
+fn retail_price(w int) int
+    (100 + w) / 2
+
+fn demand(p int) int
+    (100 - p).max(0)
+
+fn main()
+    mut best_p := 20
+    for p in 20..=100
+        if (p - 20) * demand(p) > (best_p - 20) * demand(best_p)
+            best_p = p
+    joint := (best_p - 20) * demand(best_p)
+    print("one firm: price {best_p}, sells {demand(best_p)}, profit {joint}")
+    mut best_w := 20
+    mut best_maker := 0
+    for half in 10..=50
+        w := half * 2
+        p := retail_price(w)
+        maker := (w - 20) * demand(p)
+        if half % 5 == 0
+            print("wholesale {w:>3}: shop price {p:>3}, sells {demand(p):>2}, maker {maker:>4}, shop {(p - w) * demand(p):>4}")
+        if maker > best_maker
+            best_maker = maker
+            best_w = w
+    p := retail_price(best_w)
+    shop := (p - best_w) * demand(p)
+    print("two firms: wholesale {best_w}, price {p}, total profit {best_maker + shop} against {joint}")
+
+@test fn shop_reply()
+    assert_eq(retail_price(60), 80)
+    assert_eq(demand(120), 0)

@@ -1,0 +1,46 @@
+## Wash sale rule: a loss on selling a lot is not allowed when another unsold lot of the same shares was
+## bought within 30 days before or after the sale; the loss is added to that replacement lot's cost instead.
+
+struct Lot
+    id int
+    day int
+    cost int
+    sold bool
+
+fn near(a int, b int) bool
+    (a - b).abs() <= 30
+
+fn main()
+    mut lots := [Lot(id: 1, day: 10, cost: 5000, sold: false), Lot(id: 2, day: 80, cost: 4200, sold: false), Lot(id: 3, day: 150, cost: 4500, sold: false), Lot(id: 4, day: 35, cost: 3000, sold: false)]
+    sales := [(1, 60, 4000), (2, 130, 4700), (3, 200, 4900), (4, 220, 5500)]
+    mut allowed := 0
+    mut deferred := 0
+    for s in sales
+        id, day, proceeds := s
+        mut i := 0
+        while lots[i].id != id
+            i += 1
+        lots[i].sold = true
+        result := proceeds - lots[i].cost
+        if result >= 0
+            allowed += result
+            print("day {day}: lot {id} sold at a gain of {result}")
+            continue
+        loss := 0 - result
+        mut swap := -1
+        for j in 0..lots.len()
+            if not lots[j].sold and near(lots[j].day, day) and swap == -1
+                swap = j
+        if swap == -1
+            allowed += result
+            print("day {day}: lot {id} loss of {loss} allowed")
+        else
+            lots[swap].cost += loss
+            deferred += loss
+            print("day {day}: lot {id} loss of {loss} deferred to lot {lots[swap].id}, its cost now {lots[swap].cost}")
+    print("net result counted {allowed}, losses deferred {deferred}")
+
+@test fn thirty_days()
+    assert(near(60, 80))
+    assert(near(60, 30))
+    assert(not near(60, 95))

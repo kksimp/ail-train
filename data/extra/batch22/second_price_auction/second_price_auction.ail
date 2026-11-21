@@ -1,0 +1,37 @@
+## Second-price auction: in a sealed second-price auction bidders bid their true value and the winner pays
+## the runner-up's value; in a first-price one they shade bids to value (n - 1) / n and the winner pays that bid.
+
+fn winner(bids List[int]) int
+    mut best := 0
+    for i in 1..bids.len()
+        if bids[i] > bids[best]
+            best = i
+    best
+
+fn second_value(vals List[int]) int
+    w := winner(vals)
+    mut second := 0
+    for i in 0..vals.len()
+        if i != w and vals[i] > second
+            second = vals[i]
+    second
+
+fn main()
+    auctions := [[120, 95, 80], [60, 150, 140, 70], [200, 90], [75, 85, 80, 90, 70]]
+    mut total_second := 0
+    mut total_first := 0
+    for k, vals in auctions.enumerate()
+        n := vals.len()
+        shaded := vals.map(|v| v * (n - 1) / n)
+        w2 := winner(vals)
+        pay2 := second_value(vals)
+        w1 := winner(shaded)
+        pay1 := shaded[w1]
+        total_second += pay2
+        total_first += pay1
+        print("lot {k + 1}: values {vals}; second-price: bidder {w2 + 1} pays {pay2}; first-price bids {shaded}: bidder {w1 + 1} pays {pay1}")
+    print("revenue: second-price {total_second}, first-price {total_first}")
+
+@test fn runner_up()
+    assert_eq(second_value([60, 150, 140, 70]), 140)
+    assert_eq(winner([3, 9, 9]), 1)

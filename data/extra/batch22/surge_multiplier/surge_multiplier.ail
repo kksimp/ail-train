@@ -1,0 +1,34 @@
+## Surge multiplier: a zone's fare multiplier rises by 0.1 for every full 20 points by which open requests
+## exceed available drivers as a percentage, capped at 3.0; a zone with no free drivers gets the cap.
+
+struct Zone
+    name str
+    requests int
+    drivers int
+    base int
+
+fn multiplier_tenths(requests int, drivers int) int
+    if drivers == 0
+        return 30
+    ratio := requests * 100 / drivers
+    if ratio <= 100
+        return 10
+    (10 + (ratio - 100) / 20).min(30)
+
+fn money(c int) str
+    cents := c % 100
+    "{c / 100}.{cents:02}"
+
+fn main()
+    zones := [Zone(name: "harbour", requests: 12, drivers: 15, base: 1450), Zone(name: "station", requests: 30, drivers: 18, base: 1200), Zone(name: "stadium", requests: 95, drivers: 20, base: 1600), Zone(name: "airport", requests: 9, drivers: 0, base: 3200), Zone(name: "old town", requests: 21, drivers: 14, base: 980)]
+    for z in zones
+        m := multiplier_tenths(z.requests, z.drivers)
+        fare := z.base * m / 10
+        print("{z.name:<8} {z.requests:>3} asking, {z.drivers:>2} free: x{m / 10}.{m % 10}, fare {money(fare)}")
+    busy := zones.filter(|z| multiplier_tenths(z.requests, z.drivers) > 10).len()
+    print("{busy} of {zones.len()} zones are surging")
+
+@test fn steps()
+    assert_eq(multiplier_tenths(15, 10), 12)
+    assert_eq(multiplier_tenths(100, 10), 30)
+    assert_eq(multiplier_tenths(5, 10), 10)

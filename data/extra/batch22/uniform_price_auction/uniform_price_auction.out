@@ -1,0 +1,7 @@
+A bid 30 at 99: gets 30
+B bid 25 at 98: gets 25
+C bid 20 at 97: gets 16
+D bid 30 at 97: gets 24
+E bid 40 at 96: gets  0
+F bid  7 at 97: gets  5
+clearing price 97: uniform revenue 9700, pay-as-bid revenue 9785

@@ -1,0 +1,37 @@
+## Demurrage and detention: a box left at the port more than 5 free days after discharge pays 75 a day for days
+## 6-10 and 150 a day after; once picked up, an empty returned more than 7 days later pays 50 a day.
+
+struct Box
+    id str
+    discharged int
+    picked int
+    returned int
+
+fn demurrage(days int) int
+    mut fee := 0
+    for d in 6..=days
+        if d <= 10
+            fee += 75
+        else
+            fee += 150
+    fee
+
+fn detention(days int) int
+    (days - 7).max(0) * 50
+
+fn main()
+    boxes := [Box(id: "MSKU101", discharged: 1, picked: 4, returned: 9), Box(id: "TGHU202", discharged: 1, picked: 9, returned: 20), Box(id: "CMAU303", discharged: 3, picked: 16, returned: 21), Box(id: "OOLU404", discharged: 5, picked: 25, returned: 40)]
+    mut total := 0
+    for b in boxes
+        port := b.picked - b.discharged
+        out := b.returned - b.picked
+        dem := demurrage(port)
+        det := detention(out)
+        total += dem + det
+        print("{b.id}: {port:>2} days at port -> {dem:>4}, {out:>2} days out -> {det:>3}")
+    print("total charges {total}")
+
+@test fn bands()
+    assert_eq(demurrage(5), 0)
+    assert_eq(demurrage(12), 675)
+    assert_eq(detention(9), 100)

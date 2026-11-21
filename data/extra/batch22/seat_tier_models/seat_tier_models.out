@@ -1,0 +1,9 @@
+  8 seats: graduated   120, volume   120
+ 10 seats: graduated   150, volume   150
+ 11 seats: graduated   162, volume   132
+ 40 seats: graduated   510, volume   480
+ 45 seats: graduated   570, volume   540
+ 50 seats: graduated   630, volume   600
+ 51 seats: graduated   639, volume   459
+120 seats: graduated  1260, volume  1080
+for at least 45 seats, volume pricing is cheapest at 51 seats

@@ -1,0 +1,6 @@
+cast       96%: start 1257, pass 1206, scrap 51
+machine    92%: start 1206, pass 1109, scrap 97
+heat treat 98%: start 1109, pass 1086, scrap 23
+grind      95%: start 1086, pass 1031, scrap 55
+inspect    97%: start 1031, pass 1000, scrap 31
+start 1257 for 1000 good; rolled yield 79.76%

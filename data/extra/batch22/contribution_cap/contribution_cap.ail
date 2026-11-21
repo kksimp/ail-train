@@ -1,0 +1,37 @@
+## Contribution cap: a 6.2% social contribution is charged on wages only up to a yearly cap of 160,200, so
+## high earners stop paying part way through the year; a 1.45% health levy on all wages has no cap.
+
+struct Worker
+    name str
+    monthly int
+    ytd int
+    paid int
+
+fn Worker.pay_month(mut self, cap int) int
+    room := (cap - self.ytd).max(0)
+    taxable := self.monthly.min(room)
+    self.ytd += self.monthly
+    c := taxable * 62 / 1000
+    self.paid += c
+    c
+
+fn main()
+    cap := 160200
+    mut staff := [Worker(name: "Ana", monthly: 9000, ytd: 0, paid: 0), Worker(name: "Raj", monthly: 15000, ytd: 0, paid: 0), Worker(name: "Lee", monthly: 25000, ytd: 0, paid: 0)]
+    for mut w in staff
+        mut capped := 0
+        full := w.monthly * 62 / 1000
+        for m in 1..=12
+            c := w.pay_month(cap)
+            if c < full and capped == 0
+                capped = m
+        health := w.monthly * 12 * 145 / 10000
+        bp := w.paid * 10000 / (w.monthly * 12)
+        frac := bp % 100
+        note := if capped == 0 then "never reaches the cap" else "cap reached in month {capped}"
+        print("{w.name}: social {w.paid} ({bp / 100}.{frac:02}% of pay), health {health}, {note}")
+
+@test fn partial_month()
+    mut w := Worker(name: "t", monthly: 1000, ytd: 0, paid: 0)
+    assert_eq(w.pay_month(1500), 62)
+    assert_eq(w.pay_month(1500), 31)

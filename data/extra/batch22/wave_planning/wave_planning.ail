@@ -1,0 +1,38 @@
+## Wave planning: orders are sorted by carrier cutoff and grouped per carrier into pick waves of at most 30
+## order lines, filled in order, so the earliest truck's orders are picked first; lines per wave are shown.
+
+struct Order
+    id int
+    carrier str
+    lines int
+    cutoff int
+
+fn clock(m int) str
+    h := m / 60
+    mm := m % 60
+    "{h:02}:{mm:02}"
+
+fn main()
+    orders := [Order(id: 101, carrier: "post", lines: 12, cutoff: 960), Order(id: 102, carrier: "express", lines: 8, cutoff: 840), Order(id: 103, carrier: "post", lines: 15, cutoff: 960), Order(id: 104, carrier: "courier", lines: 20, cutoff: 900), Order(id: 105, carrier: "express", lines: 14, cutoff: 840), Order(id: 106, carrier: "post", lines: 9, cutoff: 960), Order(id: 107, carrier: "courier", lines: 6, cutoff: 900), Order(id: 108, carrier: "express", lines: 11, cutoff: 840), Order(id: 109, carrier: "post", lines: 7, cutoff: 960), Order(id: 110, carrier: "courier", lines: 13, cutoff: 900)]
+    mut by_carrier := Map[str, List[Order]]()
+    for o in orders.sorted(by: |x| (x.cutoff, x.id))
+        by_carrier.push(o.carrier, o)
+    mut wave := 0
+    for carrier, group in by_carrier
+        mut ids := List[int]()
+        mut lines := 0
+        for i, o in group.enumerate()
+            if lines + o.lines > 30
+                wave += 1
+                print("wave {wave}: {carrier} by {clock(o.cutoff)}, orders {ids}, {lines} lines")
+                ids = List[int]()
+                lines = 0
+            ids.push(o.id)
+            lines += o.lines
+            if i == group.len() - 1
+                wave += 1
+                print("wave {wave}: {carrier} by {clock(o.cutoff)}, orders {ids}, {lines} lines")
+    print("{wave} waves for {orders.len()} orders")
+
+@test fn time_text()
+    assert_eq(clock(840), "14:00")
