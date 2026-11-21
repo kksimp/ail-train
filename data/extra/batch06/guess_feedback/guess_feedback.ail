@@ -1,0 +1,30 @@
+## Guess feedback: scores five-letter guesses against a hidden word, marking letters in the
+## right place G, present elsewhere Y (respecting letter counts) and absent with a dot.
+
+fn mark(guess str, answer str) str
+    g := guess.chars()
+    a := answer.chars()
+    mut res := [".", ".", ".", ".", "."]
+    mut spare := Map[char, int]()
+    for i in 0..5
+        if g[i] == a[i]
+            res[i] = "G"
+        else
+            spare[a[i]] += 1
+    for i in 0..5
+        if res[i] == "." and (spare.get(g[i]) else 0) > 0
+            res[i] = "Y"
+            spare[g[i]] -= 1
+    res.join("")
+
+fn main()
+    answer := "crane"
+    for guess in ["slate", "nacre", "eerie", "crane", "added", "caner"]
+        m := mark(guess, answer)
+        verdict := if m == "GGGGG" then " solved" else ""
+        print("{guess} {m}{verdict}")
+    other := mark("speed", "abide")
+    print("{other} for speed vs abide")
+
+@test fn double()
+    assert_eq(mark("eerie", "crane"), "..Y.G")

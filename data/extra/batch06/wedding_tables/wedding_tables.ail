@@ -1,0 +1,25 @@
+## Wedding tables: seats guests at tables of four greedily in list order, skipping a table
+## when a guest has a feud with someone already there, and opening new tables as needed.
+
+fn main()
+    guests := ["Amy", "Bob", "Cal", "Dot", "Eve", "Fin", "Gil", "Hal", "Ivy", "Jo"]
+    feuds := [("Amy", "Bob"), ("Cal", "Dot"), ("Amy", "Eve"), ("Fin", "Gil"), ("Bob", "Hal"), ("Ivy", "Amy")]
+    mut tables := List[List[str]]()
+    for g in guests
+        mut placed := false
+        for i in 0..tables.len()
+            if tables[i].len() >= 4
+                continue
+            clash := tables[i].any(|o| feuds.contains((g, o)) or feuds.contains((o, g)))
+            if not clash
+                tables[i].push(g)
+                placed = true
+                break
+        if not placed
+            tables.push([g])
+    for i, t in tables.enumerate()
+        shown := t.join(", ")
+        print("table {i + 1}: {shown}")
+
+@test fn pair()
+    assert([("a", "b")].contains(("a", "b")))

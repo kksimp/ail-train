@@ -1,0 +1,39 @@
+## KMP search: finds every occurrence of a pattern in a text with the Knuth-Morris-Pratt
+## failure table, printing the table, the match positions and the comparisons used.
+
+fn failure(p List[char]) List[int]
+    mut f := [0 for _ in 0..p.len()]
+    mut k := 0
+    for i in 1..p.len()
+        while k > 0 and p[i] != p[k]
+            k = f[k - 1]
+        if p[i] == p[k]
+            k += 1
+        f[i] = k
+    f
+
+fn main()
+    cases := [("abababcabababcab", "ababc"), ("aaaaaaaaab", "aaab"), ("the cat sat on the mat", "at"), ("mississippi", "issip"), ("abc", "d")]
+    for c in cases
+        text := c.0.chars()
+        pat := c.1.chars()
+        f := failure(pat)
+        mut hits := List[int]()
+        mut k := 0
+        mut comps := 0
+        for i in 0..text.len()
+            while k > 0 and text[i] != pat[k]
+                comps += 1
+                k = f[k - 1]
+            comps += 1
+            if text[i] == pat[k]
+                k += 1
+            if k == pat.len()
+                hits.push(i + 1 - k)
+                k = f[k - 1]
+        table := f.map(|x| "{x}").join("")
+        shown := if hits.is_empty() then "none" else hits.map(|x| "{x}").join(", ")
+        print("{c.1} in {c.0}: table {table}, at {shown}, {comps} comparisons")
+
+@test fn table()
+    assert_eq(failure("aabaa".chars()), [0, 1, 0, 1, 2])

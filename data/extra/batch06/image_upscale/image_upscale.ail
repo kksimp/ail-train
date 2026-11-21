@@ -1,0 +1,40 @@
+## Image upscale: enlarges a small character image by whole factors (nearest neighbour), then
+## shrinks it back by sampling and checks the round trip gives the original.
+
+fn scale_up(img List[str], k int) List[str]
+    mut out := List[str]()
+    for row in img
+        mut wide := ""
+        for c in row.chars()
+            one := "{c}"
+            wide = "{wide}{one.repeat(k)}"
+        for _ in 0..k
+            out.push(wide)
+    out
+
+fn scale_down(img List[str], k int) List[str]
+    mut out := List[str]()
+    mut y := 0
+    while y < img.len()
+        cs := img[y].chars()
+        mut row := ""
+        mut x := 0
+        while x < cs.len()
+            row = "{row}{cs[x]}"
+            x += k
+        out.push(row)
+        y += k
+    out
+
+fn main()
+    img := [".#.", "###", "#.#"]
+    for k in [2, 3]
+        big := scale_up(img, k)
+        print("x{k}:")
+        for line in big
+            print(line)
+        back := scale_down(big, k)
+        print("round trip ok: {back == img}")
+
+@test fn down()
+    assert_eq(scale_down(["aabb", "aabb"], 2), ["ab"])

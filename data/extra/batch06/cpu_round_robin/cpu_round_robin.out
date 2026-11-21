@@ -1,0 +1,7 @@
+P1@0 P2@3 P3@6 P1@9 P4@12 P5@14 P2@17 P3@18 P1@21 P5@22 P3@24
+P1: finishes 22, waited 15
+P2: finishes 18, waited 13
+P3: finishes 27, waited 16
+P4: finishes 14, waited 8
+P5: finishes 24, waited 13
+average wait 13.0

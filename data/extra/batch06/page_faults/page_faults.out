@@ -1,0 +1,4 @@
+20 refs, 3 frames: FIFO 15, LRU 12, OPT 9
+20 refs, 4 frames: FIFO 10, LRU 8, OPT 8
+12 refs, 3 frames: FIFO 9, LRU 10, OPT 7
+12 refs, 4 frames: FIFO 10, LRU 8, OPT 6

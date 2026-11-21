@@ -1,0 +1,5 @@
+[3 4 5] nim-sum 2: take 2 from heap 1 (leaves 1)
+[1 2 3] nim-sum 0: player to move loses with best play
+[7 7] nim-sum 0: player to move loses with best play
+[2 5 6 9] nim-sum 8: take 8 from heap 4 (leaves 1)
+[10 1] nim-sum 11: take 9 from heap 1 (leaves 1)

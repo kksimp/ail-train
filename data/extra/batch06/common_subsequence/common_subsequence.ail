@@ -1,0 +1,36 @@
+## Longest common subsequence: dynamic programming table over two strings, then a walk back
+## through the table to recover one longest subsequence.
+
+fn lcs(a str, b str) str
+    xs := a.chars()
+    ys := b.chars()
+    mut t := [[0 for _ in 0..ys.len() + 1] for _ in 0..xs.len() + 1]
+    for i in 1..=xs.len()
+        for j in 1..=ys.len()
+            if xs[i - 1] == ys[j - 1]
+                t[i][j] = t[i - 1][j - 1] + 1
+            elif t[i - 1][j] >= t[i][j - 1]
+                t[i][j] = t[i - 1][j]
+            else
+                t[i][j] = t[i][j - 1]
+    mut out := List[char]()
+    mut i := xs.len()
+    mut j := ys.len()
+    while i > 0 and j > 0
+        if xs[i - 1] == ys[j - 1]
+            out.push(xs[i - 1])
+            i -= 1
+            j -= 1
+        elif t[i - 1][j] >= t[i][j - 1]
+            i -= 1
+        else
+            j -= 1
+    out.reversed().map(|c| "{c}").join("")
+
+fn main()
+    for p in [("ABCBDAB", "BDCABA"), ("AGGTAB", "GXTXAYB"), ("kitten", "sitting"), ("abc", "xyz"), ("dynamic", "programming")]
+        s := lcs(p.0, p.1)
+        print("{p.0} / {p.1}: \"{s}\" ({s.len()})")
+
+@test fn simple()
+    assert_eq(lcs("abc", "ac"), "ac")

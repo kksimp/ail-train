@@ -1,0 +1,31 @@
+## Bisection: finds roots of functions on intervals by halving until the interval is under
+## 1e-9, printing the root and the number of halvings, or why it cannot start.
+
+fn f(kind int, x float) float
+    if kind == 0
+        return x * x - 2.0
+    if kind == 1
+        return x * x * x - x - 1.0
+    x.cos() - x
+
+fn main()
+    cases := [("x^2 - 2", 0, 0.0, 2.0), ("x^3 - x - 1", 1, 1.0, 2.0), ("cos x - x", 2, 0.0, 1.0), ("x^2 - 2 (bad bracket)", 0, 2.0, 3.0)]
+    for c in cases
+        label, kind, a0, b0 := c
+        mut a := a0
+        mut b := b0
+        if f(kind, a) * f(kind, b) > 0.0
+            print("{label}: no sign change on [{a0:.1}, {b0:.1}]")
+            continue
+        mut steps := 0
+        while b - a > 0.000000001
+            m := (a + b) / 2.0
+            if f(kind, a) * f(kind, m) <= 0.0
+                b = m
+            else
+                a = m
+            steps += 1
+        print("{label}: root {(a + b) / 2.0:.8} after {steps} halvings")
+
+@test fn sqrt2()
+    assert(f(0, 1.5) > 0.0)

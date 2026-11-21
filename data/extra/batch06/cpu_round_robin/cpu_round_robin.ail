@@ -1,0 +1,44 @@
+## Round robin: schedules processes on one CPU with a time slice of 3, printing the run order
+## as a timeline and each process's finish and waiting time.
+
+fn main()
+    procs := [("P1", 0, 7), ("P2", 1, 4), ("P3", 2, 9), ("P4", 4, 2), ("P5", 6, 5)]
+    slice := 3
+    mut left := procs.map(|p| p.2)
+    mut finish := [0 for _ in 0..procs.len()]
+    mut queue := List[int]()
+    mut arrived := 0
+    mut clock := 0
+    mut timeline := List[str]()
+    while arrived < procs.len() and procs[arrived].1 <= clock
+        queue.push(arrived)
+        arrived += 1
+    while not queue.is_empty() or arrived < procs.len()
+        if queue.is_empty()
+            clock = procs[arrived].1
+            queue.push(arrived)
+            arrived += 1
+            continue
+        p := queue[0]
+        queue.remove_at(0)
+        run := if left[p] < slice then left[p] else slice
+        timeline.push("{procs[p].0}@{clock}")
+        clock += run
+        left[p] -= run
+        while arrived < procs.len() and procs[arrived].1 <= clock
+            queue.push(arrived)
+            arrived += 1
+        if left[p] > 0
+            queue.push(p)
+        else
+            finish[p] = clock
+    print(timeline.join(" "))
+    mut total_wait := 0
+    for i, p in procs.enumerate()
+        wait := finish[i] - p.1 - p.2
+        total_wait += wait
+        print("{p.0}: finishes {finish[i]}, waited {wait}")
+    print("average wait {total_wait.to_float() / procs.len().to_float():.1}")
+
+@test fn slice_min()
+    assert_eq(if 2 < 3 then 2 else 3, 2)

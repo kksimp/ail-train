@@ -1,0 +1,6 @@
+Ash -> Dell: 1 bus(es)
+Ash -> Elm: 2 bus(es)
+Ash -> Hill: 3 bus(es)
+Dell -> Fen: 2 bus(es)
+Ash -> Jetty: no route
+Elm -> Elm: already there
