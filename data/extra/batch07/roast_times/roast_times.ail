@@ -1,0 +1,19 @@
+## Roast times: cooking times from meat type and weight (minutes per kilogram plus a fixed
+## extra), with resting time, worked back from a serving time to an oven-in time.
+
+fn hm(m int) str
+    "{m / 60:02}:{m % 60:02}"
+
+fn main()
+    rules := {"beef": (40, 20, 20), "lamb": (50, 25, 15), "pork": (60, 30, 20), "chicken": (45, 20, 15)}
+    serve := 1110
+    roasts := [("beef", 1800), ("lamb", 2200), ("pork", 1500), ("chicken", 2000)]
+    for r in roasts
+        kind, grams := r
+        per_kg, extra, rest := rules[kind]
+        cook := per_kg * grams / 1000 + extra
+        start := serve - cook - rest
+        print("{kind:<8} {grams} g: cook {cook} min, rest {rest}, oven in at {hm(start)}")
+
+@test fn beef()
+    assert_eq(40 * 1800 / 1000 + 20, 92)

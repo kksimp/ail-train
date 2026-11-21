@@ -1,0 +1,27 @@
+## Swiss pairings: pairs chess players for the next round by sorting on points then rating,
+## pairing neighbours who have not met, and giving the odd player out a bye.
+
+fn main()
+    players := [("Ada", 2.0, 1850), ("Ben", 1.5, 1920), ("Cyd", 1.5, 1700), ("Dev", 1.0, 1990), ("Eva", 1.0, 1600), ("Fox", 0.5, 1750), ("Gia", 0.0, 1550)]
+    met := [("Ada", "Ben"), ("Cyd", "Dev"), ("Ada", "Cyd"), ("Ben", "Eva"), ("Dev", "Fox")]
+    ranked := players.sorted(by: |p| (-(p.1 * 2.0).to_int(), -p.2))
+    mut left := ranked.map(|p| p.0)
+    mut table := 1
+    while left.len() > 1
+        a := left[0]
+        mut pick := 1
+        for k in 1..left.len()
+            cand := left[k]
+            if not met.contains((a, cand)) and not met.contains((cand, a))
+                pick = k
+                break
+        b := left[pick]
+        print("board {table}: {a} v {b}")
+        left.remove_at(pick)
+        left.remove_at(0)
+        table += 1
+    if left.len() == 1
+        print("bye: {left[0]}")
+
+@test fn met_pair()
+    assert([("a", "b")].contains(("a", "b")))
