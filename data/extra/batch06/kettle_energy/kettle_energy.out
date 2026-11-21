@@ -1,0 +1,4 @@
+travel   0.5 l: 215 s, 0.060 kWh, cost 1.85p
+standard 1.0 l: 184 s, 0.112 kWh, cost 3.48p
+rapid    1.0 l: 127 s, 0.106 kWh, cost 3.28p
+large    1.7 l: 312 s, 0.191 kWh, cost 5.91p

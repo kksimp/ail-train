@@ -1,0 +1,36 @@
+## Chess material: counts material on boards given as FEN-like rank strings, with standard
+## piece values, and says who is ahead.
+
+fn value(c char) int
+    up := c.to_upper()
+    if up == 'P'
+        return 1
+    if up == 'N' or up == 'B'
+        return 3
+    if up == 'R'
+        return 5
+    if up == 'Q'
+        return 9
+    0
+
+fn main()
+    boards := [
+        "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR",
+        "r3k2r/ppp2ppp/8/3q4/8/8/PPP2PPP/R2QK2R",
+        "8/5k2/8/8/2B5/8/4PK2/8",
+        "4k3/8/8/8/8/8/8/3QK3",
+    ]
+    for b in boards
+        mut white := 0
+        mut black := 0
+        for c in b.chars()
+            if c.is_upper()
+                white += value(c)
+            elif c.is_lower()
+                black += value(c)
+        diff := white - black
+        verdict := if diff > 0 then "white +{diff}" elif diff < 0 then "black +{-diff}" else "level"
+        print("white {white}, black {black}: {verdict}")
+
+@test fn queen()
+    assert_eq(value('Q'), 9)

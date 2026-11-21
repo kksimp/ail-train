@@ -1,0 +1,25 @@
+## Rain gauge: readings from several gauges with gaps (-1) are averaged per day across the
+## gauges that reported, and the wettest day and dry days are listed.
+
+fn main()
+    gauges := [
+        [0, 12, 5, -1, 0, 22, 3],
+        [1, 10, -1, 0, 0, 25, 4],
+        [0, -1, 6, 0, 1, 19, -1],
+    ]
+    days := ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+    mut means := List[float]()
+    for d in 0..7
+        vals := gauges.map(|g| g[d]).filter(|v| v >= 0)
+        mean := vals.sum().to_float() / vals.len().to_float()
+        means.push(mean)
+        print("{days[d]}: {vals.len()} gauges, mean {mean:.1} mm")
+    mut wet := 0
+    for d in 1..7
+        if means[d] > means[wet]
+            wet = d
+    dry := [days[d] for d in 0..7 if means[d] < 0.5].join(", ")
+    print("wettest {days[wet]}, dry: {dry}")
+
+@test fn gaps()
+    assert_eq([3, -1, 5].filter(|v| v >= 0).len(), 2)
