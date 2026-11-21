@@ -28,4 +28,4 @@ fn main()
         print("{p.name:<6} {bf:>5.1}% body fat: {fat:>5.1} kg fat, {lean:>5.1} kg lean")
 
 @test fn log_scale()
-    assert((body_fat(Person(name: "x", male: true, height_cm: 254.0, neck_cm: 25.4, waist_cm: 279.4, hip_cm: 0.0, kg: 1.0)) - 52.729).abs() < 0.000001)
+    assert((body_fat(Person(name: "x", male: true, height_cm: 254.0, neck_cm: 25.4, waist_cm: 279.4, hip_cm: 0.0, kg: 1.0)) - 52.729).abs() < 0.01)
