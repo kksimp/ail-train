@@ -1,0 +1,29 @@
+## Coupon order: a basket total gets a percentage coupon and a fixed-amount coupon; tries
+## both orders and picks the cheaper, with a minimum spend for the fixed coupon.
+
+fn apply(total int, pct int, off int, min_spend int, pct_first bool) int
+    mut t := total
+    if pct_first
+        t = t * (100 - pct) / 100
+        if t >= min_spend
+            t -= off
+    else
+        if t >= min_spend
+            t -= off
+        t = t * (100 - pct) / 100
+    t
+
+fn cents(c int) str
+    "{c / 100}.{c % 100:02}"
+
+fn main()
+    baskets := [(5000, 20, 1000, 4000), (4500, 10, 500, 4500), (12000, 25, 1500, 10000), (3000, 15, 700, 2000)]
+    for b in baskets
+        total, pct, off, min_spend := b
+        a := apply(total, pct, off, min_spend, true)
+        o := apply(total, pct, off, min_spend, false)
+        pick := if a <= o then "percent first" else "fixed first"
+        print("{cents(total)} with {pct}% and {cents(off)} off (min {cents(min_spend)}): {cents(a)} vs {cents(o)}, {pick}")
+
+@test fn plain()
+    assert_eq(apply(1000, 10, 0, 0, true), 900)

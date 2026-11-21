@@ -1,0 +1,13 @@
+      10 s: just now
+      50 s: 1 minute ago
+     125 s: 2 minutes ago
+    3599 s: 60 minutes ago
+    3600 s: 1 hour ago
+    7300 s: 2 hours ago
+   86399 s: 23 hours ago
+   90000 s: yesterday
+  400000 s: 4 days ago
+ 1500000 s: 2 weeks ago
+ 4000000 s: 6 weeks ago
+40000000 s: 1 year ago
+80000000 s: 2 years ago

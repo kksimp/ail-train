@@ -1,0 +1,29 @@
+## Sheet columns: converts spreadsheet column letters to numbers (A = 1, Z = 26, AA = 27) and
+## back, and turns cell names like "C7" into row and column pairs.
+
+fn to_number(col str) int
+    mut n := 0
+    for c in col.chars()
+        n = n * 26 + (c.code() - 64)
+    n
+
+fn to_letters(n int) str
+    mut x := n
+    mut out := List[char]()
+    while x > 0
+        x -= 1
+        out.push(char.from_code(x % 26 + 65))
+        x /= 26
+    out.reversed().map(|c| "{c}").join("")
+
+fn main()
+    for col in ["A", "Z", "AA", "AZ", "BA", "ZZ", "AAA", "XFD"]
+        n := to_number(col)
+        print("{col} = {n}, back {to_letters(n)}")
+    for cell in ["C7", "AB12", "XFD1048576"]
+        letters := cell.chars().filter(|c| c.is_alpha()).map(|c| "{c}").join("")
+        digits := cell.chars().filter(|c| c.is_digit()).map(|c| "{c}").join("")
+        print("{cell}: row {digits}, column {to_number(letters)}")
+
+@test fn round()
+    assert_eq(to_letters(to_number("QW")), "QW")

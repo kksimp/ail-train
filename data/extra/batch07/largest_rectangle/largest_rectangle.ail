@@ -1,0 +1,25 @@
+## Largest rectangle: finds the biggest rectangle under a bar chart with a stack of rising
+## bars, printing its area, height and the bars it spans.
+
+fn best(h List[int]) (int, int, int)
+    mut stack := List[int]()
+    mut top := (0, 0, 0)
+    for i in 0..=h.len()
+        cur := if i == h.len() then 0 else h[i]
+        while not stack.is_empty() and h[stack[stack.len() - 1]] >= cur
+            j := stack.pop() else 0
+            left := if stack.is_empty() then 0 else stack[stack.len() - 1] + 1
+            area := h[j] * (i - left)
+            if area > top.0
+                top = (area, left, i - 1)
+        stack.push(i)
+    top
+
+fn main()
+    for bars in [[2, 1, 5, 6, 2, 3], [6, 2, 5, 4, 5, 1, 6], [3, 3, 3, 3], [1, 2, 3, 4, 5], [7]]
+        b := best(bars)
+        shown := bars.map(|x| "{x}").join(" ")
+        print("[{shown}]: area {b.0}, bars {b.1}..{b.2}")
+
+@test fn flat()
+    assert_eq(best([3, 3]).0, 6)

@@ -1,0 +1,24 @@
+## Egg drop: the fewest drops that always find the highest safe floor with a given number of
+## eggs, by the table of floors coverable with d drops and e eggs.
+
+fn floors(drops int, eggs int) int
+    mut t := [0 for k in 0..eggs + 1]
+    for d in 1..=drops
+        mut nt := [0 for q in 0..eggs + 1]
+        for e in 1..=eggs
+            nt[e] = t[e - 1] + 1 + t[e]
+        t = nt
+        if d == drops
+            return t[eggs]
+    0
+
+fn main()
+    for case_pair in [(1, 10), (2, 10), (2, 36), (2, 100), (3, 100), (4, 1000)]
+        eggs, building := case_pair
+        mut d := 1
+        while floors(d, eggs) < building
+            d += 1
+        print("{eggs} egg(s), {building} floors: {d} drops (covers {floors(d, eggs)})")
+
+@test fn two_eggs()
+    assert_eq(floors(14, 2), 105)
