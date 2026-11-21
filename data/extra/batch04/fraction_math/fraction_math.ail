@@ -1,0 +1,50 @@
+## Fraction math: a reduced fraction struct with `Add`, `Sub`, `Mul` and `Div`, always kept
+## in lowest terms with a positive denominator, used to sum a harmonic series exactly.
+
+struct Frac
+    num int
+    den int
+
+fn gcd(a int, b int) int
+    if b == 0 then a.abs() else gcd(b, a % b)
+
+fn make(n int, d int) Frac
+    g := gcd(n, d)
+    sign := if d < 0 then -1 else 1
+    Frac(num: sign * n / g, den: sign * d / g)
+
+impl Add for Frac
+    fn add(self, o Frac) Frac
+        make(num * o.den + o.num * den, den * o.den)
+
+impl Sub for Frac
+    fn sub(self, o Frac) Frac
+        make(num * o.den - o.num * den, den * o.den)
+
+impl Mul for Frac
+    fn mul(self, o Frac) Frac
+        make(num * o.num, den * o.den)
+
+impl Div for Frac
+    fn div(self, o Frac) Frac
+        make(num * o.den, den * o.num)
+
+impl ToStr for Frac
+    fn to_str(self) str
+        if den == 1 then "{num}" else "{num}/{den}"
+
+fn main()
+    a := make(3, 4)
+    b := make(-5, 6)
+    print("{a} + {b} = {a + b}")
+    print("{a} - {b} = {a - b}")
+    print("{a} * {b} = {a * b}")
+    print("{a} / {b} = {a / b}")
+    print("6/-8 reduces to {make(6, -8)}")
+    mut h := make(0, 1)
+    for k in 1..=10
+        h = h + make(1, k)
+    print("1 + 1/2 + ... + 1/10 = {h}")
+
+@test fn reduces()
+    assert_eq(make(10, 20), make(1, 2))

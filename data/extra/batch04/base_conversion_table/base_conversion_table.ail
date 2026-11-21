@@ -1,0 +1,21 @@
+## Base conversion table: prints 0 to 20 in binary and hex using format specs, with a
+## column for the number of one bits, and totals the one bits.
+
+fn ones(n int) int
+    mut v := n
+    mut c := 0
+    while v > 0
+        c += v & 1
+        v = v >> 1
+    c
+
+fn main()
+    print("dec      bin hex ones")
+    mut total := 0
+    for n in 0..=20
+        total += ones(n)
+        print("{n:>3} {n:>8b} {n:>3x} {ones(n):>4}")
+    print("one bits in 0..20: {total}")
+
+@test fn ones_of_seven()
+    assert_eq(ones(7), 3)

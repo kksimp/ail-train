@@ -1,0 +1,26 @@
+## Kaprekar numbers: n whose square splits into two parts that add back to n (45^2 = 2025,
+## 20 + 25 = 45), searched below 10,000 with the split shown for each.
+
+fn split_sum(n int) (int, int)?
+    sq := n * n
+    mut p := 10
+    while p <= sq * 10
+        left := sq / p
+        right := sq % p
+        if right > 0 and left + right == n
+            return (left, right)
+        p *= 10
+    none
+
+fn main()
+    mut found := List[str]()
+    for n in 1..10000
+        if parts := split_sum(n)
+            l, r := parts
+            found.push("{n} ({n * n} = {l}+{r})")
+    print("{found.len()} Kaprekar numbers below 10000:")
+    for f in found
+        print("  {f}")
+
+@test fn forty_five()
+    assert_eq(split_sum(45) else (0, 0), (20, 25))

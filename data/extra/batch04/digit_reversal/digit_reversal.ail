@@ -1,0 +1,33 @@
+## Digit reversal: reverses the digits of numbers with arithmetic only, detects numbers
+## whose reversal is a multiple of them, and finds reversible primes (emirps).
+
+fn reverse_digits(n int) int
+    mut v := n
+    mut r := 0
+    while v > 0
+        r = r * 10 + v % 10
+        v = v / 10
+    r
+
+fn is_prime(n int) bool
+    if n < 2
+        return false
+    mut d := 2
+    while d * d <= n
+        if n % d == 0
+            return false
+        d += 1
+    true
+
+fn main()
+    for n in [1234, 1200, 9, 8712, 9801]
+        r := reverse_digits(n)
+        note := if r != n and r % n == 0 then " (reversal is {r / n} times it)" else ""
+        print("{n} -> {r}{note}")
+    emirps := [n for n in 10..200 if is_prime(n) and is_prime(reverse_digits(n)) and reverse_digits(n) != n]
+    print("emirps below 200: {emirps}")
+    special := [n for n in 1000..10000 if reverse_digits(n) != n and reverse_digits(n) % n == 0]
+    print("4-digit numbers dividing their reversal: {special}")
+
+@test fn trailing_zeros()
+    assert_eq(reverse_digits(1200), 21)

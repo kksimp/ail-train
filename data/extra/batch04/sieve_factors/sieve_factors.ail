@@ -1,0 +1,40 @@
+## Sieve factors: a smallest-prime-factor table up to a limit gives fast factorisation of
+## every number; prints factorisations and the numbers with the most distinct primes.
+
+fn spf_table(n int) List[int]
+    mut spf := [0 for _ in 0..=n]
+    for i in 2..=n
+        if spf[i] == 0
+            mut m := i
+            while m <= n
+                if spf[m] == 0
+                    spf[m] = i
+                m += i
+    spf
+
+fn factor(x int, spf List[int]) List[int]
+    mut out := List[int]()
+    mut v := x
+    while v > 1
+        out.push(spf[v])
+        v = v / spf[v]
+    out
+
+fn main()
+    spf := spf_table(10000)
+    for x in [12, 97, 360, 1001, 9999, 8192]
+        fs := factor(x, spf).map(|p| "{p}").join(" x ")
+        print("{x} = {fs}")
+    mut best := 0
+    mut holders := List[int]()
+    for x in 2..=10000
+        k := factor(x, spf).counts().len()
+        if k > best
+            best = k
+            holders = [x]
+        elif k == best
+            holders.push(x)
+    print("most distinct primes below 10000: {best}, e.g. {holders.take(5)}")
+
+@test fn twelve()
+    assert_eq(factor(12, spf_table(20)), [2, 2, 3])
