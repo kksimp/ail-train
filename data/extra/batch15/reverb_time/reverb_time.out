@@ -1,0 +1,10 @@
+room volume 189 m3
+floor     63.0 m2 x 0.03 = 1.890 sabins
+ceiling   63.0 m2 x 0.05 = 3.150 sabins
+walls     96.0 m2 x 0.04 = 3.840 sabins
+windows   12.0 m2 x 0.18 = 2.160 sabins
+bare room: RT60 2.76 s
+ 4 panels: RT60 1.55 s
+ 8 panels: RT60 1.07 s
+12 panels: RT60 0.82 s
+13 panels reach RT60 0.78 s with 39.12 sabins

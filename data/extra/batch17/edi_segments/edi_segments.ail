@@ -1,0 +1,37 @@
+## EDI purchase order: splits an X12-style message into segments at ~ and elements at *, totals the
+## PO1 order lines in cents, and checks the CTT line count and the SE segment count against what was read.
+
+fn cents(s str) int
+    parts := s.split(".")
+    whole := parts[0].to_int() else 0
+    frac := if parts.len() > 1 then parts[1].pad_right(2, '0').slice(0, 2) else "00"
+    whole * 100 + (frac.to_int() else 0)
+
+fn main()
+    msg := "ST*850*0001~BEG*00*SA*PO-4471**20250301~PO1*1*10*EA*2.5**VP*W-100~PO1*2*3*EA*12.00**VP*W-200~PO1*3*1*BX*49.99**VP*W-310~CTT*3~SE*7*0001~"
+    segs := msg.split("~").filter(|s| s != "")
+    mut lines := 0
+    mut total := 0
+    mut declared_lines := 0
+    mut declared_segs := 0
+    for s in segs
+        e := s.split("*")
+        match e[0]
+            "BEG" => print("order {e[3]} dated {e[5]}")
+            "PO1" =>
+                qty := e[2].to_int() else 0
+                each := cents(e[4])
+                lines += 1
+                total += qty * each
+                print("  line {e[1]}: {qty} {e[3]} of {e[7]} at {each / 100}.{each % 100:02} = {qty * each / 100}.{qty * each % 100:02}")
+            "CTT" => declared_lines = e[1].to_int() else 0
+            "SE" => declared_segs = e[1].to_int() else 0
+            _ => continue
+    print("total {total / 100}.{total % 100:02}")
+    lines_ok := if lines == declared_lines then "ok" else "MISMATCH"
+    segs_ok := if segs.len() == declared_segs then "ok" else "MISMATCH"
+    print("line count {lines}/{declared_lines} {lines_ok}, segment count {segs.len()}/{declared_segs} {segs_ok}")
+
+@test fn implied_cents()
+    assert_eq(cents("2.5"), 250)
+    assert_eq(cents("12"), 1200)

@@ -1,0 +1,15 @@
+tick  1: n1:1 n2:0 n3:0   read at tail -> -
+tick  2: n1:2 n2:1 n3:0   read at tail -> -
+tick  3: write 1 acknowledged
+tick  3: n1:2 n2:2 n3:1   read at tail -> x=1
+tick  4: write 2 acknowledged
+tick  4: n1:3 n2:2 n3:2   read at tail -> x=2
+tick  5: n2 fails, chain is now [n1, n3]
+tick  5: write 3 acknowledged
+tick  5: n1:3 n3:3        read at tail -> x=3
+tick  6: n1:4 n3:3        read at tail -> x=3
+tick  7: write 4 acknowledged
+tick  7: n1:4 n3:4        read at tail -> x=4
+tick  8: n1:4 n3:4        read at tail -> x=4
+tick  9: n1:4 n3:4        read at tail -> x=4
+tick 10: n1:4 n3:4        read at tail -> x=4

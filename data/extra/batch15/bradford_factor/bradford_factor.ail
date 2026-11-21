@@ -1,0 +1,25 @@
+## Bradford factor: absence over the last 52 weeks scores S^2 x D (spells squared times total days), so many
+## short absences weigh far more than one long one; scores pass review triggers at 51, 201 and 651.
+
+fn score(spells List[int]) int
+    s := spells.len()
+    s * s * spells.sum()
+
+fn action(b int) str
+    match b
+        0..=50 => "no action"
+        51..=200 => "informal chat"
+        201..=650 => "first written review"
+        _ => "final review"
+
+fn main()
+    staff := [("Ada", [12]), ("Bill", [1, 1, 2, 1, 1, 1]), ("Chen", [3, 2]), ("Dee", [1, 2, 1, 1]), ("Eli", List[int]()), ("Fay", [5, 1, 1, 2, 1, 3, 1, 2])]
+    for p in staff
+        name, spells := p
+        b := score(spells)
+        print("{name:<5} {spells.len()} spells, {spells.sum():>2} days: score {b:>4}, {action(b)}")
+    same_days := [score([6]), score([3, 3]), score([2, 2, 2]), score([1, 1, 1, 1, 1, 1])]
+    print("six days off as 1, 2, 3 or 6 spells: {same_days}")
+
+@test fn long_absence()
+    assert_eq(score([10]), 10)

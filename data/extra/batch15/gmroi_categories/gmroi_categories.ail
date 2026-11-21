@@ -1,0 +1,28 @@
+## GMROI: gross margin return on inventory investment is gross margin / average inventory at cost; with
+## turnover (cost of sales / average inventory) it shows which shop categories earn their shelf money.
+
+struct Category
+    name str
+    sales int
+    cogs int
+    open_inv int
+    close_inv int
+
+fn Category.avg_inv(self) float
+    (self.open_inv + self.close_inv).to_float() / 2.0
+
+fn Category.gmroi(self) float
+    (self.sales - self.cogs).to_float() / self.avg_inv()
+
+fn main()
+    cats := [Category(name: "fresh food", sales: 820000, cogs: 590000, open_inv: 21000, close_inv: 19000), Category(name: "clothing", sales: 310000, cogs: 155000, open_inv: 96000, close_inv: 112000), Category(name: "electronics", sales: 450000, cogs: 382000, open_inv: 88000, close_inv: 92000), Category(name: "homeware", sales: 190000, cogs: 108000, open_inv: 41000, close_inv: 37000)]
+    ranked := cats.sorted(by: |c| -(c.gmroi() * 1000.0).to_int())
+    for c in ranked
+        margin := (c.sales - c.cogs).to_float() / c.sales.to_float() * 100.0
+        turns := c.cogs.to_float() / c.avg_inv()
+        verdict := if c.gmroi() < 1.0 then "  below 1, review" else ""
+        print("{c.name:<12} margin {margin:>4.1}%, turns {turns:>5.2}, GMROI {c.gmroi():>5.2}{verdict}")
+
+@test fn margin_return()
+    c := Category(name: "x", sales: 300, cogs: 200, open_inv: 40, close_inv: 60)
+    assert_eq(c.gmroi(), 2.0)

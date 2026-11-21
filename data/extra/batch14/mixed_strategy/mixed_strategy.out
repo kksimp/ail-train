@@ -1,0 +1,8 @@
+matching pennies: row plays first move with chance 1/2, column with 1/2
+    row expects 0, column expects 0
+concert or match: row plays first move with chance 2/3, column with 1/3
+    row expects 2/3, column expects 2/3
+penalty kick (% scored): row plays first move with chance 23/60, column with 5/12
+    row expects 955/12, column expects -955/12
+hawk or dove: row plays first move with chance 2/3, column with 2/3
+    row expects 2/3, column expects 2/3

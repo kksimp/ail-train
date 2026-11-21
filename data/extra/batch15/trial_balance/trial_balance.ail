@@ -1,0 +1,41 @@
+## Trial balance: double-entry journal lines are checked (debits equal credits per entry), posted to
+## accounts, and each account's balance is listed on its normal side; the two columns must total the same.
+
+enum Kind
+    Asset
+    Liability
+    Equity
+    Income
+    Expense
+
+fn debit_normal(k Kind) bool
+    match k
+        Asset | Expense => true
+        _ => false
+
+fn main()
+    kinds := {"Cash": Kind.Asset, "Equipment": Kind.Asset, "Bank loan": Kind.Liability, "Capital": Kind.Equity, "Sales": Kind.Income, "Rent": Kind.Expense, "Wages": Kind.Expense}
+    entries := [[("Cash", 2000000), ("Capital", -2000000)], [("Equipment", 850000), ("Cash", -350000), ("Bank loan", -500000)], [("Cash", 1240000), ("Sales", -1240000)], [("Rent", 180000), ("Cash", -180000)], [("Wages", 420000), ("Cash", -420000)], [("Bank loan", 50000), ("Cash", -40000)]]
+    mut net := Map[str, int]()
+    for i, e in entries.enumerate()
+        total := e.fold(0, |acc, line| acc + line.1)
+        if total != 0
+            print("entry {i + 1} does not balance by {total}, skipped")
+            continue
+        for line in e
+            net[line.0] += line.1
+    mut dr := 0
+    mut cr := 0
+    for name, k in kinds
+        bal := net.get_or(name, 0)
+        side := if debit_normal(k) then "Dr" else "Cr"
+        shown := if debit_normal(k) then bal else -bal
+        if bal >= 0
+            dr += bal
+        else
+            cr -= bal
+        print("{name:<10} {k.name():<9} {side} {shown / 100:>7}")
+    print("debits {dr / 100}, credits {cr / 100}, balanced: {dr == cr}")
+
+@test fn sides()
+    assert(debit_normal(Kind.Expense) and not debit_normal(Kind.Income))

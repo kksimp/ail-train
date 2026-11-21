@@ -1,0 +1,35 @@
+## Reverberation time: Sabine's formula RT60 = 0.161 V / A, where A sums each surface's area times
+## its absorption coefficient; adds 2.4 m2 acoustic panels to a hard classroom until RT60 is at most 0.8 s.
+
+struct Surface
+    name str
+    area float
+    alpha float
+
+fn absorption(parts List[Surface]) float
+    parts.fold(0.0, |acc, s| acc + s.area * s.alpha)
+
+fn rt60(volume float, parts List[Surface]) float
+    0.161 * volume / absorption(parts)
+
+fn main()
+    volume := 9.0 * 7.0 * 3.0
+    mut parts := [Surface(name: "floor", area: 63.0, alpha: 0.03), Surface(name: "ceiling", area: 63.0, alpha: 0.05), Surface(name: "walls", area: 96.0, alpha: 0.04), Surface(name: "windows", area: 12.0, alpha: 0.18)]
+    print("room volume {volume:.0} m3")
+    for p in parts
+        a := p.area * p.alpha
+        print("{p.name:<8} {p.area:>5.1} m2 x {p.alpha:.2} = {a:.3} sabins")
+    mut panels := 0
+    mut t := rt60(volume, parts)
+    print("bare room: RT60 {t:.2} s")
+    while t > 0.8
+        parts.push(Surface(name: "panel", area: 2.4, alpha: 0.9))
+        panels += 1
+        t = rt60(volume, parts)
+        if panels % 4 == 0
+            print("{panels:>2} panels: RT60 {t:.2} s")
+    total := absorption(parts)
+    print("{panels} panels reach RT60 {t:.2} s with {total:.2} sabins")
+
+@test fn single_surface()
+    assert_eq(absorption([Surface(name: "x", area: 10.0, alpha: 0.5)]), 5.0)

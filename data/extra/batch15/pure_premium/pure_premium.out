@@ -1,0 +1,6 @@
+young urban  frequency 0.160, severity 3500.00, pure 560.00, gross  756.25
+young rural  frequency 0.110, severity 3100.00, pure 341.00, gross  482.50
+adult urban  frequency 0.080, severity 3200.00, pure 256.00, gross  376.25
+adult rural  frequency 0.050, severity 2900.00, pure 145.00, gross  237.50
+senior       frequency 0.070, severity 3400.00, pure 238.00, gross  353.75
+lowest expected loss: adult rural

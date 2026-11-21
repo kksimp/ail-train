@@ -1,0 +1,6 @@
+trumps: Suit.Hearts
+9H AD JD KH: led Suit.Hearts, won by JD (power 99)
+AC KC 9C TC: led Suit.Clubs, won by AC (power 15)
+JD QH AH 9S: led Suit.Hearts, won by JD (power 99)
+QS AS TH JH: led Suit.Spades, won by JH (power 100)
+KD 9D TS QD: led Suit.Diamonds, won by KD (power 14)

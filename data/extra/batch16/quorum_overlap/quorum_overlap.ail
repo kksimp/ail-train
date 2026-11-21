@@ -1,0 +1,24 @@
+## Quorum reads: with five replicas, a write lands on the first W and a read asks the last R and keeps
+## the highest version; the read can only miss the write when R + W is not more than N.
+
+fn read_version(n int, w int, r int) int
+    mut versions := List[int]()
+    for i in 0..n
+        versions.push(if i < w then 2 else 1)
+    mut best := 0
+    for i in (n - r)..n
+        best = best.max(versions[i])
+    best
+
+fn main()
+    n := 5
+    for w, r in [(1, 1), (2, 3), (3, 3), (3, 2), (5, 1), (1, 5), (2, 2), (4, 2)]
+        got := read_version(n, w, r)
+        overlap := if w + r > n then "yes" else "no"
+        result := if got == 2 then "sees v2" else "STALE v1"
+        print("W={w} R={r}: R+W={w + r:>2} overlap {overlap:<3} -> {result}")
+    print("rule: R + W > {n} guarantees a fresh read")
+
+@test fn strict_quorum()
+    assert_eq(read_version(5, 3, 3), 2)
+    assert_eq(read_version(5, 2, 3), 1)

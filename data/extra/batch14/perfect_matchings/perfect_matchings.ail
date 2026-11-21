@@ -1,0 +1,46 @@
+## Perfect matchings: the number of ways to give every worker a different allowed shift is the
+## permanent of the 0/1 allowed table, computed with Ryser's subset formula and checked by search.
+
+fn ryser(a List[List[int]]) int
+    n := a.len()
+    mut total := 0
+    for mask in 1..(1 << n)
+        mut prod := 1
+        for i in 0..n
+            mut row := 0
+            for j in 0..n
+                if ((mask >> j) & 1) == 1
+                    row += a[i][j]
+            prod *= row
+        mut bits := 0
+        for j in 0..n
+            bits += ((mask >> j) & 1)
+        sign := if (n - bits) % 2 == 0 then 1 else -1
+        total += sign * prod
+    total
+
+fn search(a List[List[int]], i int, used int) int
+    if i == a.len()
+        return 1
+    mut count := 0
+    for j in 0..a.len()
+        if a[i][j] == 1 and ((used >> j) & 1) == 0
+            count += search(a, i + 1, used | (1 << j))
+    count
+
+fn main()
+    workers := ["Ana", "Bo", "Cy", "Di", "Ed"]
+    allowed := [[1, 1, 0, 0, 1], [0, 1, 1, 0, 0], [1, 0, 1, 1, 0], [0, 0, 1, 1, 1], [1, 1, 0, 1, 0]]
+    for i in 0..5
+        print("{workers[i]:<4} {allowed[i]}")
+    print("Ryser: {ryser(allowed)} rotas, search: {search(allowed, 0, 0)} rotas")
+    for n in 2..=7
+        mut d := List[List[int]]()
+        for i in 0..n
+            mut row := [1 for j in 0..n]
+            row[i] = 0
+            d.push(row)
+        print("nobody on own shift, n = {n}: {ryser(d)}")
+
+@test fn identity_one()
+    assert_eq(ryser([[1, 0], [0, 1]]), 1)

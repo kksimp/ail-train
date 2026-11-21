@@ -1,0 +1,9 @@
+7H 7S 7D: group of rank 7, worth 21
+4C 5C 6C 7C: run from 4 to 7, worth 22
+QD KD JD: run from 11 to 13, worth 30
+9S 9S 9H: invalid, repeated suit
+2H 3H 5H: invalid, gap in run
+AS 2S 3S: run from 1 to 3, worth 6
+8C 8D: invalid, too few cards
+TH JS QH: invalid, mixed ranks and suits
+points in valid melds: 79

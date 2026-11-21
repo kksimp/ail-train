@@ -1,0 +1,45 @@
+## Dice notation: parses role-playing dice like "3d6+2" or "d20" into count, sides and modifier,
+## reports the minimum, maximum and mean, rolls them with a fixed-seed generator, and rejects bad text.
+
+struct Roll
+    count int
+    sides int
+    bonus int
+
+fn parse(s str) Roll ! str
+    parts := s.split("d")
+    if parts.len() != 2
+        return "no single d in {s}"
+    count_text := if parts[0] == "" then "1" else parts[0]
+    n := count_text.to_int() else return "bad count in {s}"
+    rest := parts[1]
+    mut sides_text := rest
+    mut bonus := 0
+    plus := rest.find("+") else -1
+    minus := rest.find("-") else -1
+    cut := if plus >= 0 then plus else minus
+    if cut >= 0
+        sides_text = rest.slice(0, cut)
+        b := rest.slice(cut + 1).to_int() else return "bad bonus in {s}"
+        bonus = if plus >= 0 then b else -b
+    sides := sides_text.to_int() else return "bad sides in {s}"
+    if n < 1 or sides < 2
+        return "too few dice or sides in {s}"
+    Roll(count: n, sides: sides, bonus: bonus)
+
+fn main()
+    mut seed := 99
+    for text in ["3d6+2", "d20", "2d8-1", "4d4", "1d12+3", "2x6", "d1", "3d6+q"]
+        if r := parse(text)
+            mean := (r.count * (r.sides + 1)).to_float() / 2.0 + r.bonus.to_float()
+            mut total := r.bonus
+            for _ in 0..r.count
+                seed = (seed * 1103515245 + 12345) % 2147483648
+                total += (seed / 65536) % r.sides + 1
+            print("{text:<7} min {r.count + r.bonus:>2} max {r.count * r.sides + r.bonus:>2} mean {mean:>4.1} rolled {total}")
+        else err
+            print("{text:<7} error: {err}")
+
+@test fn parses_plain_die()
+    r := parse("d20")?
+    assert_eq(r.sides, 20)

@@ -1,0 +1,32 @@
+## String tuning: a stretched string sounds at f = sqrt(T / mu) / (2 L), so the tension for a note is
+## T = mu (2 L f)^2; gives each guitar string's tension in newtons and kilograms-force on a 648 mm scale.
+
+struct GuitarString
+    note str
+    freq float
+    mu float
+
+fn GuitarString.tension(self, scale float) float
+    w := 2.0 * scale * self.freq
+    self.mu * w * w
+
+fn pitch(tension float, mu float, scale float) float
+    (tension / mu).sqrt() / (2.0 * scale)
+
+fn main()
+    scale := 0.648
+    strings := [GuitarString(note: "E2", freq: 82.41, mu: 0.0062), GuitarString(note: "A2", freq: 110.0, mu: 0.0038), GuitarString(note: "D3", freq: 146.83, mu: 0.0022), GuitarString(note: "G3", freq: 196.0, mu: 0.00118), GuitarString(note: "B3", freq: 246.94, mu: 0.00058), GuitarString(note: "E4", freq: 329.63, mu: 0.0004)]
+    mut total := 0.0
+    for s in strings
+        t := s.tension(scale)
+        total += t
+        kgf := t / 9.80665
+        print("{s.note} {s.freq:>7.2} Hz: {t:>6.1} N ({kgf:.1} kgf)")
+    print("neck load {total:.0} N")
+    slack := strings[0].tension(scale) * 0.9
+    f := pitch(slack, strings[0].mu, scale)
+    print("E2 at 90% tension sounds at {f:.2} Hz")
+
+@test fn round_trip()
+    s := GuitarString(note: "A", freq: 100.0, mu: 0.01)
+    assert((pitch(s.tension(0.5), 0.01, 0.5) - 100.0).abs() < 0.000001)

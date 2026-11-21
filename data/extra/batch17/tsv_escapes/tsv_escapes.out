@@ -1,0 +1,5 @@
+id | note | path
+1 | line one\nline two | C:\\temp
+2 | tab\tinside | plain
+3 |  | a\\nb
+rows: 4, round trip ok: true

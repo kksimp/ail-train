@@ -1,0 +1,6 @@
+empty: river 0.353 m, sea 0.344 m
++100 t: total 220 t, river 0.647 m, sea 0.631 m
++150 t: total 370 t, river 1.088 m, sea 1.062 m
++200 t: total 570 t, river 1.676 m, sea 1.636 m
++150 t: total 720 t, river 2.118 m, sea 2.066 m over the limit
+cargo limit at 2.0 m: river 560 t, sea 577 t

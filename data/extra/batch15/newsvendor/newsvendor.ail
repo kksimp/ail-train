@@ -1,0 +1,36 @@
+## Newsvendor: a baker orders bread before knowing demand; leftover loaves lose cost - salvage and missed
+## ones lose price - cost, so the best order is the smallest Q whose demand CDF reaches Cu / (Cu + Co).
+
+fn expected_profit(q int, demand List[int], probs List[float], price float, cost float, salvage float) float
+    mut total := 0.0
+    for i in 0..demand.len()
+        sold := if demand[i] < q then demand[i] else q
+        left := q - sold
+        total += probs[i] * (sold.to_float() * price + left.to_float() * salvage - q.to_float() * cost)
+    total
+
+fn main()
+    demand := [60, 70, 80, 90, 100, 110, 120]
+    probs := [0.05, 0.1, 0.2, 0.3, 0.2, 0.1, 0.05]
+    price := 3.2
+    cost := 1.1
+    salvage := 0.3
+    under := price - cost
+    over := cost - salvage
+    ratio := under / (under + over)
+    print("critical ratio {ratio:.3}")
+    mut cdf := 0.0
+    mut pick := demand[demand.len() - 1]
+    for i in 0..demand.len()
+        cdf += probs[i]
+        if cdf >= ratio
+            pick = demand[i]
+            break
+    print("order {pick} loaves")
+    for q in demand
+        e := expected_profit(q, demand, probs, price, cost, salvage)
+        mark := if q == pick then " <- best" else ""
+        print("  order {q:>3}: expected profit {e:.2}{mark}")
+
+@test fn exact_demand()
+    assert_eq(expected_profit(10, [10], [1.0], 2.0, 1.0, 0.0), 10.0)

@@ -1,0 +1,11 @@
+APP_DB__POOL_SIZE  -> db.pool_size: 4 -> 16
+APP_SERVER__DEBUG  -> server.debug: false -> true
+APP_SERVER__PORT   -> server.port: rejected, '80a' is not a whole number
+APP_DB__HOST       -> db.host: localhost -> db.internal
+APP_CACHE__SIZE    -> cache.size: no such setting, ignored
+APP_CACHE__TTL     -> cache.ttl: 60 -> 300
+  cache.ttl = 300
+  db.host = db.internal
+  db.pool_size = 16
+  server.debug = true
+  server.port = 8080

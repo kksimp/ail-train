@@ -1,0 +1,45 @@
+## Template sections: a mustache-style renderer where double-brace names are replaced by values, a `#list`
+## section repeats its body once per item (the item is the dot), and a `^list` section shows only when the list is empty.
+
+fn render(t str, vars Map[str, str], lists Map[str, List[str]]) str
+    open := "\{\{"
+    shut := "}}"
+    mut out := List[str]()
+    mut rest := t
+    while true
+        at := rest.find(open) else -1
+        if at < 0
+            out.push(rest)
+            break
+        out.push(rest.slice(0, at))
+        after := rest.slice(at + 2)
+        close := after.find(shut) else after.len()
+        tag := after.slice(0, close)
+        rest = after.slice((close + 2).min(after.len()))
+        if tag.starts_with("#") or tag.starts_with("^")
+            name := tag.slice(1)
+            end_tag := [open, "/", name, shut].join("")
+            end := rest.find(end_tag) else rest.len()
+            body := rest.slice(0, end)
+            rest = rest.slice((end + end_tag.len()).min(rest.len()))
+            items := lists.get(name) else List[str]()
+            if tag.starts_with("#")
+                for it in items
+                    mut inner := vars
+                    inner["."] = it
+                    out.push(render(body, inner, lists))
+            elif items.is_empty()
+                out.push(render(body, vars, lists))
+        else
+            out.push(vars.get_or(tag, ""))
+    out.join("")
+
+fn main()
+    t := "Order for \{\{name}}:\n\{\{#items}}  - \{\{.}} (\{\{shop}})\n\{\{/items}}\{\{^items}}  nothing yet\n\{\{/items}}Thanks, \{\{name}}!"
+    first := render(t, {"name": "Ana", "shop": "Corner"}, {"items": ["bread", "milk", "eggs"]})
+    print(first)
+    second := render(t, {"name": "Ben", "shop": "Corner"}, {"items": List[str]()})
+    print(second)
+
+@test fn plain_var()
+    assert_eq(render("a \{\{x}} b", {"x": "1"}, Map[str, List[str]]()), "a 1 b")

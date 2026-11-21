@@ -1,0 +1,25 @@
+## Stellar parallax: a star whose position shifts by p arcseconds over half a year is 1 / p parsecs away
+## (3.2616 light years each); the parallax error gives a distance range from 1 / (p + s) to 1 / (p - s).
+
+struct Star
+    name str
+    mas float
+    err float
+
+fn parsecs(mas float) float
+    1000.0 / mas
+
+fn main()
+    stars := [Star(name: "Proxima Centauri", mas: 768.07, err: 0.03), Star(name: "Sirius", mas: 379.21, err: 1.58), Star(name: "Vega", mas: 130.23, err: 0.36), Star(name: "Betelgeuse", mas: 5.95, err: 0.58), Star(name: "Deneb", mas: 2.29, err: 0.32)]
+    for s in stars.sorted(by: |s| -(s.mas * 100.0).to_int())
+        d := parsecs(s.mas)
+        ly := d * 3.2616
+        near := parsecs(s.mas + s.err)
+        far := parsecs(s.mas - s.err)
+        pct := s.err / s.mas * 100.0
+        print("{s.name:<16} {s.mas:>7.2} mas: {d:>7.2} pc = {ly:>7.1} ly (range {near:.2} to {far:.2} pc, {pct:.2}% error)")
+    shaky := stars.filter(|s| s.err / s.mas > 0.1).map(|s| s.name).join(", ")
+    print("over 10% error: {shaky}")
+
+@test fn one_parsec()
+    assert_eq(parsecs(1000.0), 1.0)

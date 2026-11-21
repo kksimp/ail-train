@@ -1,0 +1,7 @@
+line 1: 3 trailing whitespace characters
+line 2: 1 tab(s)
+line 3: 53 characters, limit 40
+line 4: CRLF line ending
+line 6: no newline at end of file
+5 problems in 6 lines
+clean file: 0 problems

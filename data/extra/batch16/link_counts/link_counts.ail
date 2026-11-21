@@ -1,0 +1,50 @@
+## Hard links and open files: an inode counts directory names that point at it and open handles;
+## unlinking removes a name, and the data is freed only when both the link count and open count reach zero.
+
+struct Inode
+    links int
+    opens int
+
+fn main()
+    mut dir := Map[str, int]()
+    mut inodes := Map[int, Inode]()
+    mut next_ino := 1
+    ops := [["create", "a"], ["link", "a", "b"], ["open", "a"], ["unlink", "a"], ["unlink", "b"], ["create", "c"], ["close", "b"], ["link", "c", "d"], ["unlink", "c"]]
+    mut handles := Map[str, int]()
+    for op in ops
+        mut ino := 0
+        if op[0] == "create"
+            ino = next_ino
+            next_ino += 1
+            inodes[ino] = Inode(links: 1, opens: 0)
+            dir[op[1]] = ino
+        elif op[0] == "link"
+            ino = dir[op[1]]
+            dir[op[2]] = ino
+            inodes[ino].links += 1
+        elif op[0] == "open"
+            ino = dir[op[1]]
+            handles[op[1]] = ino
+            inodes[ino].opens += 1
+        elif op[0] == "close"
+            ino = handles.values()[0]
+            inodes[ino].opens -= 1
+        else
+            ino = dir[op[1]]
+            dir.remove(op[1])
+            inodes[ino].links -= 1
+        node := inodes[ino]
+        mut note := ""
+        if node.links == 0 and node.opens == 0
+            inodes.remove(ino)
+            note = ", data freed"
+        elif node.links == 0
+            note = ", nameless but open"
+        words := op.join(" ")
+        print("{words:<12} inode {ino}: links {node.links} opens {node.opens}{note}")
+    names := dir.keys().sorted().join(" ")
+    print("names left: {names}; inodes in use: {inodes.len()}")
+
+@test fn starts_with_one_link()
+    i := Inode(links: 1, opens: 0)
+    assert_eq(i.links, 1)

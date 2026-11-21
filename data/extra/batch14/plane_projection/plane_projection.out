@@ -1,0 +1,7 @@
+9 P = [[8, -2, -2], [-2, 5, -4], [-2, -4, 5]]
+P P = P: true
+[9, 0, 0] -> (8.000, -2.000, -2.000), distance to the plane 3.000
+[3, 3, 3] -> (1.333, -0.333, -0.333), distance to the plane 5.000
+[2, -1, 0] -> (2.000, -1.000, 0.000), distance to the plane 0.000
+[0, 9, -9] -> (0.000, 9.000, -9.000), distance to the plane 0.000
+normal [1, 2, 2] -> [0, 0, 0]: it collapses to the origin

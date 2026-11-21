@@ -1,0 +1,54 @@
+## Box-counting dimension: cover a 256 x 256 picture with boxes of side s and count the boxes N(s) that
+## touch it; log N / log(256 / s) is about 1.585 for Pascal's triangle mod 2, 1 for a line and 2 for a square.
+
+fn odd_pascal() List[List[bool]]
+    mut rows := List[List[bool]]()
+    mut row := [1]
+    for r in 0..256
+        mut cells := [false for c in 0..256]
+        for c in 0..row.len()
+            cells[c] = row[c] == 1
+        rows.push(cells)
+        mut next := [1]
+        for i in 1..row.len()
+            next.push((row[i - 1] + row[i]) % 2)
+        next.push(1)
+        row = next
+    rows
+
+fn boxes(pic List[List[bool]], s int) int
+    mut count := 0
+    for by in 0..256 / s
+        for bx in 0..256 / s
+            mut hit := false
+            for y in by * s..by * s + s
+                for x in bx * s..bx * s + s
+                    if pic[y][x]
+                        hit = true
+            if hit
+                count += 1
+    count
+
+fn main()
+    pascal := odd_pascal()
+    mut line := List[List[bool]]()
+    mut square := List[List[bool]]()
+    for y in 0..256
+        line.push([x == y for x in 0..256])
+        square.push([true for x in 0..256])
+    print("box side   Pascal mod 2      line    square")
+    for s in [64, 16, 4, 1]
+        scale := (256 / s).to_float().ln()
+        a := boxes(pascal, s)
+        b := boxes(line, s)
+        c := boxes(square, s)
+        da := a.to_float().ln() / scale
+        db := b.to_float().ln() / scale
+        dc := c.to_float().ln() / scale
+        print("{s:>8} {a:>6} ({da:.3}) {b:>4} ({db:.1}) {c:>5} ({dc:.1})")
+    three := 3.0
+    two := 2.0
+    print("exact dimension of the triangle: log 3 / log 2 = {three.ln() / two.ln():.3}")
+
+@test fn whole_square()
+    assert_eq(boxes([[true for x in 0..256] for y in 0..256], 128), 4)

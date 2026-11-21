@@ -1,0 +1,32 @@
+## Saros cycle: 223 synodic months (6585.32 days) almost equal 242 draconic and 239 anomalistic months,
+## so an eclipse repeats 18 years 11 days 8 hours later, a third of the way round the Earth to the west.
+
+fn civil(z0 int) List[int]
+    z := z0 + 719468
+    era := z / 146097
+    doe := z - era * 146097
+    yoe := (doe - doe / 1460 + doe / 36524 - doe / 146096) / 365
+    doy := doe - (365 * yoe + yoe / 4 - yoe / 100)
+    mp := (5 * doy + 2) / 153
+    d := doy - (153 * mp + 2) / 5 + 1
+    m := if mp < 10 then mp + 3 else mp - 9
+    adj := if m <= 2 then 1 else 0
+    y := yoe + era * 400 + adj
+    [y, m, d]
+
+fn main()
+    synodic := 223.0 * 29.530589
+    draconic := 242.0 * 27.212221
+    anomalistic := 239.0 * 27.554550
+    print("223 synodic {synodic:.3} d, 242 draconic {draconic:.3} d, 239 anomalistic {anomalistic:.3} d")
+    start := 17399.0 + 18.42 / 24.0
+    for k in 0..5
+        t := start + k.to_float() * synodic
+        day := t.floor().to_int()
+        hour := (t - t.floor()) * 24.0
+        ymd := civil(day)
+        west := k * 120 % 360
+        print("eclipse {k}: {ymd[0]}-{ymd[1]:02}-{ymd[2]:02} about {hour:.1} h UT, shifted {west} deg west")
+
+@test fn civil_epoch()
+    assert_eq(civil(0), [1970, 1, 1])

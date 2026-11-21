@@ -1,0 +1,50 @@
+## Dragon curve: folding a strip in half n times and unfolding it to right angles gives turns where
+## turn k is the bit just above k's lowest set bit; walking those turns traces the dragon without reusing an edge.
+
+fn turn(k int) str
+    low := k & (-k)
+    if ((k / low) & 2) == 0 then "R" else "L"
+
+fn unfold(n int) str
+    mut s := ""
+    for i in 0..n
+        mut flipped := List[str]()
+        for c in s.chars().reversed()
+            flipped.push(if c == 'R' then "L" else "R")
+        back := flipped.join("")
+        s = "{s}R{back}"
+    s
+
+fn main()
+    by_bits := [turn(k) for k in 1..16].join("")
+    print("turns from bits:   {by_bits}")
+    print("turns by unfolding: {unfold(4)}")
+    for n in [4, 8, 10, 12]
+        mut x := 0
+        mut y := 0
+        mut dx := 1
+        mut dy := 0
+        mut edges := Set[str]()
+        mut repeats := 0
+        segments := 1 << n
+        for k in 1..=segments
+            nx := x + dx
+            ny := y + dy
+            key := if x < nx or (x == nx and y < ny) then "{x},{y},{nx},{ny}" else "{nx},{ny},{x},{y}"
+            if not edges.add(key)
+                repeats += 1
+            x = nx
+            y = ny
+            if k < segments
+                if turn(k) == "L"
+                    t := dx
+                    dx = -dy
+                    dy = t
+                else
+                    t := dx
+                    dx = dy
+                    dy = -t
+        print("{segments:>5} segments end at ({x}, {y}), {repeats} edges reused")
+
+@test fn first_turns()
+    assert_eq(unfold(2), "RRL")

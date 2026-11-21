@@ -1,0 +1,7 @@
+minor gc at  4: freed 3, kept 1, promoted []
+minor gc at  8: freed 2, kept 2, promoted [2]
+minor gc at 12: freed 4, kept 1, promoted [6]
+minor gc at 16: freed 2, kept 2, promoted [9]
+old space before major gc: 3
+major gc at 36: 1 live
+nursery copies made: 6

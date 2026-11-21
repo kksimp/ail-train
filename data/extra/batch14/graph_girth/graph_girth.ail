@@ -1,0 +1,52 @@
+## Graph girth: the length of the shortest cycle, found by a breadth-first search from every
+## vertex; an edge to an already-seen vertex that is not the parent closes a cycle of dist + dist + 1.
+
+fn girth(n int, edges List[List[int]]) int
+    mut adj := List[List[int]]()
+    for i in 0..n
+        adj.push(List[int]())
+    for e in edges
+        adj[e[0]].push(e[1])
+        adj[e[1]].push(e[0])
+    mut best := n + 1
+    for s in 0..n
+        mut dist := [-1 for i in 0..n]
+        mut parent := [-1 for i in 0..n]
+        dist[s] = 0
+        mut queue := [s]
+        mut head := 0
+        while head < queue.len()
+            u := queue[head]
+            head += 1
+            for w in adj[u]
+                if dist[w] == -1
+                    dist[w] = dist[u] + 1
+                    parent[w] = u
+                    queue.push(w)
+                elif parent[u] != w
+                    best = best.min(dist[u] + dist[w] + 1)
+    if best > n then 0 else best
+
+fn cube() List[List[int]]
+    mut es := List[List[int]]()
+    for v in 0..8
+        for bit in [1, 2, 4]
+            w := v ^ bit
+            if v < w
+                es.push([v, w])
+    es
+
+fn main()
+    petersen := [[0, 1], [1, 2], [2, 3], [3, 4], [4, 0], [0, 5], [1, 6], [2, 7], [3, 8], [4, 9], [5, 7], [7, 9], [9, 6], [6, 8], [8, 5]]
+    k4 := [[0, 1], [0, 2], [0, 3], [1, 2], [1, 3], [2, 3]]
+    hexring := [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 0]]
+    tree := [[0, 1], [0, 2], [1, 3], [1, 4], [2, 5]]
+    cases := [("K4", 4, k4), ("cube", 8, cube()), ("Petersen", 10, petersen), ("hexagon", 6, hexring), ("tree", 6, tree)]
+    for c in cases
+        name, n, edges := c
+        g := girth(n, edges)
+        text := if g == 0 then "no cycle" else "girth {g}"
+        print("{name:<9} {n:>2} vertices {edges.len():>2} edges: {text}")
+
+@test fn triangle()
+    assert_eq(girth(3, [[0, 1], [1, 2], [2, 0]]), 3)

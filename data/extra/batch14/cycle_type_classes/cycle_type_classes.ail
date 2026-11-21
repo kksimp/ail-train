@@ -1,0 +1,73 @@
+## Conjugacy classes of S5: permutations are conjugate exactly when they share a cycle type, a
+## partition of 5; a class has n! / prod(k^m m!) members, checked by sorting all 120 permutations.
+
+fn partitions(n int, most int) List[List[int]]
+    if n == 0
+        return [List[int]()]
+    mut out := List[List[int]]()
+    mut first := most.min(n)
+    while first >= 1
+        for rest in partitions(n - first, first)
+            mut p := [first]
+            p.extend(rest)
+            out.push(p)
+        first -= 1
+    out
+
+fn fact(n int) int
+    if n <= 1 then 1 else n * fact(n - 1)
+
+fn class_size(p List[int], n int) int
+    mut den := 1
+    mut counts := Map[int, int]()
+    for k in p
+        counts[k] += 1
+        den *= k
+    for k, m in counts
+        den *= fact(m)
+    fact(n) / den
+
+fn perms(n int) List[List[int]]
+    if n == 0
+        return [List[int]()]
+    mut out := List[List[int]]()
+    for p in perms(n - 1)
+        for pos in 0..=p.len()
+            mut q := p
+            q.insert(pos, n - 1)
+            out.push(q)
+    out
+
+fn cycle_type(p List[int]) str
+    mut seen := [false for i in 0..p.len()]
+    mut lens := List[int]()
+    for s in 0..p.len()
+        if not seen[s]
+            mut x := s
+            mut l := 0
+            while not seen[x]
+                seen[x] = true
+                x = p[x]
+                l += 1
+            lens.push(l)
+    lens.sorted().reversed().map(|k| "{k}").join("+")
+
+fn main()
+    n := 5
+    mut found := Map[str, int]()
+    for p in perms(n)
+        found[cycle_type(p)] += 1
+    mut total := 0
+    mut even := 0
+    for p in partitions(n, n)
+        key := p.map(|k| "{k}").join("+")
+        size := class_size(p, n)
+        parity := if (n - p.len()) % 2 == 0 then "even" else "odd"
+        if parity == "even"
+            even += size
+        total += size
+        print("{key:<10} {size:>3} permutations ({parity}), counted {found.get_or(key, 0)}")
+    print("{total} in all, {even} even (the group A5)")
+
+@test fn transpositions()
+    assert_eq(class_size([2, 1, 1, 1], 5), 10)

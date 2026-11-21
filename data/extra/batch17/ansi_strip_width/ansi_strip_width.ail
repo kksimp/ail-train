@@ -1,0 +1,38 @@
+## ANSI stripping: terminal colour codes (ESC [ ... m) take no space on screen, so the visible width of
+## coloured text is its length after removing every escape sequence; also lists the style codes each line used.
+
+fn strip(s str, esc char) List[str]
+    cs := s.chars()
+    mut text := List[char]()
+    mut codes := List[str]()
+    mut i := 0
+    while i < cs.len()
+        if cs[i] == esc and i + 1 < cs.len() and cs[i + 1] == '['
+            mut j := i + 2
+            mut code := List[char]()
+            while j < cs.len() and not cs[j].is_alpha()
+                code.push(cs[j])
+                j += 1
+            codes.push(code.join(""))
+            i = j + 1
+        else
+            text.push(cs[i])
+            i += 1
+    [text.join(""), codes.join(" ")]
+
+fn main()
+    esc := char.from_code(27) else '?'
+    red := "{esc}[31m"
+    bold := "{esc}[1;32m"
+    off := "{esc}[0m"
+    lines := ["{red}FAIL{off} parser", "{bold}PASS{off} lexer", "plain line", "{red}{esc}[4mWARN{off} slow test {bold}(2.1s){off}"]
+    mut widest := 0
+    for line in lines
+        parts := strip(line, esc)
+        visible := parts[0]
+        widest = widest.max(visible.len())
+        print("{visible:<26} raw {line.len():>2}, visible {visible.len():>2}, codes [{parts[1]}]")
+    print("column width needed: {widest}")
+
+@test fn no_codes()
+    assert_eq(strip("abc", '~')[0], "abc")

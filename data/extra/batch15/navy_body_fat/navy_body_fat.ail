@@ -1,0 +1,31 @@
+## Navy body fat: the US Navy tape method estimates body fat from circumferences in inches, men
+## 86.010 log10(waist - neck) - 70.041 log10(height) + 36.76, women with hips added to the waist.
+
+struct Person
+    name str
+    male bool
+    height_cm float
+    neck_cm float
+    waist_cm float
+    hip_cm float
+    kg float
+
+fn body_fat(p Person) float
+    h := p.height_cm / 2.54
+    n := p.neck_cm / 2.54
+    w := p.waist_cm / 2.54
+    hip := p.hip_cm / 2.54
+    if p.male
+        return 86.01 * (w - n).log10() - 70.041 * h.log10() + 36.76
+    163.205 * (w + hip - n).log10() - 97.684 * h.log10() - 78.387
+
+fn main()
+    people := [Person(name: "Arun", male: true, height_cm: 178.0, neck_cm: 39.0, waist_cm: 86.0, hip_cm: 0.0, kg: 78.0), Person(name: "Ben", male: true, height_cm: 185.0, neck_cm: 41.5, waist_cm: 101.0, hip_cm: 0.0, kg: 96.0), Person(name: "Chloe", male: false, height_cm: 165.0, neck_cm: 32.0, waist_cm: 71.0, hip_cm: 97.0, kg: 61.0), Person(name: "Dana", male: false, height_cm: 170.0, neck_cm: 34.0, waist_cm: 84.0, hip_cm: 106.0, kg: 77.0)]
+    for p in people
+        bf := body_fat(p)
+        fat := p.kg * bf / 100.0
+        lean := p.kg - fat
+        print("{p.name:<6} {bf:>5.1}% body fat: {fat:>5.1} kg fat, {lean:>5.1} kg lean")
+
+@test fn log_scale()
+    assert((body_fat(Person(name: "x", male: true, height_cm: 254.0, neck_cm: 25.4, waist_cm: 279.4, hip_cm: 0.0, kg: 1.0)) - 68.698).abs() < 0.000001)

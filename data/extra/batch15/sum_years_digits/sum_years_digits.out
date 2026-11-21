@@ -1,0 +1,8 @@
+machine cost 64000, salvage 4000, life 6 years, digits 21
+year 1:  17142 (28% of base), book value  46858
+year 2:  14285 (23% of base), book value  32573
+year 3:  11428 (19% of base), book value  21145
+year 4:   8571 (14% of base), book value  12574
+year 5:   5714 (9% of base), book value   6860
+year 6:   2860 (4% of base), book value   4000
+total depreciation 60000, first two years 31427

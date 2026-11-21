@@ -1,0 +1,41 @@
+## Peephole optimiser: a small window slides over stack-machine code dropping add 0 and mul 1,
+## push/pop pairs on one register, a load right after a store of the same slot, and jumps to the next line.
+
+fn pass_once(code List[str]) List[str]
+    mut out := List[str]()
+    mut i := 0
+    while i < code.len()
+        cur := code[i]
+        nxt := if i + 1 < code.len() then code[i + 1] else ""
+        w := cur.split(" ")
+        arg := if w.len() > 1 then w[1] else ""
+        if cur == "add 0" or cur == "mul 1"
+            i += 1
+        elif w[0] == "push" and nxt == "pop {arg}"
+            i += 2
+        elif w[0] == "store" and nxt == "load {arg}"
+            out.push(cur)
+            i += 2
+        elif w[0] == "jmp" and nxt == "{arg}:"
+            i += 1
+        else
+            out.push(cur)
+            i += 1
+    out
+
+fn main()
+    mut code := ["load x", "add 0", "store y", "load y", "push r1", "mul 1", "pop r1", "jmp L1", "L1:", "push r2", "pop r3", "mul 1", "add 5", "jmp L2", "store z", "L2:", "ret"]
+    print("start: {code.len()} instructions")
+    mut pass := 1
+    while true
+        next_code := pass_once(code)
+        if next_code.len() == code.len()
+            break
+        print("pass {pass}: {code.len()} -> {next_code.len()}")
+        code = next_code
+        pass += 1
+    for line in code
+        print("    {line}")
+
+@test fn drops_identity()
+    assert_eq(pass_once(["load a", "add 0", "ret"]), ["load a", "ret"])

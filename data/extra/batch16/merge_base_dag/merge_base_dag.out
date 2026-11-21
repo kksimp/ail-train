@@ -1,0 +1,4 @@
+c9  vs c8 : base c4, c9 has 4 commits c8 lacks, c8 has 2
+c5  vs c7 : base c2, c5 has 2 commits c7 lacks, c7 has 2
+c3  vs c9 : base c3, c3 has 0 commits c9 lacks, c9 has 4
+c10 vs c11: base c5 and c7, c10 has 1 commits c11 lacks, c11 has 1

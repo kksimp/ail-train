@@ -1,0 +1,10 @@
+job  1: linux-py3.10-sqlite
+job  2: linux-py3.10-postgres
+job  3: linux-py3.12-sqlite
+job  4: linux-py3.12-postgres
+job  5: macos-py3.12-sqlite
+job  6: macos-py3.12-postgres
+job  7: windows-py3.10-sqlite
+job  8: windows-py3.12-sqlite
+job  9: linux-py3.13-dev-sqlite
+12 combinations, 4 excluded, 1 added, 9 jobs

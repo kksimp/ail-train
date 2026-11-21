@@ -1,0 +1,35 @@
+## Carnot limits: no engine beats 1 - Tc / Th, no fridge beats COP Tc / (Th - Tc) and no heat pump
+## Th / (Th - Tc), all in kelvin; real machines reach about half, shown for six machines.
+
+enum Role
+    Engine
+    Fridge
+    HeatPump
+
+struct Machine
+    name str
+    role Role
+    hot float
+    cold float
+
+fn Machine.ideal(self) float
+    th := self.hot + 273.15
+    tc := self.cold + 273.15
+    match self.role
+        Engine => 1.0 - tc / th
+        Fridge => tc / (th - tc)
+        HeatPump => th / (th - tc)
+
+fn main()
+    machines := [Machine(name: "steam plant", role: Role.Engine, hot: 550.0, cold: 30.0), Machine(name: "car engine", role: Role.Engine, hot: 900.0, cold: 90.0), Machine(name: "kitchen fridge", role: Role.Fridge, hot: 35.0, cold: -2.0), Machine(name: "freezer", role: Role.Fridge, hot: 35.0, cold: -25.0), Machine(name: "floor heating", role: Role.HeatPump, hot: 35.0, cold: -5.0), Machine(name: "radiators", role: Role.HeatPump, hot: 55.0, cold: -5.0)]
+    for m in machines
+        ideal := m.ideal()
+        real := ideal * 0.5
+        shown := match m.role
+            Engine => "efficiency {ideal * 100.0:.1}%, real about {real * 100.0:.1}%"
+            _ => "COP {ideal:.2}, real about {real:.2}"
+        print("{m.name:<14} {m.hot:>5.0} / {m.cold:>4.0} C: {shown}")
+
+@test fn same_temperature_engine()
+    m := Machine(name: "x", role: Role.Engine, hot: 20.0, cold: 20.0)
+    assert_eq(m.ideal(), 0.0)

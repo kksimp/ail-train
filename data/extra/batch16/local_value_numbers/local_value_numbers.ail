@@ -1,0 +1,49 @@
+## Local value numbering: each operand gets a number, and an expression is keyed by its operator
+## and operand numbers (sorted for + and *), so a repeated computation becomes a copy of the first.
+
+fn number_of(name str, mut vn Map[str, int], mut next_id List[int]) int
+    if vn.contains(name)
+        return vn[name]
+    vn[name] = next_id[0]
+    next_id[0] += 1
+    vn[name]
+
+fn main()
+    code := [["a", "b", "+", "c"], ["d", "c", "+", "b"], ["e", "b", "-", "c"], ["b", "a", "*", "2"], ["f", "b", "+", "c"], ["g", "c", "-", "b"], ["h", "a", "*", "2"], ["k", "e", "-", "g"]]
+    mut vn := Map[str, int]()
+    mut holder := Map[int, str]()
+    mut exprs := Map[str, int]()
+    mut next_id := [0]
+    mut saved := 0
+    for ins in code
+        x := number_of(ins[1], mut vn, mut next_id)
+        y := number_of(ins[3], mut vn, mut next_id)
+        op := ins[2]
+        lo := if op != "-" and y < x then y else x
+        hi := if op != "-" and y < x then x else y
+        key := "{lo}{op}{hi}"
+        dst := ins[0]
+        if exprs.contains(key) and holder.get_or(exprs[key], "") != ""
+            hit := exprs[key]
+            src := holder[hit]
+            print("{dst} = {src:<4} ; reuses v{hit} ({key})")
+            vn[dst] = hit
+            saved += 1
+        else
+            v := next_id[0]
+            next_id[0] += 1
+            exprs[key] = v
+            vn[dst] = v
+            print("{dst} = {ins[1]} {op} {ins[3]} ; v{v}")
+        for vk in holder.keys()
+            if holder[vk] == dst
+                holder[vk] = ""
+        holder[vn[dst]] = dst
+    print("{saved} computations replaced by copies")
+
+@test fn stable_numbers()
+    mut vn := Map[str, int]()
+    mut next_id := [0]
+    a := number_of("x", mut vn, mut next_id)
+    b := number_of("x", mut vn, mut next_id)
+    assert_eq(a, b)

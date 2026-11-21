@@ -1,0 +1,68 @@
+## Irreducible polynomials over GF(2): a sieve crosses out every carry-less product of two smaller
+## polynomials; the survivors of degree n number (1/n) sum over d | n of mu(d) 2^(n/d), Gauss's formula.
+
+fn clmul(a int, b int) int
+    mut r := 0
+    mut x := a
+    mut y := b
+    while y > 0
+        if (y & 1) == 1
+            r = r ^ x
+        x = x << 1
+        y = y >> 1
+    r
+
+fn degree(p int) int
+    mut d := -1
+    mut x := p
+    while x > 0
+        d += 1
+        x = x >> 1
+    d
+
+fn mu(n int) int
+    mut m := n
+    mut sign := 1
+    mut f := 2
+    while f * f <= m
+        if m % f == 0
+            m /= f
+            if m % f == 0
+                return 0
+            sign = -sign
+        f += 1
+    if m > 1 then -sign else sign
+
+fn gauss(n int) int
+    mut total := 0
+    for d in 1..=n
+        if n % d == 0
+            total += mu(d) * (1 << (n / d))
+    total / n
+
+fn show(p int) str
+    mut terms := List[str]()
+    mut i := degree(p)
+    while i >= 0
+        if ((p >> i) & 1) == 1
+            term := if i == 0 then "1" elif i == 1 then "x" else "x^{i}"
+            terms.push(term)
+        i -= 1
+    terms.join(" + ")
+
+fn main()
+    top := 8
+    mut reducible := Set[int]()
+    for a in 2..(1 << top)
+        for b in a..(1 << top)
+            if degree(a) + degree(b) <= top
+                reducible.add(clmul(a, b))
+    for n in 1..=top
+        found := [p for p in (1 << n)..(1 << (n + 1)) if not reducible.contains(p)]
+        print("degree {n}: {found.len():>2} irreducible, formula {gauss(n):>2}")
+        if n <= 4
+            shown := found.map(|p| show(p)).join(", ")
+            print("    {shown}")
+
+@test fn square_is_reducible()
+    assert_eq(clmul(3, 3), 5)

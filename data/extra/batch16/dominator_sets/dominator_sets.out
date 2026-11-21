@@ -1,0 +1,8 @@
+entry  dominated by: entry              idom -
+a      dominated by: entry a            idom entry
+b      dominated by: entry a b          idom a
+c      dominated by: entry a c          idom a
+d      dominated by: entry a d          idom a
+e      dominated by: entry a d e        idom d
+exit   dominated by: entry a exit       idom a
+stable after 2 rounds

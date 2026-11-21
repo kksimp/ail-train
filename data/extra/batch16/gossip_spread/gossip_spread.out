@@ -1,0 +1,11 @@
+round  1: +1   2 ##
+round  2: +2   4 ####
+round  3: +4   8 ########
+round  4: +7  15 ###############
+round  5: +2  17 #################
+round  6: +2  19 ###################
+round  7: +0  19 ###################
+round  8: +0  19 ###################
+round  9: +0  19 ###################
+round 10: +1  20 ####################
+all 20 nodes informed after 10 rounds, 104 messages hit informed nodes

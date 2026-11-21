@@ -1,0 +1,7 @@
+12 distinct words, 'new' at 5 positions
+"new york" -> docs [0, 2]
+"york pizza" -> docs [0]
+"thin crust pizza" -> docs [3]
+pizza NEAR/2 thin -> docs [0, 3]
+pizza NEAR/1 york -> docs [0]
+new NEAR/3 pizza -> docs [0, 1, 3]

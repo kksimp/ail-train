@@ -1,0 +1,8 @@
+copper 15 mm    0.1 m/s: Re    1494, f 0.0428, loss  0.029 m (0.29 kPa)
+copper 15 mm    1.5 m/s: Re   22410, f 0.0254, loss  3.877 m (37.96 kPa)
+steel 50 mm     0.1 m/s: Re    4980, f 0.0390, loss  0.040 m (0.39 kPa)
+steel 50 mm     1.5 m/s: Re   74701, f 0.0227, loss  5.204 m (50.95 kPa)
+old iron 50 mm  0.1 m/s: Re    4980, f 0.0486, loss  0.050 m (0.49 kPa)
+old iron 50 mm  1.5 m/s: Re   74701, f 0.0390, loss  8.945 m (87.57 kPa)
+PVC 100 mm      0.1 m/s: Re    9960, f 0.0310, loss  0.079 m (0.77 kPa)
+PVC 100 mm      1.5 m/s: Re  149402, f 0.0166, loss  9.501 m (93.02 kPa)

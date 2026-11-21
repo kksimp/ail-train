@@ -1,0 +1,39 @@
+## Hearts scoring: each heart taken costs a point and the queen of spades 13; a player who takes all
+## 26 points shoots the moon, scoring 0 while everyone else gets 26. Lowest total wins.
+
+fn points(taken str) int
+    mut p := 0
+    for card in taken.split(" ")
+        if card == "QS"
+            p += 13
+        elif card.ends_with("H")
+            p += 1
+    p
+
+fn main()
+    names := ["Ana", "Ben", "Cal", "Dee"]
+    rounds := [["2H 5H QS", "KH AH 9H", "", "3H 4H 6H 7H 8H TH JH QH"], ["", "2H 3H 4H 5H 6H 7H 8H 9H TH JH QH KH AH QS", "", ""], ["4H 9H", "", "QS AH KH", "2H 3H 5H 6H 7H 8H TH JH QH"], ["", "QS 2H", "3H 4H 5H 6H", "7H 8H 9H TH JH QH KH AH"]]
+    mut totals := [0, 0, 0, 0]
+    for ri, hand in rounds.enumerate()
+        mut got := hand.map(|t| points(t))
+        mut moon := -1
+        for i in 0..4
+            if got[i] == 26
+                moon = i
+        if moon >= 0
+            for i in 0..4
+                got[i] = if i == moon then 0 else 26
+            print("round {ri + 1}: {names[moon]} shoots the moon")
+        for i in 0..4
+            totals[i] += got[i]
+        shown := got.map(|g| "{g:>3}").join("")
+        print("round {ri + 1} points:{shown}")
+    mut best := 0
+    for i in 0..4
+        print("{names[i]:<4} {totals[i]:>3}")
+        if totals[i] < totals[best]
+            best = i
+    print("winner: {names[best]}")
+
+@test fn queen_and_two_hearts()
+    assert_eq(points("QS 2H 9C 5H"), 15)

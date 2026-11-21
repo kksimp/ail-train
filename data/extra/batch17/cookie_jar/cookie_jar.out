@@ -1,0 +1,6 @@
+jar holds 4 cookies
+https://shop.example.com/cart/view  Cookie: sid=abc123; lang=en; token=xyz; cart=4
+http://shop.example.com/            Cookie: sid=abc123; lang=en
+http://blog.example.com/post        Cookie: lang=en
+https://other.org/                  Cookie: (none)
+after delete: sid=abc123; lang=en; token=xyz

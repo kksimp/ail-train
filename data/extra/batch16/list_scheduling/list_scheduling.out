@@ -1,0 +1,6 @@
+in order:
+0:ldA 1:ldB 4:mul 5:ldC 8:add 9:ldD 12:sub 13:st
+finishes at cycle 14
+critical path first:
+0:ldA 1:ldB 2:ldC 3:ldD 4:mul 6:add 7:sub 8:st
+finishes at cycle 9, saving 5 cycles

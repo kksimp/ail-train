@@ -1,0 +1,32 @@
+## Grazing capacity: usable forage is dry matter per hectare x area x a 50% take-half-leave-half share;
+## dividing by what a cow eats (2.5% of body weight a day) over the season gives how many cows a paddock carries.
+
+struct Paddock
+    name str
+    hectares float
+    dm_kg_ha float
+
+fn Paddock.usable(self) float
+    self.hectares * self.dm_kg_ha * 0.5
+
+fn cows(p Paddock, intake float, days int) int
+    (p.usable() / (intake * days.to_float())).to_int()
+
+fn main()
+    weight := 550.0
+    intake := weight * 0.025
+    days := 120
+    paddocks := [Paddock(name: "river flat", hectares: 14.0, dm_kg_ha: 6200.0), Paddock(name: "top field", hectares: 22.0, dm_kg_ha: 3100.0), Paddock(name: "hill block", hectares: 38.0, dm_kg_ha: 1450.0), Paddock(name: "orchard", hectares: 3.5, dm_kg_ha: 4800.0)]
+    print("cow of {weight:.0} kg eats {intake:.2} kg dry matter a day for {days} days")
+    mut herd := 0
+    for p in paddocks
+        n := cows(p, intake, days)
+        herd += n
+        per_ha := n.to_float() / p.hectares
+        print("{p.name:<11} {p.usable():>8.0} kg usable: {n:>2} cows ({per_ha:.2} per ha)")
+    print("whole farm carries {herd} cows for the season")
+    shorter := paddocks.fold(0, |acc, p| acc + cows(p, intake, 90))
+    print("for a 90-day season: {shorter} cows")
+
+@test fn usable_half()
+    assert_eq(Paddock(name: "x", hectares: 2.0, dm_kg_ha: 1000.0).usable(), 1000.0)

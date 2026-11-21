@@ -1,0 +1,8 @@
+B0: lines 0-1 (2 instr), next: B1
+B1: lines 2-2 (1 instr), next: B6, B2
+B2: lines 3-4 (2 instr), next: B4, B3
+B3: lines 5-6 (2 instr), next: B5
+B4: lines 7-7 (1 instr), next: B5
+B5: lines 8-9 (2 instr), next: B1
+B6: lines 10-10 (1 instr), next: none
+7 blocks from 11 instructions

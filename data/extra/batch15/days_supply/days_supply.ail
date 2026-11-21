@@ -1,0 +1,30 @@
+## Days' supply: tablets dispensed / (tablets per dose x doses a day) gives how long a prescription lasts;
+## a refill is allowed once 80% of the supply has passed, so early requests are refused with the first OK day.
+
+struct Script
+    drug str
+    tablets int
+    per_dose int
+    per_day int
+    filled_day int
+
+fn Script.days(self) int
+    self.tablets / (self.per_dose * self.per_day)
+
+fn Script.refill_day(self) int
+    self.filled_day + (self.days() * 8 + 9) / 10
+
+fn main()
+    scripts := [Script(drug: "metformin 500", tablets: 112, per_dose: 2, per_day: 2, filled_day: 3), Script(drug: "amlodipine 5", tablets: 30, per_dose: 1, per_day: 1, filled_day: 10), Script(drug: "prednisolone 5", tablets: 60, per_dose: 4, per_day: 1, filled_day: 20), Script(drug: "atorvastatin 20", tablets: 90, per_dose: 1, per_day: 1, filled_day: 1)]
+    requests := [("metformin 500", 27), ("amlodipine 5", 33), ("prednisolone 5", 31), ("atorvastatin 20", 75)]
+    for s in scripts
+        print("{s.drug:<16} {s.tablets:>3} tablets = {s.days():>2} days, refill from day {s.refill_day()}")
+    for r in requests
+        drug, day := r
+        found := scripts.find(|x| x.drug == drug) else continue
+        verdict := if day >= found.refill_day() then "fill" else "too early, wait {found.refill_day() - day} days"
+        print("day {day:>2} request for {drug}: {verdict}")
+
+@test fn supply()
+    s := Script(drug: "x", tablets: 56, per_dose: 2, per_day: 2, filled_day: 0)
+    assert_eq(s.days(), 14)

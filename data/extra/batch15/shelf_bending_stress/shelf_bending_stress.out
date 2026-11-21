@@ -1,0 +1,5 @@
+books at 0.36 N/mm over 900 mm
+pine 18 mm       2.70 MPa of 7.0 allowed: ok, max span 1449 mm
+oak 20 mm        2.19 MPa of 11.0 allowed: ok, max span 2018 mm
+MDF 18 mm        2.70 MPa of 4.0 allowed: ok, max span 1095 mm
+chipboard 15 mm  3.89 MPa of 3.0 allowed: too weak, max span 791 mm

@@ -1,0 +1,49 @@
+## Persistent lists: cells are never changed, so pushing onto an old version shares its whole tail;
+## updating one element copies only the cells in front of it, and every older version stays readable.
+
+struct Cell
+    value int
+    next int
+
+fn push(mut pool List[Cell], head int, v int) int
+    pool.push(Cell(value: v, next: head))
+    pool.len() - 1
+
+fn update(mut pool List[Cell], head int, idx int, v int) int
+    if idx == 0
+        return push(mut pool, pool[head].next, v)
+    rest := update(mut pool, pool[head].next, idx - 1, v)
+    push(mut pool, rest, pool[head].value)
+
+fn items(pool List[Cell], head int) List[int]
+    mut out := List[int]()
+    mut c := head
+    while c >= 0
+        out.push(pool[c].value)
+        c = pool[c].next
+    out
+
+fn main()
+    mut pool := List[Cell]()
+    v1 := push(mut pool, -1, 3)
+    mid := push(mut pool, v1, 5)
+    v2 := push(mut pool, mid, 6)
+    v3 := push(mut pool, v1, 8)
+    v4 := pool[v2].next
+    v5 := update(mut pool, v2, 2, 30)
+    v6 := push(mut pool, v4, 9)
+    names := ["v1", "v2", "v3", "v4", "v5", "v6"]
+    heads := [v1, v2, v3, v4, v5, v6]
+    mut total := 0
+    for i in 0..heads.len()
+        xs := items(pool, heads[i])
+        total += xs.len()
+        print("{names[i]}: {xs}")
+    print("{pool.len()} cells hold {total} list elements across six versions")
+
+@test fn shares_tail()
+    mut pool := List[Cell]()
+    a := push(mut pool, -1, 1)
+    b := push(mut pool, a, 2)
+    assert_eq(items(pool, b), [2, 1])
+    assert_eq(pool.len(), 2)

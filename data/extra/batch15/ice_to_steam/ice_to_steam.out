@@ -1,0 +1,7 @@
+warm ice -20 to 0 C         41.8 kJ   1.4%      19 s on a 2.2 kW kettle
+melt at 0 C                334.0 kJ  10.9%     152 s on a 2.2 kW kettle
+warm water 0 to 100 C      418.6 kJ  13.6%     190 s on a 2.2 kW kettle
+boil at 100 C             2257.0 kJ  73.5%    1026 s on a 2.2 kW kettle
+warm steam 100 to 110 C     20.1 kJ   0.7%       9 s on a 2.2 kW kettle
+total 3071.5 kJ = 0.853 kWh
+latent heat is 84.4% of the energy

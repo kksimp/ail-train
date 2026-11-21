@@ -1,0 +1,48 @@
+## Max-plus algebra: event times in a cyclic timetable follow x(k+1) = A (x) x(k) with max for + and +
+## for times; the times soon grow by a fixed period per round, the largest mean weight of a cycle in A.
+
+fn step(a List[List[int]], x List[int]) List[int]
+    neg := -1000000
+    mut out := List[int]()
+    for i in 0..a.len()
+        mut best := neg
+        for j in 0..a.len()
+            if a[i][j] > neg
+                best = best.max(a[i][j] + x[j])
+        out.push(best)
+    out
+
+fn main()
+    neg := -1000000
+    a := [[2, 5, neg], [neg, 3, 6], [4, neg, 1]]
+    mut x := [0, 0, 0]
+    mut prev := x
+    for k in 1..=8
+        x = step(a, x)
+        diffs := [x[i] - prev[i] for i in 0..3]
+        print("round {k}: times {x}, gaps {diffs}")
+        prev = x
+    mut best_n := 0
+    mut best_d := 1
+    mut cycles := List[str]()
+    for c in [[0], [1], [2], [0, 1], [1, 2], [0, 2], [0, 1, 2], [0, 2, 1]]
+        mut w := 0
+        mut ok := true
+        for i in 0..c.len()
+            from := c[i]
+            to := c[(i + 1) % c.len()]
+            if a[to][from] <= neg
+                ok = false
+            else
+                w += a[to][from]
+        if ok
+            cycles.push("{c}:{w}/{c.len()}")
+            if w * best_d > best_n * c.len()
+                best_n = w
+                best_d = c.len()
+    shown := cycles.join(" ")
+    print("cycles {shown}")
+    print("largest cycle mean {best_n}/{best_d}: the timetable repeats every {best_n} time units per {best_d} rounds")
+
+@test fn one_step()
+    assert_eq(step([[1, 2], [3, 4]], [0, 0]), [2, 4])

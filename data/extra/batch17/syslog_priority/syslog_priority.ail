@@ -1,0 +1,48 @@
+## Syslog priority: the number in `<PRI>` at the start of a syslog line is facility * 8 + severity,
+## so dividing by 8 names the facility (kern, mail, local4...) and the remainder the severity (emerg to debug).
+
+fn facility_names() List[str]
+    ["kern", "user", "mail", "daemon", "auth", "syslog", "lpr", "news", "uucp", "cron", "authpriv", "ftp", "ntp", "audit", "alert", "clock", "local0", "local1", "local2", "local3", "local4", "local5", "local6", "local7"]
+
+fn severity_names() List[str]
+    ["emerg", "alert", "crit", "err", "warning", "notice", "info", "debug"]
+
+fn pri_of(line str) int
+    if not line.starts_with("<")
+        return -1
+    close := line.find(">") else -1
+    if close < 2
+        return -1
+    n := line.slice(1, close).to_int() else -1
+    if n > 191
+        return -1
+    n
+
+fn main()
+    lines := ["<34>su: 'su root' failed for kim on /dev/pts/8", "<165>app: user login ok", "<0>kernel: panic in scheduler", "<86>sshd: session opened for user kim", "<13>backup: nightly job done", "<200>bogus: out of range", "no priority here", "<27>disk: write error on sda1"]
+    facs := facility_names()
+    sevs := severity_names()
+    mut urgent := 0
+    mut counts := Map[str, int]()
+    for line in lines
+        p := pri_of(line)
+        if p < 0
+            print("invalid: {line}")
+            continue
+        close := line.find(">") else 0
+        msg := line.slice(close + 1)
+        print("<{p}> {facs[p / 8]}.{sevs[p % 8]}: {msg}")
+        counts[sevs[p % 8]] += 1
+        if p % 8 <= 3
+            urgent += 1
+    mut parts := List[str]()
+    for sev, c in counts
+        parts.push("{sev}={c}")
+    shown := parts.join(", ")
+    print("by severity: {shown}")
+    print("err or worse: {urgent}")
+
+@test fn local4_notice()
+    p := pri_of("<165>x")
+    assert_eq(p / 8, 20)
+    assert_eq(severity_names()[p % 8], "notice")

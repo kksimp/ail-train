@@ -1,0 +1,8 @@
+round 1: B200                 credit [300, 100, 300]
+round 2: A500 B200 B200       credit [100, 0, 600]
+round 3: B200                 credit [400, 100, 900]
+round 4: A500 B200 C1000 C100 credit [200, 0, 0]
+round 5: A500                 credit [0, 0, 0]
+flow A sent 1500 bytes
+flow B sent 1000 bytes
+flow C sent 1100 bytes

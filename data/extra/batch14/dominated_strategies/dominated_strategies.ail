@@ -1,0 +1,45 @@
+## Iterated dominance: repeatedly delete any strategy that does strictly worse than another in every
+## remaining case, for either player; here the 3x3 game shrinks step by step to a single outcome.
+
+fn dominated(pay List[List[int]], mine List[int], theirs List[int], as_row bool) int
+    for s in mine
+        for t in mine
+            if s != t
+                mut worse := true
+                for o in theirs
+                    vs := if as_row then pay[s][o] else pay[o][s]
+                    vt := if as_row then pay[t][o] else pay[o][t]
+                    if vs >= vt
+                        worse = false
+                if worse
+                    return s
+    -1
+
+fn main()
+    rnames := ["Up", "Middle", "Down"]
+    cnames := ["Left", "Centre", "Right"]
+    a := [[4, 5, 6], [2, 8, 3], [3, 9, 2]]
+    b := [[3, 1, 2], [1, 4, 6], [0, 6, 8]]
+    mut rows := [0, 1, 2]
+    mut cols := [0, 1, 2]
+    mut changed := true
+    while changed
+        changed = false
+        r := dominated(a, rows, cols, true)
+        if r >= 0
+            rows = rows.filter(|x| x != r)
+            print("row player drops {rnames[r]}")
+            changed = true
+        c := dominated(b, cols, rows, false)
+        if c >= 0
+            cols = cols.filter(|x| x != c)
+            print("column player drops {cnames[c]}")
+            changed = true
+    left_r := rows.map(|i| rnames[i]).join(", ")
+    left_c := cols.map(|i| cnames[i]).join(", ")
+    print("left: rows {left_r}; columns {left_c}")
+    if rows.len() == 1 and cols.len() == 1
+        print("predicted play pays {a[rows[0]][cols[0]]} and {b[rows[0]][cols[0]]}")
+
+@test fn simple()
+    assert_eq(dominated([[1, 1], [0, 0]], [0, 1], [0, 1], true), 1)

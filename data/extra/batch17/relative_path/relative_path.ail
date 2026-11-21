@@ -1,0 +1,27 @@
+## Relative path: finds the shortest relative path from one folder to a target file by dropping their
+## shared leading folders, climbing with ".." once per remaining folder of the start, then descending to the target.
+
+fn relative(from_dir str, target str) str
+    a := from_dir.split("/").filter(|s| s != "")
+    b := target.split("/").filter(|s| s != "")
+    mut common := 0
+    while common < a.len() and common < b.len() and a[common] == b[common]
+        common += 1
+    mut parts := List[str]()
+    for _ in common..a.len()
+        parts.push("..")
+    parts.extend(b.slice(common))
+    if parts.is_empty()
+        return "."
+    parts.join("/")
+
+fn main()
+    pairs := [("/home/ana/projects/app/src", "/home/ana/docs/notes.txt"), ("/home/ana", "/home/ana/music/song.mp3"), ("/var/log", "/var/log"), ("/srv/www/site", "/etc/nginx/site.conf"), ("/a/b/c", "/a/b/c/d/e.txt"), ("/data/2024", "/data/2025/jan.csv")]
+    for p in pairs
+        from_dir, target := p
+        rel := relative(from_dir, target)
+        ups := rel.split("/").count(|s| s == "..")
+        print("{from_dir:<27} -> {rel:<24} ({ups} up)")
+
+@test fn sibling()
+    assert_eq(relative("/x/a", "/x/b/f"), "../b/f")

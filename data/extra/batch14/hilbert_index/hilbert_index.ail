@@ -1,0 +1,48 @@
+## Hilbert curve: index d along the curve maps to a cell (x, y) of an 8 x 8 grid by rotating and
+## flipping quadrants two bits at a time; neighbours on the curve are always neighbours in the grid.
+
+fn d2xy(n int, d int) List[int]
+    mut x := 0
+    mut y := 0
+    mut t := d
+    mut s := 1
+    while s < n
+        rx := (t / 2) % 2
+        ry := (t ^ rx) % 2
+        if ry == 0
+            if rx == 1
+                x = s - 1 - x
+                y = s - 1 - y
+            tmp := x
+            x = y
+            y = tmp
+        x += s * rx
+        y += s * ry
+        t /= 4
+        s *= 2
+    [x, y]
+
+fn main()
+    n := 8
+    mut grid := List[List[int]]()
+    for r in 0..n
+        grid.push([0 for c in 0..n])
+    for d in 0..n * n
+        p := d2xy(n, d)
+        grid[p[1]][p[0]] = d
+    mut r := n - 1
+    while r >= 0
+        line := grid[r].map(|v| "{v:>3}").join("")
+        print(line)
+        r -= 1
+    mut steps_ok := true
+    for d in 1..n * n
+        a := d2xy(n, d - 1)
+        b := d2xy(n, d)
+        if (a[0] - b[0]).abs() + (a[1] - b[1]).abs() != 1
+            steps_ok = false
+    print("every step moves to an adjacent cell: {steps_ok}")
+    print("the curve starts at {d2xy(n, 0)} and ends at {d2xy(n, n * n - 1)}")
+
+@test fn small()
+    assert_eq(d2xy(2, 2), [1, 1])

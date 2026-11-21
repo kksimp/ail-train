@@ -1,0 +1,41 @@
+## Largest friend group: the Bron-Kerbosch recursion lists every maximal clique (a group where all
+## know each other and nobody else knows them all) by growing R from candidates P and excluding X.
+
+fn bk(r List[int], p List[int], x List[int], adj List[List[bool]], mut out List[List[int]])
+    if p.is_empty() and x.is_empty()
+        out.push(r)
+        return
+    mut cand := p
+    mut done := x
+    for v in p
+        mut r2 := r
+        r2.push(v)
+        p2 := cand.filter(|w| adj[v][w])
+        x2 := done.filter(|w| adj[v][w])
+        bk(r2, p2, x2, adj, mut out)
+        cand = cand.filter(|w| w != v)
+        done.push(v)
+
+fn main()
+    names := ["Amy", "Ben", "Cat", "Dev", "Eli", "Fay", "Gus", "Hal"]
+    pairs := [[0, 1], [0, 2], [1, 2], [0, 3], [1, 3], [2, 3], [3, 4], [4, 5], [4, 6], [5, 6], [6, 7], [5, 7], [4, 7], [2, 5]]
+    mut adj := List[List[bool]]()
+    for i in 0..8
+        adj.push([false for j in 0..8])
+    for p in pairs
+        adj[p[0]][p[1]] = true
+        adj[p[1]][p[0]] = true
+    mut out := List[List[int]]()
+    bk(List[int](), [i for i in 0..8], List[int](), adj, mut out)
+    mut biggest := 0
+    for c in out
+        who := c.map(|i| names[i]).join(", ")
+        print("maximal group of {c.len()}: {who}")
+        biggest = biggest.max(c.len())
+    print("{out.len()} maximal groups, clique number {biggest}")
+
+@test fn single_edge()
+    adj := [[false, true], [true, false]]
+    mut out := List[List[int]]()
+    bk(List[int](), [0, 1], List[int](), adj, mut out)
+    assert_eq(out.len(), 1)

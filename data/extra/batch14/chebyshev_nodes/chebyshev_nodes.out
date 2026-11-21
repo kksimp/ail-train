@@ -1,0 +1,9 @@
+T0(x) = 1
+T1(x) = x
+T2(x) = 2x^2 - 1
+T3(x) = 4x^3 - 3x
+T4(x) = 8x^4 - 8x^2 + 1
+T5(x) = 16x^5 - 20x^3 + 5x
+T6(x) = 32x^6 - 48x^4 + 18x^2 - 1
+11 even points:     largest error 1.916
+11 Chebyshev nodes: largest error 0.109

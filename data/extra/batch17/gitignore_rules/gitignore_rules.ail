@@ -1,0 +1,63 @@
+## Ignore rules: gitignore-style patterns where a pattern without a slash matches the base name at any
+## depth, a slash anchors it to the root, a trailing slash matches folders only, "!" re-includes, and the last match wins.
+
+fn glob(p List[char], i int, s List[char], j int) bool
+    if i == p.len()
+        return j == s.len()
+    if p[i] == '*'
+        mut k := j
+        while true
+            if glob(p, i + 1, s, k)
+                return true
+            if k == s.len() or s[k] == '/'
+                return false
+            k += 1
+    if j < s.len() and (p[i] == '?' or p[i] == s[j]) and s[j] != '/'
+        return glob(p, i + 1, s, j + 1)
+    if j < s.len() and p[i] == '/' and s[j] == '/'
+        return glob(p, i + 1, s, j + 1)
+    false
+
+fn decide(path str, is_dir bool, pats List[str]) str
+    base := path.split("/")[path.split("/").len() - 1]
+    mut hit := ""
+    for raw in pats
+        neg := raw.starts_with("!")
+        mut pat := if neg then raw.slice(1) else raw
+        dir_only := pat.ends_with("/")
+        if dir_only
+            pat = pat.slice(0, pat.len() - 1)
+        if dir_only and not is_dir
+            continue
+        anchored := pat.contains("/")
+        if anchored and pat.starts_with("/")
+            pat = pat.slice(1)
+        target := if anchored then path else base
+        if glob(pat.chars(), 0, target.chars(), 0)
+            hit = if neg then "" else raw
+    hit
+
+fn why_ignored(path str, pats List[str]) str
+    parts := path.split("/")
+    for k in 1..parts.len()
+        dir_hit := decide(parts.slice(0, k).join("/"), true, pats)
+        if dir_hit != ""
+            return dir_hit
+    decide(path, false, pats)
+
+fn main()
+    pats := ["*.log", "!keep.log", "build/", "/todo.txt", "docs/*.pdf", "temp*"]
+    paths := ["app.log", "logs/keep.log", "logs/err.log", "build/out/app.js", "src/build.rs", "todo.txt", "src/todo.txt", "docs/guide.pdf", "docs/api/ref.pdf", "temp_notes.md", "src/tempfile.c"]
+    mut kept := 0
+    for p in paths
+        hit := why_ignored(p, pats)
+        if hit == ""
+            kept += 1
+            print("{p:<18} kept")
+        else
+            print("{p:<18} ignored by {hit}")
+    print("{kept} of {paths.len()} files kept")
+
+@test fn star_stays_in_folder()
+    assert(not glob("docs/*.pdf".chars(), 0, "docs/a/b.pdf".chars(), 0))
+    assert(glob("docs/*.pdf".chars(), 0, "docs/b.pdf".chars(), 0))

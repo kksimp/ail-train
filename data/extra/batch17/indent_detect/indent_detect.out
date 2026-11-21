@@ -1,0 +1,6 @@
+a.py   4 spaces
+b.js   2 spaces
+c.go   tabs
+d.py   mixed (1 tab lines, 1 space lines)
+e.txt  flat
+f.yml  2 spaces

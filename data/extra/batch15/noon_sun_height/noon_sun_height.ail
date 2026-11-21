@@ -1,0 +1,27 @@
+## Noon sun height: Cooper's declination 23.44 sin(360 (284 + n) / 365) degrees for day n of the year, and
+## the noon altitude 90 - |latitude - declination|; a fixed solar panel tilted at the latitude averages best.
+
+fn declination(day int) float
+    pi := 3.141592653589793
+    23.44 * (2.0 * pi * (284 + day).to_float() / 365.0).sin()
+
+fn noon_altitude(lat float, day int) float
+    90.0 - (lat - declination(day)).abs()
+
+fn main()
+    days := [("Mar 20", 79), ("Jun 21", 172), ("Sep 22", 265), ("Dec 21", 355)]
+    for d in days
+        label, n := d
+        print("{label}: declination {declination(n):>6.2} deg")
+    cities := [("Oslo", 59.91), ("London", 51.51), ("Cairo", 30.04), ("Singapore", 1.35), ("Cape Town", -33.92)]
+    for c in cities
+        name, lat := c
+        mut cells := List[str]()
+        for d in days
+            alt := noon_altitude(lat, d.1)
+            cells.push("{alt:5.1}")
+        shown := cells.join(" ")
+        print("{name:<10} {lat:>6.2}: {shown}")
+
+@test fn equator_equinox()
+    assert((noon_altitude(0.0, 81) - 90.0).abs() < 0.01)

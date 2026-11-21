@@ -1,0 +1,5 @@
+from    1 at 5.00: EOQ 692.8, order  692.8 (EOQ fits), yearly cost 25866.03
+from  500 at 4.80: EOQ 707.1, order  707.1 (EOQ fits), yearly cost 24848.53
+from 1500 at 4.60: EOQ 722.3, order 1500.0 (raised to 1500), yearly cost 24062.50
+from 4000 at 4.40: EOQ 738.5, order 4000.0 (raised to 4000), yearly cost 24275.00
+order 1500 at a time for 24062.50 a year

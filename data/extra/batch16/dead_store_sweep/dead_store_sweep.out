@@ -1,0 +1,8 @@
+keep  a = x + y
+keep  b = a + a
+drop  t = x + x
+keep  a = b + z
+drop  u = t + y
+keep  c = a + b
+drop  t = c + y
+4 of 7 statements kept

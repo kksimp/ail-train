@@ -1,0 +1,10 @@
+12 long rows from 4 wide rows
+  north,jan,120
+  north,feb,135
+  north,apr,150
+  south,jan,90
+jan total  410
+feb total  375
+apr total  325
+mar total  395
+regions: east 590, north 405, south 295, west 215

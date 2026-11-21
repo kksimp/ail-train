@@ -1,0 +1,50 @@
+## Indent detection: guesses a file's indentation style from the increases in leading spaces between
+## consecutive non-blank lines (the most common step wins), reporting tabs or a mix when lines start with tabs.
+
+fn leading(line str) List[int]
+    mut spaces := 0
+    mut tabs := 0
+    for c in line.chars()
+        if c == ' '
+            spaces += 1
+        elif c.code() == 9
+            tabs += 1
+        else
+            break
+    [spaces, tabs]
+
+fn detect(lines List[str]) str
+    mut steps := Map[int, int]()
+    mut tab_lines := 0
+    mut space_lines := 0
+    mut prev := 0
+    for l in lines
+        if l.trim() == ""
+            continue
+        lead := leading(l)
+        if lead[1] > 0
+            tab_lines += 1
+        if lead[0] > 0
+            space_lines += 1
+        if lead[0] > prev
+            steps[lead[0] - prev] += 1
+        prev = lead[0]
+    if tab_lines > 0 and space_lines > 0
+        return "mixed ({tab_lines} tab lines, {space_lines} space lines)"
+    if tab_lines > 0
+        return "tabs"
+    if steps.is_empty()
+        return "flat"
+    best := steps.keys().sorted(by: |k| -steps[k])[0]
+    "{best} spaces"
+
+fn main()
+    tc := char.from_code(9) else ' '
+    t := "{tc}"
+    files := [("a.py", ["def f(x):", "    if x:", "        return 1", "", "    return 2"]), ("b.js", ["function g() \{", "  if (a) \{", "    b()", "  }", "}"]), ("c.go", ["func h() \{", "{t}x := 1", "{t}if x \{", "{t}{t}y()", "{t}}", "}"]), ("d.py", ["class A:", "    def m(self):", "{t}pass"]), ("e.txt", ["one", "two"]), ("f.yml", ["a:", "  b:", "      c: 1", "  d: 2", "  e:", "    f: 3"])]
+    for f in files
+        name, lines := f
+        print("{name:<6} {detect(lines)}")
+
+@test fn four()
+    assert_eq(detect(["a", "    b", "        c"]), "4 spaces")

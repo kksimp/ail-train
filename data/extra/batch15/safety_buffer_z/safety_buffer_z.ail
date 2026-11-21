@@ -1,0 +1,24 @@
+## Safety buffer: to cover demand swings during the supplier's lead time, hold z x sigma_d x sqrt(L)
+## extra units, with z from the service level; late deliveries add d^2 sigma_L^2 under the square root.
+
+fn buffer(z float, sd_daily float, lead float, mean_daily float, sd_lead float) float
+    (lead * sd_daily * sd_daily + mean_daily * mean_daily * sd_lead * sd_lead).sqrt() * z
+
+fn main()
+    mean := 40.0
+    sd := 12.0
+    lead := 9.0
+    levels := [("90%", 1.2816), ("95%", 1.6449), ("98%", 2.0537), ("99%", 2.3263)]
+    print("daily demand {mean:.0} (sd {sd:.0}), lead time {lead:.0} days")
+    for lv in levels
+        name, z := lv
+        fixed := buffer(z, sd, lead, mean, 0.0)
+        shaky := buffer(z, sd, lead, mean, 2.0)
+        rop := mean * lead + fixed
+        print("service {name}: buffer {fixed:>5.1} units (reorder at {rop:.0}), with lead time sd 2 days {shaky:>6.1}")
+    cost95 := buffer(1.6449, sd, lead, mean, 0.0)
+    cost99 := buffer(2.3263, sd, lead, mean, 0.0)
+    print("going from 95% to 99% adds {(cost99 / cost95 - 1.0) * 100.0:.0}% more buffer")
+
+@test fn no_swings()
+    assert_eq(buffer(2.0, 0.0, 9.0, 40.0, 0.0), 0.0)

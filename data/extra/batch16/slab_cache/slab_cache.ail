@@ -1,0 +1,53 @@
+## Slab cache: objects are rounded up to a size class of 16, 32 or 64 bytes; each slab holds four
+## objects tracked by a 4-bit mask, a request takes the lowest free slot or opens a new slab.
+
+struct Slab
+    size int
+    used int
+
+fn class_of(n int) int
+    if n <= 16 then 16 elif n <= 32 then 32 else 64
+
+fn alloc(mut slabs List[Slab], n int) int
+    c := class_of(n)
+    for i in 0..slabs.len()
+        if slabs[i].size == c and slabs[i].used != 15
+            mut slot := 0
+            while ((slabs[i].used >> slot) & 1) == 1
+                slot += 1
+            slabs[i].used = slabs[i].used | (1 << slot)
+            return i * 10 + slot
+    slabs.push(Slab(size: c, used: 1))
+    (slabs.len() - 1) * 10
+
+fn picture(used int) str
+    mut cells := List[str]()
+    for k in 0..4
+        cells.push(if ((used >> k) & 1) == 1 then "#" else ".")
+    cells.join("")
+
+fn main()
+    mut slabs := List[Slab]()
+    mut live := Map[int, int]()
+    requests := [12, 30, 8, 60, 16, 20, 9, 14, 40, -1, 5, -2, 11, 3]
+    mut handles := List[int]()
+    for r in requests
+        if r < 0
+            h := handles[0 - r - 1]
+            slabs[h / 10].used = slabs[h / 10].used & (15 - (1 << (h % 10)))
+            live.remove(h)
+            print("free handle {h}")
+        else
+            h := alloc(mut slabs, r)
+            handles.push(h)
+            live[h] = r
+            print("{r:>2} bytes -> slab {h / 10} slot {h % 10} ({class_of(r)}-byte class)")
+    mut waste := 0
+    for h, n in live
+        waste += slabs[h / 10].size - n
+    for i, s in slabs.enumerate()
+        print("slab {i} {s.size:>2} B [{picture(s.used)}]")
+    print("internal waste {waste} bytes over {live.len()} live objects")
+
+@test fn classes()
+    assert_eq(class_of(17), 32)

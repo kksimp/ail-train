@@ -1,0 +1,46 @@
+## Coset leaders: for a (6,3) code with parity checks H, every syndrome H r gets the lightest error
+## pattern producing it (the coset leader); decoding subtracts that leader, fixing all single errors and one double.
+
+fn syndrome(h List[int], r int) int
+    mut s := 0
+    for row in h
+        mut v := r & row
+        mut parity := 0
+        while v > 0
+            parity = parity ^ (v & 1)
+            v = v >> 1
+        s = (s << 1) | parity
+    s
+
+fn weight(x int) int
+    mut w := 0
+    mut v := x
+    while v > 0
+        w += v & 1
+        v = v >> 1
+    w
+
+fn bits(v int, n int) str
+    mut out := List[str]()
+    for i in 0..n
+        out.push("{(v >> (n - 1 - i)) & 1}")
+    out.join("")
+
+fn main()
+    h := [52, 42, 25]
+    mut leader := [-1 for i in 0..8]
+    for e in 0..64
+        s := syndrome(h, e)
+        if leader[s] < 0 or weight(e) < weight(leader[s])
+            leader[s] = e
+    for s in 0..8
+        print("syndrome {bits(s, 3)}: leader {bits(leader[s], 6)} (weight {weight(leader[s])})")
+    sent := 45
+    for flip in [0, 4, 32, 12, 9]
+        got := sent ^ flip
+        fixed := got ^ leader[syndrome(h, got)]
+        verdict := if fixed == sent then "recovered" else "wrong"
+        print("sent {bits(sent, 6)}, received {bits(got, 6)}, decoded {bits(fixed, 6)}: {verdict}")
+
+@test fn codeword()
+    assert_eq(syndrome([52, 42, 25], 45), 0)

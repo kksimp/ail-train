@@ -1,0 +1,11 @@
+record 1: valid
+record 2: 3 problem(s)
+    id: 'x9' is not a number
+    name: missing
+    plan: 'gold' not one of free/pro/team
+record 3: 3 problem(s)
+    id: 120000 outside 1..99999
+    age: 200 outside 0..130
+    nick: unknown field
+record 4: valid
+2 valid, 2 invalid

@@ -1,0 +1,13 @@
+no barrier:
+  step 1: scanned A, colours bggwww
+  step 2: scanned C, colours bgbwww
+  step 3: scanned B, colours bbbgww
+  step 4: scanned D, colours bbbbww
+  freed E, F: E is freed while A points at it
+with insertion barrier:
+  step 1: scanned A, colours bggwgw
+  step 2: scanned E, colours bggwbw
+  step 3: scanned C, colours bgbwbw
+  step 4: scanned B, colours bbbgbw
+  step 5: scanned D, colours bbbbbw
+  freed F: only garbage freed

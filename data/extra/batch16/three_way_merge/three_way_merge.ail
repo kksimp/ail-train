@@ -1,0 +1,34 @@
+## Three-way merge: with a common base and two edited copies aligned line by line, a line changed
+## on one side only takes that change, the same change on both is kept once, and different changes conflict.
+
+fn merge(base List[str], ours List[str], theirs List[str]) List[str]
+    mut out := List[str]()
+    for i in 0..base.len()
+        o := ours[i]
+        t := theirs[i]
+        if o == t
+            out.push(o)
+        elif o == base[i]
+            out.push(t)
+        elif t == base[i]
+            out.push(o)
+        else
+            out.push("<<<<<<< ours")
+            out.push(o)
+            out.push("=======")
+            out.push(t)
+            out.push(">>>>>>> theirs")
+    out.filter(|l| l != "")
+
+fn main()
+    base := ["host = localhost", "port = 8080", "workers = 4", "debug = false", "log = info", "timeout = 30"]
+    ours := ["host = localhost", "port = 9090", "workers = 4", "debug = true", "", "timeout = 60"]
+    theirs := ["host = 0.0.0.0", "port = 8080", "workers = 8", "debug = true", "", "timeout = 45"]
+    merged := merge(base, ours, theirs)
+    for line in merged
+        print(line)
+    conflicts := merged.count(|l| l.starts_with("<<<<"))
+    print("{conflicts} conflict(s) in {base.len()} lines")
+
+@test fn one_side_change()
+    assert_eq(merge(["a"], ["a"], ["b"]), ["b"])

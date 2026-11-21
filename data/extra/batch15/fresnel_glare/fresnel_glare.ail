@@ -1,0 +1,30 @@
+## Fresnel reflection: at normal incidence a surface reflects R = ((n1 - n2) / (n1 + n2))^2 of the light,
+## a pane with two faces passes (1 - R)^2, and Brewster's angle atan(n2 / n1) reflects no p-polarised light.
+
+struct Material
+    name str
+    n float
+
+fn reflectance(n1 float, n2 float) float
+    r := (n1 - n2) / (n1 + n2)
+    r * r
+
+fn brewster(n1 float, n2 float) float
+    pi := 3.141592653589793
+    (n2 / n1).atan() * 180.0 / pi
+
+fn main()
+    stuff := [Material(name: "water", n: 1.333), Material(name: "glass", n: 1.52), Material(name: "acrylic", n: 1.49), Material(name: "diamond", n: 2.42)]
+    for m in stuff
+        r := reflectance(1.0, m.n) * 100.0
+        through := (1.0 - reflectance(1.0, m.n))
+        pane := through * through * 100.0
+        b := brewster(1.0, m.n)
+        print("{m.name:<8} n={m.n:.3}: reflects {r:.2}%, pane passes {pane:.1}%, Brewster {b:.1} deg")
+    ranked := stuff.sorted(by: |m| -(m.n * 1000.0).to_int())
+    print("most glare: {ranked[0].name}")
+    under := reflectance(1.333, 1.52) * 100.0
+    print("glass under water reflects {under:.2}%")
+
+@test fn same_medium()
+    assert_eq(reflectance(1.5, 1.5), 0.0)

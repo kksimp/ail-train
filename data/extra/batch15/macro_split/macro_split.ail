@@ -1,0 +1,30 @@
+## Macronutrient split: a daily energy target divided 30% protein, 40% carbohydrate, 30% fat becomes grams
+## at 4, 4 and 9 kcal per gram; a day's food log is then compared with each target.
+
+struct Macro
+    name str
+    share float
+    kcal_per_g float
+
+fn grams(total float, m Macro) float
+    total * m.share / m.kcal_per_g
+
+fn main()
+    target := 2400.0
+    macros := [Macro(name: "protein", share: 0.3, kcal_per_g: 4.0), Macro(name: "carbohydrate", share: 0.4, kcal_per_g: 4.0), Macro(name: "fat", share: 0.3, kcal_per_g: 9.0)]
+    eaten := {"protein": 142.0, "carbohydrate": 265.0, "fat": 96.0}
+    mut energy := 0.0
+    for m in macros
+        g := grams(target, m)
+        got := eaten[m.name]
+        energy += got * m.kcal_per_g
+        diff := got - g
+        word := if diff >= 0.0 then "over" else "under"
+        print("{m.name:<12} target {g:>5.1} g, eaten {got:>5.1} g, {diff.abs():.1} g {word}")
+    pct := energy / target * 100.0
+    print("energy eaten {energy:.0} kcal, {pct:.1}% of target")
+    per_meal := grams(target, macros[0]) / 4.0
+    print("protein per meal over 4 meals: {per_meal:.1} g")
+
+@test fn fat_grams()
+    assert_eq(grams(900.0, Macro(name: "fat", share: 1.0, kcal_per_g: 9.0)), 100.0)

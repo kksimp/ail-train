@@ -1,0 +1,7 @@
+after adds    dense [5, 9, 2, 14, 7]
+remove 9      dense [5, 7, 2, 14]
+remove 3, 5   dense [14, 7, 2]
+has 14 true, has 9 false, has 5 false
+sparse table  [0, 0, 2, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0]
+cleared: has 2 false though sparse[2] holds 2
+add 2 again   dense [2]

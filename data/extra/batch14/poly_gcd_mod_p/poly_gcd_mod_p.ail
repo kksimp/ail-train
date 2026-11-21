@@ -1,0 +1,72 @@
+## Polynomial gcd mod 7: Euclid's algorithm on polynomials with coefficients in GF(7), replacing
+## (a, b) by (b, a mod b) until b is zero; the monic gcd's roots are exactly the roots both share.
+
+fn pow_mod(b int, e int, m int) int
+    mut r := 1
+    for i in 0..e
+        r = r * b % m
+    r
+
+fn trim(p List[int]) List[int]
+    mut i := 0
+    while i < p.len() - 1 and p[i] == 0
+        i += 1
+    p.slice(i)
+
+fn rem(a List[int], b List[int], m int) List[int]
+    mut r := a
+    inv := pow_mod(b[0], m - 2, m)
+    while r.len() >= b.len() and not (r.len() == 1 and r[0] == 0)
+        c := r[0] * inv % m
+        for j in 0..b.len()
+            r[j] = ((r[j] - c * b[j]) % m + m) % m
+        r = trim(r)
+        if r.len() == 1 and r[0] == 0
+            break
+    r
+
+fn from_roots(roots List[int], m int) List[int]
+    mut p := [1]
+    for r in roots
+        mut next := [0 for k in 0..p.len() + 1]
+        for i in 0..p.len()
+            next[i] = (next[i] + p[i]) % m
+            next[i + 1] = ((next[i + 1] - r * p[i]) % m + m) % m
+        p = next
+    p
+
+fn show(p List[int]) str
+    deg := p.len() - 1
+    mut parts := List[str]()
+    for i in 0..p.len()
+        e := deg - i
+        c := p[i]
+        if c != 0
+            num := if c == 1 and e > 0 then "" else "{c}"
+            pw := if e == 0 then "" elif e == 1 then "x" else "x^{e}"
+            parts.push("{num}{pw}")
+    if parts.is_empty() then "0" else parts.join(" + ")
+
+fn main()
+    m := 7
+    f := from_roots([1, 2, 4], m)
+    g := from_roots([2, 4, 6], m)
+    print("f = {show(f)}  (roots 1, 2, 4)")
+    print("g = {show(g)}  (roots 2, 4, 6)")
+    mut a := f
+    mut b := g
+    while not (b.len() == 1 and b[0] == 0)
+        r := rem(a, b, m)
+        print("    {show(a)} mod {show(b)} = {show(r)}")
+        a = b
+        b = r
+    inv := pow_mod(a[0], m - 2, m)
+    monic := a.map(|c| c * inv % m)
+    mut roots := List[int]()
+    for x in 0..m
+        if rem(monic, from_roots([x], m), m) == [0]
+            roots.push(x)
+    print("gcd = {show(monic)}, roots {roots}")
+
+@test fn linear_rem()
+    assert_eq(rem([1, 0, 6], [1, 6], 7), [0])

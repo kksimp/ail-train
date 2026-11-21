@@ -1,0 +1,46 @@
+## Dual numbers: a + b e with e^2 = 0 carry a value and its derivative through + - * / at once
+## (forward-mode automatic differentiation), matching the quotient rule and driving Newton's method.
+
+struct Dual
+    v float
+    d float
+
+impl Add for Dual
+    fn add(self, o Dual) Dual
+        Dual(v: self.v + o.v, d: self.d + o.d)
+
+impl Sub for Dual
+    fn sub(self, o Dual) Dual
+        Dual(v: self.v - o.v, d: self.d - o.d)
+
+impl Mul for Dual
+    fn mul(self, o Dual) Dual
+        Dual(v: self.v * o.v, d: self.d * o.v + self.v * o.d)
+
+impl Div for Dual
+    fn div(self, o Dual) Dual
+        Dual(v: self.v / o.v, d: (self.d * o.v - self.v * o.d) / (o.v * o.v))
+
+fn konst(c float) Dual
+    Dual(v: c, d: 0.0)
+
+fn f(x Dual) Dual
+    (x * x * x + konst(2.0) * x) / (x + konst(1.0))
+
+fn by_hand(x float) float
+    ((3.0 * x * x + 2.0) * (x + 1.0) - (x * x * x + 2.0 * x)) / ((x + 1.0) * (x + 1.0))
+
+fn main()
+    for x in [0.0, 1.0, 2.5, -3.0]
+        r := f(Dual(v: x, d: 1.0))
+        print("x = {x}: f = {r.v:.4}, f' by duals {r.d:.4}, by the quotient rule {by_hand(x):.4}")
+    mut x := 2.0
+    for step in 1..=5
+        g := Dual(v: x, d: 1.0)
+        h := g * g * g - konst(2.0) * g - konst(5.0)
+        x = x - h.v / h.d
+        print("Newton step {step} on x^3 - 2x - 5: x = {x:.10}")
+
+@test fn square_slope()
+    s := Dual(v: 3.0, d: 1.0) * Dual(v: 3.0, d: 1.0)
+    assert_eq(s.d, 6.0)

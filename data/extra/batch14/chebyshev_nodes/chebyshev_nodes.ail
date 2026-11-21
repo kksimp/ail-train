@@ -1,0 +1,61 @@
+## Chebyshev polynomials and nodes: T(n+1) = 2x T(n) - T(n-1) gives integer coefficients; sampling
+## 1/(1 + 25x^2) at the 11 roots of T11 instead of 11 evenly spaced points tames Runge's wild interpolation error.
+
+fn cheb(n int) List[List[int]]
+    mut ts := [[1], [0, 1]]
+    for k in 1..n
+        mut next := [0]
+        next.extend(ts[k].map(|c| 2 * c))
+        prev := ts[k - 1]
+        for i in 0..prev.len()
+            next[i] -= prev[i]
+        ts.push(next)
+    ts
+
+fn show(p List[int]) str
+    mut parts := List[str]()
+    mut i := p.len() - 1
+    while i >= 0
+        c := p[i]
+        if c != 0
+            pw := if i == 0 then "" elif i == 1 then "x" else "x^{i}"
+            num := if c.abs() == 1 and i > 0 then "" else "{c.abs()}"
+            mut sign := if c < 0 then " - " else " + "
+            if parts.is_empty()
+                sign = if c < 0 then "-" else ""
+            parts.push("{sign}{num}{pw}")
+        i -= 1
+    parts.join("")
+
+fn runge(x float) float
+    1.0 / (1.0 + 25.0 * x * x)
+
+fn interp(xs List[float], x float) float
+    mut total := 0.0
+    for i in 0..xs.len()
+        mut term := runge(xs[i])
+        for j in 0..xs.len()
+            if j != i
+                term = term * (x - xs[j]) / (xs[i] - xs[j])
+        total += term
+    total
+
+fn max_err(xs List[float]) float
+    mut worst := 0.0
+    for i in 0..=200
+        x := (i - 100).to_float() / 100.0
+        worst = worst.max((interp(xs, x) - runge(x)).abs())
+    worst
+
+fn main()
+    ts := cheb(6)
+    for n in 0..ts.len()
+        print("T{n}(x) = {show(ts[n])}")
+    n := 11
+    even := [(2 * k - 10).to_float() / 10.0 for k in 0..n]
+    nodes := [((2 * k + 1).to_float() * 3.141592653589793 / (2 * n).to_float()).cos() for k in 0..n]
+    print("11 even points:     largest error {max_err(even):.3}")
+    print("11 Chebyshev nodes: largest error {max_err(nodes):.3}")
+
+@test fn t2()
+    assert_eq(cheb(2)[2], [-1, 0, 2])

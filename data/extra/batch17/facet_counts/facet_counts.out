@@ -1,0 +1,9 @@
+results: trail, sprint
+brand  [x] Acme   1
+brand  [x] Bolt   1
+brand  [ ] Crest  1
+colour [ ] black  1
+colour [x] red    2
+colour [ ] white  2
+price      50-99    1
+price      100+     1

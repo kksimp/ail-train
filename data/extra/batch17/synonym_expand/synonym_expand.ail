@@ -1,0 +1,38 @@
+## Synonym expansion: each query word is widened to its synonym group, a document must contain every
+## query word or one of its synonyms, and exact words score 2 while synonym hits score 1, ranking the results.
+
+fn group_of(word str, groups List[List[str]]) List[str]
+    for g in groups
+        if g.contains(word)
+            return g
+    [word]
+
+fn score(doc List[str], query List[str], groups List[List[str]]) int
+    mut total := 0
+    for q in query
+        if doc.contains(q)
+            total += 2
+        elif group_of(q, groups).any(|s| doc.contains(s))
+            total += 1
+        else
+            return 0
+    total
+
+fn main()
+    groups := [["couch", "sofa", "settee"], ["cheap", "budget", "affordable"], ["tv", "television"], ["stand", "table", "unit"]]
+    docs := ["affordable grey sofa with storage", "leather couch three seater", "budget tv stand oak", "cheap couch cover", "television unit with drawers", "glass coffee table"]
+    for query in [["cheap", "couch"], ["tv", "stand"], ["sofa"]]
+        shown := query.join(" ")
+        print("query: {shown}")
+        mut hits := []
+        for d in docs
+            s := score(d.words(), query, groups)
+            if s > 0
+                hits.push((s, d))
+        for h in hits.sorted(by: |p| -p.0)
+            print("  {h.0}  {h.1}")
+
+@test fn needs_every_word()
+    groups := [["a", "b"]]
+    assert_eq(score(["b", "x"], ["a", "x"], groups), 3)
+    assert_eq(score(["b"], ["a", "x"], groups), 0)

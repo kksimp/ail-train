@@ -1,0 +1,9 @@
+Earth   perihelion  0.983 AU at 30.29 km/s, aphelion   1.02 AU at 29.29 km/s
+        speed ratio 1.03, distance ratio 1.03
+Mars    perihelion  1.382 AU at 26.50 km/s, aphelion   1.67 AU at 21.97 km/s
+        speed ratio 1.21, distance ratio 1.21
+Encke   perihelion  0.339 AU at 69.56 km/s, aphelion   4.09 AU at  5.76 km/s
+        speed ratio 12.08, distance ratio 12.08
+Halley  perihelion  0.586 AU at 54.57 km/s, aphelion  35.08 AU at  0.91 km/s
+        speed ratio 59.86, distance ratio 59.86
+leaving the Sun from 1 AU takes 42.1 km/s

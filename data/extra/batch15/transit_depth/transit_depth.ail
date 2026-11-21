@@ -1,0 +1,26 @@
+## Transit depth: a planet crossing its star dims it by (Rp / Rs)^2, so a measured dip gives the planet's
+## radius; a central transit lasts about P Rs / (pi a), with a from Kepler's third law in AU.
+
+fn depth(rp_km float, rs_km float) float
+    r := rp_km / rs_km
+    r * r
+
+fn main()
+    sun := 696000.0
+    for p in [("Earth", 6371.0), ("Neptune", 24622.0), ("Jupiter", 69911.0)]
+        name, rp := p
+        ppm := depth(rp, sun) * 1000000.0
+        print("{name:<8} across the Sun: dip {ppm:>8.0} ppm")
+    pi := 3.141592653589793
+    dips := [("KOI-A", 0.0084, 3.52, 1.2), ("KOI-B", 0.00062, 45.0, 0.9), ("KOI-C", 0.00011, 290.0, 1.0)]
+    for d in dips
+        koi, dip, days, rstar := d
+        rs := rstar * sun
+        radius := dip.sqrt() * rs
+        years := days / 365.25
+        a_au := (years * years).cbrt()
+        hours := days * 24.0 * rs / (pi * a_au * 149597870.7)
+        print("{koi}: dip {dip * 100.0:.3}% -> radius {radius / 6371.0:.2} Earths, orbit {a_au:.3} AU, transit {hours:.1} h")
+
+@test fn half_size()
+    assert_eq(depth(1.0, 2.0), 0.25)

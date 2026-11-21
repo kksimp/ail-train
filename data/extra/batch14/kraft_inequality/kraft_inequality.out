@@ -1,0 +1,5 @@
+lengths [1, 2, 3, 3]: sum = 8/8 (complete), code 0 10 110 111, prefix-free true
+lengths [2, 2, 2, 3, 3]: sum = 8/8 (complete), code 00 01 10 110 111, prefix-free true
+lengths [1, 2, 2, 3]: sum = 9/8 > 1, no prefix code exists
+lengths [2, 3, 3, 3, 3, 4, 4]: sum = 14/16 (spare room), code 00 010 011 100 101 1100 1101, prefix-free true
+lengths [3, 3, 3, 3, 3, 3, 3, 3]: sum = 8/8 (complete), code 000 001 010 011 100 101 110 111, prefix-free true

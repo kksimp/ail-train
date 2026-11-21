@@ -1,0 +1,62 @@
+## Spanning tree count: Kirchhoff's matrix-tree theorem; drop one row and column of the Laplacian
+## (degrees minus adjacency) and its determinant, done fraction-free by Bareiss, counts the trees.
+
+fn det(mut m List[List[int]]) int
+    n := m.len()
+    mut sign := 1
+    mut prev := 1
+    for k in 0..n - 1
+        if m[k][k] == 0
+            mut pick := -1
+            for r in k + 1..n
+                if m[r][k] != 0 and pick < 0
+                    pick = r
+            if pick < 0
+                return 0
+            m.swap(k, pick)
+            sign = -sign
+        for i in k + 1..n
+            for j in k + 1..n
+                m[i][j] = (m[i][j] * m[k][k] - m[i][k] * m[k][j]) / prev
+        prev = m[k][k]
+    sign * m[n - 1][n - 1]
+
+fn trees(n int, edges List[List[int]]) int
+    mut lap := List[List[int]]()
+    for i in 0..n
+        lap.push([0 for j in 0..n])
+    for e in edges
+        a := e[0]
+        b := e[1]
+        lap[a][a] += 1
+        lap[b][b] += 1
+        lap[a][b] -= 1
+        lap[b][a] -= 1
+    mut minor := List[List[int]]()
+    for i in 1..n
+        minor.push(lap[i].slice(1))
+    det(mut minor)
+
+fn complete(n int) List[List[int]]
+    mut es := List[List[int]]()
+    for i in 0..n
+        for j in i + 1..n
+            es.push([i, j])
+    es
+
+fn main()
+    for n in 3..=7
+        k := trees(n, complete(n))
+        mut cayley := 1
+        for i in 0..n - 2
+            cayley *= n
+        print("K{n}: {k} spanning trees, n^(n-2) = {cayley}")
+    cycle := [[0, 1], [1, 2], [2, 3], [3, 4], [4, 0]]
+    print("cycle of 5: {trees(5, cycle)}")
+    wheel := [[0, 1], [0, 2], [0, 3], [0, 4], [1, 2], [2, 3], [3, 4], [4, 1]]
+    print("wheel with 4 spokes: {trees(5, wheel)}")
+    office := [[0, 1], [0, 2], [1, 2], [1, 3], [2, 3], [3, 4], [4, 5], [3, 5]]
+    print("office network: {trees(6, office)} ways to keep it connected with 5 cables")
+
+@test fn square()
+    assert_eq(trees(4, [[0, 1], [1, 2], [2, 3], [3, 0]]), 4)

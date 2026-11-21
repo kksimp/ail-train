@@ -1,0 +1,51 @@
+## Ramsey number R(3,3) = 6: tries every red/blue colouring of the edges of K5 and K6; some K5
+## colourings (the pentagon and pentagram) avoid a one-colour triangle, but no K6 colouring does.
+
+fn edge_index(n int) List[List[int]]
+    mut idx := List[List[int]]()
+    mut k := 0
+    for i in 0..n
+        idx.push([0 for col in 0..n])
+    for i in 0..n
+        for j in i + 1..n
+            idx[i][j] = k
+            idx[j][i] = k
+            k += 1
+    idx
+
+fn has_mono(n int, mask int, idx List[List[int]]) bool
+    for a in 0..n
+        for b in a + 1..n
+            for c in b + 1..n
+                x := (mask >> idx[a][b]) & 1
+                y := (mask >> idx[b][c]) & 1
+                z := (mask >> idx[a][c]) & 1
+                if x == y and y == z
+                    return true
+    false
+
+fn free_count(n int) int
+    idx := edge_index(n)
+    edges := n * (n - 1) / 2
+    mut free := 0
+    for mask in 0..(1 << edges)
+        if not has_mono(n, mask, idx)
+            free += 1
+    free
+
+fn main()
+    for n in 3..=6
+        edges := n * (n - 1) / 2
+        f := free_count(n)
+        total := 1 << edges
+        verdict := if f == 0 then "a one-colour triangle is forced" else "can be avoided"
+        print("K{n}: {edges} edges, {total} colourings, {f} without a one-colour triangle: {verdict}")
+    idx := edge_index(5)
+    mut ring := 0
+    for i in 0..5
+        ring = ring | (1 << idx[i][(i + 1) % 5])
+    print("pentagon red, pentagram blue has a triangle: {has_mono(5, ring, idx)}")
+    print("so R(3,3) = 6: any six people hold three mutual friends or three mutual strangers")
+
+@test fn k3_free()
+    assert_eq(free_count(3), 6)

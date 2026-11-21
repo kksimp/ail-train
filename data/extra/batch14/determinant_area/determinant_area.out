@@ -1,0 +1,6 @@
+plot [[0, 0], [4, 0], [5, 2], [1, 3]]: twice the signed area 21
+shear x += 2y     det   1: twice the area   21 = 1 x 21, anticlockwise
+stretch 3 by 2    det   6: twice the area  126 = 6 x 21, anticlockwise
+turn 90           det   1: twice the area   21 = 1 x 21, anticlockwise
+flip and stretch  det  -6: twice the area -126 = -6 x 21, clockwise
+squash to a line  det   0: twice the area    0 = 0 x 21, flat

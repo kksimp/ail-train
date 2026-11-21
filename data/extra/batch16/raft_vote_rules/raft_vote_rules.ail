@@ -1,0 +1,33 @@
+## Raft vote rules: a voter refuses a candidate from an older term, gives one vote per term, and only
+## votes for a candidate whose log is at least as up to date (higher last term, or same term and as long).
+
+struct Voter
+    term int
+    voted str
+    last_term int
+    last_index int
+
+fn Voter.request(mut self, cand str, term int, last_term int, last_index int) str
+    if term < self.term
+        return "no: term {term} is older than {self.term}"
+    if term > self.term
+        self.term = term
+        self.voted = ""
+    if self.voted != "" and self.voted != cand
+        return "no: already voted for {self.voted} in term {term}"
+    if last_term < self.last_term or (last_term == self.last_term and last_index < self.last_index)
+        return "no: log ({last_term}, {last_index}) is behind ({self.last_term}, {self.last_index})"
+    self.voted = cand
+    "yes"
+
+fn main()
+    mut v := Voter(term: 4, voted: "", last_term: 3, last_index: 7)
+    asks := [("n2", 3, 3, 9), ("n3", 4, 2, 12), ("n4", 4, 3, 6), ("n5", 4, 3, 7), ("n2", 4, 3, 9), ("n5", 4, 3, 7), ("n3", 5, 4, 1)]
+    for cand, term, lt, li in asks
+        answer := v.request(cand, term, lt, li)
+        print("{cand} asks in term {term}: {answer}")
+    print("voter now in term {v.term}, voted for {v.voted}")
+
+@test fn newer_term_wins()
+    mut v := Voter(term: 1, voted: "a", last_term: 1, last_index: 1)
+    assert_eq(v.request("b", 2, 1, 1), "yes")

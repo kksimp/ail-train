@@ -1,0 +1,14 @@
+Chrome   Windows  Mozilla/5.0 (Windows NT 10.0; Win64; x64
+Edge     Windows  Mozilla/5.0 (Windows NT 10.0; Win64; x64
+Safari   macOS    Mozilla/5.0 (Macintosh; Intel Mac OS X 1
+Firefox  Linux    Mozilla/5.0 (X11; Linux x86_64; rv:121.0
+Safari   iOS      Mozilla/5.0 (iPhone; CPU iPhone OS 17_2
+Chrome   Android  Mozilla/5.0 (Linux; Android 14) AppleWeb
+bot      -        Googlebot/2.1 (+http://www.google.com/bo
+curl     -        curl/8.4.0
+Chrome: 2
+Edge: 1
+Firefox: 1
+Safari: 2
+bot: 1
+curl: 1

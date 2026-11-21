@@ -1,0 +1,10 @@
+8 numbers, 28 trie nodes
+ 3 (00011) pairs best with 30 (11110): xor 29
+10 (01010) pairs best with 17 (10001): xor 27
+ 5 (00101) pairs best with 25 (11001): xor 28
+25 (11001) pairs best with  5 (00101): xor 28
+ 2 (00010) pairs best with 30 (11110): xor 28
+ 8 (01000) pairs best with 17 (10001): xor 25
+17 (10001) pairs best with 10 (01010): xor 27
+30 (11110) pairs best with  3 (00011): xor 29
+largest xor 29, all pairs give 29

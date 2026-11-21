@@ -1,0 +1,27 @@
+## Determinant as area scale: a 2x2 matrix multiplies every area by its determinant, so a shear
+## (det 1) keeps area, a stretch scales it, and a negative determinant flips the outline's orientation.
+
+fn shoelace2(pts List[List[int]]) int
+    mut s := 0
+    for i in 0..pts.len()
+        j := (i + 1) % pts.len()
+        s += pts[i][0] * pts[j][1] - pts[j][0] * pts[i][1]
+    s
+
+fn apply(m List[int], pts List[List[int]]) List[List[int]]
+    pts.map(|p| [m[0] * p[0] + m[1] * p[1], m[2] * p[0] + m[3] * p[1]])
+
+fn main()
+    plot := [[0, 0], [4, 0], [5, 2], [1, 3]]
+    base := shoelace2(plot)
+    print("plot {plot}: twice the signed area {base}")
+    maps := [("shear x += 2y", [1, 2, 0, 1]), ("stretch 3 by 2", [3, 0, 0, 2]), ("turn 90", [0, -1, 1, 0]), ("flip and stretch", [2, 1, 4, -1]), ("squash to a line", [1, 2, 2, 4])]
+    for t in maps
+        name, m := t
+        det := m[0] * m[3] - m[1] * m[2]
+        after := shoelace2(apply(m, plot))
+        side := if after > 0 then "anticlockwise" elif after < 0 then "clockwise" else "flat"
+        print("{name:<17} det {det:>3}: twice the area {after:>4} = {det} x {base}, {side}")
+
+@test fn unit()
+    assert_eq(shoelace2([[0, 0], [1, 0], [1, 1], [0, 1]]), 2)

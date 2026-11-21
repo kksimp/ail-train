@@ -1,0 +1,27 @@
+## CSV writer: a field is quoted only when it must be (it holds a comma, a double quote or a newline, or
+## starts or ends with a space), and quotes inside it are doubled, so any reader gets the exact text back.
+
+fn needs_quotes(s str) bool
+    s.contains(",") or s.contains("\"") or s.contains("\n") or s.starts_with(" ") or s.ends_with(" ")
+
+fn csv_field(s str) str
+    if needs_quotes(s)
+        inner := s.replace("\"", "\"\"")
+        return "\"{inner}\""
+    s
+
+fn main()
+    rows := [["sku", "title", "price", "note"], ["A-1", "Desk lamp", "24.50", ""], ["B-7", "Chair, oak", "89.00", "ships flat"], ["C-3", "12\" ruler", "3.20", " fragile "], ["D-9", "Poster", "9.99", "two\nlines"]]
+    mut quoted := 0
+    for row in rows
+        mut cells := List[str]()
+        for f in row
+            if needs_quotes(f)
+                quoted += 1
+            cells.push(csv_field(f))
+        print(cells.join(","))
+    print("{quoted} fields needed quotes")
+
+@test fn doubles_quotes()
+    assert_eq(csv_field("say \"hi\""), "\"say \"\"hi\"\"\"")
+    assert_eq(csv_field("plain"), "plain")

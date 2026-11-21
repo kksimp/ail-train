@@ -1,0 +1,41 @@
+## Build cache by input hash: a step's key mixes its name with the hashes of its inputs, and a
+## cached key returns the stored output; editing one source misses only the steps downstream of it.
+
+fn mix(h int, x int) int
+    (h * 31 + x) % 2147483647
+
+fn text_hash(s str) int
+    s.chars().fold(17, |h, c| mix(h, c.code()))
+
+fn build(label str, src Map[str, int], steps List[List[str]], mut cache Map[int, int])
+    mut out := Map[str, int]()
+    mut report := List[str]()
+    for st in steps
+        mut key := text_hash(st[0])
+        for inp in st.slice(1)
+            key = mix(key, src.get(inp) else out.get_or(inp, 0))
+        if cache.contains(key)
+            report.push("{st[0]} hit")
+        else
+            cache[key] = mix(key, 7)
+            report.push("{st[0]} MISS")
+        out[st[0]] = cache[key]
+    shown := report.join(", ")
+    print("{label}: {shown}")
+
+fn main()
+    steps := [["cc_a", "a.c"], ["cc_b", "b.c", "common.h"], ["cc_c", "c.c", "common.h"], ["link", "cc_a", "cc_b", "cc_c"], ["test", "link", "cases.txt"], ["docs", "guide.md"]]
+    mut src := {"a.c": 101, "b.c": 202, "c.c": 303, "common.h": 404, "cases.txt": 505, "guide.md": 606}
+    mut cache := Map[int, int]()
+    build("clean build", src, steps, mut cache)
+    build("no change  ", src, steps, mut cache)
+    src["b.c"] = 222
+    build("edit b.c   ", src, steps, mut cache)
+    src["b.c"] = 202
+    build("undo edit  ", src, steps, mut cache)
+    src["common.h"] = 444
+    build("edit header", src, steps, mut cache)
+    print("cache holds {cache.len()} entries")
+
+@test fn mix_changes()
+    assert(mix(1, 2) != mix(1, 3))

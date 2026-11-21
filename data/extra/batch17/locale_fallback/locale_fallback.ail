@@ -1,0 +1,32 @@
+## Locale fallback: a message is looked up first in the user's full locale (de-AT), then in its language
+## (de), then in English; each printed message shows which catalogue supplied it, and keys missing everywhere are reported.
+
+fn chain(locale str) List[str]
+    mut out := [locale]
+    lang := locale.split("-")[0]
+    if lang != locale
+        out.push(lang)
+    if lang != "en"
+        out.push("en")
+    out
+
+fn lookup(catalog Map[str, str], locale str, key str) str
+    for loc in chain(locale)
+        if v := catalog.get("{loc}:{key}")
+            return "{v} [{loc}]"
+    "<{key}?>"
+
+fn main()
+    catalog := {"en:hello": "Hello", "en:cart": "Your basket", "en:bye": "Goodbye", "de:hello": "Hallo", "de:cart": "Warenkorb", "de-AT:hello": "Servus", "fr:hello": "Bonjour", "fr:bye": "Au revoir", "fr-CA:cart": "Panier", "pt:hello": "Olá"}
+    users := ["de-AT", "de-CH", "fr-CA", "pt-BR", "en-GB"]
+    for u in users
+        parts := ["hello", "cart", "bye"].map(|k| lookup(catalog, u, k))
+        shown := parts.join(" | ")
+        print("{u:<6} {shown}")
+    missing := ["hello", "cart", "bye", "help"].filter(|k| not catalog.contains("en:{k}"))
+    print("keys missing from English: {missing.len()}")
+    print(lookup(catalog, "de-AT", "help"))
+
+@test fn chain_order()
+    assert_eq(chain("de-AT"), ["de-AT", "de", "en"])
+    assert_eq(chain("en"), ["en"])

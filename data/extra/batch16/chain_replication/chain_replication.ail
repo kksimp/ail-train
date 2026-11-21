@@ -1,0 +1,33 @@
+## Chain replication: writes enter at the head and move one hop down the chain per tick; reads go to
+## the tail, so they only see fully replicated writes, and a write is acknowledged when the tail has it.
+
+fn main()
+    mut chain := ["n1", "n2", "n3"]
+    mut seq := {"n1": 0, "n2": 0, "n3": 0}
+    values := ["-", "x=1", "x=2", "x=3", "x=4"]
+    writes := {1: 1, 2: 2, 4: 3, 6: 4}
+    mut acked := 0
+    for tick in 1..=10
+        if tick == 5
+            chain = chain.filter(|n| n != "n2")
+            rest := chain.join(", ")
+            print("tick  5: n2 fails, chain is now [{rest}]")
+        mut i := chain.len() - 1
+        while i > 0
+            up := chain[i - 1]
+            me := chain[i]
+            if seq[me] < seq[up]
+                seq[me] += 1
+            i -= 1
+        if w := writes.get(tick)
+            seq[chain[0]] = w
+        tail := chain[chain.len() - 1]
+        while acked < seq[tail]
+            acked += 1
+            print("tick {tick:>2}: write {acked} acknowledged")
+        positions := chain.map(|n| "{n}:{seq[n]}").join(" ")
+        print("tick {tick:>2}: {positions:<16} read at tail -> {values[seq[tail]]}")
+
+@test fn filter_chain()
+    c := ["a", "b", "c"].filter(|n| n != "b")
+    assert_eq(c, ["a", "c"])

@@ -1,0 +1,11 @@
+P sends 10
+Q sends 5
+P starts the snapshot, records 90
+Q receives 10
+P receives 5
+Q sends 20
+Q gets its first marker, records 35
+P receives 20
+P gets the marker back, stops recording
+snapshot: P=90 Q=35 in flight P>Q [] Q>P [5, 20]
+snapshot total 150, real total 150

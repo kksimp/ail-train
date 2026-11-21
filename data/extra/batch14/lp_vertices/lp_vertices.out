@@ -1,0 +1,13 @@
+doors and windows: maximise 3x + 5y
+    corner (4, 3) gives 27
+    corner (4, 0) gives 12
+    corner (2, 6) gives 36
+    corner (0, 6) gives 30
+    corner (0, 0) gives 0
+    best: (2, 6) with 36
+feed mix: maximise 2x + 3y
+    corner (11/5, 12/5) gives 58/5
+    corner (0, 7/2) gives 21/2
+    corner (3, 0) gives 6
+    corner (0, 0) gives 0
+    best: (11/5, 12/5) with 58/5

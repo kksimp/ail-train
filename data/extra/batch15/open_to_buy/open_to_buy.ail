@@ -1,0 +1,27 @@
+## Open to buy: a buyer may yet order planned sales + planned closing inventory + planned markdowns
+## - opening inventory - goods already on order; each month's closing plan is the next month's opening.
+
+struct Plan
+    month str
+    sales int
+    markdowns int
+    closing int
+    on_order int
+
+fn open_to_buy(p Plan, opening int) int
+    p.sales + p.closing + p.markdowns - opening - p.on_order
+
+fn main()
+    mut opening := 120000
+    plans := [Plan(month: "Aug", sales: 64000, markdowns: 3000, closing: 135000, on_order: 52000), Plan(month: "Sep", sales: 71000, markdowns: 2500, closing: 150000, on_order: 30000), Plan(month: "Oct", sales: 82000, markdowns: 4000, closing: 165000, on_order: 95000), Plan(month: "Nov", sales: 98000, markdowns: 6000, closing: 140000, on_order: 20000), Plan(month: "Dec", sales: 120000, markdowns: 15000, closing: 90000, on_order: 0)]
+    mut total := 0
+    for p in plans
+        otb := open_to_buy(p, opening)
+        state := if otb < 0 then "over-bought by {-otb}" else "may yet buy {otb}"
+        print("{p.month}: open {opening:>6}, sales {p.sales:>6}, close {p.closing:>6}, on order {p.on_order:>5}: {state}")
+        total += otb
+        opening = p.closing
+    print("season open to buy {total}")
+
+@test fn simple()
+    assert_eq(open_to_buy(Plan(month: "x", sales: 10, markdowns: 1, closing: 20, on_order: 5), 15), 11)

@@ -1,0 +1,38 @@
+## Fertiliser blend: meets a field's N, P2O5 and K2O need from straight products; DAP (18-46-0) covers the
+## phosphate and part of the nitrogen, urea (46-0-0) the rest of the N and potash (0-0-60) the K2O.
+
+struct Product
+    name str
+    n float
+    p float
+    k float
+    price float
+
+fn bags(kg float) int
+    (kg / 50.0).ceil().to_int()
+
+fn main()
+    need_n := 140.0
+    need_p := 60.0
+    need_k := 90.0
+    hectares := 12.0
+    dap := Product(name: "DAP 18-46-0", n: 0.18, p: 0.46, k: 0.0, price: 31.5)
+    urea := Product(name: "urea 46-0-0", n: 0.46, p: 0.0, k: 0.0, price: 24.0)
+    potash := Product(name: "potash 0-0-60", n: 0.0, p: 0.0, k: 0.6, price: 22.0)
+    dap_kg := need_p / dap.p
+    urea_kg := (need_n - dap_kg * dap.n) / urea.n
+    potash_kg := need_k / potash.k
+    plan := [(dap, dap_kg), (urea, urea_kg), (potash, potash_kg)]
+    mut cost := 0.0
+    for item in plan
+        prod, per_ha := item
+        field := per_ha * hectares
+        b := bags(field)
+        cost += b.to_float() * prod.price
+        print("{prod.name:<14} {per_ha:>6.1} kg/ha, {field:>7.1} kg on the field = {b} bags")
+    applied := dap_kg * dap.n + urea_kg * urea.n
+    print("nitrogen applied {applied:.1} kg/ha (need {need_n:.0})")
+    print("cost {cost:.2}, {cost / hectares:.2} per hectare")
+
+@test fn bag_count()
+    assert_eq(bags(101.0), 3)

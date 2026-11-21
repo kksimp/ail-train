@@ -1,0 +1,31 @@
+## Sweep and prune: boxes sorted by left edge are swept once, keeping only boxes whose x range is
+## open; only those pairs are tested on y, far fewer than testing every pair of boxes.
+
+struct Box
+    name str
+    x1 int
+    x2 int
+    y1 int
+    y2 int
+
+fn main()
+    boxes := [Box(name: "ship", x1: 10, x2: 30, y1: 5, y2: 15), Box(name: "rock", x1: 25, x2: 35, y1: 12, y2: 20), Box(name: "buoy", x1: 32, x2: 34, y1: 40, y2: 42), Box(name: "gull", x1: 28, x2: 31, y1: 14, y2: 16), Box(name: "reef", x1: 60, x2: 90, y1: 0, y2: 10), Box(name: "boat", x1: 85, x2: 95, y1: 8, y2: 12), Box(name: "dock", x1: 0, x2: 8, y1: 0, y2: 50), Box(name: "kite", x1: 70, x2: 72, y1: 30, y2: 33)]
+    order := boxes.sorted(by: |b| b.x1)
+    mut active := List[Box]()
+    mut tests := 0
+    mut hits := List[str]()
+    for b in order
+        active = active.filter(|a| a.x2 >= b.x1)
+        for a in active
+            tests += 1
+            if a.y1 <= b.y2 and b.y1 <= a.y2
+                hits.push("{a.name}+{b.name}")
+        active.push(b)
+    n := boxes.len()
+    shown := hits.join(", ")
+    print("overlapping: {shown}")
+    print("y tests after the sweep: {tests}; every pair would be {n * (n - 1) / 2}")
+
+@test fn sorted_by_left()
+    bs := [Box(name: "b", x1: 5, x2: 6, y1: 0, y2: 1), Box(name: "a", x1: 1, x2: 2, y1: 0, y2: 1)]
+    assert_eq(bs.sorted(by: |b| b.x1)[0].name, "a")

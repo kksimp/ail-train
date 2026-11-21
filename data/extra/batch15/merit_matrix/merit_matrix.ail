@@ -1,0 +1,32 @@
+## Merit matrix: the pay rise depends on the performance rating and the compa-ratio (salary / range
+## midpoint), so strong performers low in their range get the most; checked against a 3.5% budget pool.
+
+struct Person
+    name str
+    salary int
+    midpoint int
+    rating int
+
+fn band(salary int, midpoint int) int
+    ratio := salary * 100 / midpoint
+    if ratio < 90 then 0 elif ratio <= 110 then 1 else 2
+
+fn main()
+    matrix := [[0, 0, 0], [100, 50, 0], [350, 250, 150], [550, 400, 250], [750, 550, 350]]
+    people := [Person(name: "Asha", salary: 41000, midpoint: 48000, rating: 4), Person(name: "Bruno", salary: 52000, midpoint: 48000, rating: 3), Person(name: "Cara", salary: 61000, midpoint: 60000, rating: 5), Person(name: "Dev", salary: 70500, midpoint: 60000, rating: 2), Person(name: "Elin", salary: 39500, midpoint: 48000, rating: 3), Person(name: "Femi", salary: 66000, midpoint: 60000, rating: 4)]
+    mut spend := 0
+    mut payroll := 0
+    for p in people
+        b := band(p.salary, p.midpoint)
+        bp := matrix[p.rating - 1][b]
+        rise := p.salary * bp / 10000
+        spend += rise
+        payroll += p.salary
+        compa := p.salary * 100 / p.midpoint
+        print("{p.name:<6} rating {p.rating}, compa {compa}%: rise {bp / 100}.{bp % 100:02}% = {rise}, new salary {p.salary + rise}")
+    pool := payroll * 350 / 10000
+    verdict := if spend <= pool then "within budget" else "over budget"
+    print("rises {spend} against a pool of {pool}: {verdict}")
+
+@test fn bands()
+    assert_eq([band(40000, 50000), band(50000, 50000), band(60000, 50000)], [0, 1, 2])

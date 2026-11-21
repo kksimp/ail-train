@@ -1,0 +1,41 @@
+## Diatonic chords: stacks thirds on each degree of a major scale (W W H W W W H) to get its seven
+## triads, labels them with Roman numerals by quality, and spells a I-vi-IV-V progression in each key.
+
+NAMES := ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
+
+fn scale(root int) List[int]
+    mut out := [root]
+    mut p := root
+    for step in [2, 2, 1, 2, 2, 2]
+        p = (p + step) % 12
+        out.push(p)
+    out
+
+fn triad_label(sc List[int], degree int) str
+    numerals := ["I", "II", "III", "IV", "V", "VI", "VII"]
+    root := sc[degree]
+    third := (sc[(degree + 2) % 7] - root + 12) % 12
+    fifth := (sc[(degree + 4) % 7] - root + 12) % 12
+    if third == 4
+        return numerals[degree]
+    lower := numerals[degree].to_lower()
+    if fifth == 6 then "{lower}dim" else lower
+
+fn chord_name(sc List[int], degree int) str
+    label := triad_label(sc, degree)
+    suffix := if label.ends_with("dim") then "dim" elif label == label.to_lower() then "m" else ""
+    "{NAMES[sc[degree]]}{suffix}"
+
+fn main()
+    for key in ["C", "G", "E"]
+        sc := scale(NAMES.index_of(key) else 0)
+        mut row := List[str]()
+        for d in 0..7
+            row.push("{triad_label(sc, d)}={chord_name(sc, d)}")
+        shown := row.join(" ")
+        print("{key}: {shown}")
+        prog := [0, 5, 3, 4].map(|d| chord_name(sc, d)).join(" ")
+        print("   I-vi-IV-V: {prog}")
+
+@test fn seventh_degree_diminished()
+    assert_eq(triad_label(scale(0), 6), "viidim")

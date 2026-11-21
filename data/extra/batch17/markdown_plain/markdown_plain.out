@@ -1,0 +1,13 @@
+RELEASE NOTES
+=============
+Version 2.1 is out now.
+Fixes
+-----
+  * crash on empty files <https://ex.com/1>
+  * slow grep on big logs
+1. update the app
+2. restart it
+  | back up your settings first
+~~~~~~~~~~~~~~~~~~~~
+Thanks to everyone who reported bugs.
+10 markdown lines -> 12 text lines

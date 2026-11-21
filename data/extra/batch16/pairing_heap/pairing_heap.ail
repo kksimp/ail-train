@@ -1,0 +1,60 @@
+## Pairing heap: melding two heaps makes the larger root a child of the smaller; deleting the minimum
+## melds its children in pairs left to right and then folds the pairs right to left into one heap.
+
+struct Heap
+    keys List[int]
+    kids List[List[int]]
+    melds int
+
+fn Heap.meld(mut self, a int, b int) int
+    if a < 0
+        return b
+    if b < 0
+        return a
+    self.melds += 1
+    if self.keys[b] < self.keys[a]
+        self.kids[b].push(a)
+        return b
+    self.kids[a].push(b)
+    a
+
+fn Heap.add(mut self, root int, k int) int
+    self.keys.push(k)
+    self.kids.push(List[int]())
+    self.meld(root, self.keys.len() - 1)
+
+fn Heap.pop_min(mut self, root int) int
+    cs := self.kids[root]
+    mut paired := List[int]()
+    mut i := 0
+    while i < cs.len()
+        if i + 1 < cs.len()
+            paired.push(self.meld(cs[i], cs[i + 1]))
+        else
+            paired.push(cs[i])
+        i += 2
+    mut out := -1
+    mut j := paired.len() - 1
+    while j >= 0
+        out = self.meld(paired[j], out)
+        j -= 1
+    out
+
+fn main()
+    mut h := Heap(keys: [], kids: [], melds: 0)
+    mut root := -1
+    for k in [42, 17, 8, 99, 23, 4, 61, 15, 30, 8, 77, 12]
+        root = h.add(root, k)
+    print("inserted 12 keys with {h.melds} melds, minimum {h.keys[root]}")
+    mut order := List[int]()
+    while root >= 0
+        order.push(h.keys[root])
+        root = h.pop_min(root)
+    print("pop order {order}")
+    print("total melds {h.melds}")
+
+@test fn smaller_wins()
+    mut h := Heap(keys: [], kids: [], melds: 0)
+    first := h.add(-1, 5)
+    r := h.add(first, 3)
+    assert_eq(h.keys[r], 3)

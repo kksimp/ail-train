@@ -1,0 +1,12 @@
+generator (Source.Point): 85.0 dB at 10 m
+  at    20 m: 79.0 dB
+  at    40 m: 73.0 dB
+  at    80 m: 66.9 dB
+  at   160 m: 60.9 dB
+  under 55 dB beyond 316 m
+motorway (Source.Line): 78.0 dB at 10 m
+  at    20 m: 75.0 dB
+  at    40 m: 72.0 dB
+  at    80 m: 69.0 dB
+  at   160 m: 66.0 dB
+  under 55 dB beyond 1995 m

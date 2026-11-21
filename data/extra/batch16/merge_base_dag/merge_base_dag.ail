@@ -1,0 +1,36 @@
+## Merge base: in a commit graph with merges, the merge base of two commits is a common ancestor
+## that is not an ancestor of another common ancestor; criss-cross merges can have two.
+
+fn ancestors(parents Map[str, List[str]], start str) Set[str]
+    mut seen := Set[str]()
+    mut pending := [start]
+    while c := pending.pop()
+        if seen.add(c)
+            for p in parents.get_or(c, List[str]())
+                pending.push(p)
+    seen
+
+fn bases(parents Map[str, List[str]], a str, b str) List[str]
+    common := ancestors(parents, a).intersect(ancestors(parents, b))
+    mut best := List[str]()
+    for c in common.sorted()
+        mut covered := false
+        for d in common
+            if d != c and ancestors(parents, d).contains(c)
+                covered = true
+        if not covered
+            best.push(c)
+    best
+
+fn main()
+    parents := {"c2": ["c1"], "c3": ["c2"], "c4": ["c2"], "c5": ["c3"], "c6": ["c5", "c4"], "c7": ["c4"], "c8": ["c7"], "c9": ["c6"], "c10": ["c5", "c7"], "c11": ["c7", "c5"]}
+    for pair in [["c9", "c8"], ["c5", "c7"], ["c3", "c9"], ["c10", "c11"]]
+        a := pair[0]
+        b := pair[1]
+        found := bases(parents, a, b).join(" and ")
+        ahead := ancestors(parents, a).difference(ancestors(parents, b)).len()
+        behind := ancestors(parents, b).difference(ancestors(parents, a)).len()
+        print("{a:<3} vs {b:<3}: base {found}, {a} has {ahead} commits {b} lacks, {b} has {behind}")
+
+@test fn root_is_ancestor()
+    assert(ancestors({"b": ["a"]}, "b").contains("a"))

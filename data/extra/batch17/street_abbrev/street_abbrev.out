@@ -1,0 +1,10 @@
+1. 123 N MAIN ST APT 4
+2. 123 N MAIN ST APT 4
+3. 45 OCEAN BLVD STE 200
+4. 45 OCEAN BLVD STE 200
+5. 9 W LN
+6. 9 W LN FL 2
+7. 77 NE PARK DR
+same address: [1, 2]
+same address: [3, 4]
+7 entries, 5 distinct

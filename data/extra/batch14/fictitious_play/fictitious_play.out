@@ -1,0 +1,6 @@
+after     10 rounds player A played rock     3, paper     5, scissors     2
+after    100 rounds player A played rock    38, paper    32, scissors    30
+after   1000 rounds player A played rock   336, paper   315, scissors   349
+after  10000 rounds player A played rock  3383, paper  3317, scissors  3300
+after 100000 rounds player A played rock 33443, paper 33233, scissors 33324
+the counts even out towards a third each, the mixed equilibrium

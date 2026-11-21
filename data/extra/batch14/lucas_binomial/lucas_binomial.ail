@@ -1,0 +1,50 @@
+## Lucas's theorem: C(n, k) mod a prime p is the product of C(n_i, k_i) over the base-p digits of n
+## and k; checked against Pascal's triangle mod p, and it explains why row n has 2^(ones in n) odd entries.
+
+fn small_binom(n int, k int) int
+    mut r := 1
+    for i in 0..k
+        r = r * (n - i) / (i + 1)
+    r
+
+fn lucas(n int, k int, p int) int
+    mut a := n
+    mut b := k
+    mut result := 1
+    while a > 0 or b > 0
+        ni := a % p
+        ki := b % p
+        if ki > ni
+            return 0
+        result = result * small_binom(ni, ki) % p
+        a /= p
+        b /= p
+    result
+
+fn pascal(n int, k int, p int) int
+    mut row := [1]
+    for r in 1..=n
+        mut next := [1]
+        for i in 1..r
+            next.push((row[i - 1] + row[i]) % p)
+        next.push(1)
+        row = next
+    row[k]
+
+fn main()
+    for t in [[1000, 300, 13], [1000, 500, 7], [2026, 1000, 11], [100, 50, 3]]
+        n := t[0]
+        k := t[1]
+        p := t[2]
+        print("C({n}, {k}) mod {p}: Lucas {lucas(n, k, p)}, Pascal {pascal(n, k, p)}")
+    for n in [10, 63, 64, 100]
+        odd := [k for k in 0..=n if lucas(n, k, 2) == 1].len()
+        mut ones := 0
+        mut x := n
+        while x > 0
+            ones += x % 2
+            x /= 2
+        print("row {n}: {odd} odd entries, 2^{ones} = {1 << ones}")
+
+@test fn digits()
+    assert_eq(lucas(10, 3, 3), 0)

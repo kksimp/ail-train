@@ -1,0 +1,30 @@
+## Query log report: normalises logged search queries (lower case, trimmed, inner spaces collapsed,
+## trailing punctuation dropped), then reports the top queries, the zero-result rate and the queries that found nothing.
+
+fn normalise(q str) str
+    mut t := q.trim().to_lower().words().join(" ")
+    while t.ends_with("?") or t.ends_with("!") or t.ends_with(".")
+        t = t.slice(0, t.len() - 1)
+    t
+
+fn main()
+    log := [("Return policy", 4), ("return  policy?", 4), ("track order", 2), ("TRACK ORDER", 2), ("gift card balance", 0), ("return policy", 4), ("shipping to norway", 0), ("track order!", 2), ("Gift card balance ", 0), ("size guide", 7)]
+    mut counts := Map[str, int]()
+    mut zero := Map[str, int]()
+    for e in log
+        q, results := e
+        n := normalise(q)
+        counts[n] += 1
+        if results == 0
+            zero[n] += 1
+    print("{log.len()} searches, {counts.len()} distinct after normalising")
+    for q in counts.top(3)
+        print("  {counts[q]}x {q}")
+    total_zero := zero.values().sum()
+    pct := total_zero * 100 / log.len()
+    print("zero-result rate: {pct}%")
+    for q, n in zero
+        print("  no results: {q} ({n}x)")
+
+@test fn collapses()
+    assert_eq(normalise("  Track   ORDER!? "), "track order")

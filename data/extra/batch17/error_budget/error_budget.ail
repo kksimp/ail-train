@@ -1,0 +1,28 @@
+## Error budget: a 99.5% availability target over a week allows 0.5% of all requests to fail; each day's
+## burn rate is its error ratio divided by 0.5%, and the running total shows how much budget is gone.
+
+fn burn(errors int, requests int) float
+    (errors * 200).to_float() / requests.to_float()
+
+fn main()
+    days := ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+    requests := [12000, 15000, 11000, 18000, 16000, 9000, 14000]
+    errors := [20, 45, 30, 250, 72, 12, 40]
+    total := requests.sum()
+    allowed := total * 5 / 1000
+    print("{total} requests allow {allowed} errors")
+    mut used := 0
+    mut hot := List[str]()
+    for i in 0..days.len()
+        used += errors[i]
+        rate := burn(errors[i], requests[i])
+        pct := (used * 100).to_float() / allowed.to_float()
+        print("{days[i]} {requests[i]:>6} req {errors[i]:>4} err  burn {rate:>4.2}  used {pct:>5.1}%")
+        if rate > 2.0
+            hot.push(days[i])
+    print("remaining budget: {allowed - used} errors")
+    shown := hot.join(", ")
+    print("days burning over 2x: {shown}")
+
+@test fn burn_one()
+    assert_eq(burn(5, 1000), 1.0)

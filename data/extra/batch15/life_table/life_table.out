@@ -1,0 +1,11 @@
+age  0: lx   100000, dx     600, ex  79.2
+age 10: lx    99400, dx     199, ex  69.6
+age 20: lx    99201, dx     694, ex  59.7
+age 30: lx    98507, dx    1084, ex  50.1
+age 40: lx    97423, dx    2143, ex  40.6
+age 50: lx    95280, dx    4764, ex  31.4
+age 60: lx    90516, dx    9957, ex  22.8
+age 70: lx    80559, dx   20140, ex  15.0
+age 80: lx    60419, dx   33231, ex   8.4
+age 90: lx    27189, dx   27189, ex   2.5
+chance a newborn reaches 80: 60.4%

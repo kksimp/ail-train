@@ -1,0 +1,36 @@
+## Solitaire moves: in Klondike a card goes on a tableau card of the other colour and one rank
+## higher (only a king fills an empty column), or on its suit's foundation in rank order from the ace.
+
+struct Card
+    rank int
+    suit char
+
+fn parse(s str) Card
+    Card(rank: ("A23456789TJQK".find(s.slice(0, 1)) else 0) + 1, suit: s.char_at(1) else 'S')
+
+fn Card.red(self) bool
+    suit == 'H' or suit == 'D'
+
+fn Card.fits_on(self, top str) bool
+    if top == ""
+        return rank == 13
+    t := parse(top)
+    t.red() != red() and t.rank == rank + 1
+
+fn main()
+    columns := ["9S", "", "QH", "4D", "7C", "8D"]
+    foundation := {'H': 2, 'S': 0, 'D': 3, 'C': 1}
+    moving := ["8H", "KC", "3S", "4H", "JS", "2C", "AS", "6S"]
+    for m in moving
+        c := parse(m)
+        mut spots := List[str]()
+        for i, top in columns.enumerate()
+            if c.fits_on(top)
+                spots.push("column {i + 1}")
+        if foundation.get_or(c.suit, 0) == c.rank - 1
+            spots.push("foundation")
+        dest := if spots.is_empty() then "nowhere" else spots.join(", ")
+        print("{m}: {dest}")
+
+@test fn black_on_red()
+    assert(parse("8S").fits_on("9D"))

@@ -1,0 +1,6 @@
+start:         v3 v2 v1
+read [1, 2]: b (v2), repaired [2] -> v3 v2 v2
+read [0, 2]: c (v3), repaired [2] -> v3 v2 v3
+read [1, 2]: c (v3), repaired [1] -> v3 v3 v3
+read [0, 1]: c (v3), repaired [] -> v3 v3 v3
+replicas agree: true

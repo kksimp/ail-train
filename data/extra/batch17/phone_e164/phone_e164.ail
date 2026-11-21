@@ -1,0 +1,52 @@
+## Phone numbers to E.164: strips spaces, dashes, dots and brackets, turns keypad letters into digits,
+## reads "00" as "+", adds +1 to ten-digit national numbers, keeps an "ext" part apart and rejects wrong lengths.
+
+fn keypad(c char) char
+    table := "22233344455566677778889999".chars()
+    up := c.to_upper()
+    if up.is_alpha()
+        return table[up.code() - 65]
+    c
+
+fn to_e164(raw str) str ! Fail
+    mut body := raw
+    mut ext := ""
+    low := raw.to_lower()
+    if at := low.find("ext")
+        ext = trim_start_matches_dot(raw.slice(at + 3).trim()).trim()
+        body = raw.slice(0, at)
+    mut digits := List[char]()
+    mut plus := body.trim().starts_with("+")
+    for c in body.chars()
+        k := keypad(c)
+        if k.is_digit()
+            digits.push(k)
+    mut num := digits.join("")
+    if not plus and num.starts_with("00")
+        plus = true
+        num = num.slice(2)
+    if not plus
+        if num.len() == 11 and num.starts_with("1")
+            num = num.slice(1)
+        if num.len() != 10
+            return Fail(msg: "{num.len()} digits is not a full number")
+        num = "1{num}"
+    if num.len() < 8 or num.len() > 15
+        return Fail(msg: "bad length {num.len()}")
+    tail := if ext == "" then "" else " x{ext}"
+    "+{num}{tail}"
+
+fn trim_start_matches_dot(s str) str
+    s.strip_prefix(".") else s
+
+fn main()
+    inputs := ["(555) 010-4477", "+44 20 7946 0958", "0044 20 7946 0958", "555-0104", "1-800-FLOWERS", "+1 (555) 010-4477 ext. 12", "555.010.4477", "+12"]
+    for raw in inputs
+        if v := to_e164(raw)
+            print("{raw:<26} {v}")
+        else err
+            print("{raw:<26} rejected: {err.msg}")
+
+@test fn letters()
+    assert_eq(keypad('s'), '7')
+    assert_eq(to_e164("800 555 0100") else "", "+18005550100")

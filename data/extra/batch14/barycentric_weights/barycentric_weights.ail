@@ -1,0 +1,32 @@
+## Barycentric weights: a point inside a triangle of sensors gets weights equal to the areas of the
+## opposite sub-triangles over the whole area (from cross products); they blend the sensors' readings.
+
+struct Pt
+    x int
+    y int
+
+fn cross(a Pt, b Pt, c Pt) int
+    (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x)
+
+fn main()
+    a := Pt(x: 0, y: 0)
+    b := Pt(x: 12, y: 0)
+    c := Pt(x: 4, y: 9)
+    temps := [18.0, 24.0, 21.0]
+    whole := cross(a, b, c)
+    print("sensors at (0,0) 18 C, (12,0) 24 C, (4,9) 21 C; twice the area {whole}")
+    for p in [Pt(x: 4, y: 3), Pt(x: 6, y: 1), Pt(x: 0, y: 0), Pt(x: 8, y: 4), Pt(x: 10, y: 6)]
+        wa := cross(p, b, c)
+        wb := cross(a, p, c)
+        wc := cross(a, b, p)
+        inside := wa >= 0 and wb >= 0 and wc >= 0
+        t := (wa.to_float() * temps[0] + wb.to_float() * temps[1] + wc.to_float() * temps[2]) / whole.to_float()
+        side := if inside then "inside" else "outside"
+        print("({p.x},{p.y}): weights {wa}/{whole} {wb}/{whole} {wc}/{whole}, {side}, blended {t:.2} C")
+
+@test fn weights_sum()
+    a := Pt(x: 0, y: 0)
+    b := Pt(x: 4, y: 0)
+    c := Pt(x: 0, y: 4)
+    p := Pt(x: 1, y: 1)
+    assert_eq(cross(p, b, c) + cross(a, p, c) + cross(a, b, p), cross(a, b, c))

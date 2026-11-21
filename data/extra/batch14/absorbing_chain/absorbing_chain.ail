@@ -1,0 +1,38 @@
+## Absorbing Markov chain: students in years 1-3 repeat, advance or drop out; solving (I - Q) t = 1 and
+## (I - Q) b = r by back substitution in exact fractions gives expected years enrolled and graduation chances.
+
+fn gcd(a int, b int) int
+    if b == 0 then a.abs() else gcd(b, a % b)
+
+fn norm(n int, d int) List[int]
+    g := gcd(n, d)
+    [n / g, d / g]
+
+fn show(f List[int]) str
+    v := f[0].to_float() / f[1].to_float()
+    if f[1] == 1 then "{f[0]}" else "{f[0]}/{f[1]} = {v:.3}"
+
+fn main()
+    stay := [1, 1, 1]
+    advance := [7, 8, 8]
+    names := ["first year", "second year", "third year"]
+    mut years := [[0, 1], [0, 1], [0, 1], [0, 1]]
+    mut grad := [[0, 1], [0, 1], [0, 1], [1, 1]]
+    mut i := 2
+    while i >= 0
+        nxt_t := years[i + 1]
+        nxt_g := grad[i + 1]
+        tn := 10 * nxt_t[1] + advance[i] * nxt_t[0]
+        td := (10 - stay[i]) * nxt_t[1]
+        years[i] = norm(tn, td)
+        gn := advance[i] * nxt_g[0]
+        gd := (10 - stay[i]) * nxt_g[1]
+        grad[i] = norm(gn, gd)
+        i -= 1
+    for k in 0..3
+        print("from {names[k]:<11} (repeat {stay[k]}/10, advance {advance[k]}/10): years left {show(years[k])}, graduates {show(grad[k])}")
+    drop := norm(grad[0][1] - grad[0][0], grad[0][1])
+    print("a new student drops out with chance {show(drop)}")
+
+@test fn reduce()
+    assert_eq(norm(8, 12), [2, 3])

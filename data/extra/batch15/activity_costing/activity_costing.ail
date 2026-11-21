@@ -1,0 +1,31 @@
+## Activity-based costing: overhead pools (setups, inspections, machine hours) are charged to products by
+## each pool's driver rate, instead of spreading all overhead by labour hours, which hides small batches' cost.
+
+struct Pool
+    name str
+    cost float
+    driver_total float
+
+struct Product
+    name str
+    units float
+    labour_hours float
+    usage List[float]
+
+fn main()
+    pools := [Pool(name: "setups", cost: 60000.0, driver_total: 300.0), Pool(name: "inspections", cost: 40000.0, driver_total: 800.0), Pool(name: "machine hours", cost: 150000.0, driver_total: 12000.0)]
+    products := [Product(name: "standard chair", units: 5000.0, labour_hours: 9000.0, usage: [60.0, 200.0, 9000.0]), Product(name: "custom chair", units: 400.0, labour_hours: 1000.0, usage: [240.0, 600.0, 3000.0])]
+    for p in pools
+        print("{p.name:<13} rate {p.cost / p.driver_total:.2} per driver unit")
+    total_oh := pools.fold(0.0, |acc, p| acc + p.cost)
+    labour := products.fold(0.0, |acc, p| acc + p.labour_hours)
+    for prod in products
+        mut abc := 0.0
+        for i in 0..pools.len()
+            abc += prod.usage[i] * pools[i].cost / pools[i].driver_total
+        old := total_oh * prod.labour_hours / labour
+        print("{prod.name}: by labour {old / prod.units:.2} per unit, by activity {abc / prod.units:.2} per unit")
+
+@test fn rate()
+    p := Pool(name: "x", cost: 1000.0, driver_total: 4.0)
+    assert_eq(p.cost / p.driver_total, 250.0)

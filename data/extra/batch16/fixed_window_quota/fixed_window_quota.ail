@@ -1,0 +1,27 @@
+## Fixed window quota: a counter per 60-second window allows five calls each; requests clustered
+## around a window boundary get through twice over, which a check of every 60-second span reveals.
+
+fn main()
+    times := [5, 20, 50, 55, 57, 58, 59, 61, 62, 63, 64, 65, 66, 100, 130]
+    limit := 5
+    mut counts := Map[int, int]()
+    mut allowed := List[int]()
+    for t in times
+        w := t / 60
+        if counts.get_or(w, 0) < limit
+            counts[w] += 1
+            allowed.push(t)
+            print("t={t:>3} window {w} call {counts[w]} allowed")
+        else
+            print("t={t:>3} window {w} rejected")
+    mut worst := 0
+    mut worst_at := 0
+    for s in allowed
+        inside := allowed.count(|x| x >= s and x < s + 60)
+        if inside > worst
+            worst = inside
+            worst_at = s
+    print("busiest 60 s span starts at {worst_at} with {worst} calls (limit {limit})")
+
+@test fn window_index()
+    assert_eq(119 / 60, 1)

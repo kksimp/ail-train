@@ -1,0 +1,11 @@
+48 bits, block counts [0, 5, 9, 15, 17, 22, 27]
+rank( 0) =  0 ones before it (scan 0)
+rank( 5) =  3 ones before it (scan 3)
+rank( 8) =  5 ones before it (scan 5)
+rank(21) = 12 ones before it (scan 12)
+rank(33) = 17 ones before it (scan 17)
+rank(48) = 27 ones before it (scan 27)
+select1( 1) = position  0, bit there is 1
+select1( 7) = position 12, bit there is 1
+select1(15) = position 23, bit there is 1
+select1(26) = position 44, bit there is 1

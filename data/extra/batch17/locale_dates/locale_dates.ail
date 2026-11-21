@@ -1,0 +1,44 @@
+## Locale dates: writes one date in the long and short forms of several locales, each with its own
+## month and weekday names, word order and separators; the weekday comes from Sakamoto's method.
+
+fn weekday(y int, m int, d int) int
+    t := [0, 3, 2, 5, 0, 3, 5, 1, 4, 6, 2, 4]
+    yy := if m < 3 then y - 1 else y
+    (yy + yy / 4 - yy / 100 + yy / 400 + t[m - 1] + d) % 7
+
+fn names(lang str) List[List[str]]
+    match lang
+        "de" => [["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"], ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"]]
+        "fr" => [["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"], ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"]]
+        "es" => [["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"], ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"]]
+        _ => [["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"], ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]]
+
+fn long_form(loc str, y int, m int, d int) str
+    nm := names(loc.slice(0, 2))
+    wd := nm[0][weekday(y, m, d)]
+    mon := nm[1][m - 1]
+    match loc
+        "en-US" => "{wd}, {mon} {d}, {y}"
+        "en-GB" => "{wd} {d} {mon} {y}"
+        "de-DE" => "{wd}, {d}. {mon} {y}"
+        "fr-FR" => "{wd} {d} {mon} {y}"
+        _ => "{wd}, {d} de {mon} de {y}"
+
+fn short_form(loc str, y int, m int, d int) str
+    match loc
+        "en-US" => "{m}/{d}/{y}"
+        "de-DE" => "{d:02}.{m:02}.{y}"
+        "es-ES" => "{d}/{m}/{y}"
+        _ => "{d:02}/{m:02}/{y}"
+
+fn main()
+    dates := [[2025, 3, 7], [2024, 12, 25]]
+    for dt in dates
+        y := dt[0]
+        m := dt[1]
+        d := dt[2]
+        for loc in ["en-US", "en-GB", "de-DE", "fr-FR", "es-ES"]
+            print("{loc} {short_form(loc, y, m, d):<10} {long_form(loc, y, m, d)}")
+
+@test fn friday()
+    assert_eq(weekday(2025, 3, 7), 5)

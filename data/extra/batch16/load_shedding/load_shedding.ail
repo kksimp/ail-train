@@ -1,0 +1,43 @@
+## Load shedding: a service can spend 10 work units a second; when demand is higher, requests are
+## admitted critical first, then normal, then batch, and whatever no longer fits is shed.
+
+enum Priority
+    Critical
+    Normal
+    Batch
+
+struct Req
+    name str
+    prio Priority
+    cost int
+
+fn rank(p Priority) int
+    match p
+        Critical => 0
+        Normal => 1
+        Batch => 2
+
+fn admit(reqs List[Req], capacity int) List[str]
+    mut left := capacity
+    mut shed := List[str]()
+    for r in reqs.sorted(by: |q| rank(q.prio))
+        if r.cost <= left
+            left -= r.cost
+        else
+            shed.push(r.name)
+    shed
+
+fn main()
+    seconds := [[Req(name: "login", prio: Priority.Critical, cost: 2), Req(name: "feed", prio: Priority.Normal, cost: 3), Req(name: "report", prio: Priority.Batch, cost: 4)], [Req(name: "export", prio: Priority.Batch, cost: 5), Req(name: "pay", prio: Priority.Critical, cost: 4), Req(name: "search", prio: Priority.Normal, cost: 3), Req(name: "feed", prio: Priority.Normal, cost: 3)], [Req(name: "reindex", prio: Priority.Batch, cost: 6), Req(name: "pay", prio: Priority.Critical, cost: 4), Req(name: "login", prio: Priority.Critical, cost: 2), Req(name: "feed", prio: Priority.Normal, cost: 3), Req(name: "thumbs", prio: Priority.Batch, cost: 1)]]
+    mut total_shed := 0
+    for i, reqs in seconds.enumerate()
+        demand := reqs.fold(0, |acc, r| acc + r.cost)
+        shed := admit(reqs, 10)
+        total_shed += shed.len()
+        names := if shed.is_empty() then "none" else shed.join(", ")
+        print("second {i + 1}: demand {demand:>2}, shed {names}")
+    print("{total_shed} requests shed in total")
+
+@test fn critical_first()
+    reqs := [Req(name: "b", prio: Priority.Batch, cost: 5), Req(name: "c", prio: Priority.Critical, cost: 5)]
+    assert_eq(admit(reqs, 5), ["b"])

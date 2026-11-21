@@ -1,0 +1,8 @@
+cart:7   home n4: n4 n0 n1
+user:42  home n2: n3 n4 n0(hint for n2)
+img:9    home n2: n3 n4 n0(hint for n2)
+sess:x   home n4: n4 n0 n1
+n2 recovers
+  n0 hands user:42 to n2
+  n0 hands img:9 to n2
+n2 now holds: user:42, img:9

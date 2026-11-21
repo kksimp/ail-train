@@ -1,0 +1,52 @@
+## Chord quality: names a chord from its notes by the semitone intervals above a root (major 4 7,
+## minor 3 7, dominant seventh 4 7 10, ...), trying each note as the root to spot inversions.
+
+fn pitch(note str) int
+    letter := note.char_at(0) else 'C'
+    base := match letter
+        'C' => 0
+        'D' => 2
+        'E' => 4
+        'F' => 5
+        'G' => 7
+        'A' => 9
+        _ => 11
+    shift := if note.ends_with("#") then 1 elif note.ends_with("b") then -1 else 0
+    (base + shift + 12) % 12
+
+fn quality(steps List[int]) str
+    key := steps.map(|s| "{s}").join(" ")
+    match key
+        "4 7" => "major"
+        "3 7" => "minor"
+        "3 6" => "diminished"
+        "4 8" => "augmented"
+        "2 7" => "suspended second"
+        "5 7" => "suspended fourth"
+        "4 7 10" => "dominant seventh"
+        "4 7 11" => "major seventh"
+        "3 7 10" => "minor seventh"
+        "3 6 10" => "half-diminished seventh"
+        "3 6 9" => "diminished seventh"
+        _ => ""
+
+fn name(chord str) str
+    notes := chord.split(" ")
+    for r, root in notes.enumerate()
+        p := pitch(root)
+        mut steps := Set[int]()
+        for n in notes
+            if n != root
+                steps.add((pitch(n) - p + 12) % 12)
+        q := quality(steps.sorted())
+        if q != ""
+            inv := if r == 0 then "" else " (inversion, {notes[0]} in the bass)"
+            return "{root} {q}{inv}"
+    "unknown"
+
+fn main()
+    for chord in ["C E G", "A C E", "G B D F", "E G Bb", "F A C E", "E G C", "D F A C", "C F G", "B D F Ab", "C E G#", "C D Eb"]
+        print("{chord:<9} {name(chord)}")
+
+@test fn minor_triad()
+    assert_eq(name("D F A"), "D minor")

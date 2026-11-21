@@ -1,0 +1,30 @@
+## Cloud base: rising air cools until it reaches the dew point, about 125 m above ground for each degree
+## of spread (T - Td); the freezing level is where the 6.5 C per km lapse rate brings the air to 0 C.
+
+struct Report
+    field str
+    elevation int
+    temp float
+    dew float
+
+fn base_agl(r Report) float
+    125.0 * (r.temp - r.dew)
+
+fn freezing_level(r Report) float
+    r.elevation.to_float() + r.temp / 0.0065
+
+fn main()
+    reports := [Report(field: "Coastal", elevation: 5, temp: 18.0, dew: 16.0), Report(field: "Valley", elevation: 120, temp: 24.0, dew: 12.0), Report(field: "Plateau", elevation: 900, temp: 15.0, dew: 2.0), Report(field: "Hill strip", elevation: 450, temp: 9.0, dew: 8.0)]
+    for r in reports
+        agl := base_agl(r)
+        amsl := agl + r.elevation.to_float()
+        feet := agl * 3.28084
+        fz := freezing_level(r)
+        icing := if amsl > fz then ", base above freezing level" else ""
+        print("{r.field:<10} spread {r.temp - r.dew:>4.1} C: base {agl:>5.0} m ({feet:>5.0} ft) above ground, {amsl:>5.0} m above sea{icing}")
+        print("           freezing level {fz:.0} m")
+    low := reports.filter(|r| base_agl(r) < 300.0).map(|r| r.field).join(", ")
+    print("low cloud (under 300 m) at: {low}")
+
+@test fn spread()
+    assert_eq(base_agl(Report(field: "x", elevation: 0, temp: 10.0, dew: 6.0)), 500.0)

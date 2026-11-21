@@ -1,0 +1,26 @@
+## Sexagenary cycle: the Chinese year name pairs one of 10 heavenly stems with one of 12 earthly
+## branches, both stepping each year from Jia Zi in 1984; they realign every lcm(10, 12) = 60 years.
+
+fn pos(year int) int
+    ((year - 4) % 60 + 60) % 60
+
+fn main()
+    stems := ["Jia", "Yi", "Bing", "Ding", "Wu", "Ji", "Geng", "Xin", "Ren", "Gui"]
+    branches := ["Zi", "Chou", "Yin", "Mao", "Chen", "Si", "Wu", "Wei", "Shen", "You", "Xu", "Hai"]
+    animals := ["Rat", "Ox", "Tiger", "Rabbit", "Dragon", "Snake", "Horse", "Goat", "Monkey", "Rooster", "Dog", "Pig"]
+    elements := ["Wood", "Fire", "Earth", "Metal", "Water"]
+    for y in [1949, 1966, 1984, 2000, 2024, 2026, 2044]
+        p := pos(y)
+        print("{y}: {stems[p % 10]} {branches[p % 12]}, {elements[p % 10 / 2]} {animals[p % 12]}, year {p + 1} of the cycle")
+    for want in [[2, 6], [0, 1]]
+        s := want[0]
+        b := want[1]
+        years := [y for y in 1950..2050 if pos(y) % 10 == s and pos(y) % 12 == b]
+        label := "{stems[s]} {branches[b]}"
+        if years.is_empty()
+            print("{label} never occurs: stem and branch must share parity")
+        else
+            print("{label} years in 1950..2049: {years}")
+
+@test fn start()
+    assert_eq(pos(1984), 0)

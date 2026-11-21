@@ -1,0 +1,5 @@
+D(loaded, fair)    = 0.4240 bits
+D(fair, loaded)    = 0.3500 bits
+D(observed, fair)  = 0.4313 bits
+D(observed, loaded) = 0.0073 bits: the loaded model fits the rolls better
+H(loaded) 2.1610 + D 0.4240 = cross-entropy 2.5850 = log2 6 for any data under the fair code

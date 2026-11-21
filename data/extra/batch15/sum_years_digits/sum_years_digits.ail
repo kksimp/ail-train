@@ -1,0 +1,31 @@
+## Sum-of-the-years'-digits depreciation: year k of an n-year life takes (n - k + 1) / (n (n + 1) / 2)
+## of cost less salvage, so early years carry more; whole currency units, the last year takes the remainder.
+
+fn schedule(cost int, salvage int, life int) List[int]
+    base := cost - salvage
+    digits := life * (life + 1) / 2
+    mut out := List[int]()
+    mut used := 0
+    for k in 1..=life
+        amount := if k == life then base - used else base * (life - k + 1) / digits
+        used += amount
+        out.push(amount)
+    out
+
+fn main()
+    cost := 64000
+    salvage := 4000
+    life := 6
+    years := schedule(cost, salvage, life)
+    print("machine cost {cost}, salvage {salvage}, life {life} years, digits {life * (life + 1) / 2}")
+    mut book := cost
+    mut total := 0
+    for i, d in years.enumerate()
+        book -= d
+        total += d
+        share := d * 100 / (cost - salvage)
+        print("year {i + 1}: {d:>6} ({share}% of base), book value {book:>6}")
+    print("total depreciation {total}, first two years {years[0] + years[1]}")
+
+@test fn sums_to_base()
+    assert_eq(schedule(10000, 1000, 4).sum(), 9000)

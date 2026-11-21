@@ -1,0 +1,29 @@
+## Voice parts: each singer's lowest and highest comfortable notes (MIDI numbers) are compared with
+## the choir parts' ranges; a singer joins the part whose range they cover most, ties to the higher part.
+
+struct Span
+    low int
+    high int
+
+fn Span.overlap(self, other Span) int
+    (high.min(other.high) - low.max(other.low)).max(0)
+
+fn main()
+    parts := ["soprano", "alto", "tenor", "bass"]
+    ranges := [Span(low: 60, high: 79), Span(low: 55, high: 74), Span(low: 48, high: 67), Span(low: 40, high: 62)]
+    singers := [("Ama", 58, 81), ("Bo", 53, 72), ("Cyd", 47, 69), ("Dov", 38, 60), ("Eun", 56, 76), ("Fin", 45, 64), ("Gil", 52, 70)]
+    mut counts := Map[str, int]()
+    for s in singers
+        name, lo, hi := s
+        voice := Span(low: lo, high: hi)
+        mut best := 0
+        for i in 1..4
+            if voice.overlap(ranges[i]) > voice.overlap(ranges[best])
+                best = i
+        counts[parts[best]] += 1
+        print("{name:<4} {lo}-{hi}: {parts[best]} (covers {voice.overlap(ranges[best])} of {ranges[best].high - ranges[best].low} semitones)")
+    for p in parts
+        print("{p}: {counts.get_or(p, 0)}")
+
+@test fn no_overlap_is_zero()
+    assert_eq(Span(low: 40, high: 50).overlap(Span(low: 60, high: 70)), 0)

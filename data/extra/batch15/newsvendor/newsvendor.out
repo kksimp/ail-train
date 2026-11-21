@@ -1,0 +1,9 @@
+critical ratio 0.724
+order 100 loaves
+  order  60: expected profit 126.00
+  order  70: expected profit 145.55
+  order  80: expected profit 162.20
+  order  90: expected profit 173.05
+  order 100: expected profit 175.20 <- best
+  order 110: expected profit 171.55
+  order 120: expected profit 165.00

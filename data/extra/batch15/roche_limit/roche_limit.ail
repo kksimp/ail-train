@@ -1,0 +1,26 @@
+## Roche limit: a moon held together only by its own gravity is torn apart inside d = 2.44 R cbrt(rho_planet
+## / rho_moon) (a rigid one at 1.26 R ...); rings sit inside it and large moons outside.
+
+struct MoonCase
+    planet str
+    radius float
+    rho_planet float
+    satellite str
+    rho_sat float
+    orbit float
+
+fn roche(p MoonCase, factor float) float
+    factor * p.radius * (p.rho_planet / p.rho_sat).cbrt()
+
+fn main()
+    pairs := [MoonCase(planet: "Earth", radius: 6371.0, rho_planet: 5.51, satellite: "Moon", rho_sat: 3.34, orbit: 384400.0), MoonCase(planet: "Mars", radius: 3390.0, rho_planet: 3.93, satellite: "Phobos", rho_sat: 1.88, orbit: 9376.0), MoonCase(planet: "Saturn", radius: 58232.0, rho_planet: 0.687, satellite: "ice ring", rho_sat: 0.92, orbit: 120000.0), MoonCase(planet: "Jupiter", radius: 69911.0, rho_planet: 1.33, satellite: "Io", rho_sat: 3.53, orbit: 421700.0)]
+    for p in pairs
+        fluid := roche(p, 2.44)
+        rigid := roche(p, 1.26)
+        state := if p.orbit < rigid then "inside even the rigid limit" elif p.orbit < fluid then "between the limits" else "safe"
+        print("{p.satellite:<8} at {p.orbit:>8.0} km of {p.planet}: limits {rigid:>7.0} / {fluid:>7.0} km, {state}")
+        print("         orbit is {p.orbit / fluid:.2} times the fluid limit")
+
+@test fn same_density()
+    p := MoonCase(planet: "a", radius: 1000.0, rho_planet: 2.0, satellite: "b", rho_sat: 2.0, orbit: 0.0)
+    assert((roche(p, 2.44) - 2440.0).abs() < 0.000001)

@@ -1,0 +1,43 @@
+## Driver hours: after 4.5 hours of driving a driver needs a 45 minute break (a 15 then a 30 also counts),
+## and a day's driving may not pass 9 hours; a day's tachograph log is checked and each breach reported.
+
+enum Activity
+    Drive(minutes int)
+    Rest(minutes int)
+    Work(minutes int)
+
+fn check(day List[Activity]) List[str]
+    mut problems := List[str]()
+    mut since_break := 0
+    mut total := 0
+    mut had_15 := false
+    for a in day
+        match a
+            Drive(m) =>
+                since_break += m
+                total += m
+                if since_break > 270
+                    problems.push("drove {since_break} min without a full break")
+                    since_break = 0
+            Rest(m) =>
+                if m >= 45 or (had_15 and m >= 30)
+                    since_break = 0
+                    had_15 = false
+                elif m >= 15
+                    had_15 = true
+            Work => continue
+    if total > 540
+        problems.push("drove {total} min in the day (limit 540)")
+    problems
+
+fn main()
+    days := [[Activity.Drive(minutes: 240), Activity.Rest(minutes: 45), Activity.Drive(minutes: 200), Activity.Work(minutes: 60), Activity.Drive(minutes: 60)], [Activity.Drive(minutes: 150), Activity.Rest(minutes: 15), Activity.Drive(minutes: 100), Activity.Rest(minutes: 30), Activity.Drive(minutes: 260)], [Activity.Drive(minutes: 200), Activity.Rest(minutes: 20), Activity.Drive(minutes: 120), Activity.Rest(minutes: 45), Activity.Drive(minutes: 250)]]
+    for i, d in days.enumerate()
+        problems := check(d)
+        if problems.is_empty()
+            print("day {i + 1}: within the rules")
+        for p in problems
+            print("day {i + 1}: {p}")
+
+@test fn short_day()
+    assert_eq(check([Activity.Drive(minutes: 100)]).len(), 0)

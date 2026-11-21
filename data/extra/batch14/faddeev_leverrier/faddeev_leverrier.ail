@@ -1,0 +1,60 @@
+## Faddeev-LeVerrier: the characteristic polynomial's coefficients come from traces alone,
+## M_k = A M_(k-1) + c_(k-1) I and c_k = -tr(A M_k) / k, in exact integers; the last step also gives det A.
+
+fn matmul(a List[List[int]], b List[List[int]]) List[List[int]]
+    n := a.len()
+    mut out := List[List[int]]()
+    for i in 0..n
+        mut row := List[int]()
+        for j in 0..n
+            mut s := 0
+            for k in 0..n
+                s += a[i][k] * b[k][j]
+            row.push(s)
+        out.push(row)
+    out
+
+fn char_poly(a List[List[int]]) List[int]
+    n := a.len()
+    mut c := [1]
+    mut m := List[List[int]]()
+    for i in 0..n
+        m.push([0 for j in 0..n])
+    for k in 1..=n
+        mut next := matmul(a, m)
+        for i in 0..n
+            next[i][i] += c[k - 1]
+        m = next
+        am := matmul(a, m)
+        mut tr := 0
+        for i in 0..n
+            tr += am[i][i]
+        c.push(-tr / k)
+    c
+
+fn main()
+    mats := [[[2, 1], [1, 3]], [[1, 2, 0], [0, 1, 3], [4, 0, 1]], [[2, 0, 0, 1], [1, 3, 0, 0], [0, 1, 1, 2], [0, 0, 1, 4]]]
+    for a in mats
+        c := char_poly(a)
+        n := a.len()
+        sign := if n % 2 == 0 then 1 else -1
+        print("A = {a}")
+        mut check := List[List[int]]()
+        for i in 0..n
+            check.push([0 for j in 0..n])
+        mut power := List[List[int]]()
+        for i in 0..n
+            mut row := [0 for j in 0..n]
+            row[i] = 1
+            power.push(row)
+        for k in 0..=n
+            coef := c[n - k]
+            for i in 0..n
+                for j in 0..n
+                    check[i][j] += coef * power[i][j]
+            power = matmul(power, a)
+        zero := check.all(|row| row.all(|v| v == 0))
+        print("    coefficients {c}, det {sign * c[n]}, p(A) = 0: {zero}")
+
+@test fn two_by_two()
+    assert_eq(char_poly([[2, 1], [1, 3]]), [1, -5, 5])

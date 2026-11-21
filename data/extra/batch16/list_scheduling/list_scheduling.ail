@@ -1,0 +1,60 @@
+## List scheduling: a single-issue pipeline issues one instruction per cycle; ready instructions
+## are ranked by their longest latency path to the end, compared with plain in-order issue that stalls.
+
+fn prio(i int, lat List[int], deps List[List[int]], mut memo List[int]) int
+    if memo[i] >= 0
+        return memo[i]
+    mut best := 0
+    for j in 0..deps.len()
+        if deps[j].contains(i)
+            best = best.max(prio(j, lat, deps, mut memo))
+    memo[i] = lat[i] + best
+    memo[i]
+
+fn ready(i int, cycle int, deps List[List[int]], lat List[int], issue List[int]) bool
+    deps[i].all(|d| issue[d] >= 0 and issue[d] + lat[d] <= cycle)
+
+fn schedule(names List[str], lat List[int], deps List[List[int]], by_rank bool) int
+    n := names.len()
+    mut memo := List[int]()
+    mut issue := List[int]()
+    for i in 0..n
+        memo.push(-1)
+        issue.push(-1)
+    mut order := List[str]()
+    mut cycle := 0
+    mut done := 0
+    while done < n
+        mut pick := -1
+        for i in 0..n
+            if issue[i] < 0 and ready(i, cycle, deps, lat, issue)
+                if pick < 0 or (by_rank and prio(i, lat, deps, mut memo) > prio(pick, lat, deps, mut memo))
+                    pick = i
+            if not by_rank and issue[i] < 0
+                break
+        if pick >= 0
+            issue[pick] = cycle
+            order.push("{cycle}:{names[pick]}")
+            done += 1
+        cycle += 1
+    mut finish := 0
+    for i in 0..n
+        finish = finish.max(issue[i] + lat[i])
+    shown := order.join(" ")
+    print(shown)
+    finish
+
+fn main()
+    names := ["ldA", "ldB", "mul", "ldC", "add", "ldD", "sub", "st"]
+    lat := [3, 3, 2, 3, 1, 3, 1, 1]
+    deps := [List[int](), List[int](), [0, 1], List[int](), [2, 3], List[int](), [5], [4, 6]]
+    print("in order:")
+    a := schedule(names, lat, deps, false)
+    print("finishes at cycle {a}")
+    print("critical path first:")
+    b := schedule(names, lat, deps, true)
+    print("finishes at cycle {b}, saving {a - b} cycles")
+
+@test fn path_length()
+    mut memo := [-1, -1]
+    assert_eq(prio(0, [3, 2], [List[int](), [0]], mut memo), 5)

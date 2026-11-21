@@ -1,0 +1,54 @@
+## Iterated prisoner's dilemma: six strategies meet each other for 50 rounds (temptation 5, reward 3,
+## punishment 1, sucker 0); nice but retaliating rules like tit for tat and grudger come out on top.
+
+enum Rule
+    Saint
+    Hawk
+    TitForTat
+    Grudger
+    Alternator
+    TitForTwoTats
+
+fn cooperates(r Rule, mine List[bool], theirs List[bool]) bool
+    n := theirs.len()
+    match r
+        Saint => true
+        Hawk => false
+        TitForTat => n == 0 or theirs[n - 1]
+        Grudger => not theirs.contains(false)
+        Alternator => n % 2 == 0
+        TitForTwoTats => n < 2 or theirs[n - 1] or theirs[n - 2]
+
+fn payoff(me bool, them bool) int
+    if me and them then 3 elif me then 0 elif them then 5 else 1
+
+fn play(a Rule, b Rule) List[int]
+    mut ha := List[bool]()
+    mut hb := List[bool]()
+    mut sa := 0
+    mut sb := 0
+    for round in 0..50
+        ca := cooperates(a, ha, hb)
+        cb := cooperates(b, hb, ha)
+        sa += payoff(ca, cb)
+        sb += payoff(cb, ca)
+        ha.push(ca)
+        hb.push(cb)
+    [sa, sb]
+
+fn main()
+    rules := Rule.variants()
+    mut totals := [0 for r in rules]
+    for i in 0..rules.len()
+        for j in i + 1..rules.len()
+            s := play(rules[i], rules[j])
+            totals[i] += s[0]
+            totals[j] += s[1]
+    order := [i for i in 0..rules.len()].sorted(by: |i| (-totals[i], i))
+    for i in order
+        print("{rules[i].name():<14} {totals[i]:>4}")
+    hd := play(Rule.TitForTat, Rule.Hawk)
+    print("tit for tat vs hawk: {hd[0]} to {hd[1]}, it never wins a single match")
+
+@test fn mutual()
+    assert_eq(play(Rule.Saint, Rule.Saint), [150, 150])

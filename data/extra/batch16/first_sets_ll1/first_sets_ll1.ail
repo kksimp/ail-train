@@ -1,0 +1,53 @@
+## FIRST sets: for an LL(1) expression grammar, repeated passes over the productions add the
+## terminals each nonterminal can start with, and mark the ones that can derive the empty string.
+
+fn add_all(mut target List[str], items List[str]) bool
+    mut grew := false
+    for x in items
+        if not target.contains(x)
+            target.push(x)
+            grew = true
+    grew
+
+fn main()
+    prods := [["E", "T", "E'"], ["E'", "+", "T", "E'"], ["E'"], ["T", "F", "T'"], ["T'", "*", "F", "T'"], ["T'"], ["F", "(", "E", ")"], ["F", "id"]]
+    mut firsts := Map[str, List[str]]()
+    mut nullable := Map[str, bool]()
+    for p in prods
+        firsts[p[0]] = List[str]()
+        nullable[p[0]] = false
+    mut rounds := 0
+    mut changed := true
+    while changed
+        changed = false
+        rounds += 1
+        for p in prods
+            lhs := p[0]
+            mut cur := firsts[lhs]
+            mut all_empty := true
+            for sym in p.slice(1)
+                if firsts.contains(sym)
+                    if add_all(mut cur, firsts[sym])
+                        changed = true
+                    if not nullable[sym]
+                        all_empty = false
+                        break
+                else
+                    if add_all(mut cur, [sym])
+                        changed = true
+                    all_empty = false
+                    break
+            firsts[lhs] = cur
+            if all_empty and not nullable[lhs]
+                nullable[lhs] = true
+                changed = true
+    for nt, fs in firsts
+        shown := fs.sorted().join(" ")
+        tail := if nullable[nt] then " (can be empty)" else ""
+        print("FIRST({nt:<2}) = \{ {shown} }{tail}")
+    print("settled after {rounds} passes")
+
+@test fn add_reports_growth()
+    mut xs := ["a"]
+    assert(add_all(mut xs, ["a", "b"]))
+    assert(not add_all(mut xs, ["b"]))

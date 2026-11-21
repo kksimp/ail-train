@@ -1,0 +1,35 @@
+## Read repair: a read asks two of three replicas, returns the newest version it saw and writes that
+## version back to the stale replica it asked, so repeated reads pull the replicas together.
+
+struct Replica
+    version int
+    value str
+
+fn read(mut reps List[Replica], asked List[int]) str
+    mut best := asked[0]
+    for i in asked
+        if reps[i].version > reps[best].version
+            best = i
+    mut fixed := List[int]()
+    for i in asked
+        if reps[i].version < reps[best].version
+            reps[i] = reps[best]
+            fixed.push(i)
+    "{reps[best].value} (v{reps[best].version}), repaired {fixed}"
+
+fn state(reps List[Replica]) str
+    reps.map(|r| "v{r.version}").join(" ")
+
+fn main()
+    mut reps := [Replica(version: 3, value: "c"), Replica(version: 2, value: "b"), Replica(version: 1, value: "a")]
+    print("start:         {state(reps)}")
+    for asked in [[1, 2], [0, 2], [1, 2], [0, 1]]
+        got := read(mut reps, asked)
+        print("read {asked}: {got} -> {state(reps)}")
+    same := reps.all(|r| r.version == reps[0].version)
+    print("replicas agree: {same}")
+
+@test fn repairs_stale()
+    mut reps := [Replica(version: 2, value: "x"), Replica(version: 1, value: "y")]
+    _ := read(mut reps, [0, 1])
+    assert_eq(reps[1].value, "x")

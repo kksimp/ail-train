@@ -1,0 +1,9 @@
+first make:
+  rebuild main.o  (util.h is newer)
+  rebuild app     (main.o is newer)
+  rebuild docs    (missing)
+second make:
+  nothing to do
+after editing util.c:
+  rebuild util.o  (util.c is newer)
+  rebuild app     (util.o is newer)

@@ -1,0 +1,41 @@
+## Commit message lint: checks the subject line (at most 50 characters, starts with a capital, no
+## final full stop, imperative first word rather than -ed or -ing), a blank second line, and body lines of at most 72.
+
+fn lint(msg str) List[str]
+    lines := msg.split("\n")
+    subject := lines[0]
+    mut out := List[str]()
+    if subject.len() > 50
+        out.push("subject is {subject.len()} chars (max 50)")
+    first := subject.char_at(0) else 'a'
+    if not first.is_upper()
+        out.push("subject should start with a capital")
+    if subject.ends_with(".")
+        out.push("subject ends with a full stop")
+    verb := (subject.words().first() else "").to_lower()
+    if verb.ends_with("ed") or verb.ends_with("ing")
+        out.push("use the imperative: '{verb}'")
+    if lines.len() > 1 and lines[1] != ""
+        out.push("line 2 must be blank")
+    for i, l in lines.enumerate()
+        if i >= 2 and l.len() > 72
+            out.push("body line {i + 1} is {l.len()} chars (max 72)")
+    out
+
+fn main()
+    msgs := ["Add retry to the upload client", "fixed the login bug.", "Adding a much longer subject line that keeps going past fifty", "Update parser\nAlso handles tabs now", "Remove dead code\n\nThe old exporter has not been called since the reporting rewrite last spring and only slows the build."]
+    mut clean := 0
+    for i, m in msgs.enumerate()
+        problems := lint(m)
+        title := m.split("\n")[0]
+        if problems.is_empty()
+            clean += 1
+            print("#{i + 1} ok: {title}")
+        else
+            print("#{i + 1} {problems.len()} problem(s): {title}")
+            for p in problems
+                print("    {p}")
+    print("{clean} of {msgs.len()} messages pass")
+
+@test fn good_subject()
+    assert_eq(lint("Fix typo").len(), 0)

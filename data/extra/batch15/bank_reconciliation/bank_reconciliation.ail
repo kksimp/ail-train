@@ -1,0 +1,45 @@
+## Bank reconciliation: the bank statement is adjusted for deposits in transit and unpresented cheques,
+## the cash book for bank charges, interest and a bounced cheque; both adjusted balances must agree.
+
+enum Item
+    InTransit(cents int)
+    Unpresented(cents int)
+    Charge(cents int)
+    Interest(cents int)
+    Bounced(cents int)
+
+fn money(c int) str
+    sign := if c < 0 then "-" else ""
+    a := c.abs()
+    "{sign}{a / 100}.{a % 100:02}"
+
+fn describe(it Item) str
+    match it
+        InTransit(c) => "deposit in transit: bank +{money(c)}"
+        Unpresented(c) => "unpresented cheque: bank -{money(c)}"
+        Charge(c) => "bank charge: books -{money(c)}"
+        Interest(c) => "interest: books +{money(c)}"
+        Bounced(c) => "bounced cheque: books -{money(c)}"
+
+fn main()
+    bank := 1284550
+    books := 1195075
+    items := [Item.InTransit(cents: 182000), Item.Unpresented(cents: 64500), Item.Unpresented(cents: 213025), Item.Charge(cents: 2450), Item.Interest(cents: 1200), Item.Bounced(cents: 4800)]
+    mut adj_bank := bank
+    mut adj_books := books
+    for it in items
+        match it
+            InTransit(c) => adj_bank += c
+            Unpresented(c) => adj_bank -= c
+            Charge(c) => adj_books -= c
+            Interest(c) => adj_books += c
+            Bounced(c) => adj_books -= c
+        print("  {describe(it)}")
+    print("bank statement {money(bank)} -> adjusted {money(adj_bank)}")
+    print("cash book      {money(books)} -> adjusted {money(adj_books)}")
+    diff := adj_bank - adj_books
+    verdict := if diff == 0 then "reconciled" else "difference {money(diff)} to find"
+    print(verdict)
+
+@test fn money_text()
+    assert_eq(money(-1205), "-12.05")

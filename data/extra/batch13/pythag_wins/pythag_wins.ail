@@ -1,0 +1,26 @@
+## Pythagorean wins: a team's expected winning share is runs scored squared over the sum of the
+## squares of runs scored and allowed; the gap to its real record is put down to luck in close games.
+
+fn expected(scored int, allowed int) float
+    s := (scored * scored).to_float()
+    a := (allowed * allowed).to_float()
+    s / (s + a)
+
+fn main()
+    teams := [("Foxes", 812, 690, 90, 72), ("Owls", 701, 705, 86, 76), ("Rams", 650, 742, 78, 84), ("Jays", 755, 640, 85, 77), ("Bulls", 610, 801, 62, 100)]
+    print("team    RS   RA   W  exp   luck")
+    mut luckiest := ""
+    mut most := -100.0
+    for t in teams
+        name, rs, ra, won, lost := t
+        games := won + lost
+        exp_wins := expected(rs, ra) * games.to_float()
+        luck := won.to_float() - exp_wins
+        print("{name:<6} {rs:>4} {ra:>4} {won:>3} {exp_wins:>5.1} {luck:>5.1}")
+        if luck > most
+            most = luck
+            luckiest = name
+    print("luckiest: {luckiest}, {most:.1} wins above expectation")
+
+@test fn even_runs_half()
+    assert_eq(expected(700, 700), 0.5)

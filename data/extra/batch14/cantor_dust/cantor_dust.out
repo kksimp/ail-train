@@ -1,0 +1,12 @@
+step 1: [0/3, 1/3] [2/3, 3/3]
+step 1: 2 pieces, length 2/3
+step 2: [0/9, 1/9] [2/9, 3/9] [6/9, 7/9] [8/9, 9/9]
+step 2: 4 pieces, length 4/9
+step 3: 8 pieces, length 8/27
+1/4 = 0.02020202... in base 3: stays
+3/4 = 0.20202020... in base 3: stays
+1/3 = 0.10000000... in base 3: stays
+1/2 = 0.11111111... in base 3: removed
+2/3 = 0.20000000... in base 3: stays
+7/10 = 0.20022002... in base 3: stays
+1/10 = 0.00220022... in base 3: stays

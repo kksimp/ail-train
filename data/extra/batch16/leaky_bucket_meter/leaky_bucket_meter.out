@@ -1,0 +1,16 @@
+t= 0: queued, leaves at  0 (waited 0)
+t= 1: queued, leaves at  4 (waited 3)
+t= 2: queued, leaves at  8 (waited 6)
+t= 3: queued, leaves at 12 (waited 9)
+t= 4: queued, leaves at 16 (waited 12)
+t= 5: dropped, 3 already waiting
+t=12: queued, leaves at 20 (waited 8)
+t=13: queued, leaves at 24 (waited 11)
+t=30: queued, leaves at 30 (waited 0)
+t=31: queued, leaves at 34 (waited 3)
+t=32: queued, leaves at 38 (waited 6)
+t=33: queued, leaves at 42 (waited 9)
+t=34: queued, leaves at 46 (waited 12)
+t=35: dropped, 3 already waiting
+departure gaps [4, 4, 4, 4, 4, 4, 6, 4, 4, 4, 4]
+sent 12, dropped 2

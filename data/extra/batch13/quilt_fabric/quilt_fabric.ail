@@ -1,0 +1,32 @@
+## Quilt fabric: each square patch is cut half an inch larger than its finished size for seams, cut
+## from strips across 42-inch-wide fabric; strips needed give the yardage, rounded up to an eighth of a yard.
+
+struct Patch
+    fabric str
+    finished_q int
+    count int
+
+fn inches(q int) str
+    whole := q / 4
+    match q % 4
+        0 => "{whole}"
+        1 => "{whole} 1/4"
+        2 => "{whole} 1/2"
+        _ => "{whole} 3/4"
+
+fn main()
+    patches := [Patch(fabric: "navy", finished_q: 16, count: 90), Patch(fabric: "cream", finished_q: 10, count: 120), Patch(fabric: "rust", finished_q: 24, count: 20), Patch(fabric: "sage", finished_q: 7, count: 350)]
+    width_q := 42 * 4
+    mut total_eighths := 0
+    for p in patches
+        cut := p.finished_q + 2
+        per_strip := width_q / cut
+        strips := (p.count + per_strip - 1) / per_strip
+        length_q := strips * cut
+        eighths := (length_q + 17) / 18
+        total_eighths += eighths
+        print("{p.fabric:<6} cut {inches(cut):>6} in, {per_strip:>2} per strip, {strips:>2} strips, {inches(length_q):>8} in = {eighths}/8 yd")
+    print("buy {total_eighths / 8} yd and {total_eighths % 8}/8 in all")
+
+@test fn fraction_text()
+    assert_eq(inches(18), "4 1/2")

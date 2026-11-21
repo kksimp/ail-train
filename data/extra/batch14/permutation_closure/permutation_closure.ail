@@ -1,0 +1,47 @@
+## Generated groups: closing a few permutations under composition (breadth first until nothing new
+## appears) gives the whole group they generate, e.g. a swap and a 4-cycle give all 24 orders of 4 items.
+
+fn compose(a List[int], b List[int]) List[int]
+    [a[b[i]] for i in 0..b.len()]
+
+fn is_even(p List[int]) bool
+    mut seen := [false for i in 0..p.len()]
+    mut swaps := 0
+    for s in 0..p.len()
+        mut x := s
+        mut l := 0
+        while not seen[x]
+            seen[x] = true
+            x = p[x]
+            l += 1
+        if l > 0
+            swaps += l - 1
+    swaps % 2 == 0
+
+fn generate(gens List[List[int]]) List[List[int]]
+    ident := [i for i in 0..gens[0].len()]
+    mut group := [ident]
+    mut seen := Set[str]()
+    seen.add("{ident}")
+    mut i := 0
+    while i < group.len()
+        for g in gens
+            c := compose(g, group[i])
+            if seen.add("{c}")
+                group.push(c)
+        i += 1
+    group
+
+fn main()
+    cases := [("triangle turn and flip", [[1, 2, 0], [0, 2, 1]]), ("pentagon turn and flip", [[1, 2, 3, 4, 0], [0, 4, 3, 2, 1]]), ("two 3-cycles on 4", [[1, 2, 0, 3], [0, 2, 3, 1]]), ("swap and 4-cycle", [[1, 0, 2, 3], [1, 2, 3, 0]]), ("out-shuffle of 6 cards", [[0, 2, 4, 1, 3, 5]]), ("out-shuffle and top swap", [[0, 2, 4, 1, 3, 5], [1, 0, 2, 3, 4, 5]])]
+    for c in cases
+        name, gens := c
+        g := generate(gens)
+        mut fact := 1
+        for k in 1..=gens[0].len()
+            fact *= k
+        evens := g.filter(|p| is_even(p)).len()
+        print("{name:<25} order {g.len():>3} of {fact:>3}, {evens} even")
+
+@test fn cyclic_three()
+    assert_eq(generate([[1, 2, 0]]).len(), 3)

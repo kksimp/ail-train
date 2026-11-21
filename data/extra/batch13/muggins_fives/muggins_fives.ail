@@ -1,0 +1,44 @@
+## Muggins (all fives): dominoes are laid on either end of the line, and whenever the open ends add to
+## a multiple of five the player scores that many; a double at an end counts both its halves.
+
+struct End
+    pip int
+    double bool
+
+fn End.count(self) int
+    if double then pip * 2 else pip
+
+fn main()
+    plays := [(5, 5, "R"), (5, 0, "R"), (5, 3, "L"), (0, 4, "R"), (3, 3, "L"), (4, 6, "R"), (2, 3, "L"), (6, 1, "R"), (2, 2, "L")]
+    mut left := End(pip: 5, double: true)
+    mut right := End(pip: 5, double: true)
+    mut scores := [0, 0]
+    for i, play in plays.enumerate()
+        a, b, side := play
+        player := i % 2
+        if i == 0
+            sum0 := a + b
+            if sum0 % 5 == 0
+                scores[player] += sum0
+            print("player {player + 1} leads {a}-{b}, ends add to {sum0}")
+            continue
+        mut end := if side == "L" then left else right
+        if a != end.pip and b != end.pip
+            print("{a}-{b} does not fit the {side} end")
+            continue
+        outer := if a == end.pip then b else a
+        end = End(pip: outer, double: a == b)
+        if side == "L"
+            left = end
+        else
+            right = end
+        total := left.count() + right.count()
+        mut note := ""
+        if total % 5 == 0
+            scores[player] += total
+            note = ", scores {total}"
+        print("player {player + 1} plays {a}-{b} on {side}: ends add to {total}{note}")
+    print("scores: {scores[0]} and {scores[1]}")
+
+@test fn double_end_counts_twice()
+    assert_eq(End(pip: 4, double: true).count(), 8)

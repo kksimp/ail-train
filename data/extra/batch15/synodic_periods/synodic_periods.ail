@@ -1,0 +1,24 @@
+## Synodic periods: two bodies circling the Sun line up again every S days, where 1 / S = |1 / P1 - 1 / P2|;
+## gives how often each planet returns to opposition or conjunction as seen from Earth, and the Moon's month.
+
+fn synodic(p1 float, p2 float) float
+    1.0 / (1.0 / p1 - 1.0 / p2).abs()
+
+fn main()
+    earth := 365.256
+    planets := [("Mercury", 87.969), ("Venus", 224.701), ("Mars", 686.98), ("Jupiter", 4332.59), ("Saturn", 10759.22), ("Neptune", 60190.0)]
+    mut longest := ("", 0.0)
+    for p in planets
+        name, period := p
+        s := synodic(earth, period)
+        years := s / earth
+        print("{name:<8} orbit {period:>8.1} d, lines up every {s:>6.1} d ({years:.2} yr)")
+        if s > longest.1
+            longest = (name, s)
+    winner := longest.0
+    print("longest wait: {winner}")
+    month := synodic(27.32166, earth)
+    print("Moon: sidereal 27.32 d, new moon to new moon {month:.3} d")
+
+@test fn same_period_never()
+    assert_eq(synodic(100.0, 50.0), 100.0)

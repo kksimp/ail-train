@@ -1,0 +1,9 @@
+roots [1, 2, 3, 5]: e1..e4 = [11, 41, 61, 30]
+p1 from coefficients     11, summed directly     11
+p2 from coefficients     39, summed directly     39
+p3 from coefficients    161, summed directly    161
+p4 from coefficients    723, summed directly    723
+p5 from coefficients   3401, summed directly   3401
+p6 from coefficients  16419, summed directly  16419
+back from power sums: [11, 41, 61, 30]
+x^3 - 6x^2 + 11x - 6: sum of squared roots is 14

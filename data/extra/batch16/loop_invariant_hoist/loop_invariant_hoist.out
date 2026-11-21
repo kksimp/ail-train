@@ -1,0 +1,11 @@
+before the loop:
+    t1 = n * 4
+    t2 = t1 + base
+    t4 = t2 * 2
+loop body:
+    i = i + 1
+    x = i * t2
+    t3 = k + 1
+    k = x + t3
+    s = s + t4
+3 of 8 statements hoisted

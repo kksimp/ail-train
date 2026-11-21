@@ -1,0 +1,12 @@
+Ana  [1, 1, 0, 0, 1]
+Bo   [0, 1, 1, 0, 0]
+Cy   [1, 0, 1, 1, 0]
+Di   [0, 0, 1, 1, 1]
+Ed   [1, 1, 0, 1, 0]
+Ryser: 8 rotas, search: 8 rotas
+nobody on own shift, n = 2: 1
+nobody on own shift, n = 3: 2
+nobody on own shift, n = 4: 9
+nobody on own shift, n = 5: 44
+nobody on own shift, n = 6: 265
+nobody on own shift, n = 7: 1854

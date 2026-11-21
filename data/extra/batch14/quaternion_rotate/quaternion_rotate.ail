@@ -1,0 +1,49 @@
+## Quaternion rotation: a turn by angle t about a unit axis is q = cos(t/2) + sin(t/2) axis, and a
+## vector v turns to q v q*; the Hamilton product is not commutative (ij = k, ji = -k), nor are 3-D turns.
+
+struct Quat
+    w float
+    x float
+    y float
+    z float
+
+impl Mul for Quat
+    fn mul(self, o Quat) Quat
+        Quat(w: self.w * o.w - self.x * o.x - self.y * o.y - self.z * o.z, x: self.w * o.x + self.x * o.w + self.y * o.z - self.z * o.y, y: self.w * o.y - self.x * o.z + self.y * o.w + self.z * o.x, z: self.w * o.z + self.x * o.y - self.y * o.x + self.z * o.w)
+
+fn Quat.conj(self) Quat
+    Quat(w: self.w, x: -self.x, y: -self.y, z: -self.z)
+
+fn turn(ax float, ay float, az float, deg float) Quat
+    size := (ax * ax + ay * ay + az * az).sqrt()
+    half := deg * 3.141592653589793 / 360.0
+    s := half.sin() / size
+    Quat(w: half.cos(), x: ax * s, y: ay * s, z: az * s)
+
+fn tidy(v float) float
+    if v.abs() < 0.0005 then 0.0 else v
+
+fn show(q Quat) str
+    "({tidy(q.w):.3}, {tidy(q.x):.3}, {tidy(q.y):.3}, {tidy(q.z):.3})"
+
+fn rotate(q Quat, x float, y float, z float) str
+    r := q * Quat(w: 0.0, x: x, y: y, z: z) * q.conj()
+    "({tidy(r.x):.3}, {tidy(r.y):.3}, {tidy(r.z):.3})"
+
+fn main()
+    i := Quat(w: 0.0, x: 1.0, y: 0.0, z: 0.0)
+    j := Quat(w: 0.0, x: 0.0, y: 1.0, z: 0.0)
+    print("i j = {show(i * j)}")
+    print("j i = {show(j * i)}")
+    qz := turn(0.0, 0.0, 1.0, 90.0)
+    qx := turn(1.0, 0.0, 0.0, 90.0)
+    print("90 deg about z: q = {show(qz)}, x axis goes to {rotate(qz, 1.0, 0.0, 0.0)}")
+    print("z then x: {rotate(qx * qz, 1.0, 0.0, 0.0)}")
+    print("x then z: {rotate(qz * qx, 1.0, 0.0, 0.0)}")
+    diag := turn(1.0, 1.0, 1.0, 120.0)
+    print("120 deg about (1,1,1): x -> {rotate(diag, 1.0, 0.0, 0.0)}, y -> {rotate(diag, 0.0, 1.0, 0.0)}")
+    print("vector (2, 3, 4) after the z turn: {rotate(qz, 2.0, 3.0, 4.0)}")
+
+@test fn unit_product()
+    k := Quat(w: 0.0, x: 1.0, y: 0.0, z: 0.0) * Quat(w: 0.0, x: 0.0, y: 1.0, z: 0.0)
+    assert_eq(k.z, 1.0)

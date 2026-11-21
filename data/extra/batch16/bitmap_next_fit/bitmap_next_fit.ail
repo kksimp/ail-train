@@ -1,0 +1,54 @@
+## Free-space bitmap: 40 disk blocks are bits of one integer; next fit looks for a run of free blocks
+## starting where the last allocation ended, going round to the start, so allocations spread over the disk.
+
+fn used(bm int, i int) bool
+    ((bm >> i) & 1) == 1
+
+fn picture(bm int) str
+    mut groups := List[str]()
+    for g in 0..4
+        mut cells := List[str]()
+        for i in (g * 10)..(g * 10 + 10)
+            cells.push(if used(bm, i) then "#" else ".")
+        groups.push(cells.join(""))
+    groups.join(" ")
+
+fn find_run(bm int, n int, from int) int
+    for k in 0..40
+        start := (from + k) % 40
+        if start + n <= 40
+            mut free := true
+            for i in start..(start + n)
+                if used(bm, i)
+                    free = false
+            if free
+                return start
+    -1
+
+fn main()
+    mut bm := 0
+    for b in [0, 1, 2, 3, 10, 11, 12, 20, 25, 26, 27]
+        bm = bm | (1 << b)
+    print("start      {picture(bm)}")
+    mut cursor := 0
+    mut placed_at := Map[str, int]()
+    reqs := [("a", 5), ("b", 3), ("c", 6), ("a", -5), ("d", 4), ("e", 8), ("f", 2)]
+    for name, n in reqs
+        if n < 0
+            at := placed_at[name]
+            for i in at..(at - n)
+                bm = bm & (~(1 << i))
+            print("free {name}     {picture(bm)}")
+            continue
+        s := find_run(bm, n, cursor)
+        if s < 0
+            print("{name} x{n}: no run of {n} free blocks")
+            continue
+        for i in s..(s + n)
+            bm = bm | (1 << i)
+        placed_at[name] = s
+        cursor = s + n
+        print("{name} x{n} @{s:<2}  {picture(bm)}")
+
+@test fn finds_gap()
+    assert_eq(find_run(0b0111, 2, 0), 3)

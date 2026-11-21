@@ -1,0 +1,36 @@
+## Three-address code: postfix expressions are turned into instructions with one operator each;
+## a temporary is released as soon as it is read, so the lowest free temporary number is reused.
+
+fn emit(postfix str) List[str]
+    mut stack := List[str]()
+    mut free := List[int]()
+    mut next_t := 1
+    mut code := List[str]()
+    for tok in postfix.split(" ")
+        if tok == "+" or tok == "-" or tok == "*" or tok == "/"
+            b := stack.pop() else "?"
+            a := stack.pop() else "?"
+            for opnd in [a, b]
+                if opnd.starts_with("t")
+                    free.push(opnd.slice(1).to_int() else 0)
+            mut t := next_t
+            if free.is_empty()
+                next_t += 1
+            else
+                t = free.min() else 0
+                free = free.filter(|f| f != t)
+            code.push("t{t} = {a} {tok} {b}")
+            stack.push("t{t}")
+        else
+            stack.push(tok)
+    code
+
+fn main()
+    for e in ["a b + c d - *", "x y * z w * + u v * +", "p q r s + * +"]
+        code := emit(e)
+        print("postfix: {e}")
+        for line in code
+            print("    {line}")
+
+@test fn single_op()
+    assert_eq(emit("a b +"), ["t1 = a + b"])

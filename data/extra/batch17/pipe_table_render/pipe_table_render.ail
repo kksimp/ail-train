@@ -1,0 +1,61 @@
+## Pipe table render: reads a Markdown pipe table, takes each column's alignment from the colons in the
+## separator row (:-- left, :-: centre, --: right) and draws it as a boxed plain-text grid sized to the widest cell.
+
+fn trim_bar(s str) str
+    mut t := s
+    if t.starts_with("|")
+        t = t.slice(1)
+    if t.ends_with("|")
+        t = t.slice(0, t.len() - 1)
+    t
+
+fn cells(line str) List[str]
+    inner := trim_bar(line.trim())
+    inner.split("|").map(|c| c.trim())
+
+fn how_of(s str) str
+    if s.starts_with(":") and s.ends_with(":")
+        return "center"
+    if s.ends_with(":")
+        return "right"
+    "left"
+
+fn align(text str, w int, how str) str
+    gap := w - text.len()
+    if how == "right"
+        return text.pad_left(w, ' ')
+    if how == "center"
+        left := gap / 2
+        return text.pad_left(text.len() + left, ' ').pad_right(w, ' ')
+    text.pad_right(w, ' ')
+
+fn row_text(r List[str], widths List[int], hows List[str]) str
+    mut parts := List[str]()
+    for j in 0..r.len()
+        parts.push(align(r[j], widths[j], hows[j]))
+    inner := parts.join(" | ")
+    "| {inner} |"
+
+fn main()
+    md := ["| Item | Qty | Price |", "|:-----|:---:|------:|", "| Apple | 3 | 1.20 |", "| Watermelon | 1 | 4.50 |", "| Fig | 12 | 0.35 |"]
+    header := cells(md[0])
+    hows := cells(md[1]).map(|s| how_of(s))
+    body := md.slice(2).map(|l| cells(l))
+    mut widths := header.map(|h| h.len())
+    for r in body
+        for j in 0..r.len()
+            widths[j] = widths[j].max(r[j].len())
+    dashes := widths.map(|w| "-".repeat(w + 2)).join("+")
+    rule := "+{dashes}+"
+    centred := header.map(|h| "center")
+    print(rule)
+    print(row_text(header, widths, centred))
+    print(rule)
+    for r in body
+        print(row_text(r, widths, hows))
+    print(rule)
+    shown := hows.join(", ")
+    print("alignments: {shown}")
+
+@test fn centre_extra_right()
+    assert_eq(align("ab", 5, "center"), " ab  ")

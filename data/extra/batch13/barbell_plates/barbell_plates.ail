@@ -1,0 +1,40 @@
+## Barbell plates: loads a 20 kg bar to a target weight by putting the heaviest plates that fit on each
+## side (25 down to 1.25 kg, two of each per side); weights are counted in quarter kilograms.
+
+fn kg(quarters int) str
+    whole := quarters / 4
+    match quarters % 4
+        0 => "{whole}"
+        1 => "{whole}.25"
+        2 => "{whole}.5"
+        _ => "{whole}.75"
+
+fn load(target int) List[int] ! str
+    bar := 80
+    if target < bar
+        return "lighter than the bar"
+    mut side := (target - bar) / 2
+    if (target - bar) % 2 != 0
+        return "needs uneven sides"
+    mut plates := List[int]()
+    for p in [100, 80, 60, 40, 20, 10, 5]
+        mut used := 0
+        while side >= p and used < 2
+            plates.push(p)
+            side -= p
+            used += 1
+    if side != 0
+        return "short by {kg(side * 2)} kg"
+    plates
+
+fn main()
+    for t in [100.0, 102.5, 147.5, 60.0, 61.25, 222.5, 302.5]
+        quarters := (t * 4.0).to_int()
+        if plates := load(quarters)
+            shown := plates.map(|p| kg(p)).join(", ")
+            print("{kg(quarters):>6} kg: {shown} per side")
+        else err
+            print("{kg(quarters):>6} kg: {err}")
+
+@test fn quarter_text()
+    assert_eq(kg(410), "102.5")

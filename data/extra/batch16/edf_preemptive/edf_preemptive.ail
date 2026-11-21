@@ -1,0 +1,44 @@
+## Earliest deadline first: periodic tasks release a job every period, due at the next release; each
+## time unit runs the waiting job with the nearest deadline, compared with fixed rate-monotonic priority.
+
+fn simulate(cs List[int], ts List[int], horizon int, edf bool) str
+    names := ["A", "B", "C"]
+    n := cs.len()
+    mut left := List[int]()
+    mut due := List[int]()
+    for i in 0..n
+        left.push(0)
+        due.push(0)
+    mut line := List[str]()
+    mut misses := 0
+    for t in 0..horizon
+        for i in 0..n
+            if t % ts[i] == 0
+                if left[i] > 0
+                    misses += 1
+                left[i] = cs[i]
+                due[i] = t + ts[i]
+        mut pick := -1
+        for i in 0..n
+            if left[i] > 0
+                if pick < 0
+                    pick = i
+                elif (edf and due[i] < due[pick]) or (not edf and ts[i] < ts[pick])
+                    pick = i
+        if pick < 0
+            line.push(".")
+        else
+            left[pick] -= 1
+            line.push(names[pick])
+    shown := line.join("")
+    "{shown}  misses {misses}"
+
+fn main()
+    cs := [1, 2, 3]
+    ts := [4, 6, 8]
+    print("tasks A 1/4, B 2/6, C 3/8; horizon 24")
+    print("EDF: {simulate(cs, ts, 24, true)}")
+    print("RM:  {simulate(cs, ts, 24, false)}")
+
+@test fn idle_when_light()
+    assert_eq(simulate([1], [4], 4, true), "A...  misses 0")

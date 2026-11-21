@@ -1,0 +1,6 @@
+order PO-4471 dated 20250301
+  line 1: 10 EA of W-100 at 2.50 = 25.00
+  line 2: 3 EA of W-200 at 12.00 = 36.00
+  line 3: 1 BX of W-310 at 49.99 = 49.99
+total 110.99
+line count 3/3 ok, segment count 7/7 ok

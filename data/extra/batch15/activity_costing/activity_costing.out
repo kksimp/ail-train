@@ -1,0 +1,5 @@
+setups        rate 200.00 per driver unit
+inspections   rate 50.00 per driver unit
+machine hours rate 12.50 per driver unit
+standard chair: by labour 45.00 per unit, by activity 26.90 per unit
+custom chair: by labour 62.50 per unit, by activity 288.75 per unit

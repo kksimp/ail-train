@@ -1,0 +1,30 @@
+## Pallet loading: cartons on a 1200 x 800 mm pallet in the better of two orientations per layer, as many
+## layers as fit under a 1500 mm height limit (pallet 150 mm), cut back if the 1000 kg load limit is passed.
+
+struct Carton
+    name str
+    length int
+    width int
+    height int
+    kg int
+
+fn per_layer(c Carton) int
+    a := (1200 / c.length) * (800 / c.width)
+    b := (1200 / c.width) * (800 / c.length)
+    a.max(b)
+
+fn main()
+    cartons := [Carton(name: "tins", length: 400, width: 300, height: 220, kg: 14), Carton(name: "cereal", length: 380, width: 260, height: 300, kg: 6), Carton(name: "tiles", length: 600, width: 300, height: 120, kg: 28), Carton(name: "bottles", length: 330, width: 250, height: 280, kg: 17)]
+    for c in cartons
+        layer := per_layer(c)
+        layers := (1500 - 150) / c.height
+        mut count := layer * layers
+        mut limit := "height"
+        if count * c.kg > 1000
+            count = 1000 / c.kg
+            limit = "weight"
+        fill := count * c.length * c.width * c.height / 1000000
+        print("{c.name:<8} {layer:>2} per layer x {layers} layers -> {count:>3} cartons ({count * c.kg} kg), limited by {limit}, {fill} litres of carton")
+
+@test fn layer_fit()
+    assert_eq(per_layer(Carton(name: "x", length: 400, width: 400, height: 100, kg: 1)), 6)

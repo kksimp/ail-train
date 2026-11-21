@@ -1,0 +1,42 @@
+## GF(2^8) arithmetic: bytes as polynomials over GF(2), added with xor and multiplied by shift-and-xor
+## reduced by x^8 + x^4 + x^3 + x + 1 (the AES field); a^254 is the inverse and 3 generates every non-zero byte.
+
+fn gmul(a int, b int) int
+    mut x := a
+    mut y := b
+    mut r := 0
+    while y > 0
+        if (y & 1) == 1
+            r = r ^ x
+        x = x << 1
+        if (x & 256) != 0
+            x = x ^ 283
+        y = y >> 1
+    r
+
+fn gpow(a int, e int) int
+    mut r := 1
+    for i in 0..e
+        r = gmul(r, a)
+    r
+
+fn main()
+    pairs := [[87, 131], [87, 19], [2, 135], [83, 202]]
+    for p in pairs
+        a := p[0]
+        b := p[1]
+        r := gmul(a, b)
+        sum2 := a ^ b
+        print("{a:02x} * {b:02x} = {r:02x}, while {a:02x} + {b:02x} = {sum2:02x}")
+    for a in [1, 2, 3, 83, 149]
+        inv := gpow(a, 254)
+        print("inverse of {a:02x} is {inv:02x}, product {gmul(a, inv):02x}")
+    mut seen := Set[int]()
+    mut x := 1
+    for i in 0..255
+        seen.add(x)
+        x = gmul(x, 3)
+    print("powers of 03 reach {seen.len()} non-zero bytes")
+
+@test fn aes_example()
+    assert_eq(gmul(87, 131), 193)

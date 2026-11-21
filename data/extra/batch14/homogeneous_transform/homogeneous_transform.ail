@@ -1,0 +1,50 @@
+## Homogeneous coordinates: a 2-D point (x, y) becomes (x, y, 1) so that turning, scaling and moving
+## are all 3x3 matrices; composing them is a product, and the order matters (turn then move != move then turn).
+
+fn matmul(a List[List[int]], b List[List[int]]) List[List[int]]
+    mut out := List[List[int]]()
+    for i in 0..3
+        mut row := List[int]()
+        for j in 0..3
+            mut s := 0
+            for k in 0..3
+                s += a[i][k] * b[k][j]
+            row.push(s)
+        out.push(row)
+    out
+
+fn apply(m List[List[int]], pts List[List[int]]) str
+    mut out := List[str]()
+    for p in pts
+        x := m[0][0] * p[0] + m[0][1] * p[1] + m[0][2]
+        y := m[1][0] * p[0] + m[1][1] * p[1] + m[1][2]
+        out.push("({x}, {y})")
+    out.join(" ")
+
+fn translate(dx int, dy int) List[List[int]]
+    [[1, 0, dx], [0, 1, dy], [0, 0, 1]]
+
+fn turn90() List[List[int]]
+    [[0, -1, 0], [1, 0, 0], [0, 0, 1]]
+
+fn scale(s int) List[List[int]]
+    [[s, 0, 0], [0, s, 0], [0, 0, 1]]
+
+fn main()
+    square := [[0, 0], [2, 0], [2, 1], [0, 1]]
+    print("tile corners:          {apply(scale(1), square)}")
+    print("turn 90:               {apply(turn90(), square)}")
+    print("turn, then move (5,0): {apply(matmul(translate(5, 0), turn90()), square)}")
+    print("move (5,0), then turn: {apply(matmul(turn90(), translate(5, 0)), square)}")
+    pivot := matmul(translate(2, 1), matmul(turn90(), translate(-2, -1)))
+    print("turn about (2,1):      {apply(pivot, square)}")
+    print("pivot matrix {pivot}")
+    big := matmul(scale(3), pivot)
+    print("then triple:           {apply(big, square)}")
+    mut four := turn90()
+    for k in 0..3
+        four = matmul(four, turn90())
+    print("four quarter turns give the identity: {four == scale(1)}")
+
+@test fn undo()
+    assert_eq(matmul(translate(3, 4), translate(-3, -4)), scale(1))

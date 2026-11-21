@@ -1,0 +1,57 @@
+## Single-decree Paxos: acceptors promise to ignore lower ballots and report what they accepted;
+## a proposer must adopt the value of the highest ballot reported, so once a majority accepts, it sticks.
+
+struct Acceptor
+    promised int
+    acc_n int
+    acc_v str
+
+fn prepare(mut accs List[Acceptor], n int, targets List[int], own str) str
+    mut best_n := 0
+    mut value := own
+    mut ok := 0
+    for t in targets
+        if n > accs[t].promised
+            accs[t].promised = n
+            ok += 1
+            if accs[t].acc_n > best_n
+                best_n = accs[t].acc_n
+                value = accs[t].acc_v
+    if ok * 2 <= accs.len()
+        return ""
+    value
+
+fn accept(mut accs List[Acceptor], n int, v str, targets List[int]) int
+    mut ok := 0
+    for t in targets
+        if n >= accs[t].promised
+            accs[t].promised = n
+            accs[t].acc_n = n
+            accs[t].acc_v = v
+            ok += 1
+    ok
+
+fn ballot(mut accs List[Acceptor], who str, n int, own str, p_to List[int], a_to List[int])
+    v := prepare(mut accs, n, p_to, own)
+    if v == ""
+        print("{who} ballot {n}: no majority of promises")
+        return
+    note := if v == own then "its own value" else "adopted value"
+    got := accept(mut accs, n, v, a_to)
+    verdict := if got * 2 > accs.len() then "chosen" else "not chosen yet"
+    print("{who} ballot {n}: proposes {v} ({note}), {got} accepts, {verdict}")
+
+fn main()
+    mut accs := List[Acceptor]()
+    for i in 0..3
+        accs.push(Acceptor(promised: 0, acc_n: 0, acc_v: "-"))
+    ballot(mut accs, "P1", 1, "blue", [0, 1], [0])
+    ballot(mut accs, "P2", 2, "green", [0, 1], [0, 1])
+    ballot(mut accs, "P1", 1, "red", [2], [2])
+    ballot(mut accs, "P3", 3, "gold", [1, 2], [1, 2])
+    for i, a in accs.enumerate()
+        print("acceptor {i}: promised {a.promised}, accepted ({a.acc_n}, {a.acc_v})")
+
+@test fn lower_ballot_refused()
+    mut accs := [Acceptor(promised: 5, acc_n: 0, acc_v: "-")]
+    assert_eq(accept(mut accs, 3, "x", [0]), 0)

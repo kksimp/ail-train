@@ -1,0 +1,47 @@
+## Requirement pins: reads a Python requirements file, skipping comments, includes and environment
+## markers, and sorts each package into exactly pinned (==), compatible (~=), ranged (>=, <) or unpinned.
+
+enum Pin
+    Exact
+    Compatible
+    Ranged
+    Loose
+
+fn classify(spec str) Pin
+    if spec.contains("==")
+        return Pin.Exact
+    if spec.contains("~=")
+        return Pin.Compatible
+    if spec.contains(">") or spec.contains("<")
+        return Pin.Ranged
+    Pin.Loose
+
+fn package_name(spec str) str
+    mut end := spec.len()
+    for i, c in spec.chars().enumerate()
+        if not (c.is_alnum() or c == '-' or c == '_' or c == '.')
+            end = i
+            break
+    spec.slice(0, end).to_lower()
+
+fn main()
+    lines := ["# web", "requests==2.31.0", "Flask>=2.0,<3", "numpy", "django~=4.2", "", "pytest==7.4.0 ; python_version > '3.8'", "-r dev.txt", "black", "SQLAlchemy==2.0.20  # pinned for prod"]
+    mut groups := Map[str, List[str]]()
+    for raw in lines
+        line := raw.split("#")[0].split(";")[0].trim()
+        if line == "" or line.starts_with("-")
+            continue
+        kind := classify(line)
+        groups.push(kind.name(), package_name(line))
+    for k in Pin.variants()
+        names := groups.get(k.name()) else List[str]()
+        listed := names.join(" ")
+        row := "{k.name():<10} {names.len()}  {listed}"
+        print(row.trim_end())
+    loose := (groups.get("Loose") else List[str]()).len()
+    total := groups.values().map(|v| v.len()).sum()
+    print("{total - loose} of {total} packages have a version constraint")
+
+@test fn names()
+    assert_eq(package_name("Flask>=2.0"), "flask")
+    assert_eq(classify("a~=1.0"), Pin.Compatible)

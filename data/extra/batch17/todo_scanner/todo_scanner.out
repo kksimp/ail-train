@@ -1,0 +1,12 @@
+ana:
+  TODO  api.py:2 add caching
+  TODO  cart.py:1 use Decimal
+ben:
+  FIXME cart.py:2 rounding is wrong for refunds
+cy:
+  TODO  ui.py:2 dark mode
+nobody:
+  FIXME api.py:3 crashes on None
+  XXX   api.py:1 temporary hack
+  TODO  cart.py:4 handle empty basket
+most notes: cart.py (3)

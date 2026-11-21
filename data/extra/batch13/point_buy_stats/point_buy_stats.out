@@ -1,0 +1,4 @@
+fighter  27 pts: STR 17(+3) DEX 13(+1) CON 15(+2) INT 8(-1) WIS 12(+1) CHA 10(+0)
+wizard   27 pts: STR 8(-1) DEX 14(+2) CON 15(+2) INT 17(+3) WIS 12(+1) CHA 8(-1)
+greedy   invalid: costs 29, over the budget of 27
+odd      invalid: score 16 out of 8..15

@@ -1,0 +1,9 @@
+t= 1 cpu  82: Ok -> Pending
+t= 3 cpu  79: Pending -> Ok
+t= 4 cpu  83: Ok -> Pending
+t= 6 cpu  91: Pending -> Firing
+t= 8 cpu  70: Firing -> Ok
+t=10 cpu  81: Ok -> Pending
+t=12 cpu  86: Pending -> Firing
+t=14 cpu  60: Firing -> Ok
+fired 2 times, 4 minutes in total

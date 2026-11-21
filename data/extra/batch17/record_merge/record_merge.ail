@@ -1,0 +1,35 @@
+## Record merge: customer rows from several sources share an email address written with different
+## case and spaces; rows with the same normalised email merge into one, newest non-blank value winning per field.
+
+struct Customer
+    email str
+    name str
+    phone str
+    city str
+    day int
+
+fn key_of(email str) str
+    email.trim().to_lower()
+
+fn pick(old str, new str) str
+    if new != "" then new else old
+
+fn main()
+    rows := [Customer(email: "Ana@Mail.com", name: "Ana", phone: "", city: "Oslo", day: 3), Customer(email: "ben@shop.io", name: "Ben K", phone: "555-0101", city: "", day: 1), Customer(email: " ana@mail.com", name: "Ana Silva", phone: "555-0199", city: "", day: 7), Customer(email: "cy@web.net", name: "Cy", phone: "555-0123", city: "Lima", day: 2), Customer(email: "BEN@shop.io ", name: "", phone: "", city: "Pune", day: 5), Customer(email: "ana@mail.com", name: "", phone: "555-0100", city: "Bergen", day: 4)]
+    sorted_rows := rows.sorted(by: |c| c.day)
+    mut merged := Map[str, Customer]()
+    mut sources := Map[str, int]()
+    for c in sorted_rows
+        k := key_of(c.email)
+        sources[k] += 1
+        if old := merged.get(k)
+            merged[k] = Customer(email: k, name: pick(old.name, c.name), phone: pick(old.phone, c.phone), city: pick(old.city, c.city), day: c.day)
+        else
+            merged[k] = Customer(email: k, name: c.name, phone: c.phone, city: c.city, day: c.day)
+    for k, c in merged
+        print("{k:<13} {c.name:<10} {c.phone:<9} {c.city:<7} from {sources[k]} rows")
+    print("{rows.len()} rows -> {merged.len()} customers")
+
+@test fn newest_wins()
+    assert_eq(pick("Oslo", "Bergen"), "Bergen")
+    assert_eq(pick("Oslo", ""), "Oslo")

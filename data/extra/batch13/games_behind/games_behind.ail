@@ -1,0 +1,30 @@
+## Games behind: a division table ordered by winning percentage, where each team's games behind the
+## leader is half of (the leader's wins minus its wins plus its losses minus the leader's losses).
+
+struct Club
+    name str
+    won int
+    lost int
+
+fn Club.pct(self) float
+    won.to_float() / (won + lost).to_float()
+
+fn games_behind(lead Club, c Club) float
+    ((lead.won - c.won) + (c.lost - lead.lost)).to_float() / 2.0
+
+fn main()
+    clubs := [Club(name: "Harbor", won: 71, lost: 60), Club(name: "Summit", won: 75, lost: 55), Club(name: "Prairie", won: 68, lost: 64), Club(name: "Canyon", won: 74, lost: 57), Club(name: "Delta", won: 59, lost: 72)]
+    table := clubs.sorted(by: |c| -c.won * 10000 / (c.won + c.lost))
+    lead := table[0]
+    print("team       W   L   pct    GB")
+    for c in table
+        gb := games_behind(lead, c)
+        shown := if gb == 0.0 then "-" else "{gb:.1}"
+        pct_text := "{c.pct():.3}"
+        pct := pct_text.slice(1)
+        print("{c.name:<8} {c.won:>3} {c.lost:>3}  {pct}  {shown:>4}")
+    last := table[table.len() - 1]
+    print("{last.name} trail by {games_behind(lead, last):.1} with {162 - last.won - last.lost} to play")
+
+@test fn half_games()
+    assert_eq(games_behind(Club(name: "a", won: 10, lost: 5), Club(name: "b", won: 9, lost: 5)), 0.5)

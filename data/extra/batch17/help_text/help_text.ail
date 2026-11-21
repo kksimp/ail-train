@@ -1,0 +1,48 @@
+## Help text: builds a command's --help screen from option specs: a usage line, then each option's short
+## and long form with its argument in an aligned left column, its description filled to the width, and its default.
+
+struct Opt
+    short str
+    long str
+    arg str
+    help str
+    default str
+
+fn left_col(o Opt) str
+    s := if o.short == "" then "    " else "-{o.short}, "
+    a := if o.arg == "" then "" else " {o.arg}"
+    "  {s}--{o.long}{a}"
+
+fn fit(text str, width int) List[str]
+    mut lines := List[str]()
+    mut cur := List[str]()
+    mut used := 0
+    for w in text.words()
+        if used > 0 and used + 1 + w.len() > width
+            lines.push(cur.join(" "))
+            cur.clear()
+            used = 0
+        used += if used == 0 then w.len() else w.len() + 1
+        cur.push(w)
+    if cur.len() > 0
+        lines.push(cur.join(" "))
+    lines
+
+fn main()
+    opts := [Opt(short: "o", long: "output", arg: "FILE", help: "write the report to FILE instead of standard output", default: ""), Opt(short: "n", long: "lines", arg: "N", help: "show only the first N matching lines", default: "20"), Opt(short: "", long: "color", arg: "WHEN", help: "colour the output: always, never or auto, where auto colours only when writing to a terminal", default: "auto"), Opt(short: "v", long: "verbose", arg: "", help: "explain each step", default: ""), Opt(short: "h", long: "help", arg: "", help: "show this help and exit", default: "")]
+    print("usage: logscan [OPTIONS] PATTERN [FILE...]")
+    print("options:")
+    col := opts.map(|o| left_col(o).len()).max() else 0
+    for o in opts
+        mut text := o.help
+        if o.default != ""
+            text = "{o.help} (default: {o.default})"
+        parts := fit(text, 34)
+        head := left_col(o).pad_right(col + 2, ' ')
+        print("{head}{parts[0]}")
+        indent := " ".repeat(col + 2)
+        for p in parts.slice(1)
+            print("{indent}{p}")
+
+@test fn fits_width()
+    assert_eq(fit("aa bb cc", 5), ["aa bb", "cc"])

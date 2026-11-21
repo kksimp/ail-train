@@ -1,0 +1,25 @@
+## Pure premium: claim frequency (claims per exposure year) times average severity gives the expected loss
+## per policy; the gross premium adds a fixed expense and divides by 1 - (variable expenses + profit margin).
+
+struct Class
+    name str
+    exposure float
+    claims int
+    losses float
+
+fn main()
+    classes := [Class(name: "young urban", exposure: 1850.0, claims: 296, losses: 1036000.0), Class(name: "young rural", exposure: 1200.0, claims: 132, losses: 409200.0), Class(name: "adult urban", exposure: 6400.0, claims: 512, losses: 1638400.0), Class(name: "adult rural", exposure: 5100.0, claims: 255, losses: 739500.0), Class(name: "senior", exposure: 2300.0, claims: 161, losses: 547400.0)]
+    fixed := 45.0
+    variable := 0.15
+    profit := 0.05
+    for c in classes
+        freq := c.claims.to_float() / c.exposure
+        severity := c.losses / c.claims.to_float()
+        pure := freq * severity
+        gross := (pure + fixed) / (1.0 - variable - profit)
+        print("{c.name:<12} frequency {freq:.3}, severity {severity:>7.2}, pure {pure:>6.2}, gross {gross:>7.2}")
+    cheapest := classes.min(by: |c| (c.losses / c.exposure * 100.0).to_int()) else classes[0]
+    print("lowest expected loss: {cheapest.name}")
+
+@test fn pure_is_loss_per_exposure()
+    assert_eq(10.0 / 100.0 * (5000.0 / 10.0), 50.0)

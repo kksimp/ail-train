@@ -1,0 +1,7 @@
+Ada   1 spells, 12 days: score   12, no action
+Bill  6 spells,  7 days: score  252, first written review
+Chen  2 spells,  5 days: score   20, no action
+Dee   4 spells,  5 days: score   80, informal chat
+Eli   0 spells,  0 days: score    0, no action
+Fay   8 spells, 16 days: score 1024, final review
+six days off as 1, 2, 3 or 6 spells: [6, 24, 54, 216]

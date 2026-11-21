@@ -1,0 +1,32 @@
+## Air stability: a radiosonde's temperature drop per km between levels (the lapse rate) is compared with
+## the dry (9.8 C/km) and moist (6.0 C/km) adiabatic rates: absolutely stable, conditionally or absolutely unstable.
+
+enum Stability
+    Stable
+    Conditional
+    Unstable
+
+fn classify(rate float) Stability
+    if rate > 9.8
+        return Stability.Unstable
+    if rate > 6.0
+        return Stability.Conditional
+    Stability.Stable
+
+fn main()
+    heights := [0, 500, 1000, 1500, 2500, 3500, 5000]
+    temps := [24.0, 18.5, 14.6, 10.9, 4.2, 0.8, -9.5]
+    mut counts := Map[str, int]()
+    for i in 1..heights.len()
+        dz := (heights[i] - heights[i - 1]).to_float() / 1000.0
+        rate := (temps[i - 1] - temps[i]) / dz
+        s := classify(rate)
+        counts[s.name()] += 1
+        print("{heights[i - 1]:>4} to {heights[i]:>4} m: {temps[i - 1]:>5.1} -> {temps[i]:>5.1} C, lapse {rate:>5.2} C/km, {s}")
+    overall := (temps[0] - temps[temps.len() - 1]) / 5.0
+    print("whole column {overall:.2} C/km: {classify(overall)}")
+    for name, n in counts
+        print("{name}: {n} layers")
+
+@test fn inversion_is_stable()
+    assert_eq(classify(-2.0), Stability.Stable)

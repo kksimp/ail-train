@@ -1,0 +1,31 @@
+## Hohmann transfer: the cheapest two-burn path between circular orbits is half an ellipse touching both;
+## burns sqrt(mu / r1)(sqrt(2 r2 / (r1 + r2)) - 1) and sqrt(mu / r2)(1 - sqrt(2 r1 / (r1 + r2))).
+
+struct Transfer
+    dv1 float
+    dv2 float
+    days float
+
+fn hohmann(mu float, r1 float, r2 float) Transfer
+    pi := 3.141592653589793
+    sum_r := r1 + r2
+    a := (mu / r1).sqrt() * ((2.0 * r2 / sum_r).sqrt() - 1.0)
+    b := (mu / r2).sqrt() * (1.0 - (2.0 * r1 / sum_r).sqrt())
+    t := pi * (sum_r * sum_r * sum_r / (8.0 * mu)).sqrt()
+    Transfer(dv1: a.abs(), dv2: b.abs(), days: t / 86400.0)
+
+fn main()
+    mu := 132712440018.0
+    au := 149597870.7
+    targets := [("Venus", 0.723), ("Mars", 1.524), ("Jupiter", 5.203), ("Saturn", 9.537)]
+    for t in targets
+        name, dist := t
+        tr := hohmann(mu, au, dist * au)
+        total := tr.dv1 + tr.dv2
+        print("Earth to {name:<7}: burns {tr.dv1:.2} + {tr.dv2:.2} = {total:.2} km/s, {tr.days:>6.0} days")
+    leo := hohmann(398600.4418, 6678.0, 42164.0)
+    print("low orbit to geostationary: {leo.dv1:.3} + {leo.dv2:.3} km/s, {leo.days * 24.0:.2} hours")
+
+@test fn no_change()
+    t := hohmann(1000.0, 10.0, 10.0)
+    assert_eq(t.dv1 + t.dv2, 0.0)

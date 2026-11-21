@@ -1,0 +1,42 @@
+## Whitespace lint: checks a file's text for trailing spaces, tab characters, lines over a length limit,
+## Windows line endings and a missing newline at the end, reporting each problem with its line number.
+
+fn check(text str, limit int) List[str]
+    mut problems := List[str]()
+    cr := char.from_code(13) else ' '
+    lines := text.split("\n")
+    for i, raw in lines.enumerate()
+        n := i + 1
+        if i == lines.len() - 1
+            if raw != ""
+                problems.push("line {n}: no newline at end of file")
+            continue
+        mut line := raw
+        if line.ends_with(cr)
+            problems.push("line {n}: CRLF line ending")
+            line = line.slice(0, line.len() - 1)
+        trimmed := line.trim_end()
+        if trimmed.len() < line.len()
+            problems.push("line {n}: {line.len() - trimmed.len()} trailing whitespace characters")
+        tabs := line.chars().count(|c| c.code() == 9)
+        if tabs > 0
+            problems.push("line {n}: {tabs} tab(s)")
+        if line.len() > limit
+            problems.push("line {n}: {line.len()} characters, limit {limit}")
+    problems
+
+fn main()
+    tc := char.from_code(9) else ' '
+    cr := char.from_code(13) else ' '
+    text := "def total(xs):   \n{tc}return sum(xs)\nprint(total([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]))\nx = 1{cr}\nok = True\ny = 2 {tc}"
+    problems := check(text, 40)
+    for p in problems
+        print(p)
+    line_count := text.split("\n").len()
+    print("{problems.len()} problems in {line_count} lines")
+    clean := check("a = 1\nb = 2\n", 40)
+    print("clean file: {clean.len()} problems")
+
+@test fn final_newline()
+    assert_eq(check("x\n", 80).len(), 0)
+    assert_eq(check("x", 80).len(), 1)

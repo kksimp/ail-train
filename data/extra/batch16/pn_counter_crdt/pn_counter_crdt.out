@@ -1,0 +1,5 @@
+local values [5, 1, 5]
+replica 0: plus [6, 3, 6] minus [1, 2, 1] = 11
+replica 1: plus [6, 3, 6] minus [1, 2, 1] = 11
+replica 2: plus [6, 3, 6] minus [1, 2, 1] = 11
+merging net counts by max would give 5, true total 11

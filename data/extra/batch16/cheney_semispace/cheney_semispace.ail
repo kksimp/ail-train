@@ -1,0 +1,49 @@
+## Semispace copying collector: Cheney's algorithm copies the roots into to-space, then scans
+## to-space left to right copying each object a field points at, leaving forwarding entries behind.
+
+struct Obj
+    name str
+    refs List[int]
+
+fn evacuate(old int, heap List[Obj], mut to List[Obj], mut fwd Map[int, int]) int
+    if fwd.contains(old)
+        return fwd[old]
+    fwd[old] = to.len()
+    to.push(heap[old])
+    fwd[old]
+
+fn main()
+    heap := [Obj(name: "A", refs: [3]), Obj(name: "B", refs: [0]), Obj(name: "C", refs: [5, 6]), Obj(name: "D", refs: [2]), Obj(name: "E", refs: []), Obj(name: "F", refs: [3]), Obj(name: "G", refs: []), Obj(name: "H", refs: [1])]
+    roots := [5, 4]
+    mut to := List[Obj]()
+    mut fwd := Map[int, int]()
+    mut new_roots := List[int]()
+    for r in roots
+        new_roots.push(evacuate(r, heap, mut to, mut fwd))
+    mut scan := 0
+    while scan < to.len()
+        obj := to[scan]
+        mut moved := List[int]()
+        for r in obj.refs
+            moved.push(evacuate(r, heap, mut to, mut fwd))
+        to[scan].refs = moved
+        scan += 1
+    for i in 0..to.len()
+        print("to[{i}] {to[i].name} fields {to[i].refs}")
+    print("roots now {new_roots}")
+    mut dead := List[str]()
+    for i in 0..heap.len()
+        if not fwd.contains(i)
+            dead.push(heap[i].name)
+    gone := dead.join(", ")
+    print("left behind: {gone}")
+    print("copied {to.len()} of {heap.len()} objects")
+
+@test fn forwards_once()
+    heap := [Obj(name: "X", refs: [])]
+    mut to := List[Obj]()
+    mut fwd := Map[int, int]()
+    a := evacuate(0, heap, mut to, mut fwd)
+    b := evacuate(0, heap, mut to, mut fwd)
+    assert_eq(a, b)
+    assert_eq(to.len(), 1)

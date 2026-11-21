@@ -1,0 +1,36 @@
+## Sweep line for crossings: a vertical line moves left to right over horizontal and vertical wall
+## segments, keeping the horizontals it is inside; each vertical counts the active ones within its span.
+
+fn main()
+    hs := [[2, 1, 9], [5, 0, 4], [7, 3, 12], [10, 6, 11]]
+    vs := [[3, 1, 8], [6, 4, 11], [8, 0, 3], [11, 6, 10], [1, 6, 9]]
+    mut events := List[List[int]]()
+    for i, h in hs.enumerate()
+        events.push([h[1], 0, i])
+        events.push([h[2], 2, i])
+    for i, v in vs.enumerate()
+        events.push([v[0], 1, i])
+    events = events.sorted(by: |e| (e[0], e[1]))
+    mut active := List[int]()
+    mut found := 0
+    for e in events
+        if e[1] == 0
+            active.push(e[2])
+        elif e[1] == 2
+            active = active.filter(|a| a != e[2])
+        else
+            v := vs[e[2]]
+            hits := active.filter(|a| hs[a][0] >= v[1] and hs[a][0] <= v[2])
+            for a in hits
+                print("vertical x={v[0]:<2} crosses horizontal y={hs[a][0]} at ({v[0]}, {hs[a][0]})")
+            found += hits.len()
+    mut brute := 0
+    for h in hs
+        for v in vs
+            if v[0] >= h[1] and v[0] <= h[2] and h[0] >= v[1] and h[0] <= v[2]
+                brute += 1
+    print("sweep found {found}, checking every pair finds {brute}")
+
+@test fn order_key()
+    evs := [[3, 2, 0], [3, 0, 1], [1, 1, 0]]
+    assert_eq(evs.sorted(by: |e| (e[0], e[1]))[1], [3, 0, 1])

@@ -1,0 +1,28 @@
+## Square-foot beds: each one-foot square holds 1, 4, 9 or 16 plants by crop size; the beds' squares
+## give plant counts, and seeds to buy are plants divided by the germination rate, rounded up.
+
+struct Crop
+    name str
+    per_square int
+    squares int
+    germination int
+
+fn Crop.plants(self) int
+    per_square * squares
+
+fn Crop.seeds(self) int
+    (plants() * 100 + germination - 1) / germination
+
+fn main()
+    crops := [Crop(name: "tomato", per_square: 1, squares: 4, germination: 85), Crop(name: "lettuce", per_square: 4, squares: 3, germination: 80), Crop(name: "beet", per_square: 9, squares: 2, germination: 70), Crop(name: "carrot", per_square: 16, squares: 3, germination: 65), Crop(name: "pepper", per_square: 1, squares: 2, germination: 60), Crop(name: "onion", per_square: 16, squares: 2, germination: 75)]
+    bed_squares := 16
+    used := crops.map(|c| c.squares).sum()
+    print("crop     squares plants seeds")
+    for c in crops
+        print("{c.name:<8} {c.squares:>7} {c.plants():>6} {c.seeds():>5}")
+    print("{used} squares planted in two 4 x 4 beds ({2 * bed_squares - used} free)")
+    biggest := crops.sorted(by: |c| -c.plants())[0]
+    print("most plants: {biggest.name} ({biggest.plants()})")
+
+@test fn seed_rounding()
+    assert_eq(Crop(name: "x", per_square: 1, squares: 3, germination: 60).seeds(), 5)

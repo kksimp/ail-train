@@ -1,0 +1,10 @@
+57 * 83 = c1, while 57 + 83 = d4
+57 * 13 = fe, while 57 + 13 = 44
+02 * 87 = 15, while 02 + 87 = 85
+53 * ca = 01, while 53 + ca = 99
+inverse of 01 is 01, product 01
+inverse of 02 is 8d, product 01
+inverse of 03 is f6, product 01
+inverse of 53 is ca, product 01
+inverse of 95 is 8a, product 01
+powers of 03 reach 255 non-zero bytes

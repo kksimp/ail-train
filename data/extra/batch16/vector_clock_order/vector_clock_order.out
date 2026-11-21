@@ -1,0 +1,13 @@
+a:a1        [1, 0, 0]
+a:m1        [2, 0, 0]
+b:recv m1   [2, 1, 0]
+b:b2        [2, 2, 0]
+c:c1        [0, 0, 1]
+b:m2        [2, 3, 0]
+c:recv m2   [2, 3, 2]
+a:a3        [3, 0, 0]
+c:c3        [2, 3, 3]
+a:a1 happened before c:c3
+a:a3 concurrent with c:c3
+b:b2 concurrent with c:c1
+c:recv m2 happened after a:a1

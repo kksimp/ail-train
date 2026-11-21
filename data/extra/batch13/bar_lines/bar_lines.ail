@@ -1,0 +1,47 @@
+## Bar lines: note lengths in sixteenths are poured into bars of a time signature; a note that crosses
+## a bar line is split into tied pieces, each written as the largest standard note values that fit.
+
+fn symbols(d int) List[str]
+    sizes := [16, 12, 8, 6, 4, 3, 2, 1]
+    marks := ["w", "h.", "h", "q.", "q", "e.", "e", "s"]
+    mut left := d
+    mut out := List[str]()
+    for i, s in sizes.enumerate()
+        while left >= s
+            out.push(marks[i])
+            left -= s
+    out
+
+fn bars(notes List[int], bar int) str
+    mut out := List[str]()
+    mut current := List[str]()
+    mut room := bar
+    for n in notes
+        mut left := n
+        while left > 0
+            piece := left.min(room)
+            for s in symbols(piece)
+                current.push(s)
+            left -= piece
+            room -= piece
+            if left > 0
+                current[current.len() - 1] = "{current[current.len() - 1]}~"
+            if room == 0
+                out.push(current.join(" "))
+                current = List[str]()
+                room = bar
+    if not current.is_empty()
+        partial := current.join(" ")
+        out.push("{partial} (rest {room})")
+    inner := out.join(" | ")
+    "| {inner} |"
+
+fn main()
+    tune := [4, 4, 6, 2, 8, 12, 4, 2, 2, 8, 6, 2]
+    print("4/4: {bars(tune, 16)}")
+    print("3/4: {bars(tune, 12)}")
+    waltz := [8, 4, 6, 6, 4, 12, 3, 1, 8]
+    print("6/8: {bars(waltz, 12)}")
+
+@test fn dotted_half()
+    assert_eq(symbols(14), ["h.", "e"])

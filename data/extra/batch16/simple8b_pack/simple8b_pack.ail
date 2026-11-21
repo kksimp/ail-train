@@ -1,0 +1,47 @@
+## Simple-8b packing: each 60-bit payload holds as many equal-width values as fit (60 one-bit values,
+## 30 two-bit, ... one 60-bit value); the greedy packer picks the densest layout the next values allow.
+
+fn layouts() List[List[int]]
+    [[60, 1], [30, 2], [20, 3], [15, 4], [12, 5], [10, 6], [8, 7], [7, 8], [6, 10], [5, 12], [4, 15], [3, 20], [2, 30], [1, 60]]
+
+fn pack(values List[int]) List[List[int]]
+    mut words := List[List[int]]()
+    mut i := 0
+    while i < values.len()
+        for sel, lay in layouts().enumerate()
+            take := lay[0].min(values.len() - i)
+            limit := 1 << lay[1]
+            if values.slice(i, i + take).all(|v| v < limit)
+                mut word := 0
+                for k in 0..take
+                    word = word | (values[i + k] << (k * lay[1]))
+                words.push([sel, take, word])
+                i += take
+                break
+    words
+
+fn unpack(words List[List[int]]) List[int]
+    mut out := List[int]()
+    for w in words
+        bits := layouts()[w[0]][1]
+        mask := (1 << bits) - 1
+        for k in 0..w[1]
+            out.push((w[2] >> (k * bits)) & mask)
+    out
+
+fn main()
+    mut values := List[int]()
+    for i in 0..30
+        values.push(i % 2)
+    values.extend([5, 9, 12, 3, 7, 15, 2, 8, 11, 4, 6, 1, 13, 14, 10])
+    values.extend([1000, 70000, 3, 5, 123456789])
+    words := pack(values)
+    for w in words
+        lay := layouts()[w[0]]
+        print("selector {w[0]:>2}: {w[1]:>2} values x {lay[1]:>2} bits, payload {w[2]:x}")
+    same := unpack(words) == values
+    print("{values.len()} values in {words.len()} words ({words.len() * 64} bits), round trip {same}")
+
+@test fn round_trip()
+    xs := [1, 2, 3, 40000]
+    assert_eq(unpack(pack(xs)), xs)

@@ -1,0 +1,39 @@
+## Property rents: a street's rent comes from its table by houses (doubled with no houses when the
+## owner holds the whole colour group), stations charge 25 doubled per extra station, utilities 4 or 10 times the dice.
+
+enum Kind
+    Street(group str, rents List[int])
+    Station
+    Utility
+
+struct Lot
+    name str
+    kind Kind
+    owner str
+    houses int
+
+fn owns_group(lots List[Lot], owner str, group str) bool
+    lots.all(|l| not has_group(l, group) or l.owner == owner)
+
+fn has_group(l Lot, group str) bool
+    match l.kind
+        Street(g, _) => g == group
+        _ => false
+
+fn rent(lots List[Lot], l Lot, dice int) int
+    same := lots.count(|x| x.owner == l.owner and x.kind == l.kind)
+    match l.kind
+        Street(g, rents) => if l.houses == 0 and owns_group(lots, l.owner, g) then rents[0] * 2 else rents[l.houses]
+        Station => 25 * [1, 2, 4, 8][same - 1]
+        Utility => if same == 2 then dice * 10 else dice * 4
+
+fn main()
+    lots := [Lot(name: "Elm Row", kind: Kind.Street(group: "brown", rents: [2, 10, 30, 90, 160, 250]), owner: "Ana", houses: 0), Lot(name: "Oak Lane", kind: Kind.Street(group: "brown", rents: [4, 20, 60, 180, 320, 450]), owner: "Ana", houses: 2), Lot(name: "Quay St", kind: Kind.Street(group: "blue", rents: [35, 175, 500, 1100, 1300, 1500]), owner: "Ben", houses: 0), Lot(name: "Park Rd", kind: Kind.Street(group: "blue", rents: [50, 200, 600, 1400, 1700, 2000]), owner: "Ana", houses: 0), Lot(name: "North Station", kind: Kind.Station, owner: "Ben", houses: 0), Lot(name: "East Station", kind: Kind.Station, owner: "Ben", houses: 0), Lot(name: "West Station", kind: Kind.Station, owner: "Ben", houses: 0), Lot(name: "Power Works", kind: Kind.Utility, owner: "Ana", houses: 0), Lot(name: "Water Works", kind: Kind.Utility, owner: "Ben", houses: 0)]
+    landings := [(0, 7), (1, 9), (2, 4), (3, 6), (4, 8), (7, 5), (8, 11)]
+    for land in landings
+        i, dice := land
+        l := lots[i]
+        print("{l.name:<14} owned by {l.owner}, dice {dice:>2}: rent {rent(lots, l, dice)}")
+
+@test fn station_count()
+    assert_eq([1, 2, 4, 8][2] * 25, 100)

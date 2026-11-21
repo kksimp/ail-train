@@ -1,0 +1,24 @@
+## Deep-water swell: waves of period T have wavelength g T^2 / (2 pi) and speed L / T, but their energy
+## travels at half that (the group speed), which sets when swell from a storm 2000 km away arrives.
+
+fn wavelength(period float) float
+    pi := 3.141592653589793
+    9.81 * period * period / (2.0 * pi)
+
+fn main()
+    storm_km := 2000.0
+    print("swell from a storm {storm_km:.0} km away")
+    mut arrivals := []
+    for t in [6.0, 10.0, 14.0, 18.0, 22.0]
+        l := wavelength(t)
+        c := l / t
+        cg := c / 2.0
+        hours := storm_km * 1000.0 / cg / 3600.0
+        arrivals.push((hours, t))
+        print("T {t:>4.0} s: length {l:>5.0} m, speed {c:>4.1} m/s, group {cg:>4.1} m/s, deep beyond {l / 2.0:>3.0} m, arrives after {hours:>5.1} h")
+    first := arrivals.sorted()[0]
+    fastest := first.1
+    print("first to arrive: the {fastest:.0} s swell")
+
+@test fn period_squared()
+    assert((wavelength(20.0) / wavelength(10.0) - 4.0).abs() < 0.000001)

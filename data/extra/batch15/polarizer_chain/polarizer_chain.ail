@@ -1,0 +1,28 @@
+## Polarizer chain: unpolarised light loses half at the first sheet, then Malus's law I = I0 cos^2(theta)
+## applies at each next sheet; crossed sheets block everything, but more sheets in between let light through.
+
+fn pass_through(intensity float, angles List[float], i int) float
+    if i >= angles.len()
+        return intensity
+    pi := 3.141592653589793
+    c := ((angles[i] - angles[i - 1]) * pi / 180.0).cos()
+    pass_through(intensity * c * c, angles, i + 1)
+
+fn chain(sheets int) List[float]
+    step := 90.0 / (sheets - 1).to_float()
+    [k.to_float() * step for k in 0..sheets]
+
+fn main()
+    crossed := pass_through(0.5, [0.0, 90.0], 1)
+    print("0 and 90 deg: {crossed:.4}")
+    middle := pass_through(0.5, [0.0, 45.0, 90.0], 1)
+    print("0, 45 and 90 deg: {middle:.4}")
+    for n in [3, 4, 5, 7, 11, 21]
+        angles := chain(n)
+        out := pass_through(0.5, angles, 1)
+        print("{n:>2} sheets from 0 to 90 deg: {out:.4} of the light")
+    tilted := pass_through(0.5, [0.0, 30.0], 1)
+    print("two sheets 30 deg apart: {tilted:.4}")
+
+@test fn aligned()
+    assert_eq(pass_through(0.5, [10.0, 10.0, 10.0], 1), 0.5)

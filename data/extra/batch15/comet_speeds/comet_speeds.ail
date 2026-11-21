@@ -1,0 +1,27 @@
+## Comet speeds: the vis-viva equation v = sqrt(mu (2 / r - 1 / a)) gives orbital speed at any distance;
+## at perihelion a(1 - e) and aphelion a(1 + e) the speeds' ratio equals the distances' inverse ratio.
+
+struct Body
+    name str
+    a float
+    e float
+
+fn vis_viva(mu float, r float, a float) float
+    (mu * (2.0 / r - 1.0 / a)).sqrt()
+
+fn main()
+    mu := 132712440018.0
+    au := 149597870.7
+    bodies := [Body(name: "Earth", a: 1.0, e: 0.0167), Body(name: "Mars", a: 1.524, e: 0.0934), Body(name: "Encke", a: 2.215, e: 0.8471), Body(name: "Halley", a: 17.834, e: 0.96714)]
+    for b in bodies
+        q := b.a * (1.0 - b.e)
+        big_q := b.a * (1.0 + b.e)
+        vp := vis_viva(mu, q * au, b.a * au)
+        va := vis_viva(mu, big_q * au, b.a * au)
+        print("{b.name:<7} perihelion {q:>6.3} AU at {vp:>5.2} km/s, aphelion {big_q:>6.2} AU at {va:>5.2} km/s")
+        print("        speed ratio {vp / va:.2}, distance ratio {big_q / q:.2}")
+    escape := vis_viva(mu, au, 1000000000000.0 * au)
+    print("leaving the Sun from 1 AU takes {escape:.1} km/s")
+
+@test fn circular()
+    assert_eq(vis_viva(4.0, 1.0, 1.0), 2.0)

@@ -1,0 +1,6 @@
+print A4  sides 95 mm, top 94 mm, bottom 109 mm
+postcard  sides 53 mm, top 44 mm, bottom 54 mm
+poster    cannot mat: borders under 20 mm
+square    sides 50 mm, top 40 mm, bottom 60 mm
+panorama  sides 50 mm, top 47 mm, bottom 72 mm
+tight     cannot mat: borders under 20 mm

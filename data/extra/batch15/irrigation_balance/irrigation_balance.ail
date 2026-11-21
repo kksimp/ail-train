@@ -1,0 +1,32 @@
+## Soil water balance: daily crop water use (ET) minus rain deepens the root-zone deficit; when it passes
+## the readily available water (half of 44 mm), the farmer irrigates back to field capacity.
+
+fn run_season(et List[int], rain List[int], raw int, mut log List[str]) int
+    mut deficit := 0
+    mut applied := 0
+    for day in 0..et.len()
+        deficit += et[day] - rain[day]
+        if deficit < 0
+            deficit = 0
+        if deficit >= raw
+            log.push("day {day + 1:>2}: deficit {deficit} mm, irrigate {deficit} mm")
+            applied += deficit
+            deficit = 0
+    applied
+
+fn main()
+    et := [4, 5, 5, 6, 6, 7, 3, 2, 5, 6, 7, 7, 8, 6, 4, 5, 6, 7, 7, 6]
+    rain := [0, 0, 12, 0, 0, 0, 9, 15, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 22, 0]
+    taw := 44
+    raw := taw / 2
+    mut log := List[str]()
+    applied := run_season(et, rain, raw, mut log)
+    for line in log
+        print(line)
+    total_et := et.sum()
+    total_rain := rain.sum()
+    print("{et.len()} days: crop used {total_et} mm, rain {total_rain} mm, irrigation {applied} mm in {log.len()} waterings")
+
+@test fn wet_season()
+    mut log := List[str]()
+    assert_eq(run_season([3, 3], [10, 10], 32, mut log), 0)

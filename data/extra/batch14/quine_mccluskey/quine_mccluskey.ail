@@ -1,0 +1,83 @@
+## Quine-McCluskey: minterms written as bit patterns merge in pairs that differ in one bit (that bit
+## becomes -) until nothing merges; the prime implicants then cover the minterms, essential ones first.
+
+fn merge(a str, b str) str
+    ca := a.chars()
+    cb := b.chars()
+    mut diff := 0
+    mut out := List[char]()
+    for i in 0..ca.len()
+        if ca[i] == cb[i]
+            out.push(ca[i])
+        else
+            diff += 1
+            out.push('-')
+    if diff == 1 then out.join("") else ""
+
+fn covers(p str, m int) bool
+    cs := p.chars()
+    for i in 0..4
+        bit := (m >> (3 - i)) & 1
+        if cs[i] != '-' and (cs[i] == '1') != (bit == 1)
+            return false
+    true
+
+fn term(p str) str
+    vars := ["A", "B", "C", "D"]
+    cs := p.chars()
+    mut out := List[str]()
+    for i in 0..4
+        if cs[i] == '1'
+            out.push(vars[i])
+        elif cs[i] == '0'
+            out.push("{vars[i]}'")
+    out.join("")
+
+fn main()
+    minterms := [0, 1, 2, 5, 6, 7, 8, 9, 10, 14]
+    mut current := minterms.map(|m| [(m >> 3) & 1, (m >> 2) & 1, (m >> 1) & 1, m & 1].map(|b| "{b}").join(""))
+    mut primes := List[str]()
+    while not current.is_empty()
+        mut next := List[str]()
+        mut used := Set[str]()
+        for i in 0..current.len()
+            for j in i + 1..current.len()
+                m := merge(current[i], current[j])
+                if m != ""
+                    used.add(current[i])
+                    used.add(current[j])
+                    if not next.contains(m)
+                        next.push(m)
+        for c in current
+            if not used.contains(c) and not primes.contains(c)
+                primes.push(c)
+        current = next
+    prime_text := primes.map(|p| term(p)).join(", ")
+    print("prime implicants: {prime_text}")
+    mut chosen := List[str]()
+    mut left := minterms
+    for m in minterms
+        cov := primes.filter(|p| covers(p, m))
+        if cov.len() == 1 and not chosen.contains(cov[0])
+            chosen.push(cov[0])
+    essential_text := chosen.map(|p| term(p)).join(", ")
+    print("essential: {essential_text}")
+    left = left.filter(|m| not chosen.any(|p| covers(p, m)))
+    while not left.is_empty()
+        mut best := primes[0]
+        mut best_n := -1
+        for p in primes
+            mut n := 0
+            for m in left
+                if covers(p, m)
+                    n += 1
+            if n > best_n
+                best = p
+                best_n = n
+        chosen.push(best)
+        left = left.filter(|m| not covers(best, m))
+    sum_text := chosen.map(|p| term(p)).join(" + ")
+    print("minimal sum: {sum_text}")
+
+@test fn merges()
+    assert_eq(merge("0101", "0111"), "01-1")

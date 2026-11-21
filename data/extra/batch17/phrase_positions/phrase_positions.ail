@@ -1,0 +1,50 @@
+## Positional index: records every position of every word in each document, so a phrase query checks
+## for consecutive positions and a NEAR/k query for two words at most k positions apart in either order.
+
+fn build(docs List[str]) Map[str, List[List[int]]]
+    mut index := Map[str, List[List[int]]]()
+    for d, text in docs.enumerate()
+        for p, w in text.to_lower().words().enumerate()
+            index.push(w, [d, p])
+    index
+
+fn phrase_docs(index Map[str, List[List[int]]], phrase List[str]) Set[int]
+    mut out := Set[int]()
+    first := index.get(phrase[0]) else List[List[int]]()
+    for hit in first
+        mut ok := true
+        for k in 1..phrase.len()
+            want := [hit[0], hit[1] + k]
+            if not (index.get(phrase[k]) else List[List[int]]()).contains(want)
+                ok = false
+                break
+        if ok
+            out.add(hit[0])
+    out
+
+fn near_docs(index Map[str, List[List[int]]], a str, b str, k int) Set[int]
+    mut out := Set[int]()
+    xs := index.get(a) else List[List[int]]()
+    ys := index.get(b) else List[List[int]]()
+    for x in xs
+        for y in ys
+            if x[0] == y[0] and (x[1] - y[1]).abs() <= k
+                out.add(x[0])
+    out
+
+fn main()
+    docs := ["new york pizza is thin", "pizza in new jersey and york", "york is old and new york is new", "thin crust pizza from new haven"]
+    index := build(docs)
+    new_hits := index.get_or("new", List[List[int]]()).len()
+    print("{index.len()} distinct words, 'new' at {new_hits} positions")
+    for q in [["new", "york"], ["york", "pizza"], ["thin", "crust", "pizza"]]
+        hits := phrase_docs(index, q).sorted()
+        shown := q.join(" ")
+        print("\"{shown}\" -> docs {hits}")
+    for t in [("pizza", "thin", 2), ("pizza", "york", 1), ("new", "pizza", 3)]
+        a, b, k := t
+        print("{a} NEAR/{k} {b} -> docs {near_docs(index, a, b, k).sorted()}")
+
+@test fn phrase()
+    idx := build(["a b c", "b a c"])
+    assert_eq(phrase_docs(idx, ["a", "b"]).sorted(), [0])

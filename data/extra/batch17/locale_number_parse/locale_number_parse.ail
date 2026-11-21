@@ -1,0 +1,41 @@
+## Locale number parsing: decides which of "." and "," is the decimal mark in numbers typed by people;
+## the separator that comes last is the decimal mark unless it appears twice or is followed by exactly three digits.
+
+fn parse_amount(raw str, hint str) str
+    s := raw.replace(" ", "").replace("'", "")
+    last_dot := s.rfind(".") else -1
+    last_comma := s.rfind(",") else -1
+    mut decimal := ""
+    if last_dot >= 0 and last_comma >= 0
+        decimal = if last_dot > last_comma then "." else ","
+    elif last_dot >= 0 or last_comma >= 0
+        mark := if last_dot >= 0 then "." else ","
+        at := last_dot.max(last_comma)
+        after := s.len() - at - 1
+        if s.count(mark) > 1
+            decimal = ""
+        elif after == 3
+            decimal = hint
+        else
+            decimal = mark
+    mut whole := s
+    mut frac := ""
+    if decimal != "" and s.contains(decimal)
+        cut := s.rfind(decimal) else 0
+        whole = s.slice(0, cut)
+        frac = s.slice(cut + 1)
+    digits := whole.replace(".", "").replace(",", "")
+    n := digits.to_int() else return "unreadable"
+    f := frac.to_int() else 0
+    "{n} + {f}/10^{frac.len()}"
+
+fn main()
+    inputs := ["1.234,56", "1,234.56", "1 234,5", "1'234.75", "12,5", "1.234.567", "2,500", "2.500", "0,99", "12x"]
+    for raw in inputs
+        us := parse_amount(raw, ",")
+        eu := parse_amount(raw, ".")
+        note := if us == eu then "" else "  (ambiguous)"
+        print("{raw:<10} en: {us:<18} de: {eu}{note}")
+
+@test fn both_marks()
+    assert_eq(parse_amount("1.234,56", ","), "1234 + 56/10^2")

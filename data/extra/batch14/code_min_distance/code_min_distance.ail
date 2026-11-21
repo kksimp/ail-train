@@ -1,0 +1,36 @@
+## Linear code distance: all 2^k codewords are xor-combinations of the generator rows; the smallest
+## non-zero weight d is the minimum distance, so the code detects d - 1 errors and corrects (d - 1) / 2.
+
+fn weight(x int) int
+    mut w := 0
+    mut v := x
+    while v > 0
+        w += v & 1
+        v = v >> 1
+    w
+
+fn main()
+    codes := [("repetition (5,1)", 5, [31]), ("even parity (6,5)", 6, [33, 18, 12, 6, 3]), ("Hamming (7,4)", 7, [112, 76, 42, 105]), ("extended Hamming (8,4)", 8, [225, 153, 85, 255]), ("short code (6,3)", 6, [35, 21, 14])]
+    for c in codes
+        name, n, gens := c
+        k := gens.len()
+        mut dist := Map[int, int]()
+        mut d := n + 1
+        for mask in 0..(1 << k)
+            mut word := 0
+            for i in 0..k
+                if ((mask >> i) & 1) == 1
+                    word = word ^ gens[i]
+            w := weight(word)
+            dist[w] += 1
+            if w > 0
+                d = d.min(w)
+        mut parts := List[str]()
+        for w in 0..=n
+            if dist.contains(w)
+                parts.push("{w}:{dist[w]}")
+        shown := parts.join(" ")
+        print("{name:<23} weights {shown}; d = {d}, detects {d - 1}, corrects {(d - 1) / 2}")
+
+@test fn popcount()
+    assert_eq(weight(105), 4)

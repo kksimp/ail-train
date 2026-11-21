@@ -1,0 +1,41 @@
+## Weiszfeld's algorithm: the depot spot that minimises total weighted travel distance to the shops
+## (the geometric median) is reached by repeatedly averaging the shops weighted by w / distance.
+
+fn cost(x float, y float, pts List[List[float]]) float
+    mut t := 0.0
+    for p in pts
+        dx := x - p[0]
+        dy := y - p[1]
+        t += p[2] * (dx * dx + dy * dy).sqrt()
+    t
+
+fn main()
+    shops := [[0.0, 0.0, 5.0], [10.0, 0.0, 1.0], [10.0, 8.0, 1.0], [2.0, 9.0, 2.0], [9.0, 4.0, 1.0]]
+    mut wsum := 0.0
+    mut x := 0.0
+    mut y := 0.0
+    for p in shops
+        wsum += p[2]
+        x += p[2] * p[0]
+        y += p[2] * p[1]
+    x /= wsum
+    y /= wsum
+    print("weighted centre of mass ({x:.3}, {y:.3}): total distance {cost(x, y, shops):.3}")
+    for it in 1..=60
+        mut nx := 0.0
+        mut ny := 0.0
+        mut den := 0.0
+        for p in shops
+            dx := x - p[0]
+            dy := y - p[1]
+            d := (dx * dx + dy * dy).sqrt()
+            nx += p[2] * p[0] / d
+            ny += p[2] * p[1] / d
+            den += p[2] / d
+        x = nx / den
+        y = ny / den
+        if it <= 3 or it == 10 or it == 60
+            print("step {it}: ({x:.3}, {y:.3}), total distance {cost(x, y, shops):.3}")
+
+@test fn single()
+    assert_eq(cost(0.0, 0.0, [[3.0, 4.0, 2.0]]), 10.0)

@@ -1,0 +1,36 @@
+## Point buy: six ability scores from 8 to 15 bought from a budget of 27 (costs 0 to 9 per score,
+## with 14 and 15 costing two each); a build is checked, bonuses added, and modifiers are score / 2 - 5.
+
+fn cost(score int) int ! str
+    if score < 8 or score > 15
+        return "score {score} out of 8..15"
+    if score <= 13 then score - 8 else 5 + (score - 13) * 2
+
+fn signed(n int) str
+    if n >= 0 then "+{n}" else "{n}"
+
+fn check(scores List[int]) int ! str
+    mut spent := 0
+    for s in scores
+        spent += cost(s)?
+    if spent > 27
+        return "costs {spent}, over the budget of 27"
+    spent
+
+fn main()
+    abilities := ["STR", "DEX", "CON", "INT", "WIS", "CHA"]
+    builds := [("fighter", [15, 13, 14, 8, 12, 10], [2, 0, 1, 0, 0, 0]), ("wizard", [8, 14, 14, 15, 12, 8], [0, 0, 1, 2, 0, 0]), ("greedy", [15, 15, 15, 10, 8, 8], [0, 0, 0, 0, 0, 0]), ("odd", [16, 12, 12, 12, 12, 8], [0, 0, 0, 0, 0, 0])]
+    for b in builds
+        name, scores, bonus := b
+        if spent := check(scores)
+            mut parts := List[str]()
+            for i in 0..6
+                total := scores[i] + bonus[i]
+                parts.push("{abilities[i]} {total}({signed(total / 2 - 5)})")
+            shown := parts.join(" ")
+            print("{name:<8} {spent:>2} pts: {shown}")
+        else err
+            print("{name:<8} invalid: {err}")
+
+@test fn fifteen_costs_nine()
+    assert_eq(cost(15) else 0, 9)

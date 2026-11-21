@@ -1,0 +1,10 @@
+db.pool      = 16                   (env)
+db.url       = postgres://db/shop   (file)
+log.level    = debug                (flag)
+server.host  = 0.0.0.0              (file)
+server.port  = 8080                 (default)
+default wins 1 key(s)
+file    wins 2 key(s)
+env     wins 1 key(s)
+flag    wins 1 key(s)
+6 overrides

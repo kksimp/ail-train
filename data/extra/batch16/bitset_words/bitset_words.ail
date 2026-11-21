@@ -1,0 +1,42 @@
+## Word bitset: numbers 0 to 179 are bits in three 60-bit words, so union, intersection and difference
+## are one operation per word and the size is a population count; members are read back bit by bit.
+
+fn make(xs List[int]) List[int]
+    mut w := [0, 0, 0]
+    for x in xs
+        w[x / 60] = w[x / 60] | (1 << (x % 60))
+    w
+
+fn popcount(x int) int
+    mut v := x
+    mut c := 0
+    while v != 0
+        v = v & (v - 1)
+        c += 1
+    c
+
+fn size(w List[int]) int
+    w.fold(0, |acc, x| acc + popcount(x))
+
+fn members(w List[int]) List[int]
+    mut out := List[int]()
+    for i in 0..180
+        if ((w[i / 60] >> (i % 60)) & 1) == 1
+            out.push(i)
+    out
+
+fn main()
+    sixes := make([i for i in 0..180 if i % 6 == 0])
+    tens := make([i for i in 0..180 if i % 10 == 0])
+    both := [0, 1, 2].map(|k| sixes[k] & tens[k])
+    either := [0, 1, 2].map(|k| sixes[k] | tens[k])
+    only6 := [0, 1, 2].map(|k| sixes[k] & (~tens[k]))
+    print("multiples of 6: {size(sixes)}, of 10: {size(tens)}")
+    print("both: {size(both)} -> {members(both)}")
+    print("either: {size(either)}")
+    print("6 but not 10: {size(only6)}, first ones {members(only6).slice(0, 6)}")
+    print("word 0 of both in hex: {both[0]:x}")
+
+@test fn count_bits()
+    assert_eq(popcount(0b101101), 4)
+    assert_eq(size(make([0, 59, 60, 179])), 4)

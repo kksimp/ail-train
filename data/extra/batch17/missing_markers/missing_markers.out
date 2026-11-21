@@ -1,0 +1,5 @@
+parsed 6, missing 5, unreadable 1: [4x]
+sorted: [12, 56, 789, 1000, 1234, 2500]
+median used for gaps: 1000
+filled: [1234, 56, 1000, 1000, 1000, 1000, 789, 1000, 1000, 12, 1000, 2500]
+sum after filling: 11591

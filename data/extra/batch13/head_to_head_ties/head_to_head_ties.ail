@@ -1,0 +1,41 @@
+## Head-to-head ties: teams level on points are separated by a mini-table of only the games between
+## them (points, then goal difference in those games), before overall goal difference.
+
+struct Result
+    home str
+    away str
+    hg int
+    ag int
+
+fn points_for(results List[Result], team str, among List[str]) List[int]
+    mut pts := 0
+    mut gd := 0
+    for r in results
+        if not among.contains(r.home) or not among.contains(r.away)
+            continue
+        if r.home == team or r.away == team
+            mine := if r.home == team then r.hg else r.ag
+            theirs := if r.home == team then r.ag else r.hg
+            gd += mine - theirs
+            pts += if mine > theirs then 3 elif mine == theirs then 1 else 0
+    [pts, gd]
+
+fn main()
+    teams := ["Ards", "Bray", "Cobh", "Derry"]
+    results := [Result(home: "Ards", away: "Bray", hg: 2, ag: 1), Result(home: "Cobh", away: "Derry", hg: 0, ag: 0), Result(home: "Bray", away: "Cobh", hg: 5, ag: 0), Result(home: "Derry", away: "Ards", hg: 1, ag: 0), Result(home: "Ards", away: "Cobh", hg: 1, ag: 1), Result(home: "Bray", away: "Derry", hg: 0, ag: 1), Result(home: "Cobh", away: "Ards", hg: 0, ag: 4), Result(home: "Derry", away: "Bray", hg: 0, ag: 2), Result(home: "Bray", away: "Ards", hg: 3, ag: 0)]
+    mut overall := Map[str, List[int]]()
+    for t in teams
+        overall[t] = points_for(results, t, teams)
+        print("{t:<6} {overall[t][0]:>2} pts, goal difference {overall[t][1]}")
+    ranked := teams.sorted(by: |t| (-overall[t][0], -tie_key(results, teams, overall, t), -overall[t][1]))
+    for i, t in ranked.enumerate()
+        print("{i + 1}. {t}")
+
+fn tie_key(results List[Result], teams List[str], overall Map[str, List[int]], t str) int
+    level := teams.filter(|x| overall[x][0] == overall[t][0])
+    h := points_for(results, t, level)
+    h[0] * 100 + h[1]
+
+@test fn only_games_between()
+    rs := [Result(home: "a", away: "b", hg: 1, ag: 0), Result(home: "a", away: "c", hg: 0, ag: 5)]
+    assert_eq(points_for(rs, "a", ["a", "b"]), [3, 1])

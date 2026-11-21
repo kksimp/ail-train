@@ -1,0 +1,6 @@
+speed of sound at 20 C: 343.42 m/s
+PipeKind.Open 2.44 m: 70.4, 140.7, 211.1, 281.5 Hz
+PipeKind.Stopped 1.22 m: 70.4, 211.1, 351.9, 492.6 Hz
+open 2.44 m pipe at 10 C: 69.13 Hz
+open 2.44 m pipe at 20 C: 70.37 Hz
+open 2.44 m pipe at 30 C: 71.61 Hz

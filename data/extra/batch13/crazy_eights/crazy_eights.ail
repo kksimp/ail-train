@@ -1,0 +1,46 @@
+## Crazy eights: a card may be played if it matches the suit in force or the top card's rank, and an
+## eight is wild; the player keeps eights back, plays the highest match, else names their longest suit.
+
+struct Card
+    rank int
+    suit char
+
+fn parse(s str) Card
+    Card(rank: ("A23456789TJQK".find(s.slice(0, 1)) else 0) + 1, suit: s.char_at(1) else 'S')
+
+fn Card.label(self) str
+    face := "A23456789TJQK".char_at(rank - 1) else '?'
+    "{face}{suit}"
+
+fn choose(hand List[Card], top Card, suit char) str
+    mut best := -1
+    for i, c in hand.enumerate()
+        if c.rank != 8 and (c.suit == suit or c.rank == top.rank)
+            if best < 0 or c.rank > hand[best].rank
+                best = i
+    if best >= 0
+        return "play {hand[best].label()}"
+    for c in hand
+        if c.rank == 8
+            mut counts := Map[char, int]()
+            for d in hand
+                if d.rank != 8
+                    counts[d.suit] += 1
+            mut pick := c.suit
+            mut most := 0
+            for s, n in counts
+                if n > most
+                    pick = s
+                    most = n
+            return "play {c.label()} and call {pick}"
+    "draw a card"
+
+fn main()
+    situations := [("9H", 'H', "3H KH 9C 2S"), ("5C", 'C', "5D 8S JH QH"), ("TD", 'D', "2S 3S 4C"), ("8S", 'H', "4H 8D AH 7C"), ("QS", 'S', "8H 2D 4D 9D JC"), ("7C", 'C', "7H 7S KC")]
+    for s in situations
+        top, suit, cards := s
+        hand := cards.split(" ").map(|x| parse(x))
+        print("top {top}, suit {suit}, hand {cards}: {choose(hand, parse(top), suit)}")
+
+@test fn label_round_trip()
+    assert_eq(parse("TD").label(), "TD")

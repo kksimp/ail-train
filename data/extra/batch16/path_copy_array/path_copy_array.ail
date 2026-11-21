@@ -1,0 +1,61 @@
+## Persistent array by path copying: eight values sit in the leaves of a binary tree; setting one
+## element copies just the four nodes on its root-to-leaf path, and each version keeps its own root.
+
+struct Node
+    left int
+    right int
+    value int
+
+fn build(mut pool List[Node], xs List[int], lo int, hi int) int
+    if hi - lo == 1
+        pool.push(Node(left: -1, right: -1, value: xs[lo]))
+        return pool.len() - 1
+    mid := (lo + hi) / 2
+    l := build(mut pool, xs, lo, mid)
+    r := build(mut pool, xs, mid, hi)
+    pool.push(Node(left: l, right: r, value: 0))
+    pool.len() - 1
+
+fn assign(mut pool List[Node], node int, lo int, hi int, idx int, v int) int
+    if hi - lo == 1
+        pool.push(Node(left: -1, right: -1, value: v))
+        return pool.len() - 1
+    mid := (lo + hi) / 2
+    n := pool[node]
+    mut l := n.left
+    mut r := n.right
+    if idx < mid
+        l = assign(mut pool, n.left, lo, mid, idx, v)
+    else
+        r = assign(mut pool, n.right, mid, hi, idx, v)
+    pool.push(Node(left: l, right: r, value: 0))
+    pool.len() - 1
+
+fn values(pool List[Node], node int, mut out List[int])
+    n := pool[node]
+    if n.left < 0
+        out.push(n.value)
+        return
+    values(pool, n.left, mut out)
+    values(pool, n.right, mut out)
+
+fn main()
+    mut pool := List[Node]()
+    v0 := build(mut pool, [10, 20, 30, 40, 50, 60, 70, 80], 0, 8)
+    print("v0 uses {pool.len()} nodes")
+    v1 := assign(mut pool, v0, 0, 8, 2, 33)
+    v2 := assign(mut pool, v1, 0, 8, 7, 88)
+    v3 := assign(mut pool, v0, 0, 8, 0, 11)
+    for i, root in [v0, v1, v2, v3].enumerate()
+        mut out := List[int]()
+        values(pool, root, mut out)
+        print("v{i}: {out}")
+    print("pool has {pool.len()} nodes: 15 for v0 plus 4 per update")
+
+@test fn get_after_set()
+    mut pool := List[Node]()
+    a := build(mut pool, [1, 2], 0, 2)
+    b := assign(mut pool, a, 0, 2, 1, 9)
+    mut out := List[int]()
+    values(pool, b, mut out)
+    assert_eq(out, [1, 9])

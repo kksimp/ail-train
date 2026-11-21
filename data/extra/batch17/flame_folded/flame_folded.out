@@ -1,0 +1,10 @@
+main              150 100.0%  self 0
+  load             70  46.6%  self 0
+    parse          25  16.6%  self 25
+    read           45  30.0%  self 45
+  run              75  50.0%  self 0
+    gc             15  10.0%  self 15
+    step           60  40.0%  self 50
+      alloc        10   6.6%  self 10
+  save              5   3.3%  self 5
+hottest frame: main;run;step (50 samples)

@@ -1,0 +1,3 @@
+hull: [[0, 0], [9, 1], [12, 4], [11, 8], [10, 10], [6, 12], [1, 7]]
+farthest pair [10, 10] and [0, 0], squared distance 200, distance 14.142
+calipers moved 8 times; all 144 pairs give 200

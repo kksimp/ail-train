@@ -1,0 +1,24 @@
+## Tap tempo: the gaps between taps (in milliseconds) give the tempo as 60000 over the mean gap; gaps
+## more than 25% away from the median are treated as missed or doubled taps and left out.
+
+fn tempo(taps List[int]) List[float]
+    mut gaps := List[int]()
+    for i in 1..taps.len()
+        gaps.push(taps[i] - taps[i - 1])
+    sorted_gaps := gaps.sorted()
+    median := sorted_gaps[sorted_gaps.len() / 2]
+    kept := gaps.filter(|g| (g - median).abs() * 4 <= median)
+    mean := kept.sum().to_float() / kept.len().to_float()
+    [60000.0 / mean, (gaps.len() - kept.len()).to_float()]
+
+fn main()
+    sessions := [("steady", [0, 500, 1001, 1499, 2000, 2502]), ("missed tap", [0, 430, 860, 1720, 2150, 2580]), ("double tap", [0, 600, 750, 1200, 1800, 2400, 3000]), ("drifting", [0, 380, 770, 1170, 1580, 2000, 2430])]
+    for s in sessions
+        label, taps := s
+        r := tempo(taps)
+        dropped := r[1].to_int()
+        print("{label:<10} {r[0]:>6.1} bpm, {dropped} gap(s) dropped")
+
+@test fn exact_half_second()
+    r := tempo([0, 500, 1000, 1500])
+    assert_eq(r[0], 120.0)

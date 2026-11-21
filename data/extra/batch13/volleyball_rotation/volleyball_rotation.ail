@@ -1,0 +1,38 @@
+## Volleyball rotation: the serving team keeps serving while it wins rallies; when the receiving team
+## wins a rally it gains the serve and rotates one place clockwise, so a new player serves from zone 1.
+
+struct Team
+    name str
+    players List[str]
+    points int
+
+fn Team.rotate(mut self)
+    first := players[0]
+    players.remove_at(0)
+    players.push(first)
+
+fn main()
+    mut teams := [Team(name: "Hawks", players: ["Ida", "Jo", "Kit", "Lu", "Max", "Ned"], points: 0), Team(name: "Owls", players: ["Pia", "Quin", "Rae", "Sol", "Tam", "Uma"], points: 0)]
+    rallies := "HHOOHOOOHHHOHO"
+    mut serving := 0
+    mut servers := List[str]()
+    for r in rallies.chars()
+        winner := if r == 'H' then 0 else 1
+        servers.push(teams[serving].players[0])
+        teams[winner].points += 1
+        if winner != serving
+            mut t := teams[winner]
+            t.rotate()
+            teams[winner] = t
+            serving = winner
+            print("side out: {teams[winner].name} rotate, {teams[winner].players[0]} to serve")
+    order := servers.join(" ")
+    print("servers in order: {order}")
+    for team in teams
+        court := team.players.join(", ")
+        print("{team.name} {team.points}: zones 1-6 {court}")
+
+@test fn rotation_moves_first_to_back()
+    mut t := Team(name: "x", players: ["a", "b", "c"], points: 0)
+    t.rotate()
+    assert_eq(t.players, ["b", "c", "a"])

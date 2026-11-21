@@ -1,0 +1,5 @@
+chunk 0:   4 values,  3 runs, array   8 B, bitmap 32 B, runs  12 B -> array
+chunk 1: 219 values, 37 runs, array 438 B, bitmap 32 B, runs 148 B -> bitmap
+chunk 2: 148 values,  2 runs, array 296 B, bitmap 32 B, runs   8 B -> runs
+chunk 4:   6 values,  3 runs, array  12 B, bitmap 32 B, runs  12 B -> array
+377 values in 60 bytes instead of 1508

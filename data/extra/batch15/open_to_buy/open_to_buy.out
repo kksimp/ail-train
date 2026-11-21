@@ -1,0 +1,6 @@
+Aug: open 120000, sales  64000, close 135000, on order 52000: may yet buy 30000
+Sep: open 135000, sales  71000, close 150000, on order 30000: may yet buy 58500
+Oct: open 150000, sales  82000, close 165000, on order 95000: may yet buy 6000
+Nov: open 165000, sales  98000, close 140000, on order 20000: may yet buy 59000
+Dec: open 140000, sales 120000, close  90000, on order     0: may yet buy 85000
+season open to buy 238500

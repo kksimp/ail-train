@@ -1,0 +1,5 @@
+measles  R0 15.0: immune 93.3% needed, coverage 96.2% needed, R now 1.47, gap 3.2 points
+mumps    R0 10.0: immune 90.0% needed, coverage 102.3% needed, R now 1.82, can't be reached by vaccine alone
+rubella  R0  6.0: immune 83.3% needed, coverage 85.9% needed, R now 0.76, protected
+polio    R0  6.0: immune 83.3% needed, coverage 84.2% needed, R now 0.77, protected
+flu      R0  1.4: immune 28.6% needed, coverage 57.1% needed, R now 0.98, protected

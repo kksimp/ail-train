@@ -1,0 +1,5 @@
+counts: doc=1 cache=1 ring_a=2 page1=1 page2=1 img=2 ring_b=1
+root drops doc: freed doc, page1, page2
+root drops cache: freed cache, img
+root drops ring_a: freed nothing
+leaked: ring_a (count 1), ring_b (count 1)

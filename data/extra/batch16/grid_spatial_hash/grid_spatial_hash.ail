@@ -1,0 +1,35 @@
+## Spatial hash grid: points are bucketed into 10 by 10 cells, so a radius search only measures points
+## in the cells the circle can touch instead of every point; results match a full scan.
+
+fn main()
+    mut seed := 7
+    mut xs := List[int]()
+    mut ys := List[int]()
+    for i in 0..40
+        seed = (seed * 1103515245 + 12345) % 2147483648
+        xs.push((seed / 65536) % 100)
+        seed = (seed * 1103515245 + 12345) % 2147483648
+        ys.push((seed / 65536) % 100)
+    cell := 10
+    mut grid := Map[int, List[int]]()
+    for i in 0..xs.len()
+        grid.push((xs[i] / cell) * 100 + ys[i] / cell, i)
+    print("{xs.len()} points in {grid.len()} occupied cells")
+    for q in [[50, 50, 12], [5, 95, 15], [80, 20, 9], [33, 66, 20]]
+        reach := (q[2] + cell - 1) / cell
+        mut found := List[int]()
+        mut measured := 0
+        for cx in (q[0] / cell - reach)..=(q[0] / cell + reach)
+            for cy in (q[1] / cell - reach)..=(q[1] / cell + reach)
+                for i in grid.get_or(cx * 100 + cy, List[int]())
+                    measured += 1
+                    dx := xs[i] - q[0]
+                    dy := ys[i] - q[1]
+                    if dx * dx + dy * dy <= q[2] * q[2]
+                        found.push(i)
+        full := [i for i in 0..xs.len() if (xs[i] - q[0]) * (xs[i] - q[0]) + (ys[i] - q[1]) * (ys[i] - q[1]) <= q[2] * q[2]]
+        agree := found.sorted() == full
+        print("around ({q[0]}, {q[1]}) r {q[2]}: {found.sorted()} measured {measured} of {xs.len()}, matches scan {agree}")
+
+@test fn cell_key()
+    assert_eq((57 / 10) * 100 + 23 / 10, 502)

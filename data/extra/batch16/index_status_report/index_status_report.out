@@ -1,0 +1,11 @@
+changes to be committed:
+    modified:  main.c
+    new file:  notes.md
+    deleted:   old.txt
+changes not staged:
+    modified:  README
+    deleted:   util.c
+untracked files:
+    scratch.log
+    todo.txt
+3 staged, 2 unstaged, 2 untracked

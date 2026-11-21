@@ -1,0 +1,48 @@
+## Vieta's formulas: expanding (x - r1)...(x - rn) gives coefficients that are the elementary symmetric
+## sums of the roots with alternating signs; so two numbers with a known sum and product solve a quadratic.
+
+fn expand(roots List[int]) List[int]
+    mut p := [1]
+    for r in roots
+        mut next := p
+        next.push(0)
+        for i in 0..p.len()
+            next[i + 1] -= r * p[i]
+        p = next
+    p
+
+fn show(p List[int]) str
+    deg := p.len() - 1
+    mut parts := List[str]()
+    for i in 0..p.len()
+        c := p[i]
+        e := deg - i
+        if c != 0
+            pw := if e == 0 then "" elif e == 1 then "x" else "x^{e}"
+            num := if c.abs() == 1 and e > 0 then "" else "{c.abs()}"
+            mut sign := if c < 0 then " - " else " + "
+            if parts.is_empty()
+                sign = if c < 0 then "-" else ""
+            parts.push("{sign}{num}{pw}")
+    parts.join("")
+
+fn main()
+    for roots in [[1, 2, 3, 4], [2, -3, 5], [-1, -1, 2, 6, 0]]
+        p := expand(roots)
+        mut esyms := List[str]()
+        for k in 1..p.len()
+            sign := if k % 2 == 0 then 1 else -1
+            esyms.push("e{k} = {sign * p[k]}")
+        print("roots {roots}: {show(p)}")
+        joined := esyms.join(", ")
+        print("    {joined}")
+    total := 13
+    product := 40
+    disc := total * total - 4 * product
+    mut s := 0
+    while s * s < disc
+        s += 1
+    print("sum {total}, product {product}: x^2 - {total}x + {product} = 0 gives {(total - s) / 2} and {(total + s) / 2}")
+
+@test fn pair()
+    assert_eq(expand([2, 3]), [1, -5, 6])

@@ -1,0 +1,33 @@
+## Geocache grid: caches are rated for difficulty and terrain from 1 to 5 in half steps, making a 9 by
+## 9 grid; the finds fill it in, and the grid, the filled share and the most common rating are printed.
+
+fn label(halves int) str
+    if halves % 2 == 0 then "{halves / 2}" else "{halves / 2}.5"
+
+fn main()
+    finds := [[2, 2], [3, 2], [2, 2], [4, 3], [3, 3], [2, 4], [5, 2], [2, 2], [6, 4], [3, 5], [4, 4], [10, 2], [2, 10], [3, 2], [7, 7], [4, 3], [2, 3], [8, 5]]
+    mut grid := Grid.fill(9, 9, 0)
+    for f in finds
+        grid[f[0] - 2, f[1] - 2] += 1
+    mut filled := 0
+    mut best := [0, 0]
+    mut header := List[str]()
+    for t in 0..9
+        header.push(label(t + 2).pad_left(4, ' '))
+    top := header.join("")
+    print("D\\T {top}")
+    for d in 0..9
+        mut cells := List[str]()
+        for t in 0..9
+            n := grid[d, t]
+            if n > 0
+                filled += 1
+            if n > grid[best[0], best[1]]
+                best = [d, t]
+            cells.push(if n == 0 then "   ." else "{n:>4}")
+        row := cells.join("")
+        print("{label(d + 2):<3} {row}")
+    print("{filled} of 81 combinations found; most common D{label(best[0] + 2)}/T{label(best[1] + 2)}")
+
+@test fn half_labels()
+    assert_eq(label(7), "3.5")

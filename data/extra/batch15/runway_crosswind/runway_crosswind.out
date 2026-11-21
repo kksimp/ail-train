@@ -1,0 +1,15 @@
+  runway 09: head -16.9 kt, cross  6.2 kt from the right
+  runway 27: head  16.9 kt, cross  6.2 kt from the left
+  runway 14: head  -6.2 kt, cross 16.9 kt from the right
+  runway 32: head   6.2 kt, cross 16.9 kt from the left
+wind 250 at 18 kt: use runway 27
+  runway 09: head   4.1 kt, cross 11.3 kt from the left
+  runway 27: head  -4.1 kt, cross 11.3 kt from the right
+  runway 14: head  -6.0 kt, cross 10.4 kt from the left
+  runway 32: head   6.0 kt, cross 10.4 kt from the right
+wind 020 at 12 kt: use runway 32
+  runway 09: head   6.5 kt, cross 24.1 kt from the right
+  runway 27: head  -6.5 kt, cross 24.1 kt from the left
+  runway 14: head  22.7 kt, cross 10.6 kt from the right
+  runway 32: head -22.7 kt, cross 10.6 kt from the left
+wind 165 at 25 kt: use runway 14

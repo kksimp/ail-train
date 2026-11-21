@@ -1,0 +1,36 @@
+## Fuzzy file finder: a pattern matches a path when its letters appear in order; each matched letter
+## scores 1, plus 2 when it follows the previous match directly and 3 at the start of a word (after / _ - .).
+
+fn fuzzy(pattern str, path str) int
+    p := pattern.to_lower().chars()
+    s := path.to_lower().chars()
+    mut score := 0
+    mut pi := 0
+    mut prev := -2
+    for i in 0..s.len()
+        if pi < p.len() and s[i] == p[pi]
+            score += 1
+            if i == prev + 1
+                score += 2
+            if i == 0 or "/_-.".contains(s[i - 1])
+                score += 3
+            prev = i
+            pi += 1
+    if pi < p.len() then -1 else score
+
+fn main()
+    paths := ["src/main.ail", "src/parser/mod.ail", "docs/manual.md", "tests/main_test.ail", "src/lexer/main_loop.ail", "Makefile", "scripts/make_release.sh"]
+    for pat in ["main", "mk", "pmod", "tst", "zz"]
+        mut scored := []
+        for path in paths
+            sc := fuzzy(pat, path)
+            if sc >= 0
+                scored.push((sc, path))
+        ranked := scored.sorted(by: |x| -x.0)
+        shown := ranked.take(3).map(|x| "{x.1} ({x.0})").join(", ")
+        out := if ranked.is_empty() then "no match" else shown
+        print("{pat:<5} {out}")
+
+@test fn order_matters()
+    assert_eq(fuzzy("ba", "ab"), -1)
+    assert(fuzzy("ab", "ab") > fuzzy("ab", "axb"))

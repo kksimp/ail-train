@@ -1,0 +1,9 @@
+tomato  basil   carrot  onion
+fennel  tomato  lettuce bean
+bean    onion   radish  lettuce
+friendly neighbours: 5
+conflict: fennel+tomato at row 1 col 1
+conflict: bean+onion at row 1 col 4
+conflict: fennel+tomato at row 2 col 1
+conflict: bean+fennel at row 2 col 1
+conflict: bean+onion at row 3 col 1

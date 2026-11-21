@@ -1,0 +1,33 @@
+## Reflections: mirroring in the line through the origin at angle t is [[cos 2t, sin 2t], [sin 2t, -cos 2t]],
+## with determinant -1; two mirrors in a row make a rotation by twice the angle between them.
+
+fn mirror(deg float) List[float]
+    a := 2.0 * deg * 3.141592653589793 / 180.0
+    [a.cos(), a.sin(), a.sin(), -a.cos()]
+
+fn mul(a List[float], b List[float]) List[float]
+    [a[0] * b[0] + a[1] * b[2], a[0] * b[1] + a[1] * b[3], a[2] * b[0] + a[3] * b[2], a[2] * b[1] + a[3] * b[3]]
+
+fn tidy(v float) float
+    if v.abs() < 0.0005 then 0.0 else v
+
+fn show_pt(m List[float], x float, y float) str
+    "({tidy(m[0] * x + m[1] * y):.3}, {tidy(m[2] * x + m[3] * y):.3})"
+
+fn main()
+    for deg in [0.0, 45.0, 90.0, 30.0]
+        m := mirror(deg)
+        det := m[0] * m[3] - m[1] * m[2]
+        print("mirror at {deg} deg: (3, 1) -> {show_pt(m, 3.0, 1.0)}, det {det:.3}")
+    both := mul(mirror(45.0), mirror(30.0))
+    turn := (both[2].atan2(both[0]) * 180.0 / 3.141592653589793)
+    print("mirror at 30 then 45: rotation by {turn:.3} deg, (3, 1) -> {show_pt(both, 3.0, 1.0)}")
+    other := mul(mirror(30.0), mirror(45.0))
+    back := (other[2].atan2(other[0]) * 180.0 / 3.141592653589793)
+    print("mirror at 45 then 30: rotation by {back:.3} deg")
+    twice := mul(mirror(30.0), mirror(30.0))
+    print("same mirror twice: (3, 1) -> {show_pt(twice, 3.0, 1.0)}")
+
+@test fn flat_mirror()
+    m := mirror(0.0)
+    assert_eq(m[3], -1.0)

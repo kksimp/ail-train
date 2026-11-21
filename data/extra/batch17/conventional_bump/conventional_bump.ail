@@ -1,0 +1,52 @@
+## Conventional commits: reads commit subjects like "feat(api): add search" or "fix!: ...", groups them
+## into changelog sections, and picks the next version: a breaking change bumps major, a feature minor, a fix patch.
+
+struct Commit
+    kind str
+    scope str
+    text str
+    breaking bool
+
+fn parse(msg str) Commit?
+    colon := msg.find(": ") else return none
+    mut head := msg.slice(0, colon)
+    breaking := head.ends_with("!") or msg.contains("BREAKING")
+    if head.ends_with("!")
+        head = head.slice(0, head.len() - 1)
+    mut scope := ""
+    if paren := head.find("(")
+        scope = head.slice(paren + 1, head.len() - 1)
+        head = head.slice(0, paren)
+    Commit(kind: head, scope: scope, text: msg.slice(colon + 2), breaking: breaking)
+
+fn main()
+    log := ["feat(api): add search endpoint", "fix: crash on empty cart", "docs: explain config file", "fix(ui): button overlaps footer", "refactor!: drop the v1 payment flow", "updated stuff", "feat: export orders as CSV", "chore(deps): bump parser"]
+    version := [1, 4, 2]
+    sections := [("feat", "Features"), ("fix", "Bug fixes"), ("docs", "Documentation")]
+    mut commits := List[Commit]()
+    for m in log
+        if c := parse(m)
+            commits.push(c)
+    print("{log.len() - commits.len()} commit(s) not in the convention")
+    for s in sections
+        kind, title := s
+        items := commits.filter(|c| c.kind == kind)
+        if items.len() > 0
+            print("## {title}")
+            for c in items
+                lead := if c.scope == "" then "" else "**{c.scope}:** "
+                print("- {lead}{c.text}")
+    breaking := commits.filter(|c| c.breaking)
+    if breaking.len() > 0
+        print("## Breaking changes")
+        for c in breaking
+            print("- {c.text}")
+    major := breaking.len() > 0
+    minor := commits.any(|c| c.kind == "feat")
+    next := if major then [version[0] + 1, 0, 0] elif minor then [version[0], version[1] + 1, 0] else [version[0], version[1], version[2] + 1]
+    print("version {version[0]}.{version[1]}.{version[2]} -> {next[0]}.{next[1]}.{next[2]}")
+
+@test fn scope_and_bang()
+    c := parse("fix(db)!: x") else Commit(kind: "", scope: "", text: "", breaking: false)
+    assert_eq(c.scope, "db")
+    assert(c.breaking)

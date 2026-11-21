@@ -1,0 +1,7 @@
+printer paper  EOQ  357.8,  6.71 orders a year, every 54.4 days, cost 536.66
+toner          EOQ   66.3,  5.43 orders a year, every 67.3 days, cost 596.99
+packing tape   EOQ 1500.0,  6.00 orders a year, every 60.8 days, cost 300.00
+  paper in lots of 200: cost 630.00 (17.4% above best)
+  paper in lots of 300: cost 545.00 (1.6% above best)
+  paper in lots of 400: cost 540.00 (0.6% above best)
+  paper in lots of 600: cost 610.00 (13.7% above best)

@@ -1,0 +1,28 @@
+## Price from a demand line: with sales Q = a - b p, revenue p Q peaks at p = a / (2b), but with a unit cost
+## c profit (p - c) Q peaks higher, at p = (a / b + c) / 2; a price table shows both maximums.
+
+struct Demand
+    a float
+    b float
+
+fn Demand.qty(self, p float) float
+    q := self.a - self.b * p
+    if q > 0.0 then q else 0.0
+
+fn main()
+    d := Demand(a: 2000.0, b: 80.0)
+    c := 6.0
+    rev_p := d.a / (2.0 * d.b)
+    profit_p := (d.a / d.b + c) / 2.0
+    print("revenue peaks at {rev_p:.2}, profit peaks at {profit_p:.2}")
+    for p in [8.0, 10.0, 12.0, 12.5, 14.0, 15.5, 18.0]
+        q := d.qty(p)
+        rev := p * q
+        profit := (p - c) * q
+        mark := if (p - rev_p).abs() < 0.001 then " max revenue" elif (p - profit_p).abs() < 0.001 then " max profit" else ""
+        print("price {p:>5.2}: sell {q:>6.0}, revenue {rev:>8.2}, profit {profit:>8.2}{mark}")
+    choke := d.a / d.b
+    print("nobody buys at {choke:.2} or more")
+
+@test fn qty()
+    assert_eq(Demand(a: 100.0, b: 2.0).qty(10.0), 80.0)

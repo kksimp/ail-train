@@ -1,0 +1,15 @@
+main -> square: inlined, growth 2
+parse -> square: inlined, growth 4
+render -> square: inlined, growth 6
+main -> fact: kept (recursive)
+fact -> fact: kept (recursive)
+parse -> log_line: inlined, growth 14
+main -> log_line: inlined, growth 22
+main -> parse: kept (body 24 too big)
+main -> render: kept (body 42 too big)
+main      20 -> 30
+parse     14 -> 24
+square     3 ->  3
+log_line   9 ->  9
+fact       6 ->  6
+render    40 -> 42

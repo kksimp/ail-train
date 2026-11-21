@@ -1,0 +1,27 @@
+## Jigsaw edges: for a puzzle of n pieces the grid of rows by columns with exactly n pieces closest to
+## a 4:3 picture is chosen (|3c - 4r| smallest), then corners, edge pieces 2(r + c) - 4 and the interior.
+
+fn grid(n int) List[int]
+    mut best := [1, n]
+    mut best_err := (3 * n - 4).abs()
+    mut r := 1
+    while r * r <= n
+        if n % r == 0
+            c := n / r
+            e := (3 * c - 4 * r).abs()
+            if e < best_err
+                best = [r, c]
+                best_err = e
+        r += 1
+    best
+
+fn main()
+    for n in [100, 300, 500, 1000, 1500, 2000]
+        g := grid(n)
+        r := g[0]
+        c := g[1]
+        edge := 2 * (r + c) - 4
+        print("{n:>4} pieces: {r} x {c}, 4 corners, {edge - 4} other edges, {n - edge} inside")
+
+@test fn thousand()
+    assert_eq(grid(1000), [25, 40])

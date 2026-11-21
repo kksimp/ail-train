@@ -1,0 +1,30 @@
+## Seeding rate: seeds per square metre = target plants / (germination x field survival), and kg per
+## hectare = seeds per m2 x thousand-grain weight in grams / 100; for four crops and their seed costs.
+
+struct Crop
+    name str
+    plants float
+    tgw float
+    germination float
+    survival float
+    price_kg float
+
+fn Crop.seeds_m2(self) float
+    self.plants / (self.germination * self.survival)
+
+fn Crop.kg_ha(self) float
+    self.seeds_m2() * self.tgw / 100.0
+
+fn main()
+    crops := [Crop(name: "winter wheat", plants: 250.0, tgw: 48.0, germination: 0.92, survival: 0.8, price_kg: 0.62), Crop(name: "spring barley", plants: 300.0, tgw: 44.0, germination: 0.95, survival: 0.9, price_kg: 0.58), Crop(name: "oilseed rape", plants: 40.0, tgw: 5.2, germination: 0.9, survival: 0.6, price_kg: 9.5), Crop(name: "maize", plants: 9.0, tgw: 310.0, germination: 0.94, survival: 0.92, price_kg: 4.1)]
+    for c in crops
+        seeds := c.seeds_m2()
+        kg := c.kg_ha()
+        cost := kg * c.price_kg
+        print("{c.name:<13} {seeds:>6.1} seeds/m2, {kg:>6.1} kg/ha, seed cost {cost:>6.2}/ha")
+    priciest := crops.max(by: |c| (c.kg_ha() * c.price_kg * 100.0).to_int()) else crops[0]
+    print("dearest to sow: {priciest.name}")
+
+@test fn perfect_seed()
+    c := Crop(name: "x", plants: 100.0, tgw: 50.0, germination: 1.0, survival: 1.0, price_kg: 1.0)
+    assert_eq(c.kg_ha(), 50.0)

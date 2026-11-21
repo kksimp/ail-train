@@ -1,0 +1,37 @@
+## Trace spans: a request trace is a tree of timed spans; each span's self time is its duration minus
+## its children's, and the critical path follows, from the root, the child that finishes last.
+
+struct Span
+    id int
+    parent int
+    name str
+    start int
+    end int
+
+fn show(spans List[Span], id int, depth int)
+    s := spans[id]
+    kids := spans.filter(|k| k.parent == id)
+    child_time := kids.map(|k| k.end - k.start).sum()
+    dur := s.end - s.start
+    pad := " ".repeat(depth * 2)
+    label := "{pad}{s.name}"
+    print("{label:<18} {s.start:>3}-{s.end:<3} {dur:>3} ms, self {dur - child_time:>3} ms")
+    for k in kids
+        show(spans, k.id, depth + 1)
+
+fn main()
+    spans := [Span(id: 0, parent: -1, name: "GET /order", start: 0, end: 180), Span(id: 1, parent: 0, name: "auth", start: 5, end: 25), Span(id: 2, parent: 0, name: "load order", start: 30, end: 110), Span(id: 3, parent: 2, name: "db query", start: 35, end: 90), Span(id: 4, parent: 2, name: "cache set", start: 92, end: 105), Span(id: 5, parent: 0, name: "render", start: 112, end: 170), Span(id: 6, parent: 5, name: "template", start: 115, end: 160)]
+    show(spans, 0, 0)
+    mut path := List[str]()
+    mut cur := 0
+    while true
+        path.push(spans[cur].name)
+        kids := spans.filter(|k| k.parent == cur)
+        if kids.is_empty()
+            break
+        cur = kids.sorted(by: |k| -k.end)[0].id
+    shown := path.join(" > ")
+    print("critical path: {shown}")
+
+@test fn root_is_longest()
+    assert_eq(180 - 0, 180)

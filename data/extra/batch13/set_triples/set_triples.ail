@@ -1,0 +1,50 @@
+## Set triples: cards have four features (number, colour, shading, shape) with three values each;
+## three cards form a set when every feature is all the same or all different, i.e. sums to 0 mod 3.
+
+fn is_set(a str, b str, c str) bool
+    xs := a.chars()
+    ys := b.chars()
+    zs := c.chars()
+    for i in 0..4
+        total := (xs[i].to_digit(10) else 0) + (ys[i].to_digit(10) else 0) + (zs[i].to_digit(10) else 0)
+        if total % 3 != 0
+            return false
+    true
+
+fn third(a str, b str) str
+    xs := a.chars()
+    ys := b.chars()
+    mut out := List[str]()
+    for i in 0..4
+        s := (xs[i].to_digit(10) else 0) + (ys[i].to_digit(10) else 0)
+        out.push("{(3 - s % 3) % 3}")
+    out.join("")
+
+fn digit(c char) int
+    c.to_digit(10) else 0
+
+fn describe(card str) str
+    counts := ["one", "two", "three"]
+    colours := ["red", "green", "purple"]
+    fills := ["solid", "striped", "open"]
+    shapes := ["diamond", "oval", "squiggle"]
+    d := card.chars().map(|c| digit(c))
+    "{counts[d[0]]} {colours[d[1]]} {fills[d[2]]} {shapes[d[3]]}"
+
+fn main()
+    table := ["0000", "1210", "2120", "0112", "1021", "2201", "0221", "1102", "2012", "0101", "1111", "2222"]
+    mut found := 0
+    for i in 0..12
+        after_i := i + 1
+        for j in after_i..12
+            after_j := j + 1
+            for k in after_j..12
+                if is_set(table[i], table[j], table[k])
+                    found += 1
+                    if found <= 5
+                        print("{describe(table[i])} | {describe(table[j])} | {describe(table[k])}")
+    print("{found} sets among {table.len()} cards")
+    print("completes 0000 and 1210: {third(table[0], table[1])}")
+
+@test fn completes_pair()
+    assert_eq(third("0000", "1111"), "2222")

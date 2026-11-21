@@ -1,0 +1,11 @@
+ o | e r1 r2 r3 s0 s1 s2 s3
+ e | e r1 r2 r3 s0 s1 s2 s3
+r1 |r1 r2 r3  e s1 s2 s3 s0
+r2 |r2 r3  e r1 s2 s3 s0 s1
+r3 |r3  e r1 r2 s3 s0 s1 s2
+s0 |s0 s3 s2 s1  e r3 r2 r1
+s1 |s1 s0 s3 s2 r1  e r3 r2
+s2 |s2 s1 s0 s3 r2 r1  e r3
+s3 |s3 s2 s1 s0 r3 r2 r1  e
+orders e:1 r1:4 r2:2 r3:4 s0:2 s1:2 s2:2 s3:2
+r1 after s0 is s1, s0 after r1 is s3: not commutative

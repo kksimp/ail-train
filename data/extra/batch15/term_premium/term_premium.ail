@@ -1,0 +1,29 @@
+## Term life premium: the net single premium sums each year's death chance (survive k years, then die)
+## discounted to today, sum v^(k+1) kpx qx+k; dividing by the annuity sum v^k kpx gives the level yearly premium.
+
+fn premiums(q List[float], years int, rate float, cover float) List[float]
+    v := 1.0 / (1.0 + rate)
+    mut alive := 1.0
+    mut disc := 1.0
+    mut single := 0.0
+    mut annuity := 0.0
+    for k in 0..years
+        annuity += disc * alive
+        single += disc * v * alive * q[k] * cover
+        alive = alive * (1.0 - q[k])
+        disc = disc * v
+    [single, single / annuity]
+
+fn main()
+    q := [0.00102, 0.00110, 0.0012, 0.00131, 0.00144, 0.00158, 0.00174, 0.00192, 0.00213, 0.00236]
+    cover := 250000.0
+    for years in [5, 10]
+        for rate in [0.02, 0.04]
+            p := premiums(q, years, rate, cover)
+            print("{years:>2}-year term from age 40 at {rate * 100.0:.0}%: single {p[0]:>8.2}, yearly {p[1]:>7.2}")
+    deaths := q.fold(0.0, |acc, x| acc + x)
+    print("rough 10-year death chance {deaths * 100.0:.2}%")
+
+@test fn no_deaths()
+    p := premiums([0.0, 0.0], 2, 0.05, 1000.0)
+    assert_eq(p[0], 0.0)

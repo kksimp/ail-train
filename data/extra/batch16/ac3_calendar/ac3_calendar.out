@@ -1,0 +1,13 @@
+design  loses 1 hour(s) because of kickoff: now [10, 11, 12, 13]
+design  loses 1 hour(s) because of review: now [10, 11, 12]
+review  loses 2 hour(s) because of design: now [11, 12, 13]
+review  loses 1 hour(s) because of demo: now [11, 12]
+demo    loses 1 hour(s) because of review: now [12, 13]
+design  loses 1 hour(s) because of review: now [10, 11]
+kickoff loses 1 hour(s) because of design: now [9, 10]
+8 hours removed
+kickoff [9, 10]
+design  [10, 11]
+review  [11, 12]
+retro   [12, 13]
+demo    [12, 13]

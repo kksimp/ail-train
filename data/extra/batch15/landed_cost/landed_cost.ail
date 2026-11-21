@@ -1,0 +1,31 @@
+## Landed cost: an import's freight is shared across its lines by weight and insurance by value; duty is
+## charged on the CIF value (cost, insurance, freight) at each line's rate, giving a true cost per unit.
+
+struct ShipLine
+    name str
+    units int
+    unit_price float
+    kg float
+    duty float
+
+fn main()
+    lines := [ShipLine(name: "ceramic mugs", units: 1200, unit_price: 1.85, kg: 480.0, duty: 0.06), ShipLine(name: "steel pans", units: 300, unit_price: 9.4, kg: 690.0, duty: 0.035), ShipLine(name: "cotton towels", units: 800, unit_price: 3.1, kg: 260.0, duty: 0.12)]
+    freight := 1450.0
+    insurance := 180.0
+    total_kg := lines.fold(0.0, |acc, l| acc + l.kg)
+    total_value := lines.fold(0.0, |acc, l| acc + l.units.to_float() * l.unit_price)
+    mut grand := 0.0
+    for l in lines
+        value := l.units.to_float() * l.unit_price
+        f := freight * l.kg / total_kg
+        ins := insurance * value / total_value
+        cif := value + f + ins
+        duty := cif * l.duty
+        landed := cif + duty
+        grand += landed
+        unit := landed / l.units.to_float()
+        print("{l.name:<13} goods {value:>7.2} + freight {f:>6.2} + insurance {ins:>5.2} + duty {duty:>6.2} = {landed:>8.2}, {unit:.3} a unit (+{(unit / l.unit_price - 1.0) * 100.0:.1}%)")
+    print("shipment landed cost {grand:.2} for goods worth {total_value:.2}")
+
+@test fn freight_share()
+    assert_eq(1000.0 * 250.0 / 1000.0, 250.0)

@@ -1,0 +1,6 @@
+|int port = 8080;
+|char *url = "http://example.com";
+|
+|int retries =  3;
+|char *s = "/* not a comment */";
+8 lines -> 5 lines

@@ -1,0 +1,58 @@
+## Line endings: scans text for CRLF, lone LF and old-style lone CR line breaks, counts each kind, names
+## the dominant style, and rewrites the text with LF only, showing the lines before and after.
+
+fn count_endings(cs List[char]) List[int]
+    mut crlf := 0
+    mut lf := 0
+    mut cr := 0
+    mut i := 0
+    while i < cs.len()
+        c := cs[i].code()
+        if c == 13 and i + 1 < cs.len() and cs[i + 1].code() == 10
+            crlf += 1
+            i += 2
+            continue
+        if c == 13
+            cr += 1
+        elif c == 10
+            lf += 1
+        i += 1
+    [crlf, lf, cr]
+
+fn to_lf(cs List[char]) str
+    mut out := List[char]()
+    mut i := 0
+    while i < cs.len()
+        c := cs[i]
+        if c.code() == 13
+            out.push('\n')
+            if i + 1 < cs.len() and cs[i + 1].code() == 10
+                i += 1
+        else
+            out.push(c)
+        i += 1
+    out.join("")
+
+fn main()
+    cr := char.from_code(13) else ' '
+    text := "name,qty{cr}\napple,3{cr}\npear,5\nplum,2{cr}fig,9{cr}\n"
+    cs := text.chars()
+    k := count_endings(cs)
+    names := ["CRLF", "LF", "CR"]
+    for i in 0..3
+        print("{names[i]:<4} {k[i]}")
+    mut best := 0
+    for i in 1..3
+        if k[i] > k[best]
+            best = i
+    mixed := k.count(|x| x > 0) > 1
+    print("dominant: {names[best]}, mixed: {mixed}")
+    fixed := to_lf(cs)
+    rows := fixed.trim_end().split("\n")
+    print("after: {rows.len()} lines, {fixed.len()} chars (was {text.len()})")
+    for r in rows
+        print("  {r}")
+
+@test fn counts_kinds()
+    cr := char.from_code(13) else ' '
+    assert_eq(count_endings("a{cr}\nb\nc{cr}".chars()), [1, 1, 1])

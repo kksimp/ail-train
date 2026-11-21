@@ -1,0 +1,9 @@
+a  5 c 3 m  16: cycle  16, theorem says full true: agrees
+a  5 c 4 m  16: cycle   4, theorem says full false: agrees
+a  3 c 1 m  16: cycle   8, theorem says full false: agrees
+a 21 c 7 m 100: cycle 100, theorem says full true: agrees
+a 11 c 7 m 100: cycle  50, theorem says full false: agrees
+a 10 c 1 m  81: cycle  81, theorem says full true: agrees
+a 13 c 1 m  64: cycle  64, theorem says full true: agrees
+a 31 c 7 m  60: cycle  30, theorem says full false: agrees
+a  7 c 0 m 101: cycle   1, theorem says full false: agrees

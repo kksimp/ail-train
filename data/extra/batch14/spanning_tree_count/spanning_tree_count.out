@@ -1,0 +1,8 @@
+K3: 3 spanning trees, n^(n-2) = 3
+K4: 16 spanning trees, n^(n-2) = 16
+K5: 125 spanning trees, n^(n-2) = 125
+K6: 1296 spanning trees, n^(n-2) = 1296
+K7: 16807 spanning trees, n^(n-2) = 16807
+cycle of 5: 5
+wheel with 4 spokes: 45
+office network: 24 ways to keep it connected with 5 cables

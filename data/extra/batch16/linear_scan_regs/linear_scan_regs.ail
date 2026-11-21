@@ -1,0 +1,50 @@
+## Linear scan allocation: live intervals sorted by start get one of two registers; finished
+## intervals free theirs, and when none is free the interval that ends furthest away is spilled.
+
+struct Interval
+    name str
+    start int
+    stop int
+
+fn main()
+    raw := [Interval(name: "i", start: 0, stop: 9), Interval(name: "sum", start: 1, stop: 12), Interval(name: "tmp", start: 2, stop: 4), Interval(name: "p", start: 3, stop: 7), Interval(name: "q", start: 5, stop: 6), Interval(name: "r", start: 8, stop: 11), Interval(name: "out", start: 10, stop: 13)]
+    ivs := raw.sorted(by: |v| v.start)
+    mut reg := List[int]()
+    for v in ivs
+        reg.push(-1)
+    mut free := [1, 0]
+    mut active := List[int]()
+    mut spills := 0
+    for i in 0..ivs.len()
+        mut keep := List[int]()
+        for j in active
+            if ivs[j].stop < ivs[i].start
+                free.push(reg[j])
+            else
+                keep.push(j)
+        active = keep
+        if free.is_empty()
+            mut far := active[0]
+            for j in active
+                if ivs[j].stop > ivs[far].stop
+                    far = j
+            spills += 1
+            if ivs[far].stop > ivs[i].stop
+                reg[i] = reg[far]
+                reg[far] = -1
+                active = active.filter(|j| j != far)
+                active.push(i)
+                print("at {ivs[i].start:>2}: spill {ivs[far].name}, give its register to {ivs[i].name}")
+            else
+                print("at {ivs[i].start:>2}: spill {ivs[i].name}")
+        else
+            reg[i] = free.pop() else 0
+            active.push(i)
+    for i in 0..ivs.len()
+        place := if reg[i] < 0 then "stack slot" else "r{reg[i]}"
+        print("{ivs[i].name:<4} [{ivs[i].start:>2}, {ivs[i].stop:>2}] -> {place}")
+    print("spills: {spills}")
+
+@test fn sort_by_start()
+    ivs := [Interval(name: "b", start: 4, stop: 5), Interval(name: "a", start: 1, stop: 9)]
+    assert_eq(ivs.sorted(by: |v| v.start)[0].name, "a")

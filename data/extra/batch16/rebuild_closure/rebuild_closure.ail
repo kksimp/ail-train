@@ -1,0 +1,35 @@
+## Incremental rebuild set: imports are reversed into an imported-by graph, and a breadth-first walk
+## from the edited modules collects everything that must be recompiled, with the import that pulled it in.
+
+fn affected(imports Map[str, List[str]], edited List[str]) Map[str, str]
+    mut users := Map[str, List[str]]()
+    for m, deps in imports
+        for d in deps
+            users.push(d, m)
+    mut why := Map[str, str]()
+    mut queue := List[str]()
+    for e in edited
+        why[e] = "edited"
+        queue.push(e)
+    mut head := 0
+    while head < queue.len()
+        cur := queue[head]
+        head += 1
+        for u in users.get_or(cur, List[str]())
+            if not why.contains(u)
+                why[u] = "imports {cur}"
+                queue.push(u)
+    why
+
+fn main()
+    imports := {"app": ["http", "config", "views"], "http": ["net", "strings"], "views": ["html", "strings"], "html": ["strings"], "config": ["json"], "json": ["strings"], "net": List[str](), "strings": List[str](), "cli": ["config"]}
+    for edited in [["html"], ["json"], ["strings"]]
+        why := affected(imports, edited)
+        first := edited[0]
+        print("edit {first}: {why.len()} of {imports.len()} modules rebuild")
+        for m in why.keys().sorted()
+            print("    {m:<8} {why[m]}")
+
+@test fn leaf_edit()
+    why := affected({"a": ["b"], "b": List[str](), "c": List[str]()}, ["b"])
+    assert_eq(why.len(), 2)

@@ -1,0 +1,39 @@
+## Square symmetries: the dihedral group D4 as permutations of a square's corners, four turns rN and
+## four flips sK (corner i goes to K - i); its Cayley table shows closure, element orders and r1 s0 != s0 r1.
+
+fn compose(a List[int], b List[int]) List[int]
+    [a[b[i]] for i in 0..4]
+
+fn main()
+    mut elems := List[List[int]]()
+    for k in 0..4
+        elems.push([(i + k) % 4 for i in 0..4])
+    for k in 0..4
+        elems.push([(k - i + 4) % 4 for i in 0..4])
+    names := ["e", "r1", "r2", "r3", "s0", "s1", "s2", "s3"]
+    padded := names.map(|n| n.pad_left(2, ' '))
+    head := padded.join(" ")
+    print(" o |{head}")
+    for a in 0..8
+        mut cells := List[str]()
+        for b in 0..8
+            idx := elems.index_of(compose(elems[a], elems[b])) else 0
+            cells.push(names[idx].pad_left(2, ' '))
+        row := cells.join(" ")
+        print("{names[a]:>2} |{row}")
+    mut orders := List[str]()
+    for a in 0..8
+        mut p := elems[a]
+        mut m := 1
+        while p != elems[0]
+            p = compose(elems[a], p)
+            m += 1
+        orders.push("{names[a]}:{m}")
+    shown := orders.join(" ")
+    print("orders {shown}")
+    x := elems.index_of(compose(elems[1], elems[4])) else 0
+    y := elems.index_of(compose(elems[4], elems[1])) else 0
+    print("r1 after s0 is {names[x]}, s0 after r1 is {names[y]}: not commutative")
+
+@test fn turn_twice()
+    assert_eq(compose([1, 2, 3, 0], [1, 2, 3, 0]), [2, 3, 0, 1])

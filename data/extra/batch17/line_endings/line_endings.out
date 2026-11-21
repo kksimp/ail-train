@@ -1,0 +1,10 @@
+CRLF 3
+LF   1
+CR   1
+dominant: CRLF, mixed: true
+after: 5 lines, 37 chars (was 40)
+  name,qty
+  apple,3
+  pear,5
+  plum,2
+  fig,9

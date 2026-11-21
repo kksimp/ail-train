@@ -1,0 +1,37 @@
+## Experience levels: each session's encounter experience is split evenly among the party (the
+## remainder is lost), and a character levels up on passing the thresholds 300, 900, 2700, 6500 and so on.
+
+THRESHOLDS := [0, 300, 900, 2700, 6500, 14000, 23000, 34000]
+
+fn level(xp int) int
+    mut l := 0
+    for t in THRESHOLDS
+        if xp >= t
+            l += 1
+    l
+
+fn main()
+    names := ["Aldo", "Bree", "Cass", "Dunn"]
+    mut xp := [0, 250, 0, 800]
+    sessions := [[450, 1100], [1850, 2400], [3200, 1500], [5600, 4400]]
+    for s, session in sessions.enumerate()
+        present := [true, s != 1, true, s != 2]
+        earned := session.sum()
+        crowd := present.count(|p| p)
+        share := earned / crowd
+        mut ups := List[str]()
+        for i in 0..4
+            if present[i]
+                before := level(xp[i])
+                xp[i] += share
+                after := level(xp[i])
+                if after > before
+                    ups.push("{names[i]} to {after}")
+        news := if ups.is_empty() then "no level ups" else ups.join(", ")
+        print("session {s + 1}: {earned} xp / {crowd} = {share} each; {news}")
+    for i in 0..4
+        next := if level(xp[i]) < THRESHOLDS.len() then THRESHOLDS[level(xp[i])] - xp[i] else 0
+        print("{names[i]:<5} level {level(xp[i])}, {xp[i]:>5} xp, {next} to next")
+
+@test fn level_three()
+    assert_eq(level(900), 3)

@@ -1,0 +1,31 @@
+## Diving scores: five judges mark each dive in half points; the highest and lowest marks are dropped
+## and the middle three are summed and multiplied by the dive's degree of difficulty, kept in tenths.
+
+fn dive_score(marks List[int], dd int) int
+    mid := marks.sorted().slice(1, 4)
+    mid.sum() * dd
+
+fn hundredths(n int) str
+    "{n / 100}.{n % 100:02}"
+
+fn main()
+    divers := ["Ito", "Kerr", "Lund"]
+    dives := [[[75, 80, 70, 75, 85], [65, 70, 70, 60, 65], [80, 85, 85, 90, 80]], [[90, 85, 85, 90, 95], [55, 60, 50, 60, 55], [70, 75, 70, 70, 65]], [[70, 70, 75, 70, 70], [75, 80, 80, 75, 80], [60, 65, 65, 70, 60]]]
+    difficulty := [[28, 32, 30], [31, 34, 29], [27, 30, 33]]
+    mut totals := List[int]()
+    for d in 0..3
+        mut total := 0
+        mut parts := List[str]()
+        for k in 0..3
+            s := dive_score(dives[d][k], difficulty[d][k])
+            total += s
+            parts.push(hundredths(s))
+        totals.push(total)
+        shown := parts.join(" + ")
+        print("{divers[d]:<5} {shown} = {hundredths(total)}")
+    order := [0, 1, 2].sorted(by: |i| -totals[i])
+    for place, i in order.enumerate()
+        print("{place + 1}. {divers[i]} {hundredths(totals[i])}")
+
+@test fn drops_extremes()
+    assert_eq(dive_score([60, 90, 70, 70, 70], 20), 4200)

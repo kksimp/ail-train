@@ -1,0 +1,44 @@
+## Grow-only counter: each replica increments only its own slot, merging takes the slot-wise maximum
+## and the value is the sum, so merges commute, repeat safely and every replica converges.
+
+struct GCounter
+    me int
+    slots List[int]
+
+fn GCounter.inc(mut self, n int)
+    self.slots[self.me] += n
+
+fn GCounter.merge(mut self, other GCounter)
+    for i in 0..self.slots.len()
+        self.slots[i] = self.slots[i].max(other.slots[i])
+
+fn GCounter.value(self) int
+    self.slots.sum()
+
+fn main()
+    mut a := GCounter(me: 0, slots: [0, 0, 0])
+    mut b := GCounter(me: 1, slots: [0, 0, 0])
+    mut c := GCounter(me: 2, slots: [0, 0, 0])
+    a.inc(3)
+    b.inc(2)
+    c.inc(5)
+    a.inc(1)
+    print("local: a={a.value()} b={b.value()} c={c.value()}")
+    a.merge(b)
+    print("a merges b: {a.slots} = {a.value()}")
+    a.merge(b)
+    print("again (idempotent): {a.value()}")
+    c.merge(a)
+    b.merge(c)
+    a.merge(c)
+    print("after gossip: a={a.value()} b={b.value()} c={c.value()}")
+    mut x := GCounter(me: 0, slots: [4, 0, 1])
+    mut y := GCounter(me: 1, slots: [2, 3, 0])
+    x2 := x
+    x.merge(y)
+    y.merge(x2)
+    print("merge order irrelevant: {x.slots} vs {y.slots}")
+
+@test fn value_is_sum()
+    g := GCounter(me: 0, slots: [1, 2, 3])
+    assert_eq(g.value(), 6)

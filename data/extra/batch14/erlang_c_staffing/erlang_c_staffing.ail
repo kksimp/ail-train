@@ -1,0 +1,29 @@
+## Erlang C staffing: with c agents and A = l / m erlangs the chance a caller waits is
+## C = B / (1 - (A/c)(1 - B)); the share answered within t is 1 - C e^(-(c m - l) t), so add agents until 80% wait < 20 s.
+
+fn erlang_b(a float, c int) float
+    mut b := 1.0
+    for k in 1..=c
+        b = a * b / (k.to_float() + a * b)
+    b
+
+fn main()
+    calls_per_min := 2.0
+    handle_min := 4.0
+    a := calls_per_min * handle_min
+    mu := 1.0 / handle_min
+    print("{calls_per_min} calls a minute, {handle_min} minutes each: {a} erlangs")
+    mut found := 0
+    for c in 9..=14
+        b := erlang_b(a, c)
+        cw := b / (1.0 - a / c.to_float() * (1.0 - b))
+        rate := c.to_float() * mu - calls_per_min
+        wait_s := cw / rate * 60.0
+        level := 1.0 - cw * (-rate * 20.0 / 60.0).exp()
+        print("{c:>2} agents: {cw * 100.0:>5.1}% wait, mean wait {wait_s:>5.1} s, {level * 100.0:>5.1}% answered within 20 s")
+        if found == 0 and level >= 0.8
+            found = c
+    print("smallest team meeting 80/20: {found} agents")
+
+@test fn no_load()
+    assert_eq(erlang_b(0.0, 3), 0.0)

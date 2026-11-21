@@ -1,0 +1,53 @@
+## Divisor lattice: the divisors of 60 ordered by divisibility form a poset; its Hasse diagram keeps
+## only covering pairs (b / a prime), ranks count prime factors, and 12 maximal chains run from 1 to 60.
+
+fn omega(n int) int
+    mut m := n
+    mut k := 0
+    mut f := 2
+    while m > 1
+        while m % f == 0
+            m /= f
+            k += 1
+        f += 1
+    k
+
+fn is_prime(n int) bool
+    if n < 2
+        return false
+    mut f := 2
+    while f * f <= n
+        if n % f == 0
+            return false
+        f += 1
+    true
+
+fn chains(a int, top int, divs List[int]) int
+    if a == top
+        return 1
+    mut total := 0
+    for b in divs
+        if b % a == 0 and is_prime(b / a)
+            total += chains(b, top, divs)
+    total
+
+fn main()
+    n := 60
+    divs := [d for d in 1..=n if n % d == 0]
+    rank := omega(n)
+    mut widest := 0
+    for r in 0..=rank
+        level := divs.filter(|d| omega(d) == r)
+        widest = widest.max(level.len())
+        print("rank {r}: {level}")
+    mut covers := List[str]()
+    for a in divs
+        for b in divs
+            if b % a == 0 and is_prime(b / a)
+                covers.push("{a}-{b}")
+    first := covers.slice(0, 6).join(", ")
+    print("{covers.len()} covering pairs, e.g. {first}")
+    print("maximal chains from 1 to 60: {chains(1, n, divs)}; largest rank level: {widest}")
+
+@test fn twelve()
+    assert_eq(omega(12), 3)

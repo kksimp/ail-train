@@ -1,0 +1,31 @@
+## Crop water need: Hargreaves' reference evapotranspiration ET0 = 0.0023 Ra (Tmean + 17.8) sqrt(Tmax - Tmin)
+## with Ra in mm of water a day, times a crop coefficient Kc per growth stage, less rain, per month.
+
+struct Month
+    name str
+    days int
+    tmax float
+    tmin float
+    ra float
+    rain float
+    kc float
+
+fn et0(m Month) float
+    tmean := (m.tmax + m.tmin) / 2.0
+    0.0023 * m.ra * (tmean + 17.8) * (m.tmax - m.tmin).sqrt()
+
+fn main()
+    season := [Month(name: "Apr", days: 30, tmax: 19.0, tmin: 7.0, ra: 13.6, rain: 45.0, kc: 0.4), Month(name: "May", days: 31, tmax: 24.0, tmin: 11.0, ra: 15.6, rain: 38.0, kc: 0.7), Month(name: "Jun", days: 30, tmax: 28.0, tmin: 15.0, ra: 16.5, rain: 22.0, kc: 1.15), Month(name: "Jul", days: 31, tmax: 31.0, tmin: 17.0, ra: 16.1, rain: 12.0, kc: 1.15), Month(name: "Aug", days: 31, tmax: 30.0, tmin: 17.0, ra: 14.5, rain: 20.0, kc: 0.8)]
+    mut total := 0.0
+    for m in season
+        e := et0(m)
+        need := e * m.kc * m.days.to_float()
+        irrigate := if need > m.rain then need - m.rain else 0.0
+        total += irrigate
+        print("{m.name}: ET0 {e:.2} mm/day, crop uses {need:>5.1} mm, rain {m.rain:>4.0} mm, irrigate {irrigate:>5.1} mm")
+    cubic := total * 10.0
+    print("season irrigation {total:.0} mm = {cubic:.0} m3 per hectare")
+
+@test fn no_range_no_et()
+    m := Month(name: "x", days: 30, tmax: 20.0, tmin: 20.0, ra: 15.0, rain: 0.0, kc: 1.0)
+    assert_eq(et0(m), 0.0)

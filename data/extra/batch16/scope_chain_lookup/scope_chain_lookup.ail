@@ -1,0 +1,46 @@
+## Scoped symbol table: declarations go on one stack tagged with their block depth; a lookup scans
+## from the top so the innermost name wins, and leaving a block pops every entry of that depth.
+
+struct Entry
+    name str
+    depth int
+    line int
+
+fn lookup(table List[Entry], name str) Entry?
+    mut i := table.len() - 1
+    while i >= 0
+        if table[i].name == name
+            return table[i]
+        i -= 1
+    none
+
+fn main()
+    script := ["let x", "let y", "enter", "use x", "let x", "use x", "enter", "let z", "use y", "use x", "let z", "leave", "use z", "leave", "use x", "use w"]
+    mut table := List[Entry]()
+    mut depth := 0
+    for i, cmd in script.enumerate()
+        ln := i + 1
+        w := cmd.split(" ")
+        if w[0] == "enter"
+            depth += 1
+        elif w[0] == "leave"
+            table = table.filter(|e| e.depth < depth)
+            depth -= 1
+        elif w[0] == "let"
+            if prev := lookup(table, w[1])
+                if prev.depth == depth
+                    print("line {ln:>2}: {w[1]} declared twice in one block (first at line {prev.line})")
+                    continue
+                print("line {ln:>2}: {w[1]} shadows the one from line {prev.line}")
+            table.push(Entry(name: w[1], depth: depth, line: ln))
+        else
+            if e := lookup(table, w[1])
+                print("line {ln:>2}: {w[1]} -> line {e.line}, {depth - e.depth} blocks out")
+            else
+                print("line {ln:>2}: {w[1]} is not declared")
+    print("names left at top level: {table.len()}")
+
+@test fn innermost_wins()
+    t := [Entry(name: "x", depth: 0, line: 1), Entry(name: "x", depth: 1, line: 4)]
+    found := lookup(t, "x") else Entry(name: "", depth: 0, line: 0)
+    assert_eq(found.line, 4)

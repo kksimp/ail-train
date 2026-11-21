@@ -1,0 +1,9 @@
+RNBQKBNR: legal
+BBRNKNQR: legal
+KRNBBNRQ: king not between rooks
+RNBQKBNN: wrong pieces
+QNRBKRNB: bishops on one colour
+RKNQBBNR: legal
+RNBKQNBR: bishops on one colour
+legal starting ranks: 960
+first: BBNNQRKR, last: RQNNKRBB

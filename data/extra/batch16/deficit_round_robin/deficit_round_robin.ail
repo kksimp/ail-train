@@ -1,0 +1,39 @@
+## Deficit round robin: each flow earns a quantum of 300 bytes of credit per round and sends packets
+## while its head packet fits the credit, so flows with big packets get a fair byte share over time.
+
+fn pending(head List[int], queues List[List[int]]) bool
+    for f in 0..queues.len()
+        if head[f] < queues[f].len()
+            return true
+    false
+
+fn main()
+    names := ["A", "B", "C"]
+    queues := [[500, 500, 500], [200, 200, 200, 200, 200], [1000, 100]]
+    quantum := 300
+    mut head := [0, 0, 0]
+    mut deficit := [0, 0, 0]
+    mut sent := [0, 0, 0]
+    mut round := 0
+    while pending(head, queues)
+        round += 1
+        mut log := List[str]()
+        for f in 0..3
+            if head[f] >= queues[f].len()
+                continue
+            deficit[f] += quantum
+            while head[f] < queues[f].len() and queues[f][head[f]] <= deficit[f]
+                size := queues[f][head[f]]
+                deficit[f] -= size
+                sent[f] += size
+                head[f] += 1
+                log.push("{names[f]}{size}")
+            if head[f] >= queues[f].len()
+                deficit[f] = 0
+        shown := if log.is_empty() then "-" else log.join(" ")
+        print("round {round}: {shown:<20} credit {deficit}")
+    for f in 0..3
+        print("flow {names[f]} sent {sent[f]} bytes")
+
+@test fn quantum_math()
+    assert_eq(300 + 300 - 500, 100)

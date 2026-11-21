@@ -1,0 +1,32 @@
+## Grain drying shrink: drying from moisture m1 to m2 removes W (m1 - m2) / (100 - m2) of water, since the
+## dry matter stays the same; loads are dried to 14% and charged per point of moisture removed.
+
+struct Load
+    id str
+    tonnes float
+    moisture float
+
+fn water_removed(t float, m1 float, m2 float) float
+    if m1 <= m2
+        return 0.0
+    t * (m1 - m2) / (100.0 - m2)
+
+fn main()
+    target := 14.0
+    per_point := 1.85
+    loads := [Load(id: "A1", tonnes: 28.4, moisture: 19.5), Load(id: "A2", tonnes: 31.0, moisture: 22.0), Load(id: "B1", tonnes: 26.7, moisture: 16.2), Load(id: "B2", tonnes: 29.9, moisture: 13.1), Load(id: "C1", tonnes: 30.5, moisture: 24.8)]
+    mut sold := 0.0
+    mut charge := 0.0
+    for l in loads
+        w := water_removed(l.tonnes, l.moisture, target)
+        dry := l.tonnes - w
+        points := if l.moisture > target then l.moisture - target else 0.0
+        fee := points * per_point * l.tonnes
+        sold += dry
+        charge += fee
+        shrink := w / l.tonnes * 100.0
+        print("{l.id}: {l.tonnes:.1} t at {l.moisture:.1}% -> {dry:.2} t ({shrink:.2}% shrink), drying {fee:.2}")
+    print("delivered {sold:.2} t, drying charges {charge:.2}")
+
+@test fn already_dry()
+    assert_eq(water_removed(10.0, 12.0, 14.0), 0.0)

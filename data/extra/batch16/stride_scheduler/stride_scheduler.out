@@ -1,0 +1,5 @@
+order ABCAABAABCAABA|ABCDAAB
+A: stride 100, pass 1100, ran 11 times
+B: stride 200, pass 1200, ran 6 times
+C: stride 400, pass 1200, ran 3 times
+D: stride 200, pass 1000, ran 1 times

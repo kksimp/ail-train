@@ -1,0 +1,29 @@
+## IV drip rate: drops per minute = volume (mL) x drop factor (drops per mL) / minutes, rounded to the
+## nearest whole drop; also the pump rate in mL per hour and when the bag runs out from a start time.
+
+struct Order
+    fluid str
+    ml int
+    minutes int
+    factor int
+    start int
+
+fn drops_per_min(o Order) int
+    (o.ml * o.factor * 2 + o.minutes) / (2 * o.minutes)
+
+fn clock(m int) str
+    t := m % 1440
+    "{t / 60:02}:{t % 60:02}"
+
+fn main()
+    orders := [Order(fluid: "saline 0.9%", ml: 1000, minutes: 480, factor: 20, start: 8 * 60), Order(fluid: "glucose 5%", ml: 500, minutes: 240, factor: 15, start: 13 * 60 + 30), Order(fluid: "antibiotic", ml: 100, minutes: 30, factor: 20, start: 18 * 60), Order(fluid: "child maintenance", ml: 250, minutes: 600, factor: 60, start: 21 * 60)]
+    for o in orders
+        gtt := drops_per_min(o)
+        per_hour := o.ml * 60 / o.minutes
+        print("{o.fluid:<18} {o.ml:>5} mL over {o.minutes / 60}h{o.minutes % 60:02}: {gtt:>3} drops/min ({o.factor} gtt/mL), pump {per_hour} mL/h, {clock(o.start)} to {clock(o.start + o.minutes)}")
+    micro := orders.filter(|o| o.factor == 60).len()
+    print("{micro} order uses a micro-drip set")
+
+@test fn rounding()
+    o := Order(fluid: "x", ml: 1000, minutes: 480, factor: 20, start: 0)
+    assert_eq(drops_per_min(o), 42)

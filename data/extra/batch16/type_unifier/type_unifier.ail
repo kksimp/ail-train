@@ -1,0 +1,83 @@
+## Type unification: type terms such as Pair[a, Int] live in a pool; unify follows variable
+## bindings, binds a variable after an occurs check, and matches constructors argument by argument.
+
+struct Term
+    is_var bool
+    name str
+    args List[int]
+
+fn mk(mut pool List[Term], name str, args List[int]) int
+    first := name.chars()[0]
+    pool.push(Term(is_var: first.is_lower(), name: name, args: args))
+    pool.len() - 1
+
+fn resolve(pool List[Term], binds Map[str, int], t int) int
+    mut cur := t
+    while pool[cur].is_var and binds.contains(pool[cur].name)
+        cur = binds[pool[cur].name]
+    cur
+
+fn show(pool List[Term], binds Map[str, int], t int) str
+    term := pool[resolve(pool, binds, t)]
+    if term.args.is_empty()
+        return term.name
+    mut parts := List[str]()
+    for a in term.args
+        parts.push(show(pool, binds, a))
+    inner := parts.join(", ")
+    "{term.name}[{inner}]"
+
+fn occurs(pool List[Term], binds Map[str, int], v str, t int) bool
+    term := pool[resolve(pool, binds, t)]
+    if term.is_var
+        return term.name == v
+    term.args.any(|a| occurs(pool, binds, v, a))
+
+fn unify(pool List[Term], mut binds Map[str, int], a int, b int) str
+    ra := resolve(pool, binds, a)
+    rb := resolve(pool, binds, b)
+    ta := pool[ra]
+    tb := pool[rb]
+    if ta.is_var and tb.is_var and ta.name == tb.name
+        return ""
+    if ta.is_var
+        if occurs(pool, binds, ta.name, rb)
+            return "{ta.name} occurs inside {show(pool, binds, rb)}"
+        binds[ta.name] = rb
+        return ""
+    if tb.is_var
+        return unify(pool, mut binds, b, a)
+    if ta.name != tb.name or ta.args.len() != tb.args.len()
+        return "{show(pool, binds, ra)} vs {show(pool, binds, rb)}"
+    for i in 0..ta.args.len()
+        e := unify(pool, mut binds, ta.args[i], tb.args[i])
+        if e != ""
+            return e
+    ""
+
+fn main()
+    mut p := List[Term]()
+    a := mk(mut p, "a", [])
+    b := mk(mut p, "b", [])
+    int_t := mk(mut p, "Int", [])
+    bool_t := mk(mut p, "Bool", [])
+    li := mk(mut p, "List", [int_t])
+    pairs := [[mk(mut p, "Fn", [a, int_t]), mk(mut p, "Fn", [bool_t, b])], [mk(mut p, "List", [a]), mk(mut p, "List", [li])], [a, mk(mut p, "List", [a])], [mk(mut p, "Pair", [int_t, a]), mk(mut p, "Pair", [bool_t, int_t])], [mk(mut p, "Pair", [a, b]), mk(mut p, "Pair", [b, int_t])]]
+    for pr in pairs
+        mut binds := Map[str, int]()
+        left := show(p, binds, pr[0])
+        right := show(p, binds, pr[1])
+        err := unify(p, mut binds, pr[0], pr[1])
+        if err == ""
+            got := binds.keys().sorted().map(|v| "{v} = {show(p, binds, binds[v])}").join(", ")
+            print("{left} ~ {right}: ok, {got}")
+        else
+            print("{left} ~ {right}: fails, {err}")
+
+@test fn binds_variable()
+    mut p := List[Term]()
+    a := mk(mut p, "a", [])
+    i := mk(mut p, "Int", [])
+    mut binds := Map[str, int]()
+    assert_eq(unify(p, mut binds, a, i), "")
+    assert_eq(show(p, binds, a), "Int")

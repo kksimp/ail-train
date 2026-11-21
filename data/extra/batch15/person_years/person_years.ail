@@ -1,0 +1,30 @@
+## Incidence rates: each person contributes the months they were followed (to an event, dropout or study
+## end), so rates are events per 1000 person-years, compared between two groups as a rate ratio.
+
+struct Member
+    group str
+    start int
+    stop int
+    event bool
+
+fn main()
+    cohort := [Member(group: "shift", start: 0, stop: 60, event: false), Member(group: "shift", start: 0, stop: 23, event: true), Member(group: "shift", start: 6, stop: 60, event: false), Member(group: "shift", start: 12, stop: 41, event: true), Member(group: "shift", start: 0, stop: 17, event: false), Member(group: "shift", start: 3, stop: 52, event: true), Member(group: "day", start: 0, stop: 60, event: false), Member(group: "day", start: 0, stop: 60, event: false), Member(group: "day", start: 9, stop: 48, event: true), Member(group: "day", start: 0, stop: 60, event: false), Member(group: "day", start: 2, stop: 35, event: false), Member(group: "day", start: 0, stop: 60, event: false), Member(group: "day", start: 14, stop: 60, event: false)]
+    mut months := Map[str, int]()
+    mut events := Map[str, int]()
+    for m in cohort
+        months[m.group] += m.stop - m.start
+        if m.event
+            events[m.group] += 1
+    mut rates := Map[str, float]()
+    for g, mo in months
+        years := mo.to_float() / 12.0
+        e := events.get_or(g, 0)
+        rate := e.to_float() / years * 1000.0
+        rates[g] = rate
+        print("{g:<5} {e} events in {years:.2} person-years: {rate:.1} per 1000 person-years")
+    ratio := rates["shift"] / rates["day"]
+    print("rate ratio shift / day: {ratio:.2}")
+
+@test fn follow_up()
+    m := Member(group: "x", start: 6, stop: 30, event: true)
+    assert_eq(m.stop - m.start, 24)

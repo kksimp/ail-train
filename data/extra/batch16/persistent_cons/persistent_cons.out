@@ -1,0 +1,7 @@
+v1: [3]
+v2: [6, 5, 3]
+v3: [8, 3]
+v4: [5, 3]
+v5: [6, 5, 30]
+v6: [9, 5, 3]
+8 cells hold 14 list elements across six versions

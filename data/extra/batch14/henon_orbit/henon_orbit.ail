@@ -1,0 +1,42 @@
+## Henon map: x' = 1 - 1.4 x^2 + y, y' = 0.3 x folds the plane onto a strange attractor; the orbit
+## stays in a small box for ever, yet two starts a billionth apart drift fully apart within a few dozen steps.
+
+fn main()
+    mut x := 0.0
+    mut y := 0.0
+    for i in 1..=5
+        nx := 1.0 - 1.4 * x * x + y
+        y = 0.3 * x
+        x = nx
+        print("step {i}: ({x:.4}, {y:.4})")
+    mut lo_x := 10.0
+    mut hi_x := -10.0
+    mut lo_y := 10.0
+    mut hi_y := -10.0
+    for i in 0..5000
+        nx := 1.0 - 1.4 * x * x + y
+        y = 0.3 * x
+        x = nx
+        lo_x = lo_x.min(x)
+        hi_x = hi_x.max(x)
+        lo_y = lo_y.min(y)
+        hi_y = hi_y.max(y)
+    print("after 5000 more steps the orbit stayed in x {lo_x:.2}..{hi_x:.2}, y {lo_y:.2}..{hi_y:.2}")
+    mut ax := 0.5
+    mut ay := 0.1
+    mut bx := 0.500000001
+    mut by := 0.1
+    mut apart := -1
+    for i in 1..=200
+        nax := 1.0 - 1.4 * ax * ax + ay
+        ay = 0.3 * ax
+        ax = nax
+        nbx := 1.0 - 1.4 * bx * bx + by
+        by = 0.3 * bx
+        bx = nbx
+        if apart < 0 and (ax - bx).abs() > 0.5
+            apart = i
+    print("starts 0.5 and 0.500000001 differ by more than 0.5 after {apart} steps")
+
+@test fn first_step()
+    assert_eq(1.0 - 1.4 * 0.0 * 0.0 + 0.0, 1.0)

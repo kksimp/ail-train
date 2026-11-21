@@ -1,0 +1,5 @@
+B0 entry  in {} out {a, b, n}
+B1 test   in {a, b, n} out {a, b, c, n}
+B2 body   in {a, b, c, n} out {a, b, n}
+B3 exit   in {c} out {}
+fixed point after 3 rounds

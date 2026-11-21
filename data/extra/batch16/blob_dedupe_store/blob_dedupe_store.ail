@@ -1,0 +1,31 @@
+## Content-addressed store: every file version is stored once under a hash of its bytes, so
+## commits that repeat a file, or two paths with the same content, add no new blobs.
+
+fn blob_id(content str) int
+    mut h := 7
+    for c in content.chars()
+        h = (h * 131 + c.code()) % 1000003
+    h
+
+fn main()
+    commits := [[["README", "hello"], ["main.c", "int main v1"], ["util.c", "helpers"]], [["README", "hello"], ["main.c", "int main v2"], ["util.c", "helpers"]], [["README", "hello world"], ["main.c", "int main v2"], ["util.c", "helpers"], ["old_main.c", "int main v1"]], [["README", "hello world"], ["main.c", "int main v3"], ["lib/util.c", "helpers"]]]
+    mut store := Map[int, str]()
+    mut written := 0
+    for n, files in commits.enumerate()
+        mut fresh := 0
+        mut parts := List[str]()
+        for f in files
+            id := blob_id(f[1])
+            written += 1
+            if not store.contains(id)
+                store[id] = f[1]
+                fresh += 1
+            parts.push("{f[0]}:{id:x}")
+        tree := parts.join(" ")
+        print("commit {n + 1}: {fresh} new blob(s) | {tree}")
+    total := store.values().fold(0, |acc, s| acc + s.len())
+    print("files written {written}, blobs stored {store.len()}, {total} bytes kept")
+
+@test fn same_content_same_id()
+    assert_eq(blob_id("abc"), blob_id("abc"))
+    assert(blob_id("abc") != blob_id("acb"))

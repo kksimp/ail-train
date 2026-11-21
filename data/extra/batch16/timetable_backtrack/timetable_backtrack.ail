@@ -1,0 +1,48 @@
+## School timetable by backtracking: each lesson takes one of four periods so that no teacher and no
+## class is booked twice in a period and at most two rooms are in use; dead ends undo the last choice.
+
+struct Lesson
+    subject str
+    teacher str
+    group str
+
+fn fits(ls List[Lesson], slot List[int], i int, p int) bool
+    mut used := 0
+    for j in 0..i
+        if slot[j] == p
+            used += 1
+            if ls[j].teacher == ls[i].teacher or ls[j].group == ls[i].group
+                return false
+    used < 2
+
+fn solve(ls List[Lesson], mut slot List[int], i int, mut tries List[int]) bool
+    if i == ls.len()
+        return true
+    for p in 0..4
+        tries[0] += 1
+        if fits(ls, slot, i, p)
+            slot[i] = p
+            if solve(ls, mut slot, i + 1, mut tries)
+                return true
+            slot[i] = -1
+    false
+
+fn main()
+    ls := [Lesson(subject: "math", teacher: "Ng", group: "7A"), Lesson(subject: "math", teacher: "Ng", group: "7B"), Lesson(subject: "art", teacher: "Ruiz", group: "7A"), Lesson(subject: "bio", teacher: "Okafor", group: "7B"), Lesson(subject: "chem", teacher: "Okafor", group: "7A"), Lesson(subject: "pe", teacher: "Ruiz", group: "7B"), Lesson(subject: "math", teacher: "Ng", group: "7C"), Lesson(subject: "art", teacher: "Ruiz", group: "7C")]
+    mut slot := ls.map(|l| -1)
+    mut tries := [0]
+    if solve(ls, mut slot, 0, mut tries)
+        for p in 0..4
+            mut cells := List[str]()
+            for i in 0..ls.len()
+                if slot[i] == p
+                    cells.push("{ls[i].group} {ls[i].subject} ({ls[i].teacher})")
+            row := cells.join(" | ")
+            print("period {p + 1}: {row}")
+    else
+        print("no timetable")
+    print("{tries[0]} placements tried")
+
+@test fn teacher_clash()
+    ls := [Lesson(subject: "a", teacher: "T", group: "1"), Lesson(subject: "b", teacher: "T", group: "2")]
+    assert(not fits(ls, [0, -1], 1, 0))

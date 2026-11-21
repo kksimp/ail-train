@@ -1,0 +1,30 @@
+## Rebase with patch ids: each change gets an id from a hash of its diff with whitespace removed;
+## topic commits whose id already appears upstream are skipped, the rest are replayed on the new tip.
+
+fn patch_id(diff str) int
+    mut h := 0
+    for c in diff.chars()
+        if not c.is_space()
+            h = (h * 257 + c.code()) % 999983
+    h
+
+fn main()
+    upstream := [["u1", "+add retries"], ["u2", "-old flag\n+new flag"], ["u3", "+fix typo in help"]]
+    topic := [["t1", "+cache layer"], ["t2", "-old flag\n+new  flag"], ["t3", "+metrics"], ["t4", "+fix typo  in help"], ["t5", "+docs for cache"]]
+    mut known := Set[int]()
+    for u in upstream
+        known.add(patch_id(u[1]))
+    mut tip := upstream[upstream.len() - 1][0]
+    mut replayed := 0
+    for t in topic
+        pid := patch_id(t[1])
+        if known.contains(pid)
+            print("{t[0]} skipped: same change already upstream (patch id {pid})")
+        else
+            print("{t[0]}' replayed on {tip} (patch id {pid})")
+            tip = "{t[0]}'"
+            replayed += 1
+    print("{replayed} commits replayed, new tip {tip}")
+
+@test fn ignores_spaces()
+    assert_eq(patch_id("+a b"), patch_id("+ab"))

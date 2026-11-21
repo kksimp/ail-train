@@ -1,0 +1,7 @@
+/home/kai/docs/plan.txt  -> /data/docs/plan.txt (1 links)
+/home/kai/latest         -> /data/docs/plan.txt (2 links)
+/home/kai/up/kai/docs    -> /data/docs (2 links)
+/tmp/a                   !! too many links at /tmp/a
+/etc/hosts/x             !! /etc/hosts is a file, not a folder
+/home/bob                !! /home/bob does not exist
+/data/../etc/./hosts     -> /etc/hosts (0 links)

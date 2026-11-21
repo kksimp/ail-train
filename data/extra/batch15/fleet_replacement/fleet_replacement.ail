@@ -1,0 +1,24 @@
+## Fleet replacement age: keeping a truck n years costs purchase - resale value(n) + all maintenance so far;
+## dividing by n gives the average yearly cost, and the age where it is lowest is the economic life.
+
+fn main()
+    price := 90000
+    resale := [64000, 50000, 40000, 32000, 26000, 21000, 17000, 14000]
+    upkeep := [3000, 4500, 6500, 9000, 12000, 15500, 19500, 24000]
+    mut spent := 0
+    mut best_year := 0
+    mut best_cost := 1000000
+    for i in 0..resale.len()
+        n := i + 1
+        spent += upkeep[i]
+        total := price - resale[i] + spent
+        avg := total / n
+        if avg < best_cost
+            best_cost = avg
+            best_year = n
+        bar := "#".repeat(avg / 2000)
+        print("keep {n} years: total {total:>6}, average {avg:>5} a year {bar}")
+    print("replace every {best_year} years (average {best_cost} a year)")
+
+@test fn one_year()
+    assert_eq(90000 - 64000 + 3000, 29000)

@@ -1,0 +1,46 @@
+## Ludo captures: four players each race one token round a 52-square track from their own start; a
+## six brings a token out, landing on a rival sends it home unless the square is a safe start square.
+
+struct Token
+    name str
+    start int
+    pos int
+
+fn Token.square(self) int
+    (start + pos) % 52
+
+fn main()
+    mut tokens := [Token(name: "Red", start: 0, pos: -1), Token(name: "Green", start: 13, pos: -1), Token(name: "Yellow", start: 26, pos: -1), Token(name: "Blue", start: 39, pos: -1)]
+    safe := [0, 13, 26, 39]
+    mut seed := 5
+    mut turn := 0
+    mut winner := -1
+    while winner < 0 and turn < 200
+        p := turn % 4
+        turn += 1
+        seed = (seed * 1103515245 + 12345) % 2147483648
+        roll := (seed / 65536) % 6 + 1
+        if tokens[p].pos < 0
+            if roll == 6
+                tokens[p].pos = 0
+            continue
+        if tokens[p].pos + roll > 56
+            continue
+        tokens[p].pos += roll
+        if tokens[p].pos == 56
+            winner = p
+            break
+        if tokens[p].pos > 50
+            continue
+        sq := tokens[p].square()
+        for q in 0..4
+            if q != p and tokens[q].pos >= 0 and tokens[q].pos <= 50 and tokens[q].square() == sq and not safe.contains(sq)
+                print("turn {turn}: {tokens[p].name} lands on square {sq} and sends {tokens[q].name} home")
+                tokens[q].pos = -1
+    print("{tokens[winner].name} reaches home on turn {turn}")
+    for t in tokens
+        where_now := if t.pos < 0 then "waiting" elif t.pos > 50 then "home stretch" else "square {t.square()}"
+        print("{t.name:<6} {where_now}")
+
+@test fn circles_round()
+    assert_eq(Token(name: "Blue", start: 39, pos: 20).square(), 7)

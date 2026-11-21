@@ -1,0 +1,51 @@
+## Record schema: checks records against a schema listing each field's type (int, text, choice), whether
+## it is required, numeric bounds and allowed choices, collecting every problem rather than stopping at the first.
+
+struct FieldRule
+    name str
+    kind str
+    required bool
+    lo int
+    hi int
+    choices List[str]
+
+fn problems(rec Map[str, str], schema List[FieldRule]) List[str]
+    mut out := List[str]()
+    for f in schema
+        raw := rec.get_or(f.name, "")
+        if raw == ""
+            if f.required
+                out.push("{f.name}: missing")
+            continue
+        if f.kind == "int"
+            if n := raw.to_int()
+                if n < f.lo or n > f.hi
+                    out.push("{f.name}: {n} outside {f.lo}..{f.hi}")
+            else
+                out.push("{f.name}: '{raw}' is not a number")
+        elif f.kind == "choice" and not f.choices.contains(raw)
+            shown := f.choices.join("/")
+            out.push("{f.name}: '{raw}' not one of {shown}")
+    for k, v in rec
+        if not schema.any(|f| f.name == k)
+            out.push("{k}: unknown field")
+    out
+
+fn main()
+    schema := [FieldRule(name: "id", kind: "int", required: true, lo: 1, hi: 99999, choices: List[str]()), FieldRule(name: "name", kind: "text", required: true, lo: 0, hi: 0, choices: List[str]()), FieldRule(name: "age", kind: "int", required: false, lo: 0, hi: 130, choices: List[str]()), FieldRule(name: "plan", kind: "choice", required: true, lo: 0, hi: 0, choices: ["free", "pro", "team"])]
+    records := [{"id": "17", "name": "Ana", "age": "34", "plan": "pro"}, {"id": "x9", "name": "", "plan": "gold"}, {"id": "120000", "name": "Ben", "age": "200", "plan": "free", "nick": "b"}, {"id": "5", "name": "Cy", "plan": "team"}]
+    mut bad := 0
+    for i, r in records.enumerate()
+        ps := problems(r, schema)
+        if ps.is_empty()
+            print("record {i + 1}: valid")
+        else
+            bad += 1
+            print("record {i + 1}: {ps.len()} problem(s)")
+            for p in ps
+                print("    {p}")
+    print("{records.len() - bad} valid, {bad} invalid")
+
+@test fn bounds()
+    s := [FieldRule(name: "n", kind: "int", required: true, lo: 1, hi: 5, choices: List[str]())]
+    assert_eq(problems({"n": "9"}, s), ["n: 9 outside 1..5"])

@@ -1,0 +1,81 @@
+## Sturm sequences: p, p', then negated remainders; the drop in sign changes between two points counts
+## the distinct real roots between them. Integer pseudo-remainders keep it exact; endpoints are half-integers.
+
+fn content_div(p List[int]) List[int]
+    mut g := 0
+    for c in p
+        mut a := c.abs()
+        mut b := g
+        while b != 0
+            t := a % b
+            a = b
+            b = t
+        g = a
+    if g <= 1 then p else p.map(|c| c / g)
+
+fn neg_rem(a List[int], b List[int]) List[int]
+    mut r := a
+    lb := b[0]
+    sb := if lb < 0 then -1 else 1
+    while r.len() >= b.len()
+        la := r[0]
+        mut next := r.map(|c| c * lb.abs())
+        for j in 0..b.len()
+            next[j] -= sb * la * b[j]
+        r = next.slice(1)
+        while r.len() > 0 and r[0] == 0
+            r = r.slice(1)
+    content_div(r.map(|c| -c))
+
+fn sturm(p List[int]) List[List[int]]
+    n := p.len() - 1
+    mut d := List[int]()
+    for i in 0..n
+        d.push(p[i] * (n - i))
+    mut seq := [p, content_div(d)]
+    while true
+        r := neg_rem(seq[seq.len() - 2], seq[seq.len() - 1])
+        if r.is_empty()
+            break
+        seq.push(r)
+    seq
+
+fn sign_at_half(p List[int], m int) int
+    n := p.len() - 1
+    mut total := 0
+    for i in 0..p.len()
+        mut term := p[i]
+        for k in 0..n - i
+            term *= m
+        for k in 0..i
+            term *= 2
+        total += term
+    if total > 0 then 1 elif total < 0 then -1 else 0
+
+fn changes(seq List[List[int]], m int) int
+    mut last := 0
+    mut count := 0
+    for p in seq
+        s := sign_at_half(p, m)
+        if s != 0
+            if last != 0 and s != last
+                count += 1
+            last = s
+    count
+
+fn main()
+    polys := [("x^3 - 3x + 1", [1, 0, -3, 1]), ("x^4 - 5x^2 + 4", [1, 0, -5, 0, 4]), ("x^3 + x + 1", [1, 0, 1, 1]), ("x^5 - 5x^3 + 4x", [1, 0, -5, 0, 4, 0])]
+    for t in polys
+        name, p := t
+        seq := sturm(p)
+        total := changes(seq, -5) - changes(seq, 5)
+        mut per := List[str]()
+        for k in -2..=2
+            n := changes(seq, 2 * k - 1) - changes(seq, 2 * k + 1)
+            if n > 0
+                per.push("{n} near {k}")
+        joined := per.join(", ")
+        print("{name}: {seq.len()} Sturm polynomials, {total} real roots in (-2.5, 2.5]: {joined}")
+
+@test fn square()
+    assert_eq(changes(sturm([1, 0, -1]), -3) - changes(sturm([1, 0, -1]), 3), 2)

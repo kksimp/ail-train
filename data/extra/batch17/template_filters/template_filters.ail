@@ -1,0 +1,49 @@
+## Template filters: each placeholder holds a value name followed by filters after `|` (upper, title,
+## pad:N, default:TEXT, money, cut:N), applied left to right; an unknown filter is shown in the output.
+
+fn title_case(s str) str
+    s.split(" ").map(|w| "{w.slice(0, 1).to_upper()}{w.slice(1).to_lower()}").join(" ")
+
+fn apply(v str, f str) str
+    parts := f.split(":")
+    name := parts[0]
+    arg := if parts.len() > 1 then parts[1] else ""
+    n := arg.to_int() else 0
+    match name
+        "upper" => v.to_upper()
+        "title" => title_case(v)
+        "pad" => v.pad_right(n, '.')
+        "default" => if v == "" then arg else v
+        "money" => money(v)
+        "cut" => if v.len() > n then "{v.slice(0, n)}..." else v
+        _ => "[no filter {name}]"
+
+fn money(v str) str
+    c := v.to_int() else 0
+    "{c / 100}.{c % 100:02}"
+
+fn fill(t str, vars Map[str, str]) str
+    mut out := List[str]()
+    mut rest := t
+    while at := rest.find("\{\{")
+        out.push(rest.slice(0, at))
+        after := rest.slice(at + 2)
+        close := after.find("}}") else after.len()
+        steps := after.slice(0, close).split("|").map(|p| p.trim())
+        mut v := vars.get_or(steps[0], "")
+        for f in steps.slice(1)
+            v = apply(v, f)
+        out.push(v)
+        rest = after.slice((close + 2).min(after.len()))
+    out.push(rest)
+    out.join("")
+
+fn main()
+    t := "\{\{ name | title | pad:14 }} \{\{ plan | upper }} \{\{ due | money }} \{\{ note | default:none | cut:12 }}"
+    rows := [{"name": "ada lovelace", "plan": "pro", "due": "4250", "note": ""}, {"name": "ALAN turing", "plan": "basic", "due": "999", "note": "pays by card each month"}, {"name": "grace", "plan": "team", "due": "120000", "note": "vip"}]
+    for r in rows
+        print(fill(t, r))
+    print(fill("\{\{ plan | shout }}!", {"plan": "pro"}))
+
+@test fn chain()
+    assert_eq(fill("\{\{ x | upper | cut:2 }}", {"x": "abc"}), "AB...")

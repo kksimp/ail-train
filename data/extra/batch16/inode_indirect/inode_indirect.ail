@@ -1,0 +1,24 @@
+## Inode block map: with 1 KB blocks and 4-byte pointers, an inode has 12 direct pointers, then single,
+## double and triple indirect blocks of 256 pointers; a byte offset maps to a pointer path and a read count.
+
+fn locate(off int) str
+    mut b := off / 1024
+    if b < 12
+        return "direct[{b}], 1 block read"
+    b -= 12
+    if b < 256
+        return "single[{b}], 2 block reads"
+    b -= 256
+    if b < 65536
+        return "double[{b / 256}][{b % 256}], 3 block reads"
+    b -= 65536
+    "triple[{b / 65536}][{b / 256 % 256}][{b % 256}], 4 block reads"
+
+fn main()
+    for off in [0, 11264, 12287, 12288, 274431, 274432, 5000000, 67383296, 70000000]
+        print("byte {off:>10,} -> {locate(off)}")
+    blocks := 12 + 256 + 65536 + 16777216
+    print("largest file: {blocks:,} blocks = {blocks * 1024:,} bytes")
+
+@test fn first_single()
+    assert_eq(locate(12288), "single[0], 2 block reads")

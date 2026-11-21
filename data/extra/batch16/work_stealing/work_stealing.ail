@@ -1,0 +1,38 @@
+## Work stealing: three workers each run tasks from the back of their own deque; an idle worker steals
+## from the front of the busiest other deque, which finishes far sooner than keeping the first split.
+
+fn fullest(queues List[List[int]], me int) int
+    mut best := -1
+    for w in 0..queues.len()
+        if w != me and queues[w].len() > 0 and (best < 0 or queues[w].len() > queues[best].len())
+            best = w
+    best
+
+fn main()
+    start := [[5, 3, 8, 2, 4, 6, 3, 1], [2], List[int]()]
+    mut queues := start
+    mut left := [0, 0, 0]
+    mut tick := 0
+    mut steals := 0
+    while queues.any(|q| not q.is_empty()) or left.any(|x| x > 0)
+        for w in 0..3
+            if left[w] == 0
+                if t := queues[w].pop()
+                    left[w] = t
+                else
+                    v := fullest(queues, w)
+                    if v >= 0
+                        stolen := queues[v][0]
+                        queues[v] = queues[v].slice(1)
+                        left[w] = stolen
+                        steals += 1
+                        print("tick {tick:>2}: worker {w} steals a {stolen}-tick task from worker {v}")
+            if left[w] > 0
+                left[w] -= 1
+        tick += 1
+    no_steal := start.map(|q| q.sum()).max() else 0
+    print("all done after {tick} ticks with {steals} steals")
+    print("without stealing the first worker alone needs {no_steal} ticks")
+
+@test fn busiest_victim()
+    assert_eq(fullest([List[int](), [1], [1, 2]], 0), 2)

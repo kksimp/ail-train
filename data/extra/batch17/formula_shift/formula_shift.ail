@@ -1,0 +1,65 @@
+## Formula copy: copying a spreadsheet formula to another cell shifts each relative reference by the
+## same rows and columns, while a $ before the column letters or row number keeps that part fixed.
+
+fn col_num(letters str) int
+    mut n := 0
+    for c in letters.chars()
+        n = n * 26 + c.code() - 64
+    n
+
+fn col_name(n int) str
+    mut out := List[char]()
+    mut k := n
+    while k > 0
+        r := (k - 1) % 26
+        out.insert(0, char.from_code(65 + r) else 'A')
+        k = (k - 1) / 26
+    out.join("")
+
+fn shift(formula str, dr int, dc int) str
+    cs := formula.chars()
+    mut out := List[str]()
+    mut i := 0
+    while i < cs.len()
+        start := i
+        mut abs_col := false
+        if cs[i] == '$'
+            abs_col = true
+            i += 1
+        mut letters := List[char]()
+        while i < cs.len() and cs[i].is_upper()
+            letters.push(cs[i])
+            i += 1
+        mut abs_row := false
+        if i < cs.len() and cs[i] == '$' and letters.len() > 0
+            abs_row = true
+            i += 1
+        mut digits := List[char]()
+        while i < cs.len() and cs[i].is_digit()
+            digits.push(cs[i])
+            i += 1
+        if letters.len() > 0 and digits.len() > 0
+            col := col_num(letters.join(""))
+            row := digits.join("").to_int() else 0
+            new_col := if abs_col then col else col + dc
+            new_row := if abs_row then row else row + dr
+            cd := if abs_col then "$" else ""
+            rd := if abs_row then "$" else ""
+            out.push("{cd}{col_name(new_col)}{rd}{new_row}")
+        elif i == start
+            out.push("{cs[i]}")
+            i += 1
+        else
+            out.push(formula.slice(start, i))
+    out.join("")
+
+fn main()
+    f := "=SUM(A1:A9)+$B$2*C$3-$D4/Z10"
+    print("C5 : {f}")
+    for target in [("D5", 0, 1), ("C8", 3, 0), ("AB12", 7, 25)]
+        name, dr, dc := target
+        print("{name:<4}: {shift(f, dr, dc)}")
+
+@test fn columns()
+    assert_eq(col_name(28), "AB")
+    assert_eq(col_num("AA"), 27)

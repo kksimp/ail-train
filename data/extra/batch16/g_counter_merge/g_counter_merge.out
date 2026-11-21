@@ -1,0 +1,5 @@
+local: a=4 b=2 c=5
+a merges b: [4, 2, 0] = 6
+again (idempotent): 6
+after gossip: a=11 b=11 c=11
+merge order irrelevant: [4, 3, 1] vs [4, 3, 1]

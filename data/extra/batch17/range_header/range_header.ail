@@ -1,0 +1,45 @@
+## Range requests: a "Range: bytes=..." header asks for parts of a file (start-end, start- to the end, or
+## -N for the last N bytes); ranges are clamped to the file, unsatisfiable ones give 416 and other units are ignored.
+
+fn parse_range(spec str, size int) List[int]
+    dash := spec.find("-") else -1
+    if dash < 0
+        return List[int]()
+    a := spec.slice(0, dash).trim()
+    b := spec.slice(dash + 1).trim()
+    if a == ""
+        n := b.to_int() else 0
+        if n <= 0
+            return List[int]()
+        return [(size - n).max(0), size - 1]
+    start := a.to_int() else -1
+    if start < 0 or start >= size
+        return List[int]()
+    end := if b == "" then size - 1 else (b.to_int() else size - 1).min(size - 1)
+    if end < start
+        return List[int]()
+    [start, end]
+
+fn respond(header str, size int) str
+    spec := header.strip_prefix("bytes=") else return "200 whole file ({size} bytes)"
+    mut parts := List[str]()
+    mut total := 0
+    for piece in spec.split(",")
+        r := parse_range(piece, size)
+        if r.len() == 2
+            parts.push("{r[0]}-{r[1]}")
+            total += r[1] - r[0] + 1
+    if parts.is_empty()
+        return "416 range not satisfiable (size {size})"
+    if parts.len() == 1
+        return "206 bytes {parts[0]}/{size} ({total} bytes)"
+    shown := parts.join(", ")
+    "206 multipart: {shown} ({total} bytes)"
+
+fn main()
+    size := 1000
+    for h in ["bytes=0-499", "bytes=500-", "bytes=-200", "bytes=0-99,200-299", "bytes=900-1200", "bytes=1500-", "bytes=-5000", "items=0-5", "bytes=300-100,950-"]
+        print("{h:<20} {respond(h, size)}")
+
+@test fn suffix_range()
+    assert_eq(parse_range("-200", 1000), [800, 999])

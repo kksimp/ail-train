@@ -1,0 +1,31 @@
+## HSL colours: converts hue, saturation and lightness to RGB hex codes through chroma
+## C = (1 - |2L - 1|) S, the hue sector's second component X, and the lightness offset m = L - C / 2.
+
+fn channel(v float) int
+    (v * 255.0 + 0.5).floor().to_int()
+
+fn to_rgb(h int, s float, l float) List[int]
+    c := (1.0 - (2.0 * l - 1.0).abs()) * s
+    sector := h / 60
+    frac := h.to_float() / 60.0 - sector.to_float()
+    pos := (sector % 2).to_float() + frac
+    x := c * (1.0 - (pos - 1.0).abs())
+    m := l - c / 2.0
+    rgb := match sector
+        0 => [c, x, 0.0]
+        1 => [x, c, 0.0]
+        2 => [0.0, c, x]
+        3 => [0.0, x, c]
+        4 => [x, 0.0, c]
+        _ => [c, 0.0, x]
+    rgb.map(|v| channel(v + m))
+
+fn main()
+    swatches := [("tomato", 9, 1.0, 0.64), ("olive", 60, 1.0, 0.25), ("teal", 180, 1.0, 0.25), ("slate", 210, 0.13, 0.5), ("orchid", 302, 0.59, 0.65), ("gold", 51, 1.0, 0.5), ("white", 0, 0.0, 1.0)]
+    for sw in swatches
+        name, h, s, l := sw
+        rgb := to_rgb(h, s, l)
+        print("{name:<7} hsl({h}, {s}, {l}) -> #{rgb[0]:02x}{rgb[1]:02x}{rgb[2]:02x} {rgb}")
+
+@test fn pure_red()
+    assert_eq(to_rgb(0, 1.0, 0.5), [255, 0, 0])

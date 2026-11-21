@@ -1,0 +1,11 @@
+set 1: utilisation 0.833, bound 0.780, bound inconclusive
+  task C=1 T=4  response  1 meets its deadline
+  task C=2 T=6  response  3 meets its deadline
+  task C=3 T=12 response 10 meets its deadline
+set 2: utilisation 0.986, bound 0.780, bound inconclusive
+  task C=2 T=5  response  2 meets its deadline
+  task C=2 T=7  response  4 meets its deadline
+  task C=3 T=10 response 11 MISSES its deadline
+set 3: utilisation 0.450, bound 0.828, safe by the bound
+  task C=1 T=4  response  1 meets its deadline
+  task C=1 T=5  response  2 meets its deadline

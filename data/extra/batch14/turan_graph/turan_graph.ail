@@ -1,0 +1,48 @@
+## Turan's theorem: the most edges an n-vertex graph can have with no K(r+1) is reached by splitting
+## the vertices into r near-equal parts and joining all pairs across parts; brute force confirms small cases.
+
+fn turan_edges(n int, r int) int
+    mut sq := 0
+    for i in 0..r
+        mut size := n / r
+        if i < n % r
+            size += 1
+        sq += size * size
+    (n * n - sq) / 2
+
+fn has_triangle(n int, mask int, idx List[List[int]]) bool
+    for a in 0..n
+        for b in a + 1..n
+            for c in b + 1..n
+                if ((mask >> idx[a][b]) & 1) == 1 and ((mask >> idx[b][c]) & 1) == 1 and ((mask >> idx[a][c]) & 1) == 1
+                    return true
+    false
+
+fn brute_triangle_free(n int) int
+    mut idx := List[List[int]]()
+    for i in 0..n
+        idx.push([0 for col in 0..n])
+    mut k := 0
+    for i in 0..n
+        for j in i + 1..n
+            idx[i][j] = k
+            idx[j][i] = k
+            k += 1
+    mut best := 0
+    for mask in 0..(1 << k)
+        mut bits := 0
+        for e in 0..k
+            bits += ((mask >> e) & 1)
+        if bits > best and not has_triangle(n, mask, idx)
+            best = bits
+    best
+
+fn main()
+    print("  n  no triangle  no K4  no K5")
+    for n in 3..=10
+        print("{n:>3} {turan_edges(n, 2):>12} {turan_edges(n, 3):>6} {turan_edges(n, 4):>6}")
+    for n in 4..=6
+        print("brute force n = {n}: {brute_triangle_free(n)} edges, Mantel n*n/4 = {n * n / 4}")
+
+@test fn mantel()
+    assert_eq(turan_edges(7, 2), 12)

@@ -1,0 +1,9 @@
+coffee kiosk serving 30 an hour
+arrivals  load   in system  in queue  minutes in system  minutes waiting  Little check
+      10  0.33        0.50      0.17                3.0              1.0          0.50
+      15  0.50        1.00      0.50                4.0              2.0          1.00
+      20  0.67        2.00      1.33                6.0              4.0          2.00
+      24  0.80        4.00      3.20               10.0              8.0          4.00
+      27  0.90        9.00      8.10               20.0             18.0          9.00
+      29  0.97       29.00     28.03               60.0             58.0         29.00
+at 24 an hour, chance of 0..4 people present: 0.200, 0.160, 0.128, 0.102, 0.082

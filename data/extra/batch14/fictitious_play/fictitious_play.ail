@@ -1,0 +1,32 @@
+## Fictitious play: in rock-paper-scissors each player answers the other's past mix with a best reply
+## (ties to the first move); the counts of each move wander but even out towards the 1/3 equilibrium.
+
+fn best_reply(pay List[List[int]], counts List[int]) int
+    mut best := 0
+    mut best_v := -1000000000
+    for m in 0..3
+        mut v := 0
+        for o in 0..3
+            v += pay[m][o] * counts[o]
+        if v > best_v
+            best = m
+            best_v = v
+    best
+
+fn main()
+    pay := [[0, -1, 1], [1, 0, -1], [-1, 1, 0]]
+    mut seen_a := [1, 0, 0]
+    mut seen_b := [0, 1, 0]
+    mut round := 1
+    for stop in [10, 100, 1000, 10000, 100000]
+        while round < stop
+            a := best_reply(pay, seen_b)
+            b := best_reply(pay, seen_a)
+            seen_a[a] += 1
+            seen_b[b] += 1
+            round += 1
+        print("after {round:>6} rounds player A played rock {seen_a[0]:>5}, paper {seen_a[1]:>5}, scissors {seen_a[2]:>5}")
+    print("the counts even out towards a third each, the mixed equilibrium")
+
+@test fn reply_to_rock()
+    assert_eq(best_reply([[0, -1, 1], [1, 0, -1], [-1, 1, 0]], [5, 0, 0]), 1)

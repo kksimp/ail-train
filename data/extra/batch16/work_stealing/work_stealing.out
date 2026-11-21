@@ -1,0 +1,7 @@
+tick  0: worker 2 steals a 5-tick task from worker 0
+tick  2: worker 1 steals a 3-tick task from worker 0
+tick  5: worker 1 steals a 8-tick task from worker 0
+tick  5: worker 2 steals a 2-tick task from worker 0
+tick  7: worker 2 steals a 4-tick task from worker 0
+all done after 13 ticks with 5 steals
+without stealing the first worker alone needs 32 ticks

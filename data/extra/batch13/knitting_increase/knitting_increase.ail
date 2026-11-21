@@ -1,0 +1,29 @@
+## Knitting increases: to add k stitches evenly across a row of n, the row is cut into k sections
+## with a make-one after each; the n mod k extra stitches go to the first sections, written as repeats.
+
+fn instructions(n int, k int) str
+    small := n / k
+    big := k - n % k
+    mut parts := List[str]()
+    extra := n % k
+    if extra > 0
+        parts.push("(k{small + 1}, m1) x{extra}")
+    if big > 0
+        parts.push("(k{small}, m1) x{big}")
+    parts.join(", ")
+
+fn main()
+    jobs := [[60, 6], [72, 10], [96, 16], [45, 7], [100, 12]]
+    for j in jobs
+        n := j[0]
+        k := j[1]
+        print("{n} stitches, add {k}: {instructions(n, k)} -> {n + k} stitches")
+    sweater := [[80, 8], [88, 8], [96, 12]]
+    mut st := 80
+    for i, j in sweater.enumerate()
+        st = j[0] + j[1]
+        print("yoke round {i + 1}: {instructions(j[0], j[1])}")
+    print("yoke ends with {st} stitches")
+
+@test fn uneven_split()
+    assert_eq(instructions(45, 7), "(k7, m1) x3, (k6, m1) x4")

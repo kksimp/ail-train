@@ -1,0 +1,12 @@
+int main() {
+    int x = 0;
+    if (x > 1) {
+        printf("{ not a brace");
+        while (x < 9) { x++; }
+    }
+    else {
+        x = 2;
+    }
+    return x;
+}
+-- 8 of 11 lines re-indented, deepest level 2, final depth 0

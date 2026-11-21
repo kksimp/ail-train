@@ -1,0 +1,34 @@
+## Percent encoding: keeps only the unreserved characters (letters, digits, - _ . ~) and writes every other
+## byte as %XX, encoding non-ASCII letters to UTF-8 first; a canonical query sorts the encoded pairs, as request signing does.
+
+fn hex2(b int) str
+    digits := "0123456789ABCDEF".chars()
+    "%{digits[b / 16]}{digits[b % 16]}"
+
+fn encode(s str) str
+    mut out := List[str]()
+    for c in s.chars()
+        n := c.code()
+        if c.is_alnum() and n < 128 or c == '-' or c == '_' or c == '.' or c == '~'
+            out.push("{c}")
+        elif n < 128
+            out.push(hex2(n))
+        else
+            out.push(hex2(192 | (n >> 6)))
+            out.push(hex2(128 | (n & 63)))
+    out.join("")
+
+fn main()
+    params := [("q", "café & crème"), ("page", "2"), ("sort", "price:asc"), ("tag", "50% off"), ("a", "x/y?z"), ("tag", "new")]
+    mut pairs := List[str]()
+    for p in params
+        k, v := p
+        enc := encode(v)
+        print("{k:<5} {v:<14} -> {enc}")
+        pairs.push("{encode(k)}={enc}")
+    canonical := pairs.sorted().join("&")
+    print("canonical: {canonical}")
+
+@test fn space_and_e_acute()
+    assert_eq(encode("a b"), "a%20b")
+    assert_eq(encode("é"), "%C3%A9")

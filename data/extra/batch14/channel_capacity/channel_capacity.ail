@@ -1,0 +1,32 @@
+## Channel capacity: the most bits per use a noisy channel can carry; a binary symmetric channel with
+## flip chance p gives 1 - H(p), an erasure channel 1 - e, and the one-sided Z channel needs a search over inputs.
+
+fn h2(p float) float
+    if p <= 0.0 or p >= 1.0
+        return 0.0
+    two := 2.0
+    q := 1.0 - p
+    -(p * p.ln() + q * q.ln()) / two.ln()
+
+fn z_rate(x float, flip float) float
+    out_one := x * (1.0 - flip)
+    h2(out_one) - x * h2(flip)
+
+fn main()
+    for p in [0.0, 0.01, 0.05, 0.11, 0.25, 0.5]
+        print("symmetric, flip {p:.2}: capacity {1.0 - h2(p):.4} bits")
+    for e in [0.1, 0.3]
+        print("erasure, lost {e:.1}: capacity {1.0 - e:.4} bits")
+    flip := 0.3
+    mut best_x := 0.0
+    mut best := 0.0
+    for i in 0..=1000
+        x := i.to_float() / 1000.0
+        r := z_rate(x, flip)
+        if r > best
+            best = r
+            best_x = x
+    print("Z channel, a sent 1 reads as 0 with chance 0.3: capacity {best:.4} bits with 1s sent {best_x * 100.0:.1}% of the time")
+
+@test fn clean()
+    assert((h2(0.5) - 1.0).abs() < 0.000001)

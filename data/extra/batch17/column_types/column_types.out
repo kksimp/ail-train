@@ -1,0 +1,6 @@
+id      int    0 missing
+price   float  1 missing
+active  bool   0 missing
+joined  text   1 missing
+city    text   1 missing
+score   int    1 missing

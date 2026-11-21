@@ -1,0 +1,6 @@
+volume               map [0, 1, 2, 3, 4] reads abcde  physical in use 5
+after 2 writes       map [0, 5, 2, 6, 4] reads aBcDe  physical in use 7
+snapshot 1           map [0, 1, 2, 3, 4] reads abcde  physical in use 7
+after snapshot 2     map [0, 7, 2, 6, 8] reads aXcDE  physical in use 9
+snapshot 1 deleted   map [0, 7, 2, 6, 8] reads aXcDE  physical in use 7
+snapshot 2           map [0, 5, 2, 6, 4] reads aBcDe  physical in use 7

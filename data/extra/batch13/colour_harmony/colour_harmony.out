@@ -1,0 +1,15 @@
+base 10 (red)
+  Complementary      10 red, 190 cyan
+  Triadic            10 red, 130 green, 250 blue
+  Analogous          340 rose, 10 red, 40 orange
+  SplitComplementary 10 red, 160 spring green, 220 azure
+base 200 (azure)
+  Complementary      200 azure, 20 orange
+  Triadic            200 azure, 320 rose, 80 chartreuse
+  Analogous          170 cyan, 200 azure, 230 blue
+  SplitComplementary 200 azure, 350 red, 50 yellow
+base 275 (violet)
+  Complementary      275 violet, 95 chartreuse
+  Triadic            275 violet, 35 orange, 155 spring green
+  Analogous          245 blue, 275 violet, 305 magenta
+  SplitComplementary 275 violet, 65 yellow, 125 green

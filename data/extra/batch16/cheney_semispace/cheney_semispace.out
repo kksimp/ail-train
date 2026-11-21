@@ -1,0 +1,8 @@
+to[0] F fields [2]
+to[1] E fields []
+to[2] D fields [3]
+to[3] C fields [0, 4]
+to[4] G fields []
+roots now [0, 1]
+left behind: A, B, H
+copied 5 of 8 objects

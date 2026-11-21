@@ -1,0 +1,31 @@
+## Tent map: x -> 2x below 1/2 and 2 - 2x above; on exact fractions p/q every orbit ends in a cycle
+## (found by remembering each value), but in binary floating point every orbit collapses to 0 within ~60 steps.
+
+fn step(p int, q int) int
+    if 2 * p < q then 2 * p else 2 * q - 2 * p
+
+fn main()
+    for f in [[1, 5], [1, 7], [2, 9], [3, 11], [1, 8], [5, 12]]
+        q := f[1]
+        mut p := f[0]
+        mut seen := Map[int, int]()
+        mut path := List[str]()
+        mut i := 0
+        while not seen.contains(p)
+            seen[p] = i
+            path.push("{p}/{q}")
+            p = step(p, q)
+            i += 1
+        start := seen[p]
+        shown := path.join(" -> ")
+        print("{shown} -> {p}/{q}: cycle of {i - start} after {start} steps")
+    for v in [0.1, 0.2, 1.0 / 7.0]
+        mut x := v
+        mut n := 0
+        while x != 0.0 and n < 200
+            x = if x < 0.5 then 2.0 * x else 2.0 - 2.0 * x
+            n += 1
+        print("float start {v:.4}: reaches 0 after {n} steps")
+
+@test fn fifth()
+    assert_eq(step(3, 5), 4)

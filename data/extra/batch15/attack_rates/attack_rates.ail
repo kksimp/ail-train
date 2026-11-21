@@ -1,0 +1,32 @@
+## Food outbreak: for each dish, the attack rate among guests who ate it (ill / all who ate) is compared
+## with the rate among those who did not; the dish with the highest ratio is the likely source.
+
+struct Dish
+    name str
+    ate_ill int
+    ate_well int
+    not_ill int
+    not_well int
+
+fn rate(ill int, well int) float
+    ill.to_float() / (ill + well).to_float() * 100.0
+
+fn main()
+    dishes := [Dish(name: "chicken salad", ate_ill: 38, ate_well: 12, not_ill: 9, not_well: 41), Dish(name: "rice", ate_ill: 30, ate_well: 30, not_ill: 17, not_well: 23), Dish(name: "fruit tart", ate_ill: 21, ate_well: 25, not_ill: 26, not_well: 28), Dish(name: "garlic bread", ate_ill: 35, ate_well: 37, not_ill: 12, not_well: 16), Dish(name: "ice cream", ate_ill: 18, ate_well: 26, not_ill: 29, not_well: 27)]
+    mut best := dishes[0].name
+    mut best_ratio := 0.0
+    for d in dishes
+        a := rate(d.ate_ill, d.ate_well)
+        b := rate(d.not_ill, d.not_well)
+        ratio := a / b
+        if ratio > best_ratio
+            best_ratio = ratio
+            best = d.name
+        print("{d.name:<14} ate {a:>5.1}%, did not eat {b:>5.1}%, ratio {ratio:.2}")
+    guests := dishes[0].ate_ill + dishes[0].ate_well + dishes[0].not_ill + dishes[0].not_well
+    ill := dishes[0].ate_ill + dishes[0].not_ill
+    print("{ill} of {guests} guests ill, overall attack rate {rate(ill, guests - ill):.1}%")
+    print("likely source: {best}")
+
+@test fn half()
+    assert_eq(rate(5, 5), 50.0)

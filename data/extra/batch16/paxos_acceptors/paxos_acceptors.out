@@ -1,0 +1,7 @@
+P1 ballot 1: proposes blue (its own value), 1 accepts, not chosen yet
+P2 ballot 2: proposes blue (adopted value), 2 accepts, chosen
+P1 ballot 1: no majority of promises
+P3 ballot 3: proposes blue (adopted value), 2 accepts, chosen
+acceptor 0: promised 2, accepted (2, blue)
+acceptor 1: promised 3, accepted (3, blue)
+acceptor 2: promised 3, accepted (3, blue)

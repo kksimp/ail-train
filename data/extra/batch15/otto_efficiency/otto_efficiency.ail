@@ -1,0 +1,24 @@
+## Otto and Diesel cycles: an ideal petrol engine's efficiency is 1 - r^(1 - gamma) for compression ratio
+## r; a Diesel with cut-off ratio rho loses the factor (rho^gamma - 1) / (gamma (rho - 1)) but runs higher r.
+
+fn otto(r float, gamma float) float
+    1.0 - r.pow(1.0 - gamma)
+
+fn diesel(r float, rho float, gamma float) float
+    1.0 - (rho.pow(gamma) - 1.0) / (gamma * (rho - 1.0)) / r.pow(gamma - 1.0)
+
+fn main()
+    gamma := 1.4
+    print("petrol (Otto):")
+    for r in [6, 8, 10, 12, 14]
+        e := otto(r.to_float(), gamma) * 100.0
+        bar := "#".repeat((e / 5.0).to_int())
+        print("  r = {r:>2}: {e:.1}% {bar}")
+    print("diesel, cut-off ratio 2:")
+    for r in [16, 18, 20, 22]
+        ed := diesel(r.to_float(), 2.0, gamma) * 100.0
+        o := otto(r.to_float(), gamma) * 100.0
+        print("  r = {r}: {ed:.1}% (Otto at same r {o:.1}%)")
+
+@test fn no_compression()
+    assert_eq(otto(1.0, 1.4), 0.0)

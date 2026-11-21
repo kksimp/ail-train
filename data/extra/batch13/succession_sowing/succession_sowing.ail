@@ -1,0 +1,40 @@
+## Succession sowing: a crop is re-sown every time its harvest window passes, from the first sowing
+## date until a sowing would no longer mature before the first autumn frost (day-of-year arithmetic).
+
+struct Crop
+    name str
+    first_sow int
+    maturity int
+    window int
+
+fn date(n int) str
+    months := ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+    days := [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+    mut left := n
+    mut m := 0
+    while left > days[m]
+        left -= days[m]
+        m += 1
+    "{months[m]} {left}"
+
+fn sowings(c Crop, frost int) List[int]
+    mut out := List[int]()
+    mut d := c.first_sow
+    while d + c.maturity <= frost
+        out.push(d)
+        d += c.window
+    out
+
+fn main()
+    frost := 288
+    crops := [Crop(name: "radish", first_sow: 91, maturity: 28, window: 21), Crop(name: "lettuce", first_sow: 100, maturity: 55, window: 28), Crop(name: "bean", first_sow: 135, maturity: 60, window: 35), Crop(name: "carrot", first_sow: 105, maturity: 75, window: 42)]
+    print("first frost {date(frost)}")
+    for c in crops
+        days := sowings(c, frost)
+        shown := days.map(|d| date(d)).join(", ")
+        last_pick := days[days.len() - 1] + c.maturity + c.window
+        print("{c.name:<8} {days.len()} sowings: {shown}")
+        print("         harvest from {date(days[0] + c.maturity)} to about {date(last_pick.min(frost))}")
+
+@test fn stops_before_frost()
+    assert_eq(sowings(Crop(name: "x", first_sow: 100, maturity: 50, window: 30), 200), [100, 130])

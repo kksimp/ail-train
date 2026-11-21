@@ -1,0 +1,11 @@
+www.example.com      example.com
+a.b.example.co.uk    example.co.uk
+ana.github.io        ana.github.io
+github.io            (no registrable domain)
+shop.example.com.au  example.com.au
+localhost            (no registrable domain)
+News.BBC.co.uk       bbc.co.uk
+mail.yahoo.co.jp     yahoo.co.jp
+ana.github.io vs ben.github.io: cross site
+www.example.com vs api.example.com: same site
+example.co.uk vs other.co.uk: cross site

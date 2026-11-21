@@ -1,0 +1,26 @@
+## Regatta low-point scoring: a boat scores its finishing place in each race (a non-finish scores the
+## fleet size plus one), its worst race is discarded, and the lowest net total wins; ties go to more firsts.
+
+fn main()
+    boats := ["Petrel", "Skua", "Tern", "Gannet", "Fulmar"]
+    races := [[1, 3, 2, 5, 4], [2, 1, 4, 3, 0], [3, 2, 1, 4, 5], [1, 4, 0, 2, 3], [4, 1, 2, 3, 5], [2, 3, 1, 5, 4]]
+    fleet := boats.len()
+    mut nets := List[int]()
+    mut firsts := List[int]()
+    for b in 0..fleet
+        scores := races.map(|r| if_dnf(r[b], fleet))
+        worst := scores.max() else 0
+        gross := scores.sum()
+        nets.push(gross - worst)
+        firsts.push(scores.count(|s| s == 1))
+        shown := scores.map(|s| "{s}").join(" ")
+        print("{boats[b]:<7} {shown}  gross {gross:>2} drop {worst} net {gross - worst:>2}")
+    order := [0, 1, 2, 3, 4].sorted(by: |b| (nets[b], -firsts[b]))
+    for place, b in order.enumerate()
+        print("{place + 1}. {boats[b]} {nets[b]}")
+
+fn if_dnf(place int, fleet int) int
+    if place == 0 then fleet + 1 else place
+
+@test fn dnf_scores_fleet_plus_one()
+    assert_eq(if_dnf(0, 5), 6)

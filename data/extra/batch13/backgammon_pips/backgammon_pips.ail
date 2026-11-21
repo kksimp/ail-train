@@ -1,0 +1,35 @@
+## Backgammon pips: White's checkers travel down to point 1 and Black's up to 24, so a pip count sums
+## each checker's distance home (25 for the bar); moves are applied and the race lead re-counted.
+
+fn pips(board Map[int, int], white bool) int
+    mut total := 0
+    for point, n in board
+        if white and n > 0
+            total += point * n
+        if not white and n < 0
+            total += (25 - point) * -n
+    total
+
+fn main()
+    mut board := {24: -2, 13: 5, 8: 3, 6: 5, 1: 2, 12: -5, 17: -3, 19: -5}
+    board[1] = 0
+    board[19] = -3
+    board[20] = -2
+    board[6] = 7
+    print("start: White {pips(board, true)}, Black {pips(board, false)}")
+    moves := [[13, 5], [13, 3], [8, 6], [6, 4], [24, 6], [6, 6]]
+    for m in moves
+        from := m[0]
+        to := from - m[1]
+        if board.get_or(from, 0) <= 0
+            print("no white checker on {from}")
+            continue
+        board[from] -= 1
+        board[to] += 1
+        w := pips(board, true)
+        b := pips(board, false)
+        leader := if w < b then "White" else "Black"
+        print("{from}/{to}: White {w}, Black {b}, {leader} leads by {(b - w).abs()}")
+
+@test fn bar_counts_25()
+    assert_eq(pips({25: 1}, true), 25)

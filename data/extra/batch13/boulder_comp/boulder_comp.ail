@@ -1,0 +1,28 @@
+## Bouldering competition: climbers are ranked by tops, then zones, then fewest attempts to tops and
+## to zones; each problem records the attempt a top and a zone came on, 0 when never reached.
+
+struct Climber
+    name str
+    tops List[int]
+    zones List[int]
+
+fn Climber.key(self) List[int]
+    t := tops.count(|a| a > 0)
+    z := zones.count(|a| a > 0)
+    ta := tops.filter(|a| a > 0).sum()
+    za := zones.filter(|a| a > 0).sum()
+    [-t, -z, ta, za]
+
+fn main()
+    climbers := [Climber(name: "Garnbret", tops: [1, 2, 0, 1], zones: [1, 1, 3, 1]), Climber(name: "Mori", tops: [2, 1, 0, 3], zones: [1, 1, 2, 2]), Climber(name: "Pilz", tops: [1, 0, 0, 2], zones: [1, 4, 1, 1]), Climber(name: "Raboutou", tops: [3, 2, 0, 1], zones: [2, 1, 1, 1]), Climber(name: "Meul", tops: [0, 0, 2, 0], zones: [5, 2, 1, 3])]
+    ranked := climbers.sorted(by: |c| (c.key()[0], c.key()[1], c.key()[2], c.key()[3]))
+    print("place climber    T  Z  TA  ZA")
+    for i, c in ranked.enumerate()
+        k := c.key()
+        print("{i + 1:>5} {c.name:<9} {-k[0]:>2} {-k[1]:>2} {k[2]:>3} {k[3]:>3}")
+    hardest := [0, 1, 2, 3].sorted(by: |p| climbers.count(|c| c.tops[p] > 0))[0]
+    print("problem {hardest + 1} was topped least")
+
+@test fn key_counts_tops()
+    c := Climber(name: "x", tops: [1, 0], zones: [1, 2])
+    assert_eq(c.key(), [-1, -2, 1, 3])

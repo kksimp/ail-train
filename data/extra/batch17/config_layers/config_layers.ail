@@ -1,0 +1,29 @@
+## Config layers: settings come from built-in defaults, a config file, environment variables and command
+## flags, each layer overriding the one before; the result shows every key's final value and which layer set it.
+
+struct Layer
+    name str
+    values Map[str, str]
+
+fn main()
+    layers := [Layer(name: "default", values: {"server.port": "8080", "server.host": "127.0.0.1", "log.level": "info", "db.pool": "4", "db.url": "sqlite://dev.db"}), Layer(name: "file", values: {"server.host": "0.0.0.0", "db.url": "postgres://db/shop", "db.pool": "8"}), Layer(name: "env", values: {"db.pool": "16", "log.level": "warn"}), Layer(name: "flag", values: {"log.level": "debug"})]
+    mut value := Map[str, str]()
+    mut source := Map[str, str]()
+    mut overrides := 0
+    for layer in layers
+        for k, v in layer.values
+            if value.contains(k)
+                overrides += 1
+            value[k] = v
+            source[k] = layer.name
+    for k in value.keys().sorted()
+        print("{k:<12} = {value[k]:<20} ({source[k]})")
+    for layer in layers
+        n := source.values().count(|s| s == layer.name)
+        print("{layer.name:<7} wins {n} key(s)")
+    print("{overrides} overrides")
+
+@test fn later_wins()
+    mut m := {"a": "1"}
+    m["a"] = "2"
+    assert_eq(m["a"], "2")

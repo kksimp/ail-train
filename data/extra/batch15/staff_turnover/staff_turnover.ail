@@ -1,0 +1,28 @@
+## Staff turnover: each month's leavers over the average of opening and closing headcount gives the monthly
+## rate; summing months gives the yearly rate, split into voluntary and involuntary leavers.
+
+struct Month
+    name str
+    opening int
+    joiners int
+    quit int
+    dismissed int
+
+fn main()
+    months := [Month(name: "Jan", opening: 240, joiners: 6, quit: 4, dismissed: 1), Month(name: "Feb", opening: 241, joiners: 3, quit: 7, dismissed: 0), Month(name: "Mar", opening: 237, joiners: 12, quit: 5, dismissed: 2), Month(name: "Apr", opening: 242, joiners: 4, quit: 9, dismissed: 1), Month(name: "May", opening: 236, joiners: 8, quit: 3, dismissed: 0), Month(name: "Jun", opening: 241, joiners: 5, quit: 6, dismissed: 3)]
+    mut total := 0.0
+    mut vol := 0.0
+    for m in months
+        closing := m.opening + m.joiners - m.quit - m.dismissed
+        avg := (m.opening + closing).to_float() / 2.0
+        leavers := m.quit + m.dismissed
+        rate := leavers.to_float() / avg * 100.0
+        total += rate
+        vol += m.quit.to_float() / avg * 100.0
+        print("{m.name}: {m.opening} -> {closing}, {leavers} left, turnover {rate:.2}%")
+    print("half year: {total:.1}% total, {vol:.1}% voluntary")
+    print("yearly pace: about {total * 2.0:.1}%")
+
+@test fn closing()
+    m := Month(name: "x", opening: 10, joiners: 2, quit: 1, dismissed: 1)
+    assert_eq(m.opening + m.joiners - m.quit - m.dismissed, 10)

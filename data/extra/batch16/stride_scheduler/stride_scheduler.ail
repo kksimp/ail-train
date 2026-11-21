@@ -1,0 +1,36 @@
+## Stride scheduling: each process advances a pass value by a stride inversely proportional to its
+## tickets, and the lowest pass runs next; a newcomer starts at the current lowest pass so it cannot hog.
+
+struct Proc
+    name str
+    stride int
+    pass int
+    runs int
+
+fn pick(ps List[Proc]) int
+    mut best := 0
+    for i in 0..ps.len()
+        if ps[i].pass < ps[best].pass
+            best = i
+    best
+
+fn main()
+    mut ps := [Proc(name: "A", stride: 10000 / 100, pass: 0, runs: 0), Proc(name: "B", stride: 10000 / 50, pass: 0, runs: 0), Proc(name: "C", stride: 10000 / 25, pass: 0, runs: 0)]
+    mut order := List[str]()
+    for slot in 0..21
+        if slot == 14
+            low := ps[pick(ps)].pass
+            ps.push(Proc(name: "D", stride: 10000 / 50, pass: low, runs: 0))
+            order.push("|")
+        i := pick(ps)
+        ps[i].pass += ps[i].stride
+        ps[i].runs += 1
+        order.push(ps[i].name)
+    seq := order.join("")
+    print("order {seq}")
+    for p in ps
+        print("{p.name}: stride {p.stride:>3}, pass {p.pass:>4}, ran {p.runs} times")
+
+@test fn lowest_pass()
+    ps := [Proc(name: "x", stride: 1, pass: 5, runs: 0), Proc(name: "y", stride: 1, pass: 2, runs: 0)]
+    assert_eq(pick(ps), 1)

@@ -1,0 +1,29 @@
+## Growing degree days: each day adds (Tmax + Tmin) / 2 - 10 C with Tmax capped at 30 and Tmin raised to
+## 10 (the maize method), and the running total predicts when a crop reaches emergence, leaf stages and tassel.
+
+fn gdd(tmax float, tmin float) float
+    hi := if tmax > 30.0 then 30.0 else tmax
+    lo := if tmin < 10.0 then 10.0 else tmin
+    v := (hi + lo) / 2.0 - 10.0
+    if v > 0.0 then v else 0.0
+
+fn main()
+    weeks := [(16.0, 4.0), (19.0, 7.0), (22.0, 9.0), (24.0, 12.0), (27.0, 14.0), (29.0, 16.0), (32.0, 18.0), (34.0, 19.0), (31.0, 17.0), (30.0, 16.0), (28.0, 15.0), (27.0, 14.0)]
+    stages := [(100.0, "emergence"), (400.0, "six leaves"), (700.0, "ten leaves"), (1100.0, "tassel")]
+    mut total := 0.0
+    mut next := 0
+    for i, w in weeks.enumerate()
+        tmax, tmin := w
+        week := gdd(tmax, tmin) * 7.0
+        total += week
+        mut reached := List[str]()
+        while next < stages.len() and total >= stages[next].0
+            reached.push(stages[next].1)
+            next += 1
+        joined := reached.join(", ")
+        note := if reached.is_empty() then "" else "  reached {joined}"
+        print("week {i + 1:>2}: {tmax:.0}/{tmin:.0} C, +{week:>5.1}, total {total:>6.1}{note}")
+    print("stages reached: {next} of {stages.len()}")
+
+@test fn cold_day()
+    assert_eq(gdd(12.0, 2.0), 1.0)

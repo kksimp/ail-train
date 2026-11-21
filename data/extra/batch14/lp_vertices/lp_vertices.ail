@@ -1,0 +1,48 @@
+## Linear programming in 2-D: the best point of a linear objective over a polygon of constraints is a
+## corner, so intersect every pair of boundary lines exactly (Cramer's rule), keep feasible ones, compare.
+
+fn gcd(a int, b int) int
+    if b == 0 then a.abs() else gcd(b, a % b)
+
+fn frac(n int, d int) str
+    g := gcd(n, d)
+    if d / g == 1 then "{n / g}" else "{n / g}/{d / g}"
+
+fn solve(name str, cons List[List[int]], px int, py int)
+    print("{name}: maximise {px}x + {py}y")
+    mut seen := Set[str]()
+    mut best := ""
+    mut best_n := -1
+    mut best_d := 1
+    for i in 0..cons.len()
+        for j in i + 1..cons.len()
+            a := cons[i]
+            b := cons[j]
+            mut det := a[0] * b[1] - b[0] * a[1]
+            if det == 0
+                continue
+            mut xn := a[2] * b[1] - b[2] * a[1]
+            mut yn := a[0] * b[2] - b[0] * a[2]
+            if det < 0
+                det = -det
+                xn = -xn
+                yn = -yn
+            if not cons.all(|c| c[0] * xn + c[1] * yn <= c[2] * det)
+                continue
+            point := "({frac(xn, det)}, {frac(yn, det)})"
+            if not seen.add(point)
+                continue
+            vn := px * xn + py * yn
+            print("    corner {point} gives {frac(vn, det)}")
+            if vn * best_d > best_n * det
+                best_n = vn
+                best_d = det
+                best = point
+    print("    best: {best} with {frac(best_n, best_d)}")
+
+fn main()
+    solve("doors and windows", [[1, 0, 4], [0, 2, 12], [3, 2, 18], [-1, 0, 0], [0, -1, 0]], 3, 5)
+    solve("feed mix", [[1, 2, 7], [3, 1, 9], [-1, 0, 0], [0, -1, 0]], 2, 3)
+
+@test fn reduce()
+    assert_eq(frac(10, 4), "5/2")

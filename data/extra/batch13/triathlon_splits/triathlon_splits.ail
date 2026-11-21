@@ -1,0 +1,29 @@
+## Triathlon splits: each athlete's swim, first transition, bike, second transition and run times add
+## to a finish time; the table shows h:mm:ss totals, the place in each leg, and the time lost in transitions.
+
+struct Athlete
+    name str
+    legs List[int]
+
+fn Athlete.total(self) int
+    legs.sum()
+
+fn hms(t int) str
+    "{t / 3600}:{t / 60 % 60:02}:{t % 60:02}"
+
+fn main()
+    field := [Athlete(name: "Brownlee", legs: [1080, 45, 3420, 28, 1890]), Athlete(name: "Duffy", legs: [1110, 52, 3380, 31, 1925]), Athlete(name: "Gomez", legs: [1135, 40, 3465, 25, 1840]), Athlete(name: "Jorgensen", legs: [1100, 61, 3400, 35, 1870])]
+    leg_names := ["swim", "T1", "bike", "T2", "run"]
+    for k in [0, 2, 4]
+        best := field.sorted(by: |a| a.legs[k])
+        names := best.map(|a| a.name).join(" > ")
+        print("{leg_names[k]:<4} {names}")
+    ranked := field.sorted(by: |a| a.total())
+    winner := ranked[0].total()
+    for i, a in ranked.enumerate()
+        transitions := a.legs[1] + a.legs[3]
+        behind := a.total() - winner
+        print("{i + 1}. {a.name:<10} {hms(a.total())}  +{behind:>3}s  transitions {transitions}s")
+
+@test fn hms_pads()
+    assert_eq(hms(6573), "1:49:33")

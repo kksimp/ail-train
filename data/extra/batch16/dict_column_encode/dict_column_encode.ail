@@ -1,0 +1,36 @@
+## Dictionary encoding: a text column is stored as small integer codes into a sorted list of its
+## distinct values; since the list is sorted, a range filter compares codes without reading any text.
+
+fn bit_width(n int) int
+    mut v := n
+    mut w := 0
+    while v > 0
+        w += 1
+        v = v >> 1
+    w
+
+fn main()
+    column := ["Lima", "Oslo", "Cairo", "Lima", "Perth", "Oslo", "Delhi", "Cairo", "Lima", "Quito", "Oslo", "Perth", "Accra", "Lima"]
+    mut distinct := Set[str]()
+    for c in column
+        distinct.add(c)
+    dict := distinct.sorted()
+    codes := column.map(|c| dict.index_of(c) else -1)
+    width := bit_width(dict.len() - 1)
+    shown := dict.join(", ")
+    print("dictionary [{shown}]")
+    print("codes {codes}, {width} bits each")
+    raw := column.fold(0, |acc, c| acc + c.len())
+    packed := dict.fold(0, |acc, c| acc + c.len()) + (column.len() * width + 7) / 8
+    print("raw {raw} bytes, encoded {packed} bytes")
+    for lo in ["M", "D"]
+        mut first := dict.len()
+        for i, d in dict.enumerate()
+            if first == dict.len() and d >= lo
+                first = i
+        hits := codes.count(|k| k >= first)
+        print("city >= {lo}: code >= {first}, {hits} rows")
+
+@test fn sorted_codes()
+    d := ["a", "b"]
+    assert_eq(d.index_of("b") else -1, 1)

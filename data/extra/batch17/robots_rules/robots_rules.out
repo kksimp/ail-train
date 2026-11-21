@@ -1,0 +1,8 @@
+7 rules
+crawler   /index.html                  allow
+crawler   /private/plans.pdf           block
+crawler   /private/press/launch.html   allow
+crawler   /tmp2/x                      block
+newsbot   /news/today                  allow
+newsbot   /about                       block
+archiver  /private/plans.pdf           allow

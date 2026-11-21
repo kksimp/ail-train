@@ -1,0 +1,40 @@
+## Lock file drift: each manifest entry gives a range like ">=1.2.0 <2.0.0"; the pinned versions in
+## the lock file are checked against it, and entries missing from either file are reported.
+
+fn ver(s str) int
+    p := s.split(".")
+    (p[0].to_int() else 0) * 10000 + (p[1].to_int() else 0) * 100 + (p[2].to_int() else 0)
+
+fn in_range(v int, rng str) bool
+    for part in rng.split(" ")
+        if part.starts_with(">=")
+            if v < ver(part.slice(2))
+                return false
+        elif part.starts_with("<")
+            if v >= ver(part.slice(1))
+                return false
+    true
+
+fn main()
+    manifest := {"serde": ">=1.0.0 <2.0.0", "tokio": ">=1.20.0 <1.30.0", "rand": ">=0.8.0 <0.9.0", "clap": ">=4.0.0 <5.0.0", "regex": ">=1.5.0 <2.0.0"}
+    lock := {"serde": "1.0.188", "tokio": "1.32.0", "rand": "0.8.5", "regex": "1.4.9", "once": "1.18.0"}
+    mut problems := 0
+    for name, rng in manifest
+        if pinned := lock.get(name)
+            ok := in_range(ver(pinned), rng)
+            if not ok
+                problems += 1
+            verdict := if ok then "ok" else "OUTSIDE range"
+            print("{name:<6} {pinned:<8} {rng:<17} {verdict}")
+        else
+            problems += 1
+            print("{name:<6} {rng} has no locked version")
+    for name, pinned in lock
+        if not manifest.contains(name)
+            problems += 1
+            print("{name:<6} {pinned} is locked but no longer wanted")
+    print("{problems} problems; run the resolver again")
+
+@test fn bounds()
+    assert(in_range(ver("1.2.3"), ">=1.2.0 <2.0.0"))
+    assert(not in_range(ver("2.0.0"), ">=1.2.0 <2.0.0"))

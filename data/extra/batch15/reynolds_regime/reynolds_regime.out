@@ -1,0 +1,10 @@
+water      0.02 m/s in  15 mm pipe: Re      299 -> Regime.Laminar
+water      1.50 m/s in  15 mm pipe: Re    22410 -> Regime.Turbulent
+water      0.10 m/s in  25 mm pipe: Re     2490 -> Regime.Transitional
+engine oil 2.00 m/s in  50 mm pipe: Re      870 -> Regime.Laminar
+engine oil 0.60 m/s in  10 mm pipe: Re       52 -> Regime.Laminar
+air        0.30 m/s in 100 mm pipe: Re     1989 -> Regime.Laminar
+air        5.00 m/s in 300 mm pipe: Re    99448 -> Regime.Turbulent
+Laminar: 4
+Turbulent: 2
+Transitional: 1

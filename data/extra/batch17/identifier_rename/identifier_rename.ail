@@ -1,0 +1,49 @@
+## Identifier rename: renames a variable in source code only where it is a whole identifier in code,
+## leaving longer names, fields after a dot, string literals and # comments untouched, and counts both kinds.
+
+fn is_ident(c char) bool
+    c.is_alnum() or c == '_'
+
+fn rename(line str, old str, new str, mut counts List[int]) str
+    cs := line.chars()
+    mut out := List[str]()
+    mut i := 0
+    mut in_str := false
+    while i < cs.len()
+        c := cs[i]
+        if not in_str and c == '#'
+            rest := line.slice(i)
+            counts[1] += rest.count(old)
+            out.push(rest)
+            break
+        if c == '"'
+            in_str = not in_str
+        if is_ident(c) and (i == 0 or not is_ident(cs[i - 1]))
+            mut j := i
+            while j < cs.len() and is_ident(cs[j])
+                j += 1
+            word := line.slice(i, j)
+            after_dot := i > 0 and cs[i - 1] == '.'
+            if word == old and not in_str and not after_dot
+                out.push(new)
+                counts[0] += 1
+            else
+                if word == old
+                    counts[1] += 1
+                out.push(word)
+            i = j
+        else
+            out.push("{c}")
+            i += 1
+    out.join("")
+
+fn main()
+    src := ["count = 0", "for item in items:", "    count += item.count", "    recount = count * 2", "print(\"count is\", count)  # count shown", "max_count = count_all(count)"]
+    mut counts := [0, 0]
+    for line in src
+        print(rename(line, "count", "total", mut counts))
+    print("renamed {counts[0]}, left alone (fields, strings, comments) {counts[1]}")
+
+@test fn whole_word()
+    mut c := [0, 0]
+    assert_eq(rename("count2 = count", "count", "n", mut c), "count2 = n")

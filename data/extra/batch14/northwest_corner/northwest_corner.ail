@@ -1,0 +1,57 @@
+## Transportation problem: ship goods from three depots to four shops; the north-west corner rule fills
+## the table from the top left, while the least-cost rule fills the cheapest open cell first.
+
+fn plan(supply List[int], demand List[int], cost List[List[int]], cheapest bool) List[List[int]]
+    mut s := supply
+    mut d := demand
+    mut ship := List[List[int]]()
+    for i in 0..s.len()
+        ship.push([0 for j in 0..d.len()])
+    mut i := 0
+    mut j := 0
+    while true
+        if cheapest
+            mut best := -1
+            for a in 0..s.len()
+                for b in 0..d.len()
+                    if s[a] > 0 and d[b] > 0 and (best < 0 or cost[a][b] < cost[best / 10][best % 10])
+                        best = a * 10 + b
+            if best < 0
+                break
+            i = best / 10
+            j = best % 10
+        elif i >= s.len() or j >= d.len()
+            break
+        amount := s[i].min(d[j])
+        ship[i][j] += amount
+        s[i] -= amount
+        d[j] -= amount
+        if not cheapest
+            if s[i] == 0
+                i += 1
+            else
+                j += 1
+    ship
+
+fn total(ship List[List[int]], cost List[List[int]]) int
+    mut t := 0
+    for i in 0..ship.len()
+        for j in 0..ship[i].len()
+            t += ship[i][j] * cost[i][j]
+    t
+
+fn main()
+    supply := [20, 30, 25]
+    demand := [10, 25, 15, 25]
+    cost := [[8, 6, 10, 9], [9, 12, 13, 7], [14, 9, 16, 5]]
+    for cheapest in [false, true]
+        ship := plan(supply, demand, cost, cheapest)
+        label := if cheapest then "least cost" else "north-west corner"
+        print("{label}:")
+        for row in ship
+            line := row.map(|v| "{v:>4}").join("")
+            print(line)
+        print("    total cost {total(ship, cost)}")
+
+@test fn balanced()
+    assert_eq([20, 30, 25].sum(), [10, 25, 15, 25].sum())

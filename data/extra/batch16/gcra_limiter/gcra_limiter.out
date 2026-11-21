@@ -1,0 +1,16 @@
+t=  0 allowed, next theoretical arrival 10
+t=  1 allowed, next theoretical arrival 20
+t=  2 allowed, next theoretical arrival 30
+t=  3 limited, retry in 2
+t=  4 limited, retry in 1
+t= 20 allowed, next theoretical arrival 40
+t= 25 allowed, next theoretical arrival 50
+t= 40 allowed, next theoretical arrival 60
+t= 41 allowed, next theoretical arrival 70
+t= 42 limited, retry in 3
+t= 90 allowed, next theoretical arrival 100
+t= 91 allowed, next theoretical arrival 110
+t= 92 allowed, next theoretical arrival 120
+t= 93 limited, retry in 2
+t= 94 limited, retry in 1
+allowed 10 of 15

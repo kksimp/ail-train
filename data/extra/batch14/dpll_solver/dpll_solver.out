@@ -1,0 +1,4 @@
+small: satisfiable after 4 calls: x1=true x2=false x3=true
+chain: satisfiable after 7 calls: x1=true x2=true x3=true x4=true x5=false x6=true
+3 pigeons, 2 holes: unsatisfiable after 12 calls
+contradiction: unsatisfiable after 5 calls

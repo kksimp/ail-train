@@ -1,0 +1,28 @@
+## Number needed to treat: absolute risk reduction ARR = control rate - treated rate, relative reduction
+## ARR / control rate, and NNT = 1 / ARR rounded up (computed exactly in integers); a harm gives an NNH.
+
+struct Trial
+    name str
+    ctrl_events int
+    ctrl_n int
+    trt_events int
+    trt_n int
+
+fn ceil_div(a int, b int) int
+    (a + b - 1) / b
+
+fn main()
+    trials := [Trial(name: "statin, heart attack", ctrl_events: 81, ctrl_n: 2000, trt_events: 52, trt_n: 2000), Trial(name: "aspirin, stroke", ctrl_events: 46, ctrl_n: 1500, trt_events: 38, trt_n: 1520), Trial(name: "antiviral, admission", ctrl_events: 61, ctrl_n: 600, trt_events: 25, trt_n: 610), Trial(name: "sedative, falls", ctrl_events: 12, ctrl_n: 800, trt_events: 29, trt_n: 790)]
+    for t in trials
+        cer := t.ctrl_events.to_float() / t.ctrl_n.to_float()
+        eer := t.trt_events.to_float() / t.trt_n.to_float()
+        num := t.ctrl_events * t.trt_n - t.trt_events * t.ctrl_n
+        den := t.ctrl_n * t.trt_n
+        if num > 0
+            arr := cer - eer
+            print("{t.name:<21} {cer * 100.0:.2}% -> {eer * 100.0:.2}%: ARR {arr * 100.0:.2} points, RRR {arr / cer * 100.0:.1}%, NNT {ceil_div(den, num)}")
+        else
+            print("{t.name:<21} {cer * 100.0:.2}% -> {eer * 100.0:.2}%: harm, NNH {ceil_div(den, -num)}")
+
+@test fn exact_nnt()
+    assert_eq(ceil_div(100, 5), 20)

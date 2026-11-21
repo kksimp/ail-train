@@ -1,0 +1,51 @@
+## Comment stripping: removes // line comments and /* */ block comments (which may span lines) from
+## C-like source while leaving comment-looking text inside string literals alone; lines left empty are dropped.
+
+fn strip_comments(lines List[str]) List[str]
+    mut out := List[str]()
+    mut in_block := false
+    for line in lines
+        cs := line.chars()
+        mut kept := List[char]()
+        mut in_str := false
+        mut i := 0
+        while i < cs.len()
+            c := cs[i]
+            nc := if i + 1 < cs.len() then cs[i + 1] else ' '
+            if in_block
+                if c == '*' and nc == '/'
+                    in_block = false
+                    i += 2
+                else
+                    i += 1
+            elif in_str
+                kept.push(c)
+                if c == '"'
+                    in_str = false
+                i += 1
+            elif c == '"'
+                in_str = true
+                kept.push(c)
+                i += 1
+            elif c == '/' and nc == '/'
+                break
+            elif c == '/' and nc == '*'
+                in_block = true
+                i += 2
+            else
+                kept.push(c)
+                i += 1
+        text := kept.join("").trim_end()
+        if text.trim() != "" or line.trim() == ""
+            out.push(text)
+    out
+
+fn main()
+    src := ["/* config loader", "   written in a hurry */", "int port = 8080; // default", "char *url = \"http://example.com\"; /* keep the // */", "", "int retries = /* inline */ 3;", "// int debug = 1;", "char *s = \"/* not a comment */\";"]
+    result := strip_comments(src)
+    for r in result
+        print("|{r}")
+    print("{src.len()} lines -> {result.len()} lines")
+
+@test fn keeps_strings()
+    assert_eq(strip_comments(["x = \"//\"; // y"]), ["x = \"//\";"])

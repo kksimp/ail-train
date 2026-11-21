@@ -1,0 +1,6 @@
+end 1: R scores 1, hammer to Y; R 1 Y 0
+end 2: Y scores 2, hammer to R; R 1 Y 2
+end 3: blank, R keeps the hammer
+end 4: R scores 3, hammer to Y; R 4 Y 2
+end 5: Y scores 1, hammer to R; R 4 Y 3
+end 6: R scores 1, hammer to Y; R 5 Y 3

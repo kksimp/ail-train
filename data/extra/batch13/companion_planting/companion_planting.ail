@@ -1,0 +1,33 @@
+## Companion planting: a raised bed is a grid of crops; every pair of side-by-side neighbours is looked
+## up in lists of good and bad companions, and the bed's conflicts and friendly pairs are reported.
+
+fn pair_key(a str, b str) str
+    if a < b then "{a}+{b}" else "{b}+{a}"
+
+fn main()
+    bed := [["tomato", "basil", "carrot", "onion"], ["fennel", "tomato", "lettuce", "bean"], ["bean", "onion", "radish", "lettuce"]]
+    good := {"basil+tomato", "carrot+onion", "lettuce+radish", "bean+carrot", "carrot+tomato", "lettuce+onion", "carrot+radish"}
+    bad := {"fennel+tomato", "bean+onion", "bean+fennel", "basil+fennel"}
+    mut friends := 0
+    mut clashes := List[str]()
+    for r in 0..bed.len()
+        for c in 0..bed[r].len()
+            here := bed[r][c]
+            for d in [[0, 1], [1, 0]]
+                nr := r + d[0]
+                nc := c + d[1]
+                if nr < bed.len() and nc < bed[r].len()
+                    k := pair_key(here, bed[nr][nc])
+                    if good.contains(k)
+                        friends += 1
+                    if bad.contains(k)
+                        clashes.push("{k} at row {r + 1} col {c + 1}")
+    for row in bed
+        cells := row.map(|x| "{x:<8}").join("")
+        print(cells.trim_end())
+    print("friendly neighbours: {friends}")
+    for cl in clashes
+        print("conflict: {cl}")
+
+@test fn order_free_key()
+    assert_eq(pair_key("tomato", "basil"), "basil+tomato")

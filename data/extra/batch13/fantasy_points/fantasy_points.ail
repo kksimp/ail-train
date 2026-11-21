@@ -1,0 +1,51 @@
+## Fantasy points: a `trait` for scoring formats, a standard and a point-per-reception league, scores
+## the same weekly stat lines (a point per 25 passing or 10 rushing yards, touchdowns, interceptions).
+
+struct Line
+    player str
+    pass_yd int
+    pass_td int
+    ints int
+    rush_yd int
+    rush_td int
+    catches int
+
+trait Format
+    fn label(self) str
+    fn per_catch(self) int
+    fn score(self, l Line) int
+        l.pass_yd / 25 + l.pass_td * 4 - l.ints * 2 + l.rush_yd / 10 + l.rush_td * 6 + l.catches * per_catch()
+
+struct Standard
+    id int
+
+struct Ppr
+    id int
+
+impl Format for Standard
+    fn label(self) str
+        "standard"
+    fn per_catch(self) int
+        0
+
+impl Format for Ppr
+    fn label(self) str
+        "PPR"
+    fn per_catch(self) int
+        1
+
+fn main()
+    week := [Line(player: "Quarterback A", pass_yd: 312, pass_td: 3, ints: 1, rush_yd: 18, rush_td: 0, catches: 0), Line(player: "Runner B", pass_yd: 0, pass_td: 0, ints: 0, rush_yd: 124, rush_td: 1, catches: 3), Line(player: "Receiver C", pass_yd: 0, pass_td: 0, ints: 0, rush_yd: 96, rush_td: 1, catches: 9), Line(player: "Tight end D", pass_yd: 0, pass_td: 0, ints: 0, rush_yd: 58, rush_td: 0, catches: 7)]
+    mut formats := List[any Format]()
+    formats.push(Standard(id: 1))
+    formats.push(Ppr(id: 2))
+    for f in formats
+        ranked := week.sorted(by: |l| -f.score(l))
+        parts := ranked.map(|l| "{l.player} {f.score(l)}")
+        shown := parts.join(", ")
+        print("{f.label()}: {shown}")
+    print("catches make the difference for Receiver C and Tight end D")
+
+@test fn ppr_adds_catches()
+    l := Line(player: "x", pass_yd: 0, pass_td: 0, ints: 0, rush_yd: 0, rush_td: 0, catches: 5)
+    assert_eq(Ppr(id: 0).score(l), 5)

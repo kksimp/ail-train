@@ -1,0 +1,15 @@
+query: "command line" guide
+  words [guide] phrases 1 excluded 0 tags 0
+  -> Install guide for the command line tool
+  -> Old command line tool guide
+query: guide -old
+  words [guide] phrases 0 excluded 1 tags 0
+  -> Install guide for the command line tool
+  -> Guide to the web dashboard
+query: line tag:news
+  words [line] phrases 0 excluded 0 tags 1
+  -> Release notes for the line editor
+query: "line tool" tag:docs -archive
+  words [] phrases 1 excluded 1 tags 1
+  -> Install guide for the command line tool
+  -> Old command line tool guide

@@ -1,0 +1,5 @@
+P(full-fare demand > 50) 0.892, > 60 0.466, > 70 0.090
+discount 100: ratio 0.238, protect 65 seats, sell at most 85 cheap
+discount 160: ratio 0.381, protect 62 seats, sell at most 88 cheap
+discount 230: ratio 0.548, protect 59 seats, sell at most 91 cheap
+discount 300: ratio 0.714, protect 56 seats, sell at most 94 cheap

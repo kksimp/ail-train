@@ -1,0 +1,33 @@
+## Risk and odds ratios: from a 2 x 2 table of exposure and outcome, the relative risk compares the two
+## groups' risks and the odds ratio is ad / bc, with a 95% interval exp(ln OR +- 1.96 sqrt(1/a + 1/b + 1/c + 1/d)).
+
+struct Table
+    name str
+    a int
+    b int
+    c int
+    d int
+
+fn Table.relative_risk(self) float
+    r1 := self.a.to_float() / (self.a + self.b).to_float()
+    r0 := self.c.to_float() / (self.c + self.d).to_float()
+    r1 / r0
+
+fn Table.odds_ratio(self) float
+    (self.a * self.d).to_float() / (self.b * self.c).to_float()
+
+fn Table.interval(self) List[float]
+    se := (1.0 / self.a.to_float() + 1.0 / self.b.to_float() + 1.0 / self.c.to_float() + 1.0 / self.d.to_float()).sqrt()
+    l := self.odds_ratio().ln()
+    [(l - 1.96 * se).exp(), (l + 1.96 * se).exp()]
+
+fn main()
+    studies := [Table(name: "smoking / bronchitis", a: 84, b: 316, c: 41, d: 559), Table(name: "night shifts / ulcer", a: 22, b: 178, c: 19, d: 181), Table(name: "helmet / head injury", a: 17, b: 983, c: 52, d: 948)]
+    for t in studies
+        ci := t.interval()
+        sig := if ci[0] > 1.0 or ci[1] < 1.0 then "significant" else "not significant"
+        print("{t.name}: RR {t.relative_risk():.2}, OR {t.odds_ratio():.2} (95% CI {ci[0]:.2} to {ci[1]:.2}), {sig}")
+
+@test fn even_odds()
+    t := Table(name: "x", a: 10, b: 20, c: 10, d: 20)
+    assert_eq(t.odds_ratio(), 1.0)

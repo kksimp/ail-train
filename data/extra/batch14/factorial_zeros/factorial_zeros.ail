@@ -1,0 +1,31 @@
+## Factorial zeros: Legendre's formula gives the power of a prime p in n! as n/p + n/p^2 + ...; the
+## trailing zeros in base 10 are the power of 5, and in base 12 the smaller of (power of 2) / 2 and power of 3.
+
+fn legendre(n int, p int) int
+    mut total := 0
+    mut q := p
+    while q <= n
+        total += n / q
+        q *= p
+    total
+
+fn main()
+    print("     n  2s in n!  3s in n!  5s in n!  zeros base 10  zeros base 12")
+    for n in [10, 25, 100, 1000, 2026]
+        twos := legendre(n, 2)
+        threes := legendre(n, 3)
+        fives := legendre(n, 5)
+        b12 := (twos / 2).min(threes)
+        print("{n:>6} {twos:>9} {threes:>9} {fives:>9} {fives.min(twos):>14} {b12:>14}")
+    mut f := 1
+    for i in 1..=20
+        f *= i
+    mut zeros := 0
+    mut x := f
+    while x % 10 == 0
+        zeros += 1
+        x /= 10
+    print("20! = {f} ends in {zeros} zeros, formula {legendre(20, 5)}")
+
+@test fn hundred()
+    assert_eq(legendre(100, 5), 24)

@@ -1,0 +1,51 @@
+## JSON pretty printer: re-indents compact JSON by walking its characters, adding a newline and two
+## spaces per level after { [ and commas, never touching text inside strings (escaped quotes included).
+
+fn pretty(src str) List[str]
+    mut lines := List[str]()
+    mut cur := List[str]()
+    mut depth := 0
+    mut in_str := false
+    mut escaped := false
+    for c in src.chars()
+        if in_str
+            cur.push("{c}")
+            if escaped
+                escaped = false
+            elif c == '\\'
+                escaped = true
+            elif c == '"'
+                in_str = false
+        elif c == '"'
+            in_str = true
+            cur.push("{c}")
+        elif c == '{' or c == '['
+            cur.push("{c}")
+            lines.push(cur.join(""))
+            depth += 1
+            cur = ["  ".repeat(depth)]
+        elif c == '}' or c == ']'
+            lines.push(cur.join(""))
+            depth -= 1
+            cur = ["  ".repeat(depth), "{c}"]
+        elif c == ','
+            cur.push(",")
+            lines.push(cur.join(""))
+            cur = ["  ".repeat(depth)]
+        elif c == ':'
+            cur.push(": ")
+        elif c != ' '
+            cur.push("{c}")
+    lines.push(cur.join(""))
+    lines.filter(|l| l.trim() != "")
+
+fn main()
+    src := "\{\"name\":\"Ana, \\\"the boss\\\"\",\"tags\":[\"a\",\"b: c\"],\"age\":34,\"pets\":[],\"home\":\{\"city\":\"Oslo\",\"zip\":false}}"
+    lines := pretty(src)
+    for l in lines
+        print(l)
+    deepest := lines.map(|l| (l.len() - l.trim_start().len()) / 2).max() else 0
+    print("{src.len()} chars -> {lines.len()} lines, deepest level {deepest}")
+
+@test fn nested_depth()
+    assert_eq(pretty("[1,[2]]").len(), 6)

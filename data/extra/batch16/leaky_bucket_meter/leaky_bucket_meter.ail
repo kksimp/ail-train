@@ -1,0 +1,28 @@
+## Leaky bucket queue: requests pour into a bucket that holds three waiting requests and leaks one
+## every 4 ticks, so bursts leave at an even pace and a request finding the bucket full is dropped.
+
+fn main()
+    arrivals := [0, 1, 2, 3, 4, 5, 12, 13, 30, 31, 32, 33, 34, 35]
+    rate := 4
+    cap := 3
+    mut leaves := List[int]()
+    mut last := -rate
+    mut dropped := 0
+    for t in arrivals
+        waiting := leaves.count(|d| d > t)
+        if waiting >= cap
+            dropped += 1
+            print("t={t:>2}: dropped, {waiting} already waiting")
+            continue
+        out := (last + rate).max(t)
+        leaves.push(out)
+        last = out
+        print("t={t:>2}: queued, leaves at {out:>2} (waited {out - t})")
+    mut gaps := List[int]()
+    for i in 1..leaves.len()
+        gaps.push(leaves[i] - leaves[i - 1])
+    print("departure gaps {gaps}")
+    print("sent {leaves.len()}, dropped {dropped}")
+
+@test fn steady_rate()
+    assert_eq((0 + 4).max(2), 4)

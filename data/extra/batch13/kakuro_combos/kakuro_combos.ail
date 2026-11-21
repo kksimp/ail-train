@@ -1,0 +1,36 @@
+## Kakuro combos: lists every set of distinct digits 1 to 9 that fills a run of n cells to the clue
+## sum, by recursion on increasing digits, and intersects an across and a down run's candidate digits.
+
+fn combos(total int, cells int, low int) List[str]
+    if cells == 0
+        return if total == 0 then [""] else List[str]()
+    mut out := List[str]()
+    for d in low..10
+        if d > total
+            break
+        for rest in combos(total - d, cells - 1, d + 1)
+            out.push("{d}{rest}")
+    out
+
+fn digits(options List[str]) Set[char]
+    mut s := Set[char]()
+    for o in options
+        for c in o.chars()
+            s.add(c)
+    s
+
+fn main()
+    clues := [[3, 2], [16, 2], [17, 2], [10, 3], [23, 3], [7, 3], [30, 4], [12, 4]]
+    for clue in clues
+        found := combos(clue[0], clue[1], 1)
+        shown := found.join(" ")
+        tag := if found.len() == 1 then " (unique)" else ""
+        print("{clue[0]:>2} in {clue[1]}: {shown}{tag}")
+    across := digits(combos(10, 3, 1))
+    down := digits(combos(16, 2, 1))
+    both := across.intersect(down).sorted()
+    shared := both.join("")
+    print("a cell in 10/3 across and 16/2 down can hold {shared}")
+
+@test fn three_in_two()
+    assert_eq(combos(3, 2, 1), ["12"])

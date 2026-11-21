@@ -1,0 +1,31 @@
+## Percentage rollout: each user is hashed together with the feature name into one of 100 buckets, and
+## the feature is on when the bucket is below the rollout percentage, so raising the percentage only adds users.
+
+fn bucket(user str, feature str) int
+    mut h := 7
+    for c in "{feature}:{user}".chars()
+        h = (h * 31 + c.code()) % 4294967296
+    h % 100
+
+fn tag(u str) str
+    b := bucket(u, "new-checkout")
+    "{u}:{b}"
+
+fn main()
+    users := ["ana", "ben", "cy", "dev", "eli", "fay", "gus", "hal", "ivy", "jon", "kai", "liv"]
+    for row in users.chunks(6)
+        cells := row.map(|u| tag(u)).join(" ")
+        print("buckets {cells}")
+    mut before := Set[str]()
+    for pct in [20, 25, 50, 100]
+        on := users.filter(|u| bucket(u, "new-checkout") < pct)
+        kept := before.to_list().all(|u| on.contains(u))
+        shown := on.join(" ")
+        print("{pct:>3}% -> {on.len():>2} users, earlier users kept: {kept}: {shown}")
+        for u in on
+            before.add(u)
+    other := users.filter(|u| bucket(u, "dark-mode") < 25).join(" ")
+    print("dark-mode at 25%: {other}")
+
+@test fn in_range()
+    assert(bucket("x", "y") < 100)

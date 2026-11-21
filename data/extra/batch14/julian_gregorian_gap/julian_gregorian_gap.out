@@ -1,0 +1,12 @@
+1500: Julian calendar runs 10 days behind
+1582: Julian calendar runs 10 days behind
+1700: Julian calendar runs 11 days behind
+1752: Julian calendar runs 11 days behind
+1900: Julian calendar runs 13 days behind
+2026: Julian calendar runs 13 days behind
+2100: Julian calendar runs 14 days behind
+2200: Julian calendar runs 15 days behind
+Julian 1582-10-04, last day before the switch: next day is Gregorian 1582-10-15
+Julian 1752-09-02, Britain switches: next day is Gregorian 1752-09-14
+Julian 1917-10-25, Russian revolution: next day is Gregorian 1917-11-08
+Julian 2026-12-25, Orthodox Christmas: next day is Gregorian 2027-01-08

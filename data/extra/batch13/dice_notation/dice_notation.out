@@ -1,0 +1,8 @@
+3d6+2   min  5 max 20 mean 12.5 rolled 12
+d20     min  1 max 20 mean 10.5 rolled 1
+2d8-1   min  1 max 15 mean  8.0 rolled 7
+4d4     min  4 max 16 mean 10.0 rolled 12
+1d12+3  min  4 max 15 mean  9.5 rolled 4
+2x6     error: no single d in 2x6
+d1      error: too few dice or sides in d1
+3d6+q   error: bad bonus in 3d6+q

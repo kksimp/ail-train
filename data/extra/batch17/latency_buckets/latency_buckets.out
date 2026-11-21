@@ -1,0 +1,12 @@
+le=5       1
+le=10      3
+le=25      8
+le=50     14
+le=100    19
+le=250    24
+le=500    27
+le=1000   29
+le=+Inf   30
+q0.5: about 60.0 ms
+q0.9: about 500.0 ms
+q0.99: about 1000.0 ms

@@ -1,0 +1,27 @@
+## Liquidity and leverage: from balance sheet lines, the current ratio (current assets / current
+## liabilities), quick ratio (without inventory and prepayments), cash ratio and debt-to-equity for two firms.
+
+fn ratio(a int, b int) float
+    a.to_float() / b.to_float()
+
+fn report(name str, sheet Map[str, int])
+    current := sheet["cash"] + sheet["receivables"] + sheet["inventory"] + sheet["prepaid"]
+    quick := sheet["cash"] + sheet["receivables"]
+    liabilities := sheet["payables"] + sheet["short loans"]
+    debt := liabilities + sheet["long loans"]
+    cash := sheet["cash"]
+    equity := sheet["equity"]
+    cr := ratio(current, liabilities)
+    flag := if cr < 1.0 then "  (may struggle to pay bills)" else ""
+    print("{name}: current {cr:.2}, quick {ratio(quick, liabilities):.2}, cash {ratio(cash, liabilities):.2}, debt/equity {ratio(debt, equity):.2}{flag}")
+
+fn main()
+    shop := {"cash": 18000, "receivables": 4000, "inventory": 61000, "prepaid": 3000, "payables": 52000, "short loans": 20000, "long loans": 40000, "equity": 55000}
+    agency := {"cash": 42000, "receivables": 88000, "inventory": 0, "prepaid": 6000, "payables": 31000, "short loans": 10000, "long loans": 15000, "equity": 120000}
+    report("toy shop", shop)
+    report("design agency", agency)
+    for k in ["inventory", "receivables"]
+        print("{k}: shop {shop[k]}, agency {agency[k]}")
+
+@test fn simple_ratio()
+    assert_eq(ratio(3, 2), 1.5)

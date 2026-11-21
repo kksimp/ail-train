@@ -1,0 +1,24 @@
+## Cross-stitch skeins: counts the stitches of each symbol in a chart and turns them into whole
+## skeins of thread by rounding up (here a skein covers 25 stitches), with the colour from a legend.
+
+fn main()
+    chart := ["..xxxx....", ".xooooxx..", "xoo##ooox.", "xo####oox.", "xoo##ooox.", ".xooooox..", "..xxxxx...", "....|.....", "...||.....", "....|....."]
+    legend := {'x': "310 black", 'o': "666 red", '#': "726 yellow", '|': "699 green"}
+    per_skein := 25
+    mut counts := Map[char, int]()
+    for row in chart
+        for c in row.chars()
+            if c != '.'
+                counts[c] += 1
+    mut total := 0
+    for sym in counts.keys().sorted(by: |k| -counts[k])
+        n := counts[sym]
+        total += n
+        skeins := (n + per_skein - 1) / per_skein
+        thread := legend.get(sym) else "unknown"
+        print("{sym} {thread:<11} {n:>3} stitches, {skeins} skein(s)")
+    cells := chart.len() * chart[0].len()
+    print("{total} stitches on {cells} squares, {cells - total} left as fabric")
+
+@test fn rounds_up()
+    assert_eq((26 + 25 - 1) / 25, 2)

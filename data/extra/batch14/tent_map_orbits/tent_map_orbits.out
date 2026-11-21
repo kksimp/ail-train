@@ -1,0 +1,9 @@
+1/5 -> 2/5 -> 4/5 -> 2/5: cycle of 2 after 1 steps
+1/7 -> 2/7 -> 4/7 -> 6/7 -> 2/7: cycle of 3 after 1 steps
+2/9 -> 4/9 -> 8/9 -> 2/9: cycle of 3 after 0 steps
+3/11 -> 6/11 -> 10/11 -> 2/11 -> 4/11 -> 8/11 -> 6/11: cycle of 5 after 1 steps
+1/8 -> 2/8 -> 4/8 -> 8/8 -> 0/8 -> 0/8: cycle of 1 after 4 steps
+5/12 -> 10/12 -> 4/12 -> 8/12 -> 8/12: cycle of 1 after 3 steps
+float start 0.1000: reaches 0 after 56 steps
+float start 0.2000: reaches 0 after 55 steps
+float start 0.1429: reaches 0 after 55 steps

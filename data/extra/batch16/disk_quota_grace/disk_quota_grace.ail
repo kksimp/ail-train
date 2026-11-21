@@ -1,0 +1,35 @@
+## Disk quota with grace: going over the soft limit starts a 7-day grace period; writes over it are
+## refused once grace runs out, writes past the hard limit are always refused, and dropping below resets grace.
+
+struct Quota
+    soft int
+    hard int
+    used int
+    grace_from int
+
+fn Quota.write(mut self, day int, mb int) str
+    after := self.used + mb
+    if mb > 0 and after > self.hard
+        return "refused, would pass hard limit {self.hard}"
+    if mb > 0 and after > self.soft
+        if self.grace_from < 0
+            self.grace_from = day
+        elif day - self.grace_from >= 7
+            return "refused, grace ran out on day {self.grace_from + 7}"
+    self.used = after
+    if self.used <= self.soft
+        self.grace_from = -1
+        return "ok"
+    left := 7 - (day - self.grace_from)
+    "ok, over soft limit, {left} grace days left"
+
+fn main()
+    mut q := Quota(soft: 100, hard: 120, used: 80, grace_from: -1)
+    events := [(1, 15), (2, 10), (3, 20), (4, 5), (6, 3), (9, 2), (10, -30), (11, 25), (12, 10), (19, 2)]
+    for day, mb in events
+        msg := q.write(day, mb)
+        print("day {day:>2} {mb:>4} MB -> used {q.used:>3}: {msg}")
+
+@test fn hard_limit()
+    mut q := Quota(soft: 10, hard: 20, used: 0, grace_from: -1)
+    assert_eq(q.write(1, 25), "refused, would pass hard limit 20")

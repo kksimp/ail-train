@@ -1,0 +1,45 @@
+## FEN board: expands the piece field of a chess position written in Forsyth-Edwards notation, where
+## digits are runs of empty squares and ranks are split by slashes, and reads the side to move and castling.
+
+fn expand(rank str) str
+    mut out := List[str]()
+    for c in rank.chars()
+        if n := c.to_digit(10)
+            out.push(".".repeat(n))
+        else
+            out.push("{c}")
+    out.join("")
+
+fn castle_name(c char) str
+    match c
+        'K' => "white short"
+        'Q' => "white long"
+        'k' => "black short"
+        'q' => "black long"
+        _ => "none"
+
+fn main()
+    fen := "r1bqkb1r/pppp1ppp/2n2n2/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR w KQkq - 4 4"
+    fields := fen.split(" ")
+    ranks := fields[0].split("/")
+    mut white := 0
+    mut black := 0
+    for i, r in ranks.enumerate()
+        row := expand(r)
+        print("{8 - i} {row}")
+        for c in row.chars()
+            if c.is_upper()
+                white += 1
+            elif c != '.'
+                black += 1
+    print("  abcdefgh")
+    side := if fields[1] == "w" then "white" else "black"
+    mut rights := List[str]()
+    for c in fields[2].chars()
+        rights.push(castle_name(c))
+    castles := rights.join(", ")
+    print("{side} to move, move {fields[5]}; pieces {white} white, {black} black")
+    print("castling: {castles}")
+
+@test fn digits_become_dots()
+    assert_eq(expand("2n2n2"), "..n..n..")

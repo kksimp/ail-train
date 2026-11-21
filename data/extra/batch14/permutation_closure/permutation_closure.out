@@ -1,0 +1,6 @@
+triangle turn and flip    order   6 of   6, 3 even
+pentagon turn and flip    order  10 of 120, 10 even
+two 3-cycles on 4         order  12 of  24, 12 even
+swap and 4-cycle          order  24 of  24, 12 even
+out-shuffle of 6 cards    order   4 of 720, 2 even
+out-shuffle and top swap  order 120 of 720, 60 even

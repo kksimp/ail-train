@@ -1,0 +1,6 @@
+trip day  10 to  40: 31 days in window, ok, 59 left
+trip day  70 to  95: 57 days in window, ok, 33 left
+trip day 130 to 150: 78 days in window, ok, 12 left
+trip day 160 to 178: 97 days in window, OVERSTAY by 7
+trip day 250 to 262: 66 days in window, ok, 24 left
+a trip from day 290 can last 77 days

@@ -1,0 +1,7 @@
+GP visit   bill    180.00: patient   180.00, insurer      0.00, patient so far 180.00
+MRI scan   bill   1200.00: patient  1200.00, insurer      0.00, patient so far 1380.00
+physio     bill    450.00: patient   186.00, insurer    264.00, patient so far 1566.00
+surgery    bill  18500.00: patient  3434.00, insurer  15066.00, patient so far 5000.00
+follow-up  bill    220.00: patient     0.00, insurer    220.00, patient so far 5000.00
+rehab      bill   3000.00: patient     0.00, insurer   3000.00, patient so far 5000.00
+year: patient 5000.00, insurer 18550.00

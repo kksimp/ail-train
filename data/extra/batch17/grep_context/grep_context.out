@@ -1,0 +1,12 @@
+1-import os
+2:def load(path):
+3:    data = read(path)
+4-    if not data:
+5:        raise ValueError(path)
+6-    return data
+7-
+8:def save(path, data):
+9:    write(path, data)
+10:    log(path)
+11-
+6 matching lines, 11 shown

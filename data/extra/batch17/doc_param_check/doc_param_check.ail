@@ -1,0 +1,39 @@
+## Docstring parameter check: compares each function's parameter list with the `:param name:` lines of
+## its docstring and reports parameters left undocumented and documented names the function does not take.
+
+fn params_of(sig str) List[str]
+    open_at := sig.find("(") else 0
+    close_at := sig.rfind(")") else sig.len()
+    inner := sig.slice(open_at + 1, close_at)
+    if inner.trim() == ""
+        return List[str]()
+    inner.split(",").map(|p| p.split("=")[0].split(":")[0].trim()).filter(|p| p != "self")
+
+fn documented(doc List[str]) List[str]
+    mut out := List[str]()
+    for l in doc
+        if rest := l.trim().strip_prefix(":param ")
+            out.push(rest.split(":")[0].trim())
+    out
+
+fn main()
+    funcs := [("def area(width, height, unit='m'):", [":param width: in metres", ":param height: in metres", ":param unit: label"]), ("def send(self, to: str, body: str, retries=3):", [":param to: address", ":param subject: line", ":param body: text"]), ("def ping():", List[str]()), ("def load(path, strict=False):", ["Load a file.", ":param path: where"])]
+    mut clean := 0
+    for f in funcs
+        sig, doc := f
+        ps := params_of(sig)
+        ds := documented(doc)
+        missing := ps.filter(|p| not ds.contains(p))
+        extra := ds.filter(|d| not ps.contains(d))
+        name := sig.slice(4, sig.find("(") else 4)
+        if missing.is_empty() and extra.is_empty()
+            clean += 1
+            print("{name}: ok ({ps.len()} params)")
+        else
+            m := missing.join(", ")
+            e := extra.join(", ")
+            print("{name}: undocumented [{m}] unknown [{e}]")
+    print("{clean} of {funcs.len()} functions fully documented")
+
+@test fn strips_types_and_defaults()
+    assert_eq(params_of("def f(self, a: int, b=2):"), ["a", "b"])

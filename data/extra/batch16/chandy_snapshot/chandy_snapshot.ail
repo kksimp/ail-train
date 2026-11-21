@@ -1,0 +1,53 @@
+## Chandy-Lamport snapshot: the starter records its balance and sends a marker; a process records
+## on its first marker, and money arriving on a channel before that channel's marker is recorded in flight.
+
+fn record(p int, mut rec List[int], bal List[int], mut chans List[List[int]], mut recording List[bool])
+    rec[p] = bal[p]
+    chans[p].push(-1)
+    recording[1 - p] = true
+
+fn main()
+    names := ["P", "Q"]
+    mut bal := [100, 50]
+    mut chans := [List[int](), List[int]()]
+    mut rec := [-1, -1]
+    mut recording := [false, false]
+    mut in_flight := [List[int](), List[int]()]
+    events := [["send", "0", "10"], ["send", "1", "5"], ["snap", "0", "0"], ["recv", "0", "0"], ["recv", "1", "0"], ["send", "1", "20"], ["recv", "0", "0"], ["recv", "1", "0"], ["recv", "1", "0"]]
+    for ev in events
+        x := ev[1].to_int() else 0
+        if ev[0] == "send"
+            amt := ev[2].to_int() else 0
+            bal[x] -= amt
+            chans[x].push(amt)
+            print("{names[x]} sends {amt}")
+        elif ev[0] == "snap"
+            record(x, mut rec, bal, mut chans, mut recording)
+            print("{names[x]} starts the snapshot, records {bal[x]}")
+        else
+            msg := chans[x][0]
+            chans[x] = chans[x].slice(1)
+            q := 1 - x
+            if msg < 0
+                if rec[q] < 0
+                    record(q, mut rec, bal, mut chans, mut recording)
+                    print("{names[q]} gets its first marker, records {bal[q]}")
+                else
+                    print("{names[q]} gets the marker back, stops recording")
+                recording[x] = false
+            else
+                bal[q] += msg
+                if recording[x]
+                    in_flight[x].push(msg)
+                print("{names[q]} receives {msg}")
+    flight := in_flight[0].sum() + in_flight[1].sum()
+    print("snapshot: P={rec[0]} Q={rec[1]} in flight P>Q {in_flight[0]} Q>P {in_flight[1]}")
+    print("snapshot total {rec[0] + rec[1] + flight}, real total {bal[0] + bal[1]}")
+
+@test fn record_sends_marker()
+    mut rec := [-1, -1]
+    mut chans := [List[int](), List[int]()]
+    mut recording := [false, false]
+    record(0, mut rec, [7, 9], mut chans, mut recording)
+    assert_eq(chans[0], [-1])
+    assert(recording[1])

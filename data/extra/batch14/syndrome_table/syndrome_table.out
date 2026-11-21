@@ -1,0 +1,13 @@
+syndrome 000: leader 000000 (weight 0)
+syndrome 001: leader 000001 (weight 1)
+syndrome 010: leader 000010 (weight 1)
+syndrome 011: leader 001000 (weight 1)
+syndrome 100: leader 000100 (weight 1)
+syndrome 101: leader 010000 (weight 1)
+syndrome 110: leader 100000 (weight 1)
+syndrome 111: leader 001100 (weight 2)
+sent 101101, received 101101, decoded 101101: recovered
+sent 101101, received 101001, decoded 101101: recovered
+sent 101101, received 001101, decoded 101101: recovered
+sent 101101, received 100001, decoded 101101: recovered
+sent 101101, received 100100, decoded 100110: wrong

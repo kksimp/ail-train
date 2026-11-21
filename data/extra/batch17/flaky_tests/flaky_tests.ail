@@ -1,0 +1,27 @@
+## Flaky tests: several CI runs record each test as P (pass) or F (fail); a test with both results is
+## flaky, one that always fails is broken, and the report gives pass rates and the runs where each flake failed.
+
+fn main()
+    runs := [{"login": "P", "checkout": "P", "search": "F", "export": "P", "upload": "F"}, {"login": "P", "checkout": "F", "search": "F", "export": "P", "upload": "F"}, {"login": "P", "checkout": "P", "search": "F", "export": "F", "upload": "F"}, {"login": "P", "checkout": "P", "search": "F", "export": "P", "upload": "F"}, {"login": "P", "checkout": "F", "search": "F", "export": "P"}]
+    mut history := Map[str, List[str]]()
+    for r in runs
+        for test, result in r
+            history.push(test, result)
+    mut flaky := 0
+    for test, results in history
+        passes := results.count(|x| x == "P")
+        rate := passes * 100 / results.len()
+        kind := if passes == results.len() then "stable" elif passes == 0 then "broken" else "FLAKY"
+        line := results.join("")
+        mut fails := List[int]()
+        for i, x in results.enumerate()
+            if x == "F"
+                fails.push(i + 1)
+        note := if kind == "FLAKY" then " failed in runs {fails}" else ""
+        if kind == "FLAKY"
+            flaky += 1
+        print("{test:<9} {line:<6} {rate:>3}% {kind}{note}")
+    print("{flaky} flaky tests over {runs.len()} runs")
+
+@test fn rate_math()
+    assert_eq(3 * 100 / 5, 60)

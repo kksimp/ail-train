@@ -1,0 +1,60 @@
+## Go fish: two players ask for the rank they hold most of; the other hands over every such card or
+## says go fish and the asker draws. A matching draw or a catch earns another turn; four make a book.
+
+fn pick_rank(hand List[int]) int
+    mut best := hand[0]
+    for c in hand
+        n := hand.count(|x| x == c)
+        m := hand.count(|x| x == best)
+        if n > m or (n == m and c < best)
+            best = c
+    best
+
+fn main()
+    mut deck := List[int]()
+    for i in 0..52
+        deck.push(i % 13 + 1)
+    mut seed := 2024
+    mut i := 51
+    while i > 0
+        seed = (seed * 1103515245 + 12345) % 2147483648
+        j := seed % (i + 1)
+        deck.swap(i, j)
+        i -= 1
+    names := ["Ana", "Ben"]
+    mut hands := [deck.slice(0, 7), deck.slice(7, 14)]
+    mut top := 14
+    mut books := [0, 0]
+    mut p := 0
+    mut turn := 0
+    while turn < 40 and hands[0].len() > 0 and hands[1].len() > 0
+        turn += 1
+        o := 1 - p
+        r := pick_rank(hands[p])
+        got := hands[o].count(|x| x == r)
+        mut again := false
+        mut mine := hands[p]
+        if got > 0
+            hands[o] = hands[o].filter(|x| x != r)
+            for _ in 0..got
+                mine.push(r)
+            again = true
+        elif top < deck.len()
+            drawn := deck[top]
+            top += 1
+            mine.push(drawn)
+            again = drawn == r
+        for b in 1..14
+            if mine.count(|x| x == b) == 4
+                mine = mine.filter(|x| x != b)
+                books[p] += 1
+                print("turn {turn:>2}: {names[p]} lays down a book of {b}s")
+        hands[p] = mine
+        if not again
+            p = o
+    print("after {turn} turns, {deck.len() - top} cards left to draw")
+    for k in 0..2
+        print("{names[k]}: {books[k]} books, {hands[k].len()} cards in hand")
+
+@test fn most_held_rank()
+    assert_eq(pick_rank([4, 9, 9, 2, 4, 9]), 9)

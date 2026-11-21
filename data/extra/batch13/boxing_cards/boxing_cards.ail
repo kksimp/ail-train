@@ -1,0 +1,54 @@
+## Boxing scorecards: each judge scores every round 10-9, 10-8 for a knockdown, or 10-10; the totals
+## decide each card, and the three cards give a unanimous, split or majority decision, or a draw.
+
+fn card(rounds str) List[int]
+    mut a := 0
+    mut b := 0
+    for r in rounds.chars()
+        pts := match r
+            'A' => [10, 9]
+            'B' => [9, 10]
+            'a' => [10, 8]
+            'b' => [8, 10]
+            _ => [10, 10]
+        a += pts[0]
+        b += pts[1]
+    [a, b]
+
+fn decision(wins_a int, wins_b int, draws int) str
+    if wins_a == 3 or wins_b == 3
+        return "unanimous decision"
+    if (wins_a == 2 or wins_b == 2) and draws == 1
+        return "majority decision"
+    if wins_a == 2 or wins_b == 2
+        return "split decision"
+    if draws == 3
+        return "unanimous draw"
+    if draws == 2
+        return "majority draw"
+    "split draw"
+
+fn main()
+    fights := [("Ortiz", "Banks", ["AABBAaABBAAB", "AABBABABBAAB", "ABBBAaABBBAB"]), ("Cole", "Diaz", ["ABABAB=BABAB", "AAABBBbAAABB", "ABAB=BABA=BA"])]
+    for f in fights
+        red, blue, cards := f
+        mut wins := [0, 0, 0]
+        for c in cards
+            s := card(c)
+            winner := if s[0] > s[1] then red elif s[1] > s[0] then blue else "even"
+            print("  {s[0]}-{s[1]} {winner}")
+            if s[0] > s[1]
+                wins[0] += 1
+            elif s[1] > s[0]
+                wins[1] += 1
+            else
+                wins[2] += 1
+        leader := if wins[0] > wins[1] then red elif wins[1] > wins[0] then blue else "nobody"
+        result := decision(wins[0], wins[1], wins[2])
+        if wins[0] == wins[1]
+            print("{red} v {blue}: {result}")
+        else
+            print("{red} v {blue}: {leader} by {result}")
+
+@test fn knockdown_round()
+    assert_eq(card("a"), [10, 8])

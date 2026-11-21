@@ -1,0 +1,32 @@
+## Heartbeat failure detector: a node is suspected when no heartbeat has arrived within twice the
+## longest gap it has shown so far, so a node with a jittery rhythm gets a longer timeout.
+
+struct Peer
+    name str
+    beats List[int]
+
+fn status(p Peer, now int) str
+    mut last := -1
+    mut gap := 5
+    for b in p.beats
+        if b <= now
+            if last >= 0
+                gap = gap.max(b - last)
+            last = b
+    timeout := 2 * gap
+    silent := now - last
+    verdict := if silent > timeout then "SUSPECT" else "alive"
+    "{p.name} {verdict:<7} silent {silent:>2}/{timeout:<2}"
+
+fn main()
+    peers := [Peer(name: "A", beats: [0, 10, 20, 30, 40, 50, 60, 70, 80]), Peer(name: "B", beats: [0, 4, 8, 12, 30, 34, 38, 42, 46]), Peer(name: "C", beats: [0, 10, 20, 30]), Peer(name: "D", beats: [0, 3, 6, 9, 12, 15, 18, 40, 43, 46, 49])]
+    for now in [15, 25, 35, 55, 75, 90]
+        mut row := List[str]()
+        for p in peers
+            row.push(status(p, now))
+        line := row.join(" | ")
+        print("t={now:>2}: {line}")
+
+@test fn steady_alive()
+    p := Peer(name: "x", beats: [0, 10, 20])
+    assert(status(p, 25).contains("alive"))
