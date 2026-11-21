@@ -34,7 +34,9 @@ everyday forms with less common built-ins. Each batch is checked on the Mac befo
   the result from the error; use `str ! Fail`). All 100 pass.
 - `batch06/`: 100 programs, checked in steps of 40, 60 and 100: numeric methods (bisection, Simpson, least
   squares, Cramer), classic algorithms (KMP, LZW, Huffman, LCS, page replacement, round robin) and everyday tasks.
-  The same PR replaced 19 programs in batch04 and batch05 that repeated earlier topics. All 100 pass.
+  The 5 failures were `_` bound twice in one function (2), `+` on strings, `move` as a name (a keyword) and a
+  mean on a rounding edge. The same PR replaced 19 programs in batch04 and batch05 that repeated earlier topics.
+  All 100 pass.
 
 ## Status
 
