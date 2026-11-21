@@ -12,7 +12,7 @@ fn to_letters(n int) str
     mut out := List[char]()
     while x > 0
         x -= 1
-        out.push(char.from_code(x % 26 + 65))
+        out.push(char.from_code(x % 26 + 65) else 'A')
         x /= 26
     out.reversed().map(|c| "{c}").join("")
 
