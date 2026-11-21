@@ -1,0 +1,34 @@
+## Dock slot booking: two unloading doors have hourly slots from 06:00 to 14:00; each truck books the earliest start
+## at or after its arrival hour where one door has enough free hours in a row, or is turned away; the board is drawn.
+
+fn fits(row List[str], start int, hours int) bool
+    if start + hours > row.len()
+        return false
+    for k in start..(start + hours)
+        if row[k] != "."
+            return false
+    true
+
+fn main()
+    trucks := [("Acme", 6, 2), ("Bolt", 6, 3), ("Cargo", 7, 2), ("Dray", 8, 1), ("Eagle", 9, 4), ("Fleet", 6, 3), ("Gull", 12, 3)]
+    mut board := [[".", ".", ".", ".", ".", ".", ".", "."], [".", ".", ".", ".", ".", ".", ".", "."]]
+    for t in trucks
+        name, arrive, hours := t
+        letter := name.slice(0, 1)
+        mut booked := false
+        for start in (arrive - 6)..8
+            for door in 0..2
+                if not booked and fits(board[door], start, hours)
+                    for k in start..(start + hours)
+                        board[door][k] = letter
+                    booked = true
+                    print("{name:<5} door {door + 1}, {start + 6:02}:00-{start + 6 + hours:02}:00")
+        if not booked
+            print("{name:<5} turned away")
+    for door in 0..2
+        row := board[door].join("")
+        print("door {door + 1}: {row}")
+
+@test fn full_row()
+    assert(not fits(["a", ".", "."], 0, 2))
+    assert(fits(["a", ".", "."], 1, 2))

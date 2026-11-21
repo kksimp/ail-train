@@ -1,0 +1,31 @@
+## Piece rate with a floor: workers earn 0.45 for each good piece, but a day's pay is topped up to the
+## 12.00-an-hour minimum for the hours worked; rejected pieces earn nothing. Totals per worker follow.
+
+struct DayPay
+    piece int
+    topup int
+
+fn day_pay(hours int, good int) DayPay
+    piece := good * 45
+    floor := hours * 1200
+    DayPay(piece: piece, topup: (floor - piece).max(0))
+
+fn money(c int) str
+    cents := c % 100
+    "{c / 100}.{cents:02}"
+
+fn main()
+    days := [("Kim", 8, 230, 6), ("Kim", 8, 190, 4), ("Ola", 6, 120, 10), ("Ola", 8, 260, 2), ("Ben", 7, 140, 0)]
+    mut totals := Map[str, int]()
+    mut topups := Map[str, int]()
+    for d in days
+        name, hours, made, rejects := d
+        p := day_pay(hours, made - rejects)
+        totals[name] += p.piece + p.topup
+        topups[name] += p.topup
+        print("{name} {hours}h, {made - rejects} good: pieces {money(p.piece):>6}, top-up {money(p.topup):>5}")
+    for name, t in totals
+        print("{name}: {money(t)} of which top-up {money(topups[name])}")
+
+@test fn below_floor()
+    assert_eq(day_pay(8, 200).topup, 600)

@@ -1,0 +1,27 @@
+## Adiabatic compression: squeezing air too fast for heat to escape gives T2 = T1 r^(gamma - 1) and
+## P2 = P1 r^gamma for volume ratio r; the work (P2 V2 - P1 V1) / (gamma - 1) beats the isothermal P1 V1 ln r.
+
+struct State
+    p float
+    v float
+    t float
+
+fn compress(s State, ratio float, gamma float) State
+    State(p: s.p * ratio.pow(gamma), v: s.v / ratio, t: s.t * ratio.pow(gamma - 1.0))
+
+fn main()
+    gamma := 1.4
+    start := State(p: 101325.0, v: 0.0005, t: 293.15)
+    print("pump barrel: 0.5 litres of air at 1 atm and 20 C")
+    for ratio in [2.0, 4.0, 8.0, 16.0, 22.0]
+        s := compress(start, ratio, gamma)
+        w_adi := (s.p * s.v - start.p * start.v) / (gamma - 1.0)
+        w_iso := start.p * start.v * ratio.ln()
+        c := s.t - 273.15
+        print("ratio {ratio:>4}: {s.p / 100000.0:>6.2} bar, {c:>5.0} C, work {w_adi:>5.1} J (isothermal {w_iso:.1} J)")
+    hot := compress(start, 16.0, gamma)
+    print("a diesel at 16:1 reaches {hot.t:.0} K, above the 530 K at which fuel ignites: {hot.t > 530.0}")
+
+@test fn no_squeeze()
+    s := compress(State(p: 1.0, v: 2.0, t: 300.0), 1.0, 1.4)
+    assert_eq(s.t, 300.0)

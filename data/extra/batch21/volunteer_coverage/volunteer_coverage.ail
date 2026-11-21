@@ -1,0 +1,31 @@
+## Volunteer coverage: each volunteer signs up for a run of hours at a fete; every hour needs two helpers
+## (three over lunch), so the program lists each hour's cover, the gaps and each volunteer's hours.
+
+struct Helper
+    name str
+    from int
+    to int
+
+fn on_duty(h Helper, hour int) bool
+    h.from <= hour and hour < h.to
+
+fn main()
+    helpers := [Helper(name: "Abi", from: 9, to: 12), Helper(name: "Ben", from: 10, to: 14), Helper(name: "Cat", from: 12, to: 17), Helper(name: "Dan", from: 9, to: 11), Helper(name: "Eve", from: 13, to: 16), Helper(name: "Fay", from: 15, to: 17), Helper(name: "Gil", from: 11, to: 12)]
+    mut gaps := 0
+    for hour in 9..17
+        need := if hour == 12 or hour == 13 then 3 else 2
+        names := helpers.filter(|h| on_duty(h, hour)).map(|h| h.name)
+        mark := if names.len() >= need then "ok" else "SHORT {need - names.len()}"
+        if names.len() < need
+            gaps += 1
+        joined := names.join(" ")
+        print("{hour:02}:00 {names.len()}/{need} {mark:<7} {joined}")
+    print("{gaps} hours short of helpers")
+    longest := helpers.max(by: |h| h.to - h.from) else helpers[0]
+    total := helpers.fold(0, |acc, h| acc + h.to - h.from)
+    print("{total} volunteer hours; longest shift {longest.name} ({longest.to - longest.from} h)")
+
+@test fn duty()
+    h := Helper(name: "x", from: 9, to: 12)
+    assert(on_duty(h, 11))
+    assert(not on_duty(h, 12))

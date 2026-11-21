@@ -1,0 +1,33 @@
+## Outfit advice: a week of forecasts as an enum `Sky` with payloads (sun with a UV index, rain in
+## mm, snow in cm, wind in km/h, fog); `match` picks what to wear and what to carry each day.
+
+enum Sky
+    Sun(uv int)
+    Rain(mm int)
+    Snow(cm int)
+    Wind(kmh int)
+    Fog
+
+fn advice(s Sky) str
+    match s
+        Sun(uv) => if uv >= 6 then "t-shirt, hat and sun cream" else "t-shirt"
+        Rain(mm) => if mm > 10 then "raincoat and boots" else "umbrella"
+        Snow(cm) => "warm coat, {cm} cm of snow"
+        Wind(kmh) => if kmh >= 50 then "stay in if you can" else "windproof jacket"
+        Fog => "bright jacket, drive slowly"
+
+fn is_wet(s Sky) bool
+    match s
+        Rain | Snow => true
+        _ => false
+
+fn main()
+    days := ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+    week := [Sky.Sun(uv: 7), Sky.Rain(mm: 4), Sky.Rain(mm: 18), Sky.Fog, Sky.Wind(kmh: 62), Sky.Snow(cm: 3), Sky.Sun(uv: 3)]
+    for i, s in week.enumerate()
+        print("{days[i]}: {advice(s)}")
+    wet := week.count(|s| is_wet(s))
+    print("{wet} wet days this week")
+
+@test fn light_rain_umbrella()
+    assert_eq(advice(Sky.Rain(mm: 2)), "umbrella")

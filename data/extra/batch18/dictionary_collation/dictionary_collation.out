@@ -1,0 +1,4 @@
+byte order: ["Apple", "Banana", "Cherry", "Zebra", "aardvark", "apple", "banana", "cherry"]
+dictionary: ["aardvark", "Apple", "apple", "Banana", "banana", "Cherry", "cherry", "Zebra"]
+first aardvark, last Zebra
+Banana before banana: true

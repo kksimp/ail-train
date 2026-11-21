@@ -1,0 +1,55 @@
+## Global alignment: Needleman-Wunsch fills a table where each cell is the best of a diagonal step
+## (match +1, mismatch -1) or a gap (-2) from its neighbours, then traces back to print the aligned pair.
+
+fn align(a str, b str) List[str]
+    xs := a.chars()
+    ys := b.chars()
+    n := xs.len()
+    m := ys.len()
+    mut t := Grid.fill(n + 1, m + 1, 0)
+    for i in 0..=n
+        t[i, 0] = -2 * i
+    for j in 0..=m
+        t[0, j] = -2 * j
+    for i in 1..=n
+        for j in 1..=m
+            s := if xs[i - 1] == ys[j - 1] then 1 else -1
+            t[i, j] = (t[i - 1, j - 1] + s).max(t[i - 1, j] - 2).max(t[i, j - 1] - 2)
+    mut top := List[str]()
+    mut mid := List[str]()
+    mut bot := List[str]()
+    mut i := n
+    mut j := m
+    while i > 0 or j > 0
+        diag := if i > 0 and j > 0 and xs[i - 1] == ys[j - 1] then 1 else -1
+        if i > 0 and j > 0 and t[i, j] == t[i - 1, j - 1] + diag
+            top.push("{xs[i - 1]}")
+            bot.push("{ys[j - 1]}")
+            mid.push(if diag == 1 then "|" else ".")
+            i -= 1
+            j -= 1
+        elif i > 0 and t[i, j] == t[i - 1, j] - 2
+            top.push("{xs[i - 1]}")
+            bot.push("-")
+            mid.push(" ")
+            i -= 1
+        else
+            top.push("-")
+            bot.push("{ys[j - 1]}")
+            mid.push(" ")
+            j -= 1
+    [top.reversed().join(""), mid.reversed().join(""), bot.reversed().join(""), "{t[n, m]}"]
+
+fn main()
+    pairs := [("GATTACA", "GCATGCT"), ("ACGTTGCA", "ACGTGCA"), ("TTAGGCATC", "TAGGTCATTC")]
+    for p in pairs
+        a, b := p
+        r := align(a, b)
+        print("score {r[3]}")
+        print("  {r[0]}")
+        print("  {r[1]}")
+        print("  {r[2]}")
+
+@test fn identical()
+    r := align("ACGT", "ACGT")
+    assert_eq(r[3], "4")

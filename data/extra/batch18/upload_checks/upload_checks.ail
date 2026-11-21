@@ -1,0 +1,33 @@
+## Upload checks: a file upload is checked for size, extension and name; the check returns the
+## stored name or fails with the standard `Fail` (`return Fail(msg: ...)`), read as `err.msg`.
+
+ALLOWED := ["png", "jpg", "pdf"]
+MAX_KB := 2048
+
+fn check(name str, kb int) str ! Fail
+    if kb > MAX_KB
+        return Fail(msg: "{kb} KB is over the {MAX_KB} KB limit")
+    dot := name.rfind(".") else return Fail(msg: "no extension")
+    ext := name.slice(dot + 1).to_lower()
+    if not ALLOWED.contains(ext)
+        return Fail(msg: "type .{ext} is not allowed")
+    stem := name.slice(0, dot).trim()
+    if stem.is_empty()
+        return Fail(msg: "empty file name")
+    stored := stem.to_lower().replace(" ", "-")
+    "{stored}.{ext}"
+
+fn main()
+    files := [("Holiday Photo.JPG", 1800), ("report.docx", 120), ("scan.pdf", 5300), ("README", 3), (".png", 10), ("Floor Plan v2.png", 640)]
+    mut stored := List[str]()
+    for f in files
+        name, kb := f
+        s := check(name, kb) else err
+            print("{name}: {err.msg}")
+            continue
+        stored.push(s)
+        print("{name}: stored as {s}")
+    print("{stored.len()} of {files.len()} uploads accepted")
+
+@test fn too_big()
+    assert_err(check("a.png", 9999))

@@ -1,0 +1,35 @@
+## Guest badges: conference guests have an optional nickname and company; a badge prints the
+## nickname else the first name in capitals, and the company else "Guest", with `x else d`.
+
+struct Guest
+    first str
+    last str
+    nickname str?
+    company str?
+
+fn badge(g Guest) List[str]
+    big := (g.nickname else g.first).to_upper()
+    org := g.company else "Guest"
+    line := "{g.first} {g.last}"
+    [big, line, org]
+
+fn main()
+    guests := [
+        Guest(first: "Margaret", last: "Hughes", nickname: "Maggie", company: "Northwind"),
+        Guest(first: "Tomasz", last: "Nowak", nickname: none, company: "Fabrikam"),
+        Guest(first: "Ines", last: "Duarte", nickname: "Ini", company: none),
+    ]
+    width := 18
+    dash := "-".repeat(width)
+    border := "+{dash}+"
+    for g in guests
+        print(border)
+        for l in badge(g)
+            print("|{l.center(width, ' ')}|")
+    print(border)
+    walk_ins := guests.count(|g| g.company == none)
+    print("{walk_ins} guests without a company")
+
+@test fn nickname_wins()
+    g := Guest(first: "a", last: "b", nickname: "zed", company: none)
+    assert_eq(badge(g)[0], "ZED")

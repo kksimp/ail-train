@@ -1,0 +1,22 @@
+## Cost averaging: putting 300 into a fund every month buys more units when the price is low, so the average
+## cost per unit (the harmonic mean of prices) ends below the plain average price; a lump sum is compared.
+
+fn main()
+    prices := [40.0, 32.0, 25.0, 32.0, 40.0, 50.0]
+    mut units := 0.0
+    mut spent := 0.0
+    for i, p in prices.enumerate()
+        bought := 300.0 / p
+        units += bought
+        spent += 300.0
+        print("month {i + 1}: price {p:.2}, buys {bought:.4} units, holding {units:.4}")
+    avg_cost := spent / units
+    mean_price := prices.fold(0.0, |a, p| a + p) / 6.0
+    last := prices[5]
+    print("average cost {avg_cost:.4} against average price {mean_price:.4}")
+    lump := spent / prices[0]
+    print("worth now: monthly {units * last:.2}, lump sum in month 1 {lump * last:.2}")
+
+@test fn flat_price()
+    units := 300.0 / 50.0 + 300.0 / 50.0 + 300.0 / 50.0
+    assert_eq(900.0 / units, 50.0)

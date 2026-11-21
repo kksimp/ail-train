@@ -1,0 +1,31 @@
+## Fracture mechanics: a part with a crack of depth a breaks at stress K_IC / (Y sqrt(pi a)), so tough
+## metals tolerate long cracks while glass fails from tiny scratches; a_c = (K_IC / (Y s))^2 / pi at working stress s.
+
+PI := 3.141592653589793
+
+struct Material
+    name str
+    toughness float
+    working float
+
+fn break_stress(m Material, crack_m float) float
+    m.toughness / (1.12 * (PI * crack_m).sqrt())
+
+fn critical_mm(m Material) float
+    x := m.toughness / (1.12 * m.working)
+    x * x / PI * 1000.0
+
+fn main()
+    mats := [Material(name: "window glass", toughness: 0.75, working: 20.0), Material(name: "alumina", toughness: 4.0, working: 150.0), Material(name: "aluminium alloy", toughness: 30.0, working: 200.0), Material(name: "structural steel", toughness: 50.0, working: 250.0)]
+    cracks := [0.000001, 0.0001, 0.001, 0.01]
+    print("breaking stress in MPa for cracks of 1 um, 0.1 mm, 1 mm, 10 mm")
+    for m in mats
+        cells := cracks.map(|a| "{break_stress(m, a):>7.1}").join(" ")
+        print("{m.name:<16} {cells}")
+    for m in mats
+        print("{m.name} at {m.working:.0} MPa fails once a crack reaches {critical_mm(m):.3} mm")
+
+@test fn tougher_is_stronger()
+    a := Material(name: "a", toughness: 10.0, working: 1.0)
+    b := Material(name: "b", toughness: 20.0, working: 1.0)
+    assert(break_stress(b, 0.001) > break_stress(a, 0.001))

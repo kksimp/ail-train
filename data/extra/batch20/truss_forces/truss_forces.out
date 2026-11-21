@@ -1,0 +1,6 @@
+snow on the apex: reactions A (0.00, 8.00) kN, B 4.00 kN
+  AC compression 9.61 kN, BC compression 6.67 kN, AB tension 5.33 kN
+wind from the left: reactions A (-4.00, -2.00) kN, B 2.00 kN
+  AC tension 2.40 kN, BC compression 3.33 kN, AB tension 2.67 kN
+snow and wind: reactions A (-4.00, 6.00) kN, B 6.00 kN
+  AC compression 7.21 kN, BC compression 10.00 kN, AB tension 8.00 kN

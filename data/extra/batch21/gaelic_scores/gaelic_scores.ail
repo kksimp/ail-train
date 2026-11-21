@@ -1,0 +1,42 @@
+## Gaelic scores: a score written goals-points such as 2-11 is worth 3 per goal plus the points (17);
+## results are parsed, a malformed score is rejected with an error, and a table gives 2 points a win.
+
+fn parse(s str) int ! str
+    parts := s.split("-")
+    if parts.len() != 2
+        return "no dash in {s}"
+    g := parts[0].to_int() else return "bad goals in {s}"
+    p := parts[1].to_int() else return "bad points in {s}"
+    3 * g + p
+
+fn main()
+    games := [("Corrib", "1-14", "Shannon", "2-09"), ("Liffey", "0-18", "Corrib", "3-09"), ("Shannon", "2-12", "Liffey", "1-15"), ("Corrib", "2-x", "Liffey", "0-10"), ("Shannon", "0-20", "Corrib", "4-07"), ("Liffey", "1-13", "Shannon", "0-13")]
+    mut pts := Map[str, int]()
+    mut diff := Map[str, int]()
+    for g in games
+        home, hs, away, aws := g
+        h := parse(hs) else err
+            print("skipped {home} v {away}: {err}")
+            continue
+        a := parse(aws) else err
+            print("skipped {home} v {away}: {err}")
+            continue
+        diff[home] += h - a
+        diff[away] += a - h
+        if h > a
+            pts[home] += 2
+            pts[away] += 0
+        elif a > h
+            pts[away] += 2
+            pts[home] += 0
+        else
+            pts[home] += 1
+            pts[away] += 1
+        print("{home} {hs} ({h}) v {away} {aws} ({a})")
+    order := pts.keys().sorted(by: |t| (-pts[t], -diff[t]))
+    for t in order
+        print("{t:<8} {pts[t]} pts, difference {diff[t]}")
+
+@test fn worth()
+    assert_eq(parse("2-11") else 0, 17)
+    assert_err(parse("2-x"))

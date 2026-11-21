@@ -1,0 +1,8 @@
+()                       score  1, garbage 0
+((()))                   score  6, garbage 0
+(<a>,<b>)                score  1, garbage 2
+((<!>),<x>),(<q!!>))     score  5, garbage 5
+(<(()>,((!))<zz>))       score  6, garbage 5
+(((<ab!c>),()),(<>))     score 11, garbage 2
+part 1: total score 30
+part 2: total garbage 14

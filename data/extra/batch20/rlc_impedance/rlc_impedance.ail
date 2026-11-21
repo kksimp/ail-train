@@ -1,0 +1,34 @@
+## Series RLC impedance: Z = R + j (w L - 1 / (w C)) has size sqrt(R^2 + X^2) and phase atan(X / R);
+## below resonance the circuit acts capacitive, above it inductive, and Q = sqrt(L / C) / R sets the sharpness.
+
+PI := 3.141592653589793
+
+struct Rlc
+    r float
+    l float
+    c float
+
+fn Rlc.reactance(self, hz float) float
+    w := 2.0 * PI * hz
+    w * self.l - 1.0 / (w * self.c)
+
+fn Rlc.size(self, hz float) float
+    x := self.reactance(hz)
+    (self.r * self.r + x * x).sqrt()
+
+fn main()
+    circ := Rlc(r: 10.0, l: 0.01, c: 0.000001)
+    f0 := 1.0 / (2.0 * PI * (circ.l * circ.c).sqrt())
+    q := (circ.l / circ.c).sqrt() / circ.r
+    print("resonance {f0:.1} Hz, Q {q:.2}, bandwidth {f0 / q:.1} Hz")
+    for hz in [200.0, 800.0, 1400.0, 1550.0, 1700.0, 3000.0, 10000.0]
+        x := circ.reactance(hz)
+        z := circ.size(hz)
+        phase := x.atan2(circ.r) * 180.0 / PI
+        kind := if x < 0.0 then "capacitive" else "inductive"
+        amps := 5.0 / z * 1000.0
+        print("{hz:>7.0} Hz: |Z| {z:>8.2} ohm, phase {phase:>6.1} deg, {amps:>6.2} mA at 5 V, {kind}")
+
+@test fn resistive_at_dc_limit()
+    c := Rlc(r: 10.0, l: 0.0, c: 1.0)
+    assert(c.reactance(1000000.0) < 0.0)

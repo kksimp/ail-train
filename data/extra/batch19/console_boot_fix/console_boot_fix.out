@@ -1,0 +1,3 @@
+10 lines, 3 jumps
+part 1: accumulator 9 before the loop repeats
+part 2: flipping line 6 (jmp -5) ends with accumulator 20

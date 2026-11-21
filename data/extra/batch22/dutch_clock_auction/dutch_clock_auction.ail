@@ -1,0 +1,37 @@
+## Dutch clock auction: the price clock for 150 flower boxes starts at 90 and drops 2 a tick; the first buyer
+## whose limit the clock reaches stops it and takes up to the boxes they want at that price, then it runs on.
+
+struct Buyer
+    name str
+    limit int
+    want int
+    done bool
+
+fn main()
+    mut buyers := [Buyer(name: "Ana", limit: 71, want: 30, done: false), Buyer(name: "Bo", limit: 66, want: 50, done: false), Buyer(name: "Cy", limit: 66, want: 40, done: false), Buyer(name: "Di", limit: 57, want: 20, done: false), Buyer(name: "Ed", limit: 50, want: 60, done: false)]
+    mut left := 150
+    mut price := 90
+    mut tick := 0
+    mut revenue := 0
+    while left > 0 and price > 0
+        mut pick := -1
+        for i in 0..buyers.len()
+            b := buyers[i]
+            if not b.done and b.limit >= price and pick == -1
+                pick = i
+        if pick == -1
+            price -= 2
+            tick += 1
+            continue
+        boxes := buyers[pick].want.min(left)
+        buyers[pick].done = true
+        left -= boxes
+        revenue += boxes * price
+        print("tick {tick:>2}: clock at {price}, {buyers[pick].name} takes {boxes} boxes, {left} left")
+    print("revenue {revenue}, average {revenue / 150} a box")
+
+@test fn clock_steps()
+    mut price := 90
+    for _ in 0..10
+        price -= 2
+    assert_eq(price, 70)

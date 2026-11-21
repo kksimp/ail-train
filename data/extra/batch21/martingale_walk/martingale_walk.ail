@@ -1,0 +1,38 @@
+## Martingale walk: a player doubles an even-money bet after every loss and drops back to the base bet after
+## a win, up to a table limit; a seeded wheel (18 winning pockets of 37) shows how a losing run hurts.
+
+fn next_state(s int) int
+    (s * 1103515245 + 12345) % 2147483648
+
+fn main()
+    mut s := 4242
+    mut bank := 1000
+    mut bet := 10
+    mut streak := 0
+    mut worst := 0
+    mut spins := 0
+    mut capped := 0
+    while spins < 60 and bank > 0
+        spins += 1
+        stake := bet.min(bank)
+        s = next_state(s)
+        pocket := (s >> 16) % 37
+        if pocket < 18
+            bank += stake
+            bet = 10
+            streak = 0
+        else
+            bank -= stake
+            streak += 1
+            worst = worst.max(streak)
+            bet = stake * 2
+            if bet > 320
+                bet = 320
+                capped += 1
+        if spins % 10 == 0
+            print("after {spins} spins: bank {bank}, next bet {bet}")
+    print("stopped after {spins} spins with {bank}")
+    print("longest losing run {worst}; table limit hit {capped} times")
+
+@test fn generator()
+    assert_eq(next_state(0), 12345)

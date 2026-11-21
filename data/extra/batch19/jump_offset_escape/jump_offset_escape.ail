@@ -1,0 +1,23 @@
+## Jump offset escape: a list of jump offsets is followed from the first entry, and each offset changes after
+## use; part 1 always adds one, part 2 subtracts one from offsets of three or more; counts the jumps until leaving the list.
+
+fn escape(start List[int], strange bool) int
+    mut jumps := start
+    mut pc := 0
+    mut steps := 0
+    while pc >= 0 and pc < jumps.len()
+        off := jumps[pc]
+        jumps[pc] += if strange and off >= 3 then -1 else 1
+        pc += off
+        steps += 1
+    steps
+
+fn main()
+    offsets := [0, 3, 0, 1, -3, 2, -1, 4, -6, 1]
+    print("offsets: {offsets}")
+    print("part 1: out after {escape(offsets, false)} jumps")
+    print("part 2: out after {escape(offsets, true)} jumps")
+
+@test fn sample()
+    assert_eq(escape([1], false), 1)
+    assert_eq(escape([0, 1], false), 3)

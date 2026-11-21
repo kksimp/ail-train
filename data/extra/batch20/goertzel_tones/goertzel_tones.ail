@@ -1,0 +1,47 @@
+## Goertzel tone detection: a two-term recurrence s = x + 2 cos(w) s1 - s2 measures one frequency's power
+## without a full FFT; running it for the 8 DTMF frequencies picks the strongest row and column tone of a key.
+
+PI := 3.141592653589793
+
+fn power(xs List[float], hz float, rate float) float
+    w := 2.0 * PI * hz / rate
+    coeff := 2.0 * w.cos()
+    mut s1 := 0.0
+    mut s2 := 0.0
+    for x in xs
+        s := x + coeff * s1 - s2
+        s2 = s1
+        s1 = s
+    s1 * s1 + s2 * s2 - coeff * s1 * s2
+
+fn tone(f1 float, f2 float, n int, rate float) List[float]
+    [(2.0 * PI * f1 * i.to_float() / rate).sin() + (2.0 * PI * f2 * i.to_float() / rate).sin() for i in 0..n]
+
+fn strongest(xs List[float], freqs List[float], rate float) int
+    mut best := 0
+    for i in 1..freqs.len()
+        if power(xs, freqs[i], rate) > power(xs, freqs[best], rate)
+            best = i
+    best
+
+fn main()
+    rate := 8000.0
+    rows := [697.0, 770.0, 852.0, 941.0]
+    cols := [1209.0, 1336.0, 1477.0]
+    keys := ["123", "456", "789", "*0#"]
+    pressed := [(1, 1), (2, 2), (3, 0), (0, 2), (3, 1)]
+    mut heard := List[str]()
+    for p in pressed
+        r, c := p
+        xs := tone(rows[r], cols[c], 205, rate)
+        rr := strongest(xs, rows, rate)
+        cc := strongest(xs, cols, rate)
+        key := keys[rr].char_at(cc) else '?'
+        heard.push("{key}")
+        levels := rows.map(|f| "{power(xs, f, rate) / 1000.0:.1}").join(" ")
+        print("{rows[r]:.0} + {cols[c]:.0} Hz: row powers {levels} (thousands) -> {key}")
+    shown := heard.join("")
+    print("decoded: {shown}")
+
+@test fn silence()
+    assert_eq(power([0.0, 0.0, 0.0], 697.0, 8000.0), 0.0)

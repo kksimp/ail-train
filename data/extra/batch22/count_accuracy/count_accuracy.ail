@@ -1,0 +1,40 @@
+## Count accuracy: shelf counts are checked against the system quantity with a tolerance set by class (A items
+## within 1%, B within 2%, C within 5%); counts per year by class (12, 4, 1) give the counting workload.
+
+struct Count
+    sku str
+    class char
+    system int
+    counted int
+
+fn tolerance(c char) int
+    match c
+        'A' => 1
+        'B' => 2
+        _ => 5
+
+fn per_year(c char) int
+    match c
+        'A' => 12
+        'B' => 4
+        _ => 1
+
+fn within(c Count) bool
+    (c.counted - c.system).abs() * 100 <= c.system * tolerance(c.class)
+
+fn main()
+    counts := [Count(sku: "A-100", class: 'A', system: 500, counted: 496), Count(sku: "A-220", class: 'A', system: 240, counted: 236), Count(sku: "B-310", class: 'B', system: 150, counted: 147), Count(sku: "B-415", class: 'B', system: 90, counted: 87), Count(sku: "C-502", class: 'C', system: 60, counted: 63), Count(sku: "C-777", class: 'C', system: 40, counted: 45)]
+    mut good := 0
+    mut work := 0
+    for c in counts
+        ok := within(c)
+        if ok
+            good += 1
+        work += per_year(c.class)
+        verdict := if ok then "within tolerance" else "recount"
+        print("{c.sku} ({c.class}): system {c.system:>3}, counted {c.counted:>3}, off {c.counted - c.system:>2}: {verdict}")
+    print("{good} of {counts.len()} accurate; {work} counts a year, about {work * 10 / 12 / 10}.{work * 10 / 12 % 10} a month")
+
+@test fn tolerance_edge()
+    assert(within(Count(sku: "x", class: 'B', system: 100, counted: 98)))
+    assert(not within(Count(sku: "x", class: 'A', system: 100, counted: 98)))

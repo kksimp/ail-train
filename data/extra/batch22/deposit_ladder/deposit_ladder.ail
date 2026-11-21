@@ -1,0 +1,37 @@
+## Deposit ladder: 2,000 goes into each of five term deposits maturing in 1 to 5 years at rising rates;
+## each deposit that matures is put back for 5 years at the top rate, so one matures every year.
+
+struct Rung
+    value int
+    left int
+    bp int
+
+fn money(c int) str
+    cents := c % 100
+    "{c / 100}.{cents:02}"
+
+fn grow(v int, bp int) int
+    v * (10000 + bp) / 10000
+
+fn main()
+    rates := [300, 340, 380, 410, 450]
+    mut rungs := List[Rung]()
+    for i in 0..5
+        rungs.push(Rung(value: 200000, left: i + 1, bp: rates[i]))
+    for year in 1..=7
+        mut matured := List[str]()
+        for mut r in rungs
+            r.value = grow(r.value, r.bp)
+            r.left -= 1
+            if r.left == 0
+                matured.push(money(r.value))
+                r.left = 5
+                r.bp = 450
+        total := rungs.fold(0, |acc, r| acc + r.value)
+        joined := matured.join(", ")
+        print("year {year}: matured {joined}, ladder worth {money(total)}")
+    avg := rungs.fold(0, |acc, r| acc + r.bp) / rungs.len()
+    print("every deposit now earns {avg} basis points")
+
+@test fn one_year()
+    assert_eq(grow(10000, 450), 10450)

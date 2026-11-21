@@ -1,0 +1,40 @@
+## Order lines check: each line "3 x SKU" is priced from a catalogue by a function returning
+## `int ! str`; the order total passes the first failure on with `?`, and callers use `else err`.
+
+fn line_cost(line str, prices Map[str, int]) int ! str
+    parts := line.split(" x ")
+    if parts.len() != 2
+        return "cannot read '{line}'"
+    qty := parts[0].trim().to_int() else return "bad quantity in '{line}'"
+    sku := parts[1].trim()
+    each := prices.get(sku) else return "no such product {sku}"
+    if qty <= 0
+        return "quantity must be positive in '{line}'"
+    qty * each
+
+fn order_total(lines List[str], prices Map[str, int]) int ! str
+    mut total := 0
+    for l in lines
+        total += line_cost(l, prices)?
+    total
+
+fn main()
+    prices := {"MUG-01": 850, "TEA-50": 499, "POT-02": 2450}
+    orders := [
+        ["2 x MUG-01", "1 x TEA-50"],
+        ["1 x POT-02", "3 x CUP-09"],
+        ["two x TEA-50"],
+        ["4 x TEA-50", "1 x POT-02", "1 x MUG-01"],
+        ["1 x MUG-01", "0 x TEA-50"],
+    ]
+    mut good := 0
+    for i, o in orders.enumerate()
+        t := order_total(o, prices) else err
+            print("order {i + 1}: rejected, {err}")
+            continue
+        good += t
+        print("order {i + 1}: {t / 100}.{t % 100:02}")
+    print("accepted value {good / 100}.{good % 100:02}")
+
+@test fn unknown_sku()
+    assert_err(line_cost("1 x NOPE", {"A": 1}))

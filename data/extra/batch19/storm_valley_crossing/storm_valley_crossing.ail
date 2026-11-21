@@ -1,0 +1,59 @@
+## Storm valley crossing: gusts in a walled valley drift one cell a minute and re-enter on the far side; a
+## breadth-first search over (minute, position) finds the quickest crossing, then the trip there, back and there again.
+
+struct Gust
+    r int
+    c int
+    dr int
+    dc int
+
+fn busy(gusts List[Gust], h int, w int, t int) Set[int]
+    mut s := Set[int]()
+    for g in gusts
+        r := ((g.r + t * g.dr) % h + h) % h
+        c := ((g.c + t * g.dc) % w + w) % w
+        s.add(r * 100 + c)
+    s
+
+fn cross(gusts List[Gust], h int, w int, from List[int], to List[int], t0 int) int
+    mut t := t0
+    mut here := Set[int]()
+    here.add(from[0] * 100 + from[1])
+    while not here.contains(to[0] * 100 + to[1])
+        t += 1
+        blocked := busy(gusts, h, w, t)
+        mut next := Set[int]()
+        for p in here
+            r := p / 100 - 1
+            c := p % 100
+            for d in [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]]
+                nr := r + d[0]
+                nc := c + d[1]
+                ok_cell := (nr >= 0 and nr < h and nc >= 0 and nc < w) or (nr == from[0] - 1 and nc == from[1]) or (nr == to[0] - 1 and nc == to[1])
+                if ok_cell and not blocked.contains(nr * 100 + nc)
+                    next.add((nr + 1) * 100 + nc)
+        here = next
+    t
+
+fn main()
+    valley := [">.<.v.", ".^..>.", "<..v..", "..>..^"]
+    mut gusts := List[Gust]()
+    for r, line in valley.enumerate()
+        for c, ch in line.chars().enumerate()
+            if k := ">v<^".find("{ch}")
+                gusts.push(Gust(r: r, c: c, dr: [0, 1, 0, -1][k], dc: [1, 0, -1, 0][k]))
+    h := valley.len()
+    w := valley[0].len()
+    start := [0, 0]
+    goal := [h + 1, w - 1]
+    print("{gusts.len()} gusts in a {h} by {w} valley")
+    t1 := cross(gusts, h, w, start, goal, 0)
+    print("part 1: across in {t1} minutes")
+    t2 := cross(gusts, h, w, goal, start, t1)
+    t3 := cross(gusts, h, w, start, goal, t2)
+    print("back at the start at minute {t2}")
+    print("part 2: across again by minute {t3}")
+
+@test fn gust_moves()
+    g := [Gust(r: 0, c: 5, dr: 0, dc: 1)]
+    assert(busy(g, 4, 6, 1).contains(0))

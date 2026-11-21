@@ -1,0 +1,25 @@
+## Merit certificates: merits from each week's log add up per pupil; crossing 25, 50 and 100 earns bronze,
+## silver and gold certificates, announced in the week they are reached, then the standings are shown.
+
+fn crossed(before int, after int, line int) bool
+    before < line and after >= line
+
+fn main()
+    levels := [(25, "bronze"), (50, "silver"), (100, "gold")]
+    log := [(1, "Ola", 12), (1, "Pip", 20), (1, "Raj", 8), (2, "Ola", 15), (2, "Pip", 9), (2, "Raj", 30), (3, "Ola", 30), (3, "Pip", 25), (3, "Raj", 4), (4, "Ola", 46), (4, "Pip", 3), (4, "Raj", 20)]
+    mut totals := Map[str, int]()
+    for e in log
+        week, who, n := e
+        before := totals.get_or(who, 0)
+        after := before + n
+        totals[who] = after
+        for lv in levels
+            if crossed(before, after, lv.0)
+                print("week {week}: {who} earns {lv.1} ({after} merits)")
+    order := totals.keys().sorted(by: |k| -totals[k])
+    for i, who in order.enumerate()
+        print("{i + 1}. {who} {totals[who]}")
+
+@test fn lines()
+    assert(crossed(20, 30, 25))
+    assert(not crossed(25, 30, 25))

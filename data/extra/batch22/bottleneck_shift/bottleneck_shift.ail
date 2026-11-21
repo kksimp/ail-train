@@ -1,0 +1,34 @@
+## Bottleneck shift: a line runs only as fast as its slowest station; each extra machine goes to the current
+## bottleneck, which raises output until another station becomes the constraint. Utilisation is shown per round.
+
+struct Station
+    name str
+    rate int
+    machines int
+
+fn capacity(s Station) int
+    s.rate * s.machines
+
+fn slowest(line List[Station]) int
+    mut b := 0
+    for i in 1..line.len()
+        if capacity(line[i]) < capacity(line[b])
+            b = i
+    b
+
+fn main()
+    mut line := [Station(name: "cut", rate: 40, machines: 1), Station(name: "weld", rate: 12, machines: 2), Station(name: "paint", rate: 30, machines: 1), Station(name: "pack", rate: 50, machines: 1)]
+    for round in 0..=3
+        b := slowest(line)
+        output := capacity(line[b])
+        mut parts := List[str]()
+        for s in line
+            parts.push("{s.name} {output * 100 / capacity(s)}%")
+        joined := parts.join(", ")
+        print("round {round}: {output} an hour, bottleneck {line[b].name} ({joined})")
+        if round < 3
+            line[b].machines += 1
+
+@test fn first_bottleneck()
+    line := [Station(name: "a", rate: 40, machines: 1), Station(name: "b", rate: 12, machines: 2)]
+    assert_eq(slowest(line), 1)

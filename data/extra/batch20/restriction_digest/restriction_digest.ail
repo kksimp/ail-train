@@ -1,0 +1,43 @@
+## Restriction digest: each enzyme cuts DNA at its recognition site (EcoRI after G in GAATTC, BamHI after G in
+## GGATCC, HindIII after A in AAGCTT); a linear molecule cut n times gives n + 1 fragments, run longest first.
+
+struct Enzyme
+    name str
+    site str
+    cut_at int
+
+fn cuts(dna str, e Enzyme) List[int]
+    mut out := List[int]()
+    mut from := 0
+    while from + e.site.len() <= dna.len()
+        rest := dna.slice(from)
+        at := rest.find(e.site) else break
+        out.push(from + at + e.cut_at)
+        from = from + at + 1
+    out
+
+fn fragments(total int, positions List[int]) List[int]
+    mut edges := [0]
+    edges.extend(positions.sorted())
+    edges.push(total)
+    mut out := List[int]()
+    for i in 0..edges.len() - 1
+        out.push(edges[i + 1] - edges[i])
+    out.sorted().reversed()
+
+fn main()
+    pieces := ["ATCGGAATTCTTAGC", "CGGATCCAAGTTACG", "GCAAGCTTGGCATTA", "CCGAATTCGGTACCA", "TGGTTAGCAAGCTTCA", "GGCTAGGATCCTTAC", "GTTACCATGCA"]
+    dna := pieces.join("")
+    enzymes := [Enzyme(name: "EcoRI", site: "GAATTC", cut_at: 1), Enzyme(name: "BamHI", site: "GGATCC", cut_at: 1), Enzyme(name: "HindIII", site: "AAGCTT", cut_at: 1)]
+    print("{dna.len()} bp linear DNA")
+    mut every := List[int]()
+    for e in enzymes
+        c := cuts(dna, e)
+        every.extend(c)
+        print("{e.name:<7} {e.site}: cuts at {c}, fragments {fragments(dna.len(), c)}")
+    print("all three together: {fragments(dna.len(), every)}")
+
+@test fn single_site()
+    e := Enzyme(name: "x", site: "GAATTC", cut_at: 1)
+    assert_eq(cuts("AAGAATTCAA", e), [3])
+    assert_eq(fragments(10, [3]), [7, 3])

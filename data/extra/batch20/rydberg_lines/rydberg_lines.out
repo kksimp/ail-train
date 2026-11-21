@@ -1,0 +1,6 @@
+Lyman: 2->1 121.5, 3->1 102.5, 4->1 97.2, 5->1 94.9 nm, limit 91.1 nm
+  first line is Band.Ultraviolet
+Balmer: 3->2 656.1, 4->2 486.0, 5->2 433.9, 6->2 410.1 nm, limit 364.5 nm
+  first line is Band.Visible
+Paschen: 4->3 1874.6, 5->3 1281.5, 6->3 1093.5, 7->3 1004.7 nm, limit 820.1 nm
+  first line is Band.Infrared

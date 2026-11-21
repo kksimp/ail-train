@@ -1,0 +1,6 @@
+after 5 blinks: 31 pebbles, 17 distinct values
+after 15 blinks: 1669 pebbles, 47 distinct values
+part 1: 1669 pebbles
+after 25 blinks: 97696 pebbles, 47 distinct values
+after 40 blinks: 43531930 pebbles, 47 distinct values
+part 2: 43531930 pebbles

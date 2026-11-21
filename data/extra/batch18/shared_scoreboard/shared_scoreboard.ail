@@ -1,0 +1,42 @@
+## Shared scoreboard: two officials' tablets hold the same `ref Score` cell, so a goal entered on
+## either shows on both; a plain struct copy taken at half time stays as it was.
+
+struct Score
+    home int
+    away int
+
+struct Tablet
+    name str
+    board ref Score
+
+fn goal(t Tablet, side str)
+    if side == "home"
+        t.board.home += 1
+    else
+        t.board.away += 1
+
+fn view(t Tablet) str
+    "{t.name}: {t.board.home}-{t.board.away}"
+
+fn main()
+    board := ref Score(home: 0, away: 0)
+    a := Tablet(name: "pitchside", board: board)
+    b := Tablet(name: "press box", board: board)
+    goal(a, "home")
+    goal(b, "away")
+    goal(a, "home")
+    half := Score(home: board.home, away: board.away)
+    print("half time {half.home}-{half.away}")
+    goal(b, "home")
+    goal(b, "away")
+    goal(a, "away")
+    print(view(a))
+    print(view(b))
+    print("same cell: {a.board == b.board}")
+    print("half-time copy stays {half.home}-{half.away}")
+
+@test fn shared_cell()
+    s := ref Score(home: 0, away: 0)
+    t := Tablet(name: "x", board: s)
+    goal(t, "away")
+    assert_eq(s.away, 1)

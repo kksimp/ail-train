@@ -1,0 +1,27 @@
+## Boat race margins: holding the launch lever h seconds of a T-second race gives speed h and distance
+## h x (T - h); counts the ways to beat each record (product of counts), then for one long race read by joining the digits.
+
+fn ways(t int, record int) int
+    mut n := 0
+    for h in 0..=t
+        if h * (t - h) > record
+            n += 1
+    n
+
+fn main()
+    times := "Time:      8   19   27   41"
+    records := "Record:    12  70   150  380"
+    ts := times.split(":")[1].words().map(|w| (w.to_int() else 0))
+    rs := records.split(":")[1].words().map(|w| (w.to_int() else 0))
+    mut product := 1
+    for i in 0..ts.len()
+        k := ways(ts[i], rs[i])
+        print("race of {ts[i]} s, record {rs[i]}: {k} ways")
+        product *= k
+    print("part 1: product {product}")
+    big_t := times.split(":")[1].words().join("").to_int() else 0
+    big_r := records.split(":")[1].words().join("").to_int() else 0
+    print("part 2: race of {big_t} s, record {big_r}: {ways(big_t, big_r)} ways")
+
+@test fn small_race()
+    assert_eq(ways(7, 9), 4)

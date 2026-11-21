@@ -1,0 +1,29 @@
+## Container mix: a shipment's volume goes in 40-foot boxes (67 m3, 2,600) and 20-foot boxes (33 m3, 1,800), with
+## a small remainder optionally sent as shared-box cargo at 70 per m3; every count of 40-foot boxes is tried.
+
+fn ceil_div(a int, b int) int
+    (a + b - 1) / b
+
+fn plan(volume int) List[int]
+    mut best := [-1, 0, 0, 0]
+    for big in 0..=ceil_div(volume, 67)
+        rest := (volume - big * 67).max(0)
+        small := ceil_div(rest, 33)
+        mut opts := [[big * 2600 + small * 1800, big, small, 0]]
+        if rest > 0
+            full := rest / 33
+            loose := rest - full * 33
+            opts.push([big * 2600 + full * 1800 + loose * 70, big, full, loose])
+        for o in opts
+            if best[0] < 0 or o[0] < best[0]
+                best = o
+    best
+
+fn main()
+    for v in [12, 30, 45, 70, 95, 140, 210]
+        p := plan(v)
+        loose := if p[3] > 0 then ", {p[3]} m3 shared" else ""
+        print("{v:>3} m3: {p[1]} x 40ft, {p[2]} x 20ft{loose}, cost {p[0]}")
+
+@test fn small_load_shared()
+    assert_eq(plan(12), [840, 0, 0, 12])

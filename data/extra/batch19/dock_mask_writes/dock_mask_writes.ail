@@ -1,0 +1,55 @@
+## Dock mask writes: an 8-bit mask of 0, 1 and X rewrites memory writes; part 1 forces the value's bits where the
+## mask says 0 or 1, part 2 forces address bits to 1 and lets every X float to both values, writing many addresses.
+
+fn apply_value(mask str, v int) int
+    mut out := v
+    for i, ch in mask.chars().enumerate()
+        bit := 1 << (7 - i)
+        if ch == '1'
+            out = out | bit
+        elif ch == '0'
+            out = out & (255 - bit)
+    out
+
+fn addresses(mask str, addr int) List[int]
+    mut outs := [0]
+    for i, ch in mask.chars().enumerate()
+        bit := 1 << (7 - i)
+        mut next := List[int]()
+        for a in outs
+            if ch == 'X'
+                next.push(a)
+                next.push(a | bit)
+            elif ch == '1' or (addr & bit) != 0
+                next.push(a | bit)
+            else
+                next.push(a)
+        outs = next
+    outs
+
+fn main()
+    prog := ["mask = 1X0X01X0", "mem[3] = 77", "mem[40] = 5", "mask = X10000X1", "mem[3] = 200", "mem[9] = 18"]
+    mut mask := ""
+    mut mem1 := Map[int, int]()
+    mut mem2 := Map[int, int]()
+    for line in prog
+        kv := line.split(" = ")
+        if kv[0] == "mask"
+            mask = kv[1]
+            continue
+        addr := kv[0].slice(4, kv[0].len() - 1).to_int() else 0
+        v := kv[1].to_int() else 0
+        mem1[addr] = apply_value(mask, v)
+        for a in addresses(mask, addr)
+            mem2[a] = v
+    mut cells := List[str]()
+    for k, v in mem1
+        cells.push("{k}={v}")
+    shown := cells.join(" ")
+    print("memory after part 1 rules: {shown}")
+    print("part 1: sum {mem1.values().sum()}")
+    print("part 2: {mem2.len()} addresses written, sum {mem2.values().sum()}")
+
+@test fn masks()
+    assert_eq(apply_value("XXXXXX10", 0), 2)
+    assert_eq(addresses("0000000X", 0), [0, 1])

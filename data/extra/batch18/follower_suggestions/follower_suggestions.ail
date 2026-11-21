@@ -1,0 +1,31 @@
+## Follower suggestions: who-follows-whom is a `Map` of `Set`s; mutual follows use `contains`,
+## and suggestions are friends of friends (`union`, `difference`) ranked by how many friends follow them.
+
+fn main()
+    follows := {
+        "ana": {"ben", "cy", "dot"},
+        "ben": {"ana", "eli"},
+        "cy": {"ana", "eli", "fay"},
+        "dot": {"fay"},
+        "eli": {"ben"},
+        "fay": {"cy"},
+    }
+    me := "ana"
+    mine := follows[me]
+    mutual := mine.sorted().filter(|p| follows.get_or(p, Set[str]()).contains(me))
+    print("{me} and mutual: {mutual}")
+    mut votes := Map[str, int]()
+    for f in mine.sorted()
+        theirs := follows.get_or(f, Set[str]())
+        for s in theirs.difference(mine).sorted()
+            if s != me
+                votes[s] += 1
+    ranked := votes.keys().sorted().sorted(by: |k| -votes[k])
+    for s in ranked
+        print("suggest {s}: followed by {votes[s]} of your follows")
+    reach := mine.union(follows["cy"]).len()
+    print("ana and cy together follow {reach} people")
+
+@test fn set_difference()
+    a := {"x", "y"}
+    assert_eq(a.difference({"y"}).sorted(), ["x"])

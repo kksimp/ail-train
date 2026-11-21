@@ -1,0 +1,34 @@
+## Weigh-in plateau: weekly weights are kept in tenths of a kilo; three weeks in a row changing by 0.2 kg
+## or less is a plateau, and the total loss, the best week and the average weekly loss are reported.
+
+fn kg(t int) str
+    "{t / 10}.{t % 10}"
+
+fn change(d int) str
+    sign := if d < 0 then "-" elif d > 0 then "+" else " "
+    a := d.abs()
+    "{sign}{a / 10}.{a % 10}"
+
+fn main()
+    w := [842, 836, 829, 825, 824, 823, 825, 818, 811, 809, 808, 806, 800]
+    mut run := 0
+    mut best := 1
+    for i in 1..w.len()
+        d := w[i] - w[i - 1]
+        if d.abs() <= 2
+            run += 1
+            if run == 3
+                print("plateau: weeks {i - 2} to {i} (now {kg(w[i])} kg)")
+        else
+            run = 0
+        if d < w[best] - w[best - 1]
+            best = i
+    loss := w[0] - w[w.len() - 1]
+    weeks := w.len() - 1
+    per := loss * 10 / weeks
+    print("week {best}: biggest drop, {change(w[best] - w[best - 1])} kg")
+    print("lost {kg(loss)} kg over {weeks} weeks, about 0.{per:02} kg a week")
+
+@test fn text()
+    assert_eq(kg(842), "84.2")
+    assert_eq(change(-7), "-0.7")

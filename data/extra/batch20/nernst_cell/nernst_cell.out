@@ -1,0 +1,7 @@
+[Zn2+] 1.0, [Cu2+] 1.0: E 1.1000 V, dG -212.3 kJ/mol
+[Zn2+] 0.01, [Cu2+] 1.0: E 1.1592 V, dG -223.7 kJ/mol
+[Zn2+] 1.0, [Cu2+] 0.01: E 1.0408 V, dG -200.9 kJ/mol
+[Zn2+] 0.1, [Cu2+] 0.001: E 1.0408 V, dG -200.9 kJ/mol
+[Zn2+] 2.0, [Cu2+] 0.0001: E 0.9728 V, dG -187.7 kJ/mol
+equilibrium constant K = 10^37.2
+copper concentration cell, 0.001 against 1 mol/L: 88.7 mV

@@ -1,0 +1,31 @@
+## Tombola: tickets 1 to 300 are drawn without repeats from a seeded generator; a ticket ending in 0 or 5
+## wins the next prize on the table, and the draw stops when the prizes or the 25 draws run out.
+
+fn wins(t int) bool
+    t % 5 == 0
+
+fn next_state(s int) int
+    (s * 1103515245 + 12345) % 2147483648
+
+fn main()
+    prizes := ["wine", "chocolates", "candle", "plant", "teddy", "biscuits"]
+    mut state := 1001
+    mut drawn := Set[int]()
+    mut given := 0
+    mut draws := 0
+    while draws < 25 and given < prizes.len()
+        state = next_state(state)
+        t := state % 300 + 1
+        if not drawn.add(t)
+            continue
+        draws += 1
+        if wins(t)
+            print("draw {draws:>2}: ticket {t:>3} wins the {prizes[given]}")
+            given += 1
+    print("{draws} tickets drawn, {given} prizes won, {prizes.len() - given} left on the table")
+    ends := drawn.to_list().count(|t| wins(t))
+    print("winning tickets drawn: {ends}")
+
+@test fn ending()
+    assert(wins(145))
+    assert(not wins(146))

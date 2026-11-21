@@ -1,0 +1,30 @@
+## Jam batches: each fruit gets sugar at its own grams per kilo, a pan takes at most 4 kg of fruit a boil,
+## and the set jam weighs 85% of fruit plus sugar, filling 340 g jars with the rest as a tasting pot.
+
+struct Fruit
+    name str
+    grams int
+    sugar_per_kg int
+
+fn batches(g int) int
+    (g + 3999) / 4000
+
+fn main()
+    fruit := [Fruit(name: "strawberry", grams: 6500, sugar_per_kg: 750), Fruit(name: "blackcurrant", grams: 3000, sugar_per_kg: 1000), Fruit(name: "plum", grams: 9200, sugar_per_kg: 600), Fruit(name: "raspberry", grams: 2400, sugar_per_kg: 800)]
+    mut jars := 0
+    mut sugar_total := 0
+    mut boils := 0
+    for f in fruit
+        sugar := f.grams * f.sugar_per_kg / 1000
+        jam := (f.grams + sugar) * 85 / 100
+        n := jam / 340
+        jars += n
+        sugar_total += sugar
+        boils += batches(f.grams)
+        print("{f.name:<12} {f.grams} g + {sugar} g sugar, {batches(f.grams)} boils: {n} jars and a {jam % 340} g pot")
+    bags := (sugar_total + 999) / 1000
+    print("{jars} jars from {boils} boils; buy {bags} kg bags of sugar")
+
+@test fn pan_limit()
+    assert_eq(batches(8000), 2)
+    assert_eq(batches(8001), 3)

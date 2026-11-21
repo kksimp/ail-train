@@ -1,0 +1,5 @@
+E1 12.0 V with R1 4.0 ohm, E2 6.0 V with R2 2.0 ohm, shared R3 6.0 ohm
+loop currents: I1 1.3636 A, I2 0.2727 A
+through R3: 1.0909 A, R3 voltage 6.5455 V
+batteries give 14.7273 W, resistors take 14.7273 W
+the second battery is draining E2

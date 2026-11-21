@@ -1,0 +1,42 @@
+## PCR primers: the Wallace rule Tm = 2 (A + T) + 4 (G + C) suits short primers and 64.9 + 41 (GC - 16.4) / N
+## longer ones; a good pair has similar Tm, 40-60% GC and a G or C at the 3' end (the clamp).
+
+fn gc_count(s str) int
+    s.chars().count(|c| c == 'G' or c == 'C')
+
+fn tm(s str) float
+    n := s.len()
+    gc := gc_count(s)
+    if n < 14
+        (2 * (n - gc) + 4 * gc).to_float()
+    else
+        64.9 + 41.0 * (gc.to_float() - 16.4) / n.to_float()
+
+fn problems(s str) List[str]
+    mut out := List[str]()
+    share := gc_count(s).to_float() / s.len().to_float() * 100.0
+    if share < 40.0 or share > 60.0
+        out.push("GC {share:.0}%")
+    last := s.char_at(s.len() - 1) else 'A'
+    if last != 'G' and last != 'C'
+        out.push("no 3' clamp")
+    if s.contains("AAAA") or s.contains("TTTT") or s.contains("GGGG") or s.contains("CCCC")
+        out.push("run of 4")
+    out
+
+fn main()
+    pairs := [("AGCTTGCATGCCTGCAGG", "GACGGCCAGTGAATTCGA"), ("ATTTTAGCATCG", "GCGCGGCCGC"), ("TGACCTGAAGCTTGAGTC", "CAGTTTCGAGCAAAATTA")]
+    for p in pairs
+        fwd, rev := p
+        a := tm(fwd)
+        b := tm(rev)
+        for s in [fwd, rev]
+            issues := problems(s)
+            note := if issues.is_empty() then "ok" else issues.join(", ")
+            print("{s:<20} {s.len()} nt, Tm {tm(s):.1} C, {note}")
+        gap := (a - b).abs()
+        verdict := if gap <= 5.0 then "matched" else "mismatched"
+        print("  pair Tm gap {gap:.1} C: {verdict}")
+
+@test fn short_rule()
+    assert_eq(tm("ATGC"), 12.0)

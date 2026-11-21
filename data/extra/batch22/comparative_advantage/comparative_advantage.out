@@ -1,0 +1,5 @@
+North: a cloth costs 0.67 wine, a wine costs 1.50 cloth
+South: a cloth costs 1.50 wine, a wine costs 0.67 cloth
+even split: 200 cloth, 175 wine
+specialised: North 200 cloth and 66 wine, South 150 wine
+same cloth, wine up from 175 to 216

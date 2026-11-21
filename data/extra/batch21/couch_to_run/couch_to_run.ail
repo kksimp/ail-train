@@ -1,0 +1,25 @@
+## Couch to run: each week's session repeats run and walk intervals after a 10 minute warm-up walk (no walk
+## after the last run); the table gives running minutes, session length and the rise in running time.
+
+struct Week
+    run int
+    walk int
+    reps int
+
+fn session(r int, w int, n int) int
+    n * (r + w) - w + 10
+
+fn main()
+    plan := [Week(run: 1, walk: 2, reps: 8), Week(run: 2, walk: 2, reps: 6), Week(run: 3, walk: 2, reps: 5), Week(run: 5, walk: 3, reps: 4), Week(run: 8, walk: 3, reps: 3), Week(run: 12, walk: 2, reps: 2), Week(run: 25, walk: 0, reps: 1)]
+    mut prev := 0
+    for i, w in plan.enumerate()
+        running := w.run * w.reps
+        total := session(w.run, w.walk, w.reps)
+        rise := if prev == 0 then "start" else "+{(running - prev) * 100 / prev}%"
+        print("week {i + 1}: {w.reps} x ({w.run} run, {w.walk} walk) = {running:>2} min running, {total} min out, {rise}")
+        prev = running
+    longest := plan.max(by: |w| w.run) else plan[0]
+    print("final week: one continuous {longest.run} minute run")
+
+@test fn first_session()
+    assert_eq(session(1, 2, 8), 32)

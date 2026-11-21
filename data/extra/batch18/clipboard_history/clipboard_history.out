@@ -1,0 +1,12 @@
+copy 'invoice #4471'
+copy 'kim@site.io'
+copy 'SELECT * FROM users'
+copy 'kim@site.io'
+copy '+44 20 7946 0958'
+copy 'https://ail.dev'
+  (dropped 'invoice #4471')
+copy 'invoice #4471'
+  (dropped 'SELECT * FROM users')
+history: invoice #4471 | https://ail.dev | +44 20 7946 0958 | kim@site.io
+paste 2nd: https://ail.dev
+oldest kept: kim@site.io

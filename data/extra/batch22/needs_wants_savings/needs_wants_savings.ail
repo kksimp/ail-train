@@ -1,0 +1,35 @@
+## Needs, wants and savings: take-home pay is meant to split 50/30/20; each spending line is tagged with an enum,
+## whatever is left unspent counts as savings, and each group's actual share is compared with its target.
+
+enum Kind
+    Need
+    Want
+    Save
+
+fn target(k Kind) int
+    match k
+        Need => 50
+        Want => 30
+        Save => 20
+
+fn main()
+    pay := 4200
+    lines := [("rent", 1500, Kind.Need), ("groceries", 450, Kind.Need), ("transport", 180, Kind.Need), ("utilities", 160, Kind.Need), ("insurance", 120, Kind.Need), ("dining out", 320, Kind.Want), ("streaming", 40, Kind.Want), ("clothes", 150, Kind.Want), ("hobbies", 210, Kind.Want), ("pension top-up", 300, Kind.Save), ("emergency fund", 200, Kind.Save)]
+    mut spent := 0
+    for l in lines
+        spent += l.1
+    for k in Kind.variants()
+        mut total := 0
+        for l in lines
+            if l.2 == k
+                total += l.1
+        if k == Kind.Save
+            total += pay - spent
+        share := total * 1000 / pay
+        goal := target(k) * pay / 100
+        flag := if k == Kind.Save and total < goal then "under target" elif k != Kind.Save and total > goal then "over target" else "ok"
+        print("{k.name():<4} {total:>5} = {share / 10}.{share % 10}% (target {target(k)}%, {goal}): {flag}")
+    print("left unspent: {pay - spent}")
+
+@test fn targets_sum()
+    assert_eq(target(Kind.Need) + target(Kind.Want) + target(Kind.Save), 100)

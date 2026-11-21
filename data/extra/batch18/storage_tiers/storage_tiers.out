@@ -1,0 +1,5 @@
+backups  120000 / 60000 / 12000 -> archive
+logs     2000 / 3000 / 18600 -> hot
+photos   12000 / 6400 / 6000 -> archive
+scratch  600 / 400 / 1260 -> cool
+cheapest plan costs 20400 cents

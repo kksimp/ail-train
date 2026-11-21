@@ -1,0 +1,45 @@
+## Swim splits: a `Time` in hundredths of a second gets `impl ToStr` (m:ss.cc), `impl Add` and
+## `impl Ord`; four 50 m splits per swimmer add up to a 200 m time and the results are ranked.
+
+struct Time
+    cs int
+
+impl ToStr for Time
+    fn to_str(self) str
+        mins := cs / 6000
+        secs := (cs / 100) % 60
+        hund := cs % 100
+        "{mins}:{secs:02}.{hund:02}"
+
+impl Add for Time
+    fn add(self, o Time) Time
+        Time(cs: cs + o.cs)
+
+impl Ord for Time
+
+struct Swim
+    name str
+    splits List[Time]
+
+fn total(s Swim) Time
+    s.splits.fold(Time(cs: 0), |acc, t| acc + t)
+
+fn main()
+    swims := [
+        Swim(name: "Ana", splits: [Time(cs: 3150), Time(cs: 3420), Time(cs: 3501), Time(cs: 3388)]),
+        Swim(name: "Bea", splits: [Time(cs: 3099), Time(cs: 3466), Time(cs: 3550), Time(cs: 3290)]),
+        Swim(name: "Cleo", splits: [Time(cs: 3205), Time(cs: 3380), Time(cs: 3412), Time(cs: 3310)]),
+    ]
+    for s in swims
+        fast := s.splits.min() else Time(cs: 0)
+        print("{s.name}: {total(s)} (fastest split {fast})")
+    ranked := swims.sorted(by: |s| total(s).cs)
+    for place, s in ranked.enumerate()
+        print("{place + 1}. {s.name} {total(s)}")
+    lead := total(ranked[1]).cs - total(ranked[0]).cs
+    gap := Time(cs: lead)
+    print("winning margin {gap}")
+
+@test fn shows_minutes()
+    t := Time(cs: 13459)
+    assert_eq("{t}", "2:14.59")

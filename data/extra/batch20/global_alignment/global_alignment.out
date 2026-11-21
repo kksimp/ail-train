@@ -1,0 +1,12 @@
+score -1
+  GATTACA
+  |..|.|.
+  GCATGCT
+score 5
+  ACGTTGCA
+  ||| ||||
+  ACG-TGCA
+score 2
+  TTAGG-CA-TC
+   |||| || ||
+  -TAGGTCATTC

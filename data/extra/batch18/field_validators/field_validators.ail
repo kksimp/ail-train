@@ -1,0 +1,49 @@
+## Field validators: functions that return closures (`fn min_len(n int) fn(str) bool`) build a
+## sign-up form's checks; each check is a struct with a `fn` field called as `(c.test)(value)`.
+
+struct Check
+    field str
+    label str
+    test fn(str) bool
+
+fn min_len(n int) fn(str) bool
+    |s| s.len() >= n
+
+fn max_len(n int) fn(str) bool
+    |s| s.len() <= n
+
+fn has(c char) fn(str) bool
+    |s| s.contains(c)
+
+fn all_digits(s str) bool
+    not s.is_empty() and s.chars().all(|c| c.is_digit())
+
+fn main()
+    checks := [
+        Check(field: "user", label: "at least 3 letters", test: min_len(3)),
+        Check(field: "user", label: "at most 12 letters", test: max_len(12)),
+        Check(field: "email", label: "has an @", test: has('@')),
+        Check(field: "pin", label: "digits only", test: all_digits),
+        Check(field: "pin", label: "exactly 4 long", test: |s| s.len() == 4),
+    ]
+    forms := [
+        {"user": "kim", "email": "kim@site.io", "pin": "4821"},
+        {"user": "al", "email": "al.site.io", "pin": "12a4"},
+        {"user": "maximilian_the_great", "email": "max@site.io", "pin": "99999"},
+    ]
+    for i, f in forms.enumerate()
+        mut failed := List[str]()
+        for c in checks
+            value := f.get_or(c.field, "")
+            if not (c.test)(value)
+                failed.push("{c.field} {c.label}")
+        if failed.is_empty()
+            print("form {i + 1}: ok")
+        else
+            joined := failed.join("; ")
+            print("form {i + 1}: {joined}")
+
+@test fn closures_capture()
+    long := min_len(5)
+    assert(long("abcdef"))
+    assert_eq(long("abc"), false)

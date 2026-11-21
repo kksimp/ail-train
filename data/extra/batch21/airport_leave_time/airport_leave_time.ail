@@ -1,0 +1,43 @@
+## Airport leave time: works back from the flight: security must be cleared when check-in closes (60 or 90
+## minutes before), the queue depends on the hour, and the drive takes 70 minutes in rush hours, else 45.
+
+fn queue_minutes(t int) int
+    h := t / 60
+    match h
+        5..=7 => 35
+        8..=10 => 25
+        16..=18 => 30
+        _ => 15
+
+fn rush(t int) bool
+    h := t / 60
+    (h >= 7 and h < 9) or (h >= 16 and h < 18)
+
+fn hhmm(t int) str
+    h := t / 60
+    m := t % 60
+    "{h:02}:{m:02}"
+
+fn leave_by(dep int, international bool) int
+    close := if international then 90 else 60
+    at_desk := dep - close
+    at_airport := at_desk - queue_minutes(at_desk)
+    calm := at_airport - 45
+    if rush(calm) or rush(at_airport - 70) then at_airport - 70 else calm
+
+fn main()
+    flights := [(410, false, "Belfast"), (555, true, "Lisbon"), (630, false, "Jersey"), (1050, false, "Inverness"), (1145, true, "Oslo")]
+    mut earliest := 24 * 60
+    for f in flights
+        dep, intl, city := f
+        leave := leave_by(dep, intl)
+        close := if intl then 90 else 60
+        q := queue_minutes(dep - close)
+        drive := dep - close - q - leave
+        earliest = earliest.min(leave)
+        print("{city:<9} {hhmm(dep)}: leave home {hhmm(leave)} (drive {drive}, queue {q})")
+    print("earliest start of the week: {hhmm(earliest)}")
+
+@test fn bands()
+    assert(rush(480))
+    assert_eq(queue_minutes(1000), 30)

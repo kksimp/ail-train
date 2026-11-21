@@ -1,0 +1,35 @@
+## Comment thread: replies point at their parent comment; a local function declared inside
+## `main` calls itself to find each comment's depth, and the thread is printed indented.
+
+struct Comment
+    id int
+    parent int
+    who str
+    text str
+
+fn main()
+    thread := [
+        Comment(id: 1, parent: 0, who: "ola", text: "Has anyone tried the new trail?"),
+        Comment(id: 2, parent: 1, who: "ben", text: "Yes, muddy after rain"),
+        Comment(id: 3, parent: 2, who: "ola", text: "Boots it is then"),
+        Comment(id: 4, parent: 1, who: "kit", text: "The view at the top is worth it"),
+        Comment(id: 5, parent: 3, who: "ben", text: "And gaiters"),
+        Comment(id: 6, parent: 0, who: "dee", text: "Car park full by 9 on Sundays"),
+    ]
+    parents := {c.id: c.parent for c in thread}
+    fn depth(id int) int
+        up := parents.get_or(id, 0)
+        if up == 0
+            return 0
+        1 + depth(up)
+    for c in thread
+        pad := "  ".repeat(depth(c.id))
+        print("{pad}{c.who}: {c.text}")
+    deepest := thread.map(|c| depth(c.id)).max() else 0
+    print("deepest reply is {deepest} levels down")
+    tops := thread.count(|c| c.parent == 0)
+    print("{tops} top-level comments")
+
+@test fn comprehension_map()
+    m := {k: k * k for k in [2, 3]}
+    assert_eq(m[3], 9)

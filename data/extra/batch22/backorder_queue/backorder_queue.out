@@ -1,0 +1,12 @@
+day 1: A orders 20, ships 20
+day 2: B orders 25, ships 25
+day 3: C orders 15, ships 5
+day 4: D orders 30, joins the queue
+day 5: delivery of 25
+  C gets 10
+  D gets 15
+day 6: E orders 5, joins the queue
+day 7: delivery of 40
+  D gets 15
+  E gets 5
+shipped at once 50 of 95 (52%), shelf ends at 20, 0 waiting

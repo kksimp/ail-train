@@ -1,0 +1,24 @@
+## Candle pour: a container takes its volume x 0.86 g/ml of wax, with fragrance oil at 8% of the wax
+## weight; a batch of containers gives the wax and oil to buy, with wax sold in 1 kg bags.
+
+fn wax_for(ml int) float
+    ml.to_float() * 0.86
+
+fn main()
+    batch := [("tin", 120, 6), ("jar", 220, 4), ("tumbler", 300, 3), ("teacup", 180, 2)]
+    mut wax := 0.0
+    mut oil := 0.0
+    mut candles := 0
+    for b in batch
+        name, ml, count := b
+        w := wax_for(ml)
+        o := w * 0.08
+        wax += w * count.to_float()
+        oil += o * count.to_float()
+        candles += count
+        print("{count} x {name:<8} {ml} ml: {w:.1} g wax + {o:.1} g oil each")
+    bags := (wax / 1000.0).ceil().to_int()
+    print("{candles} candles: {wax:.1} g wax ({bags} bags), {oil:.1} g fragrance oil")
+
+@test fn wax_density()
+    assert((wax_for(100) - 86.0).abs() < 0.000001)

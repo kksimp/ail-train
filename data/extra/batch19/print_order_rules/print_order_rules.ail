@@ -1,0 +1,43 @@
+## Print order rules: rules "A|B" say page A must print before page B; part 1 sums the middle page of every
+## update already in a valid order, part 2 reorders the others by insertion with the rules and sums their middles.
+
+fn before(rules Set[str], a int, b int) bool
+    rules.contains("{a}|{b}")
+
+fn valid(rules Set[str], pages List[int]) bool
+    for i in 0..pages.len()
+        for j in i + 1..pages.len()
+            if before(rules, pages[j], pages[i])
+                return false
+    true
+
+fn reorder(rules Set[str], pages List[int]) List[int]
+    mut out := List[int]()
+    for p in pages
+        mut at := out.len()
+        for i, q in out.enumerate()
+            if before(rules, p, q)
+                at = i
+                break
+        out.insert(at, p)
+    out
+
+fn main()
+    rules := {"11|23", "11|35", "23|35", "47|11", "47|23", "35|52", "23|52", "11|52", "47|35", "47|52"}
+    updates := [[47, 11, 23, 35, 52], [11, 47, 35], [23, 52, 35], [47, 23, 52], [52, 11, 47, 23, 35]]
+    mut p1 := 0
+    mut p2 := 0
+    for u in updates
+        if valid(rules, u)
+            print("{u} is in order, middle {u[u.len() / 2]}")
+            p1 += u[u.len() / 2]
+        else
+            fixed := reorder(rules, u)
+            print("{u} becomes {fixed}, middle {fixed[fixed.len() / 2]}")
+            p2 += fixed[fixed.len() / 2]
+    print("part 1: {p1}")
+    print("part 2: {p2}")
+
+@test fn fixes()
+    rules := {"1|2"}
+    assert_eq(reorder(rules, [2, 1]), [1, 2])

@@ -1,0 +1,37 @@
+## Pebble split blinks: every blink each engraved pebble changes at once: 0 becomes 1, an even-length number
+## splits into its two halves, any other is multiplied by 2025; counting pebbles per value gives totals after 15 and 40 blinks.
+
+fn change(v int) List[int]
+    if v == 0
+        return [1]
+    s := "{v}"
+    if s.len() % 2 == 0
+        half := s.len() / 2
+        return [(s.slice(0, half).to_int() else 0), (s.slice(half).to_int() else 0)]
+    [v * 2025]
+
+fn blink(counts Map[int, int]) Map[int, int]
+    mut out := Map[int, int]()
+    for v, n in counts
+        for w in change(v)
+            out[w] += n
+    out
+
+fn main()
+    start := [7, 41, 0, 2309]
+    mut counts := Map[int, int]()
+    for v in start
+        counts[v] += 1
+    for t in 1..=40
+        counts = blink(counts)
+        if t == 5 or t == 15 or t == 25 or t == 40
+            total := counts.values().sum()
+            print("after {t} blinks: {total} pebbles, {counts.len()} distinct values")
+        if t == 15
+            print("part 1: {counts.values().sum()} pebbles")
+    print("part 2: {counts.values().sum()} pebbles")
+
+@test fn rules()
+    assert_eq(change(0), [1])
+    assert_eq(change(1000), [10, 0])
+    assert_eq(change(3), [6075])

@@ -1,0 +1,4 @@
+8 instructions
+part 1: input 2024 prints [1, 0, 6, 2]
+part 2: smallest input printing [3, 6, 1, 4] is 574
+check: 574 prints [3, 6, 1, 4]

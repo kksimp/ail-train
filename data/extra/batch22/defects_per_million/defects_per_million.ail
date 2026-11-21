@@ -1,0 +1,25 @@
+## Defects per million opportunities: defects / (units x chances per unit) x 1,000,000, then the sigma level is read
+## from the usual table (3.4 for six sigma, 233 for five, 6,210 for four, 66,807 for three, 308,538 for two).
+
+fn dpmo(defects int, units int, chances int) float
+    defects.to_float() * 1000000.0 / (units * chances).to_float()
+
+fn level_for(d float) int
+    limits := [(6, 3.4), (5, 233.0), (4, 6210.0), (3, 66807.0), (2, 308538.0)]
+    for l in limits
+        level, limit := l
+        if d <= limit
+            return level
+    1
+
+fn main()
+    processes := [("invoices", 12, 4000, 5), ("welding", 85, 1200, 8), ("assembly", 3, 25000, 40), ("call centre", 420, 3000, 4), ("shipping", 900, 2000, 3)]
+    for p in processes
+        name, defects, units, chances := p
+        d := dpmo(defects, units, chances)
+        good := 100.0 - d / 10000.0
+        print("{name:<11} {d:>9.1} DPMO, {good:.3}% right first time, about {level_for(d)} sigma")
+
+@test fn levels()
+    assert_eq(level_for(3.0), 6)
+    assert_eq(level_for(500000.0), 1)

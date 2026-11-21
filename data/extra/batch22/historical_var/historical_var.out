@@ -1,0 +1,4 @@
+95%: 1 days beyond, VaR 240 bp = 24000, shortfall 310 bp = 31000
+90%: 2 days beyond, VaR 190 bp = 19000, shortfall 275 bp = 27500
+80%: 4 days beyond, VaR 80 bp = 8000, shortfall 215 bp = 21500
+worst day -310 bp, best day 210 bp

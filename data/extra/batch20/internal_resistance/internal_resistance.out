@@ -1,0 +1,12 @@
+AA alkaline: EMF 1.550 V, r 300.0 mohm, short circuit 5.2 A, best load power 2.0 W
+  into 10.0 ohm: 1.505 V
+  into 1.0 ohm: 1.192 V
+  into 0.1 ohm: 0.387 V
+Li-ion 18650: EMF 4.125 V, r 50.0 mohm, short circuit 82.5 A, best load power 85.1 W
+  into 10.0 ohm: 4.104 V
+  into 1.0 ohm: 3.929 V
+  into 0.1 ohm: 2.750 V
+car battery: EMF 12.656 V, r 11.3 mohm, short circuit 1121.8 A, best load power 3549.5 W
+  into 10.0 ohm: 12.642 V
+  into 1.0 ohm: 12.515 V
+  into 0.1 ohm: 11.373 V

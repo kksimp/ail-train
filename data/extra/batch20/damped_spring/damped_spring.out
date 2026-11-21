@@ -1,0 +1,11 @@
+natural frequency 10.0 rad/s
+c = 2.0: zeta 0.10, Damping.Under
+  rings at 1.584 Hz, Q 5.0, each swing keeps 53.2%, under 5% after 4.7 cycles
+c = 6.0: zeta 0.30, Damping.Under
+  rings at 1.518 Hz, Q 1.7, each swing keeps 13.9%, under 5% after 1.5 cycles
+c = 10.0: zeta 0.50, Damping.Under
+  rings at 1.378 Hz, Q 1.0, each swing keeps 2.7%, under 5% after 0.8 cycles
+c = 20.0: zeta 1.00, Damping.Critical
+  returns fastest without overshoot
+c = 40.0: zeta 2.00, Damping.Over
+  creeps back slowly without overshoot

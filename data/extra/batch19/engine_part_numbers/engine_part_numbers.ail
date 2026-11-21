@@ -1,0 +1,45 @@
+## Engine part numbers: in a schematic grid, numbers touching a symbol (also diagonally) are part numbers and
+## are summed; part 2 finds each '*' touching exactly two numbers and sums the products of those pairs.
+
+fn main()
+    rows := ["31...#.58.", "..*....*..", ".7.55..12.", "......#...", "9..$...4..", "...61.*...", "88.....23."]
+    g := rows.map(|r| r.chars())
+    h := g.len()
+    w := g[0].len()
+    mut total := 0
+    mut loose := List[int]()
+    mut stars := Map[int, List[int]]()
+    for r in 0..h
+        mut c := 0
+        while c < w
+            if not g[r][c].is_digit()
+                c += 1
+                continue
+            start := c
+            mut n := 0
+            while c < w and g[r][c].is_digit()
+                n = n * 10 + (g[r][c].to_digit(10) else 0)
+                c += 1
+            mut touched := false
+            for y in (r - 1).max(0)..(r + 2).min(h)
+                for x in (start - 1).max(0)..(c + 1).min(w)
+                    ch := g[y][x]
+                    if ch != '.' and not ch.is_digit()
+                        touched = true
+                        if ch == '*'
+                            stars.push(y * 100 + x, n)
+            if touched
+                total += n
+            else
+                loose.push(n)
+    print("numbers with no symbol: {loose}")
+    print("part 1: part numbers sum to {total}")
+    mut ratio := 0
+    for pos, nums in stars
+        if nums.len() == 2
+            print("  gear at row {pos / 100} col {pos % 100}: {nums[0]} x {nums[1]}")
+            ratio += nums[0] * nums[1]
+    print("part 2: gear ratios sum to {ratio}")
+
+@test fn digits_read()
+    assert_eq('7'.to_digit(10) else 0, 7)

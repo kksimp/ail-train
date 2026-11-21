@@ -1,0 +1,26 @@
+## Compound microscope: total magnification is (160 mm tube / objective focal length) x (250 mm /
+## eyepiece focal length); detail finer than 0.61 lambda / NA blurs, so beyond 1000 NA it is empty magnification.
+
+struct Objective
+    focal float
+    na float
+
+fn magnification(o Objective, eyepiece float) float
+    160.0 / o.focal * (250.0 / eyepiece)
+
+fn resolution_um(o Objective) float
+    0.61 * 0.55 / o.na
+
+fn main()
+    objectives := [Objective(focal: 40.0, na: 0.1), Objective(focal: 16.0, na: 0.25), Objective(focal: 4.0, na: 0.65), Objective(focal: 1.6, na: 1.25)]
+    for o in objectives
+        res := resolution_um(o)
+        print("objective f {o.focal} mm, NA {o.na}: resolves {res:.2} um")
+        for eye in [25.0, 10.0]
+            m := magnification(o, eye)
+            verdict := if m > 1000.0 * o.na then "empty magnification" else "useful"
+            print("  eyepiece {eye} mm: {m:.0}x {verdict}")
+
+@test fn standard()
+    o := Objective(focal: 16.0, na: 0.25)
+    assert_eq(magnification(o, 25.0), 100.0)

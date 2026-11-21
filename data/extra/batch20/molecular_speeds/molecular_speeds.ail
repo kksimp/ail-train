@@ -1,0 +1,28 @@
+## Molecular speeds: in the Maxwell distribution the most likely speed is sqrt(2RT/M), the mean
+## sqrt(8RT/(pi M)) and the rms sqrt(3RT/M); a planet keeps a gas for good only if escape speed tops 6 rms speeds.
+
+PI := 3.141592653589793
+R := 8.314
+
+fn rms(t float, molar_kg float) float
+    (3.0 * R * t / molar_kg).sqrt()
+
+fn main()
+    gases := [("hydrogen", 2.016), ("helium", 4.003), ("water", 18.02), ("nitrogen", 28.01), ("oxygen", 32.0), ("carbon dioxide", 44.01)]
+    t := 300.0
+    print("at {t:.0} K (m/s): most likely, mean, rms")
+    for g in gases
+        name, grams := g
+        m := grams / 1000.0
+        vp := (2.0 * R * t / m).sqrt()
+        mean := (8.0 * R * t / (PI * m)).sqrt()
+        print("  {name:<15} {vp:>5.0} {mean:>5.0} {rms(t, m):>5.0}")
+    exo := 1000.0
+    for planet in [("Earth", 11200.0), ("Mars", 5030.0), ("Moon", 2380.0)]
+        pname, esc := planet
+        kept := gases.filter(|g| esc > 6.0 * rms(exo, g.1 / 1000.0)).map(|g| g.0)
+        shown := if kept.is_empty() then "nothing" else kept.join(", ")
+        print("{pname} (escape {esc:.0} m/s, 1000 K upper air) keeps: {shown}")
+
+@test fn heavier_slower()
+    assert(rms(300.0, 0.032) < rms(300.0, 0.004))

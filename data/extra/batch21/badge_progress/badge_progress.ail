@@ -1,0 +1,29 @@
+## Badge progress: each badge is a set of required activities; a scout's completed set shows the badges
+## earned (requirements a subset of what is done) and, for the rest, the closest badge and what it lacks.
+
+fn main()
+    badges := {"Camper": {"tent", "cook", "knots", "night"}, "Navigator": {"map", "compass", "route", "night"}, "First Aid": {"bandage", "recovery", "cpr"}, "Naturalist": {"birds", "trees", "pond", "map"}}
+    scouts := [("Ivy", {"tent", "cook", "knots", "night", "map", "compass"}), ("Jo", {"bandage", "cpr", "birds", "trees", "pond", "map"}), ("Kit", {"route", "compass"})]
+    for s in scouts
+        name, done := s
+        mut earned := List[str]()
+        mut best := ""
+        mut best_missing := 99
+        for badge, req in badges
+            if req.is_subset(done)
+                earned.push(badge)
+            else
+                lacking := req.difference(done).len()
+                if lacking < best_missing
+                    best_missing = lacking
+                    best = badge
+        got := if earned.is_empty() then "none" else earned.join(", ")
+        print("{name}: earned {got}")
+        need := badges[best].difference(done).sorted().join(", ")
+        print("  closest: {best}, needs {need}")
+
+@test fn subset()
+    req := {"a"}
+    done := {"a", "b"}
+    assert(req.is_subset(done))
+    assert_eq(done.difference(req).len(), 1)

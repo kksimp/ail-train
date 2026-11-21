@@ -1,0 +1,33 @@
+## Expiry-first picking: lots are picked earliest expiry first, but only lots with at least the customer's minimum
+## remaining shelf life on the ship date are eligible, so a hospital order skips lots that a market would take.
+
+struct Lot
+    code str
+    expiry int
+    qty int
+
+fn main()
+    ship_day := 100
+    mut lots := [Lot(code: "L1", expiry: 120, qty: 40), Lot(code: "L2", expiry: 135, qty: 25), Lot(code: "L3", expiry: 150, qty: 60), Lot(code: "L4", expiry: 128, qty: 30), Lot(code: "L5", expiry: 170, qty: 50)]
+    lots.sort(by: |l| l.expiry)
+    orders := [("market", 50, 10), ("hospital", 45, 30), ("export", 40, 60), ("market", 30, 10), ("export", 20, 60)]
+    for o in orders
+        who, want, life := o
+        mut need := want
+        mut picks := List[str]()
+        for mut l in lots
+            if need > 0 and l.qty > 0 and l.expiry - ship_day >= life
+                take := need.min(l.qty)
+                l.qty -= take
+                need -= take
+                picks.push("{l.code} x{take}")
+        joined := picks.join(", ")
+        short := if need > 0 then ", short {need}" else ""
+        print("{who:<8} {want} with {life}+ days left: {joined}{short}")
+    left := lots.filter(|l| l.qty > 0).map(|l| "{l.code}:{l.qty}")
+    left_text := left.join(" ")
+    print("left: {left_text}")
+
+@test fn eligible()
+    assert(150 - 100 >= 30)
+    assert(not (128 - 100 >= 30))

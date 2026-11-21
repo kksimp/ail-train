@@ -1,0 +1,41 @@
+## Damped oscillator: m x'' + c x' + k x = 0 is underdamped, critical or overdamped by the ratio
+## zeta = c / (2 sqrt(k m)); underdamped swings shrink by exp(-zeta w0 t) and ring at w0 sqrt(1 - zeta^2).
+
+PI := 3.141592653589793
+
+enum Damping
+    Under
+    Critical
+    Over
+
+fn classify(zeta float) Damping
+    if zeta < 0.999
+        Under
+    elif zeta > 1.001
+        Over
+    else
+        Critical
+
+fn main()
+    m := 1.0
+    k := 100.0
+    w0 := (k / m).sqrt()
+    print("natural frequency {w0} rad/s")
+    for c in [2.0, 6.0, 10.0, 20.0, 40.0]
+        zeta := c / (2.0 * (k * m).sqrt())
+        kind := classify(zeta)
+        print("c = {c}: zeta {zeta:.2}, {kind}")
+        match kind
+            Under =>
+                wd := w0 * (1.0 - zeta * zeta).sqrt()
+                q := 1.0 / (2.0 * zeta)
+                per_cycle := (-zeta * w0 * 2.0 * PI / wd).exp()
+                five_pct := 0.05
+                cycles := five_pct.ln() / per_cycle.ln()
+                print("  rings at {wd / (2.0 * PI):.3} Hz, Q {q:.1}, each swing keeps {per_cycle * 100.0:.1}%, under 5% after {cycles:.1} cycles")
+            Critical => print("  returns fastest without overshoot")
+            Over => print("  creeps back slowly without overshoot")
+
+@test fn kinds()
+    assert_eq(classify(0.2), Damping.Under)
+    assert_eq(classify(1.0), Damping.Critical)

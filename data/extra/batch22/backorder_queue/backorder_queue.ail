@@ -1,0 +1,45 @@
+## Backorder queue: orders and deliveries arrive as enum events; an order ships from the shelf only when nobody is
+## already waiting, otherwise it joins a first-come queue, and each delivery fills the queue in order, partly if need be.
+
+enum Event
+    Order(who str, qty int)
+    Delivery(qty int)
+
+struct Wait
+    who str
+    qty int
+
+fn main()
+    events := [Event.Order(who: "A", qty: 20), Event.Order(who: "B", qty: 25), Event.Order(who: "C", qty: 15), Event.Order(who: "D", qty: 30), Event.Delivery(qty: 25), Event.Order(who: "E", qty: 5), Event.Delivery(qty: 40)]
+    mut shelf := 50
+    mut queue := Deque[Wait]()
+    mut ordered := 0
+    mut at_once := 0
+    for day, ev in events.enumerate()
+        match ev
+            Order(who, qty) =>
+                ordered += qty
+                if queue.is_empty()
+                    ship := qty.min(shelf)
+                    shelf -= ship
+                    at_once += ship
+                    if ship < qty
+                        queue.push_back(Wait(who: who, qty: qty - ship))
+                    print("day {day + 1}: {who} orders {qty}, ships {ship}")
+                else
+                    queue.push_back(Wait(who: who, qty: qty))
+                    print("day {day + 1}: {who} orders {qty}, joins the queue")
+            Delivery(qty) =>
+                shelf += qty
+                print("day {day + 1}: delivery of {qty}")
+                while shelf > 0
+                    front := queue.pop_front() else break
+                    ship := front.qty.min(shelf)
+                    shelf -= ship
+                    print("  {front.who} gets {ship}")
+                    if ship < front.qty
+                        queue.push_front(Wait(who: front.who, qty: front.qty - ship))
+    print("shipped at once {at_once} of {ordered} ({at_once * 100 / ordered}%), shelf ends at {shelf}, {queue.len()} waiting")
+
+@test fn partial()
+    assert_eq(15.min(50 - 45), 5)

@@ -1,0 +1,13 @@
+name;joined;level
+Iris;2021;gold
+Omar;2023;silver
+(2 rows)
+| name | joined | level |
+| --- | --- | --- |
+| Iris | 2021 | gold |
+| Omar | 2023 | silver |
+_2 members_
+NAME    JOINED  LEVEL
+Iris    2021    gold
+Omar    2023    silver
+(2 rows)

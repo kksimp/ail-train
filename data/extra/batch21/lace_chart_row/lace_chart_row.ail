@@ -1,0 +1,26 @@
+## Lace chart row: a 12-row lace chart is repeated up a scarf; the row counter's total gives the repeat
+## number and chart row, and the yarn-overs on each chart row give the running count of yarn-overs.
+
+fn locate(total int, rows int) List[int]
+    [(total - 1) / rows + 1, (total - 1) % rows + 1]
+
+fn yarn_overs(done int, per_row List[int]) int
+    full := done / per_row.len()
+    part := per_row.take(done % per_row.len()).sum()
+    full * per_row.sum() + part
+
+fn main()
+    per_row := [2, 0, 4, 0, 2, 0, 6, 0, 2, 0, 4, 0]
+    goal := 8 * per_row.len()
+    for done in [1, 12, 13, 50, 77, 96]
+        at := locate(done, per_row.len())
+        left := goal - done
+        print("row {done:>2}: repeat {at[0]}, chart row {at[1]:>2}, {yarn_overs(done, per_row)} yarn-overs so far, {left} rows to go")
+    idx := [i for i in 0..per_row.len()]
+    busiest := idx.max(by: |i| per_row[i]) else 0
+    print("busiest chart row: {busiest + 1} with {per_row[busiest]} yarn-overs")
+    print("one repeat has {per_row.sum()} yarn-overs; the scarf has {yarn_overs(goal, per_row)}")
+
+@test fn rolls_over()
+    assert_eq(locate(13, 12), [2, 1])
+    assert_eq(locate(12, 12), [1, 12])

@@ -1,0 +1,33 @@
+## Media player state: a `Player` struct changes only through `mut self` methods (play, pause,
+## next, back, volume steps clamped to 0..10); a list of button presses drives it.
+
+struct Player
+    tracks List[str]
+    at int
+    playing bool
+    volume int
+
+fn Player.press(mut self, button str)
+    match button
+        "play" => self.playing = true
+        "pause" => self.playing = false
+        "next" => self.at = (self.at + 1) % self.tracks.len()
+        "back" => self.at = (self.at + self.tracks.len() - 1) % self.tracks.len()
+        "up" => self.volume = (self.volume + 2).min(10)
+        "down" => self.volume = (self.volume - 3).max(0)
+        _ => return
+
+fn Player.status(self) str
+    state := if self.playing then "playing" else "paused"
+    "{state} '{self.tracks[self.at]}' vol {self.volume}"
+
+fn main()
+    mut p := Player(tracks: ["Intro", "Blue Hour", "Static", "Night Bus"], at: 0, playing: false, volume: 5)
+    for b in ["play", "next", "up", "up", "up", "back", "back", "pause", "down", "down", "eject", "next"]
+        p.press(b)
+        print("{b:<5} -> {p.status()}")
+
+@test fn volume_clamps()
+    mut p := Player(tracks: ["a"], at: 0, playing: false, volume: 9)
+    p.press("up")
+    assert_eq(p.volume, 10)

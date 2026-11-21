@@ -1,0 +1,8 @@
+97: buyers 1700, sellers  200, trades  200, imbalance 1500
+98: buyers 1700, sellers  500, trades  500, imbalance 1200
+99: buyers 1200, sellers  800, trades  800, imbalance  400
+100: buyers  900, sellers 1100, trades  900, imbalance  200
+101: buyers  500, sellers 1500, trades  500, imbalance 1000
+102: buyers  300, sellers 1500, trades  300, imbalance 1200
+103: buyers    0, sellers 2000, trades    0, imbalance 2000
+opening price 100: 900 shares trade, 200 left unmatched

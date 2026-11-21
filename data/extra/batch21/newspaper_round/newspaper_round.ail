@@ -1,0 +1,40 @@
+## Newspaper round: each house takes a daily paper Monday to Saturday and perhaps a Sunday one; held days
+## are skipped, and the fortnight's bill adds 1.50 delivery for each week with any delivery at all.
+
+struct House
+    number int
+    daily bool
+    sunday bool
+    holds List[List[int]]
+
+fn held(day int, holds List[List[int]]) bool
+    holds.any(|h| h[0] <= day and day <= h[1])
+
+fn money(c int) str
+    "{c / 100}.{c % 100:02}"
+
+fn main()
+    houses := [House(number: 2, daily: true, sunday: true, holds: []), House(number: 5, daily: true, sunday: false, holds: [[3, 9]]), House(number: 8, daily: false, sunday: true, holds: [[6, 6]]), House(number: 11, daily: true, sunday: true, holds: [[0, 13]]), House(number: 14, daily: true, sunday: false, holds: [[0, 1], [12, 13]])]
+    mut takings := 0
+    for h in houses
+        mut bill := 0
+        mut papers := 0
+        for week in 0..2
+            mut any_week := false
+            start := week * 7
+            for d in start..start + 7
+                is_sun := d % 7 == 6
+                wanted := if is_sun then h.sunday else h.daily
+                if wanted and not held(d, h.holds)
+                    bill += if is_sun then 300 else 180
+                    papers += 1
+                    any_week = true
+            if any_week
+                bill += 150
+        takings += bill
+        print("no. {h.number:>2}: {papers:>2} papers, bill {money(bill)}")
+    print("fortnight takings {money(takings)}")
+
+@test fn holding()
+    assert(held(4, [[3, 9]]))
+    assert(not held(10, [[3, 9]]))

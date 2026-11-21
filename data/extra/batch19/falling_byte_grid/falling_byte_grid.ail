@@ -1,0 +1,43 @@
+## Falling byte grid: corrupted bytes land one by one on a 7 by 7 memory grid; part 1 finds the shortest path
+## from corner to corner after the first 12 land, part 2 finds the first byte that cuts every path.
+
+fn shortest(blocked Set[int]) int
+    if blocked.contains(0)
+        return -1
+    mut dist := Map[int, int]()
+    dist[0] = 0
+    mut queue := [0]
+    mut head := 0
+    while head < queue.len()
+        u := queue[head]
+        head += 1
+        if u == 48
+            return dist[u]
+        r := u / 7
+        c := u % 7
+        for d in [[1, 0], [-1, 0], [0, 1], [0, -1]]
+            nr := r + d[0]
+            nc := c + d[1]
+            k := nr * 7 + nc
+            if nr >= 0 and nr < 7 and nc >= 0 and nc < 7 and not blocked.contains(k) and not dist.contains(k)
+                dist[k] = dist[u] + 1
+                queue.push(k)
+    -1
+
+fn main()
+    text := "1,4 3,6 6,3 6,4 5,6 2,5 4,3 2,0 6,1 4,5 1,5 5,3 4,6 2,2 0,1 5,1 5,2 4,2 6,0 5,5 0,3"
+    bytes_in := text.split(" ").map(|t| t.split(",").map(|v| (v.to_int() else 0)))
+    mut blocked := Set[int]()
+    for i in 0..12
+        blocked.add(bytes_in[i][1] * 7 + bytes_in[i][0])
+    print("{bytes_in.len()} bytes fall")
+    print("part 1: after 12 bytes the shortest path takes {shortest(blocked)} steps")
+    for i in 12..bytes_in.len()
+        b := bytes_in[i]
+        blocked.add(b[1] * 7 + b[0])
+        if shortest(blocked) < 0
+            print("part 2: byte {i + 1} at {b[0]},{b[1]} cuts the last path")
+            break
+
+@test fn open_grid()
+    assert_eq(shortest(Set[int]()), 12)

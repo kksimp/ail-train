@@ -1,0 +1,43 @@
+## Cube draw bags: each game draws handfuls of amber, jade and onyx cubes from a bag; part 1 sums the ids of
+## games possible with 10 amber, 11 jade and 12 onyx, part 2 sums the products of the fewest cubes each game needs.
+
+struct Need
+    amber int
+    jade int
+    onyx int
+
+fn Need.see(mut self, count int, colour str)
+    match colour
+        "amber" => amber = amber.max(count)
+        "jade" => jade = jade.max(count)
+        _ => onyx = onyx.max(count)
+
+fn needs(line str) Need
+    mut n := Need(amber: 0, jade: 0, onyx: 0)
+    for hand in line.split(": ")[1].split("; ")
+        for part in hand.split(", ")
+            w := part.split(" ")
+            n.see(w[0].to_int() else 0, w[1])
+    n
+
+fn main()
+    games := ["Game 1: 4 amber, 2 jade; 7 onyx, 1 amber; 3 jade", "Game 2: 12 amber, 1 onyx; 5 jade", "Game 3: 2 jade, 2 onyx, 2 amber; 9 onyx; 6 amber, 11 jade", "Game 4: 8 onyx; 1 jade, 13 onyx", "Game 5: 3 amber, 4 jade, 5 onyx; 10 amber"]
+    mut p1 := 0
+    mut p2 := 0
+    for g in games
+        id := g.split(":")[0].split(" ")[1].to_int() else 0
+        n := needs(g)
+        ok := n.amber <= 10 and n.jade <= 11 and n.onyx <= 12
+        power := n.amber * n.jade * n.onyx
+        verdict := if ok then "possible" else "impossible"
+        print("game {id}: needs {n.amber}/{n.jade}/{n.onyx}, power {power}, {verdict}")
+        if ok
+            p1 += id
+        p2 += power
+    print("part 1: {p1}")
+    print("part 2: {p2}")
+
+@test fn max_per_colour()
+    n := needs("Game 9: 3 jade; 5 jade, 1 onyx")
+    assert_eq(n.jade, 5)
+    assert_eq(n.amber, 0)

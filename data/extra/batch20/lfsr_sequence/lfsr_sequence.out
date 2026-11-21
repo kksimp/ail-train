@@ -1,0 +1,7 @@
+4-bit taps 4,3 states: 1 8 4 2 9 12 6 11 5 10 13 14 15 7 3
+output bits: 100010011010111
+width 4 taps [4, 3]: period 15 of 15 (maximal)
+width 4 taps [4, 2]: period 6 of 15 (short)
+width 5 taps [5, 3]: period 31 of 31 (maximal)
+width 5 taps [5, 4]: period 21 of 31 (short)
+width 8 taps [8, 6, 5, 4]: period 255 of 255 (maximal)

@@ -1,0 +1,33 @@
+## Escrow analysis: monthly deposits of 400 against property tax and insurance bills; the lowest projected
+## balance is compared with a cushion of one sixth of the yearly bills, and any shortage is spread over 12 months.
+
+fn ceil_div(a int, b int) int
+    (a + b - 1) / b
+
+fn main()
+    bills := {4: 2400, 7: 1500, 10: 2400}
+    deposit := 400
+    mut bal := 200
+    mut low := bal
+    mut low_month := 0
+    for m in 1..=12
+        bal += deposit
+        out := bills.get_or(m, 0)
+        bal -= out
+        if bal < low
+            low = bal
+            low_month = m
+        if out > 0
+            print("month {m:>2}: pays {out}, balance {bal}")
+    mut yearly := 0
+    for k, v in bills
+        yearly += v
+    cushion := yearly / 6
+    shortage := (cushion - low).max(0)
+    print("yearly bills {yearly}, cushion {cushion}, lowest {low} in month {low_month}")
+    print("shortage {shortage}")
+    new_dep := ceil_div(yearly + shortage, 12)
+    print("new monthly deposit {new_dep} (was {deposit})")
+
+@test fn rounding_up()
+    assert_eq(ceil_div(9450, 12), 788)

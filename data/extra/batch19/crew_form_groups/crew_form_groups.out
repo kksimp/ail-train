@@ -1,0 +1,8 @@
+crew [abc ab ac]: anyone 3, everyone 1
+crew [xyz]: anyone 3, everyone 3
+crew [pq qr rp]: anyone 3, everyone 0
+crew [mno nmo omn]: anyone 3, everyone 3
+crew [a b c d]: anyone 4, everyone 0
+crew [kl lk klm]: anyone 3, everyone 2
+part 1: 19
+part 2: 9

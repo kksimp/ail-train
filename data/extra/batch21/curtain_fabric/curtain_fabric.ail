@@ -1,0 +1,40 @@
+## Curtain fabric: widths of 137 cm fabric needed are the track length times the heading's fullness over
+## the fabric width, rounded up; each drop gets 25 cm of hems and is rounded up to the pattern repeat.
+
+struct Window
+    room str
+    track int
+    drop int
+    fullness int
+    repeat int
+
+fn widths(w Window) int
+    (w.track * w.fullness + 1370 - 1) / 1370
+
+fn cut_drop(drop int, repeat int) int
+    raw := drop + 25
+    if repeat == 0
+        return raw
+    (raw + repeat - 1) / repeat * repeat
+
+fn metres(cm int) str
+    "{cm / 100}.{cm % 100:02} m"
+
+fn main()
+    windows := [Window(room: "lounge", track: 240, drop: 230, fullness: 20, repeat: 64), Window(room: "bedroom", track: 160, drop: 140, fullness: 25, repeat: 0), Window(room: "kitchen", track: 110, drop: 90, fullness: 20, repeat: 32), Window(room: "nursery", track: 180, drop: 200, fullness: 25, repeat: 45)]
+    price := 1895
+    mut total_cm := 0
+    for w in windows
+        n := widths(w)
+        cut := cut_drop(w.drop, w.repeat)
+        cm := n * cut
+        total_cm += cm
+        full := w.fullness / 10
+        tenth := w.fullness % 10
+        print("{w.room:<8} fullness {full}.{tenth}: {n} widths x {cut} cm = {metres(cm)}")
+    cost := total_cm * price / 100
+    print("buy {metres(total_cm)} at 18.95 a metre: {cost / 100}.{cost % 100:02}")
+
+@test fn repeat_rounding()
+    assert_eq(cut_drop(230, 64), 256)
+    assert_eq(cut_drop(140, 0), 165)

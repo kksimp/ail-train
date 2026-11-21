@@ -1,0 +1,15 @@
+lock api
+  build ok
+  logged build
+  ship ok
+  logged ship
+unlock api
+api deployed: true
+lock web
+  build ok
+  logged build
+  test FAILED
+  logged test
+unlock web
+web deployed: false
+all deploys attempted

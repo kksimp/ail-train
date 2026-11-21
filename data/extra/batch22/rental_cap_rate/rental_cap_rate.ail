@@ -1,0 +1,32 @@
+## Rental cap rate: a property's net operating income is rent less vacancy and running costs; over the price it
+## gives the cap rate, after loan payments over the deposit the cash-on-cash return, and over the loan payments the cover ratio.
+
+struct Property
+    name str
+    price int
+    rent int
+    vacancy int
+    costs int
+    deposit int
+    debt int
+
+fn Property.noi(self) int
+    self.rent * 12 * (100 - self.vacancy) / 100 - self.costs
+
+fn pct(a int, b int) float
+    a.to_float() * 100.0 / b.to_float()
+
+fn main()
+    props := [Property(name: "flat", price: 250000, rent: 1400, vacancy: 5, costs: 4200, deposit: 62500, debt: 9800), Property(name: "terrace", price: 320000, rent: 1780, vacancy: 4, costs: 6100, deposit: 80000, debt: 12300), Property(name: "shop unit", price: 410000, rent: 2600, vacancy: 12, costs: 9800, deposit: 123000, debt: 15100)]
+    for p in props
+        noi := p.noi()
+        cap := pct(noi, p.price)
+        cash := pct(noi - p.debt, p.deposit)
+        cover := noi.to_float() / p.debt.to_float()
+        print("{p.name:<9} income {noi:>6}: cap rate {cap:.2}%, cash on cash {cash:.2}%, cover {cover:.2}")
+    best := props.max(by: |p| p.noi() * 1000 / p.price) else props[0]
+    print("best cap rate: {best.name}")
+
+@test fn flat_income()
+    p := Property(name: "t", price: 1, rent: 1000, vacancy: 10, costs: 800, deposit: 1, debt: 1)
+    assert_eq(p.noi(), 10000)

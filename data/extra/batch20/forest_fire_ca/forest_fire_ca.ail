@@ -1,0 +1,63 @@
+## Forest fire automaton: burning cells turn to ash, trees next to fire catch, empty ground regrows a tree
+## with chance 4% and a tree is struck by lightning with chance 0.1%, using a seeded LCG for every draw.
+
+enum Cell
+    Empty
+    Tree
+    Fire
+
+struct Lcg
+    state int
+
+fn Lcg.chance(mut self, per_thousand int) bool
+    self.state = (self.state * 1103515245 + 12345) % 2147483648
+    (self.state / 65536) % 1000 < per_thousand
+
+fn burning_near(g List[List[Cell]], r int, c int) bool
+    for rr in (r - 1).max(0)..=(r + 1).min(g.len() - 1)
+        for cc in (c - 1).max(0)..=(c + 1).min(g[0].len() - 1)
+            if g[rr][cc] == Fire
+                return true
+    false
+
+fn step(g List[List[Cell]], mut rng Lcg) List[List[Cell]]
+    mut out := List[List[Cell]]()
+    for r in 0..g.len()
+        mut row := List[Cell]()
+        for c in 0..g[0].len()
+            next := match g[r][c]
+                Fire => Cell.Empty
+                Tree => if burning_near(g, r, c) or rng.chance(1) then Cell.Fire else Cell.Tree
+                Empty => if rng.chance(40) then Cell.Tree else Cell.Empty
+            row.push(next)
+        out.push(row)
+    out
+
+fn symbol(x Cell) str
+    match x
+        Tree => "T"
+        Fire => "*"
+        Empty => "."
+
+fn count(g List[List[Cell]], kind Cell) int
+    g.fold(0, |acc, row| acc + row.count(|x| x == kind))
+
+fn main()
+    mut rng := Lcg(state: 42)
+    mut g := List[List[Cell]]()
+    for r in 0..8
+        mut row := List[Cell]()
+        for c in 0..24
+            row.push(if rng.chance(550) then Cell.Tree else Cell.Empty)
+        g.push(row)
+    for t in 0..=60
+        if t % 10 == 0
+            print("step {t:>2}: trees {count(g, Cell.Tree):>3}, burning {count(g, Cell.Fire):>2}")
+        g = step(g, mut rng)
+    for row in g
+        print(row.map(|x| symbol(x)).join(""))
+
+@test fn ash()
+    mut rng := Lcg(state: 1)
+    g := step([[Cell.Fire]], mut rng)
+    assert(g[0][0] == Cell.Empty)

@@ -1,0 +1,34 @@
+## Impulse: a force plate samples a kick every millisecond; the trapezoid rule over the samples gives
+## the impulse J in N s, the ball leaves at J / m, and J over the contact time is the mean force.
+
+struct Kick
+    name str
+    newtons List[int]
+
+fn area_units(fs List[int]) int
+    mut total := 0
+    for i in 0..fs.len() - 1
+        total += fs[i] + fs[i + 1]
+    total
+
+fn Kick.impulse(self) float
+    area_units(self.newtons).to_float() * 0.0005
+
+fn Kick.contact_ms(self) int
+    self.newtons.len() - 1
+
+fn main()
+    ball := 0.43
+    kicks := [Kick(name: "instep drive", newtons: [0, 120, 480, 950, 1300, 1420, 1250, 900, 450, 150, 0]), Kick(name: "toe poke", newtons: [0, 600, 1700, 2100, 1500, 500, 0]), Kick(name: "side foot pass", newtons: [0, 80, 210, 330, 400, 410, 380, 300, 190, 90, 30, 0])]
+    for k in kicks
+        j := k.impulse()
+        ms := k.contact_ms()
+        peak := k.newtons.max() else 0
+        mean := j / (ms.to_float() / 1000.0)
+        speed := j / ball
+        print("{k.name:<15} J {j:.3} N s over {ms} ms, peak {peak} N, mean {mean:.0} N, ball {speed:.1} m/s")
+    best := kicks.max(by: |k| k.impulse()) else kicks[0]
+    print("fastest ball: {best.name}")
+
+@test fn trapezoid()
+    assert_eq(area_units([0, 100, 0]), 200)

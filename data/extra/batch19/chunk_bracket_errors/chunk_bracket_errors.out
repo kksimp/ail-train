@@ -1,0 +1,10 @@
+([<>]<(      incomplete, completion score 29
+[(<>)]]      corrupted, score 7
+<<[]>(       incomplete, completion score 7
+(([[<>]]))   complete
+([)]         corrupted, score 2
+[<(<>)       incomplete, completion score 14
+<(>          corrupted, score 19
+(([<         incomplete, completion score 229
+part 1: error score 28
+part 2: median completion score 29

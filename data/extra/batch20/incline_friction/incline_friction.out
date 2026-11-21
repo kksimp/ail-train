@@ -1,0 +1,12 @@
+wood on wood: starts sliding above 26.6 degrees
+  10 deg: holds
+  25 deg: holds
+  40 deg: slides, a = 4.05 m/s2, 3 m in 1.22 s
+steel on ice: starts sliding above 5.7 degrees
+  10 deg: slides, a = 1.22 m/s2, 3 m in 2.22 s
+  25 deg: slides, a = 3.70 m/s2, 3 m in 1.27 s
+  40 deg: slides, a = 5.93 m/s2, 3 m in 1.01 s
+rubber on concrete: starts sliding above 42.0 degrees
+  10 deg: holds
+  25 deg: holds
+  40 deg: holds

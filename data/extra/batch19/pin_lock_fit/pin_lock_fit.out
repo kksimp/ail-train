@@ -1,0 +1,4 @@
+lock heights: [[0, 5, 3, 4, 3], [1, 2, 0, 5, 3], [4, 1, 2, 3, 0]]
+key heights: [[5, 0, 2, 1, 3], [4, 3, 5, 0, 2], [3, 0, 2, 0, 1], [1, 4, 3, 2, 5], [2, 2, 1, 1, 2]]
+part 1: 4 lock and key pairs fit
+part 2: 2 pairs fit exactly

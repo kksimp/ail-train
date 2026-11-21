@@ -1,0 +1,36 @@
+## Leg cost share: a car trip's fuel is costed per leg at 12 cents a km, and each leg is split equally
+## among the people in the car for that leg, with the driver absorbing the odd cents.
+
+struct Leg
+    from str
+    to str
+    km int
+    riders List[str]
+
+fn split_leg(cost int, people int) List[int]
+    each := cost / people
+    [cost - each * (people - 1), each]
+
+fn money(c int) str
+    "{c / 100}.{c % 100:02}"
+
+fn main()
+    driver := "Nia"
+    legs := [Leg(from: "Hilltown", to: "Ayr", km: 54, riders: ["Owen"]), Leg(from: "Ayr", to: "Girvan", km: 34, riders: ["Owen", "Pia"]), Leg(from: "Girvan", to: "Stranraer", km: 49, riders: ["Owen", "Pia", "Quin"]), Leg(from: "Stranraer", to: "Newton", km: 72, riders: ["Pia", "Quin"]), Leg(from: "Newton", to: "Hilltown", km: 61, riders: [])]
+    mut owes := Map[str, int]()
+    owes[driver] = 0
+    for leg in legs
+        cost := leg.km * 12
+        parts := split_leg(cost, leg.riders.len() + 1)
+        owes[driver] += parts[0]
+        for r in leg.riders
+            owes[r] += parts[1]
+        print("{leg.from} to {leg.to}, {leg.km} km: {money(cost)} for {leg.riders.len() + 1}, {money(parts[1])} each")
+    mut total := 0
+    for who, c in owes
+        total += c
+        print("{who:<5} {money(c):>6}")
+    print("trip fuel {money(total)}")
+
+@test fn odd_cents()
+    assert_eq(split_leg(100, 3), [34, 33])

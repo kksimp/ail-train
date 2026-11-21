@@ -1,0 +1,46 @@
+## Smoke alarm checks: each alarm needs a button test every 30 days, a new battery every 365 days and
+## replacing after ten years (3650 days); an enum names the most urgent job for each alarm on a given day.
+
+enum Job
+    Replace
+    Battery
+    Test
+    Fine
+
+struct Alarm
+    room str
+    installed int
+    tested int
+    battery int
+
+fn Alarm.job(self, today int) Job
+    if today - self.installed >= 3650
+        return Job.Replace
+    if today - self.battery >= 365
+        return Job.Battery
+    if today - self.tested > 30
+        return Job.Test
+    Job.Fine
+
+fn describe(a Alarm, today int) str
+    match a.job(today)
+        Replace => "replace the unit (fitted {today - a.installed} days ago)"
+        Battery => "change the battery ({today - a.battery} days old)"
+        Test => "press the test button ({today - a.tested} days since)"
+        Fine => "fine"
+
+fn main()
+    today := 4000
+    alarms := [Alarm(room: "hall", installed: 100, tested: 3990, battery: 3800), Alarm(room: "landing", installed: 900, tested: 3950, battery: 3700), Alarm(room: "kitchen", installed: 2500, tested: 3900, battery: 3500), Alarm(room: "loft", installed: 350, tested: 3000, battery: 3000), Alarm(room: "bedroom", installed: 3000, tested: 3985, battery: 3640)]
+    mut counts := Map[str, int]()
+    for a in alarms
+        counts[a.job(today).name()] += 1
+        print("{a.room:<8} {describe(a, today)}")
+    for job in Job.variants()
+        n := counts.get_or(job.name(), 0)
+        print("{job.name()}: {n}")
+
+@test fn ten_years()
+    a := Alarm(room: "x", installed: 0, tested: 0, battery: 0)
+    assert(a.job(3650) == Job.Replace)
+    assert(a.job(20) == Job.Fine)

@@ -1,0 +1,41 @@
+## Osmotic pressure: a solution pulls water across a membrane with pressure i M R T; next to blood
+## (about 0.29 osmol/L) a weaker solution makes red cells swell and a stronger one makes them shrivel.
+
+enum Tonicity
+    Hypotonic
+    Isotonic
+    Hypertonic
+
+struct Solution
+    name str
+    molar float
+    particles int
+
+fn Solution.osmolar(self) float
+    self.molar * self.particles.to_float()
+
+fn tonicity(osm float) Tonicity
+    if osm < 0.26
+        Hypotonic
+    elif osm > 0.32
+        Hypertonic
+    else
+        Isotonic
+
+fn main()
+    t := 310.0
+    sols := [Solution(name: "pure water", molar: 0.0, particles: 1), Solution(name: "0.9% saline", molar: 0.154, particles: 2), Solution(name: "5% glucose", molar: 0.278, particles: 1), Solution(name: "0.45% saline", molar: 0.077, particles: 2), Solution(name: "seawater", molar: 0.6, particles: 2), Solution(name: "3% saline", molar: 0.513, particles: 2)]
+    for s in sols
+        osm := s.osmolar()
+        atm := osm * 0.08206 * t
+        effect := match tonicity(osm)
+            Hypotonic => "cells swell"
+            Isotonic => "cells keep their shape"
+            Hypertonic => "cells shrivel"
+        print("{s.name:<13} {osm:.3} osmol/L, {atm:>5.2} atm, {tonicity(osm)}: {effect}")
+    sea := sols[4].osmolar() * 0.08206 * 298.0 * 1.01325
+    print("reverse osmosis of seawater needs more than {sea:.1} bar")
+
+@test fn kinds()
+    assert_eq(tonicity(0.3), Tonicity.Isotonic)
+    assert_eq(tonicity(0.1), Tonicity.Hypotonic)

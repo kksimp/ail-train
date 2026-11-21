@@ -1,0 +1,60 @@
+## Storage tiers: hot, cool and archive storage implement a `Tier` trait (price per GB-month,
+## fee per GB read, a default one-month minimum that archive overrides); `cost` picks the cheapest.
+
+trait Tier
+    fn name(self) str
+    fn per_gb_month(self) int
+    fn per_gb_read(self) int
+    fn min_months(self) int
+        1
+    fn cost(self, gb int, months int, read_gb int) int
+        billed := months.max(min_months())
+        gb * billed * per_gb_month() + read_gb * per_gb_read()
+
+struct Standard
+    label str
+    month int
+    read int
+
+struct Archive
+    month int
+    read int
+    minimum int
+
+impl Tier for Standard
+    fn name(self) str
+        label
+    fn per_gb_month(self) int
+        month
+    fn per_gb_read(self) int
+        read
+
+impl Tier for Archive
+    fn name(self) str
+        "archive"
+    fn per_gb_month(self) int
+        month
+    fn per_gb_read(self) int
+        read
+    fn min_months(self) int
+        minimum
+
+fn main()
+    mut tiers := List[any Tier]()
+    tiers.push(Standard(label: "hot", month: 20, read: 0))
+    tiers.push(Standard(label: "cool", month: 10, read: 10))
+    tiers.push(Archive(month: 2, read: 90, minimum: 6))
+    sets := [("backups", 500, 12, 0), ("logs", 50, 2, 200), ("photos", 200, 3, 40), ("scratch", 30, 1, 10)]
+    mut total := 0
+    for d in sets
+        name, gb, months, reads := d
+        costs := tiers.map(|t| t.cost(gb, months, reads))
+        cheapest := costs.min() else 0
+        best := costs.index_of(cheapest) else 0
+        total += cheapest
+        shown := costs.map(|c| "{c}").join(" / ")
+        print("{name:<8} {shown} -> {tiers[best].name()}")
+    print("cheapest plan costs {total} cents")
+
+@test fn archive_minimum_months()
+    assert_eq(Archive(month: 2, read: 90, minimum: 6).cost(10, 1, 0), 120)

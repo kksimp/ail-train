@@ -1,0 +1,11 @@
+start score 1520, 18 moves
+part 1, after one run: score 1620, robot at row 3 col 2
+part 2, after three runs: score 1320
+10 moves hit a wall
+########
+#...O.O#
+#OO....#
+#....#O#
+#O.....#
+#...@..#
+########

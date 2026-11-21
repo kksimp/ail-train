@@ -1,0 +1,34 @@
+## Sun-safe minutes: UV dose builds as the UV index times the minutes outside; each skin type burns at its
+## own dose, so going out at 11:00 under an hourly UV forecast gives the time each type starts to burn.
+
+fn burn_minute(uv List[int], start int, threshold int) int
+    mut dose := 0
+    stop := uv.len() * 60
+    for m in start..stop
+        dose += uv[m / 60]
+        if dose >= threshold
+            return m + 1
+    -1
+
+fn at(m int) str
+    h := 9 + m / 60
+    mm := m % 60
+    "{h:02}:{mm:02}"
+
+fn main()
+    uv := [2, 4, 6, 7, 8, 7, 5, 3, 1]
+    start := 2 * 60
+    types := [("I", 70), ("II", 100), ("III", 200), ("IV", 300), ("V", 450)]
+    for t in types
+        name, dose := t
+        bare := burn_minute(uv, start, dose)
+        cream := burn_minute(uv, start, dose * 5)
+        a := if bare < 0 then "safe all day" else "burns {at(bare)}"
+        b := if cream < 0 then "safe all day" else "burns {at(cream)}"
+        print("type {name:<3}: {a}; thin sunscreen (x5): {b}")
+    total := uv.slice(2).sum() * 60
+    print("dose from 11:00 to 18:00: {total} UV-minutes")
+
+@test fn steady_uv()
+    assert_eq(burn_minute([10, 10], 0, 50), 5)
+    assert_eq(burn_minute([1], 0, 100), -1)

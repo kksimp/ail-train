@@ -1,0 +1,42 @@
+## Seat separation: eight pupils fill two rows of four desks; some pairs must not sit side by side, so a
+## backtracking search seats pupils in name order and takes the first arrangement that keeps them apart.
+
+fn clash(a str, b str, bad Set[str]) bool
+    bad.contains("{a}|{b}") or bad.contains("{b}|{a}")
+
+fn place(i int, mut seats List[str], mut used Set[str], names List[str], bad Set[str], mut tries List[int]) bool
+    if i == seats.len()
+        return true
+    for n in names
+        if used.contains(n)
+            continue
+        if i % 4 != 0 and clash(seats[i - 1], n, bad)
+            continue
+        tries[0] += 1
+        seats[i] = n
+        used.add(n)
+        if place(i + 1, mut seats, mut used, names, bad, mut tries)
+            return true
+        used.remove(n)
+        seats[i] = ""
+    false
+
+fn main()
+    names := ["Ali", "Bea", "Cai", "Dom", "Eva", "Fay", "Gus", "Hana"]
+    bad := {"Ali|Bea", "Bea|Cai", "Cai|Dom", "Ali|Cai", "Eva|Fay", "Dom|Eva", "Fay|Gus"}
+    mut seats := ["", "", "", "", "", "", "", ""]
+    mut used := Set[str]()
+    mut tries := [0]
+    if place(0, mut seats, mut used, names, bad, mut tries)
+        front := seats.slice(0, 4).join("  ")
+        back := seats.slice(4, 8).join("  ")
+        print("front: {front}")
+        print("back:  {back}")
+        print("placed after {tries[0]} tries")
+    else
+        print("no arrangement works")
+
+@test fn either_order()
+    bad := {"Ali|Bea"}
+    assert(clash("Bea", "Ali", bad))
+    assert(not clash("Ali", "Cai", bad))

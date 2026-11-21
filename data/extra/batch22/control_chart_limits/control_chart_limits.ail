@@ -1,0 +1,27 @@
+## Control chart limits: eight samples of four shaft lengths (hundredths of a mm) give sample means and ranges;
+## limits are the grand mean +- A2 x mean range (A2 = 0.729) and D4 x mean range for ranges; outliers are flagged.
+
+fn main()
+    samples := [[2501, 2503, 2499, 2500], [2498, 2502, 2500, 2501], [2504, 2500, 2502, 2503], [2497, 2499, 2501, 2498], [2502, 2505, 2503, 2504], [2500, 2498, 2501, 2499], [2509, 2507, 2510, 2508], [2499, 2501, 2500, 2502]]
+    mut means := List[float]()
+    mut ranges := List[int]()
+    for s in samples
+        total := s.fold(0, |a, v| a + v)
+        means.push(total.to_float() / 4.0)
+        hi := s.max() else 0
+        lo := s.min() else 0
+        ranges.push(hi - lo)
+    grand := means.fold(0.0, |a, m| a + m) / 8.0
+    rbar := ranges.fold(0, |a, r| a + r).to_float() / 8.0
+    upper := grand + 0.729 * rbar
+    lower := grand - 0.729 * rbar
+    r_upper := 2.282 * rbar
+    print("grand mean {grand:.3}, mean range {rbar:.3}")
+    print("mean limits {lower:.2} to {upper:.2}, range limit {r_upper:.2}")
+    for i in 0..8
+        m := means[i]
+        flag := if m > upper or m < lower then " <- mean out" elif ranges[i].to_float() > r_upper then " <- range out" else ""
+        print("sample {i + 1}: mean {m:.2}, range {ranges[i]}{flag}")
+
+@test fn mean_of_four()
+    assert_eq((2501 + 2503 + 2499 + 2500).to_float() / 4.0, 2500.75)

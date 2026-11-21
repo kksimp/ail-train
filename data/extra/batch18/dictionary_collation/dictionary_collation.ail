@@ -1,0 +1,31 @@
+## Dictionary collation: byte order puts every capital before every small letter, so a word list
+## gets an `impl Ord` with `cmp` comparing lower-cased text first and the raw text on a tie.
+
+struct Word
+    text str
+
+impl Ord for Word
+    fn cmp(self, other Self) Ordering
+        a := text.to_lower()
+        b := other.text.to_lower()
+        if a < b
+            return Less
+        if a > b
+            return Greater
+        if text < other.text then Less elif text > other.text then Greater else Equal
+
+fn main()
+    raw := ["apple", "Banana", "cherry", "Apple", "banana", "Zebra", "aardvark", "Cherry"]
+    print("byte order: {raw.sorted()}")
+    words := raw.map(|t| Word(text: t))
+    collated := words.sorted().map(|w| w.text)
+    print("dictionary: {collated}")
+    first := words.min() else Word(text: "")
+    last := words.max() else Word(text: "")
+    print("first {first.text}, last {last.text}")
+    b1 := Word(text: "banana")
+    b2 := Word(text: "Banana")
+    print("Banana before banana: {b2 < b1}")
+
+@test fn case_folded()
+    assert(Word(text: "Zoo") > Word(text: "apple"))

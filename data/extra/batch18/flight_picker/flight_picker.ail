@@ -1,0 +1,36 @@
+## Flight picker: `min(by:)` and `max(by:)` with closures pick the cheapest, the quickest and the
+## longest flight, a tuple key (stops, price) picks the best value, and `filter` lists direct ones.
+
+struct Flight
+    code str
+    price int
+    minutes int
+    stops int
+
+fn hm(m int) str
+    rest := m % 60
+    "{m / 60}h{rest:02}"
+
+fn main()
+    flights := [
+        Flight(code: "KL1002", price: 189, minutes: 545, stops: 1),
+        Flight(code: "BA0117", price: 412, minutes: 470, stops: 0),
+        Flight(code: "IB6250", price: 156, minutes: 720, stops: 2),
+        Flight(code: "LH0400", price: 233, minutes: 600, stops: 1),
+        Flight(code: "VS0003", price: 398, minutes: 485, stops: 0),
+    ]
+    if f := flights.min(by: |x| x.price)
+        print("cheapest: {f.code} at {f.price}")
+    if f := flights.min(by: |x| x.minutes)
+        print("quickest: {f.code} in {hm(f.minutes)}")
+    if f := flights.max(by: |x| x.minutes)
+        print("longest: {f.code} in {hm(f.minutes)}")
+    if f := flights.min(by: |x| (x.stops, x.price))
+        print("fewest stops, then cheapest: {f.code}")
+    direct := flights.filter(|f| f.stops == 0).map(|f| f.code)
+    print("direct: {direct}")
+    avg := flights.map(|f| f.price).sum() / flights.len()
+    print("average fare {avg}")
+
+@test fn tuple_min()
+    assert_eq([(1, 5), (0, 9), (0, 3)].min(by: |t| (t.0, t.1)) else (9, 9), (0, 3))

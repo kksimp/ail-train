@@ -1,0 +1,34 @@
+## Generic spans: a `Span[T]` from lo to hi (both inclusive) for any `Ord` type tests whether
+## it holds a value or overlaps another span; used for booked nights and filing drawers.
+
+struct Span[T]
+    lo T
+    hi T
+
+fn Span[T Ord].holds(self, x T) bool
+    self.lo <= x and x <= self.hi
+
+fn Span[T Ord].overlaps(self, other Self) bool
+    self.lo <= other.hi and other.lo <= self.hi
+
+fn main()
+    stays := [Span(lo: 3, hi: 6), Span(lo: 7, hi: 9), Span(lo: 5, hi: 8), Span(lo: 12, hi: 14)]
+    for i in 0..stays.len()
+        start := i + 1
+        for j in start..stays.len()
+            if stays[i].overlaps(stays[j])
+                print("bookings {i} and {j} clash")
+    night := 8
+    busy := stays.count(|s| s.holds(night))
+    print("night {night}: {busy} rooms taken")
+    drawers := [Span(lo: "A", hi: "Fz"), Span(lo: "G", hi: "Mz"), Span(lo: "N", hi: "Sz"), Span(lo: "T", hi: "Zz")]
+    for name in ["Okafor", "Brandt", "Gupta", "Zhou", "Moreau"]
+        mut found := -1
+        for k, d in drawers.enumerate()
+            if d.holds(name)
+                found = k
+        print("{name} -> drawer {found + 1}")
+
+@test fn touching_overlaps()
+    assert(Span(lo: 1, hi: 3).overlaps(Span(lo: 3, hi: 5)))
+    assert_eq(Span(lo: 1, hi: 2).overlaps(Span(lo: 3, hi: 5)), false)

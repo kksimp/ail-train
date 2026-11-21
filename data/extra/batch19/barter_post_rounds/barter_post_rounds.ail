@@ -1,0 +1,50 @@
+## Barter post rounds: market stalls inspect each traded item, change its worry score by their rule, and
+## pass it on by a divisibility test; busiest-two product after 20 calm rounds (/3, then mod) and 600 tense rounds (mod lcm).
+
+enum Op
+    Plus(n int)
+    Times(n int)
+    Square
+
+struct Stall
+    items List[int]
+    op Op
+    div int
+    yes int
+    no int
+    seen int
+
+fn Stall.apply(self, v int) int
+    match op
+        Plus(n) => v + n
+        Times(n) => v * n
+        Square => v * v
+
+fn play(start List[Stall], rounds int, calm bool) int
+    mut stalls := start
+    modulus := stalls.fold(1, |acc, s| acc * s.div)
+    for _ in 0..rounds
+        for i in 0..stalls.len()
+            held := stalls[i].items
+            stalls[i].items = List[int]()
+            stalls[i].seen += held.len()
+            for v in held
+                mut w := stalls[i].apply(v)
+                w = if calm then w / 3 % modulus else w % modulus
+                to := if w % stalls[i].div == 0 then stalls[i].yes else stalls[i].no
+                stalls[to].items.push(w)
+    counts := stalls.map(|s| s.seen).sorted().reversed()
+    print("  inspections: {counts}")
+    counts[0] * counts[1]
+
+fn main()
+    stalls := [Stall(items: [61, 22, 85], op: Times(n: 3), div: 7, yes: 2, no: 1, seen: 0), Stall(items: [40, 91], op: Plus(n: 6), div: 11, yes: 3, no: 0, seen: 0), Stall(items: [17, 50, 73, 9], op: Op.Square, div: 13, yes: 1, no: 3, seen: 0), Stall(items: [33], op: Plus(n: 4), div: 17, yes: 0, no: 2, seen: 0)]
+    print("{stalls.len()} stalls, {stalls.fold(0, |acc, s| acc + s.items.len())} items")
+    p1 := play(stalls, 20, true)
+    print("part 1, 20 calm rounds: {p1}")
+    p2 := play(stalls, 600, false)
+    print("part 2, 600 tense rounds: {p2}")
+
+@test fn square()
+    s := Stall(items: [], op: Op.Square, div: 2, yes: 0, no: 0, seen: 0)
+    assert_eq(s.apply(9), 81)

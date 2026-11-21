@@ -1,0 +1,54 @@
+## Savings routes (Clarke-Wright): every customer starts on its own out-and-back trip; joining i and j saves
+## d(0,i) + d(0,j) - d(i,j), so the largest savings join route ends first while the van's capacity of 10 allows.
+
+fn dist(a List[int], b List[int]) int
+    (a[0] - b[0]).abs() + (a[1] - b[1]).abs()
+
+fn route_len(pts List[List[int]], route List[int]) int
+    mut total := 0
+    mut at := 0
+    for c in route
+        total += dist(pts[at], pts[c])
+        at = c
+    total + dist(pts[at], pts[0])
+
+fn main()
+    pts := [[0, 0], [4, 0], [5, 3], [0, 6], [-3, 4], [-4, -2], [2, -5]]
+    mut loads := [0, 4, 3, 5, 2, 6, 3]
+    mut routes := [[c] for c in 0..7]
+    mut owner := [0, 1, 2, 3, 4, 5, 6]
+    mut savings := List[List[int]]()
+    for i in 1..7
+        for j in (i + 1)..7
+            savings.push([dist(pts[0], pts[i]) + dist(pts[0], pts[j]) - dist(pts[i], pts[j]), i, j])
+    for sv in savings.sorted(by: |x| (-x[0], x[1], x[2]))
+        i := sv[1]
+        j := sv[2]
+        ri := owner[i]
+        rj := owner[j]
+        if sv[0] <= 0 or ri == rj or loads[ri] + loads[rj] > 10
+            continue
+        a := if routes[ri][0] == i then routes[ri].reversed() else routes[ri]
+        b := if routes[rj][0] == j then routes[rj] else routes[rj].reversed()
+        if a[a.len() - 1] != i or b[0] != j
+            continue
+        mut joined := a
+        joined.extend(b)
+        routes[ri] = joined
+        routes[rj] = List[int]()
+        loads[ri] += loads[rj]
+        loads[rj] = 0
+        for c in joined
+            owner[c] = ri
+        print("join {i} and {j} (saves {sv[0]}): {joined}")
+    mut total := 0
+    for r in 1..7
+        if routes[r].len() > 0
+            n := route_len(pts, routes[r])
+            total += n
+            print("route {routes[r]}: load {loads[r]}, length {n}")
+    separate := [1, 2, 3, 4, 5, 6].fold(0, |acc, c| acc + 2 * dist(pts[0], pts[c]))
+    print("total {total} against {separate} for one trip per customer")
+
+@test fn out_and_back()
+    assert_eq(route_len([[0, 0], [3, 4]], [1]), 14)

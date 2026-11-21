@@ -1,0 +1,39 @@
+## Dispatch rules: five jobs with work days and due days are run in arrival order, shortest first, earliest due
+## first and lowest critical ratio (due / work) first; mean flow time, mean lateness and late jobs are compared.
+
+struct Job
+    name str
+    work int
+    due int
+
+fn score(order List[Job]) str
+    mut t := 0
+    mut flow := 0
+    mut late := 0
+    mut count := 0
+    mut seq := List[str]()
+    for j in order
+        t += j.work
+        flow += t
+        late += (t - j.due).max(0)
+        if t > j.due
+            count += 1
+        seq.push(j.name)
+    n := order.len().to_float()
+    mean_flow := flow.to_float() / n
+    mean_late := late.to_float() / n
+    joined := seq.join("")
+    "{joined}: mean flow {mean_flow:.1} days, mean lateness {mean_late:.1}, {count} late"
+
+fn main()
+    jobs := [Job(name: "A", work: 6, due: 8), Job(name: "B", work: 2, due: 6), Job(name: "C", work: 8, due: 18), Job(name: "D", work: 3, due: 15), Job(name: "E", work: 9, due: 23)]
+    print("arrival  {score(jobs)}")
+    spt := jobs.sorted(by: |j| j.work)
+    print("shortest {score(spt)}")
+    edd := jobs.sorted(by: |j| j.due)
+    print("due date {score(edd)}")
+    cr := jobs.sorted(by: |j| j.due.to_float() / j.work.to_float())
+    print("ratio    {score(cr)}")
+
+@test fn one_job()
+    assert_eq(score([Job(name: "X", work: 2, due: 1)]), "X: mean flow 2.0 days, mean lateness 1.0, 1 late")

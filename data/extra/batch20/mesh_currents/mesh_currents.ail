@@ -1,0 +1,32 @@
+## Mesh analysis: two loops sharing a resistor give R11 I1 - R3 I2 = E1 and -R3 I1 + R22 I2 = -E2;
+## Cramer's rule solves for the loop currents, and the batteries' power matches the heat in the resistors.
+
+fn solve2(a List[List[float]], rhs List[float]) List[float]
+    det := a[0][0] * a[1][1] - a[0][1] * a[1][0]
+    i1 := (rhs[0] * a[1][1] - a[0][1] * rhs[1]) / det
+    i2 := (a[0][0] * rhs[1] - rhs[0] * a[1][0]) / det
+    [i1, i2]
+
+fn main()
+    e1 := 12.0
+    e2 := 6.0
+    r1 := 4.0
+    r2 := 2.0
+    r3 := 6.0
+    print("E1 {e1} V with R1 {r1} ohm, E2 {e2} V with R2 {r2} ohm, shared R3 {r3} ohm")
+    m := [[r1 + r3, -r3], [-r3, r2 + r3]]
+    cur := solve2(m, [e1, -e2])
+    i1 := cur[0]
+    i2 := cur[1]
+    shared := i1 - i2
+    print("loop currents: I1 {i1:.4} A, I2 {i2:.4} A")
+    print("through R3: {shared:.4} A, R3 voltage {shared * r3:.4} V")
+    supplied := e1 * i1 - e2 * i2
+    heat := r1 * i1 * i1 + r2 * i2 * i2 + r3 * shared * shared
+    print("batteries give {supplied:.4} W, resistors take {heat:.4} W")
+    dir := if i2 < 0.0 then "charging E2" else "draining E2"
+    print("the second battery is {dir}")
+
+@test fn diagonal()
+    r := solve2([[2.0, 0.0], [0.0, 4.0]], [6.0, 8.0])
+    assert_eq(r, [3.0, 2.0])

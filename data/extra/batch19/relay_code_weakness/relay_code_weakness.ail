@@ -1,0 +1,36 @@
+## Relay code weakness: each number in a relay stream must be the sum of two different numbers among the five
+## before it; part 1 finds the first that is not, part 2 finds a run of 2+ numbers summing to it and adds its smallest and largest.
+
+fn valid(xs List[int], i int, width int) bool
+    for a in i - width..i
+        for b in a + 1..i
+            if xs[a] != xs[b] and xs[a] + xs[b] == xs[i]
+                return true
+    false
+
+fn main()
+    stream := [20, 7, 13, 4, 11, 24, 18, 17, 22, 29, 35, 40, 53, 31, 75, 66, 81]
+    width := 5
+    mut bad := -1
+    for i in width..stream.len()
+        if not valid(stream, i, width)
+            bad = stream[i]
+            print("part 1: {bad} at position {i} is not a sum of two of the previous {width}")
+            break
+    for start in 0..stream.len()
+        mut total := 0
+        mut stop := start
+        while total < bad and stop < stream.len()
+            total += stream[stop]
+            stop += 1
+        if total == bad and stop - start >= 2
+            run := stream.slice(start, stop)
+            lo := run.min() else 0
+            hi := run.max() else 0
+            print("run {run} sums to {bad}")
+            print("part 2: {lo} + {hi} = {lo + hi}")
+            break
+
+@test fn sum_of_two()
+    assert(valid([1, 2, 3], 2, 2))
+    assert(not valid([1, 2, 9], 2, 2))

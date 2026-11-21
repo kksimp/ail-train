@@ -1,0 +1,28 @@
+## Workday stream: a generator returning `Seq[int]` yields day numbers that fall on weekdays
+## (day 0 is a Monday); callers `take`, `filter` and `collect` it lazily to plan a stand-up rota.
+
+DAYS := ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+
+fn workdays(start int) Seq[int]
+    mut d := start
+    while true
+        if d % 7 < 5
+            yield d
+        d += 1
+
+fn label(d int) str
+    "{DAYS[d % 7]} {d}"
+
+fn main()
+    team := ["Ana", "Bram", "Chidi"]
+    next_seven := workdays(3).take(7).collect()
+    for i, d in next_seven.enumerate()
+        print("{label(d)}: {team[i % team.len()]} runs stand-up")
+    fridays := workdays(0).filter(|d| d % 7 == 4).take(3).collect()
+    shown := fridays.map(|d| label(d)).join(", ")
+    print("next demos: {shown}")
+    tenth := workdays(0).skip(9).take(1).collect()
+    print("tenth working day is day {tenth[0]}")
+
+@test fn skips_weekend()
+    assert_eq(workdays(4).take(2).collect(), [4, 7])

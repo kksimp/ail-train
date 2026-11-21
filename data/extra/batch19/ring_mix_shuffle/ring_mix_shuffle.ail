@@ -1,0 +1,31 @@
+## Ring mix shuffle: a circular code list is mixed by moving each number, in original order, as many places
+## as its value (mod n - 1); the key sums the numbers 10, 20 and 30 places after zero, then again with a 1009 key and 4 rounds.
+
+fn mix(values List[int], rounds int) List[int]
+    n := values.len()
+    m := n - 1
+    mut order := [i for i in 0..n]
+    for _ in 0..rounds
+        for id in 0..n
+            pos := order.index_of(id) else 0
+            order.remove_at(pos)
+            dest := ((pos + values[id]) % m + m) % m
+            order.insert(dest, id)
+    order.map(|id| values[id])
+
+fn grove(mixed List[int]) int
+    zero := mixed.index_of(0) else 0
+    n := mixed.len()
+    mixed[(zero + 10) % n] + mixed[(zero + 20) % n] + mixed[(zero + 30) % n]
+
+fn main()
+    code := [4, -7, 0, 12, 3, -1, 9, -15, 6, 2, -4, 8]
+    once := mix(code, 1)
+    print("mixed once: {once}")
+    print("part 1: key sum {grove(once)}")
+    keyed := code.map(|v| v * 1009)
+    four := mix(keyed, 4)
+    print("part 2: key sum {grove(four)}")
+
+@test fn no_move_for_zero()
+    assert_eq(mix([0, 3, 1], 1).len(), 3)

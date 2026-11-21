@@ -1,0 +1,60 @@
+## Payment fees: card, bank transfer and wallet payments implement a `Payment` trait with their
+## own fee rules in cents; each purchase picks the cheapest method (the first one on a tie).
+
+trait Payment
+    fn name(self) str
+    fn fee(self, cents int) int
+
+struct Card
+    permille int
+    fixed int
+
+struct Transfer
+    flat int
+
+struct Wallet
+    percent int
+    minimum int
+
+impl Payment for Card
+    fn name(self) str
+        "card"
+    fn fee(self, cents int) int
+        cents * permille / 1000 + fixed
+
+impl Payment for Transfer
+    fn name(self) str
+        "transfer"
+    fn fee(self, cents int) int
+        flat
+
+impl Payment for Wallet
+    fn name(self) str
+        "wallet"
+    fn fee(self, cents int) int
+        (cents * percent / 100).max(minimum)
+
+fn money(c int) str
+    rest := c % 100
+    "{c / 100}.{rest:02}"
+
+fn main()
+    mut methods := List[any Payment]()
+    methods.push(Card(permille: 14, fixed: 20))
+    methods.push(Transfer(flat: 35))
+    methods.push(Wallet(percent: 3, minimum: 10))
+    mut saved := 0
+    for price in [450, 1200, 2599, 9900, 300]
+        fees := methods.map(|m| m.fee(price))
+        mut best := 0
+        for i in 1..fees.len()
+            if fees[i] < fees[best]
+                best = i
+        worst := fees.max() else 0
+        saved += worst - fees[best]
+        shown := fees.map(|f| money(f)).join("/")
+        print("{money(price):>6}: fees {shown}, use {methods[best].name()}")
+    print("saved {money(saved)} against the dearest choices")
+
+@test fn wallet_minimum()
+    assert_eq(Wallet(percent: 3, minimum: 10).fee(200), 10)

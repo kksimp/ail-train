@@ -1,0 +1,9 @@
+loop radius 4.0 m, lowest start height 10.0 m
+from 7.0 m: cannot reach the top
+from 9.0 m: reaches the top too slowly and falls
+from 10.5 m: loops
+  top speed 7.00 m/s, track pushes 1226 N
+from 12.0 m: loops
+  top speed 8.86 m/s, track pushes 4905 N
+from 16.0 m: loops
+  top speed 12.53 m/s, track pushes 14715 N

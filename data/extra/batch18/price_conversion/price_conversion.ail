@@ -1,0 +1,23 @@
+## Price conversion: a cafe menu priced in pence is converted for tourists with `map_values`,
+## rounding each price to whole cents at a fixed rate, and the totals are compared both ways.
+
+fn show(c int) str
+    rest := c % 100
+    "{c / 100}.{rest:02}"
+
+fn main()
+    menu := {"flat white": 340, "croissant": 285, "porridge": 450, "tea": 220, "brownie": 310}
+    rate := 117
+    euros := menu.map_values(|k, v| (v * rate + 50) / 100)
+    for item, p in menu
+        print("{item:<11} {show(p):>5} GBP {show(euros[item]):>5} EUR")
+    order := ["flat white", "croissant", "tea", "tea"]
+    gbp := order.map(|i| menu[i]).sum()
+    eur := order.map(|i| euros[i]).sum()
+    print("order: {show(gbp)} GBP or {show(eur)} EUR")
+    straight := (gbp * rate + 50) / 100
+    print("converting the total instead gives {show(straight)} EUR")
+
+@test fn rounding()
+    m := {"x": 100}
+    assert_eq(m.map_values(|k, v| (v * 117 + 50) / 100)["x"], 117)

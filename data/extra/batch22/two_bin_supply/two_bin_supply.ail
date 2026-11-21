@@ -1,0 +1,42 @@
+## Two-bin supply: parts are drawn from the front bin; when it empties the full back bin moves forward and a card
+## asks for a refill that arrives a lead time later; if both bins are empty the rest of the day's need is short.
+
+fn simulate(draws List[int], bin int, lead int, verbose bool) int
+    mut front := bin
+    mut back := bin
+    mut due := -1
+    mut short := 0
+    for day in 0..draws.len()
+        if day == due
+            back = bin
+            due = -1
+            if verbose
+                print("day {day + 1:>2}: refill arrives")
+        mut need := draws[day]
+        while need > 0
+            if front > 0
+                take := need.min(front)
+                front -= take
+                need -= take
+            elif back > 0
+                front = back
+                back = 0
+                due = day + lead
+                if verbose
+                    print("day {day + 1:>2}: front bin empty, card sent")
+            else
+                short += need
+                if verbose
+                    print("day {day + 1:>2}: short {need}")
+                need = 0
+    short
+
+fn main()
+    draws := [6, 8, 5, 9, 7, 10, 4, 8, 12, 6, 9, 11, 5, 7, 8, 10, 6, 9, 7, 8]
+    short := simulate(draws, 30, 3, true)
+    print("bins of 30, lead 3 days: {short} short")
+    for bin in [20, 25, 35]
+        print("bins of {bin}: {simulate(draws, bin, 3, false)} short")
+
+@test fn big_bins_never_short()
+    assert_eq(simulate([5, 5, 5], 100, 3, false), 0)

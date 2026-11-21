@@ -1,0 +1,28 @@
+## Crew form groups: each crew member ticks the letters of the questions they answer yes; per crew, part 1
+## counts questions anyone ticked (set union), part 2 questions everyone ticked (set intersection), summed over crews.
+
+fn letters(s str) Set[char]
+    mut out := Set[char]()
+    for c in s.chars()
+        out.add(c)
+    out
+
+fn main()
+    crews := ["abc ab ac", "xyz", "pq qr rp", "mno nmo omn", "a b c d", "kl lk klm"]
+    mut anyone := 0
+    mut everyone := 0
+    for crew in crews
+        forms := crew.split(" ").map(|f| letters(f))
+        mut any_set := forms[0]
+        mut all_set := forms[0]
+        for f in forms
+            any_set = any_set.union(f)
+            all_set = all_set.intersect(f)
+        print("crew [{crew}]: anyone {any_set.len()}, everyone {all_set.len()}")
+        anyone += any_set.len()
+        everyone += all_set.len()
+    print("part 1: {anyone}")
+    print("part 2: {everyone}")
+
+@test fn shared()
+    assert_eq(letters("aba").len(), 2)

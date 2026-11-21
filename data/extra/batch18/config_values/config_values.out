@@ -1,0 +1,6 @@
+name     = "edge proxy"
+workers  = 4
+tls      = yes
+ports    = [80, 443]
+upstream = [["a.local", "b.local"], no]
+5 keys, 8 leaf values

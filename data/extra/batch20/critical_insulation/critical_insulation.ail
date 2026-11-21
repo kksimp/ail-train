@@ -1,0 +1,32 @@
+## Critical insulation radius: lagging a thin wire first raises its heat loss, because the outer surface
+## grows, until the radius k / h; the loss per metre is 2 pi dT / (ln(r2 / r1) / k + 1 / (h r2)).
+
+PI := 3.141592653589793
+
+fn loss(r1 float, r2 float, k float, h float, dt float) float
+    2.0 * PI * dt / ((r2 / r1).ln() / k + 1.0 / (h * r2))
+
+fn main()
+    k := 0.17
+    h := 10.0
+    rc := k / h
+    print("PVC lagging, calm air: critical radius {rc * 1000.0:.0} mm")
+    wire := 0.001
+    mut best := 0.0
+    mut best_r := 0.0
+    for mm in [1.0, 3.0, 6.0, 10.0, 17.0, 25.0, 40.0, 60.0]
+        r2 := mm / 1000.0
+        q := loss(wire, r2, k, h, 40.0)
+        if q > best
+            best = q
+            best_r = mm
+        print("wire lagged to {mm:>4.0} mm: {q:.2} W/m")
+    print("most heat escapes at {best_r:.0} mm of radius")
+    pipe := 0.05
+    bare := loss(pipe, pipe, k, h, 100.0)
+    lagged := loss(pipe, 0.08, k, h, 100.0)
+    print("a 50 mm pipe is past the critical radius: {bare:.0} W/m bare, {lagged:.0} W/m lagged")
+
+@test fn bare_surface()
+    q := loss(0.5, 0.5, 1.0, 2.0, 1.0)
+    assert((q - 2.0 * PI).abs() < 0.000001)

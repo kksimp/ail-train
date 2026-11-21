@@ -1,0 +1,41 @@
+## Tag id checksum: luggage tags are checked by counting tags with some letter exactly twice and some exactly
+## three times (checksum = product); part 2 finds the two tags that differ in one place and prints their shared letters.
+
+fn letter_counts(tag str) Map[char, int]
+    mut m := Map[char, int]()
+    for c in tag.chars()
+        m[c] += 1
+    m
+
+fn shared(a str, b str) str?
+    xs := a.chars()
+    ys := b.chars()
+    mut keep := List[char]()
+    mut diff := 0
+    for i in 0..xs.len()
+        if xs[i] == ys[i]
+            keep.push(xs[i])
+        else
+            diff += 1
+    if diff == 1 then keep.join("") else none
+
+fn main()
+    tags := ["kqbrvxa", "mmzrtuu", "pqlaapl", "kqbrwxa", "zzytopz", "hhjjkkl", "abcdefg", "ttrrrsq"]
+    mut twos := 0
+    mut threes := 0
+    for t in tags
+        counts := letter_counts(t).values()
+        if counts.contains(2)
+            twos += 1
+        if counts.contains(3)
+            threes += 1
+    print("{twos} tags with a pair, {threes} with a triple")
+    print("part 1: checksum {twos * threes}")
+    for i in 0..tags.len()
+        for j in i + 1..tags.len()
+            if s := shared(tags[i], tags[j])
+                print("part 2: {tags[i]} and {tags[j]} share {s}")
+
+@test fn one_off()
+    assert_eq(shared("abc", "abd") else "", "ab")
+    assert(shared("abc", "xyz") == none)

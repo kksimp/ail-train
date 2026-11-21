@@ -1,0 +1,40 @@
+## Linear feedback shift register: shift right and feed back the xor of tapped bits; taps from a primitive
+## polynomial (x^4 + x^3 + 1) visit all 15 non-zero states, other taps fall into shorter cycles.
+
+fn next_state(s int, taps List[int], width int) int
+    mut fb := 0
+    for t in taps
+        fb = fb ^ ((s >> (width - t)) & 1)
+    (s >> 1) | (fb << (width - 1))
+
+fn period(start int, taps List[int], width int) int
+    mut s := next_state(start, taps, width)
+    mut n := 1
+    while s != start
+        s = next_state(s, taps, width)
+        n += 1
+    n
+
+fn main()
+    mut s := 1
+    mut states := List[str]()
+    mut out_bits := List[str]()
+    for _ in 0..15
+        states.push("{s}")
+        out_bits.push("{s & 1}")
+        s = next_state(s, [4, 3], 4)
+    walk := states.join(" ")
+    stream := out_bits.join("")
+    print("4-bit taps 4,3 states: {walk}")
+    print("output bits: {stream}")
+    tries := [(4, [4, 3]), (4, [4, 2]), (5, [5, 3]), (5, [5, 4]), (8, [8, 6, 5, 4])]
+    for t in tries
+        w, taps := t
+        p := period(1, taps, w)
+        full := (1 << w) - 1
+        kind := if p == full then "maximal" else "short"
+        print("width {w} taps {taps}: period {p} of {full} ({kind})")
+
+@test fn one_step()
+    assert_eq(next_state(1, [4, 3], 4), 8)
+    assert_eq(next_state(8, [4, 3], 4), 4)

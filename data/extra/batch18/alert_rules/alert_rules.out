@@ -1,0 +1,4 @@
+web-1: cpu 92% over 85%
+db-1: cpu 88% over 85%; only 12 GB free
+cache: only 9 GB free
+1 of 4 hosts quiet

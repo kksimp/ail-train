@@ -1,0 +1,34 @@
+## Nuclear binding energy: the semi-empirical mass formula adds volume, surface, Coulomb, asymmetry and
+## pairing terms; binding per nucleon peaks near iron, and for each mass number the best proton count is found.
+
+fn binding(a int, z int) float
+    af := a.to_float()
+    zf := z.to_float()
+    n := a - z
+    third := af.cbrt()
+    mut b := 15.8 * af - 18.3 * third * third - 0.714 * zf * (zf - 1.0) / third - 23.2 * (af - 2.0 * zf) * (af - 2.0 * zf) / af
+    pair := 12.0 / af.sqrt()
+    if z % 2 == 0 and n % 2 == 0
+        b += pair
+    elif z % 2 == 1 and n % 2 == 1
+        b -= pair
+    b
+
+fn best_z(a int) int
+    mut best := 1
+    for z in 1..a
+        if binding(a, z) > binding(a, best)
+            best = z
+    best
+
+fn main()
+    nuclei := [("He-4", 4, 2), ("C-12", 12, 6), ("O-16", 16, 8), ("Fe-56", 56, 26), ("Ni-62", 62, 28), ("Sn-120", 120, 50), ("Pb-208", 208, 82), ("U-238", 238, 92)]
+    for nu in nuclei
+        name, a, z := nu
+        b := binding(a, z)
+        print("{name:<7} B {b:>7.1} MeV, {b / a.to_float():.3} MeV per nucleon")
+    for a in [16, 56, 120, 208]
+        print("mass {a}: most bound with {best_z(a)} protons")
+
+@test fn even_beats_odd()
+    assert(binding(56, 26) > binding(56, 25))

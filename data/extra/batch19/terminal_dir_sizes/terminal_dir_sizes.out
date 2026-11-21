@@ -1,0 +1,6 @@
+root              21300
+root/docs          7200
+root/docs/old      4100
+root/games        12900
+part 1: folders of at most 5000 sum to 4100
+part 2: need 6300 more free, delete a folder of 7200

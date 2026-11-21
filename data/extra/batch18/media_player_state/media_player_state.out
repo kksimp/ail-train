@@ -1,0 +1,12 @@
+play  -> playing 'Intro' vol 5
+next  -> playing 'Blue Hour' vol 5
+up    -> playing 'Blue Hour' vol 7
+up    -> playing 'Blue Hour' vol 9
+up    -> playing 'Blue Hour' vol 10
+back  -> playing 'Intro' vol 10
+back  -> playing 'Night Bus' vol 10
+pause -> paused 'Night Bus' vol 10
+down  -> paused 'Night Bus' vol 7
+down  -> paused 'Night Bus' vol 4
+eject -> paused 'Night Bus' vol 4
+next  -> paused 'Intro' vol 4

@@ -1,0 +1,34 @@
+## Mortgage points: each point costs 1% of the loan up front and buys a lower rate; the monthly saving in
+## cents against no points gives the break-even month, and the cost over 7 years shows which deal wins.
+
+fn money(c int) str
+    cents := c % 100
+    "{c / 100}.{cents:02}"
+
+fn payment_cents(loan float, yearly float, months int) int
+    r := yearly / 12.0
+    base := 1.0 + r
+    p := loan * r / (1.0 - base.pow((0 - months).to_float()))
+    (p * 100.0 + 0.5).floor().to_int()
+
+fn break_even(cost int, saving int) int
+    (cost + saving - 1) / saving
+
+fn main()
+    loan := 300000.0
+    deals := [(0, 650), (1, 625), (2, 600), (3, 580)]
+    mut pays := List[int]()
+    for d in deals
+        pays.push(payment_cents(loan, d.1.to_float() / 10000.0, 360))
+    for i, d in deals.enumerate()
+        pts, bp := d
+        frac := bp % 100
+        cost := pts * 300000
+        pay := pays[i]
+        seven := cost + pay * 84
+        be := if pts == 0 then "-" else "{break_even(cost, pays[0] - pay)} months"
+        print("points {pts}, rate {bp / 100}.{frac:02}%: payment {money(pay)}, break-even {be}, 7-year cost {money(seven)}")
+
+@test fn rounds_up()
+    assert_eq(break_even(300000, 20000), 15)
+    assert_eq(break_even(300001, 20000), 16)

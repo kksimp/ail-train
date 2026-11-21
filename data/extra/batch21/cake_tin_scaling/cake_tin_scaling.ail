@@ -1,0 +1,35 @@
+## Cake tin scaling: a recipe for a 20 cm round tin is scaled to another tin by the ratio of base areas
+## (pi r squared for a round tin, side squared for a square one), grams to the nearest 5 and whole eggs.
+
+enum Tin
+    Round(d int)
+    Square(s int)
+
+fn area(t Tin) float
+    match t
+        Round(d) => 3.141592653589793 * (d.to_float() / 2.0) * (d.to_float() / 2.0)
+        Square(s) => s.to_float() * s.to_float()
+
+fn label(t Tin) str
+    match t
+        Round(d) => "{d} cm round"
+        Square(s) => "{s} cm square"
+
+fn main()
+    base := area(Tin.Round(d: 20))
+    recipe := [("butter", 225), ("sugar", 225), ("flour", 225), ("milk", 30)]
+    tins := [Tin.Round(d: 15), Tin.Round(d: 23), Tin.Square(s: 20), Tin.Square(s: 23), Tin.Round(d: 25)]
+    for t in tins
+        f := area(t) / base
+        mut parts := List[str]()
+        for item in recipe
+            name, g := item
+            scaled := (g.to_float() * f / 5.0).round().to_int() * 5
+            parts.push("{name} {scaled}")
+        four := 4.0
+        eggs := (four * f).round().to_int().max(1)
+        joined := parts.join(", ")
+        print("{label(t):<13} x{f:.4}: {joined}, eggs {eggs}")
+
+@test fn square_area()
+    assert((area(Tin.Square(s: 10)) - 100.0).abs() < 0.000001)

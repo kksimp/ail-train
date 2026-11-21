@@ -1,0 +1,5 @@
+100 Hz voice: best lag 80 samples -> 100.0 Hz, peak 0.900 of r(0)
+160 Hz voice: best lag 50 samples -> 160.0 Hz, peak 0.938 of r(0)
+200 Hz voice: best lag 40 samples -> 200.0 Hz, peak 0.950 of r(0)
+250 Hz voice: best lag 32 samples -> 250.0 Hz, peak 0.960 of r(0)
+320 Hz voice: best lag 25 samples -> 320.0 Hz, peak 0.969 of r(0)

@@ -1,0 +1,33 @@
+## Sinking fund: the level yearly deposit that grows to a target with compound interest is
+## FV r / ((1 + r)^n - 1); a year-by-year run of deposits plus interest checks that it lands on the target.
+
+fn deposit(target float, rate float, years int) float
+    base := 1.0 + rate
+    target * rate / (base.pow(years.to_float()) - 1.0)
+
+fn grow(dep float, rate float, years int) float
+    mut bal := 0.0
+    for _ in 0..years
+        bal = bal * (1.0 + rate) + dep
+    bal
+
+fn main()
+    target := 50000.0
+    for p in [2, 4, 6, 8]
+        rate := p.to_float() / 100.0
+        d := deposit(target, rate, 10)
+        plain := target / 10.0
+        saved := plain - d
+        print("{p}% a year: deposit {d:.2} a year for 10 years ({saved:.2} less than {plain:.2})")
+    d := deposit(target, 0.04, 10)
+    mut bal := 0.0
+    for y in 1..=10
+        interest := bal * 0.04
+        bal = bal + interest + d
+        if y % 3 == 1
+            print("year {y:>2}: interest {interest:>8.2}, balance {bal:>9.2}")
+    print("final balance {bal:.2}")
+
+@test fn lands_on_target()
+    d := deposit(1000.0, 0.05, 5)
+    assert((grow(d, 0.05, 5) - 1000.0).abs() < 0.000001)

@@ -1,0 +1,15 @@
+step  0: trees 105, burning  0
+step 10: trees  86, burning  7
+step 20: trees  67, burning  5
+step 30: trees  40, burning  4
+step 40: trees  59, burning  5
+step 50: trees  71, burning  2
+step 60: trees  60, burning  6
+TTT......TT.T......TTTTT
+....T..T..T....T..*..T..
+...T.....TT.T....*.....T
+TT.TT..........T.TTTT..T
+...T.......*.....T.TT...
+TT...............*T..T.T
+T.T....TTT.........T..TT
+TTTTT..TTT.TT*..*..T.TT.

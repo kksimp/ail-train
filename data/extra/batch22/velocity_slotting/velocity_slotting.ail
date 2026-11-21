@@ -1,0 +1,24 @@
+## Velocity slotting: the most-picked items are given the pick slots nearest the dock; weekly walking is picks x
+## 2 x slot distance, compared with slotting the same items alphabetically.
+
+fn walking(names List[str], picks Map[str, int], slots List[int]) int
+    mut total := 0
+    for i, n in names.enumerate()
+        total += picks[n] * 2 * slots[i]
+    total
+
+fn main()
+    picks := {"bolts": 120, "caps": 45, "dowels": 300, "fuses": 80, "glue": 210, "hooks": 15, "nails": 160, "pegs": 60}
+    slots := [4, 6, 8, 10, 12, 14, 16, 18]
+    alpha := picks.keys().sorted()
+    fast := picks.keys().sorted(by: |k| -picks[k])
+    for i, n in fast.enumerate()
+        print("slot at {slots[i]:>2} m: {n:<6} ({picks[n]} picks a week)")
+    a := walking(alpha, picks, slots)
+    f := walking(fast, picks, slots)
+    print("walking a week: alphabetical {a} m, by velocity {f} m, saving {(a - f) * 100 / a}%")
+
+@test fn one_item()
+    mut m := Map[str, int]()
+    m["x"] = 10
+    assert_eq(walking(["x"], m, [5]), 100)

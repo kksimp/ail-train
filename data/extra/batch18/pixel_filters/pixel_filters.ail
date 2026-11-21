@@ -1,0 +1,42 @@
+## Pixel filters: grey pixel filters are `fn(int) int` values (brighten by n, invert, threshold);
+## `compose` returns a closure that runs one after another, and a loop chains a whole pipeline.
+
+fn clamp(x int) int
+    x.max(0).min(255)
+
+fn brighten(n int) fn(int) int
+    |p| clamp(p + n)
+
+fn invert(p int) int
+    255 - p
+
+fn black_or_white(p int, cut int) int
+    if p >= cut then 255 else 0
+
+fn threshold(cut int) fn(int) int
+    |p| black_or_white(p, cut)
+
+fn compose(f fn(int) int, g fn(int) int) fn(int) int
+    |x| g(f(x))
+
+fn keep(p int) int
+    p
+
+fn main()
+    row := [12, 60, 128, 200, 245, 90]
+    print("original   {row}")
+    print("brighter   {row.map(brighten(40))}")
+    print("inverted   {row.map(invert)}")
+    steps := [brighten(40), invert, threshold(100)]
+    mut pipeline := keep
+    for s in steps
+        pipeline = compose(pipeline, s)
+    print("pipeline   {row.map(pipeline)}")
+    darker_then_flip := compose(brighten(-50), invert)
+    print("dark+flip  {row.map(darker_then_flip)}")
+    white := row.map(pipeline).count(|p| p == 255)
+    print("{white} of {row.len()} pixels end up white")
+
+@test fn compose_order()
+    f := compose(brighten(10), invert)
+    assert_eq(f(100), 145)

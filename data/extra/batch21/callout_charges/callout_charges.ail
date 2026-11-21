@@ -1,0 +1,34 @@
+## Call-out charges: a locksmith's call-out is a 60.00 base times 1.5 in the evening (18-22) or 2 at night
+## (22-7), plus 25.00 on Sundays, and each started half hour on site after the first adds 30.00.
+
+fn band(hour int) int
+    match hour
+        0..=6 => 20
+        18..=21 => 15
+        22..=23 => 20
+        _ => 10
+
+fn extra_halves(mins int) int
+    if mins <= 30 then 0 else (mins - 30 + 29) / 30
+
+fn money(c int) str
+    "{c / 100}.{c % 100:02}"
+
+fn main()
+    jobs := [("Mon", 10, 25), ("Tue", 19, 50), ("Fri", 23, 95), ("Sun", 14, 30), ("Sun", 3, 61), ("Wed", 7, 120)]
+    mut total := 0
+    for j in jobs
+        day, hour, mins := j
+        base := 6000 * band(hour) / 10
+        sunday := if day == "Sun" then 2500 else 0
+        on_site := extra_halves(mins) * 3000
+        charge := base + sunday + on_site
+        total += charge
+        mult := band(hour)
+        print("{day} {hour:02}:00, {mins:>3} min: base {money(base)} (x{mult / 10}.{mult % 10}) + Sunday {money(sunday)} + time {money(on_site)} = {money(charge)}")
+    print("week's call-outs: {money(total)}")
+
+@test fn bands()
+    assert_eq(band(23), 20)
+    assert_eq(extra_halves(31), 1)
+    assert_eq(extra_halves(30), 0)

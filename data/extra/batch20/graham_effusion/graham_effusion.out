@@ -1,0 +1,8 @@
+hydrogen                2.02 g/mol: 3.984x oxygen's rate, 1 L leaks in   15.1 s
+helium                  4.00 g/mol: 2.827x oxygen's rate, 1 L leaks in   21.2 s
+methane                16.04 g/mol: 1.412x oxygen's rate, 1 L leaks in   42.5 s
+oxygen                 32.00 g/mol: 1.000x oxygen's rate, 1 L leaks in   60.0 s
+carbon dioxide         44.01 g/mol: 0.853x oxygen's rate, 1 L leaks in   70.4 s
+sulfur hexafluoride   146.06 g/mol: 0.468x oxygen's rate, 1 L leaks in  128.2 s
+U-235 F6 against U-238 F6: separation factor 1.00430 per stage
+0.72% to 3% U-235 takes 338 ideal stages

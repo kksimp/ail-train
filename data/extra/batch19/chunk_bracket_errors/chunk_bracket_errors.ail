@@ -1,0 +1,54 @@
+## Chunk bracket errors: lines of nested (), [] and <> chunks are checked with a list of open brackets; part 1
+## scores the first wrong closer (2, 7, 19), part 2 completes unfinished lines (score x 4 + 1/2/3) and takes the median score.
+
+fn closer(c char) char
+    match c
+        '(' => ')'
+        '[' => ']'
+        _ => '>'
+
+fn worth(o char) int
+    match o
+        '(' => 1
+        '[' => 2
+        _ => 3
+
+fn check(line str) List[int]
+    mut open := List[char]()
+    for c in line.chars()
+        if c == '(' or c == '[' or c == '<'
+            open.push(c)
+        else
+            top := open.pop() else ' '
+            if closer(top) != c
+                bad := match c
+                    ')' => 2
+                    ']' => 7
+                    _ => 19
+                return [bad, 0]
+    mut fix := 0
+    while o := open.pop()
+        fix = fix * 4 + worth(o)
+    [0, fix]
+
+fn main()
+    lines := ["([<>]<(", "[(<>)]]", "<<[]>(", "(([[<>]]))", "([)]", "[<(<>)", "<(>", "(([<"]
+    mut errors := 0
+    mut fixes := List[int]()
+    for l in lines
+        r := check(l)
+        if r[0] > 0
+            print("{l:<12} corrupted, score {r[0]}")
+            errors += r[0]
+        elif r[1] > 0
+            print("{l:<12} incomplete, completion score {r[1]}")
+            fixes.push(r[1])
+        else
+            print("{l:<12} complete")
+    print("part 1: error score {errors}")
+    s := fixes.sorted()
+    print("part 2: median completion score {s[s.len() / 2]}")
+
+@test fn wrong_closer()
+    assert_eq(check("(]"), [7, 0])
+    assert_eq(check("(["), [0, 9])

@@ -1,0 +1,30 @@
+## Arcade top five: a min-`Heap` of score entries keeps only the five best; a new score enters
+## when it beats the weakest kept entry, which is popped; the table is printed best first.
+
+struct Entry
+    points int
+    name str
+
+impl Ord for Entry
+
+fn main()
+    mut table := Heap[Entry]()
+    plays := [("AXE", 4200), ("BOB", 1500), ("CAT", 8800), ("DEX", 3100), ("EVE", 2600), ("FOX", 1200), ("GUS", 9900), ("HAL", 3100), ("JO", 7000)]
+    for p in plays
+        name, pts := p
+        table.push(Entry(points: pts, name: name))
+        if table.len() > 5
+            out := table.pop() else Entry(points: 0, name: "")
+            if out.name == name
+                print("{name} {pts}: not enough")
+            else
+                print("{name} {pts}: in, {out.name} drops out")
+        else
+            print("{name} {pts}: in")
+    print("HIGH SCORES")
+    for i, e in table.to_sorted().reversed().enumerate()
+        print("{i + 1} {e.name:<4}{e.points:>6}")
+
+@test fn smallest_on_top()
+    h := Heap.from([Entry(points: 5, name: "a"), Entry(points: 2, name: "b")])
+    assert_eq((h.peek() else Entry(points: 0, name: "")).points, 2)

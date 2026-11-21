@@ -1,0 +1,36 @@
+## Bond enthalpies: a reaction's enthalpy change is roughly the energy of bonds broken minus bonds formed
+## (average kJ/mol values), compared here with measured values for a few gas-phase reactions.
+
+struct Bonds
+    name str
+    count int
+
+struct Reaction
+    equation str
+    broken List[Bonds]
+    formed List[Bonds]
+    measured int
+
+fn energy(table Map[str, int], group List[Bonds]) int
+    group.fold(0, |acc, b| acc + table[b.name] * b.count)
+
+fn main()
+    bonds := {"C-H": 413, "O=O": 498, "C=O": 799, "O-H": 463, "C-C": 348, "H-H": 436, "N#N": 945, "N-H": 391, "Cl-Cl": 242, "H-Cl": 431}
+    reactions := [
+        Reaction(equation: "CH4 + 2 O2 -> CO2 + 2 H2O", broken: [Bonds(name: "C-H", count: 4), Bonds(name: "O=O", count: 2)], formed: [Bonds(name: "C=O", count: 2), Bonds(name: "O-H", count: 4)], measured: -802),
+        Reaction(equation: "N2 + 3 H2 -> 2 NH3", broken: [Bonds(name: "N#N", count: 1), Bonds(name: "H-H", count: 3)], formed: [Bonds(name: "N-H", count: 6)], measured: -92),
+        Reaction(equation: "H2 + Cl2 -> 2 HCl", broken: [Bonds(name: "H-H", count: 1), Bonds(name: "Cl-Cl", count: 1)], formed: [Bonds(name: "H-Cl", count: 2)], measured: -185),
+        Reaction(equation: "2 C2H6 + 7 O2 -> 4 CO2 + 6 H2O", broken: [Bonds(name: "C-C", count: 2), Bonds(name: "C-H", count: 12), Bonds(name: "O=O", count: 7)], formed: [Bonds(name: "C=O", count: 8), Bonds(name: "O-H", count: 12)], measured: -2856),
+    ]
+    for r in reactions
+        b := energy(bonds, r.broken)
+        f := energy(bonds, r.formed)
+        dh := b - f
+        off := dh - r.measured
+        print("{r.equation}: break {b}, form {f}, estimate {dh} kJ (measured {r.measured}, off by {off})")
+
+@test fn hydrogen_chloride()
+    table := {"H-H": 436, "Cl-Cl": 242, "H-Cl": 431}
+    broken := [Bonds(name: "H-H", count: 1), Bonds(name: "Cl-Cl", count: 1)]
+    formed := [Bonds(name: "H-Cl", count: 2)]
+    assert_eq(energy(table, broken) - energy(table, formed), -184)

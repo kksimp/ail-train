@@ -1,0 +1,35 @@
+## Plank challenge: 30 days starting at 20 seconds and adding 5 after each hold; every fourth day is rest
+## and a missed day repeats its target later. Weekly totals, the longest hold and the 2-minute day are given.
+
+fn mmss(s int) str
+    m := s / 60
+    r := s % 60
+    "{m}:{r:02}"
+
+fn main()
+    missed := {9, 17, 18}
+    mut target := 20
+    mut week_total := 0
+    mut longest := 0
+    mut two_min := 0
+    mut total := 0
+    for day in 1..=30
+        if day % 4 != 0 and not missed.contains(day)
+            week_total += target
+            longest = longest.max(target)
+            if target >= 120 and two_min == 0
+                two_min = day
+            target += 5
+        if day % 7 == 0 or day == 30
+            week := (day + 6) / 7
+            print("week {week}: {mmss(week_total)} holding")
+            total += week_total
+            week_total = 0
+    print("longest hold {mmss(longest)}, total {mmss(total)}")
+    if two_min > 0
+        print("first two-minute hold on day {two_min}")
+    else
+        print("two minutes not reached; next target {mmss(target)}")
+
+@test fn clock()
+    assert_eq(mmss(65), "1:05")

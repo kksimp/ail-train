@@ -1,0 +1,53 @@
+## Hand-in scoring: in this older racket scoring only the server can score; when the receiver wins a rally
+## they take the serve without a point (a hand-out). A game goes to 9; the log shows the score at each hand-out.
+
+fn play(rallies str) List[int]
+    mut a := 0
+    mut b := 0
+    mut server := 'A'
+    mut outs := 0
+    for w in rallies.chars()
+        if w == server
+            if server == 'A'
+                a += 1
+            else
+                b += 1
+        else
+            server = w
+            outs += 1
+        if a == 9 or b == 9
+            break
+    [a, b, outs]
+
+fn main()
+    rallies := "AAABBABAAABBBBAABABAAAAABBBAAAB"
+    mut a := 0
+    mut b := 0
+    mut server := 'A'
+    mut marks := List[str]()
+    mut streak := 0
+    mut best := 0
+    for w in rallies.chars()
+        if w == server
+            streak += 1
+            best = best.max(streak)
+            if server == 'A'
+                a += 1
+            else
+                b += 1
+        else
+            server = w
+            streak = 0
+            marks.push("{a}-{b}")
+        if a == 9 or b == 9
+            break
+    joined := marks.join(", ")
+    print("hand-outs at: {joined}")
+    r := play(rallies)
+    print("game {r[0]}-{r[1]} after {r[2]} hand-outs")
+    print("longest run of points on one serve: {best}")
+    winner := if r[0] > r[1] then "A" else "B"
+    print("winner: player {winner}")
+
+@test fn receiver_takes_serve()
+    assert_eq(play("AAB"), [2, 0, 1])

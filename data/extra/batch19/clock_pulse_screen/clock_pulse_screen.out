@@ -1,0 +1,9 @@
+16 instructions take 27 cycles
+  cycle 3: X = 2
+  cycle 9: X = 3
+  cycle 15: X = 7
+  cycle 21: X = 7
+part 1: signal strength 285
+part 2:
+####.#......
+........#.#.

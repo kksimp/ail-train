@@ -1,0 +1,41 @@
+## Metronome ladder: practice starts at 60 bpm; three clean run-throughs in a row raise the tempo by 4,
+## two misses in a row drop it by 4 (never below 60), and the log shows when the 96 bpm goal is reached.
+
+struct Ladder
+    bpm int
+    clean int
+    miss int
+
+fn Ladder.play(mut self, run char)
+    if run == 'c'
+        self.clean += 1
+        self.miss = 0
+        if self.clean == 3
+            self.bpm += 4
+            self.clean = 0
+    else
+        self.miss += 1
+        self.clean = 0
+        if self.miss == 2
+            self.bpm = (self.bpm - 4).max(60)
+            self.miss = 0
+
+fn main()
+    sessions := ["cccccc", "ccmcc", "cmmcc", "ccccccccc", "cmcmcc", "cccccc", "mmccc", "cccccccc", "ccccccc"]
+    mut l := Ladder(bpm: 60, clean: 0, miss: 0)
+    mut reached := 0
+    for i, s in sessions.enumerate()
+        start := l.bpm
+        for run in s.chars()
+            l.play(run)
+        misses := s.count("m")
+        print("session {i + 1}: {start} -> {l.bpm} bpm ({s.len()} runs, {misses} missed)")
+        if l.bpm >= 96 and reached == 0
+            reached = i + 1
+    print("goal of 96 bpm first reached in session {reached}")
+
+@test fn three_clean()
+    mut l := Ladder(bpm: 60, clean: 0, miss: 0)
+    for c in "ccc".chars()
+        l.play(c)
+    assert_eq(l.bpm, 64)

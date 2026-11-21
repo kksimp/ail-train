@@ -1,0 +1,37 @@
+## Pouch rule nesting: rules say which pouches each colour of pouch must directly hold, with counts; part 1 counts
+## colours that can eventually hold a gold pouch, part 2 counts the pouches inside one gold pouch (memo-free recursion).
+
+fn can_hold(rules Map[str, Map[str, int]], outer str, target str) bool
+    for inner, n in rules[outer]
+        if inner == target or can_hold(rules, inner, target)
+            return true
+    false
+
+fn inside(rules Map[str, Map[str, int]], colour str) int
+    mut total := 0
+    for inner, n in rules[colour]
+        total += n * (1 + inside(rules, inner))
+    total
+
+fn main()
+    lines := ["red: 2 gold, 1 teal", "teal: 3 plum", "gold: 2 plum, 1 sand", "plum: none", "sand: 4 plum", "jade: 1 red", "rust: 2 teal, 1 sand", "lime: 5 jade"]
+    mut rules := Map[str, Map[str, int]]()
+    for l in lines
+        kv := l.split(": ")
+        mut holds := Map[str, int]()
+        if kv[1] != "none"
+            for part in kv[1].split(", ")
+                w := part.split(" ")
+                holds[w[1]] = w[0].to_int() else 0
+        rules[kv[0]] = holds
+    outers := rules.keys().filter(|c| can_hold(rules, c, "gold"))
+    shown := outers.join(", ")
+    print("colours that can hold gold: {shown}")
+    print("part 1: {outers.len()}")
+    total := inside(rules, "gold")
+    print("part 2: a gold pouch holds {total} pouches")
+
+@test fn empty()
+    mut rules := Map[str, Map[str, int]]()
+    rules["x"] = Map[str, int]()
+    assert_eq(inside(rules, "x"), 0)

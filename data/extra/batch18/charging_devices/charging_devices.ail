@@ -1,0 +1,59 @@
+## Charging devices: a `Battery` trait gives capacity and draw, with default methods for the hours
+## left at a charge percentage and a status; phones, laptops and earbuds are checked together.
+
+trait Battery
+    fn name(self) str
+    fn capacity_mwh(self) int
+    fn draw_mw(self) int
+    fn hours_left(self, pct int) float
+        (capacity_mwh() * pct / 100).to_float() / draw_mw().to_float()
+    fn status(self, pct int) str
+        h := hours_left(pct)
+        if h < 1.0 then "charge now" elif h < 4.0 then "charge soon" else "fine"
+
+struct Phone
+    screen_on bool
+
+struct Laptop
+    cells int
+
+struct Earbuds
+    anc bool
+
+impl Battery for Phone
+    fn name(self) str
+        "phone"
+    fn capacity_mwh(self) int
+        15000
+    fn draw_mw(self) int
+        if screen_on then 1800 else 300
+
+impl Battery for Laptop
+    fn name(self) str
+        "laptop {cells}-cell"
+    fn capacity_mwh(self) int
+        cells * 18500
+    fn draw_mw(self) int
+        9000
+
+impl Battery for Earbuds
+    fn name(self) str
+        "earbuds"
+    fn capacity_mwh(self) int
+        400
+    fn draw_mw(self) int
+        if anc then 130 else 90
+
+fn main()
+    mut kit := List[any Battery]()
+    kit.push(Phone(screen_on: true))
+    kit.push(Phone(screen_on: false))
+    kit.push(Laptop(cells: 3))
+    kit.push(Earbuds(anc: true))
+    charges := [35, 35, 60, 25]
+    for i, d in kit.enumerate()
+        h := d.hours_left(charges[i])
+        print("{d.name():<14} {charges[i]:>3}% {h:>5.1} h  {d.status(charges[i])}")
+
+@test fn laptop_capacity()
+    assert_eq(Laptop(cells: 2).capacity_mwh(), 37000)

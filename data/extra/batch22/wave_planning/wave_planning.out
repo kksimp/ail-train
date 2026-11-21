@@ -1,0 +1,7 @@
+wave 1: express by 14:00, orders [102, 105], 22 lines
+wave 2: express by 14:00, orders [108], 11 lines
+wave 3: courier by 15:00, orders [104, 107], 26 lines
+wave 4: courier by 15:00, orders [110], 13 lines
+wave 5: post by 16:00, orders [101, 103], 27 lines
+wave 6: post by 16:00, orders [106, 109], 16 lines
+6 waves for 10 orders

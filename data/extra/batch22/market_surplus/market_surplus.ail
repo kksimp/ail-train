@@ -1,0 +1,33 @@
+## Market surplus: buyers' values and sellers' costs are sorted into demand and supply steps; units trade while
+## the next value covers the next cost, and a price floor of 70 shows the gains from trade it destroys.
+
+fn trades(values List[int], costs List[int], floor int) int
+    mut n := 0
+    while n < values.len() and n < costs.len() and values[n] >= costs[n] and values[n] >= floor
+        n += 1
+    n
+
+fn main()
+    values := [40, 90, 60, 75, 30, 80, 50].sorted().reversed()
+    costs := [55, 20, 85, 45, 65, 30, 70].sorted()
+    n := trades(values, costs, 0)
+    low := costs[n - 1].max(values[n])
+    high := values[n - 1].min(costs[n])
+    price := (low + high) / 2
+    mut cs := 0
+    mut ps := 0
+    for i in 0..n
+        cs += values[i] - price
+        ps += price - costs[i]
+        print("trade {i + 1}: buyer worth {values[i]}, seller cost {costs[i]}")
+    print("{n} trades, price range {low}-{high}, at {price}: consumer surplus {cs}, producer surplus {ps}, total {cs + ps}")
+    m := trades(values, costs, 70)
+    mut fcs := 0
+    mut fps := 0
+    for i in 0..m
+        fcs += values[i] - 70
+        fps += 70 - costs[i]
+    print("floor 70: {m} trades, consumer {fcs}, producer {fps}, total {fcs + fps}, lost {cs + ps - fcs - fps}")
+
+@test fn four_trades()
+    assert_eq(trades([90, 80, 75, 60, 50], [20, 30, 45, 55, 65], 0), 4)

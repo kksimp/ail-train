@@ -1,0 +1,22 @@
+## Graham's law: gases leak through a pinhole at rates proportional to 1 / sqrt(molar mass); uranium
+## hexafluoride's two isotopes differ by only 0.43% a stage, so enrichment needs hundreds of stages.
+
+fn rel_rate(m float, ref_m float) float
+    (ref_m / m).sqrt()
+
+fn main()
+    gases := [("hydrogen", 2.016), ("helium", 4.003), ("methane", 16.04), ("oxygen", 32.0), ("carbon dioxide", 44.01), ("sulfur hexafluoride", 146.06)]
+    for g in gases
+        name, m := g
+        r := rel_rate(m, 32.0)
+        secs := 60.0 / r
+        print("{name:<20} {m:>7.2} g/mol: {r:.3}x oxygen's rate, 1 L leaks in {secs:>6.1} s")
+    alpha := rel_rate(349.03, 352.04)
+    print("U-235 F6 against U-238 F6: separation factor {alpha:.5} per stage")
+    start := 0.0072 / (1.0 - 0.0072)
+    target := 0.03 / (1.0 - 0.03)
+    stages := ((target / start).ln() / alpha.ln()).ceil().to_int()
+    print("0.72% to 3% U-235 takes {stages} ideal stages")
+
+@test fn same_gas()
+    assert_eq(rel_rate(28.0, 28.0), 1.0)

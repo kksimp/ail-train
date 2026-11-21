@@ -1,0 +1,34 @@
+## Card interest methods: a 30-day billing cycle with purchases and a payment; interest at 18.99% a year is
+## charged on the average daily balance, on the adjusted balance and on the previous balance, in cents.
+
+struct Move
+    day int
+    amount int
+
+fn money(c int) str
+    cents := c % 100
+    "{c / 100}.{cents:02}"
+
+fn interest(balance_days int, apr_bp int) int
+    balance_days * apr_bp / (10000 * 365)
+
+fn main()
+    opening := 120000
+    moves := [Move(day: 4, amount: 35000), Move(day: 10, amount: -50000), Move(day: 18, amount: 12500), Move(day: 25, amount: 8000)]
+    mut bal := opening
+    mut balance_days := 0
+    for d in 1..=30
+        for m in moves
+            if m.day == d
+                bal += m.amount
+        balance_days += bal
+    adb := balance_days / 30
+    paid := moves.filter(|m| m.amount < 0).fold(0, |a, m| a + m.amount)
+    adjusted := opening + paid
+    print("opening {money(opening)}, closing {money(bal)}, average daily {money(adb)}")
+    print("average daily balance method: {money(interest(balance_days, 1899))}")
+    print("adjusted balance method:      {money(interest(adjusted * 30, 1899))}")
+    print("previous balance method:      {money(interest(opening * 30, 1899))}")
+
+@test fn whole_year_rate()
+    assert_eq(interest(3650000, 10000), 10000)

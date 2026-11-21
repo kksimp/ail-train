@@ -1,0 +1,7 @@
+pure water    0.000 osmol/L,  0.00 atm, Tonicity.Hypotonic: cells swell
+0.9% saline   0.308 osmol/L,  7.84 atm, Tonicity.Isotonic: cells keep their shape
+5% glucose    0.278 osmol/L,  7.07 atm, Tonicity.Isotonic: cells keep their shape
+0.45% saline  0.154 osmol/L,  3.92 atm, Tonicity.Hypotonic: cells swell
+seawater      1.200 osmol/L, 30.53 atm, Tonicity.Hypertonic: cells shrivel
+3% saline     1.026 osmol/L, 26.10 atm, Tonicity.Hypertonic: cells shrivel
+reverse osmosis of seawater needs more than 29.7 bar

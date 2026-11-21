@@ -1,0 +1,7 @@
+R1 1.0k R2 68.0k C 10.00 uF: 1.05 Hz, high 478.170 ms, low 471.240 ms, duty 50.4%
+R1 10.0k R2 10.0k C 0.10 uF: 480.00 Hz, high 1.386 ms, low 0.693 ms, duty 66.7%
+R1 1.0k R2 1.0k C 0.01 uF: 48000.00 Hz, high 0.014 ms, low 0.007 ms, duty 66.7%
+R1 47.0k R2 1.0k C 1.00 uF: 29.39 Hz, high 33.264 ms, low 0.693 ms, duty 98.0%
+for 1.0 Hz with R1 1k and C 10.00 uF use R2 71.50k
+for 2.0 Hz with R1 1k and C 10.00 uF use R2 35.50k
+for 440.0 Hz with R1 1k and C 0.10 uF use R2 15.86k

@@ -1,0 +1,29 @@
+## Times-table quiz: a seeded generator (s = (75 s + 74) mod 65537) picks ten questions a x b with a from 2
+## to 12 and b from 1 to 12; the pupil's answers are marked and the tables with wrong answers listed.
+
+fn next_state(s int) int
+    (s * 75 + 74) % 65537
+
+fn main()
+    answers := [16, 132, 36, 110, 40, 60, 14, 88, 4, 24]
+    mut s := 2026
+    mut right := 0
+    mut missed := Map[int, int]()
+    for i, given in answers.enumerate()
+        s = next_state(s)
+        a := s % 11 + 2
+        s = next_state(s)
+        b := s % 12 + 1
+        ok := given == a * b
+        if ok
+            right += 1
+        else
+            missed[a] += 1
+        mark := if ok then "right" else "wrong, it is {a * b}"
+        print("{i + 1:>2}. {a} x {b} = {given}: {mark}")
+    print("score {right}/{answers.len()}")
+    tables := missed.keys().sorted()
+    print("practise the {tables} times tables")
+
+@test fn generator()
+    assert_eq(next_state(1), 149)

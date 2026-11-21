@@ -1,0 +1,36 @@
+## Shipping thresholds: top-level constants (free-delivery threshold, base fee, price per kg,
+## weight limit, zone multipliers) drive the delivery charge for a batch of web-shop orders.
+
+FREE_OVER := 5000
+BASE_FEE := 395
+PER_KG := 120
+MAX_KG := 30
+ZONE_FACTOR := [1, 2, 4]
+ZONE_NAMES := ["UK", "EU", "World"]
+
+fn charge(total int, kg int, zone int) int?
+    if kg > MAX_KG
+        return none
+    if zone == 0 and total >= FREE_OVER
+        return 0
+    (BASE_FEE + PER_KG * kg) * ZONE_FACTOR[zone]
+
+fn money(c int) str
+    rest := c % 100
+    "{c / 100}.{rest:02}"
+
+fn main()
+    orders := [(3200, 2, 0), (5400, 6, 0), (5400, 6, 1), (1250, 1, 2), (8900, 31, 0), (4999, 12, 0)]
+    mut fees := 0
+    for o in orders
+        total, kg, zone := o
+        if c := charge(total, kg, zone)
+            fees += c
+            shown := if c == 0 then "free" else money(c)
+            print("{money(total):>6} {kg:>2} kg {ZONE_NAMES[zone]:<5} delivery {shown}")
+        else
+            print("{money(total):>6} {kg:>2} kg {ZONE_NAMES[zone]:<5} too heavy, over {MAX_KG} kg")
+    print("delivery income {money(fees)}")
+
+@test fn free_at_threshold()
+    assert_eq(charge(FREE_OVER, 3, 0) else -1, 0)

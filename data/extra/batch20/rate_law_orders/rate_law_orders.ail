@@ -1,0 +1,37 @@
+## Method of initial rates: comparing runs where only [A] changes gives its order as
+## ln(r2 / r1) / ln([A]2 / [A]1), likewise for B; with whole-number orders each run then gives k.
+
+struct Run
+    a float
+    b float
+    rate float
+
+fn order(r1 Run, r2 Run, use_a bool) float
+    ratio := if use_a then r2.a / r1.a else r2.b / r1.b
+    (r2.rate / r1.rate).ln() / ratio.ln()
+
+fn power(x float, n int) float
+    mut p := 1.0
+    for _ in 0..n
+        p *= x
+    p
+
+fn main()
+    runs := [Run(a: 0.1, b: 0.1, rate: 0.0002), Run(a: 0.2, b: 0.1, rate: 0.0008), Run(a: 0.1, b: 0.3, rate: 0.0006), Run(a: 0.3, b: 0.2, rate: 0.0036)]
+    oa := order(runs[0], runs[1], true)
+    ob := order(runs[0], runs[2], false)
+    m := oa.round().to_int()
+    n := ob.round().to_int()
+    print("order in A: {oa:.3} -> {m}")
+    print("order in B: {ob:.3} -> {n}")
+    print("rate = k [A]^{m} [B]^{n}")
+    mut ks := List[float]()
+    for i, r in runs.enumerate()
+        k := r.rate / (power(r.a, m) * power(r.b, n))
+        ks.push(k)
+        print("run {i + 1}: k = {k:.4} L^2/(mol^2 s)")
+    mean := ks.fold(0.0, |acc, k| acc + k) / ks.len().to_float()
+    print("mean k {mean:.4}; overall order {m + n}")
+
+@test fn whole_powers()
+    assert_eq(power(0.5, 3), 0.125)

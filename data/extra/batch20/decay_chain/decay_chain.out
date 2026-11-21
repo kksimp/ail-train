@@ -1,0 +1,9 @@
+t     0 h: Mo-99  1000000, Tc-99m       0, activity ratio 0.000
+t     6 h: Mo-99   938931, Tc-99m   43916, activity ratio 0.514
+t    12 h: Mo-99   881591, Tc-99m   63217, activity ratio 0.787
+t    23 h: Mo-99   785409, Tc-99m   71625, activity ratio 1.001
+t    48 h: Mo-99   604045, Tc-99m   60120, activity ratio 1.093
+t    96 h: Mo-99   364870, Tc-99m   36552, activity ratio 1.100
+t   168 h: Mo-99   171294, Tc-99m   17161, activity ratio 1.100
+Tc-99m peaks after 22.9 h; the generator is milked about daily
+small-step check at 23 h: 71635 against 71625

@@ -1,0 +1,38 @@
+## Trade credit terms: "2/10 net 30" offers 2% off for paying in 10 days instead of 30; skipping it is like
+## borrowing at d / (100 - d) per (net - discount) days, shown as a simple and a compounded yearly rate.
+
+struct Terms
+    disc int
+    early int
+    net int
+
+fn parse(t str) Terms ! str
+    parts := t.split(" ")
+    if parts.len() != 3 or parts[1] != "net"
+        return "expected D/N net M, got '{t}'"
+    left := parts[0].split("/")
+    if left.len() != 2
+        return "bad discount part '{parts[0]}'"
+    d := left[0].to_int() else return "bad percent '{left[0]}'"
+    e := left[1].to_int() else return "bad days '{left[1]}'"
+    n := parts[2].to_int() else return "bad net days '{parts[2]}'"
+    if n <= e
+        return "net days must be more than discount days"
+    Terms(disc: d, early: e, net: n)
+
+fn main()
+    for s in ["2/10 net 30", "1/10 net 30", "3/15 net 60", "2/10 net 45", "2/10 net 10", "net 30", "x/10 net 30"]
+        if t := parse(s)
+            per := t.disc.to_float() / (100 - t.disc).to_float()
+            periods := 365.0 / (t.net - t.early).to_float()
+            simple := per * periods * 100.0
+            growth := 1.0 + per
+            compound := (growth.pow(periods) - 1.0) * 100.0
+            print("{s:<12} simple {simple:>5.1}% a year, compounded {compound:>5.1}%")
+        else err
+            print("{s:<12} rejected: {err}")
+
+@test fn reads_terms()
+    t := parse("1/10 net 30") else Terms(disc: 0, early: 0, net: 0)
+    assert_eq(t.net, 30)
+    assert_eq(t.disc, 1)

@@ -1,0 +1,33 @@
+## Paired readings: a generic `zip_with[A, B, C]` walks two lists side by side with a function;
+## used for fuel use per 100 km from trip kilometres and litres, and for labelled scores.
+
+fn zip_with[A, B, C](xs List[A], ys List[B], f fn(A, B) C) List[C]
+    mut out := List[C]()
+    for i in 0..xs.len().min(ys.len())
+        out.push(f(xs[i], ys[i]))
+    out
+
+fn per_100(km int, litres float) float
+    litres * 100.0 / km.to_float()
+
+fn main()
+    trips := [412, 388, 520, 145]
+    fuel := [29.5, 27.0, 41.6, 12.4]
+    rates := zip_with(trips, fuel, per_100)
+    for i, u in rates.enumerate()
+        print("trip {i + 1}: {trips[i]} km, {u:.2} l/100km")
+    total_km := trips.sum()
+    total_l := fuel.fold(0.0, |acc, l| acc + l)
+    print("overall {per_100(total_km, total_l):.2} l/100km over {total_km} km")
+    names := ["ann", "bo", "cy"]
+    scores := [17, 23, 9, 30]
+    labels := zip_with(names, scores, |n, s| "{n}:{s}")
+    joined := labels.join(" ")
+    print("scores: {joined} ({labels.len()} paired)")
+    prices := [250, 120, 75]
+    qty := [2, 5, 4]
+    cost := zip_with(prices, qty, |p, q| p * q)
+    print("line costs {cost}, total {cost.sum()}")
+
+@test fn shortest_wins()
+    assert_eq(zip_with([1, 2, 3], [10, 20], |a, b| a + b), [11, 22])

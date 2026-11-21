@@ -1,0 +1,30 @@
+## Barge align fuel: barges on a canal must gather at one mooring; part 1 burns one unit per position moved,
+## part 2 burns 1, 2, 3 ... for successive positions (a triangular number); tries every mooring for the least fuel.
+
+fn fuel(pos List[int], at int, rising bool) int
+    mut total := 0
+    for p in pos
+        d := (p - at).abs()
+        total += if rising then d * (d + 1) / 2 else d
+    total
+
+fn best(pos List[int], rising bool) List[int]
+    lo := pos.min() else 0
+    hi := pos.max() else 0
+    mut spot := lo
+    for at in lo..=hi
+        if fuel(pos, at, rising) < fuel(pos, spot, rising)
+            spot = at
+    [spot, fuel(pos, spot, rising)]
+
+fn main()
+    barges := [12, 3, 25, 7, 7, 18, 1, 30, 9, 14]
+    print("barges at {barges}")
+    a := best(barges, false)
+    print("part 1: moor at {a[0]} for {a[1]} fuel")
+    b := best(barges, true)
+    print("part 2: moor at {b[0]} for {b[1]} fuel")
+    print("for comparison, mooring 15 costs {fuel(barges, 15, false)} and {fuel(barges, 15, true)}")
+
+@test fn triangle()
+    assert_eq(fuel([0], 4, true), 10)

@@ -1,0 +1,6 @@
+K+  in 140.0 mM, out   5.0 mM: Nernst  -89.0 mV
+Na+ in  15.0 mM, out 145.0 mM: Nernst   60.6 mV
+Cl- in  10.0 mM, out 110.0 mM: Nernst  -64.1 mV
+resting (1 : 0.04 : 0.45): -67.3 mV
+spike peak (1 : 20 : 0.45): 47.6 mV
+doubling outside K+ moves rest to -59.8 mV

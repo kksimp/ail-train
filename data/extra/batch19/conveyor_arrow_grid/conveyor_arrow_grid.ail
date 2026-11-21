@@ -1,0 +1,56 @@
+## Conveyor arrow grid: each floor tile is a belt arrow or a parking spot (.); a parcel follows the arrows
+## until it leaves the floor, parks, or comes back to a tile it rode before (a loop); an enum records each fate.
+
+enum Ride
+    Out(steps int)
+    Parked(steps int)
+    Looped(steps int)
+
+fn ride(g List[List[char]], r0 int, c0 int) Ride
+    mut r := r0
+    mut c := c0
+    mut seen := Set[int]()
+    mut steps := 0
+    while r >= 0 and r < g.len() and c >= 0 and c < g[0].len() and g[r][c] != '.' and seen.add(r * 100 + c)
+        match g[r][c]
+            '>' => c += 1
+            '<' => c -= 1
+            '^' => r -= 1
+            _ => r += 1
+        steps += 1
+    if r < 0 or r >= g.len() or c < 0 or c >= g[0].len()
+        return Out(steps: steps)
+    if g[r][c] == '.'
+        return Parked(steps: steps)
+    Looped(steps: steps)
+
+fn length(x Ride) int
+    match x
+        Out(s) => s
+        Parked(s) => s
+        Looped(s) => s
+
+fn describe(x Ride) str
+    match x
+        Out(s) => "leaves the floor after {s} moves"
+        Parked(s) => "parks after {s} moves"
+        Looped(s) => "loops after {s} moves"
+
+fn main()
+    lines := ["v>v<.^", "^.v>v^", "^<<.v<", "v>^>>v", "<>>v<."]
+    g := [l.chars() for l in lines]
+    for c in 0..g[0].len()
+        x := ride(g, 0, c)
+        print("parcel dropped at top col {c}: {describe(x)}")
+    mut best := -1
+    mut at := ""
+    for r in 0..g.len()
+        for c in 0..g[0].len()
+            x := ride(g, r, c)
+            if length(x) > best
+                best = length(x)
+                at = "row {r} col {c}"
+    print("part 2: longest ride is {best} moves, starting at {at}")
+
+@test fn parks()
+    assert_eq(length(ride([">>.".chars()], 0, 0)), 2)

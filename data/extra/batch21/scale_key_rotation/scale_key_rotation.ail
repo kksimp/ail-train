@@ -1,0 +1,30 @@
+## Scale rotation: the twelve major keys are practised round the circle of fifths, three a day, each with
+## its relative minor nine semitones up; the plan shows each day and when a chosen key comes round again.
+
+fn name_of(k int) str
+    names := ["C", "Db", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"]
+    names[k % 12]
+
+fn fifths() List[int]
+    [(i * 7) % 12 for i in 0..12]
+
+fn main()
+    order := fifths()
+    for day in 0..4
+        mut parts := List[str]()
+        for j in 0..3
+            k := order[day * 3 + j]
+            parts.push("{name_of(k)}/{name_of(k + 9)}m")
+        joined := parts.join(", ")
+        print("day {day + 1}: {joined}")
+    want := "F#"
+    pos := order.index_of(6) else 0
+    days := [pos / 3 + 1 + 4 * c for c in 0..3]
+    print("{want} major comes up on days {days}")
+    sharps := order.take(7).map(|k| name_of(k))
+    circle := sharps.join(" ")
+    print("first seven round the circle: {circle}")
+
+@test fn circle()
+    assert_eq(name_of(fifths()[2]), "D")
+    assert_eq(name_of(7 + 9), "E")

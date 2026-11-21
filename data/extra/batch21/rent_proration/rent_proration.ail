@@ -1,0 +1,35 @@
+## Rent proration: a tenant moving in or out part way through a month pays the monthly rent times the
+## days occupied over the days in that month (leap Februaries counted), in whole cents rounded down.
+
+fn month_days(y int, m int) int
+    if m == 2
+        leap := (y % 4 == 0 and y % 100 != 0) or y % 400 == 0
+        return if leap then 29 else 28
+    if m == 4 or m == 6 or m == 9 or m == 11
+        return 30
+    31
+
+fn prorate(rent int, y int, m int, first int, last int) int
+    rent * (last - first + 1) / month_days(y, m)
+
+fn money(c int) str
+    "{c / 100}.{c % 100:02}"
+
+fn main()
+    rent := 125000
+    stays := [(2024, 2, 10, 29, "Ana"), (2023, 2, 10, 28, "Ben"), (2025, 6, 1, 15, "Caro"), (2025, 7, 20, 31, "Dev"), (2025, 9, 16, 30, "Eli")]
+    mut total := 0
+    for s in stays
+        y, m, a, b, who := s
+        due := prorate(rent, y, m, a, b)
+        total += due
+        days := b - a + 1
+        md := month_days(y, m)
+        print("{who:<5} {y}-{m:02} days {a:>2}-{b:>2} ({days}/{md}): {money(due)}")
+    print("total billed: {money(total)}")
+    full := prorate(rent, 2025, 4, 1, 30)
+    print("a whole April costs {money(full)}")
+
+@test fn leap_rules()
+    assert_eq(month_days(2000, 2), 29)
+    assert_eq(month_days(1900, 2), 28)

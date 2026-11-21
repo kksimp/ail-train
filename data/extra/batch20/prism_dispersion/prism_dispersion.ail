@@ -1,0 +1,29 @@
+## Prism dispersion: Cauchy's formula n = A + B / lambda^2 makes glass bend violet more than red; at
+## minimum deviation through a 60 degree prism D = 2 asin(n sin(apex / 2)) - apex, which fans out a spectrum.
+
+PI := 3.141592653589793
+
+fn asin(x float) float
+    (x / (1.0 - x * x).sqrt()).atan()
+
+fn index(nm float) float
+    1.5046 + 4200.0 / (nm * nm)
+
+fn deviation(n float, apex_deg float) float
+    half := apex_deg * PI / 360.0
+    (2.0 * asin(n * half.sin()) - 2.0 * half) * 180.0 / PI
+
+fn main()
+    mut devs := List[float]()
+    for nm in [400, 450, 500, 550, 600, 650, 700]
+        n := index(nm.to_float())
+        d := deviation(n, 60.0)
+        devs.push(d)
+        print("{nm} nm: n = {n:.4}, deviated {d:.2} degrees")
+    fan := devs[0] - devs[devs.len() - 1]
+    print("violet to red fan: {fan:.2} degrees")
+    flint := 1.62
+    print("flint glass at n {flint}: {deviation(flint, 60.0):.2} degrees")
+
+@test fn cauchy()
+    assert_eq(index(1000.0), 1.5088)

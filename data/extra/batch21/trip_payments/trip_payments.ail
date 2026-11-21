@@ -1,0 +1,29 @@
+## Trip payments: a school trip costs 180.00 in three instalments due on set days; on a check day each
+## pupil's payments are compared with what was due so far, and pupils without a consent form cannot go.
+
+fn due_by(day int, plan List[List[int]]) int
+    plan.filter(|p| p[0] <= day).fold(0, |acc, p| acc + p[1])
+
+fn money(c int) str
+    "{c / 100}.{c % 100:02}"
+
+fn main()
+    plan := [[10, 6000], [40, 6000], [70, 6000]]
+    check := 50
+    payments := {"Amir": [[8, 6000], [39, 6000]], "Beth": [[5, 18000]], "Cole": [[12, 6000]], "Dina": [[20, 3000], [45, 3000], [48, 6000]], "Ezra": []}
+    consent := {"Amir", "Beth", "Dina", "Ezra"}
+    owed := due_by(check, plan)
+    print("due by day {check}: {money(owed)}")
+    mut going := 0
+    for name, pays in payments
+        paid := pays.filter(|p| p[0] <= check).fold(0, |acc, p| acc + p[1])
+        status := if paid >= 18000 then "paid in full" elif paid >= owed then "up to date" else "behind by {money(owed - paid)}"
+        form := if consent.contains(name) then "" else ", no consent form"
+        if consent.contains(name) and paid >= owed
+            going += 1
+        print("{name:<5} paid {money(paid):>6}: {status}{form}")
+    print("{going} pupils cleared to go")
+
+@test fn instalments_due()
+    assert_eq(due_by(50, [[10, 6000], [40, 6000], [70, 6000]]), 12000)
+    assert_eq(due_by(5, [[10, 6000]]), 0)

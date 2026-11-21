@@ -1,0 +1,34 @@
+## Trail peak scores: on a topographic grid a trail climbs 0, 1, 2 ... 9 in single orthogonal steps; each
+## trailhead (0) scores the number of distinct peaks it reaches (part 1) and the number of distinct trails (part 2).
+
+fn climb(g List[List[int]], r int, c int, mut peaks Set[int]) int
+    if g[r][c] == 9
+        peaks.add(r * 100 + c)
+        return 1
+    mut trails := 0
+    for d in [[1, 0], [-1, 0], [0, 1], [0, -1]]
+        nr := r + d[0]
+        nc := c + d[1]
+        if nr >= 0 and nr < g.len() and nc >= 0 and nc < g[0].len() and g[nr][nc] == g[r][c] + 1
+            trails += climb(g, nr, nc, mut peaks)
+    trails
+
+fn main()
+    rows := ["0123210", "1234321", "8765456", "9876567", "0109878", "1218989"]
+    g := rows.map(|r| r.chars().map(|ch| (ch.to_digit(10) else 0)))
+    mut score := 0
+    mut rating := 0
+    for r in 0..g.len()
+        for c in 0..g[0].len()
+            if g[r][c] == 0
+                mut peaks := Set[int]()
+                t := climb(g, r, c, mut peaks)
+                print("trailhead ({r},{c}): {peaks.len()} peaks, {t} trails")
+                score += peaks.len()
+                rating += t
+    print("part 1: total score {score}")
+    print("part 2: total rating {rating}")
+
+@test fn one_step()
+    mut p := Set[int]()
+    assert_eq(climb([[8, 9]], 0, 0, mut p), 1)

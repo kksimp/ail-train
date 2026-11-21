@@ -1,0 +1,35 @@
+## Kelly stake: for a bet paying b to 1 that wins with chance p, the growth-best stake is f = (b p - q) / b
+## of current wealth; 300 seeded even-money bets at p = 0.55 compare half, full and double Kelly stakes.
+
+fn kelly(p float, b float) float
+    (b * p - (1.0 - p)) / b
+
+fn growth(p float, f float) float
+    up := 1.0 + f
+    down := 1.0 - f
+    p * up.ln() + (1.0 - p) * down.ln()
+
+fn main()
+    p := 0.55
+    f := kelly(p, 1.0)
+    print("Kelly fraction {f:.3}")
+    for halves in [1, 2, 4]
+        stake := f * halves.to_float() / 2.0
+        mut wealth := 100.0
+        mut seed := 2024
+        mut wins := 0
+        mut low := 100.0
+        for _ in 0..300
+            seed = (seed * 1103515245 + 12345) % 2147483648
+            bet := wealth * stake
+            if (seed >> 16) % 100 < 55
+                wealth += bet
+                wins += 1
+            else
+                wealth -= bet
+            low = low.min(wealth)
+        g := growth(p, stake) * 100.0
+        print("stake {stake:.2}: expected growth {g:.3}% a bet, {wins} wins, lowest {low:.2}, final {wealth:.2}")
+
+@test fn favourable_odds()
+    assert_eq(kelly(0.5, 2.0), 0.25)

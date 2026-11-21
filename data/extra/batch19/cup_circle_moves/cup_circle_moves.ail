@@ -1,0 +1,43 @@
+## Cup circle moves: cups in a circle; each move lifts the three after the current cup and sets them after the
+## cup labelled one lower (skipping lifted ones, going round), using a next-cup table; 10 moves on 9 cups, then 20000 on 1000.
+
+fn play(labels List[int], total int, moves int) List[int]
+    mut next := [0 for i in 0..total + 1]
+    mut order := labels
+    for v in labels.len() + 1..=total
+        order.push(v)
+    for i in 0..total
+        next[order[i]] = order[(i + 1) % total]
+    mut cur := order[0]
+    for _ in 0..moves
+        a := next[cur]
+        b := next[a]
+        c := next[b]
+        next[cur] = next[c]
+        mut dest := if cur == 1 then total else cur - 1
+        while dest == a or dest == b or dest == c
+            dest = if dest == 1 then total else dest - 1
+        next[c] = next[dest]
+        next[dest] = a
+        cur = next[cur]
+    next
+
+fn main()
+    labels := "583147926".chars().map(|ch| (ch.to_digit(10) else 0))
+    print("cups start as {labels}")
+    small := play(labels, 9, 10)
+    mut after := List[int]()
+    mut v := small[1]
+    while v != 1
+        after.push(v)
+        v = small[v]
+    shown := after.map(|x| "{x}").join("")
+    print("part 1: after 10 moves, labels after cup 1: {shown}")
+    big := play(labels, 1000, 20000)
+    x := big[1]
+    y := big[x]
+    print("part 2: the two cups after cup 1 are {x} and {y}, product {x * y}")
+
+@test fn ring()
+    t := play([1, 2, 3, 4], 4, 0)
+    assert_eq(t[4], 1)

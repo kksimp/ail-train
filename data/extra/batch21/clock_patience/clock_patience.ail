@@ -1,0 +1,51 @@
+## Clock patience: a shuffled deck is dealt into 13 piles, one per hour and the kings in the middle; each
+## turned card goes under the pile of its rank, whose top card is turned next, and the fourth king ends it.
+
+fn next_state(s int) int
+    (s * 1103515245 + 12345) % 2147483648
+
+fn shuffled(seed int) List[int]
+    mut deck := List[int]()
+    for v in 1..=13
+        for suit in 0..4
+            deck.push(v)
+    mut s := seed
+    mut i := 51
+    while i > 0
+        s = next_state(s)
+        j := (s >> 16) % (i + 1)
+        deck.swap(i, j)
+        i -= 1
+    deck
+
+fn play(deck List[int]) int
+    mut piles := List[List[int]]()
+    for p in 0..13
+        piles.push(List[int]())
+    for i, c in deck.enumerate()
+        piles[i % 13].push(c)
+    mut cur := 12
+    mut turned := 0
+    mut kings := 0
+    while card := piles[cur].pop()
+        turned += 1
+        if card == 13
+            kings += 1
+            if kings == 4
+                break
+        cur = card - 1
+    turned
+
+fn main()
+    mut wins := 0
+    for seed in 1..=8
+        n := play(shuffled(seed))
+        result := if n == 52 then "WIN" else "out after {n} cards"
+        if n == 52
+            wins += 1
+        print("deal {seed}: {result}")
+    print("{wins} of 8 deals come out")
+
+@test fn sorted_deck()
+    deck := [c / 4 + 1 for c in 0..52]
+    assert_eq(play(deck), 9)

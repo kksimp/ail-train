@@ -1,0 +1,39 @@
+## Corrupted mul scan: a garbled memory dump hides instructions of the exact form mul(A,B) with 1-3 digit
+## numbers; part 1 sums every product, part 2 honours on() and off() switches that enable or disable later muls.
+
+fn number_at(cs List[char], i int) List[int]
+    mut j := i
+    mut n := 0
+    while j < cs.len() and j - i < 3 and cs[j].is_digit()
+        n = n * 10 + (cs[j].to_digit(10) else 0)
+        j += 1
+    [n, j - i, j]
+
+fn scan(text str, switches bool) int
+    cs := text.chars()
+    mut total := 0
+    mut enabled := true
+    mut i := 0
+    while i < cs.len()
+        rest := text.slice(i)
+        if rest.starts_with("on()")
+            enabled = true
+        elif rest.starts_with("off()")
+            enabled = false
+        elif rest.starts_with("mul(")
+            a := number_at(cs, i + 4)
+            if a[1] > 0 and a[2] < cs.len() and cs[a[2]] == ','
+                b := number_at(cs, a[2] + 1)
+                if b[1] > 0 and b[2] < cs.len() and cs[b[2]] == ')' and (enabled or not switches)
+                    total += a[0] * b[0]
+        i += 1
+    total
+
+fn main()
+    dump := "xmul(3,4)%&mul[2,2]off()mul(10,20)!mul(7,8)on()?mul(5,5)mul(1234,2)mul( 6,6)when()mul(11,9)off()mul(2,3"
+    print("dump of {dump.len()} characters")
+    print("part 1: all products sum to {scan(dump, false)}")
+    print("part 2: enabled products sum to {scan(dump, true)}")
+
+@test fn exact_form()
+    assert_eq(scan("mul(2,3)mul(4,5]", false), 6)

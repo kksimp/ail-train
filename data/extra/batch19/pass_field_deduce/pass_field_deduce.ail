@@ -1,0 +1,45 @@
+## Pass field deduce: each field of a travel pass has two allowed ranges; part 1 sums values on nearby passes that
+## fit no field at all, part 2 keeps the good passes and assigns fields to columns by repeatedly fixing a column with one candidate.
+
+fn fits(rule List[int], v int) bool
+    (v >= rule[0] and v <= rule[1]) or (v >= rule[2] and v <= rule[3])
+
+fn main()
+    names := ["class", "row", "seat"]
+    rules := [[1, 3, 5, 7], [6, 11, 33, 44], [13, 40, 45, 50]]
+    mine := [35, 6, 19]
+    nearby := [[33, 3, 47], [40, 4, 50], [38, 1, 14], [55, 2, 20], [40, 5, 45], [38, 6, 12]]
+    mut errors := 0
+    mut good := List[List[int]]()
+    for p in nearby
+        bad := p.filter(|v| not rules.any(|r| fits(r, v)))
+        errors += bad.sum()
+        if bad.is_empty()
+            good.push(p)
+    print("part 1: error rate {errors}, {good.len()} passes are valid")
+    mut cands := List[Set[int]]()
+    for col in 0..mine.len()
+        mut s := Set[int]()
+        for f in 0..rules.len()
+            if good.all(|p| fits(rules[f], p[col]))
+                s.add(f)
+        cands.push(s)
+    mut field_of := [-1, -1, -1]
+    mut fixed := 0
+    while fixed < mine.len()
+        for col in 0..cands.len()
+            if field_of[col] < 0 and cands[col].len() == 1
+                f := cands[col].to_list()[0]
+                field_of[col] = f
+                fixed += 1
+                for other in 0..cands.len()
+                    cands[other].remove(f)
+    mut product := 1
+    for col in 0..mine.len()
+        print("column {col} is {names[field_of[col]]}: {mine[col]}")
+        product *= mine[col]
+    print("part 2: product of my pass {product}")
+
+@test fn ranges()
+    assert(fits([1, 3, 5, 7], 6))
+    assert(not fits([1, 3, 5, 7], 4))

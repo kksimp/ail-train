@@ -1,0 +1,29 @@
+## Water intake: drinks are logged in ml through the day; the daily target is 35 ml per kg of body weight,
+## coffee and tea count at 80%, and each day's share of the target, the days met and the average are shown.
+
+fn counted(kind str, ml int) int
+    if kind == "coffee" or kind == "tea" then ml * 8 / 10 else ml
+
+fn main()
+    weight := 72
+    target := weight * 35
+    log := [(1, "water", 500), (1, "coffee", 250), (1, "water", 750), (1, "tea", 300), (1, "water", 600), (2, "coffee", 500), (2, "water", 400), (2, "juice", 200), (3, "water", 1000), (3, "tea", 600), (3, "water", 900), (3, "water", 300), (4, "water", 250), (4, "coffee", 750), (5, "water", 1500), (5, "tea", 250), (5, "water", 700)]
+    mut per_day := Map[int, int]()
+    for e in log
+        day, kind, ml := e
+        per_day[day] += counted(kind, ml)
+    mut met := 0
+    mut sum_all := 0
+    for day, ml in per_day
+        pct := ml * 100 / target
+        sum_all += ml
+        if ml >= target
+            met += 1
+        bar := "=".repeat(pct / 10)
+        print("day {day}: {ml:>4} ml {pct:>3}% |{bar}")
+    avg := sum_all / per_day.len()
+    print("target {target} ml; met on {met} of {per_day.len()} days; average {avg} ml")
+
+@test fn caffeine_share()
+    assert_eq(counted("tea", 250), 200)
+    assert_eq(counted("water", 250), 250)

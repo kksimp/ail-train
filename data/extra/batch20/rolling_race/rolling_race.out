@@ -1,0 +1,6 @@
+1. sliding block  k 0.000  v 5.425 m/s  t 1.106 s
+2. solid ball     k 0.400  v 4.585 m/s  t 1.309 s
+3. solid disc     k 0.500  v 4.429 m/s  t 1.355 s
+4. hollow ball    k 0.667  v 4.202 m/s  t 1.428 s
+5. hoop           k 1.000  v 3.836 m/s  t 1.564 s
+sliding block beats hoop by 0.458 s

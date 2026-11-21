@@ -1,0 +1,28 @@
+## Radiation shielding: each half-value layer of material halves a gamma beam, so a slab of thickness x
+## lets through 0.5^(x / HVL); layers multiply, and reaching 1% needs log2(100) = 6.64 half-value layers.
+
+struct Shield
+    name str
+    hvl_cm float
+
+fn passes(s Shield, cm float) float
+    half := 0.5
+    half.pow(cm / s.hvl_cm)
+
+fn main()
+    shields := [Shield(name: "lead", hvl_cm: 1.2), Shield(name: "steel", hvl_cm: 2.1), Shield(name: "concrete", hvl_cm: 6.2), Shield(name: "water", hvl_cm: 18.0)]
+    hundred := 100.0
+    two := 2.0
+    layers := hundred.ln() / two.ln()
+    print("cobalt-60 gamma rays; 1% needs {layers:.2} half-value layers")
+    for s in shields
+        mut parts := List[str]()
+        for cm in [1.0, 5.0, 10.0]
+            parts.push("{passes(s, cm) * 100.0:.1}%")
+        shown := parts.join(" / ")
+        print("{s.name:<9} HVL {s.hvl_cm} cm: through 1, 5, 10 cm {shown}; 1% at {s.hvl_cm * layers:.1} cm")
+    wall := passes(shields[0], 5.0) * passes(shields[2], 30.0)
+    print("5 cm lead plus 30 cm concrete passes {wall * 100.0:.3}%")
+
+@test fn one_layer()
+    assert_eq(passes(Shield(name: "x", hvl_cm: 2.0), 2.0), 0.5)

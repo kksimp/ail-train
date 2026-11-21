@@ -1,0 +1,35 @@
+## Cheapest quotes: supplier quotes for a job go into a `Heap` (derived `impl Ord` on price, then
+## supplier) so the three cheapest pop out first; `Heap.from_max` gives the dearest for comparison.
+
+struct Quote
+    price int
+    supplier str
+    days int
+
+impl Ord for Quote
+
+fn main()
+    quotes := [
+        Quote(price: 1840, supplier: "Brightway", days: 5),
+        Quote(price: 1525, supplier: "Allied", days: 12),
+        Quote(price: 2210, supplier: "Crest", days: 3),
+        Quote(price: 1525, supplier: "Delta", days: 7),
+        Quote(price: 1690, supplier: "Evergreen", days: 9),
+        Quote(price: 2050, supplier: "Fenwick", days: 4),
+    ]
+    mut cheap := Heap.from(quotes)
+    mut n := 0
+    while n < 3
+        q := cheap.pop() else break
+        n += 1
+        print("{n}. {q.supplier:<10} {q.price} ({q.days} days)")
+    print("{cheap.len()} quotes left in the heap")
+    dear := Heap.from_max(quotes)
+    if top := dear.peek()
+        print("dearest: {top.supplier} at {top.price}")
+    fast := quotes.filter(|q| q.days <= 5).map(|q| q.price)
+    print("prices with 5 days or less: {Heap.from(fast).to_sorted()}")
+
+@test fn heap_order()
+    h := Heap.from([3, 1, 2])
+    assert_eq(h.to_sorted(), [1, 2, 3])

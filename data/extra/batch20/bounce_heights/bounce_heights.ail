@@ -1,0 +1,32 @@
+## Bouncing ball: each bounce keeps e^2 of the height (e is the coefficient of restitution), so heights
+## fall geometrically; adds up path length and air time until a bounce is under 1 cm, against the limit.
+
+fn count_bounces(h0 float, e float, min_h float) int
+    mut h := h0 * e * e
+    mut n := 0
+    while h >= min_h
+        n += 1
+        h = h * e * e
+    n
+
+fn main()
+    drop := 2.0
+    balls := [("superball", 0.9), ("basketball", 0.8), ("tennis ball", 0.7), ("clay ball", 0.3)]
+    for b in balls
+        name, e := b
+        mut h := drop
+        mut dist := drop
+        mut air := (2.0 * drop / 9.81).sqrt()
+        mut n := 0
+        while true
+            h = h * e * e
+            if h < 0.01
+                break
+            n += 1
+            dist += 2.0 * h
+            air += 2.0 * (2.0 * h / 9.81).sqrt()
+        limit := drop * (1.0 + e * e) / (1.0 - e * e)
+        print("{name:<12} e {e}: {n:>2} bounces over 1 cm, path {dist:.2} m (limit {limit:.2} m), {air:.2} s in the air")
+
+@test fn halves()
+    assert_eq(count_bounces(2.0, 0.5, 0.1), 2)

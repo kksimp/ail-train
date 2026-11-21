@@ -1,0 +1,9 @@
+relay coil: tau 5.0 ms, final 0.120 A, stores 3.6 mJ
+  1 tau 63.2%, 2 tau 86.5%, 3 tau 95.0%, 4 tau 98.2%
+  cut in 1 us: about 60 kV across the contacts
+motor winding: tau 10.0 ms, final 12.000 A, stores 1440.0 mJ
+  1 tau 63.2%, 2 tau 86.5%, 3 tau 95.0%, 4 tau 98.2%
+  cut in 1 us: about 240 kV across the contacts
+ignition coil: tau 16.0 ms, final 24.000 A, stores 2304.0 mJ
+  1 tau 63.2%, 2 tau 86.5%, 3 tau 95.0%, 4 tau 98.2%
+  cut in 1 us: about 192 kV across the contacts

@@ -1,0 +1,4 @@
+order 1: delivered on day 4, 0 refused
+order 2: cancelled (changed mind, refunded), 1 refused
+order 3: delivered on day 9, 1 refused
+order 4: cancelled (duplicate), 1 refused

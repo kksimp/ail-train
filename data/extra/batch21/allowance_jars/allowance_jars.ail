@@ -1,0 +1,37 @@
+## Allowance jars: each child's weekly pocket money (50 cents per year of age) goes half to a spend jar
+## and a tenth to a give jar, rounded down, with the rest saved; the save jar counts the weeks to a goal.
+
+struct Child
+    name str
+    age int
+    goal int
+
+fn Child.weekly(self) int
+    self.age * 50
+
+fn jars(cents int) List[int]
+    spend := cents * 50 / 100
+    give := cents * 10 / 100
+    [spend, cents - spend - give, give]
+
+fn weeks_to(goal int, per_week int) int
+    (goal + per_week - 1) / per_week
+
+fn money(c int) str
+    "{c / 100}.{c % 100:02}"
+
+fn main()
+    kids := [Child(name: "Mia", age: 7, goal: 2500), Child(name: "Leo", age: 9, goal: 4000), Child(name: "Ivy", age: 12, goal: 9999), Child(name: "Sam", age: 5, goal: 1200), Child(name: "Ola", age: 11, goal: 3300)]
+    mut charity := 0
+    for k in kids
+        j := jars(k.weekly())
+        w := weeks_to(k.goal, j[1])
+        charity += j[2] * w
+        print("{k.name:<4} {money(k.weekly())}/week: spend {money(j[0])}, save {money(j[1])}, give {money(j[2])}; goal {money(k.goal)} in {w} weeks")
+    fastest := kids.min(by: |k| weeks_to(k.goal, jars(k.weekly())[1])) else kids[0]
+    print("first to reach a goal: {fastest.name}")
+    print("given to charity by then: {money(charity)}")
+
+@test fn jar_parts()
+    assert_eq(jars(350), [175, 140, 35])
+    assert_eq(weeks_to(2500, 140), 18)

@@ -1,0 +1,35 @@
+## Leslie matrix: an age-structured population where each age class has a birth rate and a chance of
+## surviving to the next class; projecting year by year, the growth ratio and age mix settle to fixed values.
+
+fn project(n List[float], births List[float], survive List[float]) List[float]
+    mut next := List[float]()
+    mut newborns := 0.0
+    for i in 0..n.len()
+        newborns += births[i] * n[i]
+    next.push(newborns)
+    for i in 0..survive.len()
+        next.push(survive[i] * n[i])
+    next
+
+fn total(n List[float]) float
+    n.fold(0.0, |acc, x| acc + x)
+
+fn main()
+    births := [0.0, 1.5, 2.0, 0.8]
+    survive := [0.5, 0.7, 0.4]
+    mut n := [100.0, 0.0, 0.0, 0.0]
+    mut ratio := 0.0
+    for year in 0..=15
+        if year % 3 == 0
+            cells := n.map(|x| "{x:>7.1}").join(" ")
+            print("year {year:>2}: {cells}  total {total(n):>8.1}")
+        nxt := project(n, births, survive)
+        ratio = total(nxt) / total(n)
+        n = nxt
+    print("growth ratio settles near {ratio:.4} a year")
+    t := total(n)
+    shares := n.map(|x| "{x / t * 100.0:.1}%").join(", ")
+    print("stable age mix: {shares}")
+
+@test fn one_step()
+    assert_eq(project([10.0, 4.0], [0.0, 2.0], [0.5]), [8.0, 5.0])

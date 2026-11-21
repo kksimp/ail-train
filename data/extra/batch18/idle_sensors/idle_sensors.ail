@@ -1,0 +1,31 @@
+## Idle sensors: hourly readings per greenhouse sensor, where some sent nothing; `max()`,
+## `min()`, `first()` and `last()` give optionals, so an idle sensor prints "no data" via `else`.
+
+fn summary(xs List[int]) str
+    hi := xs.max() else return "no data"
+    lo := xs.min() else return "no data"
+    start := xs.first() else 0
+    stop := xs.last() else 0
+    trend := if stop > start then "rising" elif stop < start then "falling" else "flat"
+    "min {lo}, max {hi}, {trend}"
+
+fn main()
+    readings := {
+        "bench-1": [18, 19, 21, 24, 23],
+        "bench-2": List[int](),
+        "roof": [31, 29, 27, 26],
+        "door": [15],
+        "pond": List[int](),
+    }
+    mut idle := List[str]()
+    for name, xs in readings
+        print("{name:<8} {summary(xs)}")
+        if xs.is_empty()
+            idle.push(name)
+    joined := idle.join(", ")
+    print("idle: {joined}")
+    peaks := [(xs.max() else 0) for name, xs in readings]
+    print("peaks with 0 for idle: {peaks}")
+
+@test fn empty_has_no_max()
+    assert(List[int]().max() == none)

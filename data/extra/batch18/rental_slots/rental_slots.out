@@ -1,0 +1,10 @@
+ana borrows drill: slot 0
+ben borrows ladder: slot 1
+cy borrows saw: slot 2
+dee borrows sander: slot -1
+dee tries again: slot 1
+shelf 0: drill with ana
+shelf 1: sander with dee
+shelf 2: saw with cy
+eve takes bike 4471 from rack slot 0
+bike rack: 1 of 2 free

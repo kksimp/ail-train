@@ -1,0 +1,38 @@
+## Hydrogen spectrum: an electron dropping from level n2 to n1 emits 1 / lambda = R (1 / n1^2 - 1 / n2^2);
+## the Lyman lines land in the ultraviolet, Balmer's first four in visible light and Paschen's in the infrared.
+
+R := 10973731.568
+
+enum Band
+    Ultraviolet
+    Visible
+    Infrared
+
+fn wavelength_nm(n1 int, n2 int) float
+    a := n1.to_float()
+    b := n2.to_float()
+    1000000000.0 / (R * (1.0 / (a * a) - 1.0 / (b * b)))
+
+fn band(nm float) Band
+    if nm < 380.0
+        Ultraviolet
+    elif nm <= 750.0
+        Visible
+    else
+        Infrared
+
+fn main()
+    series := [("Lyman", 1), ("Balmer", 2), ("Paschen", 3)]
+    for s in series
+        name, n1 := s
+        mut parts := List[str]()
+        for n2 in n1 + 1..=n1 + 4
+            nm := wavelength_nm(n1, n2)
+            parts.push("{n2}->{n1} {nm:.1}")
+        limit := 1000000000.0 * (n1 * n1).to_float() / R
+        shown := parts.join(", ")
+        print("{name}: {shown} nm, limit {limit:.1} nm")
+        print("  first line is {band(wavelength_nm(n1, n1 + 1))}")
+
+@test fn h_alpha()
+    assert(band(wavelength_nm(2, 3)) == Band.Visible)

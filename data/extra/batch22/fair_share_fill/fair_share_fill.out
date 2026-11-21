@@ -1,0 +1,6 @@
+north  asks 10: fair share 10, proportional  6
+south  asks 40: fair share 23, proportional 24
+east   asks 25: fair share 23, proportional 15
+west   asks 60: fair share 22, proportional 36
+centre asks 30: fair share 22, proportional 18
+asked 165, shared 100

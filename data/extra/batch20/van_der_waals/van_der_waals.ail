@@ -1,0 +1,28 @@
+## Van der Waals gas: P = n R T / (V - n b) - a n^2 / V^2 corrects the ideal gas law for the volume
+## molecules take up (b) and their attraction (a); the gap grows as one mole is squeezed into less space.
+
+R := 8.314
+
+struct Gas
+    name str
+    a float
+    b float
+
+fn Gas.pressure(self, n float, v float, t float) float
+    n * R * t / (v - n * self.b) - self.a * n * n / (v * v)
+
+fn main()
+    gases := [Gas(name: "helium", a: 0.00346, b: 0.0000238), Gas(name: "nitrogen", a: 0.137, b: 0.0000387), Gas(name: "carbon dioxide", a: 0.364, b: 0.00004267), Gas(name: "water vapour", a: 0.5536, b: 0.00003049)]
+    t := 300.0
+    for litres in [22.4, 1.0, 0.2]
+        v := litres / 1000.0
+        ideal := R * t / v / 100000.0
+        print("1 mol in {litres} L at 300 K: ideal {ideal:.2} bar")
+        for g in gases
+            p := g.pressure(1.0, v, t) / 100000.0
+            dev := (p / ideal - 1.0) * 100.0
+            print("  {g.name:<15} {p:>8.2} bar ({dev:>6.1}%)")
+
+@test fn no_corrections()
+    g := Gas(name: "ideal", a: 0.0, b: 0.0)
+    assert_eq(g.pressure(1.0, 1.0, 100.0), 831.4)

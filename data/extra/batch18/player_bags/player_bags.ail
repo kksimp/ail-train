@@ -1,0 +1,41 @@
+## Player bags: each player's bag is a struct in a `Map`; a trade reads both bags as copies,
+## changes them and stores them back with `bags[k] = bag`, refusing a trade the giver can't make.
+
+struct Bag
+    items List[str]
+    gold int
+
+fn trade(mut bags Map[str, Bag], from str, to str, item str, price int) str
+    mut giver := bags[from]
+    mut buyer := bags[to]
+    at := giver.items.index_of(item) else return "{from} has no {item}"
+    if buyer.gold < price
+        return "{to} cannot pay {price}"
+    giver.items.remove_at(at)
+    giver.gold += price
+    buyer.items.push(item)
+    buyer.gold -= price
+    bags[from] = giver
+    bags[to] = buyer
+    "{to} buys {item} from {from} for {price}"
+
+fn main()
+    mut bags := {
+        "rook": Bag(items: ["rope", "lantern", "map"], gold: 20),
+        "wren": Bag(items: ["potion"], gold: 55),
+        "moss": Bag(items: ["sword", "shield"], gold: 5),
+    }
+    print(trade(mut bags, "rook", "wren", "lantern", 15))
+    print(trade(mut bags, "moss", "rook", "shield", 40))
+    print(trade(mut bags, "wren", "moss", "map", 10))
+    print(trade(mut bags, "moss", "wren", "sword", 30))
+    for name, b in bags
+        joined := b.items.join(", ")
+        print("{name}: {b.gold} gold, [{joined}]")
+    gold := bags.values().map(|b| b.gold).sum()
+    print("gold in play: {gold}")
+
+@test fn refused_trade_changes_nothing()
+    mut bags := {"a": Bag(items: ["x"], gold: 0), "b": Bag(items: List[str](), gold: 1)}
+    _ := trade(mut bags, "a", "b", "x", 5)
+    assert_eq(bags["a"].items.len(), 1)

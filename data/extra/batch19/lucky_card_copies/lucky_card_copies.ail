@@ -1,0 +1,27 @@
+## Lucky card copies: each fair-ground card lists winning numbers and the numbers you hold; part 1 scores
+## 1, 2, 4, 8... points per match count, part 2 lets k matches win copies of the next k cards and counts all cards.
+
+fn matches(line str) int
+    halves := line.split(": ")[1].split(" | ")
+    wins := halves[0].words().map(|t| (t.to_int() else 0))
+    have := halves[1].words().map(|t| (t.to_int() else 0))
+    have.count(|n| wins.contains(n))
+
+fn main()
+    cards := ["Card 1: 5 17 23 | 17 8 5 30 23 2", "Card 2: 9 14 40 | 1 2 3 14 9", "Card 3: 3 6 11 | 7 8 10 12 13", "Card 4: 21 22 33 | 33 1 5 9 2", "Card 5: 2 4 8 | 4 5 6 7 9", "Card 6: 10 19 31 | 3 11 12 15 16"]
+    ks := cards.map(|c| matches(c))
+    mut points := 0
+    for i, k in ks.enumerate()
+        p := if k == 0 then 0 else 1 << (k - 1)
+        print("card {i + 1}: {k} matches, {p} points")
+        points += p
+    print("part 1: {points} points")
+    mut copies := ks.map(|k| 1)
+    for i in 0..ks.len()
+        for j in i + 1..(i + 1 + ks[i]).min(ks.len())
+            copies[j] += copies[i]
+    print("copies held: {copies}")
+    print("part 2: {copies.sum()} cards in all")
+
+@test fn three_matches()
+    assert_eq(matches("Card 1: 5 17 23 | 17 8 5 30 23 2"), 3)

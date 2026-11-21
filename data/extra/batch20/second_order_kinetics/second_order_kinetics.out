@@ -1,0 +1,10 @@
+2 NO2 -> 2 NO + O2, k 0.54 L/(mol s), [NO2]0 0.1 mol/L
+first half-life 18.52 s; first-order rival with the same half-life has k1 0.03743 /s
+t    0.00 s: second order 0.10000 mol/L, first order 0.10000 mol/L
+t   10.00 s: second order 0.06494 mol/L, first order 0.06878 mol/L
+t   18.52 s: second order 0.05000 mol/L, first order 0.05000 mol/L
+t   50.00 s: second order 0.02703 mol/L, first order 0.01539 mol/L
+t  100.00 s: second order 0.01562 mol/L, first order 0.00237 mol/L
+t  300.00 s: second order 0.00581 mol/L, first order 0.00000 mol/L
+t 1000.00 s: second order 0.00182 mol/L, first order 0.00000 mol/L
+successive half-lives (s): 18.5, 37.0, 74.1, 148.1

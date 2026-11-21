@@ -1,0 +1,8 @@
+Jan: 10412, used 212 kWh
+Feb: 10790, used 378 kWh
+Mar: skipped, '1O980' is not a reading
+Apr: 11105, used 315 kWh
+May: skipped, 11002 is lower than 11105
+Jun: skipped, jump of 1845 kWh looks wrong
+Jul: 11388, used 283 kWh
+1188 kWh over 4 readings, 3 skipped

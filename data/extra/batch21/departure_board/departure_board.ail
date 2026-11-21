@@ -1,0 +1,40 @@
+## Departure board: services sorted by scheduled time show "On time", an expected time when late or
+## "Cancelled", with platform changes flagged; only the next five that have not yet left are shown.
+
+struct Service
+    sched int
+    dest str
+    platform int
+    delay int
+    new_platform int
+
+fn hhmm(t int) str
+    h := t / 60
+    m := t % 60
+    "{h:02}:{m:02}"
+
+fn status(s Service) str
+    if s.delay < 0
+        return "Cancelled"
+    if s.delay == 0
+        return "On time"
+    "Exp {hhmm(s.sched + s.delay)}"
+
+fn plat(s Service) str
+    if s.new_platform == 0 then "{s.platform}" else "{s.new_platform} (was {s.platform})"
+
+fn main()
+    now := 845
+    services := [Service(sched: 850, dest: "Leeds", platform: 3, delay: 0, new_platform: 0), Service(sched: 842, dest: "York", platform: 1, delay: 5, new_platform: 0), Service(sched: 835, dest: "Hull", platform: 2, delay: 0, new_platform: 0), Service(sched: 858, dest: "Selby", platform: 4, delay: -1, new_platform: 0), Service(sched: 905, dest: "Doncaster", platform: 3, delay: 12, new_platform: 5), Service(sched: 912, dest: "Scarborough", platform: 2, delay: 0, new_platform: 0), Service(sched: 920, dest: "Harrogate", platform: 1, delay: 0, new_platform: 4), Service(sched: 930, dest: "Wakefield", platform: 3, delay: 0, new_platform: 0)]
+    waiting := services.filter(|s| s.sched + s.delay.max(0) >= now).sorted(by: |s| s.sched)
+    print("Departures at {hhmm(now)}")
+    for s in waiting.take(5)
+        st := status(s)
+        p := plat(s)
+        print("{hhmm(s.sched)} {s.dest:<12} {p:<10} {st}")
+    later := waiting.len() - 5
+    print("{later} more later")
+
+@test fn on_time()
+    s := Service(sched: 600, dest: "x", platform: 1, delay: 0, new_platform: 0)
+    assert_eq(status(s), "On time")

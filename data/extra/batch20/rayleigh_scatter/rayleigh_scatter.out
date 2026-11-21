@@ -1,0 +1,6 @@
+violet  400 nm: scatters 8.35x red, sun keeps 69.9% at noon, 0.000% at sunset
+blue    450 nm: scatters 5.21x red, sun keeps 80.0% at noon, 0.021% at sunset
+green   530 nm: scatters 2.71x red, sun keeps 89.1% at noon, 1.219% at sunset
+yellow  580 nm: scatters 1.89x red, sun keeps 92.2% at noon, 4.630% at sunset
+red     680 nm: scatters 1.00x red, sun keeps 95.8% at noon, 19.666% at sunset
+at sunset red outweighs blue 947 to 1

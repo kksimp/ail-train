@@ -1,0 +1,7 @@
+ 12 m3: 0 x 40ft, 0 x 20ft, 12 m3 shared, cost 840
+ 30 m3: 0 x 40ft, 1 x 20ft, cost 1800
+ 45 m3: 1 x 40ft, 0 x 20ft, cost 2600
+ 70 m3: 1 x 40ft, 0 x 20ft, 3 m3 shared, cost 2810
+ 95 m3: 1 x 40ft, 1 x 20ft, cost 4400
+140 m3: 2 x 40ft, 0 x 20ft, 6 m3 shared, cost 5620
+210 m3: 3 x 40ft, 0 x 20ft, 9 m3 shared, cost 8430

@@ -1,0 +1,7 @@
+  white -> yellow: 10 min
+  yellow -> orange: 10 min
+  orange -> red: 10 min
+  red -> blue: 20 min
+  blue -> black: 12 min
+best order: white -> yellow -> orange -> red -> blue -> black, 62 minutes
+nearest next: white -> yellow -> orange -> red -> black -> blue, 80 minutes

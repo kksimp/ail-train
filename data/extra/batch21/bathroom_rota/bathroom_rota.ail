@@ -1,0 +1,37 @@
+## Bathroom rota: the family member who leaves last gets the last bathroom slot, ending ten minutes before
+## they go; working backwards, each earlier slot ends when the next one starts or ten minutes before leaving.
+
+struct Person
+    name str
+    leaves int
+    needs int
+
+fn hhmm(t int) str
+    h := t / 60
+    m := t % 60
+    "{h:02}:{m:02}"
+
+fn plan(people List[Person]) List[List[int]]
+    order := people.sorted(by: |p| -p.leaves)
+    mut slots := List[List[int]]()
+    mut limit := 24 * 60
+    for p in order
+        finish := limit.min(p.leaves - 10)
+        start := finish - p.needs
+        idx := people.index_of(p) else 0
+        slots.push([idx, start, finish])
+        limit = start
+    slots.sorted(by: |s| s[1])
+
+fn main()
+    family := [Person(name: "Dad", leaves: 450, needs: 15), Person(name: "Mum", leaves: 480, needs: 20), Person(name: "Zoe", leaves: 465, needs: 25), Person(name: "Kai", leaves: 495, needs: 10), Person(name: "Gran", leaves: 570, needs: 30)]
+    slots := plan(family)
+    for s in slots
+        p := family[s[0]]
+        spare := p.leaves - s[2]
+        print("{hhmm(s[1])}-{hhmm(s[2])} {p.name:<5} leaves {hhmm(p.leaves)} ({spare} min to spare)")
+    first := slots[0]
+    print("first alarm: {family[first[0]].name} at {hhmm(first[1] - 5)}")
+
+@test fn clock()
+    assert_eq(hhmm(425), "07:05")

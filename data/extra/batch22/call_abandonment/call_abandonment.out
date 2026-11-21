@@ -1,0 +1,13 @@
+call  1 at   0s: agent 1 answers after 0s
+call  2 at  10s: agent 2 answers after 0s
+call  3 at  25s: would wait 155s, hangs up after 45s
+call  4 at  40s: would wait 140s, hangs up after 90s
+call  5 at  55s: would wait 125s, hangs up after 20s
+call  6 at  70s: agent 1 answers after 110s
+call  7 at  95s: would wait 155s, hangs up after 40s
+call  8 at 130s: would wait 120s, hangs up after 25s
+call  9 at 150s: agent 2 answers after 100s
+call 10 at 175s: would wait 95s, hangs up after 15s
+call 11 at 240s: agent 1 answers after 30s
+call 12 at 300s: would wait 90s, hangs up after 30s
+answered 5, abandoned 7 (58%), within 20 s 16% of calls

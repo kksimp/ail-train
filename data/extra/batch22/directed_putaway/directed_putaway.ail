@@ -1,0 +1,41 @@
+## Directed putaway: each arriving pallet goes to a free location of its temperature zone, choosing the lowest
+## bay that is tall enough (then the first code), so tall bays stay free; no fit means the pallet waits at the dock.
+
+enum Temp
+    Frozen
+    Chilled
+    Ambient
+
+struct Spot
+    code str
+    temp Temp
+    height int
+    free bool
+
+fn deadline(t Temp) str
+    match t
+        Frozen => "15 minutes"
+        Chilled => "30 minutes"
+        Ambient => "end of shift"
+
+fn main()
+    mut spots := [Spot(code: "F-01", temp: Temp.Frozen, height: 150, free: true), Spot(code: "F-02", temp: Temp.Frozen, height: 200, free: true), Spot(code: "C-01", temp: Temp.Chilled, height: 120, free: true), Spot(code: "C-02", temp: Temp.Chilled, height: 180, free: false), Spot(code: "A-01", temp: Temp.Ambient, height: 100, free: true), Spot(code: "A-02", temp: Temp.Ambient, height: 160, free: true), Spot(code: "A-03", temp: Temp.Ambient, height: 220, free: true)]
+    pallets := [("P1", Temp.Ambient, 140), ("P2", Temp.Frozen, 130), ("P3", Temp.Chilled, 150), ("P4", Temp.Ambient, 90), ("P5", Temp.Frozen, 190), ("P6", Temp.Ambient, 150), ("P7", Temp.Frozen, 120)]
+    for p in pallets
+        id, temp, h := p
+        mut pick := -1
+        for i in 0..spots.len()
+            s := spots[i]
+            if s.free and s.temp == temp and s.height >= h
+                if pick == -1 or s.height < spots[pick].height
+                    pick = i
+        if pick == -1
+            print("{id} ({temp}, {h} cm): no space, waits at the dock")
+        else
+            spots[pick].free = false
+            print("{id} ({temp}, {h} cm): {spots[pick].code}, put away within {deadline(temp)}")
+    free := spots.filter(|s| s.free).map(|s| s.code).join(", ")
+    print("free spots left: {free}")
+
+@test fn frozen_first()
+    assert_eq(deadline(Temp.Frozen), "15 minutes")

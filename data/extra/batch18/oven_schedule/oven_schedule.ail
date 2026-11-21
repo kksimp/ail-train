@@ -1,0 +1,31 @@
+## Oven schedule: a bakery's two ovens wait in a `Heap` ordered by the minute they are free (then
+## oven number, from `impl Ord`); each batch goes to the oven that frees up first.
+
+struct Free
+    at int
+    oven int
+
+impl Ord for Free
+
+fn main()
+    mut ovens := Heap[Free]()
+    ovens.push(Free(at: 0, oven: 1))
+    ovens.push(Free(at: 0, oven: 2))
+    batches := [("sourdough", 45), ("baguettes", 25), ("croissants", 18), ("rye", 50), ("buns", 20), ("focaccia", 30)]
+    mut last := 0
+    for b in batches
+        name, mins := b
+        f := ovens.pop() else Free(at: 0, oven: 0)
+        done := f.at + mins
+        print("{name:<10} oven {f.oven} from {f.at:>3} to {done:>3}")
+        ovens.push(Free(at: done, oven: f.oven))
+        last = last.max(done)
+    print("all baked after {last} minutes")
+    if next := ovens.peek()
+        print("oven {next.oven} is free first, at {next.at}")
+
+@test fn earliest_first()
+    mut h := Heap[Free]()
+    h.push(Free(at: 30, oven: 1))
+    h.push(Free(at: 10, oven: 2))
+    assert_eq((h.pop() else Free(at: 0, oven: 0)).oven, 2)

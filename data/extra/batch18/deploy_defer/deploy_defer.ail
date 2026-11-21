@@ -1,0 +1,23 @@
+## Deploy defer: a deploy takes a lock and releases it with `defer`, and every step logs itself
+## with a `defer` inside the loop; an early `return` on a failed step runs both, last first.
+
+fn deploy(service str, steps List[str], failing str) bool
+    print("lock {service}")
+    defer print("unlock {service}")
+    for s in steps
+        defer print("  logged {s}")
+        if s == failing
+            print("  {s} FAILED")
+            return false
+        print("  {s} ok")
+    true
+
+fn main()
+    defer print("all deploys attempted")
+    ok1 := deploy("api", ["build", "ship"], "")
+    print("api deployed: {ok1}")
+    ok2 := deploy("web", ["build", "test", "ship"], "test")
+    print("web deployed: {ok2}")
+
+@test fn failing_step()
+    assert_eq(deploy("x", ["a", "b"], "a"), false)

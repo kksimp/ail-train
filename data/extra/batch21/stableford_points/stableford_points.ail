@@ -1,0 +1,33 @@
+## Stableford points: over nine holes a player gets handicap / 9 strokes on every hole plus one more on
+## holes whose stroke index is within the remainder; each hole scores 2 + par - net strokes, never below 0.
+
+fn strokes(hcp int, index int) int
+    extra := if index <= hcp % 9 then 1 else 0
+    hcp / 9 + extra
+
+fn hole_points(p int, gross int, given int) int
+    (2 + p - (gross - given)).max(0)
+
+fn main()
+    pars := [4, 3, 5, 4, 4, 3, 4, 5, 4]
+    index := [3, 9, 1, 5, 2, 8, 4, 6, 7]
+    players := [("Ali", 6, [5, 3, 6, 5, 4, 4, 5, 6, 5]), ("Bo", 14, [6, 4, 7, 5, 6, 4, 5, 7, 6]), ("Cy", 0, [4, 3, 4, 4, 5, 3, 4, 5, 4]), ("Dee", 22, [7, 5, 8, 6, 7, 5, 6, 8, 9])]
+    mut table := List[(str, int, int)]()
+    for p in players
+        name, hcp, cards := p
+        mut pts := List[int]()
+        for h in 0..9
+            pts.push(hole_points(pars[h], cards[h], strokes(hcp, index[h])))
+        total := pts.sum()
+        gross := cards.sum()
+        blobs := pts.count(|x| x == 0)
+        table.push((name, total, gross))
+        print("{name:<4} hcp {hcp:>2}: gross {gross}, points {pts} = {total}, {blobs} blank holes")
+    ranked := table.sorted(by: |t| (-t.1, t.2))
+    w := ranked[0]
+    print("winner: {w.0} with {w.1} points")
+
+@test fn shots()
+    assert_eq(strokes(14, 5), 2)
+    assert_eq(strokes(14, 6), 1)
+    assert_eq(hole_points(4, 8, 0), 0)

@@ -1,0 +1,11 @@
+kettle     40: Grade.Refurbish, recovers 23
+headset    90: Grade.Resell, recovers 90
+drill     120: Grade.Liquidate, recovers 24
+jacket     75: Grade.Refuse, recovers 0
+blender    60: Grade.Refurbish, recovers 37
+speaker   150: Grade.Liquidate, recovers 30
+refunded 460, recovered 204, cost of returns 256
+Refurbish: 2
+Resell: 1
+Liquidate: 2
+Refuse: 1

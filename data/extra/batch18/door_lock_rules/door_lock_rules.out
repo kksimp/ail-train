@@ -1,0 +1,8 @@
+min  0: temp 60, water 30 l -> locked: program running
+min  1: temp 57, water 30 l -> locked: program running
+min  2: temp 54, water 30 l -> locked: program running
+min  3: temp 51, water 15 l -> locked: draining water
+min  4: temp 48, water 0 l -> locked: cooling down
+min  5: temp 45, water 0 l -> locked: cooling down
+min  6: temp 42, water 0 l -> open
+door opens after 6 minutes

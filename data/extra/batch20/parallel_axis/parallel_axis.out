@@ -1,0 +1,5 @@
+dumbbell about x = 0.0: I = 1.0000 kg m2
+dumbbell about x = 0.15: I = 1.2700 kg m2
+dumbbell about x = 0.3: I = 2.0800 kg m2
+pendulum: I 2.3353 kg m2, centre of mass 0.8333 m below the pivot
+period 1.9389 s, a simple 1 m pendulum 2.0061 s

@@ -1,0 +1,59 @@
+## Sensor drivers: a `Sensor` trait turns raw 10-bit readings into units, with a default `report`
+## method; a thermistor, a pressure gauge and a humidity probe share one `List[any Sensor]`.
+
+trait Sensor
+    fn name(self) str
+    fn unit(self) str
+    fn convert(self, raw int) float
+    fn report(self, raw int) str
+        "{name()}: {convert(raw):.1} {unit()}"
+
+struct Thermistor
+    offset float
+
+struct Gauge
+    base float
+
+struct Humidity
+    id int
+
+impl Sensor for Thermistor
+    fn name(self) str
+        "temp"
+    fn unit(self) str
+        "C"
+    fn convert(self, raw int) float
+        raw.to_float() * 0.1 - offset
+
+impl Sensor for Gauge
+    fn name(self) str
+        "pressure"
+    fn unit(self) str
+        "kPa"
+    fn convert(self, raw int) float
+        base + raw.to_float() * 0.25
+
+impl Sensor for Humidity
+    fn name(self) str
+        "humidity {id}"
+    fn unit(self) str
+        "%"
+    fn convert(self, raw int) float
+        raw.to_float() * 100.0 / 1024.0
+
+fn main()
+    mut sensors := List[any Sensor]()
+    sensors.push(Thermistor(offset: 20.0))
+    sensors.push(Gauge(base: 15.0))
+    sensors.push(Humidity(id: 2))
+    frames := [[452, 330, 700], [467, 342, 731], [431, 350, 650]]
+    for t, frame in frames.enumerate()
+        parts := [sensors[i].report(frame[i]) for i in 0..sensors.len()]
+        joined := parts.join(" | ")
+        print("t{t}: {joined}")
+    temps := frames.map(|f| sensors[0].convert(f[0]))
+    hottest := temps.max() else 0.0
+    print("hottest {hottest:.1} C over {temps.len()} frames")
+
+@test fn gauge_scale()
+    assert_eq(Gauge(base: 15.0).convert(4), 16.0)

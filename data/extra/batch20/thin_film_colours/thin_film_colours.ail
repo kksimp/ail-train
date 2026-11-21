@@ -1,0 +1,43 @@
+## Thin film colours: light reflected from both faces of a soap film (n = 1.33) adds up when
+## 2 n t = (m + 1/2) wavelength, the half from the phase flip at the front face; names the visible hues.
+
+fn hue(nm float) str
+    if nm < 450.0
+        "violet"
+    elif nm < 495.0
+        "blue"
+    elif nm < 570.0
+        "green"
+    elif nm < 590.0
+        "yellow"
+    elif nm < 620.0
+        "orange"
+    else
+        "red"
+
+fn bright(n float, t float) List[float]
+    path := 2.0 * n * t
+    mut out := List[float]()
+    mut m := 0
+    while true
+        lam := path / (m.to_float() + 0.5)
+        if lam < 380.0
+            break
+        if lam <= 750.0
+            out.push(lam)
+        m += 1
+    out
+
+fn main()
+    n := 1.33
+    for t in [100, 150, 250, 400, 600]
+        waves := bright(n, t.to_float())
+        mut parts := List[str]()
+        for w in waves
+            parts.push("{w:.0} nm {hue(w)}")
+        shown := if parts.is_empty() then "none visible" else parts.join(", ")
+        print("film {t:>3} nm thick: {shown}")
+    print("a film far thinner than the light looks black: {bright(n, 20.0).len()} bright bands at 20 nm")
+
+@test fn green_film()
+    assert_eq(bright(1.25, 100.0), [500.0])

@@ -1,0 +1,32 @@
+## Treasury bill yields: a bill bought below face value is quoted by its bank discount yield (discount over
+## face, 360-day year), its bond-equivalent yield (gain over price, 365 days) and its effective annual yield.
+
+struct Bill
+    days int
+    price float
+
+fn bank_discount(face float, b Bill) float
+    (face - b.price) / face * 360.0 / b.days.to_float()
+
+fn bond_equivalent(face float, b Bill) float
+    (face - b.price) / b.price * 365.0 / b.days.to_float()
+
+fn effective(face float, b Bill) float
+    growth := face / b.price
+    growth.pow(365.0 / b.days.to_float()) - 1.0
+
+fn main()
+    face := 10000.0
+    bills := [Bill(days: 91, price: 9880.0), Bill(days: 182, price: 9765.0), Bill(days: 364, price: 9520.0)]
+    for b in bills
+        d := bank_discount(face, b) * 100.0
+        e := bond_equivalent(face, b) * 100.0
+        f := effective(face, b) * 100.0
+        print("{b.days:>3} days at {b.price:.2}: discount {d:.3}%, bond-equivalent {e:.3}%, effective {f:.3}%")
+    for q in [4, 5]
+        rate := q.to_float() / 100.0
+        price := face * (1.0 - rate * 182.0 / 360.0)
+        print("quoted at {q}% discount for 182 days: price {price:.2}")
+
+@test fn half_off_year()
+    assert_eq(bank_discount(100.0, Bill(days: 360, price: 50.0)), 0.5)

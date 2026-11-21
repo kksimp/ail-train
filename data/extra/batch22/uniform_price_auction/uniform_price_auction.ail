@@ -1,0 +1,46 @@
+## Uniform-price auction: 100 bonds go to the highest bids first; every winner pays the lowest accepted price,
+## and bids at that price share what is left pro rata (spare units to the earliest); pay-as-bid revenue is compared.
+
+struct Bid
+    name str
+    price int
+    qty int
+    got int
+
+fn main()
+    mut bids := [Bid(name: "A", price: 99, qty: 30, got: 0), Bid(name: "B", price: 98, qty: 25, got: 0), Bid(name: "C", price: 97, qty: 20, got: 0), Bid(name: "D", price: 97, qty: 30, got: 0), Bid(name: "E", price: 96, qty: 40, got: 0), Bid(name: "F", price: 97, qty: 7, got: 0)]
+    mut left := 100
+    mut clearing := 0
+    levels := bids.map(|b| b.price).sorted().reversed()
+    mut seen := Set[int]()
+    for p in levels
+        if not seen.add(p) or left == 0
+            continue
+        demand := bids.filter(|b| b.price == p).fold(0, |acc, b| acc + b.qty)
+        clearing = p
+        if demand <= left
+            for mut b in bids
+                if b.price == p
+                    b.got = b.qty
+            left -= demand
+        else
+            mut handed := 0
+            for mut b in bids
+                if b.price == p
+                    b.got = left * b.qty / demand
+                    handed += b.got
+            mut spare := left - handed
+            for mut b in bids
+                if b.price == p and spare > 0 and b.got < b.qty
+                    b.got += 1
+                    spare -= 1
+            left = 0
+    mut as_bid := 0
+    for b in bids
+        as_bid += b.got * b.price
+        print("{b.name} bid {b.qty:>2} at {b.price}: gets {b.got:>2}")
+    sold := 100 - left
+    print("clearing price {clearing}: uniform revenue {sold * clearing}, pay-as-bid revenue {as_bid}")
+
+@test fn pro_rata_share()
+    assert_eq(45 * 20 / 57, 15)

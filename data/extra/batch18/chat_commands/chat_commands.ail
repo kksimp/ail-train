@@ -1,0 +1,36 @@
+## Chat commands: lines starting with "/" are commands, read with `strip_prefix` and
+## `split(" ", 2)` into a name and the rest; others are messages from the current nickname.
+
+fn main()
+    lines := ["hello all", "/nick Juno", "/join #gardening", "anyone grow chillies?", "/me waves", "/join", "/shout", "/leave", "bye"]
+    mut nick := "guest"
+    mut room := "#lobby"
+    mut log := List[str]()
+    for l in lines
+        if body := l.strip_prefix("/")
+            parts := body.split(" ", 2)
+            cmd := parts[0]
+            arg := if parts.len() > 1 then parts[1].trim() else ""
+            match cmd
+                "nick" =>
+                    log.push("* {nick} is now {arg}")
+                    nick = arg
+                "join" =>
+                    if arg.starts_with("#")
+                        room = arg
+                        log.push("* {nick} joined {room}")
+                    else
+                        log.push("! join needs a #room")
+                "leave" =>
+                    log.push("* {nick} left {room}")
+                    room = "#lobby"
+                "me" => log.push("* {nick} {arg}")
+                _ => log.push("! unknown command /{cmd}")
+        else
+            log.push("[{room}] {nick}: {l}")
+    for entry in log
+        print(entry)
+    print("{log.len()} lines, ending in {room}")
+
+@test fn split_limit()
+    assert_eq("me waves at all".split(" ", 2), ["me", "waves at all"])

@@ -1,0 +1,52 @@
+## Car service due: a service falls due after 15000 km or 12 months, whichever comes first; each car's
+## average monthly distance turns the kilometres left into months to compare with the calendar limit.
+
+enum Reason
+    Distance
+    Time
+
+struct Car
+    plate str
+    last_month int
+    last_km int
+    km_now int
+    per_month int
+
+struct Due
+    month int
+    why Reason
+
+fn ym(t int) str
+    y := t / 12
+    m := t % 12 + 1
+    "{y}-{m:02}"
+
+fn Car.due(self, now int) Due
+    left_km := self.last_km + 15000 - self.km_now
+    by_km := if left_km <= 0 then now else now + left_km / self.per_month
+    by_time := self.last_month + 12
+    if by_km < by_time
+        return Due(month: by_km, why: Reason.Distance)
+    Due(month: by_time, why: Reason.Time)
+
+fn main()
+    now := 2026 * 12 + 10
+    cars := [Car(plate: "AB12 CDE", last_month: 2026 * 12 + 2, last_km: 41000, km_now: 50500, per_month: 1400), Car(plate: "FG34 HIJ", last_month: 2025 * 12 + 11, last_km: 88000, km_now: 94000, per_month: 500), Car(plate: "KL56 MNO", last_month: 2025 * 12 + 9, last_km: 12000, km_now: 19000, per_month: 700), Car(plate: "PQ78 RST", last_month: 2026 * 12 + 5, last_km: 60000, km_now: 76000, per_month: 2000)]
+    print("today: {ym(now)}")
+    for c in cars
+        d := c.due(now)
+        why := match d.why
+            Distance => "distance"
+            Time => "time"
+        left := d.month - now
+        if left <= 0
+            print("{c.plate}: OVERDUE by {why}")
+        else
+            print("{c.plate}: due {ym(d.month)} by {why}, in {left} months")
+    order := cars.sorted(by: |c| c.due(now).month)
+    plates := [c.plate for c in order]
+    joined := plates.join(", ")
+    print("booking order: {joined}")
+
+@test fn month_text()
+    assert_eq(ym(2026 * 12 + 10), "2026-11")

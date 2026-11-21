@@ -1,0 +1,36 @@
+## Label policy check: each crate label comes with the policy it was printed under, "lo-hi c: text"; part 1 reads
+## it as "c appears lo to hi times", part 2 as "exactly one of positions lo and hi (1-based) holds c".
+
+struct Policy
+    lo int
+    hi int
+    letter char
+    text str
+
+fn parse(line str) Policy
+    parts := line.split(" ")
+    nums := parts[0].split("-")
+    Policy(lo: nums[0].to_int() else 0, hi: nums[1].to_int() else 0, letter: parts[1].char_at(0) else ' ', text: parts[2])
+
+fn Policy.by_count(self) bool
+    want := self.letter
+    n := self.text.chars().count(|c| c == want)
+    n >= self.lo and n <= self.hi
+
+fn Policy.by_place(self) bool
+    a := (self.text.char_at(self.lo - 1) else ' ') == self.letter
+    b := (self.text.char_at(self.hi - 1) else ' ') == self.letter
+    a != b
+
+fn main()
+    lines := ["2-4 k: kkbqk", "1-3 m: amzmm", "3-5 t: ttxtq", "2-2 p: ppp", "1-6 r: arrrrr", "4-5 z: qqqzq"]
+    policies := lines.map(|l| parse(l))
+    for p in policies
+        print("{p.text:<7} {p.letter} {p.lo}-{p.hi}: count {p.by_count()}, place {p.by_place()}")
+    print("part 1: {policies.count(|p| p.by_count())} labels pass the count policy")
+    print("part 2: {policies.count(|p| p.by_place())} labels pass the place policy")
+
+@test fn places()
+    p := parse("1-3 a: abc")
+    assert(p.by_place())
+    assert(p.by_count())

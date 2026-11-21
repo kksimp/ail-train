@@ -1,0 +1,40 @@
+## Fewest late jobs (Moore-Hodgson): jobs are taken in due-date order, and whenever the running finish time passes
+## a due date the longest job scheduled so far is pulled out and sent to the end; this minimises how many are late.
+
+struct Job
+    name str
+    time int
+    due int
+
+fn schedule(jobs List[Job]) List[List[Job]]
+    mut kept := List[Job]()
+    mut dropped := List[Job]()
+    mut t := 0
+    for j in jobs.sorted(by: |x| x.due)
+        kept.push(j)
+        t += j.time
+        if t > j.due
+            mut longest := 0
+            for i in 1..kept.len()
+                if kept[i].time > kept[longest].time
+                    longest = i
+            t -= kept[longest].time
+            dropped.push(kept[longest])
+            kept.remove_at(longest)
+    [kept, dropped]
+
+fn main()
+    jobs := [Job(name: "J1", time: 4, due: 6), Job(name: "J2", time: 3, due: 7), Job(name: "J3", time: 2, due: 8), Job(name: "J4", time: 5, due: 12), Job(name: "J5", time: 3, due: 13), Job(name: "J6", time: 4, due: 15)]
+    parts := schedule(jobs)
+    mut t := 0
+    for j in parts[0]
+        t += j.time
+        print("{j.name}: done day {t:>2}, due {j.due:>2}")
+    for j in parts[1]
+        t += j.time
+        print("{j.name}: done day {t:>2}, due {j.due:>2} (late)")
+    print("{parts[1].len()} late of {jobs.len()}")
+
+@test fn all_fit()
+    two := [Job(name: "a", time: 1, due: 5), Job(name: "b", time: 1, due: 5)]
+    assert_eq(schedule(two)[1].len(), 0)

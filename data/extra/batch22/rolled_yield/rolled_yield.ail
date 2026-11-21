@@ -1,0 +1,26 @@
+## Rolled yield: to ship 1,000 good parts through five steps that each pass a known percentage, the starts are
+## worked backwards step by step (rounding up); the rolled throughput yield is the product of the step yields.
+
+fn needed(out int, pct int) int
+    (out * 100 + pct - 1) / pct
+
+fn main()
+    steps := [("cast", 96), ("machine", 92), ("heat treat", 98), ("grind", 95), ("inspect", 97)]
+    mut need := List[int]()
+    mut out := 1000
+    for i in 0..steps.len()
+        k := steps.len() - 1 - i
+        start := needed(out, steps[k].1)
+        need.insert(0, start)
+        out = start
+    mut rty := 1.0
+    for i, s in steps.enumerate()
+        name, pct := s
+        after := if i + 1 < steps.len() then need[i + 1] else 1000
+        rty *= pct.to_float() / 100.0
+        print("{name:<10} {pct}%: start {need[i]:>4}, pass {after:>4}, scrap {need[i] - after}")
+    pct_rty := rty * 100.0
+    print("start {need[0]} for 1000 good; rolled yield {pct_rty:.2}%")
+
+@test fn rounding()
+    assert_eq(needed(1000, 97), 1031)

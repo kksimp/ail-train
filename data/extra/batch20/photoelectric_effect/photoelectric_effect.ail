@@ -1,0 +1,25 @@
+## Photoelectric effect: a photon of wavelength lambda carries 1239.84 / lambda(nm) eV; it frees an
+## electron only above the metal's work function, which then leaves with E - phi, stopped by that many volts.
+
+HC := 1239.84
+
+struct Metal
+    name str
+    work float
+
+fn main()
+    metals := [Metal(name: "caesium", work: 2.1), Metal(name: "sodium", work: 2.28), Metal(name: "zinc", work: 4.3), Metal(name: "platinum", work: 5.65)]
+    waves := [620.0, 450.0, 250.0, 180.0]
+    for w in waves
+        print("{w:.0} nm photons carry {HC / w:.3} eV")
+    for m in metals
+        mut parts := List[str]()
+        for w in waves
+            ke := HC / w - m.work
+            parts.push(if ke > 0.0 then "{ke:.2}" else "-")
+        shown := parts.join(" / ")
+        print("{m.name:<9} threshold {HC / m.work:>5.0} nm, stopping volts {shown}")
+
+@test fn threshold()
+    m := Metal(name: "test", work: 2.0)
+    assert_eq(HC / m.work, 619.92)

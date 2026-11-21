@@ -1,0 +1,44 @@
+## Bill of materials cost roll-up: an assembly costs its labour plus each component's cost times quantity, found
+## recursively; a bought part's line carries a scrap allowance (extra percent used), and every assembly is listed.
+
+struct Use
+    part str
+    qty int
+
+fn cost(name str, buy Map[str, int], scrap Map[str, int], bom Map[str, List[Use]], labour Map[str, int]) int
+    if buy.contains(name)
+        return buy[name]
+    mut total := labour.get_or(name, 0)
+    for u in bom.get_or(name, List[Use]())
+        line := u.qty * cost(u.part, buy, scrap, bom, labour)
+        total += line * (100 + scrap.get_or(u.part, 0)) / 100
+    total
+
+fn money(c int) str
+    cents := c % 100
+    "{c / 100}.{cents:02}"
+
+fn main()
+    buy := {"tube": 450, "bolt": 12, "rim": 900, "spoke": 8, "hub": 1500, "seat": 2200, "chain": 1300, "pedal": 600}
+    scrap := {"spoke": 5, "bolt": 10, "tube": 4}
+    mut bom := Map[str, List[Use]]()
+    bom["frame"] = [Use(part: "tube", qty: 3), Use(part: "bolt", qty: 6)]
+    bom["wheel"] = [Use(part: "rim", qty: 1), Use(part: "spoke", qty: 32), Use(part: "hub", qty: 1)]
+    bom["bike"] = [Use(part: "frame", qty: 1), Use(part: "wheel", qty: 2), Use(part: "seat", qty: 1), Use(part: "chain", qty: 1), Use(part: "pedal", qty: 2), Use(part: "bolt", qty: 10)]
+    labour := {"frame": 2500, "wheel": 1200, "bike": 3500}
+    for name in ["frame", "wheel", "bike"]
+        c := cost(name, buy, scrap, bom, labour)
+        print("{name:<5} {money(c):>7} (labour {money(labour[name])})")
+    spokes := 2 * (32 * buy["spoke"] * (100 + scrap["spoke"]) / 100)
+    print("spokes in one bike: {money(spokes)}")
+
+@test fn scrap_allowance()
+    mut buy := Map[str, int]()
+    buy["spoke"] = 100
+    mut scrap := Map[str, int]()
+    scrap["spoke"] = 5
+    mut bom := Map[str, List[Use]]()
+    bom["wheel"] = [Use(part: "spoke", qty: 2)]
+    mut labour := Map[str, int]()
+    labour["wheel"] = 50
+    assert_eq(cost("wheel", buy, scrap, bom, labour), 260)

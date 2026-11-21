@@ -1,0 +1,30 @@
+## Charm price endings: a cost-plus price in cents is raised to the next charm ending by band: under 10.00
+## it ends in 9 cents, under 100.00 in .99, and from 100.00 up in 9.99; the uplift over cost-plus is shown.
+
+fn charm(c int) int
+    if c < 1000
+        return (c + 10) / 10 * 10 - 1
+    if c < 10000
+        return (c + 100) / 100 * 100 - 1
+    (c + 1000) / 1000 * 1000 - 1
+
+fn money(c int) str
+    cents := c % 100
+    "{c / 100}.{cents:02}"
+
+fn main()
+    items := [("pencil", 85), ("mug", 412), ("scarf", 1180), ("lamp", 4450), ("kettle", 7385), ("chair", 9420)]
+    mut uplift := 0
+    for it in items
+        name, cost := it
+        plain := cost * 135 / 100
+        shelf := charm(plain)
+        uplift += shelf - plain
+        print("{name:<7} cost {money(cost):>6}, cost-plus {money(plain):>6}, shelf {money(shelf):>6}")
+    print("charm endings add {money(uplift)} across the range")
+
+@test fn bands()
+    assert_eq(charm(342), 349)
+    assert_eq(charm(349), 349)
+    assert_eq(charm(1300), 1399)
+    assert_eq(charm(12345), 12999)

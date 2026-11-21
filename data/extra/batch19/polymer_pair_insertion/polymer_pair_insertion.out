@@ -1,0 +1,6 @@
+template DABC, 16 rules
+after 1 steps: spread 2
+after 2 steps: spread 3
+after 5 steps: spread 13
+part 1: after 10 steps: 483
+part 2: after 30 steps: 527548741

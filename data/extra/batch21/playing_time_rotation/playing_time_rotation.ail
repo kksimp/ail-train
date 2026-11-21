@@ -1,0 +1,26 @@
+## Playing time rotation: a youth squad of eight shares five court places over five 8-minute blocks; each
+## block picks the five who have played least so far (squad order on ties), keeping minutes nearly even.
+
+fn pick(mins List[int], k int) List[int]
+    idx := [i for i in 0..mins.len()]
+    chosen := idx.sorted(by: |i| (mins[i], i)).take(k)
+    chosen.sorted()
+
+fn main()
+    squad := ["Ari", "Bel", "Cas", "Dom", "Eve", "Flo", "Gus", "Hal"]
+    mut mins := [0, 0, 0, 0, 0, 0, 0, 0]
+    for block in 0..5
+        on := pick(mins, 5)
+        for i in on
+            mins[i] += 8
+        names := [squad[i] for i in on]
+        line := names.join(", ")
+        start := block * 8
+        print("block {block + 1} ({start}-{start + 8} min): {line}")
+    for i, name in squad.enumerate()
+        print("{name}: {mins[i]} min")
+    spread := (mins.max() else 0) - (mins.min() else 0)
+    print("spread between most and least: {spread} min")
+
+@test fn least_first()
+    assert_eq(pick([8, 0, 8, 0], 2), [1, 3])

@@ -1,0 +1,27 @@
+## Star gap expansion: a telescope image of stars (#) whose empty rows and columns really stand for f rows
+## or columns; sums the Manhattan distances of all star pairs for f = 2 (part 1) and f = 100 (part 2).
+
+fn spread(stars List[List[int]], empty_rows List[int], empty_cols List[int], f int) int
+    placed := stars.map(|s| [s[0] + (f - 1) * empty_rows.count(|r| r < s[0]), s[1] + (f - 1) * empty_cols.count(|c| c < s[1])])
+    mut total := 0
+    for i in 0..placed.len()
+        for j in i + 1..placed.len()
+            total += (placed[i][0] - placed[j][0]).abs() + (placed[i][1] - placed[j][1]).abs()
+    total
+
+fn main()
+    image := ["..#.....", "........", "#.....#.", "........", "...#....", ".......#", "........", ".#..#..."]
+    mut stars := List[List[int]]()
+    for r, row in image.enumerate()
+        for c, ch in row.chars().enumerate()
+            if ch == '#'
+                stars.push([r, c])
+    empty_rows := [r for r in 0..image.len() if not image[r].contains('#')]
+    empty_cols := [c for c in 0..image[0].len() if stars.all(|s| s[1] != c)]
+    print("{stars.len()} stars, empty rows {empty_rows}, empty cols {empty_cols}")
+    print("part 1: {spread(stars, empty_rows, empty_cols, 2)}")
+    print("part 2: {spread(stars, empty_rows, empty_cols, 100)}")
+    print("unexpanded: {spread(stars, empty_rows, empty_cols, 1)}")
+
+@test fn two_stars()
+    assert_eq(spread([[0, 0], [2, 0]], [1], [], 10), 11)

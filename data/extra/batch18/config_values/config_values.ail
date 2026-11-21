@@ -1,0 +1,44 @@
+## Config values: a recursive enum `Value` (numbers, text, flags and lists of values) holds a
+## settings tree; recursive functions render it as nested text and count its leaf values.
+
+enum Value
+    Num(n int)
+    Text(s str)
+    Flag(on bool)
+    Items(xs List[Value])
+
+fn render(v Value) str
+    match v
+        Num(n) => "{n}"
+        Text(s) => "\"{s}\""
+        Flag(on) => if on then "yes" else "no"
+        Items(xs) =>
+            parts := xs.map(|x| render(x))
+            inner := parts.join(", ")
+            "[{inner}]"
+
+fn leaves(v Value) int
+    match v
+        Items(xs) => xs.map(|x| leaves(x)).sum()
+        _ => 1
+
+fn main()
+    ports := Value.Items(xs: [Value.Num(n: 80), Value.Num(n: 443)])
+    hosts := Value.Items(xs: [Value.Text(s: "a.local"), Value.Text(s: "b.local")])
+    settings := [
+        ("name", Value.Text(s: "edge proxy")),
+        ("workers", Value.Num(n: 4)),
+        ("tls", Value.Flag(on: true)),
+        ("ports", ports),
+        ("upstream", Value.Items(xs: [hosts, Value.Flag(on: false)])),
+    ]
+    mut total := 0
+    for entry in settings
+        key, v := entry
+        print("{key:<9}= {render(v)}")
+        total += leaves(v)
+    print("{settings.len()} keys, {total} leaf values")
+
+@test fn nested_leaves()
+    v := Value.Items(xs: [Value.Num(n: 1), Value.Items(xs: [Value.Num(n: 2), Value.Num(n: 3)])])
+    assert_eq(leaves(v), 3)

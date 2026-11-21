@@ -1,0 +1,41 @@
+## Gift card balances: each redemption is checked against the card's expiry day and balance; a part payment
+## uses what is left, unknown or expired cards are refused, and value left on expired cards is totalled.
+
+struct Card
+    balance int
+    expiry int
+
+fn redeem(mut cards Map[str, Card], code str, day int, amount int) int ! str
+    card := cards.get(code) else return "unknown card {code}"
+    if day > card.expiry
+        return "{code} expired on day {card.expiry}"
+    if card.balance == 0
+        return "{code} is empty"
+    take := amount.min(card.balance)
+    cards[code].balance -= take
+    take
+
+fn money(c int) str
+    "{c / 100}.{c % 100:02}"
+
+fn main()
+    mut cards := {"GC100": Card(balance: 5000, expiry: 365), "GC200": Card(balance: 2500, expiry: 180), "GC300": Card(balance: 2000, expiry: 400), "GC400": Card(balance: 1500, expiry: 90)}
+    txns := [("GC100", 10, 2500), ("GC100", 40, 3000), ("GC200", 200, 1000), ("GC999", 12, 500), ("GC300", 50, 1999), ("GC100", 60, 100), ("GC400", 30, 700)]
+    for t in txns
+        code, day, amount := t
+        if took := redeem(mut cards, code, day, amount)
+            due := amount - took
+            print("day {day:>3} {code}: took {money(took)}, customer pays {money(due)} more")
+        else err
+            print("day {day:>3} refused: {err}")
+    mut lapsed := 0
+    for code, c in cards
+        print("{code}: {money(c.balance)} left, expires day {c.expiry}")
+        if c.expiry < 365
+            lapsed += c.balance
+    print("unspent on cards lapsing within the year: {money(lapsed)}")
+
+@test fn part_payment()
+    mut m := {"A": Card(balance: 500, expiry: 10)}
+    assert_eq(redeem(mut m, "A", 5, 800) else 0, 500)
+    assert_eq(m["A"].balance, 0)

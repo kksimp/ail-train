@@ -1,0 +1,7 @@
+bench-1  min 18, max 24, rising
+bench-2  no data
+roof     min 26, max 31, falling
+door     min 15, max 15, flat
+pond     no data
+idle: bench-2, pond
+peaks with 0 for idle: [24, 0, 31, 15, 0]

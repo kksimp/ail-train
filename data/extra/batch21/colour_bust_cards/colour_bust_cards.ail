@@ -1,0 +1,56 @@
+## Colour bust: an original push-your-luck game; players draw numbered coloured cards until they reach their
+## own stopping count, but a second card of a colour already held busts the turn and scores nothing.
+
+fn next_state(s int) int
+    (s * 1103515245 + 12345) % 2147483648
+
+struct Shoe
+    cards List[int]
+    pos int
+    seed int
+
+fn Shoe.draw(mut self) int
+    if self.pos == 0
+        self.cards = [c for c in 0..30]
+        mut i := 29
+        while i > 0
+            self.seed = next_state(self.seed)
+            self.cards.swap(i, (self.seed >> 16) % (i + 1))
+            i -= 1
+    c := self.cards[self.pos]
+    self.pos = (self.pos + 1) % 30
+    c
+
+fn main()
+    colours := ['R', 'G', 'B', 'Y', 'P']
+    players := [("Ada", 2), ("Ben", 3), ("Cy", 4), ("Di", 5)]
+    mut shoe := Shoe(cards: [], pos: 0, seed: 12)
+    mut totals := [0, 0, 0, 0]
+    for rnd in 1..=2
+        for p, pl in players.enumerate()
+            name, stop := pl
+            mut held := Set[int]()
+            mut shown := List[str]()
+            mut sum_v := 0
+            mut bust := false
+            while shown.len() < stop
+                c := shoe.draw()
+                col := c / 6
+                shown.push("{colours[col]}{c % 6 + 1}")
+                if not held.add(col)
+                    bust = true
+                    break
+                sum_v += c % 6 + 1
+            pts := if bust then 0 else sum_v
+            totals[p] += pts
+            cards := shown.join(" ")
+            print("round {rnd} {name:<3} {cards:<14} -> {pts}")
+    for p, pl in players.enumerate()
+        print("{pl.0} stops at {pl.1}: {totals[p]} points")
+
+@test fn shoe_cycles()
+    mut sh := Shoe(cards: [], pos: 0, seed: 1)
+    mut seen := Set[int]()
+    for k in 0..30
+        seen.add(sh.draw())
+    assert_eq(seen.len(), 30)

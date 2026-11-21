@@ -1,0 +1,39 @@
+## Parallel axis theorem: I = I_cm + m d^2 moves a moment of inertia to any parallel axis; builds a
+## dumbbell and a rod-and-bob pendulum from parts, and the pendulum's period 2 pi sqrt(I / (M g d)).
+
+PI := 3.141592653589793
+
+struct Part
+    name str
+    mass float
+    i_cm float
+    pos float
+
+fn moment(parts List[Part], axis float) float
+    mut total := 0.0
+    for p in parts
+        d := p.pos - axis
+        total += p.i_cm + p.mass * d * d
+    total
+
+fn main()
+    bar := Part(name: "bar", mass: 2.0, i_cm: 2.0 * 0.6 * 0.6 / 12.0, pos: 0.0)
+    left := Part(name: "left ball", mass: 5.0, i_cm: 0.4 * 5.0 * 0.01, pos: -0.3)
+    right := Part(name: "right ball", mass: 5.0, i_cm: 0.4 * 5.0 * 0.01, pos: 0.3)
+    bell := [bar, left, right]
+    for axis in [0.0, 0.15, 0.3]
+        print("dumbbell about x = {axis}: I = {moment(bell, axis):.4} kg m2")
+    rod := Part(name: "rod", mass: 1.0, i_cm: 1.0 / 12.0, pos: 0.5)
+    bob := Part(name: "bob", mass: 2.0, i_cm: 0.4 * 2.0 * 0.0025, pos: 1.0)
+    pend := [rod, bob]
+    i_pivot := moment(pend, 0.0)
+    total_m := pend.fold(0.0, |acc, p| acc + p.mass)
+    d_cm := pend.fold(0.0, |acc, p| acc + p.mass * p.pos) / total_m
+    t := 2.0 * PI * (i_pivot / (total_m * 9.81 * d_cm)).sqrt()
+    simple := 2.0 * PI * (1.0 / 9.81).sqrt()
+    print("pendulum: I {i_pivot:.4} kg m2, centre of mass {d_cm:.4} m below the pivot")
+    print("period {t:.4} s, a simple 1 m pendulum {simple:.4} s")
+
+@test fn point_mass()
+    p := Part(name: "dot", mass: 2.0, i_cm: 0.0, pos: 3.0)
+    assert_eq(moment([p], 0.0), 18.0)

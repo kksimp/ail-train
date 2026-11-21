@@ -1,0 +1,25 @@
+## Aliasing: sampling at fs folds any frequency f onto |f - k fs| in 0..fs / 2, so tones above the Nyquist
+## limit masquerade as lower ones; a filmed wheel's spokes do the same and can seem to turn backwards.
+
+fn alias(f int, fs int) int
+    r := f % fs
+    r.min(fs - r)
+
+fn main()
+    fs := 1000
+    for f in [100, 400, 600, 900, 1100, 1900, 2350]
+        a := alias(f, fs)
+        note := if a == f then "passes as is" else "folds to {a} Hz"
+        print("{f:>4} Hz sampled at {fs} Hz: {note}")
+    fps := 24
+    spokes := 12
+    for rpm in [60, 100, 115, 125, 240]
+        spoke_hz100 := rpm * spokes * 100 / 60
+        r := spoke_hz100 % (fps * 100)
+        seen := if r <= fps * 50 then r else r - fps * 100
+        dir := if seen > 0 then "forwards" elif seen < 0 then "backwards" else "frozen in place"
+        print("wheel at {rpm:>3} rpm: spokes pass at {spoke_hz100 / 100}.{spoke_hz100 % 100:02} Hz, film shows {dir}")
+
+@test fn folding()
+    assert_eq(alias(600, 1000), 400)
+    assert_eq(alias(1100, 1000), 100)

@@ -1,0 +1,24 @@
+## Rayleigh scattering: air scatters light as 1 / lambda^4, so blue scatters about 4 times more than
+## red; sunlight crossing an air mass m keeps exp(-tau m) with tau = 0.1 (550 / lambda)^4, so sunsets go red.
+
+fn tau(nm float) float
+    r := 550.0 / nm
+    0.1 * r * r * r * r
+
+fn kept(nm float, air_mass float) float
+    (-tau(nm) * air_mass).exp()
+
+fn main()
+    colours := [("violet", 400.0), ("blue", 450.0), ("green", 530.0), ("yellow", 580.0), ("red", 680.0)]
+    for c in colours
+        name, nm := c
+        ratio := tau(nm) / tau(680.0)
+        noon := kept(nm, 1.0) * 100.0
+        dusk := kept(nm, 38.0) * 100.0
+        print("{name:<7} {nm:.0} nm: scatters {ratio:.2}x red, sun keeps {noon:.1}% at noon, {dusk:.3}% at sunset")
+    b := kept(450.0, 38.0)
+    r := kept(680.0, 38.0)
+    print("at sunset red outweighs blue {r / b:.0} to 1")
+
+@test fn reference()
+    assert_eq(tau(550.0), 0.1)

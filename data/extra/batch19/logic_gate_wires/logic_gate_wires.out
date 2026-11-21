@@ -1,0 +1,4 @@
+12 gates
+part 1: 5 + 3 gives z = 8
+part 2: 24 of 64 sums are wrong
+first wrong sums: 0+2=6 0+3=7 0+6=10 0+7=11 1+2=7 1+6=11

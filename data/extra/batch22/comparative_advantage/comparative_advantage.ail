@@ -1,0 +1,35 @@
+## Comparative advantage: North makes both cloth and wine in fewer hours than South, yet its opportunity cost
+## is lower only for cloth; when North leans to cloth and South makes only wine, the pair ends with more wine.
+
+struct Land
+    name str
+    cloth int
+    wine int
+
+fn opportunity(l Land) float
+    l.cloth.to_float() / l.wine.to_float()
+
+fn main()
+    hours := 600
+    lands := [Land(name: "North", cloth: 2, wine: 3), Land(name: "South", cloth: 6, wine: 4)]
+    for l in lands
+        oc := opportunity(l)
+        inv := 1.0 / oc
+        print("{l.name}: a cloth costs {oc:.2} wine, a wine costs {inv:.2} cloth")
+    mut cloth := 0
+    mut wine := 0
+    for l in lands
+        cloth += hours / 2 / l.cloth
+        wine += hours / 2 / l.wine
+    print("even split: {cloth} cloth, {wine} wine")
+    north := lands[0]
+    south := lands[1]
+    spec_wine := hours / south.wine
+    north_cloth := cloth
+    left := hours - north_cloth * north.cloth
+    north_wine := left / north.wine
+    print("specialised: North {north_cloth} cloth and {north_wine} wine, South {spec_wine} wine")
+    print("same cloth, wine up from {wine} to {spec_wine + north_wine}")
+
+@test fn ratio()
+    assert_eq(opportunity(Land(name: "x", cloth: 2, wine: 4)), 0.5)

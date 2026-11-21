@@ -1,0 +1,28 @@
+## Cyclotron motion: a charge moving across a magnetic field circles with radius r = m v / (q B), and the
+## period 2 pi m / (q B) does not depend on speed, which is why a cyclotron can use one fixed frequency.
+
+PI := 3.141592653589793
+E := 0.0000000000000000001602
+AMU := 0.000000000000000000000000001661
+
+struct Particle
+    name str
+    mass float
+    charge float
+
+fn main()
+    b := 1.5
+    ps := [Particle(name: "proton", mass: 1.007 * AMU, charge: E), Particle(name: "deuteron", mass: 2.014 * AMU, charge: E), Particle(name: "alpha", mass: 4.002 * AMU, charge: 2.0 * E), Particle(name: "carbon-12 ion", mass: 12.0 * AMU, charge: 6.0 * E)]
+    for kev in [100.0, 1000.0]
+        print("{kev:.0} keV in {b} T:")
+        for p in ps
+            joules := kev * 1000.0 * E
+            v := (2.0 * joules / p.mass).sqrt()
+            r := p.mass * v / (p.charge * b)
+            mhz := p.charge * b / (2.0 * PI * p.mass) / 1000000.0
+            print("  {p.name:<14} v {v / 1000000.0:>6.2} Mm/s, radius {r * 100.0:>6.2} cm, {mhz:.2} MHz")
+
+@test fn same_ratio_same_period()
+    a := 2.0 * PI * 4.0 / (2.0 * 1.5)
+    b := 2.0 * PI * 2.0 / (1.0 * 1.5)
+    assert((a - b).abs() < 0.000001)

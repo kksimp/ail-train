@@ -1,0 +1,29 @@
+## Seat pricing models: graduated tiers charge each seat at its own tier (1-10 at 15, 11-50 at 12, then 9),
+## while volume tiers charge every seat at the tier the total reaches, which makes 51 seats cheaper than 45.
+
+fn tier_price(n int) int
+    if n <= 10 then 1500 elif n <= 50 then 1200 else 900
+
+fn graduated(seats int) int
+    mut total := 0
+    for s in 1..=seats
+        total += tier_price(s)
+    total
+
+fn volume(seats int) int
+    seats * tier_price(seats)
+
+fn main()
+    for n in [8, 10, 11, 40, 45, 50, 51, 120]
+        g := graduated(n)
+        v := volume(n)
+        print("{n:>3} seats: graduated {g / 100:>5}, volume {v / 100:>5}")
+    mut cheapest := 45
+    for n in 45..=60
+        if volume(n) < volume(cheapest)
+            cheapest = n
+    print("for at least 45 seats, volume pricing is cheapest at {cheapest} seats")
+
+@test fn graduated_steps()
+    assert_eq(graduated(11), 16200)
+    assert_eq(volume(51), 45900)

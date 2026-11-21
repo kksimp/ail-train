@@ -1,0 +1,7 @@
+thermostat set to 20
+thermostat set to 21
+thermostat set to 18
+now 18 after 4 versions
+undo: back to 21
+version 2 was 20, version 9 is -1
+theme light, undo results true false

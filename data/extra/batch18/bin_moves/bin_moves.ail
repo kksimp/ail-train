@@ -1,0 +1,35 @@
+## Bin locations: a warehouse `Map` from bin code to a `Bin` struct; `m[k].qty += n` changes an
+## entry in place, while `it := m[k]` is a copy that must be stored back with `m[k] = it`.
+
+struct Bin
+    sku str
+    qty int
+    cap int
+
+fn main()
+    mut bins := {
+        "A-01": Bin(sku: "bolt-m6", qty: 120, cap: 200),
+        "A-02": Bin(sku: "nut-m6", qty: 40, cap: 200),
+        "B-07": Bin(sku: "washer", qty: 500, cap: 600),
+    }
+    bins["A-02"].qty += 100
+    mut copy := bins["A-01"]
+    copy.qty = 0
+    a01 := bins["A-01"].qty
+    print("copy emptied, A-01 keeps {a01}")
+    mut moved := bins["B-07"]
+    take := 150
+    moved.qty -= take
+    bins["B-07"] = moved
+    bins["C-03"] = Bin(sku: "washer", qty: take, cap: 300)
+    for code, b in bins
+        pct := b.qty * 100 / b.cap
+        print("{code} {b.sku:<8} {b.qty:>4}/{b.cap} ({pct}% full)")
+    washers := bins.values().filter(|b| b.sku == "washer").map(|b| b.qty).sum()
+    print("washers in all bins: {washers}, copy has {copy.qty}")
+
+@test fn copy_is_independent()
+    mut m := {"x": Bin(sku: "s", qty: 5, cap: 9)}
+    mut c := m["x"]
+    c.qty = 1
+    assert_eq(m["x"].qty, 5)

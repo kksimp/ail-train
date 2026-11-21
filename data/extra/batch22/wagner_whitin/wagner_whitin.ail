@@ -1,0 +1,42 @@
+## Wagner-Whitin lot sizing: the cheapest plan to meet known demands, where a batch made in period j covers
+## periods j..t at one setup cost plus holding per unit per period; dynamic programming over the last batch.
+
+fn plan(demand List[int], setup int, hold int) List[int]
+    n := demand.len()
+    mut best := [0]
+    mut start := [0]
+    for t in 1..=n
+        mut cost := -1
+        mut from := 0
+        for j in 1..=t
+            mut c := best[j - 1] + setup
+            for k in j..=t
+                c += (k - j) * hold * demand[k - 1]
+            if cost < 0 or c < cost
+                cost = c
+                from = j
+        best.push(cost)
+        start.push(from)
+    mut lots := [0 for _ in 0..n]
+    mut back := n
+    while back > 0
+        j := start[back]
+        mut q := 0
+        for k in j..=back
+            q += demand[k - 1]
+        lots[j - 1] = q
+        back = j - 1
+    lots.push(best[n])
+    lots
+
+fn main()
+    demand := [60, 100, 10, 200, 120, 15]
+    out := plan(demand, 150, 1)
+    n := demand.len()
+    for i in 0..n
+        if out[i] > 0
+            print("period {i + 1}: make {out[i]}")
+    print("best cost {out[n]}, against {150 * n} for a batch every period")
+
+@test fn small_case()
+    assert_eq(plan([10, 10], 100, 1), [20, 0, 110])

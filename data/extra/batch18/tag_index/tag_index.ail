@@ -1,0 +1,36 @@
+## Tag index: a blog builds a `Map` from each tag to the posts carrying it with `m.push(k, x)`
+## (a missing tag starts an empty list); a query for two tags intersects their posts as sets.
+
+struct Post
+    id int
+    title str
+    tags List[str]
+
+fn main()
+    posts := [
+        Post(id: 1, title: "Sourdough basics", tags: ["baking", "bread"]),
+        Post(id: 2, title: "Rye starter", tags: ["bread", "fermenting"]),
+        Post(id: 3, title: "Kimchi at home", tags: ["fermenting", "vegetables"]),
+        Post(id: 4, title: "Focaccia art", tags: ["baking", "bread", "photos"]),
+        Post(id: 5, title: "Pickled onions", tags: ["fermenting", "vegetables"]),
+    ]
+    mut index := Map[str, List[int]]()
+    for p in posts
+        for t in p.tags
+            index.push(t, p.id)
+    for tag in index.keys().sorted()
+        print("{tag:<11} {index[tag]}")
+    a := {x for x in index.get_or("bread", List[int]())}
+    b := {x for x in index.get_or("fermenting", List[int]())}
+    both := a.intersect(b).sorted()
+    print("bread and fermenting: {both}")
+    either := a.union(b).len()
+    print("bread or fermenting: {either} posts")
+    missing := index.get("cheese") else List[int]()
+    print("cheese: {missing.len()} posts")
+
+@test fn push_starts_list()
+    mut m := Map[str, List[int]]()
+    m.push("k", 1)
+    m.push("k", 2)
+    assert_eq(m["k"], [1, 2])

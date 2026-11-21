@@ -1,0 +1,58 @@
+## Media library: books and films implement a `Media` trait (books read at two minutes a page)
+## with a default `label`; the mixed list is sorted by minutes and a 300-minute flight is filled.
+
+trait Media
+    fn title(self) str
+    fn minutes(self) int
+    fn kind(self) str
+    fn label(self) str
+        "{kind()} '{title()}' ({minutes()} min)"
+
+struct Book
+    name str
+    pages int
+
+struct Film
+    name str
+    length int
+
+impl Media for Book
+    fn title(self) str
+        name
+    fn minutes(self) int
+        pages * 2
+    fn kind(self) str
+        "book"
+
+impl Media for Film
+    fn title(self) str
+        name
+    fn minutes(self) int
+        length
+    fn kind(self) str
+        "film"
+
+fn main()
+    mut shelf := List[any Media]()
+    shelf.push(Book(name: "Piranesi", pages: 272))
+    shelf.push(Film(name: "Arrival", length: 116))
+    shelf.push(Book(name: "Tech Essays", pages: 67))
+    shelf.push(Film(name: "Heat", length: 170))
+    shelf.push(Book(name: "Novella", pages: 60))
+    shelf.push(Film(name: "Paprika", length: 80))
+    ordered := shelf.sorted(by: |m| m.minutes())
+    for m in ordered
+        print(m.label())
+    mut used := 0
+    mut picks := List[str]()
+    for m in ordered
+        if used + m.minutes() <= 300
+            used += m.minutes()
+            picks.push(m.title())
+    joined := picks.join(", ")
+    print("flight of 300 min: {joined} ({used} min)")
+    all_min := shelf.map(|m| m.minutes()).sum()
+    print("whole library: {all_min / 60} h {all_min % 60} min")
+
+@test fn book_minutes()
+    assert_eq(Book(name: "x", pages: 10).minutes(), 20)

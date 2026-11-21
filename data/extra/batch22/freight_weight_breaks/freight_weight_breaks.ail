@@ -1,0 +1,30 @@
+## Freight weight breaks: a part-load is rated per 100 lb at a cheaper rate the heavier it is; when declaring
+## the weight of the next break up costs less than the actual weight, that "deficit weight" charge is used.
+
+fn rate(weight int) int
+    if weight < 500 then 4000 elif weight < 1000 then 3200 elif weight < 2000 then 2500 else 2000
+
+fn money(c int) str
+    cents := c % 100
+    "{c / 100}.{cents:02}"
+
+fn best_charge(weight int) List[int]
+    mut best := (weight * rate(weight) / 100).max(9500)
+    mut billed := weight
+    for brk in [500, 1000, 2000]
+        if brk > weight
+            c := brk * rate(brk) / 100
+            if c < best
+                best = c
+                billed = brk
+    [best, billed]
+
+fn main()
+    for w in [180, 350, 450, 820, 950, 1800, 1900, 2500]
+        actual := (w * rate(w) / 100).max(9500)
+        b := best_charge(w)
+        note := if b[1] == w then "" else " as {b[1]} lb"
+        print("{w:>4} lb: actual {money(actual):>7}, charged {money(b[0]):>7}{note}")
+
+@test fn deficit()
+    assert_eq(best_charge(450), [16000, 500])

@@ -1,0 +1,59 @@
+## Part sorting rules: named workflows send a part (length, width, height, grade) on by the first matching
+## rule, ending at A (accept) or R; one range-splitting walk scores single parts (part 1) and all values 1..4000 (part 2).
+
+fn field(name str) int
+    match name
+        "l" => 0
+        "w" => 1
+        "h" => 2
+        _ => 3
+
+fn count(flows Map[str, List[str]], at str, lo List[int], hi List[int]) int
+    if at == "R"
+        return 0
+    if at == "A"
+        mut p := 1
+        for i in 0..4
+            p *= hi[i] - lo[i] + 1
+        return p
+    mut total := 0
+    mut a := lo
+    mut b := hi
+    for rule in flows[at]
+        if not rule.contains(":")
+            return total + count(flows, rule, a, b)
+        cond := rule.split(":")
+        f := field(cond[0].slice(0, 1))
+        n := cond[0].slice(2).to_int() else 0
+        mut ya := a
+        mut yb := b
+        if cond[0].contains("<")
+            yb[f] = yb[f].min(n - 1)
+            a[f] = a[f].max(n)
+        else
+            ya[f] = ya[f].max(n + 1)
+            b[f] = b[f].min(n)
+        if ya[f] <= yb[f]
+            total += count(flows, cond[1], ya, yb)
+        if a[f] > b[f]
+            return total
+    total
+
+fn main()
+    lines := ["in l<1500:low g>2600:A mid", "low w>3000:R h<800:A A", "mid h>2000:top R", "top l>2500:A w<1000:R A"]
+    mut flows := Map[str, List[str]]()
+    for l in lines
+        words := l.split(" ")
+        flows[words[0]] = words.slice(1)
+    parts := [[1200, 3500, 700, 100], [2000, 900, 2500, 300], [3000, 500, 2100, 2700], [1800, 1800, 1500, 1500], [2600, 1200, 3900, 400]]
+    mut sum_ok := 0
+    for p in parts
+        ok := count(flows, "in", p, p)
+        print("part {p}: {ok} way(s) to A")
+        sum_ok += ok * p.sum()
+    print("part 1: accepted ratings sum to {sum_ok}")
+    combos := count(flows, "in", [1, 1, 1, 1], [4000, 4000, 4000, 4000])
+    print("part 2: {combos} accepted combinations")
+
+@test fn names()
+    assert_eq(field("h"), 2)

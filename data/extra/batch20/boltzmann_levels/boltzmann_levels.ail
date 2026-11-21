@@ -1,0 +1,31 @@
+## Boltzmann populations: an upper energy level holds exp(-dE / kT) as many particles as the lower one,
+## shown as a power of ten when tiny; a level is 1% filled once T = dE / (k ln 100).
+
+K_EV := 0.00008617
+
+fn log10_ratio(gap_ev float, t float) float
+    -gap_ev / (K_EV * t) / 2.302585092994046
+
+fn show(gap_ev float, t float) str
+    e := log10_ratio(gap_ev, t)
+    if e > -4.0
+        ten := 10.0
+        "{ten.pow(e) * 100.0:.3}%"
+    else
+        "10^{e:.1}"
+
+fn main()
+    gaps := [("molecular rotation", 0.001), ("molecular vibration", 0.1), ("sodium yellow line", 2.1)]
+    temps := [77.0, 300.0, 1000.0, 6000.0]
+    for g in gaps
+        name, gap := g
+        mut cells := List[str]()
+        for t in temps
+            cells.push("{t:.0} K {show(gap, t)}")
+        hundred := 100.0
+        warm := gap / (K_EV * hundred.ln())
+        shown := cells.join(", ")
+        print("{name} ({gap} eV): {shown}; 1% at {warm:.0} K")
+
+@test fn same_energy()
+    assert(log10_ratio(0.0, 300.0).abs() < 0.000001)

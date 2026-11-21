@@ -1,0 +1,12 @@
+day  10 GC100: took 25.00, customer pays 0.00 more
+day  40 GC100: took 25.00, customer pays 5.00 more
+day 200 refused: GC200 expired on day 180
+day  12 refused: unknown card GC999
+day  50 GC300: took 19.99, customer pays 0.00 more
+day  60 refused: GC100 is empty
+day  30 GC400: took 7.00, customer pays 0.00 more
+GC100: 0.00 left, expires day 365
+GC200: 25.00 left, expires day 180
+GC300: 0.01 left, expires day 400
+GC400: 8.00 left, expires day 90
+unspent on cards lapsing within the year: 33.00

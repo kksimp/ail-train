@@ -1,0 +1,6 @@
+period 1: make 40 for periods 1-1, cost 120
+period 2: make 90 for periods 2-3, cost 160
+period 4: make 60 for periods 4-4, cost 120
+period 5: make 110 for periods 5-6, cost 180
+period 7: make 50 for periods 7-7, cost 120
+Silver-Meal 700, every period 840, every second period 800

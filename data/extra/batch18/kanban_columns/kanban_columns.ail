@@ -1,0 +1,47 @@
+## Kanban columns: cards are sorted by their column's position with a stable `sorted(by:)`, so
+## cards in one column keep the order they were added; moving cards and sorting again redraws it.
+
+enum Column
+    Todo
+    Doing
+    Review
+    Done
+
+fn Column.rank(self) int
+    match self
+        Todo => 0
+        Doing => 1
+        Review => 2
+        Done => 3
+
+struct Card
+    id int
+    title str
+    col Column
+
+fn draw(cards List[Card])
+    for c in cards.sorted(by: |k| k.col.rank())
+        print("  {c.col.name():<6} #{c.id} {c.title}")
+
+fn main()
+    mut cards := [
+        Card(id: 1, title: "login page", col: Column.Doing),
+        Card(id: 2, title: "fix typo", col: Column.Done),
+        Card(id: 3, title: "rate limits", col: Column.Todo),
+        Card(id: 4, title: "dark mode", col: Column.Doing),
+        Card(id: 5, title: "export csv", col: Column.Todo),
+    ]
+    print("board:")
+    draw(cards)
+    for mut c in cards
+        if c.id == 1
+            c.col = Column.Review
+        elif c.id == 5
+            c.col = Column.Doing
+    print("after moves:")
+    draw(cards)
+    open := cards.count(|c| c.col != Column.Done)
+    print("{open} cards open")
+
+@test fn rank_order()
+    assert(Column.Todo.rank() < Column.Done.rank())

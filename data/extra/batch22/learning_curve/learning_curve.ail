@@ -1,0 +1,23 @@
+## Learning curve (Wright): each doubling of the units built cuts the hours per unit to a fixed share, so unit n takes
+## T1 x n^b with b = log2(rate); an 80% and a 90% curve are compared, with cumulative hours for the first 10 units.
+
+fn unit_hours(first float, rate float, n int) float
+    two := 2.0
+    b := rate.ln() / two.ln()
+    first * n.to_float().pow(b)
+
+fn main()
+    for n in [1, 2, 3, 5, 8, 10, 20]
+        a := unit_hours(100.0, 0.8, n)
+        b := unit_hours(100.0, 0.9, n)
+        print("unit {n:>2}: {a:>6.2} h at 80%, {b:>6.2} h at 90%")
+    for pct in [80, 90]
+        rate := pct.to_float() / 100.0
+        mut total := 0.0
+        for n in 1..=10
+            total += unit_hours(100.0, rate, n)
+        avg := total / 10.0
+        print("{pct}% curve: first 10 units {total:.1} h, average {avg:.1} h")
+
+@test fn doubling()
+    assert((unit_hours(100.0, 0.8, 2) - 80.0).abs() < 0.000001)

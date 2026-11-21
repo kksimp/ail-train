@@ -1,0 +1,26 @@
+## Price indexes: a basket's cost at this year's prices over its cost at last year's, weighted by last year's
+## quantities (Laspeyres) or this year's (Paasche); Fisher's index is the geometric mean of the two.
+
+struct Item
+    name str
+    p0 int
+    q0 int
+    p1 int
+    q1 int
+
+fn index(num int, den int) float
+    num.to_float() / den.to_float() * 100.0
+
+fn main()
+    basket := [Item(name: "bread", p0: 250, q0: 50, p1: 270, q1: 48), Item(name: "milk", p0: 120, q0: 80, p1: 125, q1: 85), Item(name: "coffee", p0: 900, q0: 6, p1: 1100, q1: 4), Item(name: "apples", p0: 300, q0: 20, p1: 280, q1: 26), Item(name: "fuel", p0: 180, q0: 100, p1: 210, q1: 90)]
+    for it in basket
+        rel := index(it.p1, it.p0)
+        print("{it.name:<7} {it.p0:>4} -> {it.p1:>4}  ({rel:.1})")
+    las := index(basket.fold(0, |a, i| a + i.p1 * i.q0), basket.fold(0, |a, i| a + i.p0 * i.q0))
+    paa := index(basket.fold(0, |a, i| a + i.p1 * i.q1), basket.fold(0, |a, i| a + i.p0 * i.q1))
+    fisher := (las * paa).sqrt()
+    print("Laspeyres {las:.2}, Paasche {paa:.2}, Fisher {fisher:.2}")
+    print("shoppers who switched goods saw {las - paa:.2} points less inflation")
+
+@test fn unchanged_prices()
+    assert_eq(index(4500, 4500), 100.0)

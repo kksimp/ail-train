@@ -1,0 +1,42 @@
+## Record watch: a generic `Record[T]` keeps the best value seen so far for any type with
+## `Ord` and says when an offer beats it; used on bench press kilos and on (kg, reps) lifts.
+
+struct Record[T]
+    best T?
+    beaten int
+
+fn Record.empty() Self
+    Record(best: none, beaten: 0)
+
+fn Record[T Ord].offer(mut self, x T) bool
+    if b := self.best
+        if x <= b
+            return false
+    self.best = x
+    self.beaten += 1
+    true
+
+struct Lift
+    kg int
+    reps int
+
+impl Ord for Lift
+
+fn main()
+    mut bench := Record[int].empty()
+    for day, kg in [60, 65, 62, 70, 70, 72].enumerate()
+        note := if bench.offer(kg) then "new record" else "-"
+        print("day {day + 1}: {kg} kg {note}")
+    print("records set: {bench.beaten}, best {bench.best else 0} kg")
+    mut squat := Record[Lift].empty()
+    lifts := [Lift(kg: 100, reps: 5), Lift(kg: 100, reps: 6), Lift(kg: 95, reps: 10), Lift(kg: 105, reps: 3)]
+    for l in lifts
+        if squat.offer(l)
+            print("squat record: {l.kg} kg x {l.reps}")
+    if b := squat.best
+        print("best squat {b.kg} x {b.reps} after {squat.beaten} records")
+
+@test fn ties_do_not_count()
+    mut r := Record[int].empty()
+    assert(r.offer(5))
+    assert_eq(r.offer(5), false)

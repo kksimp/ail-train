@@ -1,0 +1,36 @@
+## Price guess: a game-show player guesses prices between 1 and 1000 by halving the range; each
+## guess is judged with `guess.cmp(price)`, matching `Less`, `Greater` and `Equal` from `Ordering`.
+
+fn play(item str, price int) int
+    mut lo := 1
+    mut hi := 1000
+    mut steps := List[str]()
+    mut tries := 0
+    while lo <= hi
+        guess := (lo + hi) / 2
+        tries += 1
+        match guess.cmp(price)
+            Less =>
+                steps.push("{guess} up")
+                lo = guess + 1
+            Greater =>
+                steps.push("{guess} down")
+                hi = guess - 1
+            Equal =>
+                steps.push("{guess} yes")
+                break
+    joined := steps.join(", ")
+    print("{item}: {joined}")
+    tries
+
+fn main()
+    items := [("toaster", 39), ("bicycle", 640), ("headphones", 199), ("sofa", 999)]
+    mut total := 0
+    for it in items
+        name, price := it
+        total += play(name, price)
+    print("{total} guesses for {items.len()} items")
+
+@test fn cmp_ints()
+    low := 3
+    assert_eq(low.cmp(5), Ordering.Less)

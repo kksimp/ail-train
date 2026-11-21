@@ -1,0 +1,10 @@
+100 keV in 1.5 T:
+  proton         v   4.38 Mm/s, radius   3.05 cm, 22.87 MHz
+  deuteron       v   3.09 Mm/s, radius   4.31 cm, 11.43 MHz
+  alpha          v   2.20 Mm/s, radius   3.04 cm, 11.51 MHz
+  carbon-12 ion  v   1.27 Mm/s, radius   1.75 cm, 11.51 MHz
+1000 keV in 1.5 T:
+  proton         v  13.84 Mm/s, radius   9.63 cm, 22.87 MHz
+  deuteron       v   9.79 Mm/s, radius  13.62 cm, 11.43 MHz
+  alpha          v   6.94 Mm/s, radius   9.60 cm, 11.51 MHz
+  carbon-12 ion  v   4.01 Mm/s, radius   5.54 cm, 11.51 MHz

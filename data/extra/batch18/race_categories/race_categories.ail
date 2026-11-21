@@ -1,0 +1,38 @@
+## Race categories: fun-run finishers are sorted with a tuple key (category, seconds), so each
+## age category comes out in finishing order; places restart in every category.
+
+struct Finisher
+    name str
+    cat str
+    secs int
+
+fn clock(s int) str
+    rest := s % 60
+    "{s / 60}:{rest:02}"
+
+fn main()
+    field := [
+        Finisher(name: "Rosa", cat: "V40", secs: 1512),
+        Finisher(name: "Tom", cat: "Open", secs: 1288),
+        Finisher(name: "Ines", cat: "V50", secs: 1730),
+        Finisher(name: "Kofi", cat: "Open", secs: 1342),
+        Finisher(name: "Lena", cat: "V40", secs: 1460),
+        Finisher(name: "Paul", cat: "V50", secs: 1655),
+        Finisher(name: "Ade", cat: "Open", secs: 1199),
+    ]
+    ordered := field.sorted(by: |f| (f.cat, f.secs))
+    mut current := ""
+    mut place := 0
+    for f in ordered
+        if f.cat != current
+            current = f.cat
+            place = 0
+            print("== {current}")
+        place += 1
+        print("{place}. {f.name:<5} {clock(f.secs)}")
+    if win := field.min(by: |f| f.secs)
+        print("fastest overall: {win.name} in {clock(win.secs)}")
+
+@test fn tuple_key_orders_category_first()
+    xs := [("b", 1), ("a", 9), ("a", 2)]
+    assert_eq(xs.sorted(by: |t| (t.0, t.1)), [("a", 2), ("a", 9), ("b", 1)])

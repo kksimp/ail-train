@@ -1,0 +1,50 @@
+## Returns grading: each return is graded by days since purchase and condition into resell (full value),
+## refurbish (70% less a 5 repair), liquidate (20%) or refuse; the refund paid less the value recovered is the cost.
+
+enum Grade
+    Resell
+    Refurbish
+    Liquidate
+    Refuse
+
+struct Return
+    item str
+    price int
+    days int
+    opened bool
+    works bool
+
+fn grade(r Return) Grade
+    if r.days > 30
+        return Grade.Refuse
+    if not r.opened
+        return Grade.Resell
+    if r.works then Grade.Refurbish else Grade.Liquidate
+
+fn recovered(g Grade, price int) int
+    match g
+        Resell => price
+        Refurbish => (price * 70 / 100 - 5).max(0)
+        Liquidate => price * 20 / 100
+        Refuse => 0
+
+fn main()
+    returns := [Return(item: "kettle", price: 40, days: 5, opened: true, works: true), Return(item: "headset", price: 90, days: 12, opened: false, works: true), Return(item: "drill", price: 120, days: 20, opened: true, works: false), Return(item: "jacket", price: 75, days: 45, opened: false, works: true), Return(item: "blender", price: 60, days: 28, opened: true, works: true), Return(item: "speaker", price: 150, days: 3, opened: true, works: false)]
+    mut refunds := 0
+    mut back := 0
+    mut counts := Map[str, int]()
+    for r in returns
+        g := grade(r)
+        got := recovered(g, r.price)
+        counts[g.name()] += 1
+        if g != Grade.Refuse
+            refunds += r.price
+            back += got
+        print("{r.item:<8} {r.price:>4}: {g}, recovers {got}")
+    print("refunded {refunds}, recovered {back}, cost of returns {refunds - back}")
+    for name, n in counts
+        print("{name}: {n}")
+
+@test fn late_refused()
+    r := Return(item: "x", price: 10, days: 31, opened: false, works: true)
+    assert_eq(grade(r), Grade.Refuse)

@@ -1,0 +1,28 @@
+## Photo print sizes: a 6000 x 4000 pixel photo is cropped to each print's shape, and the pixels per inch
+## along the long edge set the quality: 300 or more is excellent, 200 or more good, below that poor.
+
+fn crop(long int, short int) List[int]
+    if long * 4000 >= short * 6000
+        return [6000, 6000 * short / long]
+    [4000 * long / short, 4000]
+
+fn quality(ppi int) str
+    if ppi >= 300 then "excellent" elif ppi >= 200 then "good" else "poor"
+
+fn main()
+    prints := [(6, 4), (7, 5), (10, 8), (12, 8), (15, 10), (20, 16), (30, 20), (36, 24)]
+    mut largest := ""
+    for p in prints
+        long, short := p
+        c := crop(long, short)
+        ppi := c[0] / long
+        kept := c[0] * c[1] * 100 / 24000000
+        q := quality(ppi)
+        if ppi >= 200
+            largest = "{long}x{short}"
+        print("{long:>2}x{short:<2} in: crop {c[0]}x{c[1]} ({kept}% kept), {ppi} ppi, {q}")
+    print("largest good print: {largest}")
+
+@test fn ten_by_eight()
+    assert_eq(crop(10, 8), [5000, 4000])
+    assert_eq(quality(250), "good")

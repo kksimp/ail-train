@@ -1,0 +1,29 @@
+## Reading groups: pupils sorted by reading level, highest first, are cut into the fewest groups of at most
+## five with sizes as even as possible (larger groups first), and each group's level range is shown.
+
+fn sizes(n int, most int) List[int]
+    groups := (n + most - 1) / most
+    base := n / groups
+    extra := n % groups
+    mut out := List[int]()
+    for i in 0..groups
+        bonus := if i < extra then 1 else 0
+        out.push(base + bonus)
+    out
+
+fn main()
+    pupils := [("Abe", 14), ("Bea", 9), ("Cal", 17), ("Dev", 11), ("Ema", 12), ("Fin", 6), ("Gia", 15), ("Hal", 9), ("Ira", 13), ("Jon", 8), ("Kim", 16), ("Lou", 10), ("Max", 12), ("Nia", 7)]
+    ranked := pupils.sorted(by: |p| (-p.1, p.0))
+    mut at := 0
+    for g, size in sizes(ranked.len(), 5).enumerate()
+        members := ranked.slice(at, at + size)
+        names := members.map(|p| p.0).join(", ")
+        hi := members[0].1
+        lo := members[members.len() - 1].1
+        print("group {g + 1} (levels {lo}-{hi}): {names}")
+        at += size
+    print("{ranked.len()} pupils in {sizes(ranked.len(), 5).len()} groups")
+
+@test fn even_sizes()
+    assert_eq(sizes(14, 5), [5, 5, 4])
+    assert_eq(sizes(10, 5), [5, 5])

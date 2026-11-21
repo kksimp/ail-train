@@ -1,0 +1,26 @@
+## Glowfish spawn: each glowfish counts down a timer and at zero resets to 4 and spawns a newborn at 6;
+## keeping one counter per timer value (not one per fish) gives the school size after 30 and after 150 days.
+
+fn grow(start List[int], days int) int
+    mut buckets := [0, 0, 0, 0, 0, 0, 0]
+    for t in start
+        buckets[t] += 1
+    for _ in 0..days
+        born := buckets[0]
+        for i in 0..6
+            buckets[i] = buckets[i + 1]
+        buckets[6] = born
+        buckets[4] += born
+    buckets.sum()
+
+fn main()
+    school := [3, 1, 4, 1, 2, 0, 4]
+    print("{school.len()} glowfish at the start")
+    for d in [5, 10, 20]
+        print("after {d} days: {grow(school, d)}")
+    print("part 1: after 30 days: {grow(school, 30)}")
+    print("part 2: after 150 days: {grow(school, 150)}")
+
+@test fn first_spawn()
+    assert_eq(grow([0], 1), 2)
+    assert_eq(grow([0], 5), 2)

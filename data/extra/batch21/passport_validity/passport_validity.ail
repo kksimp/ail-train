@@ -1,0 +1,39 @@
+## Passport validity: some countries want a passport valid for three or six months past the return date;
+## the months are added to the return date (clamping the day to the month's end) and compared as yyyymmdd.
+
+fn month_len(y int, m int) int
+    if m == 2
+        return if (y % 4 == 0 and y % 100 != 0) or y % 400 == 0 then 29 else 28
+    if m == 4 or m == 6 or m == 9 or m == 11 then 30 else 31
+
+fn add_months(d List[int], k int) List[int]
+    t := d[0] * 12 + d[1] - 1 + k
+    y := t / 12
+    m := t % 12 + 1
+    [y, m, d[2].min(month_len(y, m))]
+
+fn key(d List[int]) int
+    d[0] * 10000 + d[1] * 100 + d[2]
+
+fn show(d List[int]) str
+    "{d[0]}-{d[1]:02}-{d[2]:02}"
+
+fn main()
+    expiry := {"Ruth": [2027, 2, 28], "Sean": [2026, 12, 31], "Tara": [2027, 8, 31]}
+    rule := {"Thailand": 6, "Norway": 3, "Egypt": 6, "Ireland": 0, "Japan": 0}
+    trips := [("Ruth", "Thailand", [2026, 8, 31]), ("Ruth", "Norway", [2026, 11, 30]), ("Sean", "Egypt", [2026, 7, 4]), ("Sean", "Ireland", [2026, 12, 20]), ("Tara", "Japan", [2027, 8, 31]), ("Tara", "Egypt", [2027, 3, 31])]
+    mut renew := Set[str]()
+    for t in trips
+        who, country, back := t
+        need := add_months(back, rule[country])
+        has := expiry[who]
+        ok := key(has) >= key(need)
+        verdict := if ok then "ok" else "RENEW"
+        if not ok
+            renew.add(who)
+        print("{who} to {country}: back {show(back)}, needs {show(need)}, expires {show(has)}: {verdict}")
+    names := renew.sorted().join(", ")
+    print("renew before travelling: {names}")
+
+@test fn clamp_day()
+    assert_eq(show(add_months([2026, 8, 31], 6)), "2027-02-28")

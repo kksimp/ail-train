@@ -1,0 +1,44 @@
+## Polymer pair insertion: every step inserts a unit between each adjacent pair by a rule table; counting pairs
+## instead of building the chain gives the most common minus the least common unit after 10 and after 30 steps.
+
+fn grow(template str, rules Map[str, str], steps int) int
+    cs := template.chars()
+    mut pairs := Map[str, int]()
+    for i in 1..cs.len()
+        pairs["{cs[i - 1]}{cs[i]}"] += 1
+    for _ in 0..steps
+        mut next := Map[str, int]()
+        for p, n in pairs
+            if rules.contains(p)
+                mid := rules[p]
+                a := p.slice(0, 1)
+                b := p.slice(1)
+                next["{a}{mid}"] += n
+                next["{mid}{b}"] += n
+            else
+                next[p] += n
+        pairs = next
+    mut counts := Map[str, int]()
+    for p, n in pairs
+        counts[p.slice(0, 1)] += n
+    last := cs.last() else 'A'
+    counts["{last}"] += 1
+    (counts.values().max() else 0) - (counts.values().min() else 0)
+
+fn main()
+    template := "DABC"
+    lines := ["AA -> B", "AB -> C", "AC -> A", "AD -> D", "BA -> D", "BB -> A", "BC -> B", "BD -> C", "CA -> C", "CB -> D", "CC -> B", "CD -> A", "DA -> B", "DB -> B", "DC -> C", "DD -> A"]
+    mut rules := Map[str, str]()
+    for l in lines
+        kv := l.split(" -> ")
+        rules[kv[0]] = kv[1]
+    print("template {template}, {rules.len()} rules")
+    for s in [1, 2, 5]
+        print("after {s} steps: spread {grow(template, rules, s)}")
+    print("part 1: after 10 steps: {grow(template, rules, 10)}")
+    print("part 2: after 30 steps: {grow(template, rules, 30)}")
+
+@test fn one_step()
+    mut r := Map[str, str]()
+    r["AB"] = "A"
+    assert_eq(grow("AB", r, 1), 1)

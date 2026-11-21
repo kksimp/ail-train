@@ -1,0 +1,39 @@
+## Ripple-carry adder: each full adder gives sum = a xor b xor carry and carry out = ab or carry (a xor b);
+## eight in a row add bytes, the last carry flags unsigned overflow and a sign mismatch flags signed overflow.
+
+fn full_add(a int, b int, cin int) List[int]
+    s := (a ^ b) ^ cin
+    cout := (a & b) | (cin & (a ^ b))
+    [s, cout]
+
+fn add8(x int, y int) List[int]
+    mut carry := 0
+    mut total := 0
+    mut last_in := 0
+    for i in 0..8
+        a := (x >> i) & 1
+        b := (y >> i) & 1
+        if i == 7
+            last_in = carry
+        r := full_add(a, b, carry)
+        total = total | (r[0] << i)
+        carry = r[1]
+    [total, carry, carry ^ last_in]
+
+fn bits(n int) str
+    "{n:b}".pad_left(8, '0')
+
+fn signed(n int) int
+    if n >= 128 then n - 256 else n
+
+fn main()
+    pairs := [(100, 55), (200, 100), (156, 206), (100, 50), (255, 1)]
+    for p in pairs
+        x, y := p
+        r := add8(x, y)
+        print("{bits(x)} + {bits(y)} = {bits(r[0])} carry {r[1]} overflow {r[2]}")
+        print("  unsigned {x} + {y} -> {r[0]}, signed {signed(x)} + {signed(y)} -> {signed(r[0])}")
+
+@test fn adder_table()
+    assert_eq(full_add(1, 1, 1), [1, 1])
+    assert_eq(add8(15, 1)[0], 16)

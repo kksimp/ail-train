@@ -1,0 +1,8 @@
+spin inertia 450 g cm2
+t  0 s: spin  200.0 rad/s, precession 4.36 rad/s, one turn every 1.44 s
+t  5 s: spin  171.7 rad/s, precession 5.08 rad/s, one turn every 1.24 s
+t 10 s: spin  147.5 rad/s, precession 5.91 rad/s, one turn every 1.06 s
+t 15 s: spin  126.7 rad/s, precession 6.89 rad/s, one turn every 0.91 s
+t 20 s: spin  108.8 rad/s, precession 8.02 rad/s, one turn every 0.78 s
+t 25 s: spin   93.4 rad/s, precession 9.34 rad/s, one turn every 0.67 s
+at 26 s the spin 90.6 rad/s is too slow: precession 9.63 rad/s, the top topples

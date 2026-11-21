@@ -1,0 +1,50 @@
+## User import: each CSV row can fail with a `ParseError` or a `RuleError`, so the import function
+## returns `User ! ParseError | RuleError`; `match err` on the type counts the two kinds apart.
+
+error enum ParseError
+    Columns(n int) "expected 3 fields, got {n}"
+    Age(text str) "age '{text}' is not a number"
+
+error enum RuleError
+    TooYoung(age int) "age {age} is under 16"
+    NoAt(email str) "email '{email}' has no @"
+
+struct User
+    name str
+    age int
+    email str
+
+fn parse_row(line str) User ! ParseError
+    f := line.split(",")
+    if f.len() != 3
+        return ParseError.Columns(n: f.len())
+    age := f[1].trim().to_int() else return ParseError.Age(text: f[1].trim())
+    User(name: f[0].trim(), age: age, email: f[2].trim())
+
+fn import_row(line str) User ! ParseError | RuleError
+    u := parse_row(line)?
+    if u.age < 16
+        return RuleError.TooYoung(age: u.age)
+    if not u.email.contains("@")
+        return RuleError.NoAt(email: u.email)
+    u
+
+fn main()
+    rows := ["Ada, 36, ada@example.org", "Bo, 15, bo@example.org", "Cy, x9, cy@example.org", "Di, 41", "Ed, 29, ed.example.org", "Fay, 52, fay@example.org"]
+    mut users := List[User]()
+    mut parse_bad := 0
+    mut rule_bad := 0
+    for r in rows
+        u := import_row(r) else err
+            print("skip '{r}': {err}")
+            match err
+                ParseError => parse_bad += 1
+                RuleError => rule_bad += 1
+            continue
+        users.push(u)
+    names := users.map(|u| u.name)
+    print("imported {names}")
+    print("{parse_bad} unreadable, {rule_bad} broke a rule")
+
+@test fn young_user()
+    assert_err(import_row("Kid, 9, k@x.org"))

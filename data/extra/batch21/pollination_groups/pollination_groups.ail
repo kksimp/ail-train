@@ -1,0 +1,31 @@
+## Pollination groups: an apple tree is pollinated by a different diploid variety flowering in the same or
+## a neighbouring group; triploids cannot pollinate and want two partners, so each tree's partners are checked.
+
+struct Tree
+    name str
+    group int
+    triploid bool
+
+fn partners(t Tree, orchard List[Tree]) List[str]
+    [o.name for o in orchard if o.name != t.name and not o.triploid and (o.group - t.group).abs() <= 1]
+
+fn main()
+    orchard := [Tree(name: "Bramley", group: 3, triploid: true), Tree(name: "Cox", group: 3, triploid: false), Tree(name: "Discovery", group: 2, triploid: false), Tree(name: "Egremont", group: 1, triploid: false), Tree(name: "Jonagold", group: 4, triploid: true), Tree(name: "Spartan", group: 5, triploid: false)]
+    mut lonely := List[str]()
+    for t in orchard
+        ps := partners(t, orchard)
+        want := if t.triploid then 2 else 1
+        mark := if ps.len() >= want then "ok" else "SHORT"
+        if ps.len() < want
+            lonely.push(t.name)
+        names := if ps.is_empty() then "none" else ps.join(", ")
+        print("{t.name:<9} group {t.group}: {names} ({mark})")
+    for name in lonely
+        t := orchard.find(|o| o.name == name) else orchard[0]
+        lo := (t.group - 1).max(1)
+        hi := t.group + 1
+        print("{name} needs a diploid from group {lo} to {hi}")
+
+@test fn spartan_alone()
+    orchard := [Tree(name: "A", group: 5, triploid: false), Tree(name: "B", group: 4, triploid: true), Tree(name: "C", group: 6, triploid: false)]
+    assert_eq(partners(orchard[0], orchard).len(), 1)

@@ -1,0 +1,8 @@
+Vth 7.20 V, Rth 3400 ohm
+load    500 ohm: 0.923 V (direct 0.923 V), 1.704 mW
+load   1000 ohm: 1.636 V (direct 1.636 V), 2.678 mW
+load   2000 ohm: 2.667 V (direct 2.667 V), 3.556 mW
+load   3400 ohm: 3.600 V (direct 3.600 V), 3.812 mW
+load   5000 ohm: 4.286 V (direct 4.286 V), 3.673 mW
+load  10000 ohm: 5.373 V (direct 5.373 V), 2.887 mW
+most power at 3400 ohm: 3.812 mW

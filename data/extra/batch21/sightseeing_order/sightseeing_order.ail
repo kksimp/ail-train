@@ -1,0 +1,44 @@
+## Sightseeing order: from the hotel at 9:00, walk next to the unseen sight that closes soonest among those
+## that can yet be reached and finished before closing (waiting for opening is allowed), then go back.
+
+struct Sight
+    name str
+    opens int
+    closes int
+    visit int
+
+fn hhmm(t int) str
+    h := t / 60
+    m := t % 60
+    "{h:02}:{m:02}"
+
+fn main()
+    sights := [Sight(name: "Castle", opens: 570, closes: 1020, visit: 90), Sight(name: "Gallery", opens: 600, closes: 1050, visit: 60), Sight(name: "Cathedral", opens: 540, closes: 720, visit: 45), Sight(name: "Market", opens: 480, closes: 840, visit: 40), Sight(name: "Gardens", opens: 600, closes: 1110, visit: 50)]
+    walk := [[0, 15, 20, 10, 12, 25], [15, 0, 10, 12, 18, 20], [20, 10, 0, 14, 16, 8], [10, 12, 14, 0, 6, 22], [12, 18, 16, 6, 0, 19], [25, 20, 8, 22, 19, 0]]
+    mut t := 540
+    mut at := 0
+    mut seen := Set[int]()
+    while true
+        mut pick := -1
+        for i in 0..sights.len()
+            cand := sights[i]
+            arrive := (t + walk[at][i + 1]).max(cand.opens)
+            fits := arrive + cand.visit <= cand.closes
+            if not seen.contains(i) and fits and (pick < 0 or cand.closes < sights[pick].closes)
+                pick = i
+        if pick < 0
+            break
+        s := sights[pick]
+        reach := t + walk[at][pick + 1]
+        start := reach.max(s.opens)
+        t = start + s.visit
+        at = pick + 1
+        seen.add(pick)
+        print("{hhmm(start)}-{hhmm(t)} {s.name} (waited {start - reach} min)")
+    t += walk[at][0]
+    print("back at the hotel {hhmm(t)}")
+    missed := sights.len() - seen.len()
+    print("missed: {missed}")
+
+@test fn clock()
+    assert_eq(hhmm(570), "09:30")

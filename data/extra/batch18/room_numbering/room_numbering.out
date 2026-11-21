@@ -1,0 +1,6 @@
+floor 1: 101 to 119, 3 numbers skipped
+floor 2: 201 to 219, 3 numbers skipped
+floor 3: 301 to 319, 3 numbers skipped
+floor 5: 501 to 519, 3 numbers skipped
+64 rooms, none with a 4: true
+floor 1 rooms 11 to 14: [112, 115, 116, 117]

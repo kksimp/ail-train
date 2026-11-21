@@ -1,0 +1,39 @@
+## Console boot fix: a boot program of acc, jmp and nop loops forever; part 1 reports the accumulator just before
+## any line runs twice, part 2 flips one jmp/nop at a time until the program runs off its end, reporting the final value.
+
+fn run(prog List[str], flip int) List[int]
+    mut acc := 0
+    mut pc := 0
+    mut seen := Set[int]()
+    while pc < prog.len()
+        if not seen.add(pc)
+            return [0, acc]
+        w := prog[pc].split(" ")
+        n := w[1].replace("+", "").to_int() else 0
+        mut op := w[0]
+        if pc == flip
+            op = if op == "jmp" then "nop" elif op == "nop" then "jmp" else op
+        match op
+            "acc" =>
+                acc += n
+                pc += 1
+            "jmp" => pc += n
+            _ => pc += 1
+    [1, acc]
+
+fn main()
+    prog := ["nop +2", "acc +5", "jmp +3", "acc -2", "jmp -3", "acc +4", "jmp -5", "acc +10", "nop -1", "acc +1"]
+    jumps := prog.count(|l| l.starts_with("jmp"))
+    print("{prog.len()} lines, {jumps} jumps")
+    first := run(prog, -1)
+    print("part 1: accumulator {first[1]} before the loop repeats")
+    for i in 0..prog.len()
+        if prog[i].starts_with("acc")
+            continue
+        r := run(prog, i)
+        if r[0] == 1
+            print("part 2: flipping line {i} ({prog[i]}) ends with accumulator {r[1]}")
+            break
+
+@test fn ends()
+    assert_eq(run(["acc +3", "nop +0"], -1), [1, 3])

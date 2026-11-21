@@ -1,0 +1,35 @@
+## Crate crane moves: dock piles of lettered crates are rearranged by "move N from A to B" orders, once with
+## a crane that lifts one crate at a time (order flips) and once with a grab that lifts N together (order kept).
+
+fn run_crane(start List[str], moves List[str], grab bool) str
+    mut piles := [p.chars() for p in start]
+    for line in moves
+        w := line.split(" ")
+        n := w[1].to_int() else 0
+        a := (w[3].to_int() else 1) - 1
+        b := (w[5].to_int() else 1) - 1
+        mut lift := List[char]()
+        for _ in 0..n
+            lift.push(piles[a].pop() else '?')
+        if grab
+            lift.reverse()
+        piles[b].extend(lift)
+    mut tops := List[char]()
+    for p in piles
+        tops.push(p.last() else '-')
+    tops.join("")
+
+fn main()
+    start := ["RTK", "MBQL", "SF", "DWNC"]
+    moves := ["move 2 from 2 to 1", "move 1 from 4 to 3", "move 3 from 1 to 3", "move 2 from 4 to 2", "move 1 from 3 to 4", "move 4 from 3 to 2"]
+    for i, p in start.enumerate()
+        print("pile {i + 1} bottom to top: {p}")
+    print("{moves.len()} orders on the board")
+    one := run_crane(start, moves, false)
+    print("part 1, one crate at a time: tops {one}")
+    many := run_crane(start, moves, true)
+    print("part 2, grab several at once: tops {many}")
+
+@test fn grab_keeps_order()
+    assert_eq(run_crane(["AB", "C"], ["move 2 from 1 to 2"], false), "-A")
+    assert_eq(run_crane(["AB", "C"], ["move 2 from 1 to 2"], true), "-B")

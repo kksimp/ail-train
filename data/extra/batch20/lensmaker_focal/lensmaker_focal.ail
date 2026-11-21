@@ -1,0 +1,29 @@
+## Lensmaker's equation: 1/f = (n - 1)(1/R1 - 1/R2) with signed surface radii (0 means flat); crown
+## glass bends blue (n 1.522) more than red (n 1.514), so each lens focuses the two colours apart.
+
+struct Lens
+    name str
+    r1 float
+    r2 float
+
+fn curv(r float) float
+    if r == 0.0 then 0.0 else 1.0 / r
+
+fn Lens.focal(self, n float) float
+    1.0 / ((n - 1.0) * (curv(self.r1) - curv(self.r2)))
+
+fn main()
+    lenses := [Lens(name: "biconvex", r1: 100.0, r2: -100.0), Lens(name: "plano-convex", r1: 60.0, r2: 0.0), Lens(name: "meniscus", r1: 40.0, r2: 100.0), Lens(name: "biconcave", r1: -80.0, r2: 80.0)]
+    red := 1.514
+    blue := 1.522
+    for l in lenses
+        fr := l.focal(red)
+        fb := l.focal(blue)
+        kind := if fr > 0.0 then "converging" else "diverging"
+        diopters := 1000.0 / fr
+        spread := (fr - fb).abs()
+        print("{l.name:<13} f red {fr:>8.2} mm, blue {fb:>8.2} mm, {diopters:>6.2} D, {kind}, colours {spread:.2} mm apart")
+
+@test fn symmetric()
+    l := Lens(name: "x", r1: 100.0, r2: -100.0)
+    assert_eq(l.focal(1.5), 100.0)

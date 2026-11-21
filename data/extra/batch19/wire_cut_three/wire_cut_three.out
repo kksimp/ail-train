@@ -1,0 +1,4 @@
+cutting ab-ef, cd-ef, ef-gh leaves groups of 7 and 1
+cutting ab-ij, cd-kl, gh-op leaves groups of 4 and 4
+part 1: group size product 16
+part 2: 3 of the triples split the panel

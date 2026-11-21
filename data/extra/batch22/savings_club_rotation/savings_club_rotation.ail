@@ -1,0 +1,27 @@
+## Savings club rotation: six members pay 100 at the start of each month and one member takes the 600 pot in
+## turn; valued at 1% a month, early takers borrow for free and late takers lend for free to the others.
+
+fn power(b float, k int) float
+    mut x := 1.0
+    for _ in 0..k
+        x *= b
+    x
+
+fn member_value(turn int, members int, pay float, rate float) float
+    mut v := 0.0
+    for t in 0..members
+        v -= pay / power(1.0 + rate, t)
+    v + pay * members.to_float() / power(1.0 + rate, turn)
+
+fn main()
+    mut gainers := 0
+    for turn in 0..6
+        v := member_value(turn, 6, 100.0, 0.01)
+        if v > 0.0
+            gainers += 1
+        role := if v > 0.0 then "gains" else "gives up"
+        print("member {turn + 1} takes the pot in month {turn + 1}: {role} {v.abs():.2} in today's money")
+    print("{gainers} of 6 members come out ahead")
+
+@test fn zero_rate_is_fair()
+    assert_eq(member_value(3, 6, 100.0, 0.0), 0.0)

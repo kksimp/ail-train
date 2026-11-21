@@ -1,0 +1,43 @@
+## Chunk upload: a file goes up in chunks over a flaky link; each send fails with `Timeout` or
+## `Rejected(code)` from an error enum; `match err` retries timeouts twice and aborts on a rejection.
+
+error enum SendError
+    Timeout(chunk int) "chunk {chunk} timed out"
+    Rejected(code int) "server said {code}"
+
+fn send(chunk int, attempt int, flaky List[int], bad int) int ! SendError
+    if chunk == bad
+        return SendError.Rejected(code: 413)
+    if flaky.contains(chunk) and attempt < 2
+        return SendError.Timeout(chunk: chunk)
+    chunk * 64
+
+fn upload(name str, chunks int, flaky List[int], bad int)
+    mut sent := 0
+    mut retries := 0
+    for c in 0..chunks
+        mut attempt := 0
+        while true
+            if kb := send(c, attempt, flaky, bad)
+                sent = kb
+                break
+            else err
+                match err
+                    Timeout =>
+                        attempt += 1
+                        retries += 1
+                        if attempt > 2
+                            print("{name}: gave up, {err}")
+                            return
+                    Rejected =>
+                        print("{name}: aborted at chunk {c}, {err}")
+                        return
+    print("{name}: {chunks} chunks, {sent} KB sent, {retries} retries")
+
+fn main()
+    upload("photos.zip", 6, [1, 4], -1)
+    upload("video.mp4", 5, [0], 3)
+    upload("notes.txt", 2, List[int](), -1)
+
+@test fn rejected_chunk()
+    assert_err(send(2, 0, List[int](), 2), SendError.Rejected)

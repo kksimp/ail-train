@@ -1,0 +1,40 @@
+## Time window route: a van leaves the depot at 08:00 and each stop has a delivery window and 10 minutes of
+## service; arriving early means waiting for the window, arriving late breaks it; two stop orders are checked.
+
+fn clock(m int) str
+    h := m / 60
+    mm := m % 60
+    "{h:02}:{mm:02}"
+
+fn check(order List[int], travel List[List[int]], opens List[int], closes List[int]) int
+    mut t := 480
+    mut at := 0
+    mut late := 0
+    for s in order
+        t += travel[at][s]
+        arrive := t
+        if t < opens[s]
+            t = opens[s]
+        state := if arrive > closes[s] then "late" elif arrive < opens[s] then "waits" else "on time"
+        if arrive > closes[s]
+            late += 1
+        print("  stop {s}: arrive {clock(arrive)}, window {clock(opens[s])}-{clock(closes[s])}, {state}")
+        t += 10
+        at = s
+    t += travel[at][0]
+    print("  back at depot {clock(t)}, {late} late")
+    late
+
+fn main()
+    travel := [[0, 20, 25, 15, 30], [20, 0, 10, 18, 22], [25, 10, 0, 20, 15], [15, 18, 20, 0, 28], [30, 22, 15, 28, 0]]
+    opens := [0, 510, 540, 480, 600]
+    closes := [0, 570, 600, 540, 660]
+    print("order 1-2-3-4:")
+    a := check([1, 2, 3, 4], travel, opens, closes)
+    print("order 3-1-2-4:")
+    b := check([3, 1, 2, 4], travel, opens, closes)
+    best := if b < a then "3-1-2-4" else "1-2-3-4"
+    print("use {best}")
+
+@test fn times()
+    assert_eq(clock(570), "09:30")

@@ -1,0 +1,36 @@
+## Annuity due: payments made at the start of each period are discounted one period less than an
+## ordinary annuity's (paid at the end), so present and future values are both (1 + r) times larger.
+
+fn power(b float, k int) float
+    mut x := 1.0
+    for _ in 0..k
+        x *= b
+    x
+
+fn pv(pay float, rate float, n int, due bool) float
+    shift := if due then 0 else 1
+    mut total := 0.0
+    for t in 0..n
+        total += pay / power(1.0 + rate, t + shift)
+    total
+
+fn fv(pay float, rate float, n int, due bool) float
+    shift := if due then 1 else 0
+    mut total := 0.0
+    for t in 0..n
+        total += pay * power(1.0 + rate, n - 1 - t + shift)
+    total
+
+fn main()
+    print("five yearly payments of 1000")
+    for p in [3, 5, 8]
+        r := p.to_float() / 100.0
+        a := pv(1000.0, r, 5, false)
+        b := pv(1000.0, r, 5, true)
+        c := fv(1000.0, r, 5, false)
+        d := fv(1000.0, r, 5, true)
+        ratio := b / a
+        print("{p}%: PV ordinary {a:.2}, due {b:.2} (x{ratio:.4}); FV ordinary {c:.2}, due {d:.2}")
+
+@test fn single_payment_now()
+    assert_eq(pv(100.0, 0.05, 1, true), 100.0)

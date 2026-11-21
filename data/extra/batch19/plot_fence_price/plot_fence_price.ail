@@ -1,0 +1,44 @@
+## Plot fence price: a garden map of crop letters splits into connected plots; fencing costs area x perimeter
+## (part 1) or, with a bulk discount, area x number of straight sides, counted as the number of corners (part 2).
+
+fn at(g List[List[char]], r int, c int) char
+    if r < 0 or r >= g.len() or c < 0 or c >= g[0].len() then '.' else g[r][c]
+
+fn main()
+    rows := ["AAAABB", "ACCABB", "ACCAAD", "EEADDD", "EEAADF"]
+    g := rows.map(|r| r.chars())
+    mut done := Set[int]()
+    mut p1 := 0
+    mut p2 := 0
+    for r0 in 0..g.len()
+        for c0 in 0..g[0].len()
+            if not done.add(r0 * 100 + c0)
+                continue
+            plant := g[r0][c0]
+            mut cells := [[r0, c0]]
+            mut i := 0
+            mut perim := 0
+            mut corners := 0
+            while i < cells.len()
+                r := cells[i][0]
+                c := cells[i][1]
+                i += 1
+                for d in [[1, 0], [-1, 0], [0, 1], [0, -1]]
+                    if at(g, r + d[0], c + d[1]) != plant
+                        perim += 1
+                    elif done.add((r + d[0]) * 100 + c + d[1])
+                        cells.push([r + d[0], c + d[1]])
+                for d in [[1, 1], [1, -1], [-1, 1], [-1, -1]]
+                    a := at(g, r + d[0], c) == plant
+                    b := at(g, r, c + d[1]) == plant
+                    diag := at(g, r + d[0], c + d[1]) == plant
+                    if (not a and not b) or (a and b and not diag)
+                        corners += 1
+            print("plot {plant}: area {cells.len()}, perimeter {perim}, sides {corners}")
+            p1 += cells.len() * perim
+            p2 += cells.len() * corners
+    print("part 1: fencing costs {p1}")
+    print("part 2: with the discount {p2}")
+
+@test fn edge()
+    assert_eq(at([['x']], 1, 0), '.')

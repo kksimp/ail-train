@@ -1,0 +1,7 @@
+[47, 11, 23, 35, 52] is in order, middle 23
+[11, 47, 35] becomes [47, 11, 35], middle 11
+[23, 52, 35] becomes [23, 35, 52], middle 35
+[47, 23, 52] is in order, middle 23
+[52, 11, 47, 23, 35] becomes [47, 11, 23, 35, 52], middle 23
+part 1: 46
+part 2: 69

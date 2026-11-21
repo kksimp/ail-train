@@ -1,0 +1,49 @@
+## Rental slots: a generic enum `Slot[T]` is either `Empty` or `Held(item, by)`; a tool library
+## shelf and a bike rack lend into the first empty slot, take items back and list each slot.
+
+enum Slot[T]
+    Empty
+    Held(item T, by str)
+
+fn lend[T](mut slots List[Slot[T]], item T, who str) int?
+    for i in 0..slots.len()
+        match slots[i]
+            Empty =>
+                slots[i] = Held(item: item, by: who)
+                return i
+            Held => continue
+    none
+
+fn give_back[T](mut slots List[Slot[T]], i int)
+    slots[i] = Slot[T].Empty
+
+fn free_count[T](slots List[Slot[T]]) int
+    mut n := 0
+    for s in slots
+        match s
+            Empty => n += 1
+            Held => continue
+    n
+
+fn main()
+    mut tools := [Slot[str].Empty for _ in 0..3]
+    for ask in [("drill", "ana"), ("ladder", "ben"), ("saw", "cy"), ("sander", "dee")]
+        tool, person := ask
+        at := lend(mut tools, tool, person) else -1
+        print("{person} borrows {tool}: slot {at}")
+    give_back(mut tools, 1)
+    at2 := lend(mut tools, "sander", "dee") else -1
+    print("dee tries again: slot {at2}")
+    for i, s in tools.enumerate()
+        match s
+            Empty => print("shelf {i}: free")
+            Held(item, by) => print("shelf {i}: {item} with {by}")
+    mut bikes := [Slot[int].Empty, Slot[int].Empty]
+    got := lend(mut bikes, 4471, "eve") else -1
+    print("eve takes bike 4471 from rack slot {got}")
+    print("bike rack: {free_count(bikes)} of {bikes.len()} free")
+
+@test fn full_shelf_gives_none()
+    mut s := [Slot[int].Empty]
+    assert_eq(lend(mut s, 1, "a") else -1, 0)
+    assert_eq(lend(mut s, 2, "b") else -1, -1)

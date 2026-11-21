@@ -1,0 +1,45 @@
+## Lens box hashing: a label hashes by h = (h + code) x 17 mod 256; part 1 sums the hashes of the steps, part 2
+## runs them (label=f puts or swaps a lens, label- removes it) in 256 boxes and sums box x slot x focal length.
+
+struct Lens
+    label str
+    focal int
+
+fn hash(s str) int
+    mut h := 0
+    for c in s.chars()
+        h = (h + c.code()) * 17 % 256
+    h
+
+fn main()
+    steps := "pq=4,rm-,zx=2,pq-,tk=7,zx=5,ab=1,cd=3,ab-,ef=6,pq=8".split(",")
+    print("part 1: hash sum {steps.fold(0, |acc, s| acc + hash(s))}")
+    mut boxes := Map[int, List[Lens]]()
+    for st in steps
+        if st.ends_with("-")
+            label := st.slice(0, st.len() - 1)
+            b := hash(label)
+            if boxes.contains(b)
+                boxes[b] = boxes[b].filter(|l| l.label != label)
+        else
+            kv := st.split("=")
+            b := hash(kv[0])
+            f := kv[1].to_int() else 0
+            mut lenses := boxes.get_or(b, List[Lens]())
+            mut placed := false
+            for mut l in lenses
+                if l.label == kv[0]
+                    l.focal = f
+                    placed = true
+            if not placed
+                lenses.push(Lens(label: kv[0], focal: f))
+            boxes[b] = lenses
+    mut power := 0
+    for b in boxes.keys().sorted()
+        for i, l in boxes[b].enumerate()
+            print("box {b} slot {i + 1}: {l.label} {l.focal}")
+            power += (b + 1) * (i + 1) * l.focal
+    print("part 2: focusing power {power}")
+
+@test fn hash_known()
+    assert_eq(hash("a"), 113)

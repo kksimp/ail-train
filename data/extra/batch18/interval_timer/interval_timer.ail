@@ -1,0 +1,46 @@
+## Interval timer: a workout timer struct with `mut self` methods counts down work and rest
+## phases for a number of rounds; `tick` moves time on a second and reports each phase change.
+
+struct Timer
+    work int
+    rest int
+    rounds int
+    round int
+    working bool
+    left int
+
+fn Timer.start(work int, rest int, rounds int) Timer
+    Timer(work: work, rest: rest, rounds: rounds, round: 1, working: true, left: work)
+
+fn Timer.done(self) bool
+    self.round > self.rounds
+
+fn Timer.tick(mut self) str?
+    self.left -= 1
+    if self.left > 0
+        return none
+    if self.working
+        self.working = false
+        self.left = self.rest
+        return "round {self.round}: rest {self.rest}s"
+    self.round += 1
+    if self.done()
+        return "finished"
+    self.working = true
+    self.left = self.work
+    "round {self.round}: work {self.work}s"
+
+fn main()
+    mut t := Timer.start(20, 10, 3)
+    print("round 1: work 20s")
+    mut seconds := 0
+    while not t.done()
+        seconds += 1
+        if msg := t.tick()
+            print("{seconds:>3}s {msg}")
+    print("total {seconds / 60}m {seconds % 60}s")
+
+@test fn one_round()
+    mut t := Timer.start(1, 1, 1)
+    _ := t.tick()
+    assert_eq(t.tick() else "", "finished")

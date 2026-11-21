@@ -1,0 +1,9 @@
+unit  1: 100.00 h at 80%, 100.00 h at 90%
+unit  2:  80.00 h at 80%,  90.00 h at 90%
+unit  3:  70.21 h at 80%,  84.62 h at 90%
+unit  5:  59.56 h at 80%,  78.30 h at 90%
+unit  8:  51.20 h at 80%,  72.90 h at 90%
+unit 10:  47.65 h at 80%,  70.47 h at 90%
+unit 20:  38.12 h at 80%,  63.42 h at 90%
+80% curve: first 10 units 631.5 h, average 63.2 h
+90% curve: first 10 units 799.4 h, average 79.9 h

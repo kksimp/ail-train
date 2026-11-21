@@ -1,0 +1,21 @@
+## Warm-up laps: a runner's lap times in seconds are split with `take_while` (warm-up laps slower
+## than 90 s), `skip_while` and another `take_while` (the fast main set); the rest is the cool-down.
+
+fn main()
+    laps := [102, 98, 95, 84, 82, 83, 81, 85, 97, 104]
+    pace := 90
+    warm := laps.take_while(|t| t > pace)
+    after := laps.skip_while(|t| t > pace)
+    main_set := after.take_while(|t| t <= pace)
+    cool := after.skip_while(|t| t <= pace)
+    print("warm-up {warm}")
+    print("main set {main_set}")
+    print("cool-down {cool}")
+    mean := main_set.sum().to_float() / main_set.len().to_float()
+    best := main_set.min() else 0
+    print("main set mean {mean:.1} s, best lap {best} s")
+    total := laps.sum()
+    print("session {total / 60} min {total % 60} s over {laps.len()} laps")
+
+@test fn take_while_stops_early()
+    assert_eq([5, 4, 9, 1].take_while(|x| x < 6), [5, 4])

@@ -1,0 +1,60 @@
+## Riddle tree solve: named riddles are numbers or "a op b" of other riddles; part 1 evaluates the root, part 2
+## treats root as an equality and walks down the side holding "you", undoing each operation to find your number.
+
+fn eval(m Map[str, str], name str) int
+    parts := m[name].split(" ")
+    if parts.len() == 1
+        return parts[0].to_int() else 0
+    a := eval(m, parts[0])
+    b := eval(m, parts[2])
+    match parts[1]
+        "+" => a + b
+        "-" => a - b
+        "*" => a * b
+        _ => a / b
+
+fn holds(m Map[str, str], name str) bool
+    if name == "you"
+        return true
+    parts := m[name].split(" ")
+    parts.len() == 3 and (holds(m, parts[0]) or holds(m, parts[2]))
+
+fn solve(m Map[str, str], name str, target int) int
+    if name == "you"
+        return target
+    p := m[name].split(" ")
+    if holds(m, p[0])
+        r := eval(m, p[2])
+        t := match p[1]
+            "+" => target - r
+            "-" => target + r
+            "*" => target / r
+            _ => target * r
+        return solve(m, p[0], t)
+    l := eval(m, p[0])
+    t := match p[1]
+        "+" => target - l
+        "-" => l - target
+        "*" => target / l
+        _ => l / target
+    solve(m, p[2], t)
+
+fn main()
+    lines := ["root: fir + elm", "fir: oak * kit", "oak: you - two", "you: 11", "two: 2", "kit: 4", "elm: pine / sev", "pine: hub + yew", "hub: cat * dot", "cat: 6", "dot: 9", "yew: 30", "sev: 7"]
+    mut m := Map[str, str]()
+    for l in lines
+        kv := l.split(": ")
+        m[kv[0]] = kv[1]
+    print("{m.len()} riddles")
+    top := eval(m, "root")
+    print("part 1: root shouts {top}")
+    root := m["root"].split(" ")
+    side := if holds(m, root[0]) then root[0] else root[2]
+    other := if side == root[0] then root[2] else root[0]
+    want := eval(m, other)
+    print("the {side} side must reach {want}")
+    print("part 2: you must shout {solve(m, side, want)}")
+
+@test fn simple()
+    m := {"root": "you * k", "you": "1", "k": "3"}
+    assert_eq(solve(m, "root", 12), 4)

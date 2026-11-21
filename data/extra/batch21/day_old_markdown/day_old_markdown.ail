@@ -1,0 +1,35 @@
+## Day-old markdown: bakery items sell at full price on the day they are baked, 30% off the next day and 60%
+## off the day after (rounded down to 5 cents), then go to the food bank; the shelf is priced and valued.
+
+fn marked(price int, age int) int
+    pct := match age
+        0 => 100
+        1 => 70
+        2 => 40
+        _ => 0
+    price * pct / 100 / 5 * 5
+
+fn money(c int) str
+    "{c / 100}.{c % 100:02}"
+
+fn main()
+    today := 10
+    shelf := [("sourdough", 10, 420, 6), ("baguette", 9, 180, 8), ("croissant", 9, 145, 12), ("rye loaf", 8, 395, 3), ("scone", 7, 120, 10), ("bloomer", 10, 250, 5), ("focaccia", 8, 299, 4)]
+    mut value := 0
+    mut donated := 0
+    for s in shelf
+        name, baked, price, left := s
+        age := today - baked
+        now := marked(price, age)
+        if now == 0
+            donated += left
+            print("{name:<9} baked {age} days ago: {left} to the food bank")
+        else
+            value += now * left
+            print("{name:<9} {left:>2} at {money(now)} (was {money(price)})")
+    print("shelf worth {money(value)}; {donated} items donated")
+
+@test fn markdowns()
+    assert_eq(marked(250, 1), 175)
+    assert_eq(marked(199, 2), 75)
+    assert_eq(marked(500, 3), 0)

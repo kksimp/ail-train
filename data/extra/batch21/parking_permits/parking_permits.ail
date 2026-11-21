@@ -1,0 +1,41 @@
+## Parking permits: in controlled hours (Monday to Saturday, 8:00 to 18:00) a car needs a permit for the
+## zone or a visitor voucher, used up an hour at a time; outside those hours any car may park.
+
+struct Sighting
+    plate str
+    zone str
+    day int
+    hour int
+
+fn controlled(day int, hour int) bool
+    day < 6 and hour >= 8 and hour < 18
+
+fn check(mut vouchers Map[str, int], permits Map[str, str], s Sighting) str
+    if not controlled(s.day, s.hour)
+        return "free hours"
+    if permits.get_or(s.plate, "") == s.zone
+        return "permit"
+    left := vouchers.get_or(s.plate, 0)
+    if left > 0
+        vouchers[s.plate] = left - 1
+        return "voucher ({left - 1} h left)"
+    "PENALTY"
+
+fn main()
+    days := ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+    permits := {"LX19 AAB": "B", "KT20 CCD": "C", "MV21 EEF": "B"}
+    mut vouchers := {"YR70 GGH": 2, "SN66 JJK": 1}
+    seen := [Sighting(plate: "LX19 AAB", zone: "B", day: 0, hour: 9), Sighting(plate: "KT20 CCD", zone: "B", day: 0, hour: 10), Sighting(plate: "YR70 GGH", zone: "C", day: 1, hour: 11), Sighting(plate: "YR70 GGH", zone: "C", day: 1, hour: 12), Sighting(plate: "YR70 GGH", zone: "C", day: 1, hour: 13), Sighting(plate: "SN66 JJK", zone: "B", day: 5, hour: 17), Sighting(plate: "SN66 JJK", zone: "B", day: 5, hour: 18), Sighting(plate: "WP12 LLM", zone: "C", day: 6, hour: 14), Sighting(plate: "WP12 LLM", zone: "C", day: 2, hour: 8)]
+    mut fines := Map[str, int]()
+    for s in seen
+        r := check(mut vouchers, permits, s)
+        if r == "PENALTY"
+            fines[s.zone] += 1
+        print("{days[s.day]} {s.hour:02}:00 zone {s.zone} {s.plate}: {r}")
+    for zone, n in fines
+        print("zone {zone}: {n} penalty notices")
+
+@test fn sunday_free()
+    assert(not controlled(6, 10))
+    assert(controlled(2, 17))
+    assert(not controlled(2, 18))

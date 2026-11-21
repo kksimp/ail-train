@@ -1,0 +1,41 @@
+## Plucked string: the wave equation on 10 points with Courant number 1 steps exactly as
+## y_next[i] = y[i - 1] + y[i + 1] - y_prev[i]; after 9 steps the shape is flipped and mirrored, after 18 it is back.
+
+fn first_step(y0 List[int]) List[int]
+    mut y1 := List[int]()
+    for i in 0..y0.len()
+        if i == 0 or i == y0.len() - 1
+            y1.push(0)
+        else
+            y1.push((y0[i - 1] + y0[i + 1]) / 2)
+    y1
+
+fn step(prev List[int], cur List[int]) List[int]
+    mut out := List[int]()
+    for i in 0..cur.len()
+        if i == 0 or i == cur.len() - 1
+            out.push(0)
+        else
+            out.push(cur[i - 1] + cur[i + 1] - prev[i])
+    out
+
+fn main()
+    y0 := [0, 4, 8, 12, 10, 8, 6, 4, 2, 0]
+    mut prev := y0
+    mut cur := first_step(y0)
+    print("step  0: {y0}")
+    for n in 1..=18
+        if n % 3 == 0
+            print("step {n:>2}: {cur}")
+        if n == 9
+            mirror := [-y0[y0.len() - 1 - i] for i in 0..y0.len()]
+            print("  the pluck flipped and mirrored: {cur == mirror}")
+        if n == 18
+            print("  back to the pluck: {cur == y0}")
+        nxt := step(prev, cur)
+        prev = cur
+        cur = nxt
+
+@test fn ends_fixed()
+    s := step([0, 2, 0], [0, 1, 0])
+    assert_eq(s, [0, -2, 0])

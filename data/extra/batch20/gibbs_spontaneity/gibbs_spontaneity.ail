@@ -1,0 +1,46 @@
+## Gibbs free energy: dG = dH - T dS decides whether a reaction runs on its own (dG < 0); when dH and
+## dS share a sign the answer flips at T = dH / dS, above it for endothermic and below it for exothermic ones.
+
+enum Kind
+    Always
+    Never
+    BelowT
+    AboveT
+
+struct Change
+    name str
+    dh float
+    ds float
+
+fn Change.kind(self) Kind
+    if self.dh < 0.0 and self.ds > 0.0
+        Always
+    elif self.dh > 0.0 and self.ds < 0.0
+        Never
+    elif self.dh < 0.0
+        BelowT
+    else
+        AboveT
+
+fn Change.dg(self, t float) float
+    self.dh - t * self.ds / 1000.0
+
+fn main()
+    changes := [Change(name: "ice melting", dh: 6.01, ds: 22.0), Change(name: "ammonia synthesis", dh: -92.2, ds: -198.7), Change(name: "limestone to lime", dh: 178.3, ds: 160.5), Change(name: "hydrogen peroxide splitting", dh: -196.0, ds: 125.8), Change(name: "ozone from oxygen", dh: 285.4, ds: -137.6)]
+    for c in changes
+        mut parts := List[str]()
+        for t in [250.0, 298.0, 1500.0]
+            parts.push("{c.dg(t):.1} at {t:.0} K")
+        shown := parts.join(", ")
+        k := c.kind()
+        print("{c.name}: dG {shown} kJ")
+        match k
+            BelowT => print("  runs below {c.dh / c.ds * 1000.0:.0} K")
+            AboveT => print("  runs above {c.dh / c.ds * 1000.0:.0} K")
+            Always => print("  runs at every temperature")
+            Never => print("  never runs on its own")
+
+@test fn crossover()
+    c := Change(name: "x", dh: 10.0, ds: 20.0)
+    assert_eq(c.dg(500.0), 0.0)
+    assert_eq(c.kind(), Kind.AboveT)

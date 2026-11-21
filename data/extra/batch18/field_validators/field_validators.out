@@ -1,0 +1,3 @@
+form 1: ok
+form 2: user at least 3 letters; email has an @; pin digits only
+form 3: user at most 12 letters; pin exactly 4 long

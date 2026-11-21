@@ -1,0 +1,29 @@
+## Magnetic fields: a long solenoid has B = mu0 n I inside (n turns per metre) and a straight wire
+## B = mu0 I / (2 pi r) around it; finds the turns for a target field and where a wire matches the Earth's 50 uT.
+
+PI := 3.141592653589793
+MU0 := 0.0000012566370614
+
+fn solenoid(turns int, length float, amps float) float
+    MU0 * turns.to_float() / length * amps
+
+fn wire(amps float, r float) float
+    MU0 * amps / (2.0 * PI * r)
+
+fn turns_for(target float, length float, amps float) int
+    (target * length / (MU0 * amps)).ceil().to_int()
+
+fn main()
+    for t in [200, 500, 1000]
+        b := solenoid(t, 0.2, 2.0) * 1000.0
+        print("{t:>4} turns on 20 cm at 2 A: {b:.2} mT")
+    need := turns_for(0.05, 0.2, 2.0)
+    print("50 mT at 2 A needs {need} turns")
+    earth := 0.00005
+    for amps in [1.0, 10.0, 100.0]
+        reach := MU0 * amps / (2.0 * PI * earth)
+        near := wire(amps, 0.01) * 1000000.0
+        print("wire at {amps:.0} A: {near:.0} uT at 1 cm, equals the Earth's field at {reach * 100.0:.1} cm")
+
+@test fn more_turns()
+    assert(solenoid(400, 0.2, 1.0) > solenoid(200, 0.2, 1.0))

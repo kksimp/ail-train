@@ -1,0 +1,39 @@
+## Parents' evening: each teacher has twelve 10-minute slots from 16:00; families book their teachers in
+## order, each booking taking that teacher's first free slot after the family's previous appointment.
+
+fn first_free(slots List[bool], from int) int
+    for i in from..slots.len()
+        if not slots[i]
+            return i
+    -1
+
+fn at(slot int) str
+    m := 16 * 60 + slot * 10
+    h := m / 60
+    mm := m % 60
+    "{h:02}:{mm:02}"
+
+fn main()
+    mut booked := {"Maths": [false, false, false, false, false, false, false, false, false, false, false, false], "English": [true, true, false, false, false, false, false, false, false, false, false, false], "Science": [false, false, false, false, false, false, false, false, false, false, false, false], "Art": [false, true, false, true, false, false, false, false, false, false, true, true]}
+    families := [("Patel", ["Maths", "English", "Art"]), ("Okoye", ["English", "Maths"]), ("Smith", ["Art", "Science", "English"]), ("Ruiz", ["Maths", "Science", "Art"]), ("Kowal", ["Science", "Art", "Maths", "English"])]
+    for f in families
+        name, wants := f
+        mut next := 0
+        mut parts := List[str]()
+        for t in wants
+            s := first_free(booked[t], next)
+            if s < 0
+                parts.push("{t} full")
+                continue
+            booked[t][s] = true
+            parts.push("{t} {at(s)}")
+            next = s + 1
+        joined := parts.join(", ")
+        print("{name:<6} {joined}")
+    for t, slots in booked
+        n := slots.count(|b| b)
+        print("{t}: {n} of 12 slots taken")
+
+@test fn free_slot()
+    assert_eq(first_free([true, false, false], 0), 1)
+    assert_eq(first_free([true, true], 0), -1)

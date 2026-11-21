@@ -1,0 +1,41 @@
+## Takt line balancing: 480 units a day in 28,800 seconds gives a takt of 60 s; stations are filled by the largest
+## candidate rule, taking the longest task whose predecessors are done and that fits the time left, and efficiency is shown.
+
+struct Job
+    name str
+    secs int
+    preds List[str]
+
+fn main()
+    jobs := [Job(name: "A", secs: 45, preds: []), Job(name: "B", secs: 30, preds: ["A"]), Job(name: "C", secs: 25, preds: ["A"]), Job(name: "D", secs: 40, preds: ["B"]), Job(name: "E", secs: 20, preds: ["B", "C"]), Job(name: "F", secs: 35, preds: ["C"]), Job(name: "G", secs: 30, preds: ["D", "E"]), Job(name: "H", secs: 15, preds: ["F", "G"])]
+    takt := 28800 / 480
+    mut done := Set[str]()
+    mut stations := 0
+    while done.len() < jobs.len()
+        stations += 1
+        mut left := takt
+        mut names := List[str]()
+        mut adding := true
+        while adding
+            mut pick := -1
+            for i in 0..jobs.len()
+                j := jobs[i]
+                ready := j.preds.all(|p| done.contains(p))
+                if not done.contains(j.name) and ready and j.secs <= left
+                    if pick == -1 or j.secs > jobs[pick].secs
+                        pick = i
+            if pick == -1
+                adding = false
+            else
+                done.add(jobs[pick].name)
+                names.push(jobs[pick].name)
+                left -= jobs[pick].secs
+        joined := names.join(" ")
+        print("station {stations}: {joined}, idle {left} s")
+    work := jobs.fold(0, |a, j| a + j.secs)
+    least := (work + takt - 1) / takt
+    eff := work * 1000 / (stations * takt)
+    print("takt {takt} s, work {work} s: {stations} stations (at least {least}), efficiency {eff / 10}.{eff % 10}%")
+
+@test fn takt_time()
+    assert_eq(28800 / 480, 60)

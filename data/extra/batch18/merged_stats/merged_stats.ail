@@ -1,0 +1,49 @@
+## Merged stats: a trait `Mergeable` with `fn empty() Self` and `merge`; one generic
+## `combine_all[T Mergeable]` starts from `T.empty()` and folds shop days or weather spans.
+
+trait Mergeable
+    fn empty() Self
+    fn merge(self, other Self) Self
+
+struct ShopDay
+    sales int
+    visits int
+    best int
+
+impl Mergeable for ShopDay
+    fn empty() Self
+        ShopDay(sales: 0, visits: 0, best: 0)
+    fn merge(self, other Self) Self
+        ShopDay(sales: sales + other.sales, visits: visits + other.visits, best: best.max(other.best))
+
+struct Span
+    lo int
+    hi int
+    days int
+
+impl Mergeable for Span
+    fn empty() Self
+        Span(lo: 1000, hi: -1000, days: 0)
+    fn merge(self, other Self) Self
+        Span(lo: lo.min(other.lo), hi: hi.max(other.hi), days: days + other.days)
+
+fn combine_all[T Mergeable](xs List[T]) T
+    mut acc := T.empty()
+    for x in xs
+        acc = acc.merge(x)
+    acc
+
+fn main()
+    week := [ShopDay(sales: 1240, visits: 88, best: 310), ShopDay(sales: 980, visits: 75, best: 420), ShopDay(sales: 1515, visits: 102, best: 260)]
+    total := combine_all(week)
+    print(total)
+    print("average sale {total.sales / total.visits} per visit")
+    spans := [Span(lo: 3, hi: 11, days: 7), Span(lo: -2, hi: 8, days: 7), Span(lo: 5, hi: 14, days: 6)]
+    whole := combine_all(spans)
+    print("{whole.days} days from {whole.lo} to {whole.hi} degrees")
+    nothing := combine_all(List[Span]())
+    print("no data: {nothing.days} days")
+
+@test fn empty_is_identity()
+    s := ShopDay(sales: 5, visits: 1, best: 5)
+    assert_eq(ShopDay.empty().merge(s), s)

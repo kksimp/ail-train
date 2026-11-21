@@ -1,0 +1,29 @@
+## Opening auction: buy and sell orders with limits are collected before the open; the price that trades the
+## most shares is chosen, ties going to the smaller leftover imbalance and then to the lower price.
+
+fn main()
+    buys := [(102, 300), (101, 200), (100, 400), (99, 300), (98, 500)]
+    sells := [(97, 200), (98, 300), (99, 300), (100, 300), (101, 400), (103, 500)]
+    mut best := 0
+    mut best_vol := -1
+    mut best_gap := 0
+    for p in 97..=103
+        mut b := 0
+        for o in buys
+            if o.0 >= p
+                b += o.1
+        mut s := 0
+        for o in sells
+            if o.0 <= p
+                s += o.1
+        vol := b.min(s)
+        gap := (b - s).abs()
+        print("{p}: buyers {b:>4}, sellers {s:>4}, trades {vol:>4}, imbalance {gap:>4}")
+        if vol > best_vol or (vol == best_vol and gap < best_gap)
+            best = p
+            best_vol = vol
+            best_gap = gap
+    print("opening price {best}: {best_vol} shares trade, {best_gap} left unmatched")
+
+@test fn gap_is_absolute()
+    assert_eq((300 - 500).abs(), 200)

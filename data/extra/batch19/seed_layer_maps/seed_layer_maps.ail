@@ -1,0 +1,57 @@
+## Seed layer maps: a crop plan sends seed numbers through soil, water and light tables of
+## "dest src len" shifts; part 1 maps single seeds, part 2 maps whole seed ranges by splitting them at rule edges.
+
+fn parse_layer(text str) List[List[int]]
+    body := text.split(": ")[1]
+    mut rules := List[List[int]]()
+    for part in body.split("; ")
+        rules.push(part.split(" ").map(|w| (w.to_int() else 0)))
+    rules
+
+fn map_one(rules List[List[int]], v int) int
+    for r in rules
+        if v >= r[1] and v < r[1] + r[2]
+            return v - r[1] + r[0]
+    v
+
+fn map_spans(rules List[List[int]], spans List[List[int]]) List[List[int]]
+    mut pending := spans
+    mut done := List[List[int]]()
+    for r in rules
+        mut rest := List[List[int]]()
+        for s in pending
+            lo := s[0].max(r[1])
+            hi := s[1].min(r[1] + r[2])
+            if lo < hi
+                done.push([lo - r[1] + r[0], hi - r[1] + r[0]])
+                if s[0] < lo
+                    rest.push([s[0], lo])
+                if hi < s[1]
+                    rest.push([hi, s[1]])
+            else
+                rest.push(s)
+        pending = rest
+    done.extend(pending)
+    done
+
+fn main()
+    seeds := [12, 30, 55, 8, 71, 14]
+    texts := ["soil: 40 10 15; 10 30 20; 70 55 10", "water: 0 40 12; 60 0 10", "light: 25 60 30; 5 85 10"]
+    layers := texts.map(|t| parse_layer(t))
+    mut low := 1000000
+    for s in seeds
+        mut v := s
+        for rules in layers
+            v = map_one(rules, v)
+        print("seed {s} ends on plot {v}")
+        low = low.min(v)
+    print("part 1: lowest plot {low}")
+    mut spans := [[12, 42], [55, 63], [71, 85]]
+    for rules in layers
+        spans = map_spans(rules, spans)
+    best := spans.map(|s| s[0]).min() else 0
+    print("part 2: {spans.len()} ranges after the light layer, lowest plot {best}")
+
+@test fn split_span()
+    rules := [[100, 10, 5]]
+    assert_eq(map_spans(rules, [[8, 12]]), [[100, 102], [8, 10]])

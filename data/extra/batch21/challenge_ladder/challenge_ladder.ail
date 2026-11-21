@@ -1,0 +1,34 @@
+## Challenge ladder: a player may challenge someone one or two rungs above; if the challenger wins they
+## take that rung and everyone in between moves down one, otherwise the ladder stays as it is.
+
+fn challenge(mut ladder List[str], c str, d str, won bool) str ! Fail
+    ci := ladder.index_of(c) else return Fail(msg: "{c} is not on the ladder")
+    di := ladder.index_of(d) else return Fail(msg: "{d} is not on the ladder")
+    gap := ci - di
+    if gap < 1
+        return Fail(msg: "{d} is not above {c}")
+    if gap > 2
+        return Fail(msg: "{d} is {gap} rungs above {c}, too far")
+    if not won
+        return "{d} holds rung {di + 1}"
+    ladder.remove_at(ci)
+    ladder.insert(di, c)
+    "{c} climbs to rung {di + 1}"
+
+fn main()
+    mut ladder := ["Ash", "Bex", "Cal", "Dot", "Eli", "Fin"]
+    games := [("Dot", "Bex", true), ("Fin", "Cal", true), ("Eli", "Ash", true), ("Cal", "Fin", false), ("Bex", "Ash", true), ("Dot", "Eli", true), ("Gus", "Fin", true)]
+    for g in games
+        c, d, won := g
+        if msg := challenge(mut ladder, c, d, won)
+            print(msg)
+        else err
+            print("refused: {err.msg}")
+    for i, name in ladder.enumerate()
+        print("{i + 1}. {name}")
+
+@test fn climb()
+    mut l := ["a", "b", "c"]
+    msg := challenge(mut l, "c", "a", true)?
+    assert_eq(l, ["c", "a", "b"])
+    assert_eq(msg, "c climbs to rung 1")

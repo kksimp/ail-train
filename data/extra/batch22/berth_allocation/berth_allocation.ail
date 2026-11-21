@@ -1,0 +1,34 @@
+## Berth allocation: ships arrive in order and each takes the berth long enough for it that can start work
+## soonest, the shorter berth on a tie; waiting hours per ship and in total show how busy the quay is.
+
+struct Berth
+    name str
+    length int
+    free int
+
+fn main()
+    mut berths := [Berth(name: "North", length: 180, free: 0), Berth(name: "Middle", length: 250, free: 0), Berth(name: "South", length: 320, free: 0)]
+    ships := [("Aurora", 0, 160, 10), ("Borealis", 2, 290, 14), ("Cygnus", 3, 200, 8), ("Draco", 5, 150, 6), ("Electra", 6, 240, 12), ("Fornax", 9, 310, 9), ("Gemma", 11, 170, 5)]
+    mut waited := 0
+    for s in ships
+        name, arrive, length, hours := s
+        mut pick := -1
+        mut pick_start := 0
+        for i in 0..berths.len()
+            b := berths[i]
+            if b.length >= length
+                start := arrive.max(b.free)
+                if pick == -1 or start < pick_start or (start == pick_start and b.length < berths[pick].length)
+                    pick = i
+                    pick_start = start
+        if pick == -1
+            print("{name}: too long for every berth")
+            continue
+        berths[pick].free = pick_start + hours
+        wait := pick_start - arrive
+        waited += wait
+        print("{name:<8} ({length} m) arrives {arrive:>2}h: {berths[pick].name} from {pick_start:>2}h to {pick_start + hours:>2}h, waits {wait}h")
+    print("total waiting {waited} hours")
+
+@test fn start_rule()
+    assert_eq(3.max(10), 10)

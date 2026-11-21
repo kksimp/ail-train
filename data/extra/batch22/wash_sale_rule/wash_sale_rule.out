@@ -1,0 +1,5 @@
+day 60: lot 1 loss of 1000 deferred to lot 2, its cost now 5200
+day 130: lot 2 loss of 500 deferred to lot 3, its cost now 5000
+day 200: lot 3 loss of 100 allowed
+day 220: lot 4 sold at a gain of 2500
+net result counted 2400, losses deferred 1500

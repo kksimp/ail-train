@@ -1,0 +1,46 @@
+## Ridge climb route: a height map of letters a-z (S lowest start, E highest goal) where each step may climb at
+## most one letter; one breadth-first search backwards from E gives the shortest climb from S and from any 'a' cell.
+
+fn height(ch char) int
+    match ch
+        'S' => 0
+        'E' => 25
+        _ => ch.code() - 97
+
+fn main()
+    lines := ["Sabcdefg", "onmlkjih", "pqrstuvw", "abccEzyx", "aabbccdd"]
+    g := lines.map(|l| l.chars())
+    rows := g.len()
+    cols := g[0].len()
+    mut dist := Map[int, int]()
+    mut queue := List[int]()
+    for r in 0..rows
+        for c in 0..cols
+            if g[r][c] == 'E'
+                dist[r * 100 + c] = 0
+                queue.push(r * 100 + c)
+    mut head := 0
+    while head < queue.len()
+        cur := queue[head]
+        head += 1
+        r := cur / 100
+        c := cur % 100
+        for d in [[1, 0], [-1, 0], [0, 1], [0, -1]]
+            nr := r + d[0]
+            nc := c + d[1]
+            if nr >= 0 and nr < rows and nc >= 0 and nc < cols and not dist.contains(nr * 100 + nc)
+                if height(g[r][c]) <= height(g[nr][nc]) + 1
+                    dist[nr * 100 + nc] = dist[cur] + 1
+                    queue.push(nr * 100 + nc)
+    print("{dist.len()} of {rows * cols} cells can reach the summit")
+    print("part 1: {dist.get_or(0, -1)} steps from S")
+    mut best := 1000
+    for r in 0..rows
+        for c in 0..cols
+            if height(g[r][c]) == 0 and dist.contains(r * 100 + c)
+                best = best.min(dist[r * 100 + c])
+    print("part 2: {best} steps from the best low cell")
+
+@test fn heights()
+    assert_eq(height('S'), 0)
+    assert_eq(height('E'), height('z'))

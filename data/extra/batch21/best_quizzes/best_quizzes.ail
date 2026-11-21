@@ -1,0 +1,23 @@
+## Best quizzes: the final mark keeps the best five of seven quizzes (each out of 20) at 30%, with the
+## project at 30% and the exam at 40%; it is given in tenths of a percent and as a grade.
+
+fn best_five(qs List[int]) int
+    qs.sorted().reversed().take(5).sum()
+
+fn grade(t int) str
+    if t >= 700 then "A" elif t >= 600 then "B" elif t >= 500 then "C" else "D"
+
+fn main()
+    pupils := [("Aoife", [14, 17, 9, 18, 16, 20, 11], 72, 68), ("Bilal", [12, 0, 15, 13, 0, 16, 14], 65, 59), ("Carys", [19, 18, 20, 17, 19, 15, 20], 88, 91), ("Deon", [8, 10, 7, 12, 9, 11, 6], 55, 47)]
+    for p in pupils
+        name, qs, project, exam := p
+        q := best_five(qs)
+        dropped := qs.sorted().take(2)
+        t := (q * 30 + project * 30 + exam * 40) / 10
+        print("{name:<6} quizzes {q}% (dropped {dropped}), project {project}%, exam {exam}%: {t / 10}.{t % 10}% {grade(t)}")
+    best := pupils.max(by: |p| p.3) else pupils[0]
+    print("top exam mark: {best.0} with {best.3}%")
+
+@test fn top_five()
+    assert_eq(best_five([10, 20, 5, 15, 12, 18, 3]), 75)
+    assert_eq(grade(700), "A")

@@ -1,0 +1,27 @@
+## Expense pair triple: an audit looks for the two receipts, then the three receipts, that add up to exactly
+## 1500; a set of seen amounts finds the pair in one pass and the triple in a nested pass; reports the products.
+
+fn pair(xs List[int], target int) List[int]
+    mut seen := Set[int]()
+    for x in xs
+        if seen.contains(target - x)
+            return [target - x, x]
+        seen.add(x)
+    []
+
+fn main()
+    receipts := [412, 977, 260, 1188, 655, 89, 523, 741, 336, 870, 104, 1311]
+    target := 1500
+    two := pair(receipts, target)
+    print("pair: {two[0]} + {two[1]} = {target}")
+    print("part 1: product {two[0] * two[1]}")
+    for i, x in receipts.enumerate()
+        rest := pair(receipts.slice(i + 1), target - x)
+        if not rest.is_empty()
+            print("triple: {x} + {rest[0]} + {rest[1]} = {target}")
+            print("part 2: product {x * rest[0] * rest[1]}")
+            break
+
+@test fn finds()
+    assert_eq(pair([1, 5, 9], 14), [5, 9])
+    assert(pair([1, 2], 9).is_empty())

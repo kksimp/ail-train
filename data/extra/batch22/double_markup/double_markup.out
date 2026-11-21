@@ -1,0 +1,11 @@
+one firm: price 60, sells 40, profit 1600
+wholesale  20: shop price  60, sells 40, maker    0, shop 1600
+wholesale  30: shop price  65, sells 35, maker  350, shop 1225
+wholesale  40: shop price  70, sells 30, maker  600, shop  900
+wholesale  50: shop price  75, sells 25, maker  750, shop  625
+wholesale  60: shop price  80, sells 20, maker  800, shop  400
+wholesale  70: shop price  85, sells 15, maker  750, shop  225
+wholesale  80: shop price  90, sells 10, maker  600, shop  100
+wholesale  90: shop price  95, sells  5, maker  350, shop   25
+wholesale 100: shop price 100, sells  0, maker    0, shop    0
+two firms: wholesale 60, price 80, total profit 1200 against 1600

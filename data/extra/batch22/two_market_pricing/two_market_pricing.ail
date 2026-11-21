@@ -1,0 +1,41 @@
+## Two-market pricing: a seller facing demand 100 - 2p in one market and 60 - p in another, with unit cost
+## 10, finds the best whole price for each market alone and the best single price for both together.
+
+struct Market
+    a int
+    b int
+
+fn sold(m Market, p int) int
+    (m.a - m.b * p).max(0)
+
+fn profit(markets List[Market], p int) int
+    mut total := 0
+    for m in markets
+        total += (p - 10) * sold(m, p)
+    total
+
+fn best_price(markets List[Market]) int
+    mut best := 10
+    for p in 10..=60
+        if profit(markets, p) > profit(markets, best)
+            best = p
+    best
+
+fn main()
+    home := Market(a: 100, b: 2)
+    away := Market(a: 60, b: 1)
+    hp := [home]
+    ap := [away]
+    p1 := best_price(hp)
+    p2 := best_price(ap)
+    split := profit(hp, p1) + profit(ap, p2)
+    print("home market: price {p1}, sells {sold(home, p1)}, profit {profit(hp, p1)}")
+    print("away market: price {p2}, sells {sold(away, p2)}, profit {profit(ap, p2)}")
+    both := [home, away]
+    p := best_price(both)
+    one := profit(both, p)
+    print("one price for both: {p}, sells {sold(home, p)} + {sold(away, p)}, profit {one}")
+    print("separate prices earn {split - one} more")
+
+@test fn home_peak()
+    assert_eq(profit([Market(a: 100, b: 2)], 30), 800)

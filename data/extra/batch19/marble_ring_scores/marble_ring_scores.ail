@@ -1,0 +1,30 @@
+## Marble ring scores: players add numbered marbles to a circle, each two places clockwise, but a
+## marble divisible by 13 is kept and scores with the marble 5 places counter-clockwise; best score for 120 and 1200 marbles.
+
+fn play(players int, last int) int
+    mut ring := [0]
+    mut cur := 0
+    mut scores := List[int]()
+    for _ in 0..players
+        scores.push(0)
+    for m in 1..=last
+        if m % 13 == 0
+            n := ring.len()
+            at := ((cur - 5) % n + n) % n
+            scores[m % players] += m + ring[at]
+            ring.remove_at(at)
+            cur = at % ring.len()
+        else
+            at := (cur + 1) % ring.len() + 1
+            ring.insert(at, m)
+            cur = at
+    scores.max() else 0
+
+fn main()
+    for players in [5, 7]
+        print("{players} players, 40 marbles: best score {play(players, 40)}")
+    print("part 1: 9 players, 120 marbles: best score {play(9, 120)}")
+    print("part 2: 9 players, 1200 marbles: best score {play(9, 1200)}")
+
+@test fn early()
+    assert_eq(play(2, 12), 0)

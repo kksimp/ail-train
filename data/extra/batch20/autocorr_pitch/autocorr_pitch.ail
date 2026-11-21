@@ -1,0 +1,36 @@
+## Pitch by autocorrelation: a periodic signal lines up with itself when shifted by one period, so the lag
+## with the largest sum of x[n] x[n + lag] (searched from 2.5 ms to 20 ms) gives the fundamental frequency.
+
+PI := 3.141592653589793
+
+fn voice(f0 float, rate float, n int) List[float]
+    mut xs := List[float]()
+    for i in 0..n
+        t := i.to_float() / rate
+        xs.push((2.0 * PI * f0 * t).sin() + 0.6 * (4.0 * PI * f0 * t).sin() + 0.3 * (6.0 * PI * f0 * t).sin())
+    xs
+
+fn autocorr(xs List[float], lag int) float
+    mut s := 0.0
+    for i in 0..xs.len() - lag
+        s += xs[i] * xs[i + lag]
+    s
+
+fn best_lag(xs List[float], lo int, hi int) int
+    mut best := lo
+    for lag in lo..=hi
+        if autocorr(xs, lag) > autocorr(xs, best)
+            best = lag
+    best
+
+fn main()
+    rate := 8000.0
+    for f0 in [100.0, 160.0, 200.0, 250.0, 320.0]
+        xs := voice(f0, rate, 800)
+        lag := best_lag(xs, 20, 160)
+        est := rate / lag.to_float()
+        zero := autocorr(xs, 0)
+        print("{f0:.0} Hz voice: best lag {lag} samples -> {est:.1} Hz, peak {autocorr(xs, lag) / zero:.3} of r(0)")
+
+@test fn lag_zero_is_energy()
+    assert_eq(autocorr([1.0, 2.0, 3.0], 0), 14.0)

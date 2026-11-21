@@ -1,0 +1,7 @@
+ 0 min: dark 1000.0 K, polished 1000.0 K
+ 5 min: dark  828.8 K, polished  975.0 K
+10 min: dark  736.6 K, polished  952.3 K
+20 min: dark  631.9 K, polished  912.6 K
+40 min: dark  528.7 K, polished  849.7 K
+60 min: dark  473.9 K, polished  801.3 K
+the dark ball falls below 600 K after 25 minutes

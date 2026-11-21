@@ -1,0 +1,31 @@
+## Entropy of mixing: ideal gases mixing at the same temperature and pressure gain dS = -R sum n_i ln x_i,
+## largest for equal shares; heat Q leaking from hot to cold also gains Q / Tc - Q / Th, always positive.
+
+R := 8.314
+
+struct Gas
+    name str
+    moles float
+
+fn mixing(gases List[Gas]) float
+    total := gases.fold(0.0, |acc, g| acc + g.moles)
+    mut s := 0.0
+    for g in gases
+        x := g.moles / total
+        s -= R * g.moles * x.ln()
+    s
+
+fn main()
+    mixes := [[Gas(name: "N2", moles: 1.0), Gas(name: "O2", moles: 1.0)], [Gas(name: "N2", moles: 0.78), Gas(name: "O2", moles: 0.21), Gas(name: "Ar", moles: 0.01)], [Gas(name: "He", moles: 0.1), Gas(name: "Ne", moles: 1.9)], [Gas(name: "H2", moles: 1.0), Gas(name: "N2", moles: 1.0), Gas(name: "O2", moles: 1.0), Gas(name: "CO2", moles: 1.0)]]
+    for mix in mixes
+        names := mix.map(|g| "{g.moles} {g.name}").join(" and ")
+        ds := mixing(mix)
+        per := ds / mix.fold(0.0, |acc, g| acc + g.moles)
+        print("{names}: dS {ds:.3} J/K, {per:.3} J/K per mole")
+    q := 1000.0
+    for pair in [(400.0, 300.0), (600.0, 300.0), (301.0, 300.0)]
+        th, tc := pair
+        print("1 kJ from {th:.0} K to {tc:.0} K: dS {q / tc - q / th:.4} J/K")
+
+@test fn pure_gas()
+    assert_eq(mixing([Gas(name: "Ar", moles: 2.0)]), 0.0)

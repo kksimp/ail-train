@@ -1,0 +1,36 @@
+## Key handover: a house's keys are passed between people; a handover is refused when the giver does not
+## hold that key, and the final holders and who carries the most keys are listed.
+
+fn hand(mut holder Map[str, str], key str, from str, to str) int ! str
+    cur := holder.get(key) else return "no such key: {key}"
+    if cur != from
+        return "{from} cannot give the {key} key, {cur} has it"
+    holder[key] = to
+    mut n := 0
+    for who in holder.values()
+        if who == to
+            n += 1
+    n
+
+fn main()
+    mut holder := {"front": "safe", "back": "safe", "garage": "Omar", "shed": "Omar", "spare": "safe"}
+    moves := [("front", "safe", "Lena"), ("back", "Lena", "Pete"), ("back", "safe", "Pete"), ("garage", "Omar", "Lena"), ("loft", "Omar", "Pete"), ("shed", "Omar", "Lena"), ("front", "Lena", "safe"), ("spare", "safe", "Lena")]
+    mut refused := 0
+    for mv in moves
+        key, from, to := mv
+        if n := hand(mut holder, key, from, to)
+            print("{key} key: {from} -> {to} ({to} now holds {n})")
+        else err
+            refused += 1
+            print("refused: {err}")
+    mut count := Map[str, int]()
+    for who in holder.values()
+        count[who] += 1
+    for key, who in holder
+        print("{key:<7} {who}")
+    most := count.keys().sorted(by: |w| -count[w])
+    print("{refused} refused; most keys: {most[0]} with {count[most[0]]}")
+
+@test fn wrong_giver()
+    mut h := {"front": "Ann"}
+    assert_err(hand(mut h, "front", "Bob", "Cat"))

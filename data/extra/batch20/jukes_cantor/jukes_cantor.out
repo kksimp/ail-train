@@ -1,0 +1,11 @@
+frog-toad: p 0.0667, Jukes-Cantor 0.0698
+frog-newt: p 0.2333, Jukes-Cantor 0.2795
+frog-fish: p 0.5333, Jukes-Cantor 0.9313
+toad-newt: p 0.3000, Jukes-Cantor 0.3831
+toad-fish: p 0.5667, Jukes-Cantor 1.0566
+newt-fish: p 0.3000, Jukes-Cantor 0.3831
+p 0.1: d 0.107
+p 0.3: d 0.383
+p 0.5: d 0.824
+p 0.7: d 2.031
+p 0.75: d infinite

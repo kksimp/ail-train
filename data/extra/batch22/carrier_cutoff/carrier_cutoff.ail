@@ -1,0 +1,37 @@
+## Carrier cutoffs: one packing bench from 13:00 packs orders either in arrival order or by the earliest carrier
+## cutoff first; an order finished after its carrier's collection waits for tomorrow.
+
+struct Order
+    id int
+    minutes int
+    carrier str
+    cutoff int
+
+fn clock(m int) str
+    h := m / 60
+    mm := m % 60
+    "{h:02}:{mm:02}"
+
+fn pack(orders List[Order], show bool) int
+    mut t := 780
+    mut missed := 0
+    for o in orders
+        t += o.minutes
+        late := t > o.cutoff
+        if late
+            missed += 1
+        if show or late
+            note := if late then "misses" else "makes"
+            print("  order {o.id} ({o.carrier}) done {clock(t)}, {note} the {clock(o.cutoff)} collection")
+    missed
+
+fn main()
+    orders := [Order(id: 1, minutes: 25, carrier: "ground", cutoff: 1020), Order(id: 2, minutes: 15, carrier: "express", cutoff: 870), Order(id: 3, minutes: 30, carrier: "ground", cutoff: 1020), Order(id: 4, minutes: 10, carrier: "express", cutoff: 870), Order(id: 5, minutes: 20, carrier: "freight", cutoff: 960), Order(id: 6, minutes: 35, carrier: "ground", cutoff: 1020), Order(id: 7, minutes: 15, carrier: "express", cutoff: 870), Order(id: 8, minutes: 25, carrier: "freight", cutoff: 960)]
+    print("arrival order, late orders only:")
+    first := pack(orders, false)
+    print("earliest cutoff first:")
+    second := pack(orders.sorted(by: |o| o.cutoff), true)
+    print("missed: {first} in arrival order, {second} by cutoff")
+
+@test fn none_late()
+    assert_eq(pack([Order(id: 1, minutes: 10, carrier: "x", cutoff: 800)], false), 0)

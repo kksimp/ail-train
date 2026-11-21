@@ -1,0 +1,9 @@
+sensor (8,1) reaches 10
+sensor (0,5) reaches 6
+sensor (14,5) reaches 7
+sensor (5,16) reaches 9
+sensor (18,5) reaches 9
+sensor (15,16) reaches 10
+sensor (19,18) reaches 7
+part 1: 23 cells on row 10 cannot hold a beacon
+part 2: 1 uncovered cells, first at (10,10) tuning 40010

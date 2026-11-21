@@ -1,0 +1,8 @@
+P1 (Temp.Ambient, 140 cm): A-02, put away within end of shift
+P2 (Temp.Frozen, 130 cm): F-01, put away within 15 minutes
+P3 (Temp.Chilled, 150 cm): no space, waits at the dock
+P4 (Temp.Ambient, 90 cm): A-01, put away within end of shift
+P5 (Temp.Frozen, 190 cm): F-02, put away within 15 minutes
+P6 (Temp.Ambient, 150 cm): A-03, put away within end of shift
+P7 (Temp.Frozen, 120 cm): no space, waits at the dock
+free spots left: C-01

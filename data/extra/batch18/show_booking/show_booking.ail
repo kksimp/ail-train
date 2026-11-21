@@ -1,0 +1,35 @@
+## Show booking: booking theatre seats fails with an `error enum` (unknown show, sold out, too many
+## at once); results are handled with `if n := book(...)` / `else err` and the seats left are shown.
+
+error enum BookingError
+    UnknownShow(name str) "no show called {name}"
+    SoldOut(name str) "{name} is sold out"
+    TooMany(max int) "at most {max} seats per booking"
+
+fn book(mut seats Map[str, int], show str, n int) int ! BookingError
+    if n > 6
+        return BookingError.TooMany(max: 6)
+    left := seats.get(show) else return BookingError.UnknownShow(name: show)
+    if left < n
+        return BookingError.SoldOut(name: show)
+    seats[show] = left - n
+    left - n
+
+fn main()
+    mut seats := {"Hamlet": 8, "Cats": 3, "Gaslight": 20}
+    asks := [("Hamlet", 4), ("Cats", 2), ("Cats", 2), ("Grease", 2), ("Gaslight", 9), ("Hamlet", 4), ("Hamlet", 1)]
+    mut booked := 0
+    for a in asks
+        show, n := a
+        if left := book(mut seats, show, n)
+            booked += n
+            print("{n} for {show}: ok, {left} left")
+        else err
+            print("{n} for {show}: {err}")
+    print("{booked} seats booked")
+    for show, left in seats
+        print("{show}: {left} free")
+
+@test fn limit()
+    mut s := {"A": 50}
+    assert_err(book(mut s, "A", 7), BookingError.TooMany)

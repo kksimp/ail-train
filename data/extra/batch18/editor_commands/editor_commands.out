@@ -1,0 +1,7 @@
+start: demo moved to friday
+insert 'Dear team, ' at 0 -> Dear team, demo moved to friday
+replace 'friday' with 'Thursday' -> Dear team, demo moved to Thursday
+delete 5 at 11 -> Dear team, moved to Thursday
+insert 'our call ' at 11 -> Dear team, our call moved to Thursday
+upper-case all -> DEAR TEAM, OUR CALL MOVED TO THURSDAY
+37 characters

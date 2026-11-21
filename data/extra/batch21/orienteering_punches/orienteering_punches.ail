@@ -1,0 +1,41 @@
+## Orienteering punches: a run counts only if the course's controls appear in the punch record in order
+## (extra punches are fine); the first control missing is named, and valid runs are ranked by time.
+
+struct Run
+    name str
+    start int
+    finish int
+    punches List[int]
+
+fn first_missing(course List[int], punches List[int]) int?
+    mut at := 0
+    for c in course
+        mut found := false
+        while at < punches.len()
+            at += 1
+            if punches[at - 1] == c
+                found = true
+                break
+        if not found
+            return c
+    none
+
+fn mmss(s int) str
+    m := s / 60
+    r := s % 60
+    "{m}:{r:02}"
+
+fn main()
+    course := [31, 45, 38, 52, 33]
+    runs := [Run(name: "Ada", start: 600, finish: 2434, punches: [31, 45, 38, 52, 33]), Run(name: "Bram", start: 720, finish: 2430, punches: [31, 38, 45, 52, 33]), Run(name: "Cass", start: 840, finish: 2742, punches: [31, 45, 44, 38, 52, 33]), Run(name: "Dev", start: 960, finish: 2615, punches: [31, 45, 38, 33]), Run(name: "Ezra", start: 1080, finish: 2857, punches: [31, 31, 45, 38, 52, 52, 33])]
+    valid := runs.filter(|r| first_missing(course, r.punches) == none)
+    ranked := valid.sorted(by: |r| r.finish - r.start)
+    for i, r in ranked.enumerate()
+        print("{i + 1}. {r.name:<5} {mmss(r.finish - r.start)}")
+    for r in runs
+        if c := first_missing(course, r.punches)
+            print("mp {r.name:<5} missed control {c} ({mmss(r.finish - r.start)} not counted)")
+
+@test fn order_matters()
+    assert_eq(first_missing([1, 2], [2, 1]) else 0, 2)
+    assert(first_missing([1, 2], [1, 7, 2]) == none)

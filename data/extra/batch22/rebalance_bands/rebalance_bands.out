@@ -1,0 +1,12 @@
+total 100000, largest drift 1.0 points
+  inside the band: no trades
+total 105000, largest drift 8.5 points
+  equity    72000 ->  63000: sell 9000
+  bonds     20000 ->  26250: buy 6250
+  property   9000 ->  10500: buy 1500
+  cash       4000 ->   5250: buy 1250
+total 100000, largest drift 6.0 points
+  equity    55000 ->  60000: buy 5000
+  bonds     31000 ->  25000: sell 6000
+  property   9500 ->  10000: buy 500
+  cash       4500 ->   5000: buy 500

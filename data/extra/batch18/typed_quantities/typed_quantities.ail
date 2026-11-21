@@ -1,0 +1,44 @@
+## Typed quantities: `type Grams = int` and `type Millilitres = int` are distinct types, so a
+## recipe can add grams to grams but never to millilitres; `int(g)` gives the plain number for scaling.
+
+type Grams = int
+type Millilitres = int
+
+struct Dry
+    name str
+    amount Grams
+
+struct Wet
+    name str
+    amount Millilitres
+
+fn scale_g(g Grams, num int, den int) Grams
+    Grams(int(g) * num / den)
+
+fn scale_ml(v Millilitres, num int, den int) Millilitres
+    Millilitres(int(v) * num / den)
+
+fn main()
+    dry := [Dry(name: "flour", amount: Grams(500)), Dry(name: "sugar", amount: Grams(120)), Dry(name: "butter", amount: Grams(90))]
+    wet := [Wet(name: "milk", amount: Millilitres(300)), Wet(name: "water", amount: Millilitres(150))]
+    serves := 4
+    want := 6
+    mut dry_total := Grams(0)
+    for d in dry
+        g := scale_g(d.amount, want, serves)
+        dry_total = dry_total + g
+        before := int(d.amount)
+        after := int(g)
+        print("{d.name:<7} {before:>4} g -> {after:>4} g")
+    mut wet_total := Millilitres(0)
+    for w in wet
+        v := scale_ml(w.amount, want, serves)
+        wet_total = wet_total + v
+        before := int(w.amount)
+        after := int(v)
+        print("{w.name:<7} {before:>4} ml -> {after:>4} ml")
+    print("for {want}: {dry_total} g dry, {wet_total} ml liquid")
+    print("more flour than sugar: {dry[0].amount > dry[1].amount}")
+
+@test fn same_type_add()
+    assert_eq(Grams(2) + Grams(3), Grams(5))

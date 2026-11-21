@@ -1,0 +1,44 @@
+## Build costs: a `Res` struct of wood, stone and gold gets `+` and `-` from `impl Add` and
+## `impl Sub`; a town earns income each turn and builds its queue in order when it can pay.
+
+struct Res
+    wood int
+    stone int
+    gold int
+
+impl Add for Res
+    fn add(self, o Res) Res
+        Res(wood: wood + o.wood, stone: stone + o.stone, gold: gold + o.gold)
+
+impl Sub for Res
+    fn sub(self, o Res) Res
+        Res(wood: wood - o.wood, stone: stone - o.stone, gold: gold - o.gold)
+
+fn Res.covers(self, cost Res) bool
+    self.wood >= cost.wood and self.stone >= cost.stone and self.gold >= cost.gold
+
+fn Res.text(self) str
+    "{self.wood}w {self.stone}s {self.gold}g"
+
+fn main()
+    mut store := Res(wood: 30, stone: 10, gold: 5)
+    income := Res(wood: 12, stone: 6, gold: 2)
+    names := ["farm", "quarry", "wall", "market"]
+    costs := [Res(wood: 40, stone: 0, gold: 0), Res(wood: 30, stone: 10, gold: 5), Res(wood: 20, stone: 40, gold: 0), Res(wood: 50, stone: 20, gold: 15)]
+    mut next := 0
+    mut turn := 0
+    while next < names.len() and turn < 12
+        turn += 1
+        store += income
+        if store.covers(costs[next])
+            store = store - costs[next]
+            print("turn {turn}: built {names[next]}, left {store.text()}")
+            next += 1
+    print("all built by turn {turn}: {next == names.len()}")
+    spent := costs.fold(Res(wood: 0, stone: 0, gold: 0), |acc, c| acc + c)
+    print("spent {spent.text()}")
+
+@test fn add_and_sub()
+    a := Res(wood: 5, stone: 4, gold: 3)
+    b := Res(wood: 1, stone: 1, gold: 1)
+    assert_eq(a + b - b, a)

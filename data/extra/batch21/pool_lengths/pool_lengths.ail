@@ -1,0 +1,30 @@
+## Pool lengths: each swim is a number of 25 m lengths and a time; the distance, the pace per 100 m (m:ss)
+## and the best pace for each stroke are worked out, with the week's distance in kilometres.
+
+fn pace(secs int, metres int) int
+    secs * 100 / metres
+
+fn mmss(s int) str
+    m := s / 60
+    r := s % 60
+    "{m}:{r:02}"
+
+fn main()
+    swims := [("Mon", "free", 40, 1500), ("Tue", "breast", 24, 1080), ("Wed", "free", 60, 2190), ("Thu", "back", 20, 900), ("Fri", "free", 32, 1120), ("Sat", "breast", 30, 1305)]
+    mut best := Map[str, int]()
+    mut metres := 0
+    for s in swims
+        day, stroke, lengths, secs := s
+        m := lengths * 25
+        p := pace(secs, m)
+        metres += m
+        cur := best.get(stroke) else 100000
+        if p < cur
+            best[stroke] = p
+        print("{day} {stroke:<6} {m:>4} m in {mmss(secs):>5}, {mmss(p)} per 100 m")
+    for stroke, p in best
+        print("best {stroke}: {mmss(p)} per 100 m")
+    print("week: {metres / 1000}.{metres % 1000 / 10:02} km")
+
+@test fn pace_check()
+    assert_eq(pace(1500, 1000), 150)

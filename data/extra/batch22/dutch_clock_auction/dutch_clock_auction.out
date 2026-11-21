@@ -1,0 +1,6 @@
+tick 10: clock at 70, Ana takes 30 boxes, 120 left
+tick 12: clock at 66, Bo takes 50 boxes, 70 left
+tick 12: clock at 66, Cy takes 40 boxes, 30 left
+tick 17: clock at 56, Di takes 20 boxes, 10 left
+tick 20: clock at 50, Ed takes 10 boxes, 0 left
+revenue 9660, average 64 a box

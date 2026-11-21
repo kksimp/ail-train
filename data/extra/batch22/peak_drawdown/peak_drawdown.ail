@@ -1,0 +1,38 @@
+## Peak drawdown: a fund's value is tracked against its running peak; each fall below the peak is one episode
+## with its trough, depth in percent and the day the old peak is regained, and the deepest episode is named.
+
+struct Episode
+    peak_day int
+    peak int
+    trough_day int
+    trough int
+    back int
+
+fn main()
+    values := [100, 104, 108, 103, 97, 92, 95, 101, 109, 112, 105, 99, 96, 100, 106, 113, 115, 110, 107]
+    mut episodes := List[Episode]()
+    mut peak_day := 0
+    mut open := false
+    for day in 1..values.len()
+        v := values[day]
+        if v >= values[peak_day]
+            if open
+                episodes[episodes.len() - 1].back = day
+                open = false
+            peak_day = day
+        elif not open
+            episodes.push(Episode(peak_day: peak_day, peak: values[peak_day], trough_day: day, trough: v, back: -1))
+            open = true
+        elif v < episodes[episodes.len() - 1].trough
+            episodes[episodes.len() - 1].trough = v
+            episodes[episodes.len() - 1].trough_day = day
+    mut deepest := 0.0
+    for e in episodes
+        depth := (e.peak - e.trough).to_float() * 100.0 / e.peak.to_float()
+        deepest = deepest.max(depth)
+        back := if e.back < 0 then "not yet" else "day {e.back}"
+        print("peak {e.peak} on day {e.peak_day}, low {e.trough} on day {e.trough_day}: -{depth:.2}%, regained {back}")
+    print("deepest drawdown {deepest:.2}%")
+
+@test fn depth()
+    assert_eq((108 - 81).to_float() * 100.0 / 108.0, 25.0)

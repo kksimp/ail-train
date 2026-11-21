@@ -1,0 +1,22 @@
+## Guest list changes: yesterday's and today's RSVP sets are compared with `difference` (who
+## joined, who dropped out) and `intersect` (unchanged), and `is_subset` checks the VIPs are coming.
+
+fn main()
+    yesterday := {"amir", "bea", "chloe", "dan", "esme", "farid"}
+    today := {"amir", "chloe", "dan", "gwen", "hiro", "farid", "ines"}
+    vips := {"amir", "farid"}
+    joined := today.difference(yesterday).sorted()
+    left := yesterday.difference(today).sorted()
+    stay := today.intersect(yesterday).sorted()
+    print("joined: {joined}")
+    print("dropped out: {left}")
+    print("coming again: {stay.len()}")
+    print("all VIPs coming: {vips.is_subset(today)}")
+    tables := (today.len() + 5) / 6
+    print("{today.len()} guests need {tables} tables of six")
+    everyone := yesterday.union(today)
+    print("{everyone.len()} people have ever said yes")
+
+@test fn subset()
+    small := {"a"}
+    assert(small.is_subset({"a", "b"}))

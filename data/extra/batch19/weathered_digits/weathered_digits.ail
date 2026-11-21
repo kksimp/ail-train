@@ -1,0 +1,41 @@
+## Weathered digits: each faded label hides a two-digit code made of its first and last digit; part 1 reads
+## only numerals, part 2 also reads spelled digits one to nine, which may overlap ("twone" gives 2 then 1).
+
+fn digit_at(s str, i int, words bool) int?
+    ch := s.char_at(i) else return none
+    if ch.is_digit()
+        return ch.to_digit(10)
+    if words
+        names := ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine"]
+        rest := s.slice(i)
+        for k, w in names.enumerate()
+            if rest.starts_with(w)
+                return k + 1
+    none
+
+fn code(s str, words bool) int
+    mut first := -1
+    mut last := -1
+    for i in 0..s.len()
+        if d := digit_at(s, i, words)
+            if first < 0
+                first = d
+            last = d
+    if first < 0 then 0 else first * 10 + last
+
+fn main()
+    labels := ["pq3sevenfour8x", "twone4kz", "xninesix5eightwo", "7abc", "fivezero1nineteen", "3eightthree"]
+    mut p1 := 0
+    mut p2 := 0
+    for l in labels
+        a := code(l, false)
+        b := code(l, true)
+        print("{l:<18} {a:>3} {b:>3}")
+        p1 += a
+        p2 += b
+    print("part 1: {p1}")
+    print("part 2: {p2}")
+
+@test fn overlap()
+    assert_eq(code("twone", true), 21)
+    assert_eq(code("x5y", false), 55)

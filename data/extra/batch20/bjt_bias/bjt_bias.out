@@ -1,0 +1,12 @@
+stiff divider:
+  beta 50: Ic 1.186 mA, Vce 8.18 V, Region.Active
+  beta 150: Ic 1.324 mA, Vce 7.76 V, Region.Active
+  beta 300: Ic 1.363 mA, Vce 7.63 V, Region.Active
+no emitter R:
+  beta 50: Ic 0.457 mA, Vce 10.99 V, Region.Active
+  beta 150: Ic 1.368 mA, Vce 8.99 V, Region.Active
+  beta 300: Ic 2.725 mA, Vce 6.00 V, Region.Active
+too much base:
+  beta 50: Region.Saturated, Vce pinned near 0.2 V, Ic held at 2.282 mA
+  beta 150: Region.Saturated, Vce pinned near 0.2 V, Ic held at 2.282 mA
+  beta 300: Region.Saturated, Vce pinned near 0.2 V, Ic held at 2.282 mA

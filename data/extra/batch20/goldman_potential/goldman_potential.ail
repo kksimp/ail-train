@@ -1,0 +1,37 @@
+## Membrane potential: each ion alone would hold the cell at its Nernst potential (RT / zF) ln(out / in);
+## the Goldman equation weights K+, Na+ and Cl- by permeability, giving about -70 mV at rest and a positive spike.
+
+R := 8.314
+F := 96485.0
+
+struct Ion
+    name str
+    z int
+    inside float
+    outside float
+
+fn nernst_mv(ion Ion, t float) float
+    R * t / (ion.z.to_float() * F) * (ion.outside / ion.inside).ln() * 1000.0
+
+fn goldman_mv(pk float, pna float, pcl float, k Ion, na Ion, cl Ion, t float) float
+    top := pk * k.outside + pna * na.outside + pcl * cl.inside
+    bottom := pk * k.inside + pna * na.inside + pcl * cl.outside
+    R * t / F * (top / bottom).ln() * 1000.0
+
+fn main()
+    t := 310.0
+    k := Ion(name: "K+", z: 1, inside: 140.0, outside: 5.0)
+    na := Ion(name: "Na+", z: 1, inside: 15.0, outside: 145.0)
+    cl := Ion(name: "Cl-", z: -1, inside: 10.0, outside: 110.0)
+    for ion in [k, na, cl]
+        print("{ion.name:<3} in {ion.inside:>5.1} mM, out {ion.outside:>5.1} mM: Nernst {nernst_mv(ion, t):>6.1} mV")
+    rest := goldman_mv(1.0, 0.04, 0.45, k, na, cl, t)
+    spike := goldman_mv(1.0, 20.0, 0.45, k, na, cl, t)
+    print("resting (1 : 0.04 : 0.45): {rest:.1} mV")
+    print("spike peak (1 : 20 : 0.45): {spike:.1} mV")
+    high_k := Ion(name: "K+", z: 1, inside: 140.0, outside: 10.0)
+    print("doubling outside K+ moves rest to {goldman_mv(1.0, 0.04, 0.45, high_k, na, cl, t):.1} mV")
+
+@test fn balanced_ion()
+    i := Ion(name: "X", z: 1, inside: 50.0, outside: 50.0)
+    assert_eq(nernst_mv(i, 300.0), 0.0)

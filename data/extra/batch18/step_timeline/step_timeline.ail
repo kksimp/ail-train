@@ -1,0 +1,47 @@
+## Step timeline: a generic `Timeline[T]` records values that change at given times and answers
+## "what was it at time t" with the latest change at or before t (none before the first).
+
+struct Timeline[T]
+    times List[int]
+    values List[T]
+
+fn Timeline.blank() Self
+    Timeline(times: [], values: [])
+
+fn Timeline.set(mut self, t int, v T)
+    self.times.push(t)
+    self.values.push(v)
+
+fn Timeline.at(self, t int) T?
+    mut found := -1
+    for i in 0..self.times.len()
+        if self.times[i] <= t
+            found = i
+    if found < 0
+        return none
+    self.values[found]
+
+fn main()
+    mut price := Timeline[int].blank()
+    price.set(1, 450)
+    price.set(8, 399)
+    price.set(15, 420)
+    for day in [0, 1, 7, 8, 20]
+        p := price.at(day) else 0
+        cents := p % 100
+        shown := if p == 0 then "not listed" else "{p / 100}.{cents:02}"
+        print("day {day:>2}: {shown}")
+    mut phase := Timeline[str].blank()
+    phase.set(0, "green")
+    phase.set(30, "amber")
+    phase.set(34, "red")
+    checks := [5, 31, 34, 60]
+    seen := checks.map(|t| phase.at(t) else "?")
+    joined := seen.join(", ")
+    print("light at {checks}: {joined}")
+
+@test fn before_start_is_none()
+    mut tl := Timeline[int].blank()
+    tl.set(5, 1)
+    assert(tl.at(4) == none)
+    assert_eq(tl.at(9) else 0, 1)

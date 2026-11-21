@@ -1,0 +1,32 @@
+## Unearned premium: a year's premium is earned day by day, so at the year end the days yet to run are unearned;
+## a cancelled policy refunds the unused days pro rata, or 90% of that on the short-rate basis.
+
+struct Policy
+    id str
+    start int
+    premium int
+
+fn earned(p Policy, day int) int
+    used := (day - p.start + 1).max(0).min(365)
+    p.premium * used / 365
+
+fn main()
+    book := [Policy(id: "P-101", start: 1, premium: 730), Policy(id: "P-102", start: 91, premium: 1095), Policy(id: "P-103", start: 182, premium: 1460), Policy(id: "P-104", start: 274, premium: 900), Policy(id: "P-105", start: 335, premium: 1825)]
+    mut total_earned := 0
+    mut total_unearned := 0
+    for p in book
+        e := earned(p, 365)
+        u := p.premium - e
+        total_earned += e
+        total_unearned += u
+        print("{p.id} from day {p.start:>3}: premium {p.premium:>4}, earned {e:>4}, unearned {u:>4}")
+    print("year end: earned {total_earned}, unearned reserve {total_unearned}")
+    chosen := book[2]
+    for day in [200, 300]
+        refund := chosen.premium - earned(chosen, day)
+        short := refund * 90 / 100
+        print("{chosen.id} cancelled on day {day}: pro rata refund {refund}, short-rate {short}")
+
+@test fn full_year()
+    assert_eq(earned(Policy(id: "x", start: 1, premium: 365), 365), 365)
+    assert_eq(earned(Policy(id: "x", start: 1, premium: 365), 73), 73)

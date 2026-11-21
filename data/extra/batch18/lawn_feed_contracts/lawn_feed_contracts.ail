@@ -1,0 +1,28 @@
+## Lawn feed contracts: fertiliser for each lawn is grams per square metre, capped by what is
+## left in the bag; `requires` checks the inputs and `ensures` checks each result at run time.
+
+fn feed_grams(area int, per_m2 int, left int) int
+    requires area > 0 and per_m2 > 0 and left >= 0
+    ensures result <= left
+    ensures result <= area * per_m2
+    (area * per_m2).min(left)
+
+fn spreader_passes(grams int, per_pass int) int
+    requires per_pass > 0
+    ensures result * per_pass >= grams
+    (grams + per_pass - 1) / per_pass
+
+fn main()
+    mut bag := 4000
+    lawns := [("front", 48, 20), ("back", 75, 25), ("verge", 12, 15), ("orchard", 60, 20)]
+    for l in lawns
+        name, area, rate := l
+        g := feed_grams(area, rate, bag)
+        bag -= g
+        need := area * rate
+        note := if g < need then "short {need - g} g" else "full dose"
+        print("{name:<8} {area:>3} m2: {g:>4} g in {spreader_passes(g.max(1), 400)} passes, {note}")
+    print("left in bag: {bag} g")
+
+@test fn capped_by_bag()
+    assert_eq(feed_grams(100, 30, 500), 500)

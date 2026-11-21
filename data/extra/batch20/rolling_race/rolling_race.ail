@@ -1,0 +1,32 @@
+## Rolling race: a body rolling without slipping splits its energy between moving and spinning; with
+## I = k m r^2 the speed at the bottom is sqrt(2 g h / (1 + k)), so the lowest k reaches the end first.
+
+PI := 3.141592653589793
+
+struct Body
+    name str
+    k float
+
+fn Body.speed(self, h float) float
+    (2.0 * 9.81 * h / (1.0 + self.k)).sqrt()
+
+fn Body.time(self, h float, angle_deg float) float
+    a := angle_deg * PI / 180.0
+    length := h / a.sin()
+    2.0 * length / self.speed(h)
+
+fn main()
+    bodies := [Body(name: "hoop", k: 1.0), Body(name: "solid disc", k: 0.5), Body(name: "solid ball", k: 0.4), Body(name: "hollow ball", k: 2.0 / 3.0), Body(name: "sliding block", k: 0.0)]
+    h := 1.5
+    ranked := bodies.sorted(by: |b| b.time(h, 30.0))
+    for i, b in ranked.enumerate()
+        print("{i + 1}. {b.name:<14} k {b.k:.3}  v {b.speed(h):.3} m/s  t {b.time(h, 30.0):.3} s")
+    first := ranked[0]
+    last := ranked[ranked.len() - 1]
+    gap := last.time(h, 30.0) - first.time(h, 30.0)
+    print("{first.name} beats {last.name} by {gap:.3} s")
+
+@test fn ball_beats_hoop()
+    ball := Body(name: "ball", k: 0.4)
+    hoop := Body(name: "hoop", k: 1.0)
+    assert(ball.speed(1.0) > hoop.speed(1.0))

@@ -1,0 +1,42 @@
+## Cash drawer close: the counted notes and coins minus the opening float give the takings, compared with
+## the sales record for over or short; then the largest notes are banked while the float stays behind.
+
+fn total(denoms List[int], counts List[int]) int
+    mut t := 0
+    for i in 0..denoms.len()
+        t += denoms[i] * counts[i]
+    t
+
+fn money(c int) str
+    sign := if c < 0 then "-" else ""
+    a := c.abs()
+    "{sign}{a / 100}.{a % 100:02}"
+
+fn main()
+    denoms := [5000, 2000, 1000, 500, 200, 100, 50, 20, 10, 5, 2, 1]
+    mut counts := [2, 9, 14, 11, 8, 23, 17, 30, 25, 14, 20, 33]
+    float_cents := 15000
+    sales := 38250
+    counted := total(denoms, counts)
+    takings := counted - float_cents
+    diff := takings - sales
+    label := if diff == 0 then "exact" elif diff > 0 then "over" else "short"
+    print("counted {money(counted)}, float {money(float_cents)}, takings {money(takings)}")
+    print("sales record {money(sales)}: {label} by {money(diff.abs())}")
+    mut left := counted
+    mut bag := List[str]()
+    for i in 0..denoms.len()
+        mut n := 0
+        while counts[i] > 0 and left - denoms[i] >= float_cents
+            counts[i] -= 1
+            left -= denoms[i]
+            n += 1
+        if n > 0
+            bag.push("{n} x {money(denoms[i])}")
+    banked := bag.join(", ")
+    print("bank: {banked}")
+    print("left in the drawer: {money(left)}")
+
+@test fn add_up()
+    assert_eq(total([500, 100], [2, 3]), 1300)
+    assert_eq(money(-250), "-2.50")

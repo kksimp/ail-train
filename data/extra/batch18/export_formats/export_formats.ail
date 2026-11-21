@@ -1,0 +1,58 @@
+## Export formats: CSV, Markdown and fixed-width exporters implement one `Exporter` trait with a
+## header, a row writer and a default footer; the same club records are written three ways.
+
+trait Exporter
+    fn header(self, cols List[str]) str
+    fn row(self, cells List[str]) str
+    fn footer(self, n int) str
+        "({n} rows)"
+
+struct Csv
+    sep str
+
+struct Markdown
+    id int
+
+struct Fixed
+    width int
+
+impl Exporter for Csv
+    fn header(self, cols List[str]) str
+        cols.join(sep)
+    fn row(self, cells List[str]) str
+        cells.join(sep)
+
+impl Exporter for Markdown
+    fn header(self, cols List[str]) str
+        top := cols.join(" | ")
+        rule := cols.map(|c| "---").join(" | ")
+        "| {top} |\n| {rule} |"
+    fn row(self, cells List[str]) str
+        inner := cells.join(" | ")
+        "| {inner} |"
+    fn footer(self, n int) str
+        "_{n} members_"
+
+impl Exporter for Fixed
+    fn header(self, cols List[str]) str
+        w := self.width
+        cols.map(|c| c.to_upper().pad_right(w, ' ')).join("").trim_end()
+    fn row(self, cells List[str]) str
+        w := self.width
+        cells.map(|c| c.pad_right(w, ' ')).join("").trim_end()
+
+fn export[T Exporter](e T, cols List[str], rows List[List[str]])
+    print(e.header(cols))
+    for r in rows
+        print(e.row(r))
+    print(e.footer(rows.len()))
+
+fn main()
+    cols := ["name", "joined", "level"]
+    rows := [["Iris", "2021", "gold"], ["Omar", "2023", "silver"]]
+    export(Csv(sep: ";"), cols, rows)
+    export(Markdown(id: 1), cols, rows)
+    export(Fixed(width: 8), cols, rows)
+
+@test fn csv_row()
+    assert_eq(Csv(sep: ",").row(["a", "b"]), "a,b")

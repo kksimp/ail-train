@@ -1,0 +1,47 @@
+## Sweep clustering: customers are sorted by their bearing from the depot (atan2) and swept round in that order,
+## starting a new van route whenever the next customer would push the load past 15; each route's length is shown.
+
+struct Stop
+    name str
+    x float
+    y float
+    load int
+
+fn bearing(s Stop) float
+    s.y.atan2(s.x)
+
+fn length(route List[Stop]) float
+    mut total := 0.0
+    mut px := 0.0
+    mut py := 0.0
+    for s in route
+        total += (s.x - px).hypot(s.y - py)
+        px = s.x
+        py = s.y
+    total + px.hypot(py)
+
+fn main()
+    stops := [Stop(name: "A", x: 4.0, y: 1.0, load: 5), Stop(name: "B", x: 2.0, y: 5.0, load: 4), Stop(name: "C", x: -3.0, y: 4.0, load: 6), Stop(name: "D", x: -5.0, y: -1.0, load: 3), Stop(name: "E", x: -1.0, y: -4.0, load: 7), Stop(name: "F", x: 3.0, y: -3.0, load: 5), Stop(name: "G", x: 6.0, y: 3.0, load: 2), Stop(name: "H", x: -2.0, y: 1.0, load: 4)]
+    order := stops.sorted(by: |s| bearing(s))
+    mut routes := List[List[Stop]]()
+    mut current := List[Stop]()
+    mut load := 0
+    for s in order
+        if load + s.load > 15
+            routes.push(current)
+            current = List[Stop]()
+            load = 0
+        current.push(s)
+        load += s.load
+    routes.push(current)
+    mut total := 0.0
+    for i, r in routes.enumerate()
+        names := r.map(|s| s.name).join(" ")
+        n := length(r)
+        total += n
+        weight := r.fold(0, |a, s| a + s.load)
+        print("van {i + 1}: {names}, load {weight}, length {n:.2}")
+    print("all vans {total:.2}")
+
+@test fn out_and_back()
+    assert_eq(length([Stop(name: "x", x: 3.0, y: 4.0, load: 1)]), 10.0)

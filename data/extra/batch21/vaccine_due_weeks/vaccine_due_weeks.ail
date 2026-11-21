@@ -1,0 +1,25 @@
+## Vaccine due weeks: doses are due at fixed weeks of age (8, 12, 16 and 52); from each child's birth week and
+## the doses already given, the clinic lists overdue doses and the next one coming up after this week.
+
+fn overdue(born int, given List[int], now int, weeks List[int]) List[int]
+    [i for i in 0..weeks.len() if not given.contains(i) and born + weeks[i] < now]
+
+fn main()
+    doses := ["6-in-1 first", "6-in-1 second", "6-in-1 third", "MMR"]
+    weeks := [8, 12, 16, 52]
+    now := 70
+    children := [("Ava", 10, [0, 1, 2]), ("Ben", 50, [0]), ("Cal", 0, [0, 1, 2, 3]), ("Dee", 64, []), ("Eli", 5, [0, 2])]
+    mut chase := 0
+    for c in children
+        name, born, given := c
+        late := overdue(born, given, now, weeks)
+        chase += late.len()
+        late_names := late.map(|i| doses[i]).join(", ")
+        late_text := if late.is_empty() then "none overdue" else "overdue: {late_names}"
+        upcoming := [i for i in 0..weeks.len() if not given.contains(i) and born + weeks[i] >= now]
+        next_text := if upcoming.is_empty() then "nothing more due" else "next {doses[upcoming[0]]} in week {born + weeks[upcoming[0]]}"
+        print("{name}: age {now - born} weeks, {late_text}; {next_text}")
+    print("{chase} doses to chase")
+
+@test fn late_doses()
+    assert_eq(overdue(5, [0, 2], 70, [8, 12, 16, 52]), [1, 3])

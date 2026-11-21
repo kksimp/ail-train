@@ -1,0 +1,31 @@
+## Duplicate receipts: expense claims are keyed by a (shop, amount, day) tuple in a `Set`; the
+## `bool` from `add` flags a claim already seen, and a `Map` sums the accepted spend per person.
+
+fn main()
+    claims := [
+        ("ana", "Cafe Rio", 1250, 3),
+        ("ben", "TrainCo", 4590, 3),
+        ("ana", "Cafe Rio", 1250, 3),
+        ("cyd", "Cafe Rio", 1250, 4),
+        ("ben", "TrainCo", 4590, 3),
+        ("cyd", "Hotel Lux", 12900, 4),
+        ("ana", "TrainCo", 4590, 5),
+    ]
+    mut seen := Set[(str, int, int)]()
+    mut per_person := Map[str, int]()
+    mut dupes := 0
+    for c in claims
+        who, shop, cents, day := c
+        if seen.add((shop, cents, day))
+            per_person[who] += cents
+        else
+            dupes += 1
+            print("duplicate: {who} {shop} {cents} on day {day}")
+    for who, total in per_person
+        print("{who}: {total / 100}.{total % 100:02}")
+    print("{dupes} duplicates, {seen.len()} unique receipts")
+
+@test fn add_reports_new()
+    mut s := Set[str]()
+    assert(s.add("a"))
+    assert_eq(s.add("a"), false)

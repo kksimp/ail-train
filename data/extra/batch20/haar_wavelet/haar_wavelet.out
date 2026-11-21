@@ -1,0 +1,5 @@
+signal:       [10.0, 12.0, 14.0, 14.0, 13.0, 30.0, 31.0, 29.0]
+coefficients: [19.125, -6.625, -1.5, -4.25, -1.0, 0.0, -8.5, 1.0]
+drop details under 0.5: 1 zeros, rebuilt [10.0, 12.0, 14.0, 14.0, 13.0, 30.0, 31.0, 29.0], worst error 0.0
+drop details under 1.5: 3 zeros, rebuilt [11.0, 11.0, 14.0, 14.0, 13.0, 30.0, 30.0, 30.0], worst error 1.0
+drop details under 4.0: 4 zeros, rebuilt [12.5, 12.5, 12.5, 12.5, 13.0, 30.0, 30.0, 30.0], worst error 2.5

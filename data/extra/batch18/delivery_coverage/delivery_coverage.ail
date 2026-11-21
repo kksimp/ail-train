@@ -1,0 +1,30 @@
+## Delivery coverage: drone depots cover grid cells within a Manhattan distance; covered cells
+## go into a `Set` of `(x, y)` tuples, so overlaps count once and addresses are checked with `contains`.
+
+fn main()
+    depots := [(2, 2, 2), (7, 3, 3), (4, 8, 1)]
+    mut covered := Set[(int, int)]()
+    mut per_depot := List[int]()
+    for d in depots
+        cx, cy, r := d
+        mut added := 0
+        for x in 0..10
+            for y in 0..10
+                if (x - cx).abs() + (y - cy).abs() <= r
+                    if covered.add((x, y))
+                        added += 1
+        per_depot.push(added)
+    print("new cells per depot: {per_depot}")
+    print("{covered.len()} of 100 cells covered")
+    homes := [(1, 1), (5, 5), (9, 3), (4, 9), (0, 9), (6, 1)]
+    out := homes.filter(|h| not covered.contains(h)).map(|h| "{h.0},{h.1}")
+    joined := out.join(" ")
+    print("addresses outside coverage: {joined}")
+    for y in 0..10
+        row := [if covered.contains((x, y)) then '#' else '.' for x in 0..10]
+        print(row.join(""))
+
+@test fn tuple_set_dedupes()
+    mut s := Set[(int, int)]()
+    s.add((1, 2))
+    assert_eq(s.add((1, 2)), false)
