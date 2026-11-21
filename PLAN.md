@@ -233,7 +233,7 @@ data/extra/              programs written for training (drills); checked on the 
 tools/preflight.sh       M1: measures each candidate base (tools/preflight/ holds its Python steps)
 tools/build_data.py      M2: the data builder; tools/build_data.sh runs it on the Mac twice and compares
 tools/local_agent.py     M4 (to write)
-tools/eval_quick.py      M5 (to write)
+tools/eval_quick.py      M5: quick eval of one arm (tools/eval_quick.sh: ARM=A, A0 or C)
 config.local             untracked: base model id, paths (D6)
 ```
 
