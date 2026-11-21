@@ -1,0 +1,31 @@
+## Library holds: members place holds on books; when a copy is returned it goes to the
+## first member in that book's hold queue, otherwise back to the shelf.
+
+fn main()
+    mut holds := Map[str, List[str]]()
+    mut shelf := Map[str, int]()
+    events := ["hold Dune Ann", "hold Dune Bob", "return Dune", "hold Emma Cy", "return Emma", "return Dune", "return Dune", "hold Dune Dee", "return Emma"]
+    for e in events
+        parts := e.split(" ")
+        book := parts[1]
+        if parts[0] == "hold"
+            if (shelf.get(book) else 0) > 0
+                shelf[book] -= 1
+                print("{parts[2]} takes {book} from the shelf")
+            else
+                holds.push(book, parts[2])
+                print("{parts[2]} queues for {book}")
+        else
+            queue := holds.get(book) else List[str]()
+            if queue.is_empty()
+                shelf[book] += 1
+                print("{book} back on shelf ({shelf[book]})")
+            else
+                print("{book} goes to {queue[0]}")
+                holds[book] = queue[1..]
+    for b in shelf.keys().sorted()
+        print("shelf {b}: {shelf[b]}")
+
+@test fn empty_queue()
+    m := Map[str, List[str]]()
+    assert((m.get("x") else List[str]()).is_empty())

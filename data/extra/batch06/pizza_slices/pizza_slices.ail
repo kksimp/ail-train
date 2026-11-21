@@ -1,0 +1,19 @@
+## Pizza order: guests say how many slices they want; pizzas have 8 slices; prints pizzas
+## needed, spare slices, and a fair handout when there are spares.
+
+fn main()
+    wants := [("Abi", 3), ("Bas", 2), ("Cat", 4), ("Dev", 1), ("Eli", 3), ("Fen", 2), ("Gio", 5)]
+    total := wants.map(|w| w.1).sum()
+    pizzas := (total + 7) / 8
+    spare := pizzas * 8 - total
+    print("{total} slices wanted, {pizzas} pizzas, {spare} spare")
+    order := wants.sorted(by: |w| (w.1, w.0))
+    mut left := spare
+    for w in order
+        extra := if left > 0 then 1 else 0
+        left -= extra
+        note := if extra > 0 then " (+1)" else ""
+        print("{w.0}: {w.1 + extra}{note}")
+
+@test fn round_up()
+    assert_eq((20 + 7) / 8, 3)

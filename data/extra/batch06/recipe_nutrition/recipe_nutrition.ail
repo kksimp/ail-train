@@ -1,0 +1,33 @@
+## Recipe nutrition: ingredients with grams and per-100g nutrition values are totalled into
+## a recipe, then divided into servings, printed with one decimal place.
+
+struct Food
+    name str
+    kcal float
+    protein float
+    carbs float
+    fat float
+
+fn main()
+    foods := [
+        Food(name: "oats", kcal: 389.0, protein: 16.9, carbs: 66.3, fat: 6.9),
+        Food(name: "milk", kcal: 64.0, protein: 3.4, carbs: 4.8, fat: 3.6),
+        Food(name: "banana", kcal: 89.0, protein: 1.1, carbs: 22.8, fat: 0.3),
+        Food(name: "peanut butter", kcal: 588.0, protein: 25.0, carbs: 20.0, fat: 50.0),
+    ]
+    grams := [160.0, 600.0, 240.0, 64.0]
+    mut totals := [0.0, 0.0, 0.0, 0.0]
+    for i, f in foods.enumerate()
+        k := grams[i] / 100.0
+        totals[0] += f.kcal * k
+        totals[1] += f.protein * k
+        totals[2] += f.carbs * k
+        totals[3] += f.fat * k
+        print("{f.name:<14} {grams[i]:>5.0} g {f.kcal * k:>6.1} kcal")
+    servings := 4.0
+    labels := ["kcal", "protein g", "carbs g", "fat g"]
+    for i in 0..4
+        print("{labels[i]:<10} total {totals[i]:>7.1}, per serving {totals[i] / servings:>6.1}")
+
+@test fn scale()
+    assert(389.0 * 1.6 > 622.0)

@@ -1,0 +1,28 @@
+## Keyboard rows: finds which words can be typed using letters from a single row of a
+## QWERTY keyboard, and the longest such word for each row.
+
+fn row_of(c char) int
+    if "qwertyuiop".contains(c)
+        return 1
+    if "asdfghjkl".contains(c)
+        return 2
+    3
+
+fn main()
+    words := ["typewriter", "flask", "zebra", "pottery", "salads", "proprietor", "gas", "mix", "rupture", "flags"]
+    mut best := ["", "", "", ""]
+    for w in words
+        rows := {row_of(c) for c in w.chars()}
+        if rows.len() == 1
+            r := rows.to_list()[0]
+            print("{w}: row {r}")
+            if w.len() > best[r].len()
+                best[r] = w
+        else
+            print("{w}: mixed")
+    for r in 1..=3
+        shown := if best[r] == "" then "none" else best[r]
+        print("longest on row {r}: {shown}")
+
+@test fn top_row()
+    assert_eq(row_of('q'), 1)
