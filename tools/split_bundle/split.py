@@ -31,7 +31,7 @@ for name, body in zip(progs[0::2], progs[1::2]):
         if "\t" in l: probs.append(f"tab line {i}")
         ind = len(l) - len(l.lstrip(" "))
         if ind % 4: probs.append(f"indent {ind} line {i}")
-        if re.search(r"&&|\|\||\bnull\b|\belse if\b|\blet\b|\+= \"|\" \+ |\+ \"|\.(lower|upper)\(\)|\$\{|\bpar\b|\bselect\b|\bany\b [a-z_]+ :=", l.split("#")[0]) : probs.append(f"habit line {i}: {l.strip()}")
+        if re.search(r"&&|\|\||\bnull\b|\belse if\b|\blet\b|\+= \"|\" \+ |\+ \"|\.(lower|upper)\(\)|\$\{|\.unwrap_or\(|\bpar\b|\bselect\b|\bany\b [a-z_]+ :=", l.split("#")[0]) : probs.append(f"habit line {i}: {l.strip()}")
         code = l.split("#")[0]
         if re.search(r"\w\[[^\]\(]*\belse\b", code): probs.append(f"else inside index line {i}")
         if ":+" in code: probs.append(f"sign format line {i}")
