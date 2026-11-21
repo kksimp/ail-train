@@ -1,0 +1,9 @@
+user:17    at 189: gamma -> gamma
+cart:9     at 271: beta -> alpha (moved)
+img:cat    at  87: beta -> alpha (moved)
+img:dog    at  29: beta -> alpha (moved)
+session:a1 at 316: beta -> alpha (moved)
+session:b2 at 348: beta -> alpha (moved)
+video:42   at 125: alpha -> alpha
+doc:7      at 213: gamma -> gamma
+5 of 8 keys moved when beta left

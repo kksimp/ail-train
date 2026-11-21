@@ -1,0 +1,10 @@
+ 2.0 m/s:     0.0 kW stopped
+ 4.0 m/s:    78.8 kW partial
+ 6.0 m/s:   266.0 kW partial
+ 8.0 m/s:   630.5 kW partial
+10.0 m/s:  1231.5 kW partial
+12.0 m/s:  2000.0 kW rated
+15.0 m/s:  2000.0 kW rated
+20.0 m/s:  2000.0 kW rated
+26.0 m/s:     0.0 kW stopped
+steady 7 m/s for a year: 3700 MWh

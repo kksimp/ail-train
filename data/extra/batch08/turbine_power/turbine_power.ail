@@ -1,0 +1,21 @@
+## Wind turbine power: P = 1/2 rho A v^3 Cp for an 80 m rotor, zero below cut-in (3 m/s) and above
+## cut-out (25 m/s), capped at the 2 MW rating; doubling the wind speed gives eight times the power.
+
+fn power_kw(v float) float
+    if v < 3.0 or v > 25.0
+        return 0.0
+    pi := 3.141592653589793
+    area := pi * 40.0 * 40.0
+    p := 0.5 * 1.225 * area * v * v * v * 0.4 / 1000.0
+    if p > 2000.0 then 2000.0 else p
+
+fn main()
+    for v in [2.0, 4.0, 6.0, 8.0, 10.0, 12.0, 15.0, 20.0, 26.0]
+        p := power_kw(v)
+        status := if p == 0.0 then "stopped" elif p == 2000.0 then "rated" else "partial"
+        print("{v:>4.1} m/s: {p:>7.1} kW {status}")
+    year := power_kw(7.0) * 8760.0 / 1000.0
+    print("steady 7 m/s for a year: {year:.0} MWh")
+
+@test fn calm()
+    assert_eq(power_kw(1.0), 0.0)

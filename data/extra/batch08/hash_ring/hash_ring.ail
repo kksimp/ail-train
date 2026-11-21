@@ -1,0 +1,43 @@
+## Consistent hashing: servers sit at three points each on a ring of 360; a key belongs to the
+## next point clockwise, so removing a server moves only the keys it held.
+
+struct Point
+    pos int
+    node str
+
+fn spot(s str) int
+    mut h := 0
+    for c in s.chars()
+        h = (h * 31 + c.code()) % 360
+    h
+
+fn ring(nodes List[str]) List[Point]
+    mut pts := List[Point]()
+    for n in nodes
+        for v in 0..3
+            pts.push(Point(pos: spot("{n}-{v}"), node: n))
+    pts.sorted(by: |p| (p.pos, p.node))
+
+fn owner(points List[Point], key str) str
+    k := spot(key)
+    for p in points
+        if p.pos >= k
+            return p.node
+    points[0].node
+
+fn main()
+    before := ring(["alpha", "beta", "gamma"])
+    after := ring(["alpha", "gamma"])
+    keys := ["user:17", "cart:9", "img:cat", "img:dog", "session:a1", "session:b2", "video:42", "doc:7"]
+    mut moved := 0
+    for k in keys
+        a := owner(before, k)
+        b := owner(after, k)
+        note := if a == b then "" else " (moved)"
+        if a != b
+            moved += 1
+        print("{k:<10} at {spot(k):>3}: {a} -> {b}{note}")
+    print("{moved} of {keys.len()} keys moved when beta left")
+
+@test fn in_range()
+    assert(spot("anything") < 360)

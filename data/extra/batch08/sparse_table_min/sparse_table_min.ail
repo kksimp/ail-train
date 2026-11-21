@@ -1,0 +1,36 @@
+## Sparse table: precomputes the minimum of every run of 1, 2, 4, 8... nights of temperatures so
+## that the coldest night in any date range is the smaller of two overlapping lookups.
+
+fn build(xs List[int]) List[List[int]]
+    mut table := [xs]
+    mut width := 1
+    while width * 2 <= xs.len()
+        prev := table[table.len() - 1]
+        mut row := List[int]()
+        for i in 0..xs.len() - width * 2 + 1
+            a := prev[i]
+            b := prev[i + width]
+            row.push(if a < b then a else b)
+        table.push(row)
+        width *= 2
+    table
+
+fn query(table List[List[int]], lo int, hi int) int
+    mut level := 0
+    while (2 << level) <= hi - lo + 1
+        level += 1
+    span := 1 << level
+    a := table[level][lo]
+    b := table[level][hi - span + 1]
+    if a < b then a else b
+
+fn main()
+    lows := [6, 4, 7, 2, 5, 8, 3, 9, 1, 6, 4, 7, 5, 3]
+    table := build(lows)
+    print("{table.len()} levels for {lows.len()} nights")
+    for q in [(0, 2), (3, 7), (4, 7), (0, 13), (9, 13), (5, 5)]
+        lo, hi := q
+        print("nights {lo + 1}-{hi + 1}: coldest {query(table, lo, hi)} C")
+
+@test fn whole()
+    assert_eq(query(build([3, 1, 2]), 0, 2), 1)

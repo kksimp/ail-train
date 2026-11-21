@@ -1,0 +1,5 @@
+'at' at [5, 9, 20, 33, 38, 42], 5 hash collisions
+'the' at [0, 15, 28], 1 hash collisions
+'sat' at [8, 41], 0 hash collisions
+'dog' at [], 4 hash collisions
+'hat t' at [32], 2 hash collisions

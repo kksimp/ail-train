@@ -1,0 +1,33 @@
+## Lattice paths: counts the routes from the top-left to the bottom-right of a street grid moving
+## only right or down, adding the ways in from above and from the left, with # as roadworks.
+
+fn count_paths(grid List[str]) int
+    rows := grid.len()
+    cols := grid[0].len()
+    mut ways := List[List[int]]()
+    for r in 0..rows
+        mut row := List[int]()
+        cells := grid[r].chars()
+        for c in 0..cols
+            if cells[c] == '#'
+                row.push(0)
+            elif r == 0 and c == 0
+                row.push(1)
+            else
+                up := if r > 0 then ways[r - 1][c] else 0
+                left := if c > 0 then row[c - 1] else 0
+                row.push(up + left)
+        ways.push(row)
+    ways[rows - 1][cols - 1]
+
+fn main()
+    open := ["......", "......", "......", "......", "......"]
+    works := ["......", "..#...", "....#.", ".#....", "......"]
+    blocked := ["..#", "#..", "..."]
+    for g in [open, works, blocked]
+        for line in g
+            print(line)
+        print("{count_paths(g)} routes")
+
+@test fn square()
+    assert_eq(count_paths(["..", ".."]), 2)
