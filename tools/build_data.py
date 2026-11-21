@@ -418,14 +418,16 @@ def main():
         if c["rc"] == 0:
             drop(did, "draft now passes check")
             continue
+        # Pick the closest final by lines (character matching costs ~1 s per pair, hours in all),
+        # then apply the character ratio threshold to that one.
         best, ratio = None, 0.0
+        dl = d["source"].splitlines()
         for final in good.get(d["task"], []):
-            sm = difflib.SequenceMatcher(None, d["source"], final, autojunk=False)
-            if sm.real_quick_ratio() <= ratio or sm.quick_ratio() <= ratio:
-                continue
-            r = sm.ratio()
+            r = difflib.SequenceMatcher(None, dl, final.splitlines(), autojunk=False).ratio()
             if r > ratio:
                 best, ratio = final, r
+        if best is not None:
+            ratio = difflib.SequenceMatcher(None, d["source"], best, autojunk=False).ratio()
         if best is None or ratio < 0.85:
             drop(did, "no correct final close to the draft")
             continue
