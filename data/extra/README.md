@@ -63,10 +63,16 @@ everyday forms with less common built-ins. Each batch is checked on the Mac befo
   three tests whose expected value was worked out wrong. All 500 pass. In the full run golf_card (batch02) failed once
   because a parallel job replaced the shared test runner in `~/.cache/ail/build` as it started; run alone it
   passes, and `RESULTS.txt` records that.
+- `batch18/` to `batch22/`: 500 programs written in parallel: AIL language features in small apps (generics,
+  traits, enums, optionals, errors, closures, collections, contracts, `defer`, `Seq`, batch18), original two-part
+  puzzles (batch19), science and engineering second pass (batch20), everyday life and small business second pass
+  (batch21) and finance, economics, operations and logistics (batch22). The 6 failures were two int overflows or
+  out-of-range reads that Python hid, one bar length rounded differently (Python's `round` goes to even, AIL's
+  away from zero) and three wrongly worked-out test values. All 500 pass.
 
 ## Status
 
-**Checked: 1740 of 1740 pass** (40 drills, 100 each in batch01 to batch17) with ail 3d0c5c913 (0.2.0 release candidate) on 2026-11-21 (`RESULTS.txt`). On the drills' first
+**Checked: 2240 of 2240 pass** (40 drills, 100 each in batch01 to batch22) with ail 3d0c5c913 (0.2.0 release candidate) on 2026-11-21 (`RESULTS.txt`). On the drills' first
 run 34 passed; 6 were fixed (four AIL forms guessed wrong: `str ! str`, calling a `fn` field as a method,
 `Grid.to_list().sum()` on rows, an `if :=` on a failing result with no `else`; two Python twins were wrong).
 These were written in a cloud session, where AIL builds are not allowed.
