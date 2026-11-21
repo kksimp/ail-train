@@ -1,13 +1,13 @@
 ## Raindrops: drops of different sizes fall 2 + size units a tick, so big drops fall faster; a drop that
 ## catches the one below joins it (sizes add), and the program logs each merge and landing.
 
-struct Drop
+struct Droplet
     name str
     height int
     size int
 
 fn main()
-    mut drops := [Drop(name: "a", height: 20, size: 1), Drop(name: "b", height: 31, size: 3), Drop(name: "c", height: 45, size: 2), Drop(name: "d", height: 52, size: 5), Drop(name: "e", height: 70, size: 1)]
+    mut drops := [Droplet(name: "a", height: 20, size: 1), Droplet(name: "b", height: 31, size: 3), Droplet(name: "c", height: 45, size: 2), Droplet(name: "d", height: 52, size: 5), Droplet(name: "e", height: 70, size: 1)]
     mut tick := 0
     while not drops.is_empty()
         tick += 1

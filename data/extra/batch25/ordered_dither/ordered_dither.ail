@@ -25,5 +25,5 @@ fn main()
 
 @test fn threshold()
     bayer := [[0, 8], [12, 4]]
-    assert(128 > bayer[0][1] * 16 + 8)
+    assert(128 > bayer[1][1] * 16 + 8)
     assert(not (128 > bayer[1][0] * 16 + 8))
