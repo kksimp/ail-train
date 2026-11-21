@@ -1,0 +1,21 @@
+## Planet density: mean density from mass and radius (sphere volume), compared with water,
+## and the planets sorted from densest to least dense.
+
+fn main()
+    planets := [("Mercury", 330.1, 2439.7), ("Venus", 4867.0, 6051.8), ("Earth", 5972.0, 6371.0), ("Mars", 641.7, 3389.5), ("Jupiter", 1898000.0, 69911.0), ("Saturn", 568300.0, 58232.0)]
+    scale := 1000000000000000000000.0
+    mut dens := List[(str, float)]()
+    for p in planets
+        name, mass_e21, radius_km := p
+        mass := mass_e21 * scale
+        r := radius_km * 1000.0
+        volume := 4.0 / 3.0 * 3.141592653589793 * r * r * r
+        d := mass / volume
+        dens.push((name, d))
+        floats := if d < 1000.0 then " (would float)" else ""
+        print("{name:<8} {d:>7.0} kg/m3, {d / 1000.0:.2}x water{floats}")
+    order := dens.sorted(by: |x| -x.1).map(|x| x.0).join(" > ")
+    print(order)
+
+@test fn unit_sphere()
+    assert(4.0 / 3.0 * 3.141592653589793 > 4.18)

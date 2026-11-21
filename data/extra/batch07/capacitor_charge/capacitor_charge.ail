@@ -1,0 +1,20 @@
+## Capacitor charge: voltage across a capacitor charging through a resistor from 9 V, at
+## multiples of the time constant RC, with the time to reach 5 V.
+
+fn main()
+    supply := 9.0
+    r := 10000.0
+    c := 0.0001
+    tau := r * c
+    print("time constant {tau:.1} s")
+    for k in [0.5, 1.0, 2.0, 3.0, 4.0, 5.0]
+        t := k * tau
+        vc := supply * (1.0 - (-t / tau).exp())
+        print("t = {t:.1} s: {vc:.3} V ({vc / supply * 100.0:.1}%)")
+    target := 5.0
+    t5 := -tau * (1.0 - target / supply).ln()
+    print("reaches {target:.1} V after {t5:.3} s")
+
+@test fn start()
+    zero := 0.0
+    assert_eq(1.0 - zero.exp(), 0.0)

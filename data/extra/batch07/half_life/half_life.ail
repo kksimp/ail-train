@@ -1,0 +1,18 @@
+## Half-life: remaining amounts of radioactive samples after given times, from the decay
+## formula N = N0 * 0.5^(t / T), and the time until under 1% remains.
+
+fn main()
+    samples := [("iodine-131", 8.02, 100.0), ("cobalt-60", 1925.3, 50.0), ("carbon-14", 2092135.0, 10.0)]
+    for s in samples
+        name, half_days, grams := s
+        half := 0.5
+        for days in [1.0, 30.0, 365.0, 3650.0]
+            left := grams * half.pow(days / half_days)
+            print("{name} after {days:.0} days: {left:.4} g")
+        pct := 0.01
+        to_one_pct := half_days * pct.ln() / half.ln()
+        print("{name} under 1% after {to_one_pct:.0} days")
+
+@test fn one_half()
+    half := 0.5
+    assert_eq(half.pow(1.0), 0.5)

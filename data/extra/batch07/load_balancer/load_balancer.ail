@@ -1,0 +1,23 @@
+## Load balancer: sends requests with known costs to three servers by round robin and by
+## least load, and compares the busiest server's load under each policy.
+
+fn main()
+    costs := [5, 1, 1, 8, 2, 2, 9, 1, 3, 7, 1, 1, 6, 2, 4]
+    for policy in ["round robin", "least load"]
+        mut load := [0, 0, 0]
+        mut picks := List[str]()
+        for i, c in costs.enumerate()
+            mut s := i % 3
+            if policy == "least load"
+                s = 0
+                for k in 1..3
+                    if load[k] < load[s]
+                        s = k
+            load[s] += c
+            picks.push("{s + 1}")
+        top := load.max() else 0
+        shown := picks.join("")
+        print("{policy:<11}: {shown}, loads {load[0]}/{load[1]}/{load[2]}, busiest {top}")
+
+@test fn rr()
+    assert_eq(4 % 3, 1)

@@ -1,0 +1,34 @@
+## Status codes: reads web server log lines, groups the HTTP status codes by class (2xx, 3xx,
+## 4xx, 5xx), and lists the paths that failed with a server error.
+
+fn main()
+    lines := [
+        "GET /index.html 200 512",
+        "GET /about 301 0",
+        "POST /api/order 201 88",
+        "GET /missing 404 0",
+        "GET /api/search 500 0",
+        "GET /img/logo.png 200 20480",
+        "PUT /api/user 403 0",
+        "GET /api/report 503 0",
+        "GET /index.html 304 0",
+        "GET /api/order 200 940",
+    ]
+    mut classes := Map[str, int]()
+    mut errors := List[str]()
+    mut bytes := 0
+    for l in lines
+        parts := l.split(" ")
+        code := parts[2].to_int() else 0
+        bytes += parts[3].to_int() else 0
+        classes["{code / 100}xx"] += 1
+        if code >= 500
+            errors.push("{parts[1]} ({code})")
+    for k in classes.keys().sorted()
+        print("{k}: {classes[k]}")
+    shown := errors.join(", ")
+    print("server errors: {shown}")
+    print("{bytes} bytes sent in {lines.len()} requests")
+
+@test fn class()
+    assert_eq(404 / 100, 4)
