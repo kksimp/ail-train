@@ -1,0 +1,26 @@
+## Cinema snacks: combo deals priced against buying items one by one; for each order the
+## cheapest way to pay is found by trying every number of combos that fits.
+
+fn cost(popcorn int, drinks int, combos int) int
+    (popcorn - combos) * 450 + (drinks - combos) * 300 + combos * 650
+
+fn best(popcorn int, drinks int) (int, int)
+    most := popcorn.min(drinks)
+    mut pick := 0
+    mut low := cost(popcorn, drinks, 0)
+    for c in 1..=most
+        v := cost(popcorn, drinks, c)
+        if v < low
+            low = v
+            pick = c
+    (pick, low)
+
+fn main()
+    for order in [(1, 1), (3, 2), (0, 4), (5, 5), (2, 6)]
+        p, d := order
+        combos, price := best(p, d)
+        saved := cost(p, d, 0) - price
+        print("{p} popcorn, {d} drinks: {combos} combos, {price / 100}.{price % 100:02} (saves {saved}c)")
+
+@test fn no_drinks_no_combo()
+    assert_eq(best(3, 0), (0, 1350))

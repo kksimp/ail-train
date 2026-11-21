@@ -1,0 +1,4 @@
+move 2: ate at (4, 2), length 4
+move 4: ate at (4, 4), length 5
+move 8: ate at (0, 4), length 6
+survived, head (1, 1), length 6

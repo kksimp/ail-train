@@ -1,0 +1,52 @@
+## Union groups: a disjoint-set forest with path compression and union by size, used to
+## group people who share a club and to count the groups.
+
+fn find_root(mut parent List[int], x int) int
+    mut root := x
+    while parent[root] != root
+        root = parent[root]
+    mut cur := x
+    while parent[cur] != root
+        up := parent[cur]
+        parent[cur] = root
+        cur = up
+    root
+
+fn join(mut parent List[int], mut size List[int], a int, b int)
+    ra := find_root(mut parent, a)
+    rb := find_root(mut parent, b)
+    if ra == rb
+        return
+    if size[ra] < size[rb]
+        parent[ra] = rb
+        size[rb] += size[ra]
+    else
+        parent[rb] = ra
+        size[ra] += size[rb]
+
+fn main()
+    people := ["Ada", "Bo", "Cy", "Di", "Ed", "Fi", "Gus", "Hal"]
+    links := [(0, 1), (2, 3), (1, 3), (4, 5), (6, 6)]
+    mut parent := [i for i in 0..people.len()]
+    mut size := [1 for _ in 0..people.len()]
+    for l in links
+        a, b := l
+        join(mut parent, mut size, a, b)
+    mut groups := Map[int, List[str]]()
+    mut roots := List[int]()
+    for i in 0..people.len()
+        r := find_root(mut parent, i)
+        if not groups.contains(r)
+            roots.push(r)
+        mut members := groups.get(r) else List[str]()
+        members.push(people[i])
+        groups[r] = members
+    for r in roots
+        print(groups[r].join(", "))
+    print("{roots.len()} groups")
+
+@test fn joined_share_root()
+    mut p := [0, 1, 2]
+    mut s := [1, 1, 1]
+    join(mut p, mut s, 0, 2)
+    assert_eq(find_root(mut p, 2), find_root(mut p, 0))

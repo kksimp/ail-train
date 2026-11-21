@@ -1,0 +1,26 @@
+## Spoonerisms: swaps the leading consonant clusters of two words ("bad salad" becomes
+## "sad balad"), treating y as a vowel when it is not the first letter.
+
+fn split_onset(w str) (str, str)
+    cs := w.chars()
+    mut i := 0
+    while i < cs.len()
+        c := cs[i]
+        vowel := "aeiou".contains(c) or (c == 'y' and i > 0)
+        if vowel
+            break
+        i += 1
+    (w.slice(0, i), w.slice(i))
+
+fn spoon(a str, b str) str
+    a_on, a_rest := split_onset(a)
+    b_on, b_rest := split_onset(b)
+    "{b_on}{a_rest} {a_on}{b_rest}"
+
+fn main()
+    for pair in [("bad", "salad"), ("crushing", "blow"), ("light", "fire"), ("shy", "tray"), ("eat", "pie")]
+        a, b := pair
+        print("{a} {b} -> {spoon(a, b)}")
+
+@test fn clusters()
+    assert_eq(split_onset("string"), ("str", "ing"))

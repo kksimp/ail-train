@@ -1,0 +1,31 @@
+## Page index: builds a back-of-book index from pages of text: each chosen term maps to the
+## sorted, de-duplicated page numbers where it appears, printed with page ranges joined.
+
+fn ranges(pages List[int]) str
+    mut parts := List[str]()
+    mut i := 0
+    while i < pages.len()
+        mut j := i
+        while j + 1 < pages.len() and pages[j + 1] == pages[j] + 1
+            j += 1
+        if j > i
+            parts.push("{pages[i]}-{pages[j]}")
+        else
+            parts.push("{pages[i]}")
+        i = j + 1
+    parts.join(", ")
+
+fn main()
+    pages := ["Bees and flowers", "The hive and its queen", "Queen cells, drones", "Flowers in spring", "Honey and the hive", "Drones and the queen", "Wax and honey"]
+    terms := ["queen", "hive", "honey", "drones", "flowers", "wasps"]
+    for term in terms.sorted()
+        mut found := List[int]()
+        for i, text in pages.enumerate()
+            words := text.to_lower().replace(",", "").split(" ")
+            if words.contains(term)
+                found.push(i + 1)
+        shown := if found.is_empty() then "-" else ranges(found)
+        print("{term:<8} {shown}")
+
+@test fn joins_ranges()
+    assert_eq(ranges([1, 2, 3, 5, 7, 8]), "1-3, 5, 7-8")

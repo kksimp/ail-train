@@ -1,0 +1,33 @@
+## Sentence split: splits text into sentences at ".", "!" or "?" followed by a space or the
+## end, but not after a few known abbreviations, then reports word counts per sentence.
+
+fn sentences(text str) List[str]
+    abbreviations := ["dr", "mr", "mrs", "st", "e.g", "etc"]
+    cs := text.chars()
+    mut out := List[str]()
+    mut start := 0
+    for i in 0..cs.len()
+        c := cs[i]
+        if c == '.' or c == '!' or c == '?'
+            at_break := i + 1 == cs.len() or cs[i + 1] == ' '
+            if not at_break
+                continue
+            piece := text.slice(start, i + 1).trim()
+            last_word := (piece.split(" ").last() else "").to_lower()
+            stem := last_word.slice(0, last_word.len() - 1)
+            if c == '.' and abbreviations.contains(stem)
+                continue
+            out.push(piece)
+            start = i + 1
+    rest := text.slice(start).trim()
+    if rest != ""
+        out.push(rest)
+    out
+
+fn main()
+    text := "Dr. Hale met Mr. Ruiz on St. Ann's road. They talked! Was it about bees, flowers etc. or the weather? Nobody knows. trailing words"
+    for s in sentences(text)
+        print("[{s.split(" ").len()}] {s}")
+
+@test fn simple()
+    assert_eq(sentences("A b. C d!"), ["A b.", "C d!"])

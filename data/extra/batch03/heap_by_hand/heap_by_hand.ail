@@ -1,0 +1,54 @@
+## Heap by hand: a binary min-heap in a list with sift-up and sift-down, used to sort
+## numbers and to take the three smallest without sorting everything.
+
+fn push(mut h List[int], v int)
+    h.push(v)
+    mut i := h.len() - 1
+    while i > 0
+        parent := (i - 1) / 2
+        if h[parent] <= h[i]
+            break
+        h.swap(i, parent)
+        i = parent
+
+fn pop_min(mut h List[int]) int?
+    if h.is_empty()
+        return none
+    top := h[0]
+    last := h.pop() else return none
+    if h.is_empty()
+        return top
+    h[0] = last
+    mut i := 0
+    while true
+        l := 2 * i + 1
+        r := l + 1
+        mut small := i
+        if l < h.len() and h[l] < h[small]
+            small = l
+        if r < h.len() and h[r] < h[small]
+            small = r
+        if small == i
+            break
+        h.swap(i, small)
+        i = small
+    top
+
+fn main()
+    nums := [42, 7, 19, 3, 88, 25, 7, 61, 14, 0, 33]
+    mut h := List[int]()
+    for n in nums
+        push(mut h, n)
+    print("heap array: {h}")
+    mut out := List[int]()
+    while true
+        v := pop_min(mut h) else break
+        out.push(v)
+    print("sorted: {out}")
+    print("matches sort: {out == nums.sorted()}")
+
+@test fn smallest_first()
+    mut h := List[int]()
+    for n in [5, 1, 4]
+        push(mut h, n)
+    assert_eq(pop_min(mut h), 1)

@@ -1,0 +1,45 @@
+## Quoted fields: splits comma-separated lines by hand, where a field in double quotes may
+## hold commas and a doubled quote stands for one quote character.
+
+fn fields(line str) List[str]
+    mut out := List[str]()
+    mut cur := ""
+    mut quoted := false
+    cs := line.chars()
+    mut i := 0
+    while i < cs.len()
+        c := cs[i]
+        if quoted
+            if c == '"'
+                if i + 1 < cs.len() and cs[i + 1] == '"'
+                    cur = "{cur}\""
+                    i += 1
+                else
+                    quoted = false
+            else
+                cur = "{cur}{c}"
+        elif c == '"'
+            quoted = true
+        elif c == ','
+            out.push(cur)
+            cur = ""
+        else
+            cur = "{cur}{c}"
+        i += 1
+    out.push(cur)
+    out
+
+fn main()
+    lines := [
+        "plain,three,fields",
+        "\"Smith, Jo\",42,\"likes \"\"tea\"\"\"",
+        "a,,c,",
+        "\"\",x",
+    ]
+    for line in lines
+        f := fields(line)
+        shown := f.map(|x| "[{x}]").join(" ")
+        print("{f.len()}: {shown}")
+
+@test fn comma_in_quotes()
+    assert_eq(fields("\"a,b\",c"), ["a,b", "c"])

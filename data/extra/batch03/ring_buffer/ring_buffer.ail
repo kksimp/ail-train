@@ -1,0 +1,39 @@
+## Ring buffer: a fixed-capacity buffer over a list with head and count, where writing when
+## full overwrites the oldest value; used to keep the last five sensor readings.
+
+struct Ring
+    slots List[int]
+    head int
+    count int
+
+fn Ring.empty(cap int) Ring
+    Ring(slots: [0 for _ in 0..cap], head: 0, count: 0)
+
+fn Ring.write(mut self, v int)
+    cap := self.slots.len()
+    tail := (self.head + self.count) % cap
+    self.slots[tail] = v
+    if self.count == cap
+        self.head = (self.head + 1) % cap
+    else
+        self.count += 1
+
+fn Ring.items(self) List[int]
+    cap := self.slots.len()
+    [self.slots[(self.head + i) % cap] for i in 0..self.count]
+
+fn main()
+    mut r := Ring.empty(5)
+    readings := [21, 22, 22, 24, 27, 31, 30, 26, 23]
+    for v in readings
+        r.write(v)
+        items := r.items()
+        avg := items.sum() * 10 / items.len()
+        print("{v:>3} -> {items} avg {avg / 10}.{avg % 10}")
+    print("raw slots {r.slots}, head {r.head}")
+
+@test fn wraps()
+    mut r := Ring.empty(2)
+    for v in [1, 2, 3]
+        r.write(v)
+    assert_eq(r.items(), [2, 3])

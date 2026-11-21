@@ -1,0 +1,34 @@
+## Dice poker: names the best hand in five dice (five of a kind down to nothing) from the
+## sorted counts of each face, and ranks a table of players.
+
+fn hand(dice List[int]) (int, str)
+    counts := dice.counts().values().sorted().reversed()
+    s := dice.sorted()
+    straight := counts.len() == 5 and s[4] - s[0] == 4
+    if counts[0] == 5
+        return (7, "five of a kind")
+    if counts[0] == 4
+        return (6, "four of a kind")
+    if counts[0] == 3 and counts[1] == 2
+        return (5, "full house")
+    if straight
+        return (4, "straight")
+    if counts[0] == 3
+        return (3, "three of a kind")
+    if counts[0] == 2 and counts[1] == 2
+        return (2, "two pair")
+    if counts[0] == 2
+        return (1, "pair")
+    (0, "nothing")
+
+fn main()
+    table := [("Ana", [3, 3, 5, 3, 5]), ("Bo", [1, 2, 3, 4, 5]), ("Cy", [6, 6, 6, 6, 2]), ("Di", [2, 2, 4, 4, 1]), ("Ed", [1, 3, 4, 5, 6])]
+    for p in table
+        name, dice := p
+        _, label := hand(dice)
+        print("{name:<4} {dice} {label}")
+    winner := table.max(by: |p| hand(p.1).0) else ("", List[int]())
+    print("winner: {winner.0}")
+
+@test fn full_house()
+    assert_eq(hand([2, 5, 2, 5, 5]).1, "full house")

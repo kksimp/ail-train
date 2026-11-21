@@ -1,0 +1,31 @@
+## Integer partitions: the number of ways to write n as a sum of positive integers, by a
+## coin-change style table, and the partitions of 6 listed in descending parts.
+
+fn count_partitions(n int) int
+    mut ways := [0 for _ in 0..=n]
+    ways[0] = 1
+    for part in 1..=n
+        for total in part..=n
+            ways[total] += ways[total - part]
+    ways[n]
+
+fn list_parts(n int, max_part int, prefix List[int], mut out List[str])
+    if n == 0
+        out.push(prefix.map(|x| "{x}").join("+"))
+        return
+    mut p := n.min(max_part)
+    while p >= 1
+        mut next_prefix := prefix
+        next_prefix.push(p)
+        list_parts(n - p, p, next_prefix, mut out)
+        p -= 1
+
+fn main()
+    print([count_partitions(n) for n in 1..=12])
+    print("p(50) = {count_partitions(50)}, p(100) = {count_partitions(100)}")
+    mut out := List[str]()
+    list_parts(6, 6, List[int](), mut out)
+    print("6 has {out.len()}: {out.join(", ")}")
+
+@test fn five()
+    assert_eq(count_partitions(5), 7)

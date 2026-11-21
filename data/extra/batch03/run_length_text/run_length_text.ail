@@ -1,0 +1,40 @@
+## Run length text: compresses runs of a repeated character as count then character (runs of
+## one keep no count), expands it back, and reports the size saving.
+
+fn compress(s str) str
+    cs := s.chars()
+    mut out := ""
+    mut i := 0
+    while i < cs.len()
+        mut j := i
+        while j < cs.len() and cs[j] == cs[i]
+            j += 1
+        run := j - i
+        c := cs[i]
+        if run > 1
+            out = "{out}{run}{c}"
+        else
+            out = "{out}{c}"
+        i = j
+    out
+
+fn expand(s str) str
+    mut out := ""
+    mut n := 0
+    for c in s.chars()
+        if c.is_digit()
+            n = n * 10 + (c.to_digit(10) else 0)
+        else
+            piece := "{c}".repeat(n.max(1))
+            out = "{out}{piece}"
+            n = 0
+    out
+
+fn main()
+    for s in ["aaabccdddd", "abc", "wwwwwwwwwwwwbx", "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzz", ""]
+        z := compress(s)
+        back := expand(z)
+        print("\"{s}\" -> \"{z}\" ({s.len()} to {z.len()}), round trip {back == s}")
+
+@test fn simple()
+    assert_eq(compress("aab"), "2ab")

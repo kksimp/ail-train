@@ -1,0 +1,35 @@
+## Snake moves: a snake on a small wrapping board follows moves, grows when it eats food at
+## fixed spots, and the game ends if it runs into itself.
+
+fn step(head (int, int), dir char, size int) (int, int)
+    x, y := head
+    match dir
+        'U' => (x, (y + size - 1) % size)
+        'D' => (x, (y + 1) % size)
+        'L' => ((x + size - 1) % size, y)
+        _ => ((x + 1) % size, y)
+
+fn main()
+    size := 6
+    mut body := [(2, 2), (1, 2), (0, 2)]
+    mut food := [(4, 2), (4, 4), (0, 4)]
+    moves := "RRDDLLLLUUUR"
+    mut alive := true
+    for i, d in moves.chars().enumerate()
+        head := step(body[0], d, size)
+        ate := food.contains(head)
+        if not ate
+            _ := body.pop()
+        if body.contains(head)
+            print("move {i + 1}: crashed at {head}")
+            alive = false
+            break
+        body.insert(0, head)
+        if ate
+            food = food.filter(|f| f != head)
+            print("move {i + 1}: ate at {head}, length {body.len()}")
+    if alive
+        print("survived, head {body[0]}, length {body.len()}")
+
+@test fn wraps_left()
+    assert_eq(step((0, 3), 'L', 6), (5, 3))

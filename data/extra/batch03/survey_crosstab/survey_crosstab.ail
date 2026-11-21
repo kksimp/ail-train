@@ -1,0 +1,26 @@
+## Survey crosstab: answers tagged with an age band; counts each answer per band and prints
+## a table of counts with row percentages rounded to whole numbers.
+
+fn main()
+    answers := [("18-29", "yes"), ("30-49", "no"), ("18-29", "yes"), ("50+", "no"), ("30-49", "yes"), ("50+", "no"), ("18-29", "no"), ("30-49", "yes"), ("50+", "yes"), ("18-29", "yes"), ("30-49", "unsure"), ("50+", "no")]
+    bands := ["18-29", "30-49", "50+"]
+    choices := ["yes", "no", "unsure"]
+    mut counts := Map[(str, str), int]()
+    for a in answers
+        counts[a] += 1
+    heading := "band"
+    choice_cells := choices.map(|c| "{c:>8}").join("")
+    print("{heading:<7}{choice_cells}")
+    for band in bands
+        total := choices.map(|c| counts.get((band, c)) else 0).sum()
+        mut cells := ""
+        for c in choices
+            n := counts.get((band, c)) else 0
+            pct := (n * 200 + total) / (total * 2)
+            cells = "{cells}{n:>3} {pct:>3}%"
+        print("{band:<7}{cells}")
+
+@test fn tuple_keys()
+    mut m := Map[(str, str), int]()
+    m[("a", "b")] += 2
+    assert_eq(m[("a", "b")], 2)

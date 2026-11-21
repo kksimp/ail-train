@@ -1,0 +1,20 @@
+## Fuel economy: fill-ups with odometer readings and litres; works out litres per 100 km
+## for each leg, the average over the trip, and the most and least efficient legs.
+
+fn main()
+    fills := [(12000, 0.0), (12480, 34.2), (12910, 31.0), (13550, 41.6), (13880, 25.9), (14400, 35.1)]
+    mut legs := List[(int, float)]()
+    for i in 1..fills.len()
+        km := fills[i].0 - fills[i - 1].0
+        rate := fills[i].1 * 100.0 / km.to_float()
+        legs.push((km, rate))
+        print("leg {i}: {km} km, {fills[i].1} L, {rate:.2} L/100km")
+    total_km := legs.map(|l| l.0).sum()
+    total_l := fills.map(|f| f.1).sum()
+    print("trip: {total_km} km, {total_l:.1} L, {total_l * 100.0 / total_km.to_float():.2} L/100km")
+    best := (legs.min(by: |l| (l.1 * 1000.0).to_int()) else (0, 0.0)).1
+    worst := (legs.max(by: |l| (l.1 * 1000.0).to_int()) else (0, 0.0)).1
+    print("best {best:.2}, worst {worst:.2}")
+
+@test fn rate()
+    assert_eq(30.0 * 100.0 / 500.0, 6.0)

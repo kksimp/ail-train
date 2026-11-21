@@ -1,0 +1,7 @@
+line 6: unknown level TRACE
+DEBUG=1 INFO=2 WARN=2 ERROR=2
+  WARN disk 85%
+  ERROR timeout on db
+  WARN retrying
+  ERROR gave up
+first error on line 5

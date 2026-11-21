@@ -1,0 +1,31 @@
+## Leap days: counts the leap days between two years, the day of the week for a date with
+## Zeller's congruence, and the next three years where 29 February is a Saturday.
+
+fn is_leap(y int) bool
+    (y % 4 == 0 and y % 100 != 0) or y % 400 == 0
+
+fn weekday(y int, m int, d int) str
+    names := ["Saturday", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
+    mm := if m < 3 then m + 12 else m
+    yy := if m < 3 then y - 1 else y
+    k := yy % 100
+    j := yy / 100
+    h := (d + 13 * (mm + 1) / 5 + k + k / 4 + j / 4 + 5 * j) % 7
+    names[h]
+
+fn main()
+    count := [y for y in 1901..=2100 if is_leap(y)].len()
+    print("leap days 1901-2100: {count}")
+    for date in [(2000, 1, 1), (2024, 2, 29), (2026, 11, 21), (1969, 7, 20)]
+        y, m, d := date
+        print("{y}-{m:02}-{d:02}: {weekday(y, m, d)}")
+    mut found := List[int]()
+    mut y := 2026
+    while found.len() < 3
+        if is_leap(y) and weekday(y, 2, 29) == "Saturday"
+            found.push(y)
+        y += 1
+    print("29 February on a Saturday: {found}")
+
+@test fn new_millennium()
+    assert_eq(weekday(2000, 1, 1), "Saturday")

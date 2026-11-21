@@ -1,0 +1,5 @@
+nodes: 12
+car: 4 words ["car", "card", "care", "cart"] (word)
+do: 3 words ["do", "dog", "dot"] (word)
+ca: 5 words ["car", "card", "care", "cart", "cat"] (prefix only)
+x: 0 words [] (prefix only)

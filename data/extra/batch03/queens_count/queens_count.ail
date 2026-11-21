@@ -1,0 +1,37 @@
+## Queens count: counts the ways to place n non-attacking queens on an n by n board by
+## backtracking with column and diagonal sets, and prints the first solution for n = 6.
+
+fn place(n int, row int, mut cols List[int], mut solutions List[List[int]])
+    if row == n
+        solutions.push(cols)
+        return
+    for c in 0..n
+        mut ok := true
+        for r in 0..row
+            if cols[r] == c or (cols[r] - c).abs() == row - r
+                ok = false
+                break
+        if ok
+            cols.push(c)
+            place(n, row + 1, mut cols, mut solutions)
+            _ := cols.pop()
+
+fn solve(n int) List[List[int]]
+    mut cols := List[int]()
+    mut solutions := List[List[int]]()
+    place(n, 0, mut cols, mut solutions)
+    solutions
+
+fn main()
+    for n in 1..=8
+        print("n={n}: {solve(n).len()} solutions")
+    first := solve(6)[0]
+    for c in first
+        mut row := ""
+        for i in 0..6
+            mark := if i == c then "Q" else "."
+            row = "{row}{mark}"
+        print(row)
+
+@test fn four()
+    assert_eq(solve(4).len(), 2)

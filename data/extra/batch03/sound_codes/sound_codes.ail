@@ -1,0 +1,51 @@
+## Sound codes: the classic Soundex code (a letter and three digits) for surnames, so names
+## that sound alike group together; h and w do not separate equal codes.
+
+fn digit(c char) int
+    if "bfpv".contains(c)
+        return 1
+    if "cgjkqsxz".contains(c)
+        return 2
+    if "dt".contains(c)
+        return 3
+    if c == 'l'
+        return 4
+    if "mn".contains(c)
+        return 5
+    if c == 'r'
+        return 6
+    0
+
+fn soundex(name str) str
+    cs := name.to_lower().chars()
+    first := cs[0]
+    mut out := name.slice(0, 1).to_upper()
+    mut last := digit(first)
+    for c in cs.skip(1)
+        d := digit(c)
+        if d != 0 and d != last
+            out = "{out}{d}"
+            if out.len() == 4
+                break
+        if c != 'h' and c != 'w'
+            last = d
+    while out.len() < 4
+        out = "{out}0"
+    out
+
+fn main()
+    names := ["Robert", "Rupert", "Rubin", "Ashcraft", "Tymczak", "Pfister", "Lee", "Honeyman"]
+    for n in names
+        print("{n:<9} {soundex(n)}")
+    mut groups := Map[str, List[str]]()
+    for n in names
+        code := soundex(n)
+        mut members := groups.get(code) else List[str]()
+        members.push(n)
+        groups[code] = members
+    for code in groups.keys().sorted()
+        if groups[code].len() > 1
+            print("{code}: {groups[code].join(", ")}")
+
+@test fn ashcraft()
+    assert_eq(soundex("Ashcraft"), "A261")

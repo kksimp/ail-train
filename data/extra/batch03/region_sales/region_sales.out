@@ -1,0 +1,5 @@
+region  jan  feb  mar  total
+east     60   75   80    215
+north   120  140    0    260
+south    90    0  110    200
+skipped 2

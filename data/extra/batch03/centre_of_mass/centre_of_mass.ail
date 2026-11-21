@@ -1,0 +1,27 @@
+## Centre of mass: the weighted centre of point masses in a plane, and how far each mass
+## sits from it; also the plain centroid for comparison.
+
+fn main()
+    masses := [(1.0, 1.0, 2.0), (4.0, 1.0, 1.0), (2.0, 5.0, 3.0), (6.0, 6.0, 0.5)]
+    mut total := 0.0
+    mut sx := 0.0
+    mut sy := 0.0
+    for m in masses
+        x, y, w := m
+        total = total + w
+        sx = sx + x * w
+        sy = sy + y * w
+    cx := sx / total
+    cy := sy / total
+    print("total mass {total}")
+    print("centre of mass ({cx:.3}, {cy:.3})")
+    n := masses.len().to_float()
+    gx := masses.map(|m| m.0).sum() / n
+    gy := masses.map(|m| m.1).sum() / n
+    print("plain centroid ({gx:.3}, {gy:.3})")
+    for m in masses
+        x, y, w := m
+        print("  mass {w} at ({x}, {y}): {(x - cx).hypot(y - cy):.3} away")
+
+@test fn two_equal_masses()
+    assert_eq((0.0 + 4.0) / 2.0, 2.0)

@@ -1,0 +1,31 @@
+## Price history: daily prices in cents; finds the best single buy-then-sell profit in one
+## pass, the largest one-day drop, and the days the price set a new high.
+
+fn best_trade(p List[int]) (int, int, int)
+    mut low_day := 0
+    mut best := (0, 0, 0)
+    for d in 1..p.len()
+        if p[d] < p[low_day]
+            low_day = d
+        elif p[d] - p[low_day] > best.2
+            best = (low_day, d, p[d] - p[low_day])
+    best
+
+fn main()
+    prices := [1040, 1012, 998, 1065, 1101, 1087, 1150, 1020, 1009, 1190, 1175, 1210]
+    buy, sell, gain := best_trade(prices)
+    print("buy day {buy + 1} at {prices[buy]}, sell day {sell + 1} at {prices[sell]}, gain {gain}")
+    drops := [prices[i - 1] - prices[i] for i in 1..prices.len()]
+    worst := drops.max() else 0
+    drop_day := (drops.index_of(worst) else 0) + 2
+    print("largest drop: {worst} on day {drop_day}")
+    mut high := prices[0]
+    mut highs := List[int]()
+    for d in 1..prices.len()
+        if prices[d] > high
+            high = prices[d]
+            highs.push(d + 1)
+    print("new highs on days {highs}")
+
+@test fn falling_prices()
+    assert_eq(best_trade([5, 4, 3]).2, 0)

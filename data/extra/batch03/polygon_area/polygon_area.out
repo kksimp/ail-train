@@ -1,0 +1,4 @@
+square   area 16.00, perimeter 16.000, anticlockwise
+triangle area 6.00, perimeter 12.000, clockwise
+L-shape  area 18.00, perimeter 22.000, anticlockwise
+kite     area 10.00, perimeter 13.062, anticlockwise

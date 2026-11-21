@@ -1,0 +1,24 @@
+## Queue tellers: customers arrive at given minutes with service times; each goes to the
+## teller who is free soonest, and the program reports waits and when everyone is done.
+
+fn main()
+    customers := [(0, 5), (1, 3), (2, 8), (3, 2), (4, 4), (6, 6), (7, 1), (9, 3)]
+    mut free_at := [0, 0]
+    mut waits := List[int]()
+    for i, c in customers.enumerate()
+        arrive, service := c
+        mut teller := 0
+        if free_at[1] < free_at[0]
+            teller = 1
+        start := arrive.max(free_at[teller])
+        free_at[teller] = start + service
+        waits.push(start - arrive)
+        print("customer {i + 1}: teller {teller + 1}, starts {start}, waits {start - arrive}")
+    avg := waits.sum() * 10 / waits.len()
+    longest := waits.max() else 0
+    done := free_at.max() else 0
+    print("average wait {avg / 10}.{avg % 10} min, longest {longest}")
+    print("all done at minute {done}")
+
+@test fn idle_teller()
+    assert_eq(3.max(0), 3)

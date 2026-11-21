@@ -1,0 +1,6 @@
+(1.0, 0.0) to (0.0, 1.0): 90.00 degrees, left
+(1.0, 0.0) to (1.0, 1.0): 45.00 degrees, left
+(1.0, 1.0) to (1.0, -1.0): 90.00 degrees, right
+(2.0, 0.0) to (-3.0, 0.0): 180.00 degrees, straight
+(3.0, 4.0) to (4.0, 3.0): 16.26 degrees, right
+(1.0, 2.0) to (2.0, 4.0): 0.00 degrees, straight

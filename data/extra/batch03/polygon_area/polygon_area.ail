@@ -1,0 +1,36 @@
+## Polygon area: the shoelace formula gives the area of a simple polygon from its corners in
+## order, and its sign tells whether the corners run clockwise or anticlockwise.
+
+fn signed_area(pts List[(float, float)]) float
+    mut s := 0.0
+    n := pts.len()
+    for i in 0..n
+        x1, y1 := pts[i]
+        x2, y2 := pts[(i + 1) % n]
+        s = s + x1 * y2 - x2 * y1
+    s / 2.0
+
+fn perimeter(pts List[(float, float)]) float
+    mut p := 0.0
+    n := pts.len()
+    for i in 0..n
+        x1, y1 := pts[i]
+        x2, y2 := pts[(i + 1) % n]
+        p = p + (x2 - x1).hypot(y2 - y1)
+    p
+
+fn main()
+    shapes := [
+        ("square", [(0.0, 0.0), (4.0, 0.0), (4.0, 4.0), (0.0, 4.0)]),
+        ("triangle", [(0.0, 0.0), (0.0, 3.0), (4.0, 0.0)]),
+        ("L-shape", [(0.0, 0.0), (6.0, 0.0), (6.0, 2.0), (2.0, 2.0), (2.0, 5.0), (0.0, 5.0)]),
+        ("kite", [(0.0, 0.0), (2.0, 1.5), (0.0, 5.0), (-2.0, 1.5)]),
+    ]
+    for s in shapes
+        name, pts := s
+        a := signed_area(pts)
+        turn := if a >= 0.0 then "anticlockwise" else "clockwise"
+        print("{name:<8} area {a.abs():.2}, perimeter {perimeter(pts):.3}, {turn}")
+
+@test fn unit_square()
+    assert_eq(signed_area([(0.0, 0.0), (1.0, 0.0), (1.0, 1.0), (0.0, 1.0)]), 1.0)

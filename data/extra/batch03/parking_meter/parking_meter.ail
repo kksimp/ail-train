@@ -1,0 +1,31 @@
+## Parking meter: charges by the started half hour with a free first 20 minutes and a daily
+## cap; times are minutes since midnight, and stays past midnight are rejected.
+
+fn charge(arrive int, leave int) int ! str
+    if leave < arrive
+        return "leaves before arriving"
+    if leave >= 1440
+        return "past midnight"
+    stay := leave - arrive
+    if stay <= 20
+        return 0
+    halves := (stay + 29) / 30
+    (halves * 150).min(1200)
+
+fn clock(m int) str
+    "{m / 60:02}:{m % 60:02}"
+
+fn main()
+    stays := [(540, 555), (540, 600), (545, 640), (480, 1200), (700, 650), (1000, 1500)]
+    mut takings := 0
+    for s in stays
+        arrive, leave := s
+        if c := charge(arrive, leave)
+            takings += c
+            print("{clock(arrive)}-{clock(leave)}: {c / 100}.{c % 100:02}")
+        else err
+            print("{clock(arrive)}: rejected ({err})")
+    print("takings {takings / 100}.{takings % 100:02}")
+
+@test fn capped()
+    assert_eq(charge(0, 1439) else 0, 1200)

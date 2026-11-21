@@ -1,0 +1,18 @@
+## Temperature table: Celsius to Fahrenheit and Kelvin for a range of values in steps,
+## with the point where Celsius and Fahrenheit agree found by solving the equation.
+
+fn to_f(c float) float
+    c * 9.0 / 5.0 + 32.0
+
+fn main()
+    print("     C       F       K")
+    mut c := -40.0
+    while c <= 100.0
+        print("{c:>6.1} {to_f(c):>7.1} {c + 273.15:>7.2}")
+        c = c + 20.0
+    same := -32.0 / (9.0 / 5.0 - 1.0)
+    print("C equals F at {same}")
+    print("body temperature 37.0 C is {to_f(37.0):.1} F")
+
+@test fn boiling()
+    assert_eq(to_f(100.0), 212.0)

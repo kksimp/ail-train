@@ -1,0 +1,30 @@
+## RGB hex: converts "#rrggbb" colours to red, green and blue values and back, mixes two
+## colours by averaging, and reports invalid codes.
+
+fn from_hex(code str) (int, int, int)?
+    if code.len() != 7 or not code.starts_with("#")
+        return none
+    mut vals := List[int]()
+    for i in [1, 3, 5]
+        hi := (code.char_at(i) else ' ').to_digit(16) else return none
+        lo := (code.char_at(i + 1) else ' ').to_digit(16) else return none
+        vals.push(hi * 16 + lo)
+    (vals[0], vals[1], vals[2])
+
+fn to_hex(c (int, int, int)) str
+    r, g, b := c
+    "#{r:02x}{g:02x}{b:02x}"
+
+fn main()
+    for code in ["#ff8800", "#1E90FF", "#000000", "#12345", "#zz0000"]
+        if c := from_hex(code)
+            print("{code} -> {c} -> {to_hex(c)}")
+        else
+            print("{code} is not a colour")
+    a := from_hex("#ff0000") else (0, 0, 0)
+    b := from_hex("#0000ff") else (0, 0, 0)
+    mix := ((a.0 + b.0) / 2, (a.1 + b.1) / 2, (a.2 + b.2) / 2)
+    print("red + blue = {to_hex(mix)}")
+
+@test fn round_trip()
+    assert_eq(to_hex(from_hex("#0a0b0c") else (0, 0, 0)), "#0a0b0c")

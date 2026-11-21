@@ -1,0 +1,34 @@
+## Exam timetable: assigns exams to the fewest slots so that no student has two at once,
+## using greedy graph colouring with exams taken in order of most clashes first.
+
+fn main()
+    enrol := [("ana", ["maths", "physics", "art"]), ("ben", ["maths", "history"]), ("cai", ["physics", "chemistry"]), ("dee", ["art", "history", "music"]), ("eli", ["chemistry", "music"])]
+    mut clash := Map[str, Set[str]]()
+    for e in enrol
+        subjects := e.1
+        for a in subjects
+            mut s := clash.get(a) else Set[str]()
+            for b in subjects
+                if a != b
+                    s.add(b)
+            clash[a] = s
+    exams := clash.keys().sorted(by: |x| (-clash[x].len(), x))
+    mut slot := Map[str, int]()
+    for ex in exams
+        mut used := Set[int]()
+        for other in clash[ex]
+            if s := slot.get(other)
+                used.add(s)
+        mut k := 0
+        while used.contains(k)
+            k += 1
+        slot[ex] = k
+    slots := (slot.values().max() else 0) + 1
+    for k in 0..slots
+        names := exams.filter(|x| slot[x] == k).sorted()
+        print("slot {k + 1}: {names.join(", ")}")
+
+@test fn sets()
+    mut s := Set[int]()
+    s.add(1)
+    assert(s.contains(1))

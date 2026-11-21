@@ -1,0 +1,7 @@
+totals 0..51: 26 reachable
+cannot make: [1, 2, 4, 6, 7, 10, 11, 13, 15, 16, 18, 21]
+17 = 3 + 5 + 9
+26 = 3 + 9 + 14
+30: impossible
+50: impossible
+4: impossible

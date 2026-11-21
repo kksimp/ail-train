@@ -1,0 +1,26 @@
+## Anagram buckets: groups words by their sorted letters, prints the groups with more than
+## one word in order of first appearance, and the largest group.
+
+fn signature(w str) str
+    w.to_lower().chars().sorted().join("")
+
+fn main()
+    words := ["listen", "silent", "enlist", "stone", "notes", "onset", "tones", "lemon", "melon", "apple", "inlets", "solo"]
+    mut groups := Map[str, List[str]]()
+    mut order := List[str]()
+    for w in words
+        key := signature(w)
+        if not groups.contains(key)
+            order.push(key)
+        mut g := groups.get(key) else List[str]()
+        g.push(w)
+        groups[key] = g
+    for key in order
+        members := groups[key]
+        if members.len() > 1
+            print("{key}: {members.join(" ")}")
+    biggest := order.max(by: |k| groups[k].len()) else ""
+    print("largest: {groups[biggest].len()} words")
+
+@test fn same_letters()
+    assert_eq(signature("Melon"), signature("lemon"))

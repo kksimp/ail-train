@@ -1,0 +1,27 @@
+## Energy meter: cumulative meter readings taken on irregular days; works out usage per
+## period and per day, spots a reading that went backwards, and estimates the monthly bill.
+
+fn main()
+    readings := [(1, 40210), (8, 40295), (15, 40388), (19, 40371), (22, 40440), (30, 40552)]
+    rate := 28
+    mut good := List[(int, int)]()
+    for r in readings
+        day, value := r
+        last := good.last() else (0, 0)
+        if good.len() > 0 and value < last.1
+            print("day {day}: reading {value} is below {last.1}, ignored")
+            continue
+        good.push(r)
+    for i in 1..good.len()
+        d0, v0 := good[i - 1]
+        d1, v1 := good[i]
+        used := v1 - v0
+        print("days {d0}-{d1}: {used} kWh, {used / (d1 - d0)} a day")
+    first := good.first() else (0, 0)
+    end := good.last() else (0, 0)
+    total := end.1 - first.1
+    cost := total * rate
+    print("total {total} kWh, about {cost / 100}.{cost % 100:02}")
+
+@test fn per_day()
+    assert_eq(85 / 7, 12)

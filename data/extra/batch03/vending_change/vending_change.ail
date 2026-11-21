@@ -1,0 +1,33 @@
+## Vending change: a machine with a limited coin stock gives change greedily from the
+## largest coin down; if the stock cannot make the exact change the sale is refused.
+
+fn make_change(amount int, mut stock Map[int, int]) List[int]?
+    coins := [200, 100, 50, 20, 10, 5]
+    mut left := amount
+    mut used := List[int]()
+    for c in coins
+        while left >= c and (stock.get(c) else 0) > 0
+            left -= c
+            stock[c] -= 1
+            used.push(c)
+    if left != 0
+        for c in used
+            stock[c] += 1
+        return none
+    used
+
+fn main()
+    mut stock := {200: 1, 100: 2, 50: 1, 20: 3, 10: 2, 5: 1}
+    sales := [(120, 500), (95, 200), (70, 100), (45, 100), (60, 100)]
+    for sale in sales
+        price, paid := sale
+        if coins := make_change(paid - price, mut stock)
+            print("price {price}, paid {paid}: change {coins}")
+        else
+            print("price {price}, paid {paid}: refused, cannot make {paid - price}")
+    left := [200, 100, 50, 20, 10, 5].map(|c| "{c}x{stock[c]}").join(" ")
+    print("stock left: {left}")
+
+@test fn exact_coins()
+    mut s := {10: 1, 5: 1}
+    assert_eq(make_change(15, mut s), [10, 5])

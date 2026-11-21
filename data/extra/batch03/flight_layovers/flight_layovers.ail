@@ -1,0 +1,44 @@
+## Flight layovers: legs of a journey as (from, to, depart, arrive) in minutes; checks each
+## connection has at least 45 minutes and reports the layovers and total travel time.
+
+struct Leg
+    origin str
+    dest str
+    depart int
+    arrive int
+
+fn hm(m int) str
+    "{m / 60}h{m % 60:02}"
+
+fn check(legs List[Leg]) List[str]
+    mut problems := List[str]()
+    for i in 1..legs.len()
+        a := legs[i - 1]
+        b := legs[i]
+        if a.dest != b.origin
+            problems.push("{a.dest} is not {b.origin}")
+        elif b.depart - a.arrive < 45
+            problems.push("only {b.depart - a.arrive} min at {a.dest}")
+    problems
+
+fn main()
+    trip := [
+        Leg(origin: "OSL", dest: "AMS", depart: 420, arrive: 525),
+        Leg(origin: "AMS", dest: "LIS", depart: 610, arrive: 790),
+        Leg(origin: "LIS", dest: "PDL", depart: 820, arrive: 955),
+    ]
+    for i in 1..trip.len()
+        print("layover at {trip[i].origin}: {hm(trip[i].depart - trip[i - 1].arrive)}")
+    first := trip.first() else return
+    last := trip.last() else return
+    print("total {hm(last.arrive - first.depart)}")
+    problems := check(trip)
+    if problems.is_empty()
+        print("all connections ok")
+    else
+        for p in problems
+            print("problem: {p}")
+
+@test fn wrong_airport()
+    legs := [Leg(origin: "A", dest: "B", depart: 0, arrive: 60), Leg(origin: "C", dest: "D", depart: 200, arrive: 260)]
+    assert_eq(check(legs), ["B is not C"])

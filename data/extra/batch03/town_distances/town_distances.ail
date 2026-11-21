@@ -1,0 +1,25 @@
+## Town distances: straight-line distances between towns on a grid map, printed as a
+## triangle table, with the closest and farthest pairs.
+
+fn dist(a (str, float, float), b (str, float, float)) float
+    (a.1 - b.1).hypot(a.2 - b.2)
+
+fn main()
+    towns := [("Avon", 0.0, 0.0), ("Brook", 3.0, 4.0), ("Cale", 6.0, 1.0), ("Dunn", 2.0, 9.0), ("Esk", 8.0, 7.0)]
+    for i in 1..towns.len()
+        mut cells := List[str]()
+        for j in 0..i
+            d := dist(towns[i], towns[j])
+            cells.push("{d:6.2}")
+        print("{towns[i].0:<6}{cells.join("")}")
+    mut pairs := List[(int, int)]()
+    for i in 0..towns.len()
+        for j in i + 1..towns.len()
+            pairs.push((i, j))
+    near := pairs.min(by: |p| (dist(towns[p.0], towns[p.1]) * 1000.0).to_int()) else (0, 0)
+    far := pairs.max(by: |p| (dist(towns[p.0], towns[p.1]) * 1000.0).to_int()) else (0, 0)
+    print("closest: {towns[near.0].0}-{towns[near.1].0} {dist(towns[near.0], towns[near.1]):.2}")
+    print("farthest: {towns[far.0].0}-{towns[far.1].0} {dist(towns[far.0], towns[far.1]):.2}")
+
+@test fn three_four_five()
+    assert_eq(dist(("a", 0.0, 0.0), ("b", 3.0, 4.0)), 5.0)

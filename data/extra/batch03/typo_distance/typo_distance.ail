@@ -1,0 +1,35 @@
+## Typo distance: Levenshtein edit distance with a rolling row, used to suggest the closest
+## dictionary word for each misspelling (ties go to the earlier word).
+
+fn distance(a str, b str) int
+    x := a.chars()
+    y := b.chars()
+    mut prev := [j for j in 0..=y.len()]
+    for i in 1..=x.len()
+        mut row := [i]
+        for j in 1..=y.len()
+            cost := if x[i - 1] == y[j - 1] then 0 else 1
+            row.push((prev[j] + 1).min(row[j - 1] + 1).min(prev[j - 1] + cost))
+        prev = row
+    prev[y.len()]
+
+fn suggest(word str, dict List[str]) (str, int)
+    mut best := dict[0]
+    mut best_d := distance(word, best)
+    for w in dict.skip(1)
+        d := distance(word, w)
+        if d < best_d
+            best = w
+            best_d = d
+    (best, best_d)
+
+fn main()
+    dict := ["receive", "separate", "definitely", "necessary", "weird", "calendar", "argument"]
+    for typo in ["recieve", "seperate", "definately", "neccessary", "wierd", "calender", "arguement"]
+        w, d := suggest(typo, dict)
+        print("{typo:<11} -> {w} ({d})")
+    print("kitten/sitting: {distance("kitten", "sitting")}")
+
+@test fn empty_strings()
+    assert_eq(distance("", "abc"), 3)
+    assert_eq(distance("same", "same"), 0)

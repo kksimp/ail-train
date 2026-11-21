@@ -1,0 +1,6 @@
+price 120, paid 500: change [200, 100, 50, 20, 10]
+price 95, paid 200: change [100, 5]
+price 70, paid 100: change [20, 10]
+price 45, paid 100: refused, cannot make 55
+price 60, paid 100: refused, cannot make 40
+stock left: 200x0 100x0 50x0 20x1 10x0 5x0

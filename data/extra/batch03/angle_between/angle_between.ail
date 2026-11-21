@@ -1,0 +1,29 @@
+## Angle between: angles between 2D vectors from the dot and cross products through `atan`,
+## converted to degrees, and the cross product's sign to say whether the turn is left or right.
+
+fn angle_deg(a (float, float), b (float, float)) float
+    ux, uy := a
+    vx, vy := b
+    dot := ux * vx + uy * vy
+    cross := (ux * vy - uy * vx).abs()
+    if dot == 0.0
+        return 90.0
+    t := (cross / dot.abs()).atan() * 180.0 / 3.141592653589793
+    if dot > 0.0 then t else 180.0 - t
+
+fn turn(a (float, float), b (float, float)) str
+    cross := a.0 * b.1 - a.1 * b.0
+    if cross > 0.0
+        return "left"
+    if cross < 0.0
+        return "right"
+    "straight"
+
+fn main()
+    pairs := [((1.0, 0.0), (0.0, 1.0)), ((1.0, 0.0), (1.0, 1.0)), ((1.0, 1.0), (1.0, -1.0)), ((2.0, 0.0), (-3.0, 0.0)), ((3.0, 4.0), (4.0, 3.0)), ((1.0, 2.0), (2.0, 4.0))]
+    for p in pairs
+        a, b := p
+        print("{a} to {b}: {angle_deg(a, b):.2} degrees, {turn(a, b)}")
+
+@test fn right_angle()
+    assert_eq(turn((1.0, 0.0), (0.0, 1.0)), "left")

@@ -1,0 +1,8 @@
+(a[b]{c})    ok, depth 2
+f(x)         ok, depth 1
+((([])))     ok, depth 4
+(a]          expected ) at 2, found ]
+a)b          unexpected ) at 1
+[(           2 left open
+             ok, depth 0
+{[()()]}[]   ok, depth 3

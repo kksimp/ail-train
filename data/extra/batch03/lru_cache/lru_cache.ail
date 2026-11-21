@@ -1,0 +1,54 @@
+## LRU cache: a fixed-size cache that evicts the least recently used key; recency is kept
+## in a list with the most recent key at the end, and hits and misses are counted.
+
+struct Cache
+    size int
+    values Map[str, int]
+    order List[str]
+    hits int
+    misses int
+
+fn Cache.touch(mut self, key str)
+    i := self.order.index_of(key) else -1
+    if i >= 0
+        self.order.remove_at(i)
+    self.order.push(key)
+
+fn Cache.get(mut self, key str) int?
+    v := self.values.get(key) else
+        self.misses += 1
+        return none
+    self.hits += 1
+    self.touch(key)
+    v
+
+fn Cache.put(mut self, key str, value int)
+    if not self.values.contains(key) and self.values.len() == self.size
+        oldest := self.order[0]
+        self.order.remove_at(0)
+        _ := self.values.remove(oldest)
+        print("  evict {oldest}")
+    self.values[key] = value
+    self.touch(key)
+
+fn main()
+    mut c := Cache(size: 3, values: Map[str, int](), order: List[str](), hits: 0, misses: 0)
+    c.put("a", 1)
+    c.put("b", 2)
+    c.put("c", 3)
+    got_a := c.get("a") else -1
+    print("get a: {got_a}")
+    c.put("d", 4)
+    got_b := c.get("b") else -1
+    print("get b: {got_b}")
+    c.put("e", 5)
+    for k in ["a", "c", "d", "e"]
+        got := c.get(k) else -1
+        print("get {k}: {got}")
+    print("order {c.order}, hits {c.hits}, misses {c.misses}")
+
+@test fn evicts_oldest()
+    mut c := Cache(size: 1, values: Map[str, int](), order: List[str](), hits: 0, misses: 0)
+    c.put("x", 1)
+    c.put("y", 2)
+    assert_eq(c.get("x"), none)

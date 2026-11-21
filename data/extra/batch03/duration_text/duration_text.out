@@ -1,0 +1,11 @@
+      0: now
+      1: 1 second
+     59: 59 seconds
+     60: 1 minute
+     62: 1 minute and 2 seconds
+   3600: 1 hour
+   3661: 1 hour, 1 minute and 1 second
+   7501: 2 hours, 5 minutes and 1 second
+  86400: 1 day
+  90061: 1 day, 1 hour, 1 minute and 1 second
+1000000: 11 days, 13 hours, 46 minutes and 40 seconds

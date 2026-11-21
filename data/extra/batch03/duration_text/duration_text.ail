@@ -1,0 +1,29 @@
+## Duration text: turns a number of seconds into readable text like "2 hours, 5 minutes and
+## 1 second", leaving out zero parts and using singular words for ones.
+
+fn plural(n int, unit str) str
+    if n == 1 then "1 {unit}" else "{n} {unit}s"
+
+fn describe(seconds int) str
+    if seconds == 0
+        return "now"
+    units := [("day", 86400), ("hour", 3600), ("minute", 60), ("second", 1)]
+    mut left := seconds
+    mut parts := List[str]()
+    for u in units
+        name, size := u
+        n := left / size
+        left = left % size
+        if n > 0
+            parts.push(plural(n, name))
+    if parts.len() == 1
+        return parts[0]
+    last := parts.pop() else ""
+    "{parts.join(", ")} and {last}"
+
+fn main()
+    for s in [0, 1, 59, 60, 62, 3600, 3661, 7501, 86400, 90061, 1000000]
+        print("{s:>7}: {describe(s)}")
+
+@test fn mixed()
+    assert_eq(describe(3661), "1 hour, 1 minute and 1 second")

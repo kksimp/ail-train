@@ -1,0 +1,37 @@
+## Team choices: all ways to pick k players from a squad by recursion, the count checked
+## against n choose k from Pascal's rule, and the picks whose skill totals hit a target.
+
+fn choose(n int, k int) int
+    mut row := [1]
+    for _ in 0..n
+        mut next_row := [1]
+        for i in 1..row.len()
+            next_row.push(row[i - 1] + row[i])
+        next_row.push(1)
+        row = next_row
+    if k < 0 or k > n then 0 else row[k]
+
+fn picks(names List[str], k int, start int, chosen List[str], mut out List[List[str]])
+    if chosen.len() == k
+        out.push(chosen)
+        return
+    for i in start..names.len()
+        mut more := chosen
+        more.push(names[i])
+        picks(names, k, i + 1, more, mut out)
+
+fn main()
+    squad := ["Ash", "Bea", "Cal", "Dev", "Eli", "Fay"]
+    skill := {"Ash": 7, "Bea": 9, "Cal": 4, "Dev": 6, "Eli": 8, "Fay": 5}
+    for k in [2, 3]
+        mut out := List[List[str]]()
+        picks(squad, k, 0, List[str](), mut out)
+        print("choose {k} of {squad.len()}: {out.len()} ways (Pascal says {choose(squad.len(), k)})")
+    mut threes := List[List[str]]()
+    picks(squad, 3, 0, List[str](), mut threes)
+    hits := threes.filter(|t| t.map(|n| skill[n]).sum() == 20)
+    for t in hits
+        print("  total 20: {t.join(", ")}")
+
+@test fn pascal()
+    assert_eq(choose(5, 2), 10)

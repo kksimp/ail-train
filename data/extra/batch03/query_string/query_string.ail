@@ -1,0 +1,43 @@
+## Query string: decodes "a=1&b=two+words&c=%21" style text into a map, turning `+` into a
+## space and `%XX` into the byte it names, and keeps the last value for a repeated key.
+
+fn hex_value(c char) int
+    c.to_digit(16) else 0
+
+fn decode(text str) str
+    cs := text.chars()
+    mut out := ""
+    mut i := 0
+    while i < cs.len()
+        c := cs[i]
+        if c == '+'
+            out = "{out} "
+        elif c == '%' and i + 2 < cs.len()
+            code := hex_value(cs[i + 1]) * 16 + hex_value(cs[i + 2])
+            ch := char.from_code(code) else '?'
+            out = "{out}{ch}"
+            i += 2
+        else
+            out = "{out}{c}"
+        i += 1
+    out
+
+fn parse_query(q str) Map[str, str]
+    mut m := Map[str, str]()
+    for pair in q.split("&")
+        if pair == ""
+            continue
+        eq := pair.find("=") else pair.len()
+        key := decode(pair.slice(0, eq))
+        value := if eq < pair.len() then decode(pair.slice(eq + 1)) else ""
+        m[key] = value
+    m
+
+fn main()
+    q := "name=Ada+Lovelace&lang=en&note=50%25+off%21&lang=fr&flag&empty="
+    m := parse_query(q)
+    for k in m.keys().sorted()
+        print("{k} = \"{m[k]}\"")
+
+@test fn plus_is_space()
+    assert_eq(decode("a+b"), "a b")

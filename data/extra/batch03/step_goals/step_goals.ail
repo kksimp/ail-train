@@ -1,0 +1,30 @@
+## Step goals: a month of daily step counts; reports days that met a 10,000 step goal, the
+## longest streak of goal days, the best week (Monday start), and a monthly average.
+
+fn longest_streak(days List[int], goal int) int
+    mut best := 0
+    mut run := 0
+    for d in days
+        if d >= goal
+            run += 1
+            best = best.max(run)
+        else
+            run = 0
+    best
+
+fn main()
+    steps := [8200, 10400, 12100, 9900, 11000, 10050, 14000, 6000, 10100, 10200, 10300, 10900, 7600, 13300, 10000, 9100, 4300, 15500, 10010, 10020, 8800, 11100, 12000, 9700, 10500, 10600, 10700, 10800]
+    goal := 10000
+    met := steps.filter(|s| s >= goal).len()
+    print("goal met on {met} of {steps.len()} days")
+    print("longest streak: {longest_streak(steps, goal)} days")
+    weeks := steps.chunks(7).map(|w| w.sum())
+    best := weeks.max() else 0
+    week_no := (weeks.index_of(best) else 0) + 1
+    shown := weeks.map(|w| "{w:,}").join(" / ")
+    print("weekly totals: {shown}")
+    print("best week: {week_no} ({best:,})")
+    print("average: {steps.sum() / steps.len():,} a day")
+
+@test fn streak()
+    assert_eq(longest_streak([1, 5, 5, 1, 5], 5), 2)

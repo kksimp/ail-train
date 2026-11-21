@@ -1,0 +1,30 @@
+## Char histogram: counts letters in a text, prints a vertical bar chart for the vowels and
+## lists the letters that never appear.
+
+fn main()
+    text := "a quick movement of the enemy will jeopardise six gunboats"
+    mut counts := Map[char, int]()
+    for c in text.chars()
+        if c.is_alpha()
+            counts[c] += 1
+    vowels := "aeiou".chars()
+    mut tallest := 0
+    for v in vowels
+        tallest = tallest.max(counts.get(v) else 0)
+    mut level := tallest
+    while level >= 1
+        mut row := ""
+        for v in vowels
+            mark := if (counts.get(v) else 0) >= level then "#" else " "
+            row = "{row} {mark}"
+        print("{level:>2}{row}")
+        level -= 1
+    labels := vowels.map(|v| "{v}").join(" ")
+    print("   {labels}")
+    absent := [c for c in "abcdefghijklmnopqrstuvwxyz".chars() if not counts.contains(c)]
+    print("missing letters: {absent.len()}")
+
+@test fn counting()
+    mut m := Map[char, int]()
+    m['a'] += 1
+    assert_eq(m['a'], 1)

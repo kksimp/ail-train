@@ -1,0 +1,35 @@
+## Env file: reads KEY=value lines, skipping blanks and `#` comments, stripping matching
+## quotes, expanding `$NAME` references to earlier keys, and reporting malformed lines.
+
+fn unquote(v str) str
+    if v.len() >= 2 and ((v.starts_with("\"") and v.ends_with("\"")) or (v.starts_with("'") and v.ends_with("'")))
+        return v.slice(1, v.len() - 1)
+    v
+
+fn expand(v str, env Map[str, str]) str
+    if not v.starts_with("$")
+        return v
+    env.get(v.slice(1)) else ""
+
+fn main()
+    text := "# settings\nHOST=localhost\nPORT = 5432\n\nNAME=\"my app\"\nGREETING='hi there'\nDB_HOST=$HOST\nbroken line\nMISSING=$NOPE\n=novalue"
+    mut env := Map[str, str]()
+    mut order := List[str]()
+    for i, raw in text.split("\n").enumerate()
+        line := raw.trim()
+        if line == "" or line.starts_with("#")
+            continue
+        eq := line.find("=") else -1
+        if eq <= 0
+            print("line {i + 1}: cannot read \"{line}\"")
+            continue
+        key := line.slice(0, eq).trim()
+        value := expand(unquote(line.slice(eq + 1).trim()), env)
+        if not env.contains(key)
+            order.push(key)
+        env[key] = value
+    for k in order
+        print("{k}=[{env[k]}]")
+
+@test fn quotes()
+    assert_eq(unquote("'x y'"), "x y")

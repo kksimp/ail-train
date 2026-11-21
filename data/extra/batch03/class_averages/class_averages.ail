@@ -1,0 +1,21 @@
+## Class averages: students with marks in several subjects; prints each student's average
+## to one decimal, each subject's top student, and who is above the class average.
+
+fn avg(xs List[int]) float
+    xs.sum().to_float() / xs.len().to_float()
+
+fn main()
+    subjects := ["maths", "art", "history", "biology"]
+    marks := [("Ines", [78, 92, 65, 81]), ("Jon", [88, 55, 72, 90]), ("Kim", [95, 70, 84, 77]), ("Lars", [60, 85, 91, 68])]
+    for m in marks
+        name, scores := m
+        print("{name:<5} {avg(scores):.1}")
+    for i, subject in subjects.enumerate()
+        top := marks.max(by: |m| m.1[i]) else ("", List[int]())
+        print("{subject:<8} top: {top.0} ({top.1[i]})")
+    class_avg := avg(marks.map(|m| m.1).flatten())
+    above := marks.filter(|m| avg(m.1) > class_avg).map(|m| m.0)
+    print("class {class_avg:.2}, above: {above.join(", ")}")
+
+@test fn average()
+    assert_eq(avg([1, 2]), 1.5)

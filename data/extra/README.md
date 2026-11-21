@@ -22,10 +22,13 @@ everyday forms with less common built-ins. Each batch is checked on the Mac befo
   (it is a `char?`) and a `{...}` set comprehension inside a string interpolation (lexed as `{{`). All 100 pass.
 - `batch02/`: 100 programs. First check: 97 passed; the 3 failures were `par` used as a name (it is a keyword),
   `"${x}"` (not interpolation in AIL; a check error) and a `_` loop variable nested in another `_` loop. All 100 pass.
+- `batch03/`: 100 programs, checked in steps of 50, 70 and 100. The 9 early failures were `+` on strings
+  (AIL has no string `+`; use interpolation), `lower`/`upper` (they are `to_lower`/`to_upper`) and `top(n)` read as pairs
+  (it returns keys). All 100 pass.
 
 ## Status
 
-**Checked: 240 of 240 pass** (40 drills, 100 each in batch01 and batch02) with ail 3d0c5c913 (0.2.0 release candidate) on 2026-11-21 (`RESULTS.txt`). On the drills' first
+**Checked: 340 of 340 pass** (40 drills, 100 each in batch01 to batch03) with ail 3d0c5c913 (0.2.0 release candidate) on 2026-11-21 (`RESULTS.txt`). On the drills' first
 run 34 passed; 6 were fixed (four AIL forms guessed wrong: `str ! str`, calling a `fn` field as a method,
 `Grid.to_list().sum()` on rows, an `if :=` on a failing result with no `else`; two Python twins were wrong).
 These were written in a cloud session, where AIL builds are not allowed.

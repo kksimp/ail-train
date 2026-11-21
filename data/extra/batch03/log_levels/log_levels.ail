@@ -1,0 +1,48 @@
+## Log levels: parses "LEVEL message" log lines, counts each level, keeps lines at or above
+## a chosen threshold, and prints the first error with its line number.
+
+enum Level
+    Debug
+    Info
+    Warn
+    Severe
+
+fn level_of(word str) Level?
+    match word
+        "DEBUG" => Debug
+        "INFO" => Info
+        "WARN" => Warn
+        "ERROR" => Severe
+        _ => none
+
+fn rank(l Level) int
+    match l
+        Debug => 0
+        Info => 1
+        Warn => 2
+        Severe => 3
+
+fn main()
+    lines := ["INFO started", "DEBUG cache warm", "WARN disk 85%", "INFO request /a", "ERROR timeout on db", "TRACE noisy", "WARN retrying", "ERROR gave up"]
+    names := ["DEBUG", "INFO", "WARN", "ERROR"]
+    mut counts := [0, 0, 0, 0]
+    mut first_error := -1
+    for i, line in lines.enumerate()
+        word := line.split(" ")[0]
+        lvl := level_of(word) else
+            print("line {i + 1}: unknown level {word}")
+            continue
+        counts[rank(lvl)] += 1
+        if rank(lvl) == 3 and first_error < 0
+            first_error = i + 1
+    mut summary := List[str]()
+    for i, name in names.enumerate()
+        summary.push("{name}={counts[i]}")
+    print(summary.join(" "))
+    kept := lines.filter(|l| rank(level_of(l.split(" ")[0]) else Level.Debug) >= 2)
+    for k in kept
+        print("  {k}")
+    print("first error on line {first_error}")
+
+@test fn ranks()
+    assert(rank(Warn) > rank(Info))

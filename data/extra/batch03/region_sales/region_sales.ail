@@ -1,0 +1,37 @@
+## Region sales: parses "region,month,amount" lines, totals by region and by month, and
+## prints a small table with a total column, skipping lines that do not parse.
+
+fn parse(line str) (str, str, int)?
+    parts := line.split(",")
+    if parts.len() != 3
+        return none
+    amount := parts[2].trim().to_int() else return none
+    (parts[0].trim(), parts[1].trim(), amount)
+
+fn main()
+    lines := ["north,jan,120", "south,jan,90", "north,feb,140", "east,jan,60", "south,feb,bad", "east,feb,75", "south,mar,110", "north,mar,", "east,mar,80"]
+    mut table := Map[str, Map[str, int]]()
+    mut skipped := 0
+    for line in lines
+        if row := parse(line)
+            region, month, amount := row
+            mut by_month := table.get(region) else Map[str, int]()
+            by_month[month] += amount
+            table[region] = by_month
+        else
+            skipped += 1
+    months := ["jan", "feb", "mar"]
+    heading := "region"
+    month_cells := months.map(|m| "{m:>5}").join("")
+    print("{heading:<6}{month_cells}  total")
+    for region in table.keys().sorted()
+        row := table[region]
+        mut cells := ""
+        for m in months
+            v := row.get(m) else 0
+            cells = "{cells}{v:>5}"
+        print("{region:<6}{cells}  {row.values().sum():>5}")
+    print("skipped {skipped}")
+
+@test fn bad_amount()
+    assert_eq(parse("a,b,x"), none)

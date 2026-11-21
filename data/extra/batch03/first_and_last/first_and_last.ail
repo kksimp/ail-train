@@ -1,0 +1,40 @@
+## First and last: binary search for the first and last positions of a value in a sorted
+## list, giving how many times it occurs, with the number of probes each search made.
+
+fn lower_bound(xs List[int], v int) (int, int)
+    mut lo := 0
+    mut hi := xs.len()
+    mut probes := 0
+    while lo < hi
+        mid := (lo + hi) / 2
+        probes += 1
+        if xs[mid] < v
+            lo = mid + 1
+        else
+            hi = mid
+    (lo, probes)
+
+fn upper_bound(xs List[int], v int) int
+    mut lo := 0
+    mut hi := xs.len()
+    while lo < hi
+        mid := (lo + hi) / 2
+        if xs[mid] <= v
+            lo = mid + 1
+        else
+            hi = mid
+    lo
+
+fn main()
+    xs := [1, 2, 2, 2, 3, 5, 5, 8, 8, 8, 8, 13, 21]
+    for v in [2, 8, 4, 1, 21, 30]
+        first, probes := lower_bound(xs, v)
+        last := upper_bound(xs, v)
+        if first == last
+            print("{v:>2}: absent, would go at {first} ({probes} probes)")
+        else
+            print("{v:>2}: at {first}..{last - 1}, {last - first} times ({probes} probes)")
+
+@test fn bounds()
+    assert_eq(lower_bound([1, 1, 2], 1).0, 0)
+    assert_eq(upper_bound([1, 1, 2], 1), 2)
