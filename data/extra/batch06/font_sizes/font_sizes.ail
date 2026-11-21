@@ -1,0 +1,16 @@
+## Type scale: builds a modular type scale from a 16 px base with a 1.2 ratio, five steps
+## up and two down, printing pixels, rems and the nearest whole pixel.
+
+fn main()
+    base := 16.0
+    ratio := 1.2
+    names := ["small", "x-small", "body", "h6", "h5", "h4", "h3", "h2"]
+    for i in 0..names.len()
+        step := i - 2
+        px := base * ratio.pow(step.to_float())
+        rem := px / base
+        print("{names[i]:<8} {px:>7.3} px {rem:.4} rem ~{px.round().to_int()} px")
+
+@test fn body()
+    r := 1.2
+    assert_eq(16.0 * r.pow(0.0), 16.0)

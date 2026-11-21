@@ -1,0 +1,7 @@
+year 1: north=legumes east=brassicas south=roots west=alliums
+year 2: north=brassicas east=roots south=alliums west=legumes
+year 3: north=roots east=alliums south=legumes west=brassicas
+year 4: north=alliums east=legumes south=brassicas west=roots
+year 5: north=legumes east=brassicas south=roots west=alliums
+year 6: north=brassicas east=roots south=alliums west=legumes
+rule kept: true

@@ -1,0 +1,24 @@
+## Triage queue: patients arrive with an urgency level; the next patient seen is the most
+## urgent, earliest arrival first, and each treatment takes 15 minutes.
+
+fn main()
+    patients := [("Ash", 0, 3), ("Bly", 5, 1), ("Cor", 10, 2), ("Dex", 12, 1), ("Eda", 20, 3), ("Fio", 22, 2), ("Gil", 50, 1)]
+    mut waiting := List[(str, int, int)]()
+    mut next_i := 0
+    mut t := 0
+    mut seen := 0
+    while seen < patients.len()
+        while next_i < patients.len() and patients[next_i].1 <= t
+            waiting.push(patients[next_i])
+            next_i += 1
+        if waiting.is_empty()
+            t = patients[next_i].1
+            continue
+        pick := waiting.min(by: |p| (p.2, p.1)) else waiting[0]
+        waiting = waiting.filter(|p| p.0 != pick.0)
+        print("{t:>3}: {pick.0} (level {pick.2}, waited {t - pick.1})")
+        t += 15
+        seen += 1
+
+@test fn order()
+    assert_eq([(1, 5), (1, 2)].min(by: |p| (p.0, p.1)) else (0, 0), (1, 2))

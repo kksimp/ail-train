@@ -1,0 +1,31 @@
+## Sparse vectors: vectors stored as maps from index to value; adds two vectors, takes their
+## dot product, and prints them in index order without the zeros.
+
+fn show(v Map[int, int]) str
+    v.keys().sorted().map(|k| "{k}:{v[k]}").join(" ")
+
+fn add(a Map[int, int], b Map[int, int]) Map[int, int]
+    mut out := a
+    for k in b.keys()
+        out[k] += b[k]
+        if out[k] == 0
+            _ := out.remove(k)
+    out
+
+fn dot(a Map[int, int], b Map[int, int]) int
+    mut s := 0
+    for k in a.keys()
+        if b.contains(k)
+            s += a[k] * b[k]
+    s
+
+fn main()
+    a := {0: 3, 4: -2, 9: 5, 100: 1}
+    b := {4: 2, 9: 1, 50: 7, 0: -1}
+    print("a = {show(a)}")
+    print("b = {show(b)}")
+    print("a + b = {show(add(a, b))}")
+    print("a . b = {dot(a, b)}")
+
+@test fn cancel()
+    assert_eq(add({1: 2}, {1: -2}).len(), 0)

@@ -1,0 +1,6 @@
+bolts: stock 420, reorder in 5 days
+nuts: stock 900, reorder in 15 days
+washers: stock 150 <= 190, order 640
+hinges: stock 75 <= 76, order 121
+screws: stock 260, reorder in 4 days
+2 orders to place

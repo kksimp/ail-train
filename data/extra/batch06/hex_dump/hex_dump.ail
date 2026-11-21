@@ -1,0 +1,26 @@
+## Hex dump: prints a string's bytes as an offset, hex pairs and printable characters, eight
+## bytes per row, like a tiny xxd.
+
+fn main()
+    text := "AIL says hi!\tTabs & newlines\n."
+    bs := text.chars().map(|c| c.code())
+    mut off := 0
+    while off < bs.len()
+        mut hexes := List[str]()
+        mut shown := ""
+        for i in off..off + 8
+            if i < bs.len()
+                b := bs[i]
+                hexes.push("{b:02x}")
+                mut c := '.'
+                if b >= 32 and b < 127
+                    c = char.from_code(b) else '.'
+                shown = "{shown}{c}"
+            else
+                hexes.push("  ")
+        line := hexes.join(" ")
+        print("{off:04x}: {line}  {shown}")
+        off += 8
+
+@test fn hex_pair()
+    assert_eq("{10:02x}", "0a")

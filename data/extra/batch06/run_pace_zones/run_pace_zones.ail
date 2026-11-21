@@ -1,0 +1,28 @@
+## Heart-rate zones: computes five training zones from resting and maximum heart rate with
+## the reserve method, then labels a list of workout readings by zone.
+
+fn zones(rest int, max_hr int) List[(int, int)]
+    reserve := max_hr - rest
+    bounds := [50, 60, 70, 80, 90, 100]
+    mut out := List[(int, int)]()
+    for i in 0..5
+        lo := rest + reserve * bounds[i] / 100
+        hi := rest + reserve * bounds[i + 1] / 100
+        out.push((lo, hi))
+    out
+
+fn main()
+    zs := zones(58, 186)
+    for i, z in zs.enumerate()
+        print("zone {i + 1}: {z.0}-{z.1} bpm")
+    for hr in [110, 132, 150, 168, 181, 95]
+        mut label := "below zones"
+        for i, z in zs.enumerate()
+            if hr >= z.0 and hr < z.1
+                label = "zone {i + 1}"
+        if hr >= zs[4].1
+            label = "max"
+        print("{hr} bpm: {label}")
+
+@test fn first()
+    assert_eq(zones(60, 180)[0], (120, 132))

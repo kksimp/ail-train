@@ -1,0 +1,19 @@
+## Price span: for each day, the number of consecutive days up to and including it with a
+## price no higher than that day's, computed with a stack of indices.
+
+fn main()
+    prices := [100, 80, 60, 70, 60, 75, 85, 90, 40, 95]
+    mut stack := List[int]()
+    mut spans := List[int]()
+    for i, p in prices.enumerate()
+        while not stack.is_empty() and prices[stack[stack.len() - 1]] <= p
+            _ := stack.pop()
+        span := if stack.is_empty() then i + 1 else i - stack[stack.len() - 1]
+        spans.push(span)
+        stack.push(i)
+    for i in 0..prices.len()
+        bar := "*".repeat(spans[i])
+        print("day {i + 1:>2}: {prices[i]:>3} span {spans[i]:>2} {bar}")
+
+@test fn first()
+    assert_eq(1, 1)

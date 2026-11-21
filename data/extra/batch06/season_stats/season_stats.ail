@@ -1,0 +1,36 @@
+## Season stats: match results for a team give wins, draws, losses, points, goal difference
+## and the longest unbeaten run.
+
+fn main()
+    results := ["2-1", "0-0", "3-3", "1-2", "4-0", "2-2", "1-0", "0-1", "2-0", "1-1", "3-1"]
+    mut w := 0
+    mut d := 0
+    mut l := 0
+    mut gf := 0
+    mut ga := 0
+    mut run := 0
+    mut best := 0
+    for r in results
+        parts := r.split("-")
+        a := parts[0].to_int() else 0
+        b := parts[1].to_int() else 0
+        gf += a
+        ga += b
+        if a > b
+            w += 1
+        elif a == b
+            d += 1
+        else
+            l += 1
+        if a >= b
+            run += 1
+            if run > best
+                best = run
+        else
+            run = 0
+    pts := w * 3 + d
+    print("W{w} D{d} L{l}, {pts} points, goals {gf}-{ga} ({gf - ga:+})")
+    print("longest unbeaten run: {best}")
+
+@test fn points()
+    assert_eq(5 * 3 + 4, 19)

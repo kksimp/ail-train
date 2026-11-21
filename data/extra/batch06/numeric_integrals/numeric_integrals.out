@@ -1,0 +1,6 @@
+x^3 on 0..2, n=4: trapezoid 4.250000 (err 0.250000), simpson 4.000000
+x^3 on 0..2, n=16: trapezoid 4.015625 (err 0.015625), simpson 4.000000
+1/x on 1..3, n=4: trapezoid 1.116667 (err 0.018054), simpson 1.100000
+1/x on 1..3, n=16: trapezoid 1.099768 (err 0.001155), simpson 1.098620
+sin on 0..pi, n=4: trapezoid 1.896119 (err 0.103881), simpson 2.004560
+sin on 0..pi, n=16: trapezoid 1.993570 (err 0.006430), simpson 2.000017

@@ -1,0 +1,32 @@
+## Appointment slots: a clinic day from 09:00 to 13:00 in 20-minute slots; booked slots are
+## removed and the free slots listed, with the longest free run.
+
+fn hm(m int) str
+    "{m / 60:02}:{m % 60:02}"
+
+fn main()
+    booked := {560, 600, 620, 680, 740}
+    mut free := List[int]()
+    mut t := 540
+    while t < 780
+        if not booked.contains(t)
+            free.push(t)
+        t += 20
+    shown := free.map(|m| hm(m)).join(" ")
+    print("free: {shown}")
+    mut best_start := 0
+    mut best_len := 0
+    mut i := 0
+    while i < free.len()
+        mut j := i
+        while j + 1 < free.len() and free[j + 1] == free[j] + 20
+            j += 1
+        run := j - i + 1
+        if run > best_len
+            best_len = run
+            best_start = free[i]
+        i = j + 1
+    print("longest free run: {hm(best_start)}-{hm(best_start + best_len * 20)} ({best_len} slots)")
+
+@test fn clock()
+    assert_eq(hm(540), "09:00")

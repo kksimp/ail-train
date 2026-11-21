@@ -1,0 +1,4 @@
+x^2 - 2: root 1.41421356 after 31 halvings
+x^3 - x - 1: root 1.32471796 after 30 halvings
+cos x - x: root 0.73908513 after 30 halvings
+x^2 - 2 (bad bracket): no sign change on [2.0, 3.0]

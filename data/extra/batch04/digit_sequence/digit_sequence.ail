@@ -1,0 +1,34 @@
+## Digit sequence: in the string 123456789101112..., finds the digit at several positions by
+## skipping whole blocks of 1-digit, 2-digit and 3-digit numbers.
+
+fn digit_at(pos int) int
+    mut n := pos
+    mut width := 1
+    mut count := 9
+    mut start := 1
+    while n > width * count
+        n -= width * count
+        width += 1
+        count *= 10
+        start *= 10
+    number := start + (n - 1) / width
+    text := "{number}"
+    ch := text.char_at((n - 1) % width) else '0'
+    ch.to_digit(10) else 0
+
+fn brute_digit(s str, p int) int
+    c := s.char_at(p - 1) else 'x'
+    c.to_digit(10) else -1
+
+fn main()
+    mut brute := ""
+    for k in 1..=200
+        brute = "{brute}{k}"
+    for p in [1, 9, 10, 11, 15, 190, 191, 192, 365]
+        print("position {p}: {digit_at(p)}")
+    checks := [1, 50, 189, 190, 300, 492]
+    ok := checks.all(|p| brute_digit(brute, p) == digit_at(p))
+    print("matches brute force: {ok}")
+
+@test fn ten()
+    assert_eq(digit_at(10), 1)

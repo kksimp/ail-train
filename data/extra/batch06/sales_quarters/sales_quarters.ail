@@ -1,0 +1,21 @@
+## Sales quarters: monthly sales are grouped into quarters with quarter-on-quarter change,
+## and the best month of each quarter is named.
+
+fn main()
+    months := ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+    sales := [410, 385, 460, 470, 512, 498, 530, 555, 520, 610, 640, 720]
+    mut prev := 0
+    for q in 0..4
+        part := sales[q * 3..q * 3 + 3]
+        total := part.sum()
+        mut best := 0
+        for i in 1..3
+            if part[i] > part[best]
+                best = i
+        change := if prev == 0 then "" else " ({(total - prev) * 100 / prev:+}%)"
+        print("Q{q + 1}: {total}{change}, best {months[q * 3 + best]}")
+        prev = total
+    print("year: {sales.sum()}")
+
+@test fn quarter()
+    assert_eq([410, 385, 460].sum(), 1255)

@@ -1,0 +1,5 @@
+cold > cord > card > ward > warm: ok
+cold > cord > word > worm > warm: ok
+cold > cord > core > care > card: ok
+cold > colt > cord: colt is not a word
+cold > card > ward: cold -> card changes more than one letter

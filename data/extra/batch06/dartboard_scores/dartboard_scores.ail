@@ -1,0 +1,33 @@
+## Darts checkout: finds every way to finish a score in at most three darts ending on a
+## double, using singles, doubles, trebles, 25 and 50, and prints the shortest few.
+
+fn main()
+    mut throws := List[(int, str)]()
+    for n in 1..=20
+        throws.push((n, "S{n}"))
+        throws.push((2 * n, "D{n}"))
+        throws.push((3 * n, "T{n}"))
+    throws.push((25, "SB"))
+    throws.push((50, "DB"))
+    doubles := throws.filter(|t| t.1.starts_with("D"))
+    for target in [40, 81, 121, 170]
+        mut found := ""
+        for d in doubles
+            if d.0 == target
+                found = d.1
+        if found == ""
+            for a in throws
+                for d in doubles
+                    if found == "" and a.0 + d.0 == target
+                        found = "{a.1} {d.1}"
+        if found == ""
+            for a in throws
+                for b in throws
+                    for d in doubles
+                        if found == "" and a.0 + b.0 + d.0 == target
+                            found = "{a.1} {b.1} {d.1}"
+        result := if found == "" then "no checkout" else found
+        print("{target}: {result}")
+
+@test fn bull()
+    assert_eq(2 * 25, 50)

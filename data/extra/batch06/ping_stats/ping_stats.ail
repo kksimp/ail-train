@@ -1,0 +1,20 @@
+## Ping stats: round-trip times with some lost packets (shown as -1); prints loss rate,
+## min, average, max and jitter (mean absolute difference between consecutive replies).
+
+fn main()
+    rtts := [23, 25, -1, 22, 31, 24, -1, 26, 58, 25, 24, 23]
+    replies := rtts.filter(|r| r >= 0)
+    lost := rtts.len() - replies.len()
+    loss := lost * 100 / rtts.len()
+    lo := replies.min() else 0
+    hi := replies.max() else 0
+    avg := replies.sum().to_float() / replies.len().to_float()
+    mut diffs := 0
+    for i in 1..replies.len()
+        diffs += (replies[i] - replies[i - 1]).abs()
+    jitter := diffs.to_float() / (replies.len() - 1).to_float()
+    print("{rtts.len()} sent, {replies.len()} received, {loss}% loss")
+    print("min {lo} ms, avg {avg:.1} ms, max {hi} ms, jitter {jitter:.2} ms")
+
+@test fn loss()
+    assert_eq(2 * 100 / 12, 16)

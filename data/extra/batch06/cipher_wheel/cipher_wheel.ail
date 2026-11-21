@@ -1,0 +1,28 @@
+## Cipher wheel: a Vigenere cipher over lower-case letters with a keyword; encrypts and
+## decrypts messages, leaving spaces and punctuation alone.
+
+fn apply(text str, key str, dir int) str
+    ks := key.chars()
+    mut out := ""
+    mut k := 0
+    for c in text.chars()
+        if c.is_lower()
+            shift := ks[k % ks.len()].code() - 97
+            code := (c.code() - 97 + dir * shift + 26) % 26 + 97
+            d := char.from_code(code) else c
+            out = "{out}{d}"
+            k += 1
+        else
+            out = "{out}{c}"
+    out
+
+fn main()
+    key := "lemon"
+    for msg in ["attack at dawn", "meet me by the old mill, at nine.", "the quick brown fox"]
+        enc := apply(msg, key, 1)
+        dec := apply(enc, key, -1)
+        print("{enc}")
+        print("  back: {dec == msg}")
+
+@test fn classic()
+    assert_eq(apply("attackatdawn", "lemon", 1), "lxfopvefrnhr")

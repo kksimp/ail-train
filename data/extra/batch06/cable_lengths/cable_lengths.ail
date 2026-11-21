@@ -1,0 +1,25 @@
+## Cable lengths: cuts requested lengths from 50 m drums with best-fit (the drum with the
+## least remaining that still fits), printing each drum's cuts and offcut.
+
+fn main()
+    cuts := [18, 12, 30, 7, 25, 9, 14, 22, 5, 11]
+    mut drums := List[List[int]]()
+    mut left := List[int]()
+    for c in cuts
+        mut pick := -1
+        for i in 0..left.len()
+            if left[i] >= c and (pick < 0 or left[i] < left[pick])
+                pick = i
+        if pick < 0
+            drums.push([c])
+            left.push(50 - c)
+        else
+            drums[pick].push(c)
+            left[pick] -= c
+    for i in 0..drums.len()
+        shown := drums[i].map(|c| "{c}").join(" + ")
+        print("drum {i + 1}: {shown}, offcut {left[i]} m")
+    print("waste {left.sum()} m over {drums.len()} drums")
+
+@test fn fit()
+    assert(50 - 18 >= 30)

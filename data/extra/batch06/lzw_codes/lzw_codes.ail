@@ -1,0 +1,45 @@
+## LZW: compresses strings with the Lempel-Ziv-Welch method, starting from single-letter
+## codes 0..25 for lowercase letters, then decompresses and compares lengths.
+
+fn compress(s str) List[int]
+    mut dict := Map[str, int]()
+    letters := "abcdefghijklmnopqrstuvwxyz"
+    for i, c in letters.chars().enumerate()
+        dict["{c}"] = i
+    mut w := ""
+    mut out := List[int]()
+    for c in s.chars()
+        wc := "{w}{c}"
+        if dict.contains(wc)
+            w = wc
+        else
+            out.push(dict[w])
+            dict[wc] = dict.len()
+            w = "{c}"
+    if w != ""
+        out.push(dict[w])
+    out
+
+fn expand(codes List[int]) str
+    letters := "abcdefghijklmnopqrstuvwxyz"
+    mut table := letters.chars().map(|c| "{c}")
+    mut w := table[codes[0]]
+    mut out := w
+    for k in codes[1..]
+        head := w.char_at(0) else 'a'
+        entry := if k < table.len() then table[k] else "{w}{head}"
+        out = "{out}{entry}"
+        first := entry.char_at(0) else 'a'
+        table.push("{w}{first}")
+        w = entry
+    out
+
+fn main()
+    for s in ["tobeornottobeortobeornot", "abababababababab", "banana", "aaaaaaaaaaaaaaaaaaaa"]
+        codes := compress(s)
+        shown := codes.map(|c| "{c}").join(" ")
+        print("{s}: {shown}")
+        print("  {s.len()} letters -> {codes.len()} codes, back: {expand(codes) == s}")
+
+@test fn round_trip()
+    assert_eq(expand(compress("abcabcabc")), "abcabcabc")

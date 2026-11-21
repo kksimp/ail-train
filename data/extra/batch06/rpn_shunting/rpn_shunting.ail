@@ -1,0 +1,47 @@
+## Infix to postfix: converts arithmetic expressions with + - * / and brackets to reverse
+## Polish notation by the shunting-yard method, then evaluates the result.
+
+fn prec(op str) int
+    if op == "*" or op == "/"
+        return 2
+    1
+
+fn to_rpn(tokens List[str]) List[str]
+    mut out := List[str]()
+    mut ops := List[str]()
+    for t in tokens
+        if t == "("
+            ops.push(t)
+        elif t == ")"
+            while ops[ops.len() - 1] != "("
+                out.push(ops.pop() else "")
+            _ := ops.pop()
+        elif t == "+" or t == "-" or t == "*" or t == "/"
+            while not ops.is_empty() and ops[ops.len() - 1] != "(" and prec(ops[ops.len() - 1]) >= prec(t)
+                out.push(ops.pop() else "")
+            ops.push(t)
+        else
+            out.push(t)
+    while not ops.is_empty()
+        out.push(ops.pop() else "")
+    out
+
+fn run(rpn List[str]) int
+    mut st := List[int]()
+    for t in rpn
+        if t == "+" or t == "-" or t == "*" or t == "/"
+            b := st.pop() else 0
+            a := st.pop() else 0
+            st.push(if t == "+" then a + b elif t == "-" then a - b elif t == "*" then a * b else a / b)
+        else
+            st.push(t.to_int() else 0)
+    st.pop() else 0
+
+fn main()
+    for e in ["3 + 4 * 2", "( 3 + 4 ) * 2", "100 / ( 2 + 3 ) - 7", "8 - 3 - 2", "2 * ( 3 + 4 ) * ( 5 - 1 )"]
+        rpn := to_rpn(e.split(" "))
+        shown := rpn.join(" ")
+        print("{e} => {shown} = {run(rpn)}")
+
+@test fn left_assoc()
+    assert_eq(run(to_rpn(["8", "-", "3", "-", "2"])), 3)

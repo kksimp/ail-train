@@ -1,0 +1,27 @@
+## Crop rotation: four beds rotate four crop families each year so no family returns to a
+## bed within four years; prints the plan and checks the rule.
+
+fn main()
+    families := ["legumes", "brassicas", "roots", "alliums"]
+    beds := ["north", "east", "south", "west"]
+    years := 6
+    mut history := Map[str, List[str]]()
+    for y in 0..years
+        mut line := List[str]()
+        for b, bed in beds.enumerate()
+            crop := families[(b + y) % families.len()]
+            history.push(bed, crop)
+            line.push("{bed}={crop}")
+        shown := line.join(" ")
+        print("year {y + 1}: {shown}")
+    mut ok := true
+    for bed in beds
+        h := history[bed]
+        for i in 0..h.len()
+            for j in i + 1..h.len()
+                if h[i] == h[j] and j - i < 4
+                    ok = false
+    print("rule kept: {ok}")
+
+@test fn cycle()
+    assert_eq((3 + 1) % 4, 0)

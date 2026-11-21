@@ -1,0 +1,26 @@
+## Fizz variants: a generalised FizzBuzz driven by a list of (divisor, word) rules, run for
+## three rule sets and summarised by how many numbers got each word.
+
+fn say(n int, rules List[(int, str)]) str
+    mut out := ""
+    for r in rules
+        if n % r.0 == 0
+            w := r.1
+            out = "{out}{w}"
+    if out == "" then "{n}" else out
+
+fn main()
+    sets := [
+        [(3, "Fizz"), (5, "Buzz")],
+        [(2, "Ping"), (7, "Pong")],
+        [(3, "A"), (4, "B"), (6, "C")],
+    ]
+    for rules in sets
+        line := [say(n, rules) for n in 1..=15].join(" ")
+        print(line)
+        for r in rules
+            hits := [n for n in 1..=100 if n % r.0 == 0].len()
+            print("  {r.1}: {hits}")
+
+@test fn fifteen()
+    assert_eq(say(15, [(3, "Fizz"), (5, "Buzz")]), "FizzBuzz")

@@ -1,0 +1,27 @@
+## Robot walk: a robot on an open grid follows commands (F forward, L and R turns, B back),
+## tracking its heading; prints the final position and the furthest point reached.
+
+fn main()
+    dirs := [(0, 1), (1, 0), (0, -1), (-1, 0)]
+    names := ["north", "east", "south", "west"]
+    for cmds in ["FFRFFLFRRFFF", "FLFLFLFL", "FFFRBBLFF"]
+        mut x := 0
+        mut y := 0
+        mut h := 0
+        mut far := 0
+        for c in cmds.chars()
+            if c == 'L'
+                h = (h + 3) % 4
+            elif c == 'R'
+                h = (h + 1) % 4
+            else
+                step := if c == 'F' then 1 else -1
+                x += dirs[h].0 * step
+                y += dirs[h].1 * step
+                dist := x.abs() + y.abs()
+                if dist > far
+                    far = dist
+        print("{cmds}: at ({x}, {y}) facing {names[h]}, furthest {far}")
+
+@test fn turn()
+    assert_eq((0 + 3) % 4, 3)

@@ -1,0 +1,30 @@
+## Meeting overlap: for each pair of people's busy intervals, finds the overlapping time and
+## the total minutes both are busy.
+
+fn overlap(a (int, int), b (int, int)) (int, int)?
+    lo := if a.0 > b.0 then a.0 else b.0
+    hi := if a.1 < b.1 then a.1 else b.1
+    if lo < hi
+        return (lo, hi)
+    none
+
+fn main()
+    people := [
+        ("Ana", [(540, 600), (720, 780), (900, 990)]),
+        ("Ben", [(570, 660), (750, 840), (960, 1020)]),
+        ("Cleo", [(600, 720), (930, 970)]),
+    ]
+    for i in 0..people.len()
+        for j in i + 1..people.len()
+            mut total := 0
+            mut parts := List[str]()
+            for x in people[i].1
+                for y in people[j].1
+                    if o := overlap(x, y)
+                        total += o.1 - o.0
+                        parts.push("{o.0 / 60}:{o.0 % 60:02}-{o.1 / 60}:{o.1 % 60:02}")
+            shown := if parts.is_empty() then "none" else parts.join(", ")
+            print("{people[i].0} & {people[j].0}: {shown} ({total} min)")
+
+@test fn touch()
+    assert(overlap((1, 2), (2, 3)) == none)

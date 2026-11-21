@@ -1,0 +1,30 @@
+## Bloom filter: a 64-bit filter with three simple string hashes; adds some words, then tests
+## others, reporting "maybe" or "no" and the false positives against the true set.
+
+fn hash_word(s str, seed int) int
+    mut h := seed
+    for c in s.chars()
+        h = (h * 31 + c.code()) % 1000003
+    h % 64
+
+fn main()
+    added := ["apple", "pear", "plum", "fig", "kiwi", "lime", "date", "grape"]
+    mut bits := [false for _ in 0..64]
+    for w in added
+        for seed in [7, 13, 101]
+            bits[hash_word(w, seed)] = true
+    set_bits := bits.filter(|b| b).len()
+    print("{set_bits} of 64 bits set")
+    mut false_pos := 0
+    for w in ["apple", "fig", "melon", "cherry", "lemon", "peach", "grape", "mango", "berry", "olive"]
+        maybe := [7, 13, 101].all(|seed| bits[hash_word(w, seed)])
+        truth := added.contains(w)
+        if maybe and not truth
+            false_pos += 1
+        answer := if maybe then "maybe" else "no"
+        note := if maybe and not truth then " (false positive)" else ""
+        print("{w}: {answer}{note}")
+    print("{false_pos} false positives")
+
+@test fn range_ok()
+    assert(hash_word("zebra", 7) < 64)

@@ -1,0 +1,23 @@
+## Outliers: standardises sensor readings to z-scores using the mean and population standard
+## deviation, and flags readings more than 2 deviations from the mean.
+
+fn main()
+    sensors := [("north", [20.1, 20.4, 19.8, 20.0, 27.9, 20.2, 19.9, 20.3]), ("south", [15.2, 15.0, 15.4, 14.9, 15.1, 15.3, 15.0, 15.2]), ("roof", [8.0, 9.5, 7.2, 8.8, 1.1, 8.4, 9.0, 8.2])]
+    for s in sensors
+        name, xs := s
+        n := xs.len().to_float()
+        mean := xs.sum() / n
+        mut ss := 0.0
+        for x in xs
+            ss += (x - mean) * (x - mean)
+        sd := (ss / n).sqrt()
+        mut flagged := List[str]()
+        for i, x in xs.enumerate()
+            z := (x - mean) / sd
+            if z.abs() > 2.0
+                flagged.push("#{i + 1} {x:.1} (z {z:.2})")
+        shown := if flagged.is_empty() then "none" else flagged.join(", ")
+        print("{name}: mean {mean:.3}, sd {sd:.3}, outliers {shown}")
+
+@test fn spread()
+    assert_eq(((4.0 + 4.0) / 2.0).sqrt(), 2.0)

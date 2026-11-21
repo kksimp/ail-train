@@ -1,0 +1,30 @@
+## Pancake flips: sorts a stack by repeatedly flipping the top k pancakes to bring the
+## largest unsorted one to the bottom, printing each flip.
+
+fn flip(xs List[int], k int) List[int]
+    mut out := xs[0..k].reversed()
+    out.extend(xs[k..])
+    out
+
+fn main()
+    mut stack := [3, 6, 1, 8, 4, 2, 7, 5]
+    mut flips := 0
+    mut size := stack.len()
+    while size > 1
+        mut big := 0
+        for i in 1..size
+            if stack[i] > stack[big]
+                big = i
+        if big != size - 1
+            if big > 0
+                stack = flip(stack, big + 1)
+                flips += 1
+                print("flip {big + 1}: {stack}")
+            stack = flip(stack, size)
+            flips += 1
+            print("flip {size}: {stack}")
+        size -= 1
+    print("{flips} flips")
+
+@test fn two()
+    assert_eq(flip([1, 2, 3], 2), [2, 1, 3])

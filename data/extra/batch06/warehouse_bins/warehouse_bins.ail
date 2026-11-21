@@ -1,0 +1,26 @@
+## Warehouse bins: packs parcels into bins of capacity 50 by first-fit decreasing, then
+## prints each bin's contents and fill level and the wasted space.
+
+fn main()
+    cap := 50
+    parcels := [12, 31, 8, 22, 45, 17, 9, 26, 14, 30, 5, 19]
+    mut bins := List[List[int]]()
+    for p in parcels.sorted().reversed()
+        mut placed := false
+        for i in 0..bins.len()
+            if bins[i].sum() + p <= cap
+                bins[i].push(p)
+                placed = true
+                break
+        if not placed
+            bins.push([p])
+    mut waste := 0
+    for i, b in bins.enumerate()
+        used := b.sum()
+        waste += cap - used
+        shown := b.map(|x| "{x}").join("+")
+        print("bin {i + 1}: {shown} = {used}/{cap}")
+    print("{bins.len()} bins, {waste} units empty, lower bound {(parcels.sum() + cap - 1) / cap}")
+
+@test fn bound()
+    assert_eq((101 + 49) / 50, 3)

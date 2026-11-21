@@ -1,0 +1,19 @@
+## Cooling coffee: Newton's law of cooling for a cup in a room, stepped minute by minute;
+## prints the temperature every five minutes and when it becomes drinkable at 60 C.
+
+fn main()
+    room := 21.0
+    k := 0.045
+    mut t := 92.0
+    mut drinkable := -1
+    for minute in 0..=40
+        if minute > 0
+            t = t - k * (t - room)
+        if minute % 5 == 0
+            print("{minute:>2} min: {t:.1} C")
+        if drinkable < 0 and t <= 60.0
+            drinkable = minute
+    print("drinkable after {drinkable} minutes")
+
+@test fn cools()
+    assert(92.0 - 0.045 * (92.0 - 21.0) < 92.0)

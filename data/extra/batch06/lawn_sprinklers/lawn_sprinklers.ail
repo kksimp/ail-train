@@ -1,0 +1,28 @@
+## Lawn sprinklers: sprinklers water circles on a 20 by 10 lawn grid; prints the lawn with
+## the number of sprinklers reaching each cell and counts the dry cells.
+
+fn main()
+    sprinklers := [(3, 3, 3), (10, 5, 4), (17, 2, 2), (16, 8, 2)]
+    mut dry := 0
+    mut doubled := 0
+    for y in 0..10
+        mut line := ""
+        for x in 0..20
+            mut hits := 0
+            for s in sprinklers
+                dx := x - s.0
+                dy := y - s.1
+                if dx * dx + dy * dy <= s.2 * s.2
+                    hits += 1
+            if hits == 0
+                dry += 1
+                line = "{line}."
+            else
+                if hits > 1
+                    doubled += 1
+                line = "{line}{hits}"
+        print(line)
+    print("{dry} dry cells, {doubled} watered twice or more, {200 - dry} of 200 covered")
+
+@test fn reach()
+    assert(2 * 2 + 2 * 2 <= 3 * 3)

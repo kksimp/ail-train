@@ -1,0 +1,28 @@
+## Trend line: fits a least-squares straight line to monthly visitor counts, prints the
+## slope, intercept and fit quality, and projects the next three months.
+
+fn main()
+    visits := [1180, 1240, 1310, 1290, 1405, 1460, 1440, 1555, 1610, 1590, 1700, 1760]
+    n := visits.len().to_float()
+    xs := [i.to_float() + 1.0 for i in 0..visits.len()]
+    ys := visits.map(|v| v.to_float())
+    mx := xs.sum() / n
+    my := ys.sum() / n
+    mut sxy := 0.0
+    mut sxx := 0.0
+    mut syy := 0.0
+    for i in 0..visits.len()
+        dx := xs[i] - mx
+        dy := ys[i] - my
+        sxy += dx * dy
+        sxx += dx * dx
+        syy += dy * dy
+    slope := sxy / sxx
+    icpt := my - slope * mx
+    r2 := sxy * sxy / (sxx * syy)
+    print("visits = {slope:.3} * month + {icpt:.3}, r^2 {r2:.4}")
+    for m in 13..16
+        print("month {m}: about {slope * m.to_float() + icpt:.0}")
+
+@test fn mean()
+    assert_eq([1.0, 2.0, 3.0].sum() / 3.0, 2.0)

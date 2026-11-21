@@ -1,0 +1,38 @@
+## Page faults: counts page faults for a reference string with 3 frames under FIFO, LRU and
+## the optimal policy, which evicts the page used furthest in the future.
+
+fn faults(refs List[int], frames int, policy str) int
+    mut mem := List[int]()
+    mut count := 0
+    for i, p in refs.enumerate()
+        if j := mem.index_of(p)
+            if policy == "LRU"
+                mem.remove_at(j)
+                mem.push(p)
+            continue
+        count += 1
+        if mem.len() == frames
+            if policy == "OPT"
+                mut victim := 0
+                mut far := -1
+                for k, m in mem.enumerate()
+                    start := i + 1
+                    rest := refs[start..]
+                    next := rest.index_of(m) else 1000
+                    if next > far
+                        far = next
+                        victim = k
+                mem.remove_at(victim)
+            else
+                mem.remove_at(0)
+        mem.push(p)
+    count
+
+fn main()
+    for refs in [[7, 0, 1, 2, 0, 3, 0, 4, 2, 3, 0, 3, 2, 1, 2, 0, 1, 7, 0, 1], [1, 2, 3, 4, 1, 2, 5, 1, 2, 3, 4, 5]]
+        for frames in [3, 4]
+            shown := ["FIFO", "LRU", "OPT"].map(|pol| "{pol} {faults(refs, frames, pol)}").join(", ")
+            print("{refs.len()} refs, {frames} frames: {shown}")
+
+@test fn cold()
+    assert_eq(faults([1, 2, 3], 3, "FIFO"), 3)

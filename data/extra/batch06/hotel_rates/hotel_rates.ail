@@ -1,0 +1,24 @@
+## Hotel rates: nightly rates depend on weekday and season; a stay is priced night by night
+## with a 10% discount from the fifth night, for several bookings.
+
+fn rate(day int) int
+    weekday := day % 7
+    base := if weekday == 5 or weekday == 6 then 14000 else 11000
+    if day >= 150 and day < 240
+        return base * 13 / 10
+    base
+
+fn main()
+    stays := [("Aldo", 10, 3), ("Bea", 160, 6), ("Cruz", 236, 7), ("Dina", 299, 2)]
+    for s in stays
+        who, arrive, nights := s
+        mut total := 0
+        for n in 0..nights
+            mut r := rate(arrive + n)
+            if n >= 4
+                r = r * 9 / 10
+            total += r
+        print("{who}: {nights} nights from day {arrive}, {total / 100}.{total % 100:02}")
+
+@test fn summer()
+    assert_eq(rate(151), 14300)

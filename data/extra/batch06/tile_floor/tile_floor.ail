@@ -1,0 +1,26 @@
+## Tile floor: works out how many tiles cover rooms with a gap for grout, with whole and cut
+## tiles counted separately and 10% extra rounded up to whole boxes of 12.
+
+fn main()
+    rooms := [("kitchen", 3400, 2800), ("bathroom", 2100, 1700), ("hall", 4600, 1100)]
+    tile := 300
+    grout := 3
+    pitch := tile + grout
+    mut total := 0
+    for r in rooms
+        name, w, l := r
+        across := (w + pitch - 1) / pitch
+        down := (l + pitch - 1) / pitch
+        whole_x := w / pitch
+        whole_y := l / pitch
+        whole := whole_x * whole_y
+        tiles := across * down
+        cut := tiles - whole
+        total += tiles
+        print("{name}: {tiles} tiles ({whole} whole, {cut} cut)")
+    with_spare := (total * 11 + 9) / 10
+    boxes := (with_spare + 11) / 12
+    print("total {total}, with 10% spare {with_spare}, {boxes} boxes")
+
+@test fn ceil()
+    assert_eq((3400 + 302) / 303, 12)

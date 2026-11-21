@@ -1,0 +1,26 @@
+## Grid paths: counts monotone paths across a grid from the top left to the bottom right
+## where some cells are blocked, using a table, and prints the table.
+
+fn main()
+    grid := ["....#", ".#...", "...#.", "#....", "..#.."]
+    rows := grid.len()
+    cols := 5
+    cells := grid.map(|g| g.chars())
+    zero := [0 for _ in 0..cols]
+    mut ways := [zero for _ in 0..rows]
+    for r in 0..rows
+        for c in 0..cols
+            if cells[r][c] == '#'
+                ways[r][c] = 0
+            elif r == 0 and c == 0
+                ways[r][c] = 1
+            else
+                up := if r > 0 then ways[r - 1][c] else 0
+                left := if c > 0 then ways[r][c - 1] else 0
+                ways[r][c] = up + left
+    for r in 0..rows
+        print(ways[r].map(|w| "{w:>3}").join(""))
+    print("paths: {ways[rows - 1][cols - 1]}")
+
+@test fn open_grid()
+    assert_eq(1 + 1, 2)

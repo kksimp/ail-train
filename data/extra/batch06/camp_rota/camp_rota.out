@@ -1,0 +1,10 @@
+day 1: Ada:fire Bo:water Cal:cook Dot:wash Eli:rest
+day 2: Ada:cook Bo:wash Cal:rest Dot:fire Eli:water
+day 3: Ada:rest Bo:fire Cal:water Dot:cook Eli:wash
+day 4: Ada:water Bo:cook Cal:wash Dot:rest Eli:fire
+day 5: Ada:wash Bo:rest Cal:fire Dot:water Eli:cook
+Ada did every job: true
+Bo did every job: true
+Cal did every job: true
+Dot did every job: true
+Eli did every job: true

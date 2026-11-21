@@ -1,0 +1,6 @@
+7: root 7, 0 rounds, shortcut agrees true
+38: root 2, 2 rounds, shortcut agrees true
+999: root 9, 2 rounds, shortcut agrees true
+123456789: root 9, 2 rounds, shortcut agrees true
+65536: root 7, 2 rounds, shortcut agrees true
+1000000007: root 8, 1 rounds, shortcut agrees true

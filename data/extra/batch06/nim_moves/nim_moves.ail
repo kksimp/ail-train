@@ -1,0 +1,20 @@
+## Nim: for heap positions, computes the nim-sum (XOR of heap sizes); a non-zero sum means
+## the player to move wins, and a winning move is found that makes the sum zero.
+
+fn main()
+    for heaps in [[3, 4, 5], [1, 2, 3], [7, 7], [2, 5, 6, 9], [10, 1]]
+        mut x := 0
+        for h in heaps
+            x ^= h
+        shown := heaps.map(|h| "{h}").join(" ")
+        if x == 0
+            print("[{shown}] nim-sum 0: player to move loses with best play")
+            continue
+        for i, h in heaps.enumerate()
+            target := h ^ x
+            if target < h
+                print("[{shown}] nim-sum {x}: take {h - target} from heap {i + 1} (leaves {target})")
+                break
+
+@test fn xor()
+    assert_eq((3 ^ 4) ^ 5, 2)

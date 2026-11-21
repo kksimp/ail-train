@@ -1,0 +1,24 @@
+## Grade book: weighted course marks from coursework, midterm and final, with a rule that a
+## final below 40 caps the grade at a pass; prints each student's result.
+
+fn result(cw int, mid int, fin int) (int, str)
+    mark := (cw * 30 + mid * 20 + fin * 50 + 50) / 100
+    if fin < 40 and mark > 40
+        return (40, "capped")
+    if mark >= 70
+        return (mark, "distinction")
+    if mark >= 55
+        return (mark, "merit")
+    if mark >= 40
+        return (mark, "pass")
+    (mark, "fail")
+
+fn main()
+    students := [("Ali", 82, 75, 71), ("Bri", 65, 58, 49), ("Cas", 90, 88, 35), ("Dov", 41, 39, 38), ("Eun", 55, 70, 61)]
+    for s in students
+        name, cw, mid, fin := s
+        mark, band := result(cw, mid, fin)
+        print("{name}: {cw}/{mid}/{fin} -> {mark} {band}")
+
+@test fn cap()
+    assert_eq(result(90, 90, 30).1, "capped")

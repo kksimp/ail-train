@@ -1,0 +1,21 @@
+## Bus occupancy: boardings and alightings at each stop give the load along the route; the
+## busiest stretch and stops where the bus ran over its 60 seats are reported.
+
+fn main()
+    stops := [("Depot", 18, 0), ("Market", 22, 3), ("School", 31, 9), ("Hospital", 6, 14), ("Station", 25, 20), ("Park", 4, 30), ("Docks", 0, 30)]
+    mut load := 0
+    mut peak := ("", 0)
+    mut over := List[str]()
+    for s in stops
+        name, on, off := s
+        load = load - off + on
+        print("{name:<9} +{on:<2} -{off:<2} load {load}")
+        if load > peak.1
+            peak = (name, load)
+        if load > 60
+            over.push(name)
+    shown := if over.is_empty() then "none" else over.join(", ")
+    print("busiest after {peak.0} ({peak.1}); over seats at: {shown}")
+
+@test fn net()
+    assert_eq(18 - 3 + 22, 37)

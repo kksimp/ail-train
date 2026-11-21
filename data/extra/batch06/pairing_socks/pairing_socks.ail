@@ -1,0 +1,24 @@
+## Sock pairing: a basket of socks by colour and size; counts pairs per kind, leftover odd
+## socks, and the kinds with the most pairs.
+
+fn main()
+    basket := ["red-M", "blue-L", "red-M", "black-M", "blue-L", "black-M", "black-M", "white-S", "red-L", "blue-L", "black-M", "white-S", "blue-L", "red-M"]
+    mut counts := Map[str, int]()
+    for s in basket
+        counts[s] += 1
+    mut total_pairs := 0
+    mut odd := List[str]()
+    for k in counts.keys().sorted()
+        pairs := counts[k] / 2
+        total_pairs += pairs
+        if counts[k] % 2 == 1
+            odd.push(k)
+        print("{k}: {counts[k]} socks, {pairs} pairs")
+    shown := odd.join(", ")
+    print("{total_pairs} pairs, odd socks: {shown}")
+    most := counts.keys().map(|k| counts[k] / 2).max() else 0
+    top := counts.keys().filter(|k| counts[k] / 2 == most).sorted().join(", ")
+    print("most pairs ({most}): {top}")
+
+@test fn pairs()
+    assert_eq(5 / 2, 2)

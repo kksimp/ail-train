@@ -1,0 +1,18 @@
+## Currency table: converts amounts between currencies through a base currency using
+## integer rates in ten-thousandths, printing a small cross-rate table.
+
+fn convert(amount_cents int, from_rate int, to_rate int) int
+    (amount_cents * to_rate * 2 + from_rate) / (from_rate * 2)
+
+fn main()
+    names := ["GBP", "EUR", "USD", "JPY"]
+    rates := [10000, 11650, 12710, 191300]
+    header := names.map(|n| "{n:>9}").join("")
+    print("100 of  {header}")
+    for i in 0..names.len()
+        cells := [convert(10000, rates[i], rates[j]) for j in 0..names.len()]
+        shown := cells.map(|c| "{c / 100:>6}.{c % 100:02}").join("")
+        print("{names[i]:<7} {shown}")
+
+@test fn same()
+    assert_eq(convert(10000, 11650, 11650), 10000)

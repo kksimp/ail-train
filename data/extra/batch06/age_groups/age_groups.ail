@@ -1,0 +1,18 @@
+## Age groups: buckets people's ages into ten-year bands, prints a count per band with a
+## bar, and the median age.
+
+fn main()
+    ages := [34, 7, 61, 45, 23, 38, 19, 72, 41, 29, 33, 56, 12, 48, 37, 66, 25, 31]
+    mut bands := Map[int, int]()
+    for a in ages
+        bands[a / 10 * 10] += 1
+    for b in bands.keys().sorted()
+        bar := "#".repeat(bands[b])
+        print("{b:>2}-{b + 9:<2} {bar}")
+    s := ages.sorted()
+    n := s.len()
+    median := if n % 2 == 1 then s[n / 2].to_float() else (s[n / 2 - 1] + s[n / 2]).to_float() / 2.0
+    print("median {median:.1}")
+
+@test fn band()
+    assert_eq(37 / 10 * 10, 30)

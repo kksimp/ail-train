@@ -1,0 +1,27 @@
+## Subnets: for IPv4 addresses in CIDR form, computes the network and broadcast addresses,
+## the usable host range and the number of usable hosts.
+
+fn ip_value(ip str) int
+    mut n := 0
+    for part in ip.split(".")
+        n = n * 256 + (part.to_int() else 0)
+    n
+
+fn dotted(n int) str
+    "{(n >> 24) & 255}.{(n >> 16) & 255}.{(n >> 8) & 255}.{n & 255}"
+
+fn main()
+    for cidr in ["192.168.1.130/26", "10.4.77.9/8", "172.16.5.200/30", "203.0.113.77/24", "198.51.100.14/32"]
+        parts := cidr.split("/")
+        addr := ip_value(parts[0])
+        bits := parts[1].to_int() else 32
+        size := 1 << (32 - bits)
+        net := addr / size * size
+        last := net + size - 1
+        if bits >= 31
+            print("{cidr}: network {dotted(net)}, {size} address(es), no host range")
+            continue
+        print("{cidr}: network {dotted(net)}, broadcast {dotted(last)}, hosts {dotted(net + 1)} - {dotted(last - 1)} ({size - 2})")
+
+@test fn round()
+    assert_eq(dotted(ip_value("1.2.3.4")), "1.2.3.4")

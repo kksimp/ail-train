@@ -1,0 +1,25 @@
+## Chore points: children earn points for chores with a weekly bonus for doing at least
+## five different chores; pocket money is points times 10 cents, capped at 5.00.
+
+fn main()
+    values := {"bed": 1, "dishes": 3, "bins": 2, "hoover": 4, "laundry": 3, "garden": 5}
+    log := [
+        ("Mia", ["bed", "bed", "dishes", "bins", "hoover", "laundry", "bed"]),
+        ("Neo", ["garden", "garden", "hoover", "dishes"]),
+        ("Ola", ["bed", "dishes", "bins", "hoover", "garden", "laundry", "garden", "garden"]),
+    ]
+    for entry in log
+        who, done := entry
+        mut points := 0
+        for c in done
+            points += values[c]
+        kinds := {c for c in done}
+        distinct := kinds.len()
+        bonus := if distinct >= 5 then 5 else 0
+        total := points + bonus
+        cents := if total * 10 > 500 then 500 else total * 10
+        print("{who}: {points} + {bonus} bonus = {total} points, {cents / 100}.{cents % 100:02}")
+
+@test fn distinct()
+    kinds := {c for c in ["a", "a", "b"]}
+    assert_eq(kinds.len(), 2)

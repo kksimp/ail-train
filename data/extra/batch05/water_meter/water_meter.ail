@@ -1,0 +1,21 @@
+## Water meter: monthly meter readings give usage; usage over 12 cubic metres is charged at
+## a higher rate, and a leak is flagged when usage jumps over 50% above the average.
+
+fn main()
+    readings := [1204, 1213, 1221, 1232, 1240, 1262, 1271, 1279, 1290, 1298]
+    mut usage := List[int]()
+    for i in 1..readings.len()
+        usage.push(readings[i] - readings[i - 1])
+    avg := usage.sum().to_float() / usage.len().to_float()
+    mut bill := 0
+    for i, u in usage.enumerate()
+        low := if u > 12 then 12 else u
+        high := u - low
+        cost := low * 180 + high * 260
+        bill += cost
+        flag := if u.to_float() > avg * 1.5 then " leak?" else ""
+        print("month {i + 1}: {u} m3, {cost / 100}.{cost % 100:02}{flag}")
+    print("average {avg:.2} m3, total {bill / 100}.{bill % 100:02}")
+
+@test fn usage()
+    assert_eq(1213 - 1204, 9)

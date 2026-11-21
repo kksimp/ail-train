@@ -1,0 +1,7 @@
+black-M: 4 socks, 2 pairs
+blue-L: 4 socks, 2 pairs
+red-L: 1 socks, 0 pairs
+red-M: 3 socks, 1 pairs
+white-S: 2 socks, 1 pairs
+6 pairs, odd socks: red-L, red-M
+most pairs (2): black-M, blue-L

@@ -1,0 +1,21 @@
+## Garage queue: car repairs are booked with estimated hours; two mechanics each take the
+## next job when free, and the day's schedule and each car's ready time are printed.
+
+fn clock(h int) str
+    "{8 + h / 60:02}:{h % 60:02}"
+
+fn main()
+    jobs := [("brakes", 90), ("service", 60), ("clutch", 240), ("tyres", 30), ("exhaust", 120), ("MOT", 45), ("battery", 20)]
+    mut free := [0, 0]
+    names := ["Raf", "Sia"]
+    for j in jobs
+        name, mins := j
+        m := if free[0] <= free[1] then 0 else 1
+        start := free[m]
+        free[m] = start + mins
+        print("{name:<8} {names[m]} {clock(start)}-{clock(free[m])}")
+    for m in 0..2
+        print("{names[m]} done at {clock(free[m])}")
+
+@test fn start()
+    assert_eq(clock(0), "08:00")

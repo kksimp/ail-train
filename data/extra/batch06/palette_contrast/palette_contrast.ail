@@ -1,0 +1,31 @@
+## Contrast check: computes WCAG contrast ratios between text and background colours from
+## hex codes and reports which pairs pass the 4.5 threshold.
+
+fn lin(c int) float
+    v := c.to_float() / 255.0
+    if v <= 0.03928
+        return v / 12.92
+    ((v + 0.055) / 1.055).pow(2.4)
+
+fn lum(hex str) float
+    r := hex.slice(1, 3).to_int(16) else 0
+    g := hex.slice(3, 5).to_int(16) else 0
+    b := hex.slice(5, 7).to_int(16) else 0
+    0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b)
+
+fn ratio(a str, b str) float
+    la := lum(a)
+    lb := lum(b)
+    hi := if la > lb then la else lb
+    lo := if la > lb then lb else la
+    (hi + 0.05) / (lo + 0.05)
+
+fn main()
+    pairs := [("#000000", "#ffffff"), ("#777777", "#ffffff"), ("#1a5fb4", "#ffffff"), ("#ffcc00", "#ffffff"), ("#ffcc00", "#222222"), ("#2e7d32", "#e8f5e9")]
+    for p in pairs
+        r := ratio(p.0, p.1)
+        verdict := if r >= 4.5 then "pass" else "fail"
+        print("{p.0} on {p.1}: {r:.2}:1 {verdict}")
+
+@test fn max_ratio()
+    assert(ratio("#000000", "#ffffff") > 20.9)

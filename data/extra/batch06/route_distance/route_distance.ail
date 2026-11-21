@@ -1,0 +1,26 @@
+## Route distance: great-circle distances between cities with the haversine formula, and
+## the total length of a multi-stop route in kilometres.
+
+fn rad(d float) float
+    d * 3.141592653589793 / 180.0
+
+fn haversine(a (float, float), b (float, float)) float
+    dlat := rad(b.0 - a.0)
+    dlon := rad(b.1 - a.1)
+    s1 := (dlat / 2.0).sin()
+    s2 := (dlon / 2.0).sin()
+    h := s1 * s1 + rad(a.0).cos() * rad(b.0).cos() * s2 * s2
+    2.0 * 6371.0 * h.sqrt().atan2((1.0 - h).sqrt())
+
+fn main()
+    cities := {"London": (51.5074, -0.1278), "Paris": (48.8566, 2.3522), "Berlin": (52.52, 13.405), "Rome": (41.9028, 12.4964), "Madrid": (40.4168, -3.7038)}
+    route := ["London", "Paris", "Madrid", "Rome", "Berlin", "London"]
+    mut total := 0.0
+    for i in 1..route.len()
+        d := haversine(cities[route[i - 1]], cities[route[i]])
+        total += d
+        print("{route[i - 1]} -> {route[i]}: {d:.0} km")
+    print("route total: {total:.0} km")
+
+@test fn zero()
+    assert_eq(haversine((1.0, 1.0), (1.0, 1.0)), 0.0)

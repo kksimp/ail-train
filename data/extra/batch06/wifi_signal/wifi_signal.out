@@ -1,0 +1,9 @@
+home/ap1: -48 dBm = 15848.9 pW [||||]
+home/ap2: -63 dBm = 501.2 pW [||| ]
+cafe/ap1: -71 dBm = 79.4 pW [||  ]
+cafe/ap2: -82 dBm = 6.3 pW [|   ]
+guest/ap1: -88 dBm = 1.6 pW [    ]
+home/ap3: -59 dBm = 1258.9 pW [||| ]
+cafe: best ap1 at -71 dBm
+guest: best ap1 at -88 dBm
+home: best ap1 at -48 dBm

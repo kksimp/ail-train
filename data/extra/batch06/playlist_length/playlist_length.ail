@@ -1,0 +1,32 @@
+## Playlist length: tracks with durations as m:ss; totals the playlist, splits it into sides
+## of at most 22 minutes in order, and prints each side's running time.
+
+fn secs(t str) int
+    p := t.split(":")
+    (p[0].to_int() else 0) * 60 + (p[1].to_int() else 0)
+
+fn mmss(s int) str
+    "{s / 60}:{s % 60:02}"
+
+fn main()
+    tracks := [("Intro", "1:12"), ("Northern", "4:35"), ("Glass", "3:58"), ("Echoes", "6:41"), ("Tide", "5:03"), ("Lantern", "3:27"), ("Ridge", "7:15"), ("Coda", "2:50")]
+    total := tracks.map(|t| secs(t.1)).sum()
+    print("total {mmss(total)}")
+    mut side := 1
+    mut used := 0
+    mut names := List[str]()
+    for t in tracks
+        s := secs(t.1)
+        if used + s > 22 * 60
+            shown := names.join(", ")
+            print("side {side} ({mmss(used)}): {shown}")
+            side += 1
+            used = 0
+            names.clear()
+        used += s
+        names.push(t.0)
+    shown := names.join(", ")
+    print("side {side} ({mmss(used)}): {shown}")
+
+@test fn parse()
+    assert_eq(secs("4:35"), 275)

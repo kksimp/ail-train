@@ -1,0 +1,22 @@
+## Glass tower: pours water into the top glass of a stacked triangle of glasses; overflow
+## splits evenly to the two glasses below. Prints the fill of each row.
+
+fn main()
+    for poured in [1.0, 4.0, 7.0]
+        mut rows := [[poured]]
+        for r in 0..5
+            mut next := [0.0 for _ in 0..r + 2]
+            for i in 0..r + 1
+                extra := rows[r][i] - 1.0
+                if extra > 0.0
+                    next[i] += extra / 2.0
+                    next[i + 1] += extra / 2.0
+                    rows[r][i] = 1.0
+            rows.push(next)
+        print("poured {poured:.0} glasses:")
+        for r in 0..5
+            cells := rows[r].map(|x| "{x * 100.0:.0}%").join(" ")
+            print("  row {r + 1}: {cells}")
+
+@test fn split()
+    assert_eq((3.0 - 1.0) / 2.0, 1.0)

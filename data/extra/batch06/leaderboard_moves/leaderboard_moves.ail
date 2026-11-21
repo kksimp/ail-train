@@ -1,0 +1,19 @@
+## Leaderboard moves: compares two weekly rankings and prints each player's movement with
+## arrows, new entries and players who dropped out.
+
+fn main()
+    last := ["Kim", "Lou", "Max", "Ned", "Oz", "Pia"]
+    now := ["Lou", "Kim", "Pia", "Qi", "Max", "Ned"]
+    for i, p in now.enumerate()
+        if old := last.index_of(p)
+            change := old - i
+            arrow := if change > 0 then "up {change}" elif change < 0 then "down {-change}" else "same"
+            print("{i + 1}. {p:<4} {arrow}")
+        else
+            print("{i + 1}. {p:<4} new")
+    gone := last.filter(|p| not now.contains(p))
+    shown := gone.join(", ")
+    print("dropped out: {shown}")
+
+@test fn index()
+    assert_eq(["a", "b"].index_of("b") else -1, 1)

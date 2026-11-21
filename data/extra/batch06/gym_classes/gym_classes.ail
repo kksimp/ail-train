@@ -1,0 +1,35 @@
+## Gym classes: members book classes with capacity limits and a waitlist; cancellations
+## promote the first waiting member, and final rosters are printed.
+
+fn main()
+    caps := {"spin": 3, "yoga": 2}
+    mut roster := {"spin": List[str](), "yoga": List[str]()}
+    mut waiting := {"spin": List[str](), "yoga": List[str]()}
+    events := ["book spin Ana", "book spin Ben", "book yoga Cat", "book spin Dan", "book spin Eve", "book yoga Fay", "book yoga Gus", "cancel spin Ben", "cancel yoga Cat", "book spin Hal", "cancel spin Ana"]
+    for e in events
+        parts := e.split(" ")
+        action := parts[0]
+        class := parts[1]
+        who := parts[2]
+        if action == "book"
+            if roster[class].len() < caps[class]
+                roster.push(class, who)
+                print("{who} booked {class}")
+            else
+                waiting.push(class, who)
+                print("{who} waitlisted for {class}")
+        else
+            roster[class] = roster[class].filter(|p| p != who)
+            print("{who} cancelled {class}")
+            if waiting[class].len() > 0
+                next_in := waiting[class][0]
+                waiting[class] = waiting[class][1..]
+                roster.push(class, next_in)
+                print("  {next_in} moved up")
+    for c in ["spin", "yoga"]
+        a := roster[c].join(", ")
+        b := if waiting[c].is_empty() then "none" else waiting[c].join(", ")
+        print("{c}: {a} | waiting: {b}")
+
+@test fn spaces_left()
+    assert_eq(3 - 1, 2)

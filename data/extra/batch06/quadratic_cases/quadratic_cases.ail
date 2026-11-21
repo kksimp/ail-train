@@ -1,0 +1,23 @@
+## Quadratic roots: solves ax^2 + bx + c = 0 for several equations, reporting two real
+## roots, one repeated root, or a complex pair.
+
+fn solve(a float, b float, c float) str
+    d := b * b - 4.0 * a * c
+    if d > 0.0
+        r := d.sqrt()
+        x1 := (-b + r) / (2.0 * a)
+        x2 := (-b - r) / (2.0 * a)
+        return "two roots {x1:.3} and {x2:.3}"
+    if d == 0.0
+        x := -b / (2.0 * a)
+        return "one root {x:.3}"
+    re := -b / (2.0 * a)
+    im := (-d).sqrt() / (2.0 * a)
+    "complex {re:.3} +/- {im:.3}i"
+
+fn main()
+    for q in [(1.0, -3.0, 2.0), (1.0, 2.0, 1.0), (1.0, 2.0, 5.0), (2.0, -7.0, 3.0), (1.0, 1.0, -1.0), (3.0, 2.0, 5.0)]
+        print("{q.0}x^2 + {q.1}x + {q.2}: {solve(q.0, q.1, q.2)}")
+
+@test fn simple()
+    assert_eq(solve(1.0, -3.0, 2.0), "two roots 2.000 and 1.000")

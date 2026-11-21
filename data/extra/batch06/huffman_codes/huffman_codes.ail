@@ -1,0 +1,33 @@
+## Huffman codes: builds a Huffman code for a sentence's characters by merging the two
+## lightest groups repeatedly, and compares the coded length with 8 bits per character.
+
+fn main()
+    text := "she sells sea shells by the sea shore"
+    mut counts := Map[str, int]()
+    for c in text.chars()
+        counts["{c}"] += 1
+    mut groups := counts.keys().map(|k| (counts[k], k))
+    mut codes := Map[str, str]()
+    for k in counts.keys()
+        codes[k] = ""
+    while groups.len() > 1
+        groups = groups.sorted(by: |g| (g.0, g.1))
+        a := groups[0]
+        b := groups[1]
+        for ch in a.1.chars()
+            old := codes["{ch}"]
+            codes["{ch}"] = "0{old}"
+        for ch in b.1.chars()
+            prev := codes["{ch}"]
+            codes["{ch}"] = "1{prev}"
+        groups = groups[2..]
+        groups.push((a.0 + b.0, "{a.1}{b.1}"))
+    mut bits := 0
+    for k in counts.keys().sorted(by: |k| (-counts[k], k))
+        bits += counts[k] * codes[k].len()
+        shown := if k == " " then "space" else k
+        print("{shown:<5} x{counts[k]:<2} {codes[k]}")
+    print("{bits} bits vs {text.len() * 8} bits")
+
+@test fn tuple_order()
+    assert_eq([(1, "b"), (1, "a")].sorted(by: |g| (g.0, g.1))[0].1, "a")

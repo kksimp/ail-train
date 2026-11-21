@@ -1,0 +1,25 @@
+## Seat map: a cinema seat map with booked seats; finds every pair of adjacent free seats in
+## the back three rows and prints the map with the best pair marked.
+
+fn main()
+    rows := ["xx..xx..", "x......x", "..xx.x..", "x.x.x.x.", "...xx..."]
+    grid := rows.map(|r| r.chars())
+    mut pairs := List[(int, int)]()
+    for r in 2..grid.len()
+        for c in 0..grid[r].len() - 1
+            if grid[r][c] == '.' and grid[r][c + 1] == '.'
+                pairs.push((r, c))
+    shown := pairs.map(|p| "{p.0 + 1}{p.1 + 1}").join(" ")
+    print("pairs (row, seat): {shown}")
+    best := pairs.min(by: |p| (-p.0, (2 * p.1 + 1 - 7).abs(), p.1)) else (0, 0)
+    for r in 0..grid.len()
+        mut line := ""
+        for c in 0..grid[r].len()
+            mut ch := grid[r][c]
+            if r == best.0 and (c == best.1 or c == best.1 + 1)
+                ch = 'B'
+            line = "{line}{ch}"
+        print(line)
+
+@test fn adjacent()
+    assert("..".chars()[0] == '.')

@@ -1,0 +1,21 @@
+## Menu tree: a nested menu stored as (depth, label) lines is printed with indentation and
+## numbering like 1, 1.1, 1.2, 2, and the deepest item is reported.
+
+fn main()
+    items := [(0, "File"), (1, "New"), (1, "Open"), (2, "Recent"), (2, "Browse"), (1, "Save"), (0, "Edit"), (1, "Undo"), (1, "Find"), (2, "Replace"), (3, "Regex"), (0, "Help")]
+    mut counters := [0, 0, 0, 0]
+    mut deepest := (0, "")
+    for it in items
+        depth, label := it
+        counters[depth] += 1
+        for d in depth + 1..4
+            counters[d] = 0
+        num := counters[0..depth + 1].map(|c| "{c}").join(".")
+        pad := "  ".repeat(depth)
+        print("{pad}{num} {label}")
+        if depth > deepest.0
+            deepest = (depth, label)
+    print("deepest: {deepest.1} at level {deepest.0 + 1}")
+
+@test fn dots()
+    assert_eq([1, 2].map(|c| "{c}").join("."), "1.2")

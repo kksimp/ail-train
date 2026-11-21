@@ -1,0 +1,30 @@
+## Wi-Fi signal: converts signal strengths in dBm to picowatts and quality bars, and finds
+## the strongest access point per network name.
+
+fn bars(dbm int) int
+    if dbm >= -55
+        return 4
+    if dbm >= -67
+        return 3
+    if dbm >= -75
+        return 2
+    if dbm >= -85
+        return 1
+    0
+
+fn main()
+    scans := [("home", "ap1", -48), ("home", "ap2", -63), ("cafe", "ap1", -71), ("cafe", "ap2", -82), ("guest", "ap1", -88), ("home", "ap3", -59)]
+    for s in scans
+        net, ap, dbm := s
+        ten := 10.0
+        nw := ten.pow(dbm.to_float() / 10.0) * 1000000000.0
+        level := "|".repeat(bars(dbm))
+        print("{net}/{ap}: {dbm} dBm = {nw:.1} pW [{level:<4}]")
+    names := {s.0 for s in scans}
+    nets := names.sorted()
+    for n in nets
+        best := scans.filter(|s| s.0 == n).max(by: |s| s.2) else scans[0]
+        print("{n}: best {best.1} at {best.2} dBm")
+
+@test fn strong()
+    assert_eq(bars(-50), 4)

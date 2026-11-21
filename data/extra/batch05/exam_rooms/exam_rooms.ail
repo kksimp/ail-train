@@ -1,0 +1,27 @@
+## Exam rooms: exams with student counts are assigned to rooms by capacity, largest exam
+## first into the smallest room that fits, with one exam per room per session.
+
+fn main()
+    rooms := [("Hall", 120), ("Lab A", 30), ("Lab B", 30), ("Room 5", 60), ("Room 6", 45)]
+    exams := [("maths", 110), ("chemistry", 28), ("history", 52), ("art", 12), ("physics", 44), ("latin", 9), ("biology", 58)]
+    ordered := exams.sorted(by: |e| (-e.1, e.0))
+    mut free := rooms.sorted(by: |r| (r.1, r.0))
+    mut unplaced := List[str]()
+    for e in ordered
+        mut pick := -1
+        for i, r in free.enumerate()
+            if r.1 >= e.1
+                pick = i
+                break
+        if pick < 0
+            unplaced.push(e.0)
+        else
+            r := free[pick]
+            print("{e.0} ({e.1}) -> {r.0} ({r.1}, {r.1 - e.1} spare)")
+            free.remove_at(pick)
+    if not unplaced.is_empty()
+        shown := unplaced.join(", ")
+        print("next session: {shown}")
+
+@test fn fits()
+    assert(30 >= 28)

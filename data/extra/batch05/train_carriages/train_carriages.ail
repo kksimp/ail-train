@@ -1,0 +1,28 @@
+## Train carriages: a train is a list of carriages that can be coupled and uncoupled at
+## either end; a script of shunting moves is applied and the train printed after each.
+
+fn main()
+    mut train := ["engine", "coach1", "coach2"]
+    moves := ["add-back buffet", "add-back coach3", "drop-back", "add-front pilot", "drop-front", "add-back coach3", "insert-2 sleeper"]
+    for m in moves
+        parts := m.split(" ")
+        action := parts[0]
+        if action == "add-back"
+            train.push(parts[1])
+        elif action == "add-front"
+            train.insert(0, parts[1])
+        elif action == "drop-back"
+            _ := train.pop()
+        elif action == "drop-front"
+            train.remove_at(0)
+        else
+            at := action.split("-")[1].to_int() else 0
+            train.insert(at, parts[1])
+        shown := train.join("-")
+        print("{m:<18} {shown}")
+    print("{train.len()} vehicles")
+
+@test fn front()
+    mut t := ["a"]
+    t.insert(0, "b")
+    assert_eq(t, ["b", "a"])

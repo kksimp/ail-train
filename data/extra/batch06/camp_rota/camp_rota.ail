@@ -1,0 +1,21 @@
+## Camp rota: assigns daily camp jobs to scouts so nobody repeats a job until they have done
+## every job, using a rotating offset per day, and prints the week.
+
+fn main()
+    scouts := ["Ada", "Bo", "Cal", "Dot", "Eli"]
+    jobs := ["fire", "water", "cook", "wash", "rest"]
+    mut done := Map[str, List[str]]()
+    for d in 0..5
+        mut line := List[str]()
+        for i, s in scouts.enumerate()
+            j := jobs[(i + d * 2) % jobs.len()]
+            done.push(s, j)
+            line.push("{s}:{j}")
+        shown := line.join(" ")
+        print("day {d + 1}: {shown}")
+    for s in scouts
+        all_jobs := done[s].sorted() == jobs.sorted()
+        print("{s} did every job: {all_jobs}")
+
+@test fn offset()
+    assert_eq((3 + 4 * 2) % 5, 1)

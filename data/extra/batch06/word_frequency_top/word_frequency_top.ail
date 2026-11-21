@@ -1,0 +1,25 @@
+## Top words: counts words in a passage after lower-casing and stripping punctuation,
+## skipping stop words, and prints the five most frequent with ties broken alphabetically.
+
+fn clean(w str) str
+    mut out := ""
+    for c in w.to_lower().chars()
+        if c.is_alpha()
+            out = "{out}{c}"
+    out
+
+fn main()
+    text := "The rain fell on the town. The town slept, and the rain fell on; rain on the roofs, rain on the river, and the river rose."
+    stop := {"the", "on", "and", "a"}
+    mut counts := Map[str, int]()
+    for raw in text.split(" ")
+        w := clean(raw)
+        if w != "" and not stop.contains(w)
+            counts[w] += 1
+    ranked := counts.keys().sorted(by: |w| (-counts[w], w))
+    for w in ranked.take(5)
+        print("{w}: {counts[w]}")
+    print("{counts.len()} distinct words")
+
+@test fn strip()
+    assert_eq(clean("Town."), "town")

@@ -1,0 +1,6 @@
+0-306-40615-2: valid
+0-306-40615-3: invalid, expected 2
+0-8044-2957-X: valid
+978-0-306-40615-7: valid
+978-0-306-40615-1: invalid, expected 7
+12345: wrong length

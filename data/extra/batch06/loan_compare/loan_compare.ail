@@ -1,0 +1,26 @@
+## Loan compare: compares loans by total cost, using an annuity payment for each (amount,
+## yearly rate, years) and printing the payment and the total interest.
+
+fn payment(amount float, rate float, years int) float
+    r := rate / 12.0
+    n := (years * 12).to_float()
+    if r == 0.0
+        return amount / n
+    amount * r / (1.0 - (1.0 + r).pow(-n))
+
+fn main()
+    offers := [("bank", 15000.0, 0.069, 5), ("credit union", 15000.0, 0.055, 6), ("dealer", 15000.0, 0.0, 4), ("online", 15000.0, 0.049, 7)]
+    mut best := ""
+    mut best_cost := 1000000.0
+    for o in offers
+        name, amount, rate, years := o
+        p := payment(amount, rate, years)
+        interest := p * (years * 12).to_float() - amount
+        print("{name:<12} {p:>8.2}/month over {years} years, interest {interest:>8.2}")
+        if interest < best_cost
+            best_cost = interest
+            best = name
+    print("cheapest: {best}")
+
+@test fn free_loan()
+    assert_eq(payment(1200.0, 0.0, 1), 100.0)
