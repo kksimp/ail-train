@@ -11,8 +11,9 @@ fn main()
     mut values := List[int]()
     mut p := 1
     for k in 0..63
+        if k > 0
+            p *= 2
         values.push(p)
-        p *= 2
     mut a := 1
     mut b := 1
     for k in 0..90
