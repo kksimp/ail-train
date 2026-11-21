@@ -224,7 +224,7 @@ data/build/              builder output (git-ignored)
 tools/extract_trials.py  pulls AIL trials out of agentbench result archives
 data/extra/              programs written for training (drills); checked on the Mac by tools/check_extra/run.sh
 tools/preflight.sh       M1: measures each candidate base (tools/preflight/ holds its Python steps)
-tools/build_data.py      M2 (to write)
+tools/build_data.py      M2: the data builder; tools/build_data.sh runs it on the Mac twice and compares
 tools/local_agent.py     M4 (to write)
 tools/eval_quick.py      M5 (to write)
 config.local             untracked: base model id, paths (D6)
