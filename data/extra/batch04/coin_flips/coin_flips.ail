@@ -1,0 +1,30 @@
+## Coin flips: a deterministic generator flips coins; prints the longest run of heads or
+## tails in each block of 50 flips and the overall heads share.
+
+fn main()
+    mut state := 2024
+    mut heads := 0
+    for block in 1..=4
+        mut flips := ""
+        mut longest := 0
+        mut run := 0
+        mut prev := 'x'
+        for _ in 0..50
+            state = (state * 1103515245 + 12345) % 2147483648
+            c := if (state / 65536) % 2 == 0 then 'H' else 'T'
+            if c == 'H'
+                heads += 1
+            if c == prev
+                run += 1
+            else
+                run = 1
+            if run > longest
+                longest = run
+            prev = c
+            flips = "{flips}{c}"
+        print("block {block}: {flips.slice(0, 20)}... longest run {longest}")
+    share := heads.to_float() / 200.0
+    print("heads: {heads} of 200 ({share:.3})")
+
+@test fn lcg()
+    assert_eq((1 * 1103515245 + 12345) % 2147483648, 1103527590)

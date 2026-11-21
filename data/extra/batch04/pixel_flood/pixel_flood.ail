@@ -1,0 +1,33 @@
+## Flood fill: fills the region of a small pixel picture connected to a start cell with a
+## new colour, using an explicit stack, and prints the picture before and after.
+
+fn show(img List[List[char]])
+    for row in img
+        print(row.join(""))
+
+fn main()
+    rows := ["..##....", ".#..#...", ".#...#..", "..#..#..", "...##...", "........"]
+    mut img := rows.map(|r| r.chars())
+    show(img)
+    old := img[2][3]
+    mut stack := [(2, 3)]
+    mut filled := 0
+    while not stack.is_empty()
+        p := stack.pop() else (0, 0)
+        r, c := p
+        if r < 0 or r >= img.len() or c < 0 or c >= img[0].len()
+            continue
+        if img[r][c] != old
+            continue
+        img[r][c] = 'o'
+        filled += 1
+        stack.push((r + 1, c))
+        stack.push((r - 1, c))
+        stack.push((r, c + 1))
+        stack.push((r, c - 1))
+    print("--")
+    show(img)
+    print("filled {filled}")
+
+@test fn chars_row()
+    assert_eq("ab".chars().len(), 2)

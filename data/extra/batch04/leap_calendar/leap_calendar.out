@@ -1,0 +1,7 @@
+1900: 365 days, starts Mon
+2000: 366 days, starts Sat
+2024: 366 days, starts Mon
+2026: 365 days, starts Thu
+2100: 365 days, starts Fri
+feb 29 in 2023: false
+feb 29 in 2024: true
