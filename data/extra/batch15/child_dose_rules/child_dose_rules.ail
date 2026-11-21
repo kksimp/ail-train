@@ -1,0 +1,35 @@
+## Paediatric dose rules: Clark's rule scales the adult dose by weight in pounds / 150, Young's rule by
+## age / (age + 12) and Fried's rule for infants by months / 150; the rules disagree, so the lowest is shown.
+
+enum Rule
+    Clark
+    Young
+    Fried
+
+fn child_dose(rule Rule, adult float, kg float, months int) float
+    match rule
+        Clark => adult * kg * 2.2046 / 150.0
+        Young => adult * (months / 12).to_float() / ((months / 12 + 12).to_float())
+        Fried => adult * months.to_float() / 150.0
+
+fn main()
+    adult := 500.0
+    children := [("Mia", 9.5, 10), ("Leo", 14.0, 30), ("Ava", 21.0, 72), ("Sam", 32.0, 120)]
+    for c in children
+        name, kg, months := c
+        mut parts := List[str]()
+        mut lowest := adult
+        for rule in Rule.variants()
+            if rule == Rule.Fried and months >= 24
+                continue
+            if rule == Rule.Young and months < 24
+                continue
+            d := child_dose(rule, adult, kg, months)
+            if d < lowest
+                lowest = d
+            parts.push("{rule.name()} {d:.0} mg")
+        shown := parts.join(", ")
+        print("{name:<4} {kg:>4.1} kg, {months:>3} months: {shown}; give at most {lowest:.0} mg")
+
+@test fn clark_adult_weight()
+    assert((child_dose(Rule.Clark, 100.0, 68.0391, 0) - 100.0).abs() < 0.01)

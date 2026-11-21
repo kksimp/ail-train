@@ -1,0 +1,31 @@
+## Overbooking: each booked passenger turns up with chance 0.92, so shows follow a binomial distribution;
+## for each number of bookings, expected fares less expected bumping costs pick the best level for 180 seats.
+
+fn expected_profit(booked int, seats int, p float, fare float, bump float) List[float]
+    q := 1.0 - p
+    mut pmf := q.pow(booked.to_float())
+    mut revenue := 0.0
+    mut bumped := 0.0
+    for k in 0..=booked
+        flown := if k < seats then k else seats
+        revenue += pmf * flown.to_float() * fare
+        if k > seats
+            bumped += pmf * (k - seats).to_float()
+        pmf = pmf * (booked - k).to_float() / (k + 1).to_float() * p / q
+    [revenue - bumped * bump, bumped]
+
+fn main()
+    seats := 180
+    mut best := seats
+    mut best_value := 0.0
+    for booked in [180, 184, 188, 192, 196, 200, 204]
+        r := expected_profit(booked, seats, 0.92, 250.0, 800.0)
+        print("book {booked}: expected bumped {r[1]:.3}, expected net {r[0]:.0}")
+        if r[0] > best_value
+            best_value = r[0]
+            best = booked
+    print("best of these: book {best} for {seats} seats")
+
+@test fn certain_shows()
+    r := expected_profit(2, 3, 0.5, 10.0, 100.0)
+    assert_eq(r[1], 0.0)

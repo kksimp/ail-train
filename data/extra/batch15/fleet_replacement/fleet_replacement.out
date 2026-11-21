@@ -1,0 +1,9 @@
+keep 1 years: total  29000, average 29000 a year ##############
+keep 2 years: total  47500, average 23750 a year ###########
+keep 3 years: total  64000, average 21333 a year ##########
+keep 4 years: total  81000, average 20250 a year ##########
+keep 5 years: total  99000, average 19800 a year #########
+keep 6 years: total 119500, average 19916 a year #########
+keep 7 years: total 143000, average 20428 a year ##########
+keep 8 years: total 170000, average 21250 a year ##########
+replace every 5 years (average 19800 a year)

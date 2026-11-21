@@ -1,0 +1,31 @@
+## Littlewood's rule: with full-fare demand Poisson with mean 60, keep protecting one more seat for
+## full fare while the chance of selling it, P(D > y), is at least discount / full fare; the rest sell cheap.
+
+fn tail_probs(mean float, top int) List[float]
+    mut pmf := (-mean).exp()
+    mut cdf := 0.0
+    mut tails := List[float]()
+    for k in 0..=top
+        cdf += pmf
+        tails.push(1.0 - cdf)
+        pmf = pmf * mean / (k + 1).to_float()
+    tails
+
+fn protect(tails List[float], ratio float) int
+    mut y := 0
+    while y < tails.len() and tails[y] >= ratio
+        y += 1
+    y
+
+fn main()
+    capacity := 150
+    full := 420.0
+    tails := tail_probs(60.0, capacity)
+    print("P(full-fare demand > 50) {tails[50]:.3}, > 60 {tails[60]:.3}, > 70 {tails[70]:.3}")
+    for discount in [100.0, 160.0, 230.0, 300.0]
+        ratio := discount / full
+        y := protect(tails, ratio)
+        print("discount {discount:.0}: ratio {ratio:.3}, protect {y} seats, sell at most {capacity - y} cheap")
+
+@test fn sure_demand()
+    assert_eq(protect([1.0, 1.0, 0.2], 0.5), 2)

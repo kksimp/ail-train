@@ -1,0 +1,32 @@
+## Statutory redundancy pay: counting back up to 20 complete years of service, each year worked at 41 or
+## older earns 1.5 weeks' pay, at 22 to 40 one week and under 22 half a week, with weekly pay capped at 700.
+
+struct Worker
+    name str
+    age int
+    years int
+    weekly int
+
+fn half_weeks(age int, years int) int
+    mut total := 0
+    mut a := age
+    for _ in 0..years.min(20)
+        worked_at := a - 1
+        total += if worked_at >= 41 then 3 elif worked_at >= 22 then 2 else 1
+        a -= 1
+    total
+
+fn main()
+    cap := 700
+    workers := [Worker(name: "Gwen", age: 58, years: 26, weekly: 820), Worker(name: "Hal", age: 35, years: 9, weekly: 610), Worker(name: "Ivy", age: 24, years: 5, weekly: 450), Worker(name: "Jon", age: 45, years: 8, weekly: 690), Worker(name: "Kim", age: 30, years: 1, weekly: 520)]
+    for w in workers
+        if w.years < 2
+            print("{w.name:<5} {w.years} year: not yet eligible")
+            continue
+        hw := half_weeks(w.age, w.years)
+        pay := w.weekly.min(cap)
+        amount := hw * pay / 2
+        print("{w.name:<5} age {w.age}, {w.years:>2} years: {hw / 2}.{hw % 2 * 5} weeks x {pay} = {amount}")
+
+@test fn young_years()
+    assert_eq(half_weeks(22, 3), 3)

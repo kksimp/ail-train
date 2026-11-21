@@ -1,0 +1,28 @@
+## Insurance combined ratio: loss ratio (incurred claims / earned premium) plus expense ratio (expenses /
+## premium); under 100% means an underwriting profit, and investment income can rescue a line above it.
+
+struct Line
+    name str
+    premium int
+    losses int
+    expenses int
+    investment int
+
+fn pct(a int, b int) float
+    a.to_float() / b.to_float() * 100.0
+
+fn main()
+    lines := [Line(name: "motor", premium: 48200, losses: 37900, expenses: 12100, investment: 2900), Line(name: "home", premium: 31500, losses: 17400, expenses: 9800, investment: 1600), Line(name: "liability", premium: 12800, losses: 10700, expenses: 3300, investment: 2400), Line(name: "travel", premium: 6100, losses: 2300, expenses: 2900, investment: 100)]
+    for l in lines
+        loss := pct(l.losses, l.premium)
+        exp := pct(l.expenses, l.premium)
+        combined := loss + exp
+        uw := l.premium - l.losses - l.expenses
+        operating := combined - pct(l.investment, l.premium)
+        print("{l.name:<9} loss {loss:>5.1}% + expense {exp:>5.1}% = {combined:>5.1}%, underwriting {uw:>6}, operating ratio {operating:.1}%")
+    p := lines.fold(0, |acc, l| acc + l.premium)
+    c := lines.fold(0, |acc, l| acc + l.losses + l.expenses)
+    print("company combined ratio {pct(c, p):.1}%")
+
+@test fn even()
+    assert_eq(pct(1, 4), 25.0)

@@ -1,0 +1,37 @@
+## LIFO and average cost: one period's purchases at rising prices; periodic LIFO charges the newest
+## layers to cost of goods sold, weighted average charges the mean unit cost, so profits and closing values differ.
+
+struct Layer
+    units int
+    cost int
+
+fn lifo(layers List[Layer], sold int) int
+    mut left := sold
+    mut cogs := 0
+    mut i := layers.len() - 1
+    while left > 0 and i >= 0
+        take := if layers[i].units < left then layers[i].units else left
+        cogs += take * layers[i].cost
+        left -= take
+        i -= 1
+    cogs
+
+fn main()
+    layers := [Layer(units: 200, cost: 1000), Layer(units: 300, cost: 1080), Layer(units: 250, cost: 1150), Layer(units: 150, cost: 1240)]
+    sold := 620
+    price := 1600
+    units := layers.fold(0, |acc, l| acc + l.units)
+    spend := layers.fold(0, |acc, l| acc + l.units * l.cost)
+    print("{units} units bought for {spend} cents, {sold} sold at {price} cents")
+    revenue := sold * price
+    l_cogs := lifo(layers, sold)
+    avg := spend * 100 / units
+    a_cogs := sold * avg / 100
+    for row in [("LIFO", l_cogs), ("average", a_cogs)]
+        name, cogs := row
+        print("{name:<8} cost of sales {cogs:>7}, gross profit {revenue - cogs:>7}, closing {spend - cogs:>6}")
+    print("average unit cost {avg / 100}.{avg % 100:02} cents")
+
+@test fn lifo_newest()
+    layers := [Layer(units: 10, cost: 1), Layer(units: 10, cost: 5)]
+    assert_eq(lifo(layers, 12), 52)

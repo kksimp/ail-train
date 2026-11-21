@@ -1,0 +1,38 @@
+## Alloy density: mixing metals by mass gives 1 / rho = sum(w_i / rho_i) (volumes add, not densities);
+## predicts densities of brass, bronze, solder and sterling silver and checks a casting by weighing it.
+
+struct Part
+    metal str
+    frac float
+
+fn alloy_density(parts List[Part], metals Map[str, float]) float
+    mut inv := 0.0
+    for p in parts
+        inv += p.frac / metals[p.metal]
+    1.0 / inv
+
+fn main()
+    metals := {"Cu": 8.96, "Zn": 7.14, "Sn": 7.29, "Pb": 11.34, "Ag": 10.49}
+    alloys := [("brass", [Part(metal: "Cu", frac: 0.65), Part(metal: "Zn", frac: 0.35)]), ("bronze", [Part(metal: "Cu", frac: 0.88), Part(metal: "Sn", frac: 0.12)]), ("solder", [Part(metal: "Sn", frac: 0.6), Part(metal: "Pb", frac: 0.4)]), ("sterling", [Part(metal: "Ag", frac: 0.925), Part(metal: "Cu", frac: 0.075)])]
+    mut found := Map[str, float]()
+    for a in alloys
+        name, parts := a
+        rho := alloy_density(parts, metals)
+        found[name] = rho
+        naive := parts.fold(0.0, |acc, p| acc + p.frac * metals[p.metal])
+        print("{name:<9} {rho:.3} g/cm3 (weighted average would say {naive:.3})")
+    grams := 84.3
+    cm3 := 10.0
+    measured := grams / cm3
+    mut best := ""
+    mut gap := 100.0
+    for alloy, dens in found
+        if (dens - measured).abs() < gap
+            gap = (dens - measured).abs()
+            best = alloy
+    print("casting {grams:.1} g in {cm3:.1} cm3 = {measured:.2} g/cm3, closest to {best}")
+
+@test fn pure_metal()
+    parts := [Part(metal: "Cu", frac: 1.0)]
+    metals := {"Cu": 8.0}
+    assert_eq(alloy_density(parts, metals), 8.0)

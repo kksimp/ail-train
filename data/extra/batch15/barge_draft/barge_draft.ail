@@ -1,0 +1,31 @@
+## Barge draft: a floating box sinks until it displaces its own mass of water (Archimedes), so the draft
+## is mass / (rho L B); loads a barge step by step in river and sea water against a 2.0 m draft limit.
+
+struct Barge
+    length float
+    beam float
+    mass float
+
+fn Barge.draft(self, rho float) float
+    self.mass / (rho * self.length * self.beam)
+
+fn Barge.load(mut self, tonnes float)
+    self.mass += tonnes * 1000.0
+
+fn Barge.max_cargo(self, rho float, limit float) float
+    (limit * rho * self.length * self.beam - self.mass) / 1000.0
+
+fn main()
+    mut b := Barge(length: 40.0, beam: 8.5, mass: 120000.0)
+    fresh := 1000.0
+    sea := 1025.0
+    print("empty: river {b.draft(fresh):.3} m, sea {b.draft(sea):.3} m")
+    for t in [100.0, 150.0, 200.0, 150.0]
+        b.load(t)
+        flag := if b.draft(fresh) > 2.0 then " over the limit" else ""
+        print("+{t:.0} t: total {b.mass / 1000.0:.0} t, river {b.draft(fresh):.3} m, sea {b.draft(sea):.3} m{flag}")
+    empty := Barge(length: 40.0, beam: 8.5, mass: 120000.0)
+    print("cargo limit at 2.0 m: river {empty.max_cargo(fresh, 2.0):.0} t, sea {empty.max_cargo(sea, 2.0):.0} t")
+
+@test fn draft()
+    assert_eq(Barge(length: 10.0, beam: 5.0, mass: 50000.0).draft(1000.0), 1.0)

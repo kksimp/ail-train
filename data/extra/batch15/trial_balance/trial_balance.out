@@ -1,0 +1,9 @@
+entry 6 does not balance by 10000, skipped
+Cash       Asset     Dr   22900
+Equipment  Asset     Dr    8500
+Bank loan  Liability Cr    5000
+Capital    Equity    Cr   20000
+Sales      Income    Cr   12400
+Rent       Expense   Dr    1800
+Wages      Expense   Dr    4200
+debits 37400, credits 37400, balanced: true

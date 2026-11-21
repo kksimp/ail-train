@@ -1,0 +1,12 @@
+year  1: level 0 (0% off) pays 900, clean
+year  2: level 1 (20% off) pays 720, clean
+year  3: level 2 (40% off) pays 540, claim
+year  4: level 0 (0% off) pays 900, clean
+year  5: level 1 (20% off) pays 720, clean
+year  6: level 2 (40% off) pays 540, clean
+year  7: level 3 (60% off) pays 360, claim
+year  8: level 1 (20% off) pays 720, claim
+year  9: level 0 (0% off) pays 900, clean
+year 10: level 1 (20% off) pays 720, clean
+paid 7020 over 10 years
+long run shares 0.021 0.098 0.088 0.793, average premium 422.29

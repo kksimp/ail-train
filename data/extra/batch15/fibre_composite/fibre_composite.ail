@@ -1,0 +1,32 @@
+## Fibre composites: the rule of mixtures gives stiffness along the fibres E = Vf Ef + (1 - Vf) Em and
+## the inverse rule across them 1 / E = Vf / Ef + (1 - Vf) / Em; density mixes linearly by volume.
+
+struct Phase
+    name str
+    modulus float
+    density float
+
+fn along(f Phase, m Phase, vf float) float
+    vf * f.modulus + (1.0 - vf) * m.modulus
+
+fn across(f Phase, m Phase, vf float) float
+    1.0 / (vf / f.modulus + (1.0 - vf) / m.modulus)
+
+fn main()
+    epoxy := Phase(name: "epoxy", modulus: 3.5, density: 1.2)
+    fibres := [Phase(name: "carbon", modulus: 230.0, density: 1.8), Phase(name: "glass", modulus: 72.0, density: 2.54)]
+    for f in fibres
+        print("{f.name} fibre in {epoxy.name}:")
+        for vf in [0.35, 0.55, 0.65]
+            e1 := along(f, epoxy, vf)
+            e2 := across(f, epoxy, vf)
+            rho := vf * f.density + (1.0 - vf) * epoxy.density
+            specific := e1 / rho
+            print("  Vf {vf:.2}: along {e1:>6.1} GPa, across {e2:>5.2} GPa, {rho:.2} g/cm3, specific {specific:.1}")
+    steel := 200.0 / 7.85
+    print("steel specific stiffness {steel:.1}")
+
+@test fn pure_matrix()
+    m := Phase(name: "m", modulus: 4.0, density: 1.0)
+    f := Phase(name: "f", modulus: 100.0, density: 2.0)
+    assert_eq(along(f, m, 0.0), 4.0)

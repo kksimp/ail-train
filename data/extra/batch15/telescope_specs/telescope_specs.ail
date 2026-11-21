@@ -1,0 +1,35 @@
+## Telescope specs: magnification is focal length over eyepiece focal length, useful up to twice the
+## aperture in mm; Dawes' limit 116 / D arcseconds, light grasp (D / 7)^2 and faintest magnitude 2 + 5 log10 D.
+
+struct Scope
+    aperture float
+    focal float
+
+fn Scope.power(self, eyepiece float) float
+    self.focal / eyepiece
+
+fn Scope.max_useful(self) float
+    2.0 * self.aperture
+
+fn Scope.dawes(self) float
+    116.0 / self.aperture
+
+fn Scope.faintest(self) float
+    2.0 + 5.0 * self.aperture.log10()
+
+fn main()
+    for s in [Scope(aperture: 80.0, focal: 920.0), Scope(aperture: 200.0, focal: 1000.0)]
+        grasp := s.aperture * s.aperture / 49.0
+        print("{s.aperture:.0} mm f/{s.focal / s.aperture:.1}: Dawes {s.dawes():.2} arcsec, grasp {grasp:.0}x eye, magnitude {s.faintest():.1}")
+        mut fits := List[str]()
+        for e in [32.0, 25.0, 10.0, 6.0, 4.0]
+            p := s.power(e)
+            if p <= s.max_useful()
+                fits.push("{p:.0}x")
+            else
+                fits.push("({p:.0}x too high)")
+        shown := fits.join(" ")
+        print("  eyepieces: {shown}")
+
+@test fn power()
+    assert_eq(Scope(aperture: 100.0, focal: 1000.0).power(25.0), 40.0)

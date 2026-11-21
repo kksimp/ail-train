@@ -1,0 +1,8 @@
+ 40 MPa: 2,000,000 cycles of   31,250,000 allowed, damage 0.06400
+ 60 MPa:   500,000 cycles of    9,259,259 allowed, damage 0.05400
+ 90 MPa:    60,000 cycles of    2,743,484 allowed, damage 0.02187
+140 MPa:     5,000 cycles of      728,863 allowed, damage 0.00686
+200 MPa:       200 cycles of      250,000 allowed, damage 0.00080
+yearly damage 0.1475, expected life 6.8 years
+most damaging band: 40 MPa
+total cycles a year: 2,565,200

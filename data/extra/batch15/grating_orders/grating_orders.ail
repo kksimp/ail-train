@@ -1,0 +1,24 @@
+## Diffraction grating: bright orders appear where d sin(theta) = m lambda, with d the line spacing; the
+## highest order is the largest m with m lambda <= d. Angles for three lasers on two gratings.
+
+fn angle_deg(s float) float
+    pi := 3.141592653589793
+    s.atan2((1.0 - s * s).sqrt()) * 180.0 / pi
+
+fn main()
+    lasers := [("violet", 405.0), ("green", 532.0), ("red", 650.0)]
+    for lines in [600, 1200]
+        d := 1000000.0 / lines.to_float()
+        print("{lines} lines/mm, spacing {d:.1} nm")
+        for laser in lasers
+            name, wave := laser
+            top := (d / wave).to_int()
+            mut angles := List[str]()
+            for m in 1..=top
+                a := angle_deg(m.to_float() * wave / d)
+                angles.push("{a:.1}")
+            shown := angles.join(" ")
+            print("  {name:<6} {wave:.0} nm: {top} orders at {shown} deg")
+
+@test fn straight_through()
+    assert_eq(angle_deg(0.0), 0.0)

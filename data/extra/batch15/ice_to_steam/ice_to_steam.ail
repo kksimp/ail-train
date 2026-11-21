@@ -1,0 +1,27 @@
+## Ice to steam: the energy to take 1 kg of ice at -20 C to steam at 110 C, stage by stage: sensible
+## heat m c dT for ice, water and steam plus the latent heats of melting (334 kJ) and boiling (2257 kJ).
+
+struct Stage
+    name str
+    kj float
+
+fn sensible(kg float, c float, dt float) float
+    kg * c * dt
+
+fn main()
+    kg := 1.0
+    stages := [Stage(name: "warm ice -20 to 0 C", kj: sensible(kg, 2.09, 20.0)), Stage(name: "melt at 0 C", kj: kg * 334.0), Stage(name: "warm water 0 to 100 C", kj: sensible(kg, 4.186, 100.0)), Stage(name: "boil at 100 C", kj: kg * 2257.0), Stage(name: "warm steam 100 to 110 C", kj: sensible(kg, 2.01, 10.0))]
+    total := stages.fold(0.0, |acc, s| acc + s.kj)
+    mut running := 0.0
+    for s in stages
+        running += s.kj
+        pct := s.kj / total * 100.0
+        secs := s.kj / 2.2
+        print("{s.name:<24} {s.kj:>7.1} kJ {pct:>5.1}%  {secs:>6.0} s on a 2.2 kW kettle")
+    print("total {total:.1} kJ = {total / 3600.0:.3} kWh")
+    latent := stages.filter(|s| s.name.starts_with("melt") or s.name.starts_with("boil"))
+    lk := latent.fold(0.0, |acc, s| acc + s.kj)
+    print("latent heat is {lk / total * 100.0:.1}% of the energy")
+
+@test fn sensible_heat()
+    assert_eq(sensible(2.0, 4.0, 10.0), 80.0)

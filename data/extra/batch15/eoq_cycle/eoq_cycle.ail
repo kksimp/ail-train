@@ -1,0 +1,31 @@
+## Economic order quantity: ordering Q at a time costs D S / Q in order fees plus H Q / 2 in holding a year,
+## least at Q = sqrt(2 D S / H); the cost curve is flat near the bottom, so rounding Q up costs little.
+
+struct Item
+    name str
+    demand float
+    order_cost float
+    holding float
+
+fn Item.cost(self, q float) float
+    self.demand * self.order_cost / q + self.holding * q / 2.0
+
+fn Item.eoq(self) float
+    (2.0 * self.demand * self.order_cost / self.holding).sqrt()
+
+fn main()
+    items := [Item(name: "printer paper", demand: 2400.0, order_cost: 40.0, holding: 1.5), Item(name: "toner", demand: 360.0, order_cost: 55.0, holding: 9.0), Item(name: "packing tape", demand: 9000.0, order_cost: 25.0, holding: 0.2)]
+    for it in items
+        q := it.eoq()
+        orders := it.demand / q
+        days := 365.0 / orders
+        print("{it.name:<14} EOQ {q:>6.1}, {orders:>5.2} orders a year, every {days:.1} days, cost {it.cost(q):.2}")
+    paper := items[0]
+    base := paper.cost(paper.eoq())
+    for lot in [200.0, 300.0, 400.0, 600.0]
+        extra := (paper.cost(lot) / base - 1.0) * 100.0
+        print("  paper in lots of {lot:.0}: cost {paper.cost(lot):.2} ({extra:.1}% above best)")
+
+@test fn halves_balance()
+    it := Item(name: "x", demand: 100.0, order_cost: 8.0, holding: 1.0)
+    assert_eq(it.eoq(), 40.0)

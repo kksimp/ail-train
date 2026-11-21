@@ -1,0 +1,30 @@
+## Holiday accrual: 25 days of 8 hours a year build up one twelfth each month, pro rata for part-timers by
+## their FTE; leave taken is subtracted, and at year end at most 40 hours carry over, the rest is lost.
+
+struct Staff
+    name str
+    fte_pct int
+    taken List[int]
+
+fn hm(minutes int) str
+    sign := if minutes < 0 then "-" else ""
+    m := minutes.abs()
+    "{sign}{m / 60}h{m % 60:02}"
+
+fn main()
+    yearly := 25 * 8 * 60
+    cap := 40 * 60
+    staff := [Staff(name: "Rosa", fte_pct: 100, taken: [0, 480, 0, 960, 0, 2400, 2400, 0, 480, 0, 960, 1920]), Staff(name: "Tom", fte_pct: 60, taken: [0, 0, 1440, 0, 0, 1440, 1440, 0, 0, 0, 0, 0]), Staff(name: "Ines", fte_pct: 80, taken: [480, 480, 480, 480, 480, 480, 480, 480, 480, 480, 480, 480])]
+    for s in staff
+        monthly := yearly * s.fte_pct / 100 / 12
+        mut balance := 0
+        mut lowest := 0
+        for t in s.taken
+            balance += monthly - t
+            lowest = lowest.min(balance)
+        kept := balance.min(cap)
+        lost := balance - kept
+        print("{s.name:<5} {s.fte_pct:>3}% FTE accrues {hm(monthly)} a month; year end {hm(balance)}, carried {hm(kept)}, lost {hm(lost)}, lowest {hm(lowest)}")
+
+@test fn text()
+    assert_eq(hm(-90), "-1h30")

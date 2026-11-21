@@ -1,0 +1,33 @@
+## Sound falloff: a point source loses 20 log10(r2 / r1) dB with distance (6 dB per doubling) and a
+## long line source such as a road 10 log10(r2 / r1) (3 dB); finds where each drops to a 55 dB limit.
+
+enum Source
+    Point
+    Line
+
+fn per_decade(s Source) float
+    match s
+        Point => 20.0
+        Line => 10.0
+
+fn level_at(s Source, l1 float, r1 float, r2 float) float
+    ratio := r2 / r1
+    l1 - per_decade(s) * ratio.log10()
+
+fn limit_distance(s Source, l1 float, r1 float, limit float) float
+    ten := 10.0
+    r1 * ten.pow((l1 - limit) / per_decade(s))
+
+fn main()
+    sources := [(Source.Point, "generator", 85.0), (Source.Line, "motorway", 78.0)]
+    for src in sources
+        kind, name, l1 := src
+        print("{name} ({kind}): {l1:.1} dB at 10 m")
+        for r in [20.0, 40.0, 80.0, 160.0]
+            l := level_at(kind, l1, 10.0, r)
+            print("  at {r:>5.0} m: {l:.1} dB")
+        d := limit_distance(kind, l1, 10.0, 55.0)
+        print("  under 55 dB beyond {d:.0} m")
+
+@test fn same_distance()
+    assert_eq(level_at(Source.Point, 70.0, 5.0, 5.0), 70.0)

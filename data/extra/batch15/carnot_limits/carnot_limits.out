@@ -1,0 +1,6 @@
+steam plant      550 /   30 C: efficiency 63.2%, real about 31.6%
+car engine       900 /   90 C: efficiency 69.0%, real about 34.5%
+kitchen fridge    35 /   -2 C: COP 7.33, real about 3.66
+freezer           35 /  -25 C: COP 4.14, real about 2.07
+floor heating     35 /   -5 C: COP 7.70, real about 3.85
+radiators         55 /   -5 C: COP 5.47, real about 2.73

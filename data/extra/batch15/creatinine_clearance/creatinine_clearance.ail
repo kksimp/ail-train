@@ -1,0 +1,36 @@
+## Creatinine clearance: Cockcroft-Gault estimates kidney function as (140 - age) x kg / (72 x serum
+## creatinine mg/dL), times 0.85 for women; the result picks a renal dose band for a drug.
+
+struct Patient
+    name str
+    age int
+    kg float
+    female bool
+    scr float
+
+fn clearance(p Patient) float
+    base := (140 - p.age).to_float() * p.kg / (72.0 * p.scr)
+    if p.female then base * 0.85 else base
+
+fn dose_share(crcl float) int
+    if crcl >= 50.0
+        return 100
+    if crcl >= 30.0
+        return 75
+    if crcl >= 10.0
+        return 50
+    25
+
+fn main()
+    usual := 1000
+    patients := [Patient(name: "Mr A", age: 45, kg: 82.0, female: false, scr: 0.9), Patient(name: "Mrs B", age: 78, kg: 58.0, female: true, scr: 1.4), Patient(name: "Mr C", age: 66, kg: 70.0, female: false, scr: 2.1), Patient(name: "Ms D", age: 52, kg: 64.0, female: true, scr: 1.1), Patient(name: "Mr E", age: 84, kg: 61.0, female: false, scr: 4.6)]
+    for p in patients
+        c := clearance(p)
+        share := dose_share(c)
+        dose := usual * share / 100
+        print("{p.name:<6} age {p.age}, {p.kg:.0} kg, SCr {p.scr:.1}: CrCl {c:>5.1} mL/min -> {share}% dose, {dose} mg")
+    low := patients.filter(|p| clearance(p) < 30.0).len()
+    print("{low} patients need at least a halved dose")
+
+@test fn bands()
+    assert_eq(dose_share(29.9), 50)

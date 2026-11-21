@@ -1,0 +1,28 @@
+## Pipe friction: the Darcy-Weisbach head loss h = f (L / D) v^2 / (2 g), with f = 64 / Re for laminar
+## flow and the Swamee-Jain formula 0.25 / log10(e / 3.7D + 5.74 / Re^0.9)^2 for turbulent flow.
+
+struct Pipe
+    name str
+    diameter float
+    rough float
+    length float
+
+fn friction(re float, rel float) float
+    if re < 2300.0
+        return 64.0 / re
+    x := (rel / 3.7 + 5.74 / re.pow(0.9)).log10()
+    0.25 / (x * x)
+
+fn main()
+    pipes := [Pipe(name: "copper 15 mm", diameter: 0.015, rough: 0.0000015, length: 20.0), Pipe(name: "steel 50 mm", diameter: 0.05, rough: 0.000045, length: 100.0), Pipe(name: "old iron 50 mm", diameter: 0.05, rough: 0.0005, length: 100.0), Pipe(name: "PVC 100 mm", diameter: 0.1, rough: 0.0000015, length: 500.0)]
+    nu := 0.000001004
+    for p in pipes
+        for v in [0.1, 1.5]
+            re := v * p.diameter / nu
+            f := friction(re, p.rough / p.diameter)
+            h := f * (p.length / p.diameter) * v * v / (2.0 * 9.81)
+            kpa := h * 998.0 * 9.81 / 1000.0
+            print("{p.name:<15} {v:.1} m/s: Re {re:>7.0}, f {f:.4}, loss {h:>6.3} m ({kpa:.2} kPa)")
+
+@test fn laminar_friction()
+    assert_eq(friction(1000.0, 0.001), 0.064)

@@ -1,0 +1,31 @@
+## Runway crosswind: a wind from angle d off the runway heading gives headwind v cos d and crosswind
+## v sin d; picks the runway with the most headwind among those under a 15 knot crosswind limit.
+
+fn components(heading int, wind_dir int, speed int) List[float]
+    pi := 3.141592653589793
+    d := (wind_dir - heading).to_float() * pi / 180.0
+    v := speed.to_float()
+    [v * d.cos(), v * d.sin()]
+
+fn main()
+    runways := [("09", 90), ("27", 270), ("14", 140), ("32", 320)]
+    winds := [(250, 18), (20, 12), (165, 25)]
+    for w in winds
+        dir, speed := w
+        mut best := ""
+        mut best_head := -100.0
+        for r in runways
+            name, heading := r
+            hc := components(heading, dir, speed)
+            side := if hc[1] > 0.0 then "from the right" else "from the left"
+            cross := hc[1].abs()
+            ok := cross <= 15.0
+            print("  runway {name}: head {hc[0]:>5.1} kt, cross {cross:>4.1} kt {side}")
+            if ok and hc[0] > best_head
+                best_head = hc[0]
+                best = name
+        print("wind {dir:03} at {speed} kt: use runway {best}")
+
+@test fn straight_down()
+    hc := components(90, 90, 10)
+    assert_eq(hc[0], 10.0)

@@ -1,0 +1,9 @@
+revenue peaks at 12.50, profit peaks at 15.50
+price  8.00: sell   1360, revenue 10880.00, profit  2720.00
+price 10.00: sell   1200, revenue 12000.00, profit  4800.00
+price 12.00: sell   1040, revenue 12480.00, profit  6240.00
+price 12.50: sell   1000, revenue 12500.00, profit  6500.00 max revenue
+price 14.00: sell    880, revenue 12320.00, profit  7040.00
+price 15.50: sell    760, revenue 11780.00, profit  7220.00 max profit
+price 18.00: sell    560, revenue 10080.00, profit  6720.00
+nobody buys at 25.00 or more

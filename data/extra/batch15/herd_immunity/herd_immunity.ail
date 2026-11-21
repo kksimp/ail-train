@@ -1,0 +1,24 @@
+## Herd immunity: an infection with basic reproduction number R0 dies out once more than 1 - 1 / R0 of
+## people are immune; with vaccine effectiveness E the coverage needed is (1 - 1 / R0) / E, if under 100%.
+
+struct Disease
+    name str
+    r0 float
+    effect float
+    coverage float
+
+fn threshold(r0 float) float
+    1.0 - 1.0 / r0
+
+fn main()
+    diseases := [Disease(name: "measles", r0: 15.0, effect: 0.97, coverage: 0.93), Disease(name: "mumps", r0: 10.0, effect: 0.88, coverage: 0.93), Disease(name: "rubella", r0: 6.0, effect: 0.97, coverage: 0.9), Disease(name: "polio", r0: 6.0, effect: 0.99, coverage: 0.88), Disease(name: "flu", r0: 1.4, effect: 0.5, coverage: 0.6)]
+    for d in diseases
+        h := threshold(d.r0)
+        need := h / d.effect
+        immune := d.coverage * d.effect
+        reff := d.r0 * (1.0 - immune)
+        status := if need > 1.0 then "can't be reached by vaccine alone" elif d.coverage >= need then "protected" else "gap {(need - d.coverage) * 100.0:.1} points"
+        print("{d.name:<8} R0 {d.r0:>4.1}: immune {h * 100.0:.1}% needed, coverage {need * 100.0:.1}% needed, R now {reff:.2}, {status}")
+
+@test fn r0_two()
+    assert_eq(threshold(2.0), 0.5)

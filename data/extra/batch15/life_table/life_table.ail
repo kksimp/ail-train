@@ -1,0 +1,30 @@
+## Life table: from the chance qx of dying within each 10-year age band, 100,000 newborns are followed;
+## lx survive to each band, dx die in it, and life expectancy ex is the person-years yet to come over lx.
+
+fn main()
+    ages := [0, 10, 20, 30, 40, 50, 60, 70, 80, 90]
+    qx := [0.006, 0.002, 0.007, 0.011, 0.022, 0.05, 0.11, 0.25, 0.55, 1.0]
+    mut lx := List[float]()
+    mut alive := 100000.0
+    for q in qx
+        lx.push(alive)
+        alive = alive * (1.0 - q)
+    mut big_l := List[float]()
+    for i in 0..lx.len()
+        nxt := if i + 1 < lx.len() then lx[i + 1] else 0.0
+        width := if i + 1 < lx.len() then 10.0 else 5.0
+        big_l.push((lx[i] + nxt) / 2.0 * width)
+    mut t := 0.0
+    mut ex := [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    mut j := lx.len() - 1
+    while j >= 0
+        t += big_l[j]
+        ex[j] = t / lx[j]
+        j -= 1
+    for k in 0..ages.len()
+        dx := lx[k] * qx[k]
+        print("age {ages[k]:>2}: lx {lx[k]:>8.0}, dx {dx:>7.0}, ex {ex[k]:>5.1}")
+    print("chance a newborn reaches 80: {lx[8] / lx[0] * 100.0:.1}%")
+
+@test fn survivors()
+    assert_eq(100000.0 * (1.0 - 0.5), 50000.0)

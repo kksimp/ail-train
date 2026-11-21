@@ -1,0 +1,41 @@
+## Reynolds number: Re = rho v D / mu compares inertia with viscosity; pipe flow is laminar below
+## 2300, turbulent above 4000 and transitional between, shown for water, oil and air in several pipes.
+
+enum Regime
+    Laminar
+    Transitional
+    Turbulent
+
+struct Fluid
+    name str
+    rho float
+    mu float
+
+fn reynolds(f Fluid, speed float, diameter float) float
+    f.rho * speed * diameter / f.mu
+
+fn regime(re float) Regime
+    if re < 2300.0
+        return Regime.Laminar
+    if re <= 4000.0
+        return Regime.Transitional
+    Regime.Turbulent
+
+fn main()
+    water := Fluid(name: "water", rho: 998.0, mu: 0.001002)
+    oil := Fluid(name: "engine oil", rho: 870.0, mu: 0.1)
+    air := Fluid(name: "air", rho: 1.2, mu: 0.0000181)
+    cases := [(water, 0.02, 0.015), (water, 1.5, 0.015), (water, 0.1, 0.025), (oil, 2.0, 0.05), (oil, 0.6, 0.01), (air, 0.3, 0.1), (air, 5.0, 0.3)]
+    mut counts := Map[str, int]()
+    for c in cases
+        f, v, d := c
+        re := reynolds(f, v, d)
+        r := regime(re)
+        counts[r.name()] += 1
+        mm := d * 1000.0
+        print("{f.name:<10} {v:>4.2} m/s in {mm:>3.0} mm pipe: Re {re:>8.0} -> {r}")
+    for name, n in counts
+        print("{name}: {n}")
+
+@test fn laminar()
+    assert_eq(regime(1000.0), Regime.Laminar)

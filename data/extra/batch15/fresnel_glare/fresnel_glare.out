@@ -1,0 +1,6 @@
+water    n=1.333: reflects 2.04%, pane passes 96.0%, Brewster 53.1 deg
+glass    n=1.520: reflects 4.26%, pane passes 91.7%, Brewster 56.7 deg
+acrylic  n=1.490: reflects 3.87%, pane passes 92.4%, Brewster 56.1 deg
+diamond  n=2.420: reflects 17.24%, pane passes 68.5%, Brewster 67.5 deg
+most glare: diamond
+glass under water reflects 0.43%

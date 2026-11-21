@@ -1,0 +1,27 @@
+## Needle flow: Poiseuille's law Q = pi r^4 dp / (8 mu L) for laminar flow in a narrow tube, so halving
+## the bore cuts flow sixteenfold; ideal saline flow through 32 mm cannulas from a bag hung 1 m up.
+
+fn poiseuille(radius float, dp float, mu float, length float) float
+    pi := 3.141592653589793
+    r4 := radius * radius * radius * radius
+    pi * r4 * dp / (8.0 * mu * length)
+
+fn main()
+    dp := 1005.0 * 9.81 * 1.0
+    print("pressure from 1 m of saline: {dp:.0} Pa")
+    gauges := [(14, 1.69), (16, 1.32), (18, 0.84), (20, 0.6), (22, 0.41)]
+    mut rates := Map[int, float]()
+    for g in gauges
+        gauge, bore := g
+        r := bore / 2000.0
+        q := poiseuille(r, dp, 0.00102, 0.032)
+        per_min := q * 1000000.0 * 60.0
+        rates[gauge] = per_min
+        print("{gauge}G, bore {bore:.2} mm: {per_min:>7.1} mL/min")
+    ratio := rates[14] / rates[22]
+    print("14G carries {ratio:.0} times the flow of 22G")
+    half := poiseuille(0.0005, dp, 0.00102, 0.032) / poiseuille(0.001, dp, 0.00102, 0.032)
+    print("half the radius: {half:.4} of the flow")
+
+@test fn quarter_power()
+    assert_eq(poiseuille(0.5, 8.0, 1.0, 1.0) * 16.0, poiseuille(1.0, 8.0, 1.0, 1.0))

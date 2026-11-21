@@ -1,0 +1,8 @@
+metformin 500    112 tablets = 28 days, refill from day 26
+amlodipine 5      30 tablets = 30 days, refill from day 34
+prednisolone 5    60 tablets = 15 days, refill from day 32
+atorvastatin 20   90 tablets = 90 days, refill from day 73
+day 27 request for metformin 500: fill
+day 33 request for amlodipine 5: too early, wait 1 days
+day 31 request for prednisolone 5: too early, wait 1 days
+day 75 request for atorvastatin 20: fill

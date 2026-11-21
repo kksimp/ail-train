@@ -1,0 +1,25 @@
+## Hill sphere: a body of mass m orbiting a much heavier M at distance a holds moons only within about
+## r = a cbrt(m / 3M), and in practice within half that; checks the Moon and planets' outer moons.
+
+struct Orbiter
+    name str
+    a_km float
+    mass_ratio float
+    far_moon_km float
+
+fn hill(o Orbiter) float
+    o.a_km * (o.mass_ratio / 3.0).cbrt()
+
+fn main()
+    bodies := [Orbiter(name: "Earth", a_km: 149598000.0, mass_ratio: 0.000003003, far_moon_km: 384400.0), Orbiter(name: "Mars", a_km: 227939000.0, mass_ratio: 0.0000003227, far_moon_km: 23460.0), Orbiter(name: "Jupiter", a_km: 778570000.0, mass_ratio: 0.0009545, far_moon_km: 24500000.0), Orbiter(name: "Neptune", a_km: 4498400000.0, mass_ratio: 0.00005149, far_moon_km: 49300000.0)]
+    for b in bodies
+        r := hill(b)
+        share := b.far_moon_km / r
+        verdict := if share < 0.5 then "well inside" elif share < 1.0 then "outer half" else "outside"
+        print("{b.name:<8} Hill radius {r / 1000000.0:>6.3} million km, farthest moon at {share:.3} of it ({verdict})")
+    moon := Orbiter(name: "Moon", a_km: 384400.0, mass_ratio: 0.0123, far_moon_km: 0.0)
+    print("a moon of the Moon would need to stay within {hill(moon) / 2.0:.0} km")
+
+@test fn cube_root()
+    o := Orbiter(name: "x", a_km: 10.0, mass_ratio: 0.024, far_moon_km: 0.0)
+    assert((hill(o) - 2.0).abs() < 0.000001)

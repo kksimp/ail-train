@@ -1,0 +1,9 @@
+  deposit in transit: bank +1820.00
+  unpresented cheque: bank -645.00
+  unpresented cheque: bank -2130.25
+  bank charge: books -24.50
+  interest: books +12.00
+  bounced cheque: books -48.00
+bank statement 12845.50 -> adjusted 11890.25
+cash book      11950.75 -> adjusted 11890.25
+reconciled

@@ -1,0 +1,40 @@
+## Drug exposure: from blood levels after a dose, Cmax and Tmax are read off, the area under the curve
+## comes from trapezoids, and a log-linear fit of the last points gives ke, the half-life and AUC to infinity.
+
+fn main()
+    times := [0.0, 0.5, 1.0, 2.0, 3.0, 4.0, 6.0, 8.0, 12.0]
+    conc := [0.0, 4.3, 6.9, 8.2, 7.0, 5.9, 4.1, 2.9, 1.4]
+    mut cmax := 0.0
+    mut tmax := 0.0
+    mut auc := 0.0
+    for i in 0..times.len()
+        if conc[i] > cmax
+            cmax = conc[i]
+            tmax = times[i]
+        if i > 0
+            auc += (conc[i] + conc[i - 1]) / 2.0 * (times[i] - times[i - 1])
+    print("Cmax {cmax:.1} mg/L at Tmax {tmax:.1} h")
+    print("AUC 0-12 h by trapezoids: {auc:.1} mg h/L")
+    n := 3
+    mut sx := 0.0
+    mut sy := 0.0
+    mut sxx := 0.0
+    mut sxy := 0.0
+    first := times.len() - n
+    for i in first..times.len()
+        y := conc[i].ln()
+        sx += times[i]
+        sy += y
+        sxx += times[i] * times[i]
+        sxy += times[i] * y
+    nf := n.to_float()
+    slope := (nf * sxy - sx * sy) / (nf * sxx - sx * sx)
+    ke := -slope
+    two := 2.0
+    half := two.ln() / ke
+    tail := conc[conc.len() - 1] / ke
+    print("ke {ke:.4} per h, half-life {half:.2} h")
+    print("AUC to infinity {auc + tail:.2} mg h/L ({tail / (auc + tail) * 100.0:.1}% extrapolated)")
+
+@test fn trapezoid()
+    assert_eq((2.0 + 4.0) / 2.0 * 3.0, 9.0)

@@ -1,0 +1,36 @@
+## Wind with height: the power law v(h) = v10 (h / 10)^alpha scales a 10 m mast reading up to hub height,
+## with alpha set by the ground's roughness; turbine power follows v^3, so rough ground costs a lot.
+
+enum Terrain
+    OpenSea
+    Grassland
+    Woodland
+    City
+
+fn alpha(t Terrain) float
+    match t
+        OpenSea => 0.11
+        Grassland => 0.16
+        Woodland => 0.25
+        City => 0.4
+
+fn at_height(v10 float, h float, t Terrain) float
+    (h / 10.0).pow(alpha(t)) * v10
+
+fn main()
+    v10 := 6.0
+    print("mast reading {v10:.1} m/s at 10 m")
+    for t in Terrain.variants()
+        mut cells := List[str]()
+        for h in [50.0, 80.0, 120.0]
+            v := at_height(v10, h, t)
+            cells.push("{h:.0} m {v:.2}")
+        shown := cells.join(", ")
+        print("{t.name():<9} {shown}")
+    sea := at_height(v10, 100.0, Terrain.OpenSea)
+    land := at_height(v10, 100.0, Terrain.Woodland)
+    ratio := (sea / land) * (sea / land) * (sea / land)
+    print("at 100 m a sea turbine gets {ratio:.2} times the power of one over woodland")
+
+@test fn mast_height()
+    assert_eq(at_height(7.0, 10.0, Terrain.City), 7.0)

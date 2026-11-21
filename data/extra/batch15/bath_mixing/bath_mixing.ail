@@ -1,0 +1,38 @@
+## Bath mixing: water at different temperatures settles at the heat-capacity-weighted mean,
+## T = sum(m c T) / sum(m c); finds the hot share for a 40 C bath and the pull of a cold steel tub.
+
+struct Body
+    name str
+    kg float
+    c float
+    temp float
+
+fn settle(parts List[Body]) float
+    mut heat := 0.0
+    mut cap := 0.0
+    for p in parts
+        heat += p.kg * p.c * p.temp
+        cap += p.kg * p.c
+    heat / cap
+
+fn main()
+    hot := 60.0
+    cold := 12.0
+    target := 40.0
+    share := (target - cold) / (hot - cold)
+    litres := 150.0
+    print("hot share for {target:.0} C: {share * 100.0:.1}% ({share * litres:.1} L of {litres:.0} L)")
+    water := [Body(name: "hot", kg: share * litres, c: 4.186, temp: hot), Body(name: "cold", kg: (1.0 - share) * litres, c: 4.186, temp: cold)]
+    print("water alone settles at {settle(water):.2} C")
+    mut with_tub := water
+    with_tub.push(Body(name: "steel tub", kg: 60.0, c: 0.49, temp: 15.0))
+    t := settle(with_tub)
+    print("in a 60 kg steel tub at 15 C: {t:.2} C")
+    extra := (target - t) * (litres * 4.186 + 60.0 * 0.49) / ((hot - t) * 4.186)
+    print("about {extra:.1} L more hot water brings it back to {target:.0} C")
+    kwh := share * litres * 4.186 * (hot - cold) / 3600.0
+    print("heating the hot share from {cold:.0} C took {kwh:.2} kWh")
+
+@test fn equal_parts()
+    parts := [Body(name: "a", kg: 1.0, c: 4.0, temp: 10.0), Body(name: "b", kg: 1.0, c: 4.0, temp: 30.0)]
+    assert_eq(settle(parts), 20.0)

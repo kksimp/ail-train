@@ -1,0 +1,37 @@
+## Sidereal time: Greenwich mean sidereal time in hours is 18.697374558 + 24.06570982441908 D, with D the
+## days since 2000-01-01 12:00 UT, reduced mod 24; adding east longitude / 15 gives local sidereal time.
+
+fn days_from_civil(y int, m int, d int) int
+    yy := if m <= 2 then y - 1 else y
+    era := yy / 400
+    yoe := yy - era * 400
+    mp := (m + 9) % 12
+    doy := (153 * mp + 2) / 5 + d - 1
+    doe := yoe * 365 + yoe / 4 - yoe / 100 + doy
+    era * 146097 + doe - 719468
+
+fn gmst(y int, m int, d int, ut_hours float) float
+    days := (days_from_civil(y, m, d) - days_from_civil(2000, 1, 1)).to_float() - 0.5 + ut_hours / 24.0
+    h := 18.697374558 + 24.06570982441908 * days
+    h - 24.0 * (h / 24.0).floor()
+
+fn hms(hours float) str
+    secs := (hours * 3600.0).to_int()
+    "{secs / 3600:02}:{secs / 60 % 60:02}:{secs % 60:02}"
+
+fn main()
+    cases := [(2000, 1, 1, 12.0), (2024, 3, 20, 0.0), (2025, 6, 21, 22.5), (2026, 11, 21, 6.0)]
+    for c in cases
+        y, m, d, ut := c
+        g := gmst(y, m, d, ut)
+        print("{y}-{m:02}-{d:02} {hms(ut)} UT: GMST {hms(g)}")
+    places := [("Greenwich", 0.0), ("Sydney", 151.21), ("Chicago", -87.63)]
+    now := gmst(2026, 11, 21, 6.0)
+    for p in places
+        name, lon := p
+        local := now + lon / 15.0
+        fixed := local - 24.0 * (local / 24.0).floor()
+        print("  local sidereal time at {name}: {hms(fixed)}")
+
+@test fn epoch()
+    assert_eq(days_from_civil(1970, 1, 1), 0)

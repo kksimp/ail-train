@@ -1,0 +1,39 @@
+## Glycemic load: GL = GI x available carbohydrate per serving / 100, rated low (10 or less), medium
+## (11 to 19) or high (20 or more); a food with a high GI can have a low load in a normal serving.
+
+enum Load
+    Low
+    Medium
+    High
+
+struct Food
+    name str
+    gi int
+    carbs_g int
+
+fn Food.load(self) int
+    self.gi * self.carbs_g / 100
+
+fn band(gl int) Load
+    if gl <= 10
+        return Load.Low
+    if gl < 20
+        return Load.Medium
+    Load.High
+
+fn main()
+    foods := [Food(name: "watermelon, 120 g", gi: 72, carbs_g: 6), Food(name: "white rice, 150 g", gi: 73, carbs_g: 42), Food(name: "lentils, 150 g", gi: 32, carbs_g: 18), Food(name: "baked potato, 150 g", gi: 85, carbs_g: 30), Food(name: "apple, 120 g", gi: 36, carbs_g: 15), Food(name: "cornflakes, 30 g", gi: 81, carbs_g: 26), Food(name: "wholegrain bread, 60 g", gi: 51, carbs_g: 28)]
+    mut counts := Map[str, int]()
+    for f in foods
+        gl := f.load()
+        b := band(gl)
+        counts[b.name()] += 1
+        print("{f.name:<23} GI {f.gi:>2}, {f.carbs_g:>2} g carbs: GL {gl:>2} {b}")
+    meal := [foods[1], foods[2], foods[4]]
+    total := meal.fold(0, |acc, f| acc + f.load())
+    print("rice, lentils and an apple: GL {total} ({band(total)})")
+    for name in ["Low", "Medium", "High"]
+        print("{name}: {counts.get_or(name, 0)}")
+
+@test fn watermelon_low()
+    assert_eq(band(Food(name: "w", gi: 72, carbs_g: 6).load()), Load.Low)

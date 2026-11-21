@@ -1,0 +1,31 @@
+## Units-of-production depreciation: a van is written down by distance driven, (cost - residual) / expected
+## km per km, so a busy year costs more; the charge stops once the book value reaches the residual value.
+
+struct Asset
+    name str
+    cost int
+    residual int
+    expected_km int
+
+fn Asset.charge(self, km int, book int) int
+    raw := (self.cost - self.residual) * km / self.expected_km
+    room := book - self.residual
+    if raw > room then room else raw
+
+fn main()
+    van := Asset(name: "delivery van", cost: 42000, residual: 6000, expected_km: 240000)
+    usage := [52000, 61000, 38000, 47000, 55000, 20000]
+    cents_per_km := (van.cost - van.residual) * 100 / van.expected_km
+    print("{van.name}: {cents_per_km} cents per km over {van.expected_km} km")
+    mut book := van.cost
+    for i, km in usage.enumerate()
+        c := van.charge(km, book)
+        book -= c
+        note := if book == van.residual then " (fully written down)" else ""
+        print("year {i + 1}: {km:>6} km, charge {c:>5}, book {book:>5}{note}")
+    driven := usage.sum()
+    print("driven {driven} km against {van.expected_km} expected")
+
+@test fn capped()
+    a := Asset(name: "x", cost: 1000, residual: 100, expected_km: 900)
+    assert_eq(a.charge(900, 150), 50)

@@ -1,0 +1,29 @@
+## Cash conversion cycle: days sales outstanding (receivables / sales x 365) plus days inventory held
+## (inventory / cost of sales x 365) minus days payables (payables / cost of sales x 365).
+
+struct Business
+    name str
+    sales float
+    cogs float
+    receivables float
+    inventory float
+    payables float
+
+fn days(part float, whole float) float
+    part / whole * 365.0
+
+fn Business.cycle(self) float
+    days(self.receivables, self.sales) + days(self.inventory, self.cogs) - days(self.payables, self.cogs)
+
+fn main()
+    firms := [Business(name: "furniture maker", sales: 4800.0, cogs: 3100.0, receivables: 730.0, inventory: 980.0, payables: 410.0), Business(name: "supermarket", sales: 26000.0, cogs: 20500.0, receivables: 90.0, inventory: 1350.0, payables: 2600.0), Business(name: "wholesaler", sales: 12000.0, cogs: 10400.0, receivables: 1900.0, inventory: 1500.0, payables: 1100.0)]
+    for b in firms
+        dso := days(b.receivables, b.sales)
+        dio := days(b.inventory, b.cogs)
+        dpo := days(b.payables, b.cogs)
+        c := b.cycle()
+        note := if c < 0.0 then "suppliers fund the business" else "needs {c * b.cogs / 365.0:.0} of working capital"
+        print("{b.name:<15} DSO {dso:>5.1} + DIO {dio:>5.1} - DPO {dpo:>5.1} = {c:>6.1} days, {note}")
+
+@test fn whole_year()
+    assert_eq(days(10.0, 10.0), 365.0)

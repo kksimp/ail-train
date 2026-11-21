@@ -1,0 +1,6 @@
+daily demand 40 (sd 12), lead time 9 days
+service 90%: buffer  46.1 units (reorder at 406), with lead time sd 2 days  112.4
+service 95%: buffer  59.2 units (reorder at 419), with lead time sd 2 days  144.3
+service 98%: buffer  73.9 units (reorder at 434), with lead time sd 2 days  180.2
+service 99%: buffer  83.7 units (reorder at 444), with lead time sd 2 days  204.1
+going from 95% to 99% adds 41% more buffer

@@ -1,0 +1,27 @@
+## Sound in seawater: Medwin's formula c = 1449.2 + 4.6T - 0.055T^2 + 0.00029T^3 + (1.34 - 0.01T)(S - 35)
+## + 0.016z; an echo sounder's ping crosses each layer at its own speed, so a fixed 1500 m/s misjudges depth.
+
+struct Layer
+    top float
+    bottom float
+    temp float
+    salinity float
+
+fn speed(t float, s float, z float) float
+    1449.2 + 4.6 * t - 0.055 * t * t + 0.00029 * t * t * t + (1.34 - 0.01 * t) * (s - 35.0) + 0.016 * z
+
+fn main()
+    layers := [Layer(top: 0.0, bottom: 50.0, temp: 22.0, salinity: 36.0), Layer(top: 50.0, bottom: 200.0, temp: 15.0, salinity: 35.5), Layer(top: 200.0, bottom: 800.0, temp: 8.0, salinity: 35.0), Layer(top: 800.0, bottom: 1500.0, temp: 4.0, salinity: 34.8)]
+    mut echo := 0.0
+    for l in layers
+        mid := (l.top + l.bottom) / 2.0
+        c := speed(l.temp, l.salinity, mid)
+        echo += 2.0 * (l.bottom - l.top) / c
+        print("{l.top:>6.0} to {l.bottom:>6.0} m: {l.temp:>4.1} C, {c:.1} m/s")
+    depth := layers[layers.len() - 1].bottom
+    guessed := echo * 1500.0 / 2.0
+    print("echo returns after {echo:.4} s")
+    print("at a fixed 1500 m/s that reads {guessed:.1} m instead of {depth:.0} m")
+
+@test fn reference_speed()
+    assert((speed(0.0, 35.0, 0.0) - 1449.2).abs() < 0.000001)

@@ -1,0 +1,29 @@
+## DuPont analysis: return on equity splits into net margin (profit / sales) x asset turnover (sales /
+## assets) x equity multiplier (assets / equity), showing whether a firm earns by margin, speed or debt.
+
+struct Firm
+    name str
+    sales int
+    profit int
+    assets int
+    equity int
+
+fn Firm.parts(self) List[float]
+    margin := self.profit.to_float() / self.sales.to_float()
+    turnover := self.sales.to_float() / self.assets.to_float()
+    multiplier := self.assets.to_float() / self.equity.to_float()
+    [margin, turnover, multiplier]
+
+fn main()
+    firms := [Firm(name: "grocer", sales: 9200, profit: 230, assets: 3100, equity: 1250), Firm(name: "software", sales: 1800, profit: 410, assets: 2600, equity: 2000), Firm(name: "utility", sales: 2400, profit: 260, assets: 9800, equity: 2100)]
+    for f in firms
+        p := f.parts()
+        roe := p[0] * p[1] * p[2] * 100.0
+        driver := if p[0] > 0.15 then "margin" elif p[1] > 2.0 then "turnover" else "leverage"
+        print("{f.name:<9} margin {p[0] * 100.0:>5.2}% x turnover {p[1]:.2} x multiplier {p[2]:.2} = ROE {roe:.1}% ({driver})")
+    best := firms.max(by: |f| f.profit * 1000 / f.equity) else firms[0]
+    print("highest ROE: {best.name}")
+
+@test fn parts_multiply()
+    p := Firm(name: "x", sales: 100, profit: 10, assets: 200, equity: 50).parts()
+    assert((p[0] * p[1] * p[2] - 0.2).abs() < 0.000001)

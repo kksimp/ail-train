@@ -1,0 +1,31 @@
+## Broiler flock efficiency: feed conversion ratio is feed eaten / live weight gained, and the European
+## production efficiency factor is liveability % x mean weight kg / (age days x FCR) x 100; flocks ranked by it.
+
+struct Flock
+    house str
+    placed int
+    sold int
+    feed_kg int
+    weight_g int
+    age int
+
+fn Flock.fcr(self) float
+    gained := self.sold.to_float() * (self.weight_g - 42).to_float() / 1000.0
+    self.feed_kg.to_float() / gained
+
+fn Flock.epef(self) float
+    live := self.sold.to_float() / self.placed.to_float() * 100.0
+    kg := self.weight_g.to_float() / 1000.0
+    live * kg / (self.age.to_float() * self.fcr()) * 100.0
+
+fn main()
+    flocks := [Flock(house: "House 1", placed: 24000, sold: 23180, feed_kg: 77200, weight_g: 2350, age: 38), Flock(house: "House 2", placed: 24000, sold: 22704, feed_kg: 79900, weight_g: 2410, age: 40), Flock(house: "House 3", placed: 18000, sold: 17620, feed_kg: 54100, weight_g: 2280, age: 36), Flock(house: "House 4", placed: 18000, sold: 16950, feed_kg: 58300, weight_g: 2390, age: 41)]
+    ranked := flocks.sorted(by: |f| -(f.epef() * 100.0).to_int())
+    for f in ranked
+        mort := (f.placed - f.sold).to_float() / f.placed.to_float() * 100.0
+        print("{f.house}: FCR {f.fcr():.3}, mortality {mort:.2}%, {f.weight_g} g at {f.age} days, EPEF {f.epef():.0}")
+    print("best house: {ranked[0].house}")
+
+@test fn simple_fcr()
+    f := Flock(house: "x", placed: 10, sold: 10, feed_kg: 30, weight_g: 2042, age: 40)
+    assert_eq(f.fcr(), 1.5)

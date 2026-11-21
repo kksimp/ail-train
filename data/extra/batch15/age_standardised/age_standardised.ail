@@ -1,0 +1,35 @@
+## Direct age standardisation: each town's age-specific death rates are applied to one standard population,
+## so a town with more old people no longer looks worse just because of its age mix.
+
+struct Town
+    name str
+    deaths List[int]
+    people List[int]
+
+fn crude(t Town) float
+    t.deaths.sum().to_float() / t.people.sum().to_float() * 100000.0
+
+fn standardised(t Town, standard List[int]) float
+    mut expected := 0.0
+    for i in 0..standard.len()
+        rate := t.deaths[i].to_float() / t.people[i].to_float()
+        expected += rate * standard[i].to_float()
+    expected / standard.sum().to_float() * 100000.0
+
+fn main()
+    bands := ["0-39", "40-64", "65-79", "80+"]
+    standard := [50000, 32000, 13000, 5000]
+    towns := [Town(name: "Seaview", deaths: [8, 60, 210, 390], people: [18000, 16000, 12000, 6000]), Town(name: "Newfield", deaths: [22, 95, 120, 140], people: [52000, 30000, 8000, 2000])]
+    shown := bands.join(", ")
+    print("age bands {shown}")
+    for t in towns
+        c := crude(t)
+        s := standardised(t, standard)
+        print("{t.name:<9} crude {c:>6.1}, standardised {s:>6.1} per 100,000")
+    a := standardised(towns[0], standard)
+    b := standardised(towns[1], standard)
+    print("standardised ratio Seaview / Newfield: {a / b:.2}")
+
+@test fn same_rates()
+    t := Town(name: "x", deaths: [1, 2], people: [100, 100])
+    assert_eq(standardised(t, [100, 100]), 1500.0)

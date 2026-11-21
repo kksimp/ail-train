@@ -1,0 +1,35 @@
+## Corrosion rate: a weighed coupon's mass loss gives the rate in mm a year, 87.6 W / (rho A t) with W in
+## mg, A in cm2 and t in hours; rated outstanding to poor, with the years a 3 mm allowance lasts.
+
+struct Coupon
+    metal str
+    site str
+    loss_mg float
+    rho float
+    area float
+    hours float
+
+fn Coupon.rate(self) float
+    87.6 * self.loss_mg / (self.rho * self.area * self.hours)
+
+fn rating(mm float) str
+    if mm < 0.02
+        return "outstanding"
+    if mm < 0.1
+        return "good"
+    if mm < 0.5
+        return "fair"
+    "poor"
+
+fn main()
+    coupons := [Coupon(metal: "carbon steel", site: "cooling tower", loss_mg: 412.0, rho: 7.86, area: 30.0, hours: 720.0), Coupon(metal: "carbon steel", site: "sea spray", loss_mg: 1890.0, rho: 7.86, area: 30.0, hours: 720.0), Coupon(metal: "stainless 316", site: "sea spray", loss_mg: 6.5, rho: 8.0, area: 30.0, hours: 720.0), Coupon(metal: "copper", site: "cooling tower", loss_mg: 41.0, rho: 8.96, area: 30.0, hours: 720.0), Coupon(metal: "zinc", site: "sea spray", loss_mg: 160.0, rho: 7.14, area: 30.0, hours: 720.0)]
+    for c in coupons
+        r := c.rate()
+        life := 3.0 / r
+        print("{c.metal:<13} {c.site:<13} {r:.4} mm/yr {rating(r):<11} 3 mm lasts {life:>7.1} years")
+    poor := coupons.filter(|c| c.rate() >= 0.5).map(|c| c.site).join(", ")
+    print("sites with poor results: {poor}")
+
+@test fn rate()
+    c := Coupon(metal: "x", site: "y", loss_mg: 100.0, rho: 1.0, area: 1.0, hours: 87.6)
+    assert_eq(c.rate(), 100.0)

@@ -1,0 +1,40 @@
+## Health plan cost sharing: the patient pays bills in full until the yearly deductible is met, then 20%
+## coinsurance, until the out-of-pocket maximum, after which the insurer pays everything; all in cents.
+
+struct Plan
+    deductible int
+    coins_pct int
+    oop_max int
+    paid int
+    toward_deductible int
+
+fn Plan.claim(mut self, bill int) int
+    mut patient := 0
+    left_ded := self.deductible - self.toward_deductible
+    in_ded := if bill < left_ded then bill else left_ded
+    patient += in_ded
+    self.toward_deductible += in_ded
+    patient += (bill - in_ded) * self.coins_pct / 100
+    room := self.oop_max - self.paid
+    if patient > room
+        patient = room
+    self.paid += patient
+    patient
+
+fn money(c int) str
+    "{c / 100}.{c % 100:02}"
+
+fn main()
+    mut plan := Plan(deductible: 150000, coins_pct: 20, oop_max: 500000, paid: 0, toward_deductible: 0)
+    bills := [("GP visit", 18000), ("MRI scan", 120000), ("physio", 45000), ("surgery", 1850000), ("follow-up", 22000), ("rehab", 300000)]
+    mut insurer_total := 0
+    for b in bills
+        name, bill := b
+        p := plan.claim(bill)
+        insurer_total += bill - p
+        print("{name:<10} bill {money(bill):>9}: patient {money(p):>8}, insurer {money(bill - p):>9}, patient so far {money(plan.paid)}")
+    print("year: patient {money(plan.paid)}, insurer {money(insurer_total)}")
+
+@test fn under_deductible()
+    mut p := Plan(deductible: 1000, coins_pct: 20, oop_max: 5000, paid: 0, toward_deductible: 0)
+    assert_eq(p.claim(1500), 1100)

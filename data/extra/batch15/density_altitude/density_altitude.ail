@@ -1,0 +1,30 @@
+## Density altitude: pressure altitude is elevation + 30 ft per hPa below 1013, and each degree above the
+## standard temperature 15 - 2 C per 1000 ft adds 120 ft; take-off roll grows about 10% per 1000 ft.
+
+struct Airfield
+    name str
+    elevation int
+    qnh int
+    oat int
+
+fn pressure_alt(f Airfield) int
+    f.elevation + (1013 - f.qnh) * 30
+
+fn density_alt(f Airfield) int
+    pa := pressure_alt(f)
+    isa := 15 - 2 * pa / 1000
+    pa + 120 * (f.oat - isa)
+
+fn main()
+    fields := [Airfield(name: "Seaside", elevation: 20, qnh: 1021, oat: 12), Airfield(name: "Seaside summer", elevation: 20, qnh: 1009, oat: 34), Airfield(name: "Highland", elevation: 4200, qnh: 1015, oat: 22), Airfield(name: "Mountain", elevation: 7800, qnh: 1006, oat: 28)]
+    base_roll := 900
+    for f in fields
+        pa := pressure_alt(f)
+        da := density_alt(f)
+        roll := base_roll + base_roll * da.max(0) / 10000
+        print("{f.name:<15} PA {pa:>5} ft, DA {da:>6} ft, roll about {roll} m")
+    worst := fields.max(by: |f| density_alt(f)) else fields[0]
+    print("hardest take-off: {worst.name}")
+
+@test fn standard_day()
+    assert_eq(density_alt(Airfield(name: "x", elevation: 0, qnh: 1013, oat: 15)), 0)

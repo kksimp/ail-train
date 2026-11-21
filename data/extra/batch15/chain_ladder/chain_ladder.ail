@@ -1,0 +1,32 @@
+## Chain ladder reserving: cumulative claims by accident year and development year; each column's link
+## ratio is the sum of the next column over this one, and multiplying out the latest value gives ultimate claims.
+
+fn main()
+    years := [2022, 2023, 2024, 2025]
+    tri := [[3200.0, 5100.0, 5900.0, 6150.0], [3550.0, 5700.0, 6500.0], [3900.0, 6150.0], [4200.0]]
+    n := tri.len()
+    mut factors := List[float]()
+    last := n - 1
+    for j in 0..last
+        mut top := 0.0
+        mut bottom := 0.0
+        for row in tri
+            if row.len() > j + 1
+                top += row[j + 1]
+                bottom += row[j]
+        factors.push(top / bottom)
+    shown := factors.map(|f| "{f:.4}").join(", ")
+    print("link ratios {shown}")
+    mut reserve := 0.0
+    for i, row in tri.enumerate()
+        latest := row[row.len() - 1]
+        mut ult := latest
+        from := row.len() - 1
+        for j in from..last
+            ult = ult * factors[j]
+        reserve += ult - latest
+        print("{years[i]}: paid {latest:>7.0}, ultimate {ult:>7.0}, reserve {ult - latest:>6.0}")
+    print("total reserve {reserve:.0}")
+
+@test fn link()
+    assert_eq(6000.0 / 4000.0, 1.5)

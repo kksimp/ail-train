@@ -1,0 +1,35 @@
+## No-claims discount: discount levels 0%, 20%, 40% and 60%; a claim-free year moves up one level and a
+## claim drops two; follows one driver, then iterates the level shares for a 10% yearly claim chance.
+
+fn next_level(level int, claimed bool) int
+    if claimed
+        return (level - 2).max(0)
+    (level + 1).min(3)
+
+fn main()
+    discounts := [0, 20, 40, 60]
+    base := 900
+    history := [false, false, true, false, false, false, true, true, false, false]
+    mut level := 0
+    mut paid := 0
+    for i, claimed in history.enumerate()
+        premium := base * (100 - discounts[level]) / 100
+        paid += premium
+        mark := if claimed then "claim" else "clean"
+        print("year {i + 1:>2}: level {level} ({discounts[level]}% off) pays {premium}, {mark}")
+        level = next_level(level, claimed)
+    print("paid {paid} over {history.len()} years")
+    mut share := [1.0, 0.0, 0.0, 0.0]
+    for _ in 0..40
+        mut nxt := [0.0, 0.0, 0.0, 0.0]
+        for l in 0..4
+            nxt[next_level(l, true)] += share[l] * 0.1
+            nxt[next_level(l, false)] += share[l] * 0.9
+        share = nxt
+    mut avg := 0.0
+    for l in 0..4
+        avg += share[l] * (base * (100 - discounts[l]) / 100).to_float()
+    print("long run shares {share[0]:.3} {share[1]:.3} {share[2]:.3} {share[3]:.3}, average premium {avg:.2}")
+
+@test fn moves()
+    assert_eq([next_level(3, true), next_level(1, true), next_level(3, false)], [1, 0, 3])

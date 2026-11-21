@@ -1,0 +1,36 @@
+## MRP explosion: a bill of materials is walked recursively from the finished bike down to spokes, adding
+## gross needs per part; net needs subtract what is on hand, and each part's order is rounded up to its lot size.
+
+struct Use
+    part str
+    qty int
+
+fn explode(item str, qty int, bom Map[str, List[Use]], mut gross Map[str, int])
+    gross[item] += qty
+    if uses := bom.get(item)
+        for u in uses
+            explode(u.part, qty * u.qty, bom, mut gross)
+
+fn main()
+    mut bom := Map[str, List[Use]]()
+    bom["bike"] = [Use(part: "frame", qty: 1), Use(part: "wheel", qty: 2), Use(part: "seat", qty: 1), Use(part: "bolt", qty: 6)]
+    bom["wheel"] = [Use(part: "rim", qty: 1), Use(part: "spoke", qty: 32), Use(part: "hub", qty: 1)]
+    bom["hub"] = [Use(part: "bearing", qty: 2), Use(part: "bolt", qty: 1)]
+    on_hand := {"frame": 12, "wheel": 30, "seat": 80, "bolt": 150, "rim": 10, "spoke": 900, "hub": 4, "bearing": 40}
+    lots := {"bolt": 100, "spoke": 500, "bearing": 50}
+    mut gross := Map[str, int]()
+    explode("bike", 60, bom, mut gross)
+    for part, g in gross
+        if part == "bike"
+            continue
+        have := on_hand.get_or(part, 0)
+        net := if g > have then g - have else 0
+        lot := lots.get_or(part, 1)
+        order := (net + lot - 1) / lot * lot
+        print("{part:<8} gross {g:>5}, on hand {have:>4}, net {net:>5}, order {order:>5}")
+
+@test fn leaf_only()
+    bom := Map[str, List[Use]]()
+    mut gross := Map[str, int]()
+    explode("nut", 5, bom, mut gross)
+    assert_eq(gross["nut"], 5)

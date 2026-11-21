@@ -1,0 +1,27 @@
+## Bullwhip effect: each tier of a supply chain orders what it was asked for plus the latest change in
+## demand (chasing the trend), so small swings in shop sales grow into large swings at the factory.
+
+fn variance(xs List[int]) float
+    n := xs.len().to_float()
+    mean := xs.sum().to_float() / n
+    xs.fold(0.0, |acc, x| acc + (x.to_float() - mean) * (x.to_float() - mean)) / n
+
+fn pass_up(demand List[int]) List[int]
+    mut orders := [demand[0]]
+    for t in 1..demand.len()
+        o := demand[t] + (demand[t] - demand[t - 1])
+        orders.push(if o < 0 then 0 else o)
+    orders
+
+fn main()
+    shop := [100, 104, 98, 102, 110, 106, 100, 95, 101, 108, 103, 99]
+    tiers := ["shop sales", "retailer orders", "wholesaler orders", "factory orders"]
+    mut flow := shop
+    for i, name in tiers.enumerate()
+        if i > 0
+            flow = pass_up(flow)
+        v := variance(flow)
+        print("{name:<18} variance {v:>8.1}  {flow}")
+
+@test fn steady()
+    assert_eq(pass_up([5, 5, 5]), [5, 5, 5])

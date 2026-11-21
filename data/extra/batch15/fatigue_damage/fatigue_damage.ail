@@ -1,0 +1,31 @@
+## Fatigue damage: an S-N curve N = C / S^3 gives the cycles to failure at each stress range, and
+## Miner's rule adds n / N over a year's load spectrum; the expected life is 1 / (yearly damage).
+
+struct Band
+    stress int
+    cycles int
+
+fn cycles_to_failure(stress int) float
+    s := stress.to_float()
+    2000000000000.0 / (s * s * s)
+
+fn main()
+    spectrum := [Band(stress: 40, cycles: 2000000), Band(stress: 60, cycles: 500000), Band(stress: 90, cycles: 60000), Band(stress: 140, cycles: 5000), Band(stress: 200, cycles: 200)]
+    mut damage := 0.0
+    mut worst := spectrum[0]
+    mut worst_d := 0.0
+    for b in spectrum
+        n := cycles_to_failure(b.stress)
+        d := b.cycles.to_float() / n
+        damage += d
+        if d > worst_d
+            worst_d = d
+            worst = b
+        print("{b.stress:>3} MPa: {b.cycles:>9,} cycles of {n:>12,.0} allowed, damage {d:.5}")
+    print("yearly damage {damage:.4}, expected life {1.0 / damage:.1} years")
+    print("most damaging band: {worst.stress} MPa")
+    total := spectrum.fold(0, |acc, b| acc + b.cycles)
+    print("total cycles a year: {total:,}")
+
+@test fn curve()
+    assert_eq(cycles_to_failure(100), 2000000.0)

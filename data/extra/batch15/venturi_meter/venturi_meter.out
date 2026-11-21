@@ -1,0 +1,7 @@
+pipe 100 mm, throat 50 mm, water
+dp     500 Pa:   2.03 L/s, throat speed 1.03 m/s
+dp    2000 Pa:   4.06 L/s, throat speed 2.07 m/s
+dp    8000 Pa:   8.12 L/s, throat speed 4.14 m/s
+dp   18000 Pa:  12.18 L/s, throat speed 6.20 m/s
+dp   32000 Pa:  16.24 L/s, throat speed 8.27 m/s
+flow ratio for 4x the pressure drop: 2.000

@@ -1,0 +1,33 @@
+## Dimensional weight: couriers charge the larger of actual weight and volumetric weight, L x W x H / 5000
+## (cm to kg), rounded up to the next half kilo, so light bulky boxes pay for the space they take.
+
+struct Parcel
+    id str
+    l int
+    w int
+    h int
+    grams int
+
+fn half_kilos(grams int) int
+    (grams + 499) / 500
+
+fn chargeable(p Parcel) int
+    vol_g := p.l * p.w * p.h / 5
+    half_kilos(vol_g.max(p.grams))
+
+fn main()
+    rate_first := 650
+    rate_extra := 180
+    parcels := [Parcel(id: "P1", l: 30, w: 20, h: 15, grams: 2100), Parcel(id: "P2", l: 60, w: 40, h: 40, grams: 3500), Parcel(id: "P3", l: 25, w: 25, h: 10, grams: 4800), Parcel(id: "P4", l: 100, w: 30, h: 30, grams: 6200), Parcel(id: "P5", l: 40, w: 30, h: 20, grams: 4800)]
+    mut total := 0
+    for p in parcels
+        vol_g := p.l * p.w * p.h / 5
+        units := chargeable(p)
+        cost := rate_first + (units - 1) * rate_extra
+        total += cost
+        basis := if vol_g > p.grams then "volume" else "weight"
+        print("{p.id}: actual {p.grams} g, volumetric {vol_g} g -> {units / 2}.{units % 2 * 5} kg by {basis}, {cost / 100}.{cost % 100:02}")
+    print("total {total / 100}.{total % 100:02}")
+
+@test fn round_up()
+    assert_eq(half_kilos(1001), 3)

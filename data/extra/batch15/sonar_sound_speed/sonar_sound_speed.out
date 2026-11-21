@@ -1,0 +1,6 @@
+     0 to     50 m: 22.0 C, 1528.4 m/s
+    50 to    200 m: 15.0 C, 1509.4 m/s
+   200 to    800 m:  8.0 C, 1490.6 m/s
+   800 to   1500 m:  4.0 C, 1484.9 m/s
+echo returns after 2.0121 s
+at a fixed 1500 m/s that reads 1509.0 m instead of 1500 m
