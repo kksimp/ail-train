@@ -1,0 +1,27 @@
+## Binary fraction: writes a fraction p/q in binary by repeated doubling, up to 24 places,
+## marking where the digits start to repeat, like decimal long division but in base 2.
+
+fn binary(p int, q int) str
+    mut out := "{p / q}."
+    mut rem := p % q
+    mut seen := Map[int, int]()
+    mut digits := List[str]()
+    while rem != 0 and digits.len() < 24
+        if at := seen.get(rem)
+            head := digits.slice(0, at).join("")
+            cycle := digits.slice(at).join("")
+            return "{out}{head}({cycle})"
+        seen[rem] = digits.len()
+        rem *= 2
+        digits.push("{rem / q}")
+        rem = rem % q
+    if digits.is_empty()
+        return "{p / q}"
+    "{out}{digits.join("")}"
+
+fn main()
+    for f in [(1, 2), (3, 4), (5, 8), (1, 3), (1, 5), (1, 10), (7, 3), (1, 7)]
+        print("{f.0}/{f.1} = {binary(f.0, f.1)}")
+
+@test fn half()
+    assert_eq(binary(1, 2), "0.1")

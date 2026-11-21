@@ -1,0 +1,32 @@
+## Rising subsequence: the longest strictly increasing subsequence of a list by dynamic
+## programming with back links, printing one longest run and its length.
+
+fn longest_rising(xs List[int]) List[int]
+    n := xs.len()
+    if n == 0
+        return List[int]()
+    mut best_len := [1 for _ in 0..n]
+    mut back := [-1 for _ in 0..n]
+    for i in 1..n
+        for j in 0..i
+            if xs[j] < xs[i] and best_len[j] + 1 > best_len[i]
+                best_len[i] = best_len[j] + 1
+                back[i] = j
+    mut end := 0
+    for i in 1..n
+        if best_len[i] > best_len[end]
+            end = i
+    mut out := List[int]()
+    mut k := end
+    while k >= 0
+        out.push(xs[k])
+        k = back[k]
+    out.reversed()
+
+fn main()
+    for xs in [[10, 9, 2, 5, 3, 7, 101, 18], [0, 8, 4, 12, 2, 10, 6, 14, 1, 9, 5, 13, 3, 11, 7, 15], [5, 4, 3], [1, 2, 3, 4]]
+        run := longest_rising(xs)
+        print("{run.len()}: {run}")
+
+@test fn empty()
+    assert_eq(longest_rising(List[int]()), List[int]())

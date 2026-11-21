@@ -1,0 +1,32 @@
+## Change ways: counts the ways to make an amount from coin values (order not mattering)
+## with a one-row table, and lists the ways for a small amount.
+
+fn ways(amount int, coins List[int]) int
+    mut w := [0 for _ in 0..=amount]
+    w[0] = 1
+    for c in coins
+        for v in c..=amount
+            w[v] += w[v - c]
+    w[amount]
+
+fn list_ways(amount int, coins List[int], from int, used List[int], mut out List[str])
+    if amount == 0
+        out.push(used.map(|x| "{x}").join("+"))
+        return
+    for i in from..coins.len()
+        c := coins[i]
+        if c <= amount
+            mut more := used
+            more.push(c)
+            list_ways(amount - c, coins, i, more, mut out)
+
+fn main()
+    coins := [1, 2, 5, 10, 20, 50, 100, 200]
+    for amount in [5, 10, 50, 100, 200]
+        print("{amount}: {ways(amount, coins)} ways")
+    mut out := List[str]()
+    list_ways(10, [10, 5, 2, 1], 0, List[int](), mut out)
+    print("10 as {out.len()}: {out.take(6).join(", ")} ...")
+
+@test fn small()
+    assert_eq(ways(4, [1, 2]), 3)
