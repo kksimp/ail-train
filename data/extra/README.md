@@ -55,10 +55,18 @@ everyday forms with less common built-ins. Each batch is checked on the Mac befo
   with `JOBS=5 ONLY=batchNN tools/check_extra/run.sh`. The 4 failures were two outputs that depended on the last
   bit of AIL's own `cos`/`sin` (AIL's maths can differ from libm by one ulp), a struct named `Task` (a prelude
   type) and an `else` fallback inside an index. All 400 pass.
+- `batch13/` to `batch17/`: 500 programs written in parallel: everyday and small-business problems (batch13),
+  mathematics second pass (graph theory, groups, finite fields, game theory, optimisation, coding theory, batch14),
+  applied formulas second pass (batch15), systems and compilers (schedulers, storage, distributed systems,
+  dataflow, batch16) and text, data formats and developer tooling (batch17). The 13 failures were `todo` used as a
+  name (a keyword), structs named `Task` or `Sub` (prelude names), three `str ! str` results (now `str ! Fail`) and
+  three tests whose expected value was worked out wrong. All 500 pass. In the full run golf_card (batch02) failed once
+  because a parallel job replaced the shared test runner in `~/.cache/ail/build` as it started; run alone it
+  passes, and `RESULTS.txt` records that.
 
 ## Status
 
-**Checked: 1240 of 1240 pass** (40 drills, 100 each in batch01 to batch12) with ail 3d0c5c913 (0.2.0 release candidate) on 2026-11-21 (`RESULTS.txt`). On the drills' first
+**Checked: 1740 of 1740 pass** (40 drills, 100 each in batch01 to batch17) with ail 3d0c5c913 (0.2.0 release candidate) on 2026-11-21 (`RESULTS.txt`). On the drills' first
 run 34 passed; 6 were fixed (four AIL forms guessed wrong: `str ! str`, calling a `fn` field as a method,
 `Grid.to_list().sum()` on rows, an `if :=` on a failing result with no `else`; two Python twins were wrong).
 These were written in a cloud session, where AIL builds are not allowed.
