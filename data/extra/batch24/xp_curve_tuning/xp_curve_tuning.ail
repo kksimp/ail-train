@@ -1,0 +1,29 @@
+## Experience curve: going from level L to L + 1 costs base x L x L / 10 + 100 points, and a player earns
+## 300 + 20 x day points a day; tries several bases to see which puts level 10 near day 14.
+
+fn day_reached(base int, goal int) int
+    mut level := 1
+    mut points := 0
+    for day in 1..=200
+        points += 300 + 20 * day
+        while points >= base * level * level / 10 + 100
+            points -= base * level * level / 10 + 100
+            level += 1
+        if level >= goal
+            return day
+    -1
+
+fn main()
+    mut pick := 0
+    mut pick_gap := 1000
+    for base in [100, 150, 200, 250, 300, 400]
+        d10 := day_reached(base, 10)
+        d20 := day_reached(base, 20)
+        print("base {base}: level 10 on day {d10:>2}, level 20 on day {d20:>2}")
+        if (d10 - 14).abs() < pick_gap
+            pick_gap = (d10 - 14).abs()
+            pick = base
+    print("base {pick} lands level 10 closest to day 14")
+
+@test fn first_level()
+    assert_eq(day_reached(100, 2), 1)

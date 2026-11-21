@@ -1,0 +1,3 @@
+losing piles for the player to move: [0, 2, 5, 7, 12, 15, 17, 20, 22, 25, 27, 32, 35, 37]
+from 22: 22 > 21 > 20 > 19 > 15 > 14 > 7 > 6 > 5 > 4 > 0, the second player wins
+from 26: 26 > 25 > 24 > 20 > 19 > 15 > 14 > 7 > 6 > 5 > 4 > 0, the first player wins

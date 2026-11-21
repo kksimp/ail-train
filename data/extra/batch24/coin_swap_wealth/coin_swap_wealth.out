@@ -1,0 +1,6 @@
+round  60: richest 20, broke 0, top three hold 45%
+round 120: richest 21, broke 0, top three hold 45%
+round 180: richest 20, broke 1, top three hold 46%
+round 240: richest 23, broke 0, top three hold 50%
+round 300: richest 30, broke 1, top three hold 60%
+final purses: [30, 28, 15, 14, 12, 9, 4, 2, 2, 2, 2, 0]

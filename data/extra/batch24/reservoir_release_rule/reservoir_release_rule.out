@@ -1,0 +1,13 @@
+Jan: in 180, out 100, spill   0, level  680
+Feb: in 320, out 150, spill   0, level  850
+Mar: in 420, out 217, spill  53, level 1000
+Apr: in 300, out 225, spill  75, level 1000
+May: in  60, out 165, spill   0, level  895
+Jun: in   0, out 123, spill   0, level  772
+Jul: in   0, out 100, spill   0, level  672
+Aug: in   0, out 100, spill   0, level  572
+Sep: in   0, out 100, spill   0, level  472
+Oct: in  10, out 100, spill   0, level  382
+Nov: in  20, out 100, spill   0, level  302
+Dec: in  90, out  60, spill   0, level  332
+year: 128 spilled, demand short by 40

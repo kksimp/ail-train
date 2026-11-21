@@ -1,0 +1,46 @@
+## Roundabout: an 8-cell ring with entries at cells 0, 2, 4 and 6; ring cars move one cell a tick and leave
+## after their set number of cells, and a waiting car enters only when its cell and the cell behind are empty.
+
+struct Car
+    entry int
+    arrive int
+    travel int
+
+fn main()
+    cars := [Car(entry: 0, arrive: 0, travel: 4), Car(entry: 2, arrive: 0, travel: 6), Car(entry: 4, arrive: 1, travel: 2), Car(entry: 6, arrive: 1, travel: 4), Car(entry: 0, arrive: 2, travel: 6), Car(entry: 2, arrive: 2, travel: 4), Car(entry: 4, arrive: 3, travel: 6), Car(entry: 0, arrive: 3, travel: 2), Car(entry: 6, arrive: 4, travel: 6), Car(entry: 2, arrive: 5, travel: 2)]
+    mut ring := [-1, -1, -1, -1, -1, -1, -1, -1]
+    mut left := [0, 0, 0, 0, 0, 0, 0, 0]
+    mut entered := List[int]()
+    mut done := 0
+    mut waits := [0, 0, 0, 0]
+    for c in cars
+        entered.push(-1)
+    mut tick := 0
+    while done < cars.len()
+        mut moved := [-1, -1, -1, -1, -1, -1, -1, -1]
+        mut moved_left := [0, 0, 0, 0, 0, 0, 0, 0]
+        for cell in 0..8
+            if ring[cell] >= 0
+                if left[cell] == 1
+                    done += 1
+                else
+                    moved[(cell + 1) % 8] = ring[cell]
+                    moved_left[(cell + 1) % 8] = left[cell] - 1
+        ring = moved
+        left = moved_left
+        for e in [0, 2, 4, 6]
+            for i, c in cars.enumerate()
+                if c.entry == e and c.arrive <= tick and entered[i] < 0
+                    if ring[e] < 0 and ring[(e + 7) % 8] < 0
+                        ring[e] = i
+                        left[e] = c.travel
+                        entered[i] = tick
+                        waits[e / 2] += tick - c.arrive
+                    break
+        tick += 1
+    for e in 0..4
+        print("entry at cell {e * 2}: total wait {waits[e]} ticks")
+    print("all {cars.len()} cars through by tick {tick}")
+
+@test fn ring_index()
+    assert_eq((0 + 7) % 8, 7)

@@ -1,0 +1,59 @@
+## Pot plant diary: a growth stage enum kept in a struct and moved on by daily water and sun; a seed sprouts
+## after three watered days, a sprout blooms after four sunny watered days, and two dry days start a wilt.
+
+enum Stage
+    Seed
+    Sprout
+    Bloom
+    Wilting
+    Dead
+
+struct Plant
+    stage Stage
+    progress int
+    dry int
+    before_wilt Stage
+
+fn Plant.day(mut self, watered bool, sunny bool)
+    if self.stage == Stage.Dead
+        return
+    if watered
+        self.dry = 0
+    else
+        self.dry += 1
+    if self.stage == Stage.Seed
+        if watered
+            self.progress += 1
+        if self.progress >= 3
+            self.stage = Stage.Sprout
+            self.progress = 0
+    elif self.stage == Stage.Sprout
+        if watered and sunny
+            self.progress += 1
+        if self.progress >= 4
+            self.stage = Stage.Bloom
+    elif self.stage == Stage.Wilting
+        if watered
+            self.stage = self.before_wilt
+        elif self.dry >= 4
+            self.stage = Stage.Dead
+    if self.dry == 2 and self.stage != Stage.Wilting and self.stage != Stage.Dead
+        self.before_wilt = self.stage
+        self.stage = Stage.Wilting
+
+fn main()
+    days := "WS WS W. WS WS .S .S WS WS WS WS .S .S .S .S"
+    mut p := Plant(stage: Stage.Seed, progress: 0, dry: 0, before_wilt: Stage.Seed)
+    for i, code in days.split(" ").enumerate()
+        cs := code.chars()
+        before := p.stage
+        p.day(cs[0] == 'W', cs[1] == 'S')
+        if p.stage != before
+            print("day {i + 1:>2}: {before} -> {p.stage}")
+    total := days.split(" ").len()
+    print("after {total} days the plant is {p.stage}")
+
+@test fn sprouts()
+    mut p := Plant(stage: Stage.Seed, progress: 2, dry: 0, before_wilt: Stage.Seed)
+    p.day(true, false)
+    assert_eq(p.stage, Stage.Sprout)

@@ -1,0 +1,8 @@
+year 1 spring: P1 +1, P2 +6
+year 1 summer: P1 +0, P2 +0
+year 1 autumn: P1 +0, P2 +7
+year 2 spring: P1 +2, P2 +2
+year 2 summer: P1 +0, P2 +8
+year 2 autumn: P1 +5, P2 +4
+player 1: 8 from crops + 15 compost = 23
+player 2: 27 from crops + 10 compost = 37

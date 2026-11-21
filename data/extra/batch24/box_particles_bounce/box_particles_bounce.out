@@ -1,0 +1,6 @@
+particle 1: at (4.00, 4.00)
+particle 2: at (6.00, 2.00)
+particle 3: at (5.00, 3.00)
+particle 4: at (4.00, 6.00)
+particle 5: at (2.00, 1.50)
+wall hits in 10 s: left 9, right 8, floor 9, ceiling 10

@@ -1,0 +1,55 @@
+## Step stack: an original shedding card game; a card may go on the pile when it is within 2 of the top
+## card, otherwise the player draws. Three fixed styles (highest, lowest, closest card) race to empty hands.
+
+struct Rng
+    state int
+
+fn Rng.below(mut self, n int) int
+    self.state = (self.state * 1103515245 + 12345) % 2147483648
+    (self.state / 65536) % n
+
+fn choose(hand List[int], top int, style int) int
+    legal := hand.filter(|c| (c - top).abs() <= 2)
+    if legal.is_empty()
+        return -1
+    if style == 0
+        return legal.max() else -1
+    if style == 1
+        return legal.min() else -1
+    legal.min(by: |c| ((c - top).abs(), c)) else -1
+
+fn main()
+    mut deck := List[int]()
+    for k in 0..3
+        for v in 1..=10
+            deck.push(v)
+    mut rng := Rng(state: 404)
+    for i in 0..deck.len()
+        j := i + rng.below(deck.len() - i)
+        deck.swap(i, j)
+    names := ["High", "Low", "Near"]
+    mut hands := [deck.slice(0, 5), deck.slice(5, 10), deck.slice(10, 15)]
+    mut top := deck[15]
+    mut next_card := 16
+    mut turn := 0
+    while hands.all(|h| not h.is_empty()) and turn < 60
+        p := turn % 3
+        card := choose(hands[p], top, p)
+        if card >= 0
+            idx := hands[p].index_of(card) else 0
+            _ := hands[p].remove_at(idx)
+            top = card
+        elif next_card < deck.len()
+            hands[p].push(deck[next_card])
+            next_card += 1
+        if p == 2
+            sizes := hands.map(|h| h.len())
+            print("round {turn / 3 + 1:>2}: top {top:>2}, hand sizes {sizes}")
+        turn += 1
+    for p in 0..3
+        if hands[p].is_empty()
+            print("{names[p]} empties their hand first")
+
+@test fn closest()
+    assert_eq(choose([3, 6, 9], 7, 2), 6)
+    assert_eq(choose([1, 2], 9, 0), -1)

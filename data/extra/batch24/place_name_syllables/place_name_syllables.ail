@@ -1,0 +1,46 @@
+## Place names: a seeded generator joins a start, sometimes a middle, and an end syllable; a draw is thrown
+## away when two vowels would meet at a join, and the next draw is tried, so names stay easy to say.
+
+struct Rng
+    state int
+
+fn Rng.below(mut self, n int) int
+    self.state = (self.state * 1103515245 + 12345) % 2147483648
+    (self.state / 65536) % n
+
+fn is_vowel(c char) bool
+    "aeiou".contains(c)
+
+fn clashes(parts List[str]) bool
+    for i in 1..parts.len()
+        a := parts[i - 1].chars().last() else ' '
+        b := parts[i].chars().first() else ' '
+        if is_vowel(a) and is_vowel(b)
+            return true
+    false
+
+fn main()
+    starts := ["ash", "bra", "cor", "dun", "el", "fe", "gar", "lo"]
+    middles := ["a", "ber", "in", "ow", "ra", "th"]
+    ends := ["by", "den", "ford", "ham", "ock", "ton", "wick"]
+    mut rng := Rng(state: 7)
+    mut names := List[str]()
+    mut thrown := 0
+    while names.len() < 10
+        mut parts := [starts[rng.below(starts.len())]]
+        if rng.below(2) == 1
+            parts.push(middles[rng.below(middles.len())])
+        parts.push(ends[rng.below(ends.len())])
+        if clashes(parts)
+            thrown += 1
+            continue
+        word := parts.join("")
+        head := (word.char_at(0) else 'x').to_upper()
+        names.push("{head}{word.slice(1)}")
+    print(names.slice(0, 5).join(", "))
+    print(names.slice(5).join(", "))
+    print("{thrown} draws thrown away for meeting vowels")
+
+@test fn vowel_join()
+    assert(clashes(["bel", "a", "ow"]))
+    assert(not clashes(["dun", "by"]))

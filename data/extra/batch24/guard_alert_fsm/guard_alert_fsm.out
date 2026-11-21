@@ -1,0 +1,14 @@
+second  2: noise 2, calm -> suspicious
+second  5: noise 0, suspicious -> calm
+second  6: noise 2, calm -> suspicious
+second  7: noise 3, suspicious -> alert
+second 14: noise 0, alert -> searching
+second 19: noise 0, searching -> calm
+second 20: noise 2, calm -> suspicious
+second 21: noise 2, suspicious -> alert
+second 25: noise 0, alert -> searching
+second 30: noise 0, searching -> calm
+calm: 6 s
+suspicious: 5 s
+alert: 11 s
+searching: 10 s

@@ -1,0 +1,35 @@
+## Dune slope: wind from the left moves one grain from a column to the next whenever it stands two or
+## more grains higher, all columns at once; grains blown off the right edge are lost, until the slope rests.
+
+fn blow(h List[int]) List[int]
+    mut out := h
+    last := h.len() - 1
+    for i in 0..last
+        if h[i] - h[i + 1] >= 2
+            out[i] -= 1
+            out[i + 1] += 1
+    if h[last] >= 2
+        out[last] -= 1
+    out
+
+fn main()
+    mut h := [9, 9, 9, 9, 9, 9, 0, 0, 0, 0]
+    start := h.sum()
+    first := h.join("")
+    print("step  0: {first}")
+    mut steps := 0
+    while true
+        nxt := blow(h)
+        if nxt == h
+            break
+        h = nxt
+        steps += 1
+        if steps % 3 == 0
+            shown := h.join("")
+            print("step {steps:>2}: {shown}")
+    shown := h.join("")
+    print("rests after {steps} steps: {shown}")
+    print("grains lost off the edge: {start - h.sum()}")
+
+@test fn one_move()
+    assert_eq(blow([5, 1]), [4, 2])

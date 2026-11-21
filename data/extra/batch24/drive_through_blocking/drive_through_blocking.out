@@ -1,0 +1,9 @@
+car 1: in   0, ordered  40, blocked   0, leaves  70
+car 2: in  20, ordered  75, blocked   0, leaves 165
+car 3: in  30, ordered 125, blocked  40, leaves 190
+car 4: in  70, ordered 195, blocked   0, leaves 235
+car 5: in  80, ordered 240, blocked   0, leaves 360
+car 6: in 100, ordered 260, blocked 100, leaves 390
+car 7: in 160, ordered 400, blocked   0, leaves 435
+car 8: in 300, ordered 430, blocked   5, leaves 465
+order window blocked 145 s in all; last car leaves at 465 s

@@ -1,0 +1,7 @@
+day  3: Stage.Seed -> Stage.Sprout
+day  7: Stage.Sprout -> Stage.Wilting
+day  8: Stage.Wilting -> Stage.Sprout
+day 10: Stage.Sprout -> Stage.Bloom
+day 13: Stage.Bloom -> Stage.Wilting
+day 15: Stage.Wilting -> Stage.Dead
+after 15 days the plant is Stage.Dead

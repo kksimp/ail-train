@@ -1,0 +1,7 @@
+gen 0: length   1, stems  1, leaves  0, flowers  0, depth 0
+gen 1: length   5, stems  2, leaves  1, flowers  0, depth 1
+gen 2: length  14, stems  4, leaves  3, flowers  1, depth 2
+  S[SL][S[SL]LF]
+gen 3: length  33, stems  8, leaves  7, flowers  4, depth 3
+gen 4: length  72, stems 16, leaves 15, flowers 11, depth 4
+gen 5: length 151, stems 32, leaves 31, flowers 26, depth 5

@@ -1,0 +1,11 @@
+minute  2: shopper 2 leaves lane 2
+minute  3: shopper 4 leaves lane 2
+minute  4: shopper 1 leaves lane 1
+minute  6: shopper 5 leaves lane 2
+minute  9: shopper 3 leaves lane 1
+minute 11: shopper 6 leaves lane 1
+minute 12: shopper 7 leaves lane 2
+minute 13: shopper 9 leaves lane 1
+minute 13: shopper 8 leaves lane 2
+minute 16: shopper 10 leaves lane 1 (switched)
+2 switches, last shopper out at minute 16

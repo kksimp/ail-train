@@ -1,0 +1,33 @@
+## Fish school: six fish swim along a channel; each step every fish turns its speed halfway toward the mean
+## speed of the fish within 3 m of it (itself included), so nearby groups match pace and the spread shrinks.
+
+fn main()
+    mut x := [0.0, 1.5, 2.5, 6.0, 7.0, 12.0]
+    mut v := [1.0, 2.0, 0.5, 1.5, 3.0, 0.8]
+    for step in 0..=20
+        if step % 4 == 0
+            mut fast := v[0]
+            mut slow := v[0]
+            for s in v
+                if s > fast
+                    fast = s
+                if s < slow
+                    slow = s
+            print("step {step:>2}: speeds from {slow:.3} to {fast:.3}")
+        mut nv := List[float]()
+        for i in 0..6
+            mut total := 0.0
+            mut n := 0
+            for j in 0..6
+                if (x[j] - x[i]).abs() <= 3.0
+                    total += v[j]
+                    n += 1
+            nv.push(v[i] + (total / n.to_float() - v[i]) / 2.0)
+        v = nv
+        for i in 0..6
+            x[i] += v[i] * 0.5
+    shown := v.map(|s| "{s:.2}").join(" ")
+    print("final speeds {shown}")
+
+@test fn halfway()
+    assert_eq(1.0 + (3.0 - 1.0) / 2.0, 2.0)

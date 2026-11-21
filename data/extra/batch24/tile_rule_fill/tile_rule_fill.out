@@ -1,0 +1,4 @@
+seed   3: ^^^":"::~~~~  (1 backtracks)
+seed  33: ^"::~~~:~~~~  (0 backtracks)
+seed 333: ^""":::":~:~  (0 backtracks)
+key: ~ water, : sand, " grass, ^ rock; every strip starts on rock

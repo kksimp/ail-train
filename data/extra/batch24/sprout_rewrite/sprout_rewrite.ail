@@ -1,0 +1,37 @@
+## Sprout grammar: a plant string grows by rewriting every symbol at once, stem S to "S[SL]" and leaf L to
+## "LF" (F is a flower that stays); prints each generation's length, counts and deepest branch nesting.
+
+fn rewrite(s str) str
+    mut parts := List[str]()
+    for ch in s.chars()
+        match ch
+            'S' => parts.push("S[SL]")
+            'L' => parts.push("LF")
+            _ => parts.push("{ch}")
+    parts.join("")
+
+fn depth(s str) int
+    mut d := 0
+    mut most := 0
+    for ch in s.chars()
+        if ch == '['
+            d += 1
+            most = most.max(d)
+        elif ch == ']'
+            d -= 1
+    most
+
+fn main()
+    mut plant := "S"
+    for gen in 0..=5
+        stems := plant.count("S")
+        leaves := plant.count("L")
+        flowers := plant.count("F")
+        print("gen {gen}: length {plant.len():>3}, stems {stems:>2}, leaves {leaves:>2}, flowers {flowers:>2}, depth {depth(plant)}")
+        if gen == 2
+            print("  {plant}")
+        plant = rewrite(plant)
+
+@test fn one_step()
+    assert_eq(rewrite("S"), "S[SL]")
+    assert_eq(rewrite("L]"), "LF]")

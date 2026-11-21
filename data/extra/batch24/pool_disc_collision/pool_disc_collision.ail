@@ -1,0 +1,40 @@
+## Pool shot: a cue ball rolling at 3 m/s strikes a resting ball off-centre; at contact the velocity part
+## along the line of centres passes to the other ball (equal masses), so the two leave at right angles.
+
+fn main()
+    mut ax := 0.0
+    mut ay := 0.0
+    mut avx := 3.0
+    mut avy := 0.0
+    b_x := 5.0
+    b_y := 0.9
+    mut t := 0.0
+    dt := 0.001
+    while true
+        dx := b_x - ax
+        dy := b_y - ay
+        if dx * dx + dy * dy <= 4.0
+            break
+        ax += avx * dt
+        ay += avy * dt
+        t += dt
+    dx := b_x - ax
+    dy := b_y - ay
+    d := (dx * dx + dy * dy).sqrt()
+    nx := dx / d
+    ny := dy / d
+    along := avx * nx + avy * ny
+    bvx := along * nx
+    bvy := along * ny
+    avx -= bvx
+    avy -= bvy
+    print("contact after {t:.3} s with the cue ball at ({ax:.3}, {ay:.3})")
+    print("cue ball leaves at ({avx:.3}, {avy:.3}) m/s")
+    print("object ball leaves at ({bvx:.3}, {bvy:.3}) m/s")
+    ke := avx * avx + avy * avy + bvx * bvx + bvy * bvy
+    right_angle := (avx * bvx + avy * bvy).abs() < 0.000001
+    print("speed squared before 9.0, after {ke:.6}; paths at right angles: {right_angle}")
+
+@test fn unit_normal()
+    d := (3.0 * 3.0 + 4.0 * 4.0).sqrt()
+    assert_eq(d, 5.0)

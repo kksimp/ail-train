@@ -1,0 +1,26 @@
+## Kerbside parking: a one-way loop street has 20 spaces; each driver starts looking at the space by their
+## destination and takes the first free one ahead, walking back the spaces passed. Stays end, spaces free up.
+
+struct Driver
+    arrive int
+    dest int
+    stay int
+
+fn main()
+    drivers := [Driver(arrive: 0, dest: 3, stay: 50), Driver(arrive: 2, dest: 3, stay: 30), Driver(arrive: 5, dest: 4, stay: 60), Driver(arrive: 7, dest: 3, stay: 40), Driver(arrive: 9, dest: 12, stay: 20), Driver(arrive: 12, dest: 3, stay: 45), Driver(arrive: 15, dest: 18, stay: 25), Driver(arrive: 20, dest: 4, stay: 30), Driver(arrive: 33, dest: 3, stay: 30), Driver(arrive: 40, dest: 19, stay: 15)]
+    mut free_at := List[int]()
+    for i in 0..20
+        free_at.push(0)
+    mut walked := 0
+    for i, d in drivers.enumerate()
+        mut k := 0
+        while free_at[(d.dest + k) % 20] > d.arrive
+            k += 1
+        spot := (d.dest + k) % 20
+        free_at[spot] = d.arrive + d.stay
+        walked += k
+        print("driver {i + 1:>2} (minute {d.arrive:>2}) for space {d.dest:>2}: parks at {spot:>2}, walks back {k}")
+    print("mean walk {walked.to_float() / drivers.len().to_float():.1} spaces")
+
+@test fn wraps_round()
+    assert_eq((19 + 2) % 20, 1)

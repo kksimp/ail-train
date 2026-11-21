@@ -1,0 +1,36 @@
+## Bee recruiting: 30 foragers work three flower patches; each round every patch yields nectar up to its
+## bee count, then five bees leave the patch with the worst haul per bee for the one with the best dance.
+
+struct Patch
+    name str
+    nectar int
+    quality int
+    bees int
+
+fn main()
+    mut patches := [Patch(name: "clover", nectar: 60, quality: 2, bees: 10), Patch(name: "heather", nectar: 120, quality: 3, bees: 10), Patch(name: "lime", nectar: 40, quality: 5, bees: 10)]
+    mut stored := 0
+    for r in 1..=8
+        mut haul := List[int]()
+        for mut p in patches
+            got := p.nectar.min(p.bees)
+            p.nectar -= got
+            haul.push(got)
+            stored += got
+        mut worst := -1
+        mut best := -1
+        for i in 0..3
+            if patches[i].bees >= 5 and (worst < 0 or haul[i] * patches[worst].bees < haul[worst] * patches[i].bees)
+                worst = i
+            if best < 0 or haul[i] * patches[i].quality > haul[best] * patches[best].quality
+                best = i
+        if worst != best
+            patches[worst].bees -= 5
+            patches[best].bees += 5
+        bees := patches.map(|pt| pt.bees)
+        print("round {r}: haul {haul}, bees now {bees}")
+    left := patches.map(|pt| pt.nectar)
+    print("stored {stored}, nectar left {left}")
+
+@test fn haul_capped_by_nectar()
+    assert_eq(4.min(10), 4)

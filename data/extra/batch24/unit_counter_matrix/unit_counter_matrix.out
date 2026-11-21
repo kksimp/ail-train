@@ -1,0 +1,5 @@
+13 spear,  0 horse,  7 bow: edges [162, 30, 54], worst 30
+12 spear,  1 horse,  7 bow: edges [138, 24, 48], worst 24
+11 spear,  2 horse,  7 bow: edges [114, 18, 42], worst 18
+10 spear,  3 horse,  7 bow: edges [90, 12, 36], worst 12
+all bows: edges [240, -360, 600], worst -360

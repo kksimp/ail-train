@@ -1,0 +1,7 @@
+minutes  0- 9: short  5, long  5, scent [5, 5]
+minutes 10-19: short  8, long  2, scent [56, 40]
+minutes 20-29: short  5, long  5, scent [115, 58]
+minutes 30-39: short  6, long  4, scent [145, 75]
+minutes 40-49: short  8, long  2, scent [161, 96]
+minutes 50-59: short  7, long  3, scent [199, 104]
+50 ants back by minute 60, 33 of them by the short trail

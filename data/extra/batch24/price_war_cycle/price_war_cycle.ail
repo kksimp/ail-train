@@ -1,0 +1,28 @@
+## Price war: two shops take turns setting a price; each undercuts its rival by 2 while that still beats the
+## unit cost of 10 by more than 2, otherwise it jumps back to 30. The 100 daily buyers go to the cheaper shop.
+
+fn reply(rival int) int
+    if rival - 2 > 12 then rival - 2 else 30
+
+fn main()
+    mut prices := [30, 28]
+    mut profit := [0, 0]
+    for day in 1..=13
+        mover := day % 2
+        prices[mover] = reply(prices[1 - mover])
+        a := prices[0]
+        b := prices[1]
+        mut buyers := [50, 50]
+        if a < b
+            buyers = [100, 0]
+        elif b < a
+            buyers = [0, 100]
+        for s in 0..2
+            profit[s] += buyers[s] * (prices[s] - 10)
+        winner := if a < b then "A" elif b < a then "B" else "both"
+        print("day {day:>2}: A {a}, B {b} -> {winner}")
+    print("profit A {profit[0]}, B {profit[1]}")
+
+@test fn jumps_back()
+    assert_eq(reply(14), 30)
+    assert_eq(reply(20), 18)

@@ -1,0 +1,51 @@
+## Island growth: one land cell in a 9 by 15 sea; each step a seeded generator picks one sea cell that
+## touches land (listed in reading order) and raises it, giving a ragged coast. Counts land and shore cells.
+
+struct Rng
+    state int
+
+fn Rng.below(mut self, n int) int
+    self.state = (self.state * 1103515245 + 12345) % 2147483648
+    (self.state / 65536) % n
+
+fn touches_land(g List[List[bool]], r int, c int) bool
+    for d in [(-1, 0), (1, 0), (0, -1), (0, 1)]
+        rr := r + d.0
+        cc := c + d.1
+        if rr >= 0 and rr < g.len() and cc >= 0 and cc < g[0].len() and g[rr][cc]
+            return true
+    false
+
+fn main()
+    mut g := List[List[bool]]()
+    for r in 0..9
+        mut row := List[bool]()
+        for c in 0..15
+            row.push(r == 4 and c == 7)
+        g.push(row)
+    mut rng := Rng(state: 1212)
+    for step in 0..40
+        mut edge := List[List[int]]()
+        for r in 0..9
+            for c in 0..15
+                if not g[r][c] and touches_land(g, r, c)
+                    edge.push([r, c])
+        pick := edge[rng.below(edge.len())]
+        g[pick[0]][pick[1]] = true
+    mut shore := 0
+    for r in 0..9
+        mut line := List[str]()
+        for c in 0..15
+            if g[r][c]
+                line.push("#")
+            else
+                line.push("~")
+                if touches_land(g, r, c)
+                    shore += 1
+        print(line.join(""))
+    print("41 land cells, {shore} sea cells on the shore")
+
+@test fn neighbour()
+    g := [[false, true], [false, false]]
+    assert(touches_land(g, 0, 0))
+    assert(not touches_land(g, 1, 0))

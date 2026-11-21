@@ -1,0 +1,49 @@
+## Frost crystal: an empty cell freezes when exactly one of its four neighbours is frozen, all cells at
+## once, so a single seed grows thin arms and diamond gaps instead of a solid blob; prints counts and the shape.
+
+fn frozen_near(g List[List[bool]], r int, c int) int
+    mut n := 0
+    for d in [(-1, 0), (1, 0), (0, -1), (0, 1)]
+        rr := r + d.0
+        cc := c + d.1
+        if rr >= 0 and rr < g.len() and cc >= 0 and cc < g.len()
+            if g[rr][cc]
+                n += 1
+    n
+
+fn grow(g List[List[bool]]) List[List[bool]]
+    mut out := List[List[bool]]()
+    for r in 0..g.len()
+        mut row := List[bool]()
+        for c in 0..g.len()
+            row.push(g[r][c] or frozen_near(g, r, c) == 1)
+        out.push(row)
+    out
+
+fn count_frozen(g List[List[bool]]) int
+    mut n := 0
+    for row in g
+        n += row.count(|x| x)
+    n
+
+fn mark(x bool) char
+    if x then '*' else '.'
+
+fn main()
+    size := 9
+    mut g := List[List[bool]]()
+    for r in 0..size
+        mut row := List[bool]()
+        for c in 0..size
+            row.push(r == 4 and c == 4)
+        g.push(row)
+    for s in 1..=4
+        g = grow(g)
+        print("step {s}: {count_frozen(g)} frozen")
+    for row in g
+        print(row.map(mark).join(""))
+
+@test fn first_step()
+    mut g := [[false, false, false], [false, true, false], [false, false, false]]
+    g = grow(g)
+    assert_eq(count_frozen(g), 5)

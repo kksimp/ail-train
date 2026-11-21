@@ -1,0 +1,41 @@
+## Water seep: a spring drips one unit of water onto a cross-section of ground each step; each unit falls
+## into an empty cell below, else slides one cell sideways (left first on even steps, right first on odd).
+
+fn settle(mut g List[List[char]], step int)
+    h := g.len()
+    w := g[0].len()
+    mut done := Set[int]()
+    for k in 0..(h - 1)
+        r := h - 2 - k
+        for c in 0..w
+            if g[r][c] == 'w' and not done.contains(r * w + c)
+                if g[r + 1][c] == '.'
+                    g[r][c] = '.'
+                    g[r + 1][c] = 'w'
+                else
+                    first := if step % 2 == 0 then -1 else 1
+                    for side in [first, -first]
+                        cc := c + side
+                        if cc >= 0 and cc < w and g[r][cc] == '.'
+                            g[r][c] = '.'
+                            g[r][cc] = 'w'
+                            done.add(r * w + cc)
+                            break
+
+fn main()
+    rows := [".........", ".........", "..#####..", ".........", "#.......#", "##.....##", "#########"]
+    mut g := rows.map(|line| line.chars())
+    for step in 1..=30
+        if g[0][4] == '.'
+            g[0][4] = 'w'
+        settle(mut g, step)
+        if step % 10 == 0
+            wet := g.fold(0, |acc, row| acc + row.count(|ch| ch == 'w'))
+            print("step {step}: {wet} units of water")
+    for row in g
+        print(row.join(""))
+
+@test fn slides_right_on_odd_step()
+    mut g := [['w', '.'], ['#', '.']]
+    settle(mut g, 1)
+    assert_eq(g[0][1], 'w')

@@ -1,0 +1,13 @@
+step 4: 4 crust cells, centre at 1172
+step 8: 20 crust cells, centre at 971
+step 12: 20 crust cells, centre at 795
+step 16: 20 crust cells, centre at 693
+step 20: 24 crust cells, centre at 636
+step 24: 32 crust cells, centre at 607
+step 27: 35 crust cells, centre at 599
+step each cell set:
+  2  5  6  6  6  5  2
+  5 19 23 24 23 19  5
+  6 21 26 27 26 21  6
+  5 19 23 24 23 19  5
+  2  5  6  6  6  5  2

@@ -1,0 +1,10 @@
+tick  0: patrol at cell 1, battery 94%
+tick 14: homing at cell 1, battery 10%
+tick 15: charging at cell 0, battery 6%
+tick 19: patrol at cell 0, battery 100%
+tick 34: homing at cell 1, battery 10%
+tick 35: charging at cell 0, battery 6%
+tick 39: patrol at cell 0, battery 100%
+tick 54: homing at cell 1, battery 10%
+tick 55: charging at cell 0, battery 6%
+tick 59: patrol at cell 0, battery 100%

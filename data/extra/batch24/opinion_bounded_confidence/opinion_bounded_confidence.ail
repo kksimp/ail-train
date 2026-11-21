@@ -1,0 +1,38 @@
+## Bounded confidence: ten people hold views from 0 to 100; random pairs (seeded) talk, and only if their
+## views are within 20 does each move a quarter of the way toward the other, so separate camps form.
+
+struct Rng
+    state int
+
+fn Rng.below(mut self, n int) int
+    self.state = (self.state * 1103515245 + 12345) % 2147483648
+    (self.state / 65536) % n
+
+fn camps(views List[int]) int
+    s := views.sorted()
+    mut n := 1
+    for i in 1..s.len()
+        if s[i] - s[i - 1] > 20
+            n += 1
+    n
+
+fn main()
+    mut views := [3, 12, 25, 31, 44, 52, 67, 71, 88, 97]
+    mut rng := Rng(state: 1001)
+    for talk in 1..=400
+        a := rng.below(10)
+        b := rng.below(10)
+        d := views[b] - views[a]
+        if a != b and d.abs() <= 20
+            step := d.abs() / 4
+            if d > 0
+                views[a] += step
+                views[b] -= step
+            else
+                views[a] -= step
+                views[b] += step
+        if talk % 100 == 0
+            print("after {talk} talks: {views.sorted()}, {camps(views)} camps")
+
+@test fn two_camps()
+    assert_eq(camps([0, 5, 50, 55]), 2)

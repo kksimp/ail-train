@@ -1,0 +1,47 @@
+## Harvest cards: an original two-player card game; each season both draw three crop cards (seeded), score
+## the cards of the current season at face value plus 5 for three of a kind, and compost the rest for 1 each.
+
+struct Rng
+    state int
+
+fn Rng.below(mut self, n int) int
+    self.state = (self.state * 1103515245 + 12345) % 2147483648
+    (self.state / 65536) % n
+
+struct Card
+    season int
+    value int
+
+fn score(hand List[Card], season int) List[int]
+    matching := hand.filter(|c| c.season == season)
+    mut points := matching.fold(0, |acc, c| acc + c.value)
+    if matching.len() == 3
+        points += 5
+    [points, hand.len() - matching.len()]
+
+fn main()
+    seasons := ["spring", "summer", "autumn"]
+    mut rng := Rng(state: 3030)
+    mut totals := [0, 0]
+    mut compost := [0, 0]
+    for rnd in 0..6
+        season := rnd % 3
+        mut line := List[str]()
+        for p in 0..2
+            mut hand := List[Card]()
+            for k in 0..3
+                s := rng.below(3)
+                v := 1 + rng.below(6)
+                hand.push(Card(season: s, value: v))
+            r := score(hand, season)
+            totals[p] += r[0]
+            compost[p] += r[1]
+            line.push("P{p + 1} +{r[0]}")
+        shown := line.join(", ")
+        print("year {rnd / 3 + 1} {seasons[season]:<6}: {shown}")
+    for p in 0..2
+        print("player {p + 1}: {totals[p]} from crops + {compost[p]} compost = {totals[p] + compost[p]}")
+
+@test fn full_set_bonus()
+    hand := [Card(season: 1, value: 2), Card(season: 1, value: 3), Card(season: 1, value: 4)]
+    assert_eq(score(hand, 1), [14, 0])

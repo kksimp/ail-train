@@ -1,0 +1,32 @@
+## Chair lift: a chair leaves the base every 3 minutes with up to two skiers from the queue; the ride up takes
+## 6 minutes and each skier takes their own time down before queueing again. Counts runs in one hour.
+
+fn main()
+    names := ["Ana", "Ben", "Cat", "Dev", "Eli", "Fay", "Gil", "Hue", "Ivy", "Jon"]
+    down := [4, 9, 5, 12, 6, 7, 3, 10, 8, 5]
+    mut back_at := List[int]()
+    mut runs := List[int]()
+    for i in 0..names.len()
+        back_at.push(i / 3)
+        runs.push(0)
+    mut queue := Deque[int]()
+    mut longest := 0
+    for minute in 0..60
+        for i in 0..names.len()
+            if back_at[i] == minute
+                queue.push_back(i)
+        longest = longest.max(queue.len())
+        if minute % 3 == 0
+            for seat in 0..2
+                i := queue.pop_front() else break
+                back_at[i] = minute + 6 + down[i]
+                if back_at[i] < 60
+                    runs[i] += 1
+        if minute % 15 == 14
+            print("minute {minute + 1}: {queue.len()} waiting at the base")
+    for i in 0..names.len()
+        print("{names[i]:<4} {down[i]:>2} min down, {runs[i]} runs")
+    print("longest queue {longest}")
+
+@test fn cycle_time()
+    assert_eq(6 + 4, 10)

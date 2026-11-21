@@ -1,0 +1,40 @@
+## Opinion ring: 24 neighbours in a circle hold yes (1) or no (0); each round everyone takes the view held by
+## at least three of the five people from two left to two right (themselves included), until nothing changes.
+
+fn update(xs List[int]) List[int]
+    n := xs.len()
+    mut out := List[int]()
+    for i in 0..n
+        mut ones := 0
+        for d in 0..5
+            ones += xs[(i + n + d - 2) % n]
+        out.push(if ones >= 3 then 1 else 0)
+    out
+
+fn blocks(xs List[int]) int
+    n := xs.len()
+    mut changes := 0
+    for i in 0..n
+        if xs[i] != xs[(i + 1) % n]
+            changes += 1
+    changes
+
+fn main()
+    mut seed := 53
+    mut xs := List[int]()
+    for i in 0..24
+        seed = (seed * 75 + 74) % 65537
+        xs.push((seed / 3) % 2)
+    mut rounds := 0
+    while true
+        shown := xs.join("")
+        print("round {rounds}: {shown}  yes {xs.sum()}, borders {blocks(xs)}")
+        nxt := update(xs)
+        if nxt == xs
+            break
+        xs = nxt
+        rounds += 1
+    print("settled after {rounds} rounds")
+
+@test fn lone_dissenter_flips()
+    assert_eq(update([0, 0, 1, 0, 0]), [0, 0, 0, 0, 0])

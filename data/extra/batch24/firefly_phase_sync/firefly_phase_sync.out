@@ -1,0 +1,10 @@
+start phases [55, 57, 16, 77, 93, 64, 4, 67]
+ticks   0- 99: flashes on 9 separate ticks
+ticks 100-199: flashes on 6 separate ticks
+ticks 200-299: flashes on 7 separate ticks
+ticks 300-399: flashes on 3 separate ticks
+ticks 400-499: flashes on 3 separate ticks
+ticks 500-599: flashes on 2 separate ticks
+ticks 600-699: flashes on 2 separate ticks
+ticks 700-799: flashes on 1 separate ticks
+end phases [87, 87, 87, 87, 87, 87, 87, 87]

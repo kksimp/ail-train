@@ -1,0 +1,33 @@
+## Green wave: five lights on a road at 0, 300, 650, 900 and 1300 m, each green 30 s of every 60; a car at
+## 10 m/s waits out any red. Offsets of zero are compared with offsets timed to the car's travel time.
+
+fn trip(depart int, spots List[int], offsets List[int]) List[int]
+    mut t := depart
+    mut stops := 0
+    mut at := 0
+    for i in 0..spots.len()
+        t += (spots[i] - at) / 10
+        at = spots[i]
+        phase := (t - offsets[i] + 600) % 60
+        if phase >= 30
+            t += 60 - phase
+            stops += 1
+    [t - depart, stops]
+
+fn main()
+    spots := [0, 300, 650, 900, 1300]
+    print("five lights, green 30 s of each 60, one car departing each second for a minute")
+    plans := [("all at zero", [0, 0, 0, 0, 0]), ("green wave", spots.map(|s| (s / 10) % 60))]
+    for plan in plans
+        title, offsets := plan
+        mut total := 0
+        mut stops := 0
+        for depart in 0..60
+            r := trip(depart, spots, offsets)
+            total += r[0]
+            stops += r[1]
+        mean := total.to_float() / 60.0
+        print("{title:<11} offsets {offsets}: mean trip {mean:.2} s, {stops} stops for 60 cars")
+
+@test fn red_wait()
+    assert_eq(trip(40, [0], [0]), [20, 1])

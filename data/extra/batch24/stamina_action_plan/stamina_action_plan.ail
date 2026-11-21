@@ -1,0 +1,51 @@
+## Stamina plan: a fighter has 10 stamina, regains 2 a tick (up to 10) and may jab (cost 2, 3 damage), swing
+## (cost 6, 11 damage) or rest; a memoised search over (tick, stamina) finds the most damage in 12 ticks.
+
+fn best(tick int, stamina int, mut memo Map[int, int]) int
+    if tick == 12
+        return 0
+    key := tick * 100 + stamina
+    if memo.contains(key)
+        return memo[key]
+    regen := |s int| (s + 2).min(10)
+    mut top := best(tick + 1, regen(stamina), mut memo)
+    if stamina >= 2
+        top = top.max(3 + best(tick + 1, regen(stamina - 2), mut memo))
+    if stamina >= 6
+        top = top.max(11 + best(tick + 1, regen(stamina - 6), mut memo))
+    memo[key] = top
+    top
+
+fn main()
+    mut memo := Map[int, int]()
+    total := best(0, 10, mut memo)
+    mut plan := List[char]()
+    mut st := 10
+    for t in 0..12
+        here := best(t, st, mut memo)
+        if st >= 6 and 11 + best(t + 1, (st - 4).min(10), mut memo) == here
+            plan.push('S')
+            st = (st - 4).min(10)
+        elif st >= 2 and 3 + best(t + 1, st.min(10), mut memo) == here
+            plan.push('j')
+        else
+            plan.push('.')
+            st = (st + 2).min(10)
+    shown := plan.join("")
+    print("best plan {shown}: {total} damage (S swing, j jab, . rest)")
+    mut greedy := 0
+    mut g := 10
+    for t in 0..12
+        if g >= 6
+            greedy += 11
+            g -= 6
+        elif g >= 2
+            greedy += 3
+            g -= 2
+        g = (g + 2).min(10)
+    print("swing when you can, else jab: {greedy} damage")
+    print("{memo.len()} states searched")
+
+@test fn last_tick()
+    mut memo := Map[int, int]()
+    assert_eq(best(11, 6, mut memo), 11)

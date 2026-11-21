@@ -1,0 +1,43 @@
+## Beads on a wire: five like-charged beads between two fixed charges at 0 and 10 push each other with force
+## 1 / d^2; each relaxation step moves every bead by 0.5 x its net force, at most 0.2, until the spacing settles.
+
+fn net_forces(xs List[float]) List[float]
+    mut all_pts := [0.0]
+    all_pts.extend(xs)
+    all_pts.push(10.0)
+    mut out := List[float]()
+    for i in 1..(all_pts.len() - 1)
+        mut f := 0.0
+        for j in 0..all_pts.len()
+            if j != i
+                d := all_pts[i] - all_pts[j]
+                if d > 0.0
+                    f += 1.0 / (d * d)
+                else
+                    f -= 1.0 / (d * d)
+        out.push(f)
+    out
+
+fn limit(m float) float
+    if m > 0.2
+        return 0.2
+    if m < -0.2
+        return -0.2
+    m
+
+fn main()
+    mut xs := [0.8, 1.6, 2.4, 3.2, 4.0]
+    for step in 1..=400
+        f := net_forces(xs)
+        for i in 0..5
+            xs[i] += limit(0.5 * f[i])
+        if step == 1 or step == 10 or step == 50 or step % 200 == 0
+            shown := xs.map(|v| "{v:.3}").join(" ")
+            print("step {step:>3}: {shown}")
+    gaps := [xs[0], xs[1] - xs[0], xs[2] - xs[1], xs[3] - xs[2], xs[4] - xs[3], 10.0 - xs[4]]
+    shown := gaps.map(|g| "{g:.3}").join(" ")
+    print("gaps {shown}")
+
+@test fn balanced_middle()
+    f := net_forces([5.0])
+    assert(f[0].abs() < 0.000001)

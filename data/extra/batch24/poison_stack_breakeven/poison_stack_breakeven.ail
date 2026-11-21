@@ -1,0 +1,26 @@
+## Poison against power: blade A hits for 20 each tick; blade B hits for 8 but each hit also adds a poison
+## stack doing 4 a tick for its next 4 ticks. Totals by fight length show when stacking pulls ahead.
+
+fn blade_b(ticks int) int
+    mut total := 0
+    mut stacks := List[int]()
+    for t in 0..ticks
+        total += 8
+        stacks.push(4)
+        total += 4 * stacks.len()
+        stacks = stacks.map(|s| s - 1).filter(|s| s > 0)
+    total
+
+fn main()
+    mut even := -1
+    for ticks in 1..=8
+        a := 20 * ticks
+        b := blade_b(ticks)
+        lead := if b > a then "B ahead" elif b == a then "level" else "A ahead"
+        print("{ticks} ticks: A {a:>3}, B {b:>3}  {lead}")
+        if even < 0 and b >= a
+            even = ticks
+    print("B catches up from a fight of {even} ticks; its steady rate is {8 + 4 * 4} a tick")
+
+@test fn one_tick()
+    assert_eq(blade_b(1), 12)

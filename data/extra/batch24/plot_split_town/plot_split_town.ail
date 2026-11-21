@@ -1,0 +1,44 @@
+## Town plots: a 32 by 20 block is cut recursively; any piece wider or deeper than 10 is split across its
+## longer side at a seeded point between 40% and 60%, and the leftover pieces become building plots.
+
+struct Rng
+    state int
+
+fn Rng.below(mut self, n int) int
+    self.state = (self.state * 1103515245 + 12345) % 2147483648
+    (self.state / 65536) % n
+
+struct Plot
+    x int
+    y int
+    w int
+    h int
+
+fn cut(p Plot, mut rng Rng, mut out List[Plot])
+    if p.w <= 10 and p.h <= 10
+        out.push(p)
+        return
+    share := 40 + rng.below(21)
+    if p.w >= p.h
+        left := p.w * share / 100
+        cut(Plot(x: p.x, y: p.y, w: left, h: p.h), mut rng, mut out)
+        cut(Plot(x: p.x + left, y: p.y, w: p.w - left, h: p.h), mut rng, mut out)
+    else
+        top := p.h * share / 100
+        cut(Plot(x: p.x, y: p.y, w: p.w, h: top), mut rng, mut out)
+        cut(Plot(x: p.x, y: p.y + top, w: p.w, h: p.h - top), mut rng, mut out)
+
+fn main()
+    mut rng := Rng(state: 555)
+    mut plots := List[Plot]()
+    cut(Plot(x: 0, y: 0, w: 32, h: 20), mut rng, mut plots)
+    for p in plots.sorted(by: |q| (q.y, q.x))
+        print("plot at ({p.x:>2},{p.y:>2}) {p.w:>2} x {p.h:>2} = {p.w * p.h:>3}")
+    area := plots.fold(0, |acc, q| acc + q.w * q.h)
+    print("{plots.len()} plots covering {area} of 640 square units")
+
+@test fn small_block_is_one_plot()
+    mut rng := Rng(state: 1)
+    mut out := List[Plot]()
+    cut(Plot(x: 0, y: 0, w: 8, h: 9), mut rng, mut out)
+    assert_eq(out.len(), 1)

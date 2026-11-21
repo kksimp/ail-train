@@ -1,0 +1,41 @@
+## Lava crust: a 5 by 7 lava sheet cools as each molten cell becomes (2 x itself + its four neighbours) / 6,
+## with cold ground at 20 degrees past the edges; a cell under 600 turns to crust and keeps its temperature.
+
+fn cell(t List[List[int]], r int, c int) int
+    if r < 0 or r >= t.len() or c < 0 or c >= t[0].len()
+        return 20
+    t[r][c]
+
+fn main()
+    mut t := List[List[int]]()
+    mut when_set := List[List[int]]()
+    for r in 0..5
+        mut row := List[int]()
+        mut marks := List[int]()
+        for c in 0..7
+            row.push(if r == 2 then 1400 else 1100)
+            marks.push(0)
+        t.push(row)
+        when_set.push(marks)
+    mut step := 0
+    mut crust := 0
+    while crust < 35
+        step += 1
+        mut nxt := t
+        for r in 0..5
+            for c in 0..7
+                if when_set[r][c] == 0
+                    v := (2 * t[r][c] + cell(t, r - 1, c) + cell(t, r + 1, c) + cell(t, r, c - 1) + cell(t, r, c + 1)) / 6
+                    nxt[r][c] = v
+                    if v < 600
+                        when_set[r][c] = step
+                        crust += 1
+        t = nxt
+        if step % 4 == 0 or crust == 35
+            print("step {step}: {crust} crust cells, centre at {t[2][3]}")
+    print("step each cell set:")
+    for r in 0..5
+        print(when_set[r].map(|s| "{s:>3}").join(""))
+
+@test fn edge_is_cold()
+    assert_eq(cell([[900]], 0, 1), 20)

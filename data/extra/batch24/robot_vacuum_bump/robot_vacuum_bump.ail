@@ -1,0 +1,36 @@
+## Robot vacuum: a robot drives straight across a room until it bumps into a wall or furniture, then turns
+## by a quarter, a half and three quarters in rotation; counts how much floor it has cleaned after 150 moves.
+
+fn main()
+    room := ["##########", "#........#", "#..##....#", "#..##..#.#", "#.......##", "#.##.....#", "#........#", "##########"]
+    grid := room.map(|line| line.chars())
+    dirs := [(0, 1), (1, 0), (0, -1), (-1, 0)]
+    turns := [1, 2, 3]
+    mut r := 1
+    mut c := 1
+    mut d := 0
+    mut bumps := 0
+    mut clean := Set[int]()
+    clean.add(r * 10 + c)
+    for step in 1..=150
+        nr := r + dirs[d].0
+        nc := c + dirs[d].1
+        if grid[nr][nc] == '#'
+            d = (d + turns[bumps % 3]) % 4
+            bumps += 1
+        else
+            r = nr
+            c = nc
+            clean.add(r * 10 + c)
+        if step == 50 or step == 100
+            print("after {step} moves: {clean.len()} cells clean")
+    floor := room.fold(0, |acc, line| acc + line.count("."))
+    for i in 0..room.len()
+        mut cells := List[char]()
+        for j in 0..10
+            cells.push(if grid[i][j] == '#' then '#' elif clean.contains(i * 10 + j) then 'o' else '-')
+        print(cells.join(""))
+    print("{clean.len()} of {floor} floor cells cleaned, {bumps} bumps")
+
+@test fn turn_wraps()
+    assert_eq((3 + 2) % 4, 1)

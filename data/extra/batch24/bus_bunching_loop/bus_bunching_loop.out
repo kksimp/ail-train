@@ -1,0 +1,9 @@
+minute   0: bus 1 at the depot stop, first
+minute  41: bus 3 at the depot stop, 41 min after the last bus
+minute  71: bus 2 at the depot stop, 30 min after the last bus
+minute 134: bus 1 at the depot stop, 63 min after the last bus
+minute 198: bus 3 at the depot stop, 64 min after the last bus
+minute 199: bus 2 at the depot stop, 1 min after the last bus
+minute 328: bus 1 at the depot stop, 129 min after the last bus
+minute 333: bus 2 at the depot stop, 5 min after the last bus
+minute 334: bus 3 at the depot stop, 1 min after the last bus

@@ -1,0 +1,32 @@
+## Laundromat: each load takes the first free of three washers (30 minutes), then waits for the first free
+## of two dryers (45 minutes) in the order washes finish; free times sit in a min-heap per machine kind.
+
+fn take(mut free Heap[int], ready int, minutes int) int
+    at := free.pop() else 0
+    start := at.max(ready)
+    free.push(start + minutes)
+    start
+
+fn main()
+    names := ["Ada", "Bo", "Cy", "Di", "Ed", "Flo", "Gus", "Hal"]
+    arrive := [0, 5, 10, 12, 20, 25, 40, 41]
+    mut washers := Heap.from([0, 0, 0])
+    mut dryers := Heap.from([0, 0])
+    mut washed := List[List[int]]()
+    for i in 0..names.len()
+        start := take(mut washers, arrive[i], 30)
+        washed.push([start + 30, i])
+    mut total_wait := 0
+    for w in washed.sorted()
+        i := w[1]
+        start := take(mut dryers, w[0], 45)
+        done := start + 45
+        wait := done - arrive[i] - 75
+        total_wait += wait
+        print("{names[i]:<4} arrives {arrive[i]:>2}, dry done at {done:>3}, waited {wait:>2} min")
+    print("total waiting {total_wait} min over {names.len()} loads")
+
+@test fn waits_for_machine()
+    mut h := Heap.from([10])
+    assert_eq(take(mut h, 4, 30), 10)
+    assert_eq(h.peek() else 0, 40)

@@ -1,0 +1,15 @@
+minute 15: 2 waiting at the base
+minute 30: 2 waiting at the base
+minute 45: 3 waiting at the base
+minute 60: 0 waiting at the base
+Ana   4 min down, 4 runs
+Ben   9 min down, 3 runs
+Cat   5 min down, 4 runs
+Dev  12 min down, 2 runs
+Eli   6 min down, 3 runs
+Fay   7 min down, 3 runs
+Gil   3 min down, 4 runs
+Hue  10 min down, 2 runs
+Ivy   8 min down, 2 runs
+Jon   5 min down, 3 runs
+longest queue 8

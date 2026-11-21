@@ -1,0 +1,11 @@
+driver  1 (minute  0) for space  3: parks at  3, walks back 0
+driver  2 (minute  2) for space  3: parks at  4, walks back 1
+driver  3 (minute  5) for space  4: parks at  5, walks back 1
+driver  4 (minute  7) for space  3: parks at  6, walks back 3
+driver  5 (minute  9) for space 12: parks at 12, walks back 0
+driver  6 (minute 12) for space  3: parks at  7, walks back 4
+driver  7 (minute 15) for space 18: parks at 18, walks back 0
+driver  8 (minute 20) for space  4: parks at  8, walks back 4
+driver  9 (minute 33) for space  3: parks at  4, walks back 1
+driver 10 (minute 40) for space 19: parks at 19, walks back 0
+mean walk 1.4 spaces

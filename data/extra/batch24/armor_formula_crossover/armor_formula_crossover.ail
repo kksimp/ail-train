@@ -1,0 +1,24 @@
+## Armour formulas: flat armour takes a fixed 10 off every hit (at least 1 gets through), while percentage
+## armour lets through 100 / (100 + 4 x 10) of it; a table shows which protects better at each hit size.
+
+fn flat(hit int, armour int) int
+    (hit - armour).max(1)
+
+fn percent(hit int, armour int) int
+    hit * 100 / (100 + 4 * armour)
+
+fn main()
+    armour := 10
+    mut cross := -1
+    for hit in [4, 8, 12, 16, 20, 25, 30, 35, 40, 50, 60]
+        f := flat(hit, armour)
+        p := percent(hit, armour)
+        better := if f < p then "flat" elif p < f then "percent" else "same"
+        print("hit {hit:>2}: flat lets {f:>2} through, percent {p:>2} -> {better}")
+        if cross < 0 and p < f
+            cross = hit
+    print("percentage armour wins from hits of {cross} upwards")
+
+@test fn formulas()
+    assert_eq(flat(5, 10), 1)
+    assert_eq(percent(70, 10), 50)

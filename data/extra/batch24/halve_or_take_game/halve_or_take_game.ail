@@ -1,0 +1,40 @@
+## Halve or take: an original pile game; a move takes one or four counters, or halves an even pile, and the
+## player who cannot move loses. A table built upwards marks each pile size as a win or a loss to move.
+
+fn table(limit int) List[bool]
+    mut win := [false]
+    for n in 1..=limit
+        mut w := not win[n - 1]
+        if n >= 4 and not win[n - 4]
+            w = true
+        if n % 2 == 0 and not win[n / 2]
+            w = true
+        win.push(w)
+    win
+
+fn best_move(win List[bool], n int) int
+    if not win[n - 1]
+        return n - 1
+    if n >= 4 and not win[n - 4]
+        return n - 4
+    if n % 2 == 0 and not win[n / 2]
+        return n / 2
+    n - 1
+
+fn main()
+    win := table(40)
+    lost := [n for n in 0..=40 if not win[n]]
+    print("losing piles for the player to move: {lost}")
+    for start in [22, 26]
+        mut pile := start
+        mut moves := [pile]
+        while pile > 0
+            pile = best_move(win, pile)
+            moves.push(pile)
+        first := if moves.len() % 2 == 0 then "first" else "second"
+        shown := moves.join(" > ")
+        print("from {start}: {shown}, the {first} player wins")
+
+@test fn small_piles()
+    w := table(4)
+    assert_eq(w, [false, true, false, true, true])

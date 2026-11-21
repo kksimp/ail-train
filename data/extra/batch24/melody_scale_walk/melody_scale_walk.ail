@@ -1,0 +1,43 @@
+## Melody walk: a seeded tune over two octaves of C major takes mostly steps and some leaps; after a leap of
+## more than two notes it must step back the other way, and the last note is pulled to the nearest C.
+
+struct Rng
+    state int
+
+fn Rng.below(mut self, n int) int
+    self.state = (self.state * 1103515245 + 12345) % 2147483648
+    (self.state / 65536) % n
+
+fn name(i int) str
+    letters := ["C", "D", "E", "F", "G", "A", "B"]
+    "{letters[i % 7]}{4 + i / 7}"
+
+fn nearest_c(i int) int
+    if i % 7 <= 3 then i - i % 7 else i - i % 7 + 7
+
+fn main()
+    moves := [-2, -1, -1, 1, 1, 2, 3, -3, 0]
+    mut rng := Rng(state: 88)
+    mut note := 7
+    mut tune := [note]
+    mut owe := 0
+    for k in 0..14
+        mut step := moves[rng.below(moves.len())]
+        if owe != 0
+            step = owe
+            owe = 0
+        elif step > 2 or step < -2
+            owe = if step > 0 then -1 else 1
+        note = (note + step).max(0).min(14)
+        tune.push(note)
+    tune.push(nearest_c(note))
+    named := tune.map(name)
+    print(named.slice(0, 8).join(" "))
+    print(named.slice(8).join(" "))
+    low := tune.min() else 0
+    high := tune.max() else 0
+    print("range {name(low)} to {name(high)}, {tune.len()} notes")
+
+@test fn pulls_to_c()
+    assert_eq(nearest_c(9), 7)
+    assert_eq(nearest_c(12), 14)

@@ -1,0 +1,12 @@
+hit  4: flat lets  1 through, percent  2 -> flat
+hit  8: flat lets  1 through, percent  5 -> flat
+hit 12: flat lets  2 through, percent  8 -> flat
+hit 16: flat lets  6 through, percent 11 -> flat
+hit 20: flat lets 10 through, percent 14 -> flat
+hit 25: flat lets 15 through, percent 17 -> flat
+hit 30: flat lets 20 through, percent 21 -> flat
+hit 35: flat lets 25 through, percent 25 -> same
+hit 40: flat lets 30 through, percent 28 -> percent
+hit 50: flat lets 40 through, percent 35 -> percent
+hit 60: flat lets 50 through, percent 42 -> percent
+percentage armour wins from hits of 40 upwards

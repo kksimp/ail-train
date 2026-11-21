@@ -1,0 +1,43 @@
+## Hiking trails: from the middle of a 9 by 9 map a seeded walker steps to a random unvisited neighbour
+## until it reaches the edge or boxes itself in; three seeds are compared and the longest trail is drawn.
+
+struct Rng
+    state int
+
+fn Rng.below(mut self, n int) int
+    self.state = (self.state * 1103515245 + 12345) % 2147483648
+    (self.state / 65536) % n
+
+fn walk(seed int) List[int]
+    mut rng := Rng(state: seed)
+    mut path := [40]
+    while true
+        here := path[path.len() - 1]
+        r := here / 9
+        c := here % 9
+        if r == 0 or r == 8 or c == 0 or c == 8
+            break
+        options := [here - 9, here + 9, here - 1, here + 1].filter(|p| not path.contains(p))
+        if options.is_empty()
+            break
+        path.push(options[rng.below(options.len())])
+    path
+
+fn main()
+    mut best := List[int]()
+    for seed in [11, 22, 33]
+        p := walk(seed)
+        last := p[p.len() - 1]
+        edge := if last / 9 == 0 or last / 9 == 8 or last % 9 == 0 or last % 9 == 8 then "reaches the edge" else "gets boxed in"
+        print("seed {seed}: {p.len() - 1} steps, {edge}")
+        if p.len() > best.len()
+            best = p
+    for r in 0..9
+        mut cells := List[char]()
+        for c in 0..9
+            cell := r * 9 + c
+            cells.push(if cell == 40 then 'S' elif cell == best[best.len() - 1] then 'E' elif best.contains(cell) then '*' else '.')
+        print(cells.join(""))
+
+@test fn starts_in_middle()
+    assert_eq(walk(1)[0], 40)

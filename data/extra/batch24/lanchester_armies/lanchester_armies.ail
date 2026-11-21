@@ -1,0 +1,28 @@
+## Lanchester's square law: each army loses strength at a rate set by the other's size times its killing
+## rate; stepped every half hour, the side with the larger rate x size^2 wins and keeps about the predicted rest.
+
+fn main()
+    a_rate := 0.012
+    b_rate := 0.006
+    mut a := 900.0
+    mut b := 1200.0
+    a_power := a_rate * a * a
+    b_power := b_rate * b * b
+    print("fighting strength A {a_power:.1}, B {b_power:.1}")
+    dt := 0.5
+    mut steps := 0
+    while a > 0.0 and b > 0.0
+        da := b_rate * b * dt
+        db := a_rate * a * dt
+        a -= da
+        b -= db
+        steps += 1
+        if steps % 40 == 0
+            print("hour {steps / 2:>3}: A {a:.1}, B {b:.1}")
+    predicted := ((a_power - b_power) / a_rate).sqrt()
+    winner := if a > 0.0 then "A" else "B"
+    left := if a > 0.0 then a else b
+    print("{winner} wins after {steps} half hours with {left:.1} left; the law predicts {predicted:.1}")
+
+@test fn power()
+    assert_eq(0.25 * 4.0 * 4.0, 4.0)

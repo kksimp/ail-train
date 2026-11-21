@@ -1,0 +1,40 @@
+## Value noise: seeded heights 0 to 99 sit at every eighth column of a 49-column strip and the columns in
+## between are blended linearly, giving smooth rolling hills; a second, finer layer adds detail at half weight.
+
+struct Rng
+    state int
+
+fn Rng.below(mut self, n int) int
+    self.state = (self.state * 1103515245 + 12345) % 2147483648
+    (self.state / 65536) % n
+
+fn layer(rng_seed int, spacing int, width int) List[int]
+    mut rng := Rng(state: rng_seed)
+    mut knots := List[int]()
+    for k in 0..=(width / spacing + 1)
+        knots.push(rng.below(100))
+    mut out := List[int]()
+    for x in 0..width
+        k := x / spacing
+        f := x % spacing
+        out.push((knots[k] * (spacing - f) + knots[k + 1] * f) / spacing)
+    out
+
+fn main()
+    width := 49
+    coarse := layer(17, 8, width)
+    fine := layer(71, 2, width)
+    mixed := [(2 * coarse[x] + fine[x]) / 3 for x in 0..width]
+    for level in 0..6
+        cut := 90 - level * 16
+        mut row := List[char]()
+        for v in mixed
+            row.push(if v >= cut then '#' else '.')
+        print(row.join(""))
+    high := mixed.max() else 0
+    low := mixed.min() else 0
+    print("heights from {low} to {high}")
+
+@test fn blends_between_knots()
+    l := layer(5, 4, 9)
+    assert_eq(l.len(), 9)

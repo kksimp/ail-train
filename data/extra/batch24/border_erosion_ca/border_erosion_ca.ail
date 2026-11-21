@@ -1,0 +1,40 @@
+## Coast smoothing: an original two-way automaton on an island map; land with five or more water cells among
+## its eight neighbours washes away, and water with six or more land neighbours silts up, so bays and spits even out.
+
+fn count_near(g List[List[char]], r int, c int, kind char) int
+    mut n := 0
+    for dr in -1..=1
+        for dc in -1..=1
+            rr := r + dr
+            cc := c + dc
+            if (dr != 0 or dc != 0) and rr >= 0 and rr < g.len() and cc >= 0 and cc < g[0].len()
+                if g[rr][cc] == kind
+                    n += 1
+            elif dr != 0 or dc != 0
+                if kind == '~'
+                    n += 1
+    n
+
+fn step(g List[List[char]]) List[List[char]]
+    mut out := g
+    for r in 0..g.len()
+        for c in 0..g[0].len()
+            if g[r][c] == '#' and count_near(g, r, c, '~') >= 5
+                out[r][c] = '~'
+            elif g[r][c] == '~' and count_near(g, r, c, '#') >= 6
+                out[r][c] = '#'
+    out
+
+fn main()
+    island := ["~~~~~~~~~~~~", "~~###~~~#~~~", "~#####~###~~", "~##~####~##~", "~#~~###~~~#~", "~##~#####~~~", "~~#~~##~~#~~", "~~~~~~~~~~~~"]
+    mut g := island.map(|line| line.chars())
+    for s in 1..=4
+        g = step(g)
+        land := g.fold(0, |acc, row| acc + row.count(|ch| ch == '#'))
+        print("pass {s}: {land} land cells")
+    for row in g
+        print(row.join(""))
+
+@test fn lone_rock_washes_away()
+    g := step([['~', '~', '~'], ['~', '#', '~'], ['~', '~', '~']])
+    assert_eq(g[1][1], '~')
