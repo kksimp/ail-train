@@ -1,0 +1,43 @@
+## Oven sharing: dishes are sorted hottest first and grouped into oven sessions within 10 C of the
+## session's first dish; sessions then run coolest first and back to back, the last ending at serving time.
+
+struct Dish
+    name str
+    temp int
+    mins int
+
+fn group_temps(ts List[int]) List[List[int]]
+    mut groups := List[List[int]]()
+    for i, t in ts.enumerate()
+        if groups.is_empty() or ts[groups[groups.len() - 1][0]] - t > 10
+            groups.push([i])
+        else
+            groups[groups.len() - 1].push(i)
+    groups
+
+fn hhmm(t int) str
+    h := t / 60
+    m := t % 60
+    "{h:02}:{m:02}"
+
+fn main()
+    dishes := [Dish(name: "potatoes", temp: 200, mins: 50), Dish(name: "yorkshires", temp: 220, mins: 25), Dish(name: "stuffing", temp: 190, mins: 35), Dish(name: "lamb", temp: 180, mins: 90), Dish(name: "gratin", temp: 180, mins: 60), Dish(name: "parsnips", temp: 200, mins: 40), Dish(name: "crumble", temp: 175, mins: 45)]
+    hot := dishes.sorted(by: |d| -d.temp)
+    groups := group_temps([d.temp for d in hot]).reversed()
+    mut total := 0
+    for g in groups
+        total += g.fold(0, |acc, i| acc.max(hot[i].mins))
+    mut t := 19 * 60 - total
+    print("oven on by {hhmm(t)}")
+    for g in groups
+        len_g := g.fold(0, |acc, i| acc.max(hot[i].mins))
+        finish := t + len_g
+        mut parts := List[str]()
+        for i in g
+            parts.push("{hot[i].name} in {hhmm(finish - hot[i].mins)}")
+        joined := parts.join(", ")
+        print("{hot[g[0]].temp} C until {hhmm(finish)}: {joined}")
+        t = finish
+
+@test fn grouping()
+    assert_eq(group_temps([220, 200, 195, 180]), [[0], [1, 2], [3]])

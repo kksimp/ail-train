@@ -1,0 +1,37 @@
+## Lunch accounts: pupils' school lunch accounts take top-ups and pay 2.40 a meal (free-meal pupils pay
+## nothing); a meal may take an account down to -5.00 but no lower, and low balances get a letter home.
+
+struct Account
+    balance int
+    free bool
+
+fn can_pay(balance int, cost int) bool
+    balance - cost >= -500
+
+fn money(c int) str
+    sign := if c < 0 then "-" else ""
+    a := c.abs()
+    "{sign}{a / 100}.{a % 100:02}"
+
+fn main()
+    mut accts := {"Aisha": Account(balance: 1200, free: false), "Brodie": Account(balance: 300, free: false), "Chen": Account(balance: 0, free: true), "Dara": Account(balance: -200, free: false)}
+    events := [(1, "Aisha", 0), (1, "Brodie", 0), (1, "Chen", 0), (1, "Dara", 0), (2, "Brodie", 0), (2, "Dara", 0), (2, "Dara", 1000), (3, "Brodie", 0), (3, "Brodie", 0), (4, "Aisha", 0), (4, "Brodie", 0), (5, "Chen", 0), (5, "Aisha", 0)]
+    for e in events
+        day, who, topup := e
+        a := accts[who]
+        if topup > 0
+            accts[who].balance += topup
+            print("day {day}: {who} tops up {money(topup)}")
+        elif a.free
+            continue
+        elif can_pay(a.balance, 240)
+            accts[who].balance -= 240
+        else
+            print("day {day}: {who} refused at {money(a.balance)}, packed lunch")
+    for who, a in accts
+        note := if a.free then "free meals" elif a.balance < 500 then "send a letter" else "fine"
+        print("{who:<6} {money(a.balance):>6} {note}")
+
+@test fn floor()
+    assert(not can_pay(-300, 240))
+    assert(can_pay(-200, 240))

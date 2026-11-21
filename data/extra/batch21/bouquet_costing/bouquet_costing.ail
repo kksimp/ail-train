@@ -1,0 +1,34 @@
+## Bouquet costing: each bouquet recipe lists its stems; a bouquet sells for its stem cost times 2.5 plus
+## a 4.50 sleeve, rounded up to 50 cents, and the day's orders give the bunches of ten to buy and stems spare.
+
+fn retail(stem_cost int) int
+    raw := stem_cost * 5 / 2 + 450
+    (raw + 49) / 50 * 50
+
+fn money(c int) str
+    "{c / 100}.{c % 100:02}"
+
+fn main()
+    cost := {"rose": 90, "tulip": 45, "eucalyptus": 30, "lily": 120, "gypsophila": 25}
+    recipes := {"romance": [("rose", 12), ("gypsophila", 5)], "spring": [("tulip", 15), ("eucalyptus", 4)], "grand": [("lily", 5), ("rose", 6), ("eucalyptus", 6)]}
+    orders := {"romance": 3, "spring": 5, "grand": 2}
+    mut stems := Map[str, int]()
+    mut takings := 0
+    for name, recipe in recipes
+        sc := recipe.fold(0, |acc, r| acc + cost[r.0] * r.1)
+        price := retail(sc)
+        n := orders.get_or(name, 0)
+        takings += price * n
+        for r in recipe
+            stems[r.0] += r.1 * n
+        print("{name:<8} stems {money(sc)}, sells at {money(price)}, {n} ordered")
+    mut wholesale := 0
+    for flower, need in stems
+        bunches := (need + 9) / 10
+        wholesale += bunches * 10 * cost[flower]
+        print("  {flower:<10} {need:>3} stems: {bunches} bunches, {bunches * 10 - need} spare")
+    print("takings {money(takings)}, flowers cost {money(wholesale)}")
+
+@test fn price_rounding()
+    assert_eq(retail(1000), 2950)
+    assert_eq(retail(1001), 3000)

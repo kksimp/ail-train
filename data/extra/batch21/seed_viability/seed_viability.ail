@@ -1,0 +1,34 @@
+## Seed viability: seeds keep for a crop-dependent number of years after packing; older packets are thrown
+## out, packets in their last good year are sown thickly, the rest are fine, and unknown crops are flagged.
+
+enum Verdict
+    Fine
+    Thick
+    Discard
+    Unknown
+
+fn verdict(now int, packed int, keeps int) Verdict
+    age := now - packed
+    if keeps < 0
+        return Verdict.Unknown
+    if age > keeps then Verdict.Discard elif age == keeps then Verdict.Thick else Verdict.Fine
+
+fn main()
+    keeps := {"parsnip": 1, "onion": 2, "carrot": 3, "pea": 3, "bean": 3, "kale": 4, "lettuce": 5, "tomato": 5, "squash": 6}
+    packets := [("parsnip", 2025), ("onion", 2023), ("carrot", 2024), ("pea", 2022), ("lettuce", 2021), ("tomato", 2023), ("squash", 2019), ("kale", 2026), ("bean", 2023), ("okra", 2025)]
+    mut groups := Map[str, List[str]]()
+    for p in packets
+        crop, year := p
+        v := verdict(2026, year, keeps.get_or(crop, -1))
+        groups.push(v.name(), "{crop} ({year})")
+    for v in Verdict.variants()
+        items := groups.get_or(v.name(), [])
+        if not items.is_empty()
+            joined := items.join(", ")
+            print("{v.name():<8} {joined}")
+    gone := groups.get_or("Discard", []).len()
+    print("packets to replace: {gone}")
+
+@test fn last_year()
+    assert(verdict(2026, 2025, 1) == Verdict.Thick)
+    assert(verdict(2026, 2020, 3) == Verdict.Discard)

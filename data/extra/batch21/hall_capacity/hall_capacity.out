@@ -1,0 +1,6 @@
+room         standing  theatre  banquet
+main hall        310*     300      200
+studio            90*      80       53
+bar              155*     106       70
+garden room      120*     120*     120*
+* exits limit the number (6 cases)

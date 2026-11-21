@@ -1,0 +1,32 @@
+## Carpet roll: carpet comes off a 4 m wide roll, so a room is covered by strips laid one way or the
+## other; the cheaper orientation needs the shorter cut, and the waste is the roll area left over.
+
+fn cut_one_way(across int, along int) int
+    strips := (across + 399) / 400
+    strips * along
+
+fn cut_for(w int, l int) int
+    cut_one_way(w, l).min(cut_one_way(l, w))
+
+fn metres(cm int) str
+    "{cm / 100}.{cm % 100:02} m"
+
+fn main()
+    rooms := [("lounge", 520, 380), ("bedroom", 360, 330), ("hall", 900, 110), ("dining", 450, 420), ("study", 280, 250)]
+    mut total := 0
+    mut waste := 0
+    for r in rooms
+        name, w, l := r
+        cut := cut_for(w, l)
+        total += cut
+        spare := cut * 400 - w * l
+        waste += spare
+        seams := if cut_one_way(w, l) <= cut_one_way(l, w) then (w + 399) / 400 - 1 else (l + 399) / 400 - 1
+        print("{name:<8} {w}x{l} cm: cut {metres(cut)}, {seams} seams, waste {spare / 10000}.{spare % 10000 / 100:02} m2")
+    cost := total * 98
+    print("roll length {metres(total)}, cost {cost / 100}.{cost % 100:02}")
+    print("total waste {waste / 10000}.{waste % 10000 / 100:02} m2")
+
+@test fn bedroom_cut()
+    assert_eq(cut_for(360, 330), 330)
+    assert_eq(cut_for(900, 110), 330)

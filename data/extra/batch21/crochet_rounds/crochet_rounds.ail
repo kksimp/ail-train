@@ -1,0 +1,27 @@
+## Crochet rounds: a flat circle starts with 6 stitches and gains 6 each round, so round n has 6n and the
+## first n rounds hold 3n(n + 1); each round adds about 6 mm of radius, which sizes coasters up to rugs.
+
+fn rounds_for(diameter int) int
+    (diameter / 2 + 5) / 6
+
+fn total(n int) int
+    3 * n * (n + 1)
+
+fn main()
+    items := [("coaster", 100), ("potholder", 180), ("cushion", 400), ("rug", 900)]
+    for it in items
+        name, d := it
+        n := rounds_for(d)
+        st := total(n)
+        cm := st * 25 / 10
+        balls := (cm + 7999) / 8000
+        print("{name:<9} {d} mm: {n} rounds, last round {6 * n} stitches, {st} in all, {cm / 100} m of yarn, {balls} balls")
+    first := [6 * k for k in 1..=5]
+    print("rounds 1-5: {first}")
+
+@test fn closed_form()
+    mut s := 0
+    for k in 1..=4
+        s += 6 * k
+    assert_eq(total(4), s)
+    assert_eq(total(4), 60)

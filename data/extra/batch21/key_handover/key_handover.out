@@ -1,0 +1,14 @@
+front key: safe -> Lena (Lena now holds 1)
+refused: Lena cannot give the back key, safe has it
+back key: safe -> Pete (Pete now holds 1)
+garage key: Omar -> Lena (Lena now holds 2)
+refused: no such key: loft
+shed key: Omar -> Lena (Lena now holds 3)
+front key: Lena -> safe (safe now holds 2)
+spare key: safe -> Lena (Lena now holds 3)
+front   safe
+back    Pete
+garage  Lena
+shed    Lena
+spare   Lena
+2 refused; most keys: Lena with 3

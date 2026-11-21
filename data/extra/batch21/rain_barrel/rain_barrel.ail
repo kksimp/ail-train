@@ -1,0 +1,32 @@
+## Rain barrel: each day's rain on a 12 m2 shed roof fills a 200 litre barrel at 90% capture (1 mm on 1 m2
+## is 1 litre); dry days draw 25 litres for the garden, overflow is lost and any shortfall comes from the tap.
+
+fn capture(mm int, roof int) int
+    mm * roof * 9 / 10
+
+fn main()
+    rain := [0, 4, 12, 0, 0, 0, 1, 25, 18, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0]
+    cap := 200
+    mut level := 60
+    mut overflow := 0
+    mut tap := 0
+    mut short_days := 0
+    for d, mm in rain.enumerate()
+        level += capture(mm, 12)
+        if level > cap
+            overflow += level - cap
+            level = cap
+        if mm < 2
+            if level >= 25
+                level -= 25
+            else
+                tap += 25 - level
+                level = 0
+                short_days += 1
+        if d % 3 == 2
+            bar := "#".repeat(level / 10)
+            print("day {d + 1:>2}: {level:>3} L |{bar}")
+    print("overflowed {overflow} L; tap water {tap} L on {short_days} days")
+
+@test fn ten_mm()
+    assert_eq(capture(10, 12), 108)

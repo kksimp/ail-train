@@ -1,0 +1,28 @@
+## Scratch card value: a print run of 1,200,000 cards at 2.00 each carries a prize table; the expected prize
+## per card, the share of stakes paid back and the odds of winning anything come from the prize counts.
+
+fn one_in(cards int, count int) int
+    cards / count
+
+fn main()
+    cards := 1200000
+    price := 200
+    prizes := [(2000000, 2), (100000, 30), (10000, 1200), (2000, 24000), (500, 60000), (200, 150000)]
+    mut paid := 0
+    mut winners := 0
+    for p in prizes
+        amount, count := p
+        paid += amount * count
+        winners += count
+        print("{amount / 100:>6}: {count:>6} prizes, 1 in {one_in(cards, count)}")
+    ev := paid.to_float() / cards.to_float() / 100.0
+    back := paid * 1000 / (cards * price)
+    odds := cards.to_float() / winners.to_float()
+    print("expected prize per card {ev:.2} on a 2.00 stake")
+    print("paid back {back / 10}.{back % 10}% of stakes")
+    print("odds of any prize: 1 in {odds:.2}")
+    small := prizes.filter(|p| p.0 <= price).fold(0, |acc, p| acc + p.1)
+    print("{small * 100 / winners}% of wins only give the stake back or less")
+
+@test fn odds()
+    assert_eq(one_in(1200000, 30), 40000)

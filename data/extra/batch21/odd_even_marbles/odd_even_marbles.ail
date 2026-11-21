@@ -1,0 +1,39 @@
+## Odd-even marbles: one player hides some of their marbles in a fist and the other bets on odd or even;
+## the loser pays the bet in marbles. Seeded choices play rounds until someone is out or 12 rounds pass.
+
+fn next_state(s int) int
+    (s * 1103515245 + 12345) % 2147483648
+
+fn pick(s int, n int) int
+    (s >> 16) % n
+
+fn main()
+    names := ["Mina", "Theo"]
+    mut marbles := [10, 10]
+    mut s := 2468
+    mut r := 0
+    while r < 12 and marbles[0] > 0 and marbles[1] > 0
+        hider := r % 2
+        guesser := 1 - hider
+        s = next_state(s)
+        hidden := pick(s, marbles[hider]) + 1
+        s = next_state(s)
+        bet := (pick(s, 3) + 1).min(marbles[guesser]).min(marbles[hider])
+        s = next_state(s)
+        says_odd := pick(s, 2) == 0
+        right := says_odd == (hidden % 2 == 1)
+        guess := if says_odd then "odd" else "even"
+        if right
+            marbles[guesser] += bet
+            marbles[hider] -= bet
+        else
+            marbles[guesser] -= bet
+            marbles[hider] += bet
+        outcome := if right then "wins" else "loses"
+        r += 1
+        print("round {r:>2}: {names[hider]} hides {hidden}, {names[guesser]} bets {bet} on {guess} and {outcome} ({marbles[0]}-{marbles[1]})")
+    leader := if marbles[0] > marbles[1] then names[0] elif marbles[1] > marbles[0] then names[1] else "neither"
+    print("after {r} rounds: {leader} ahead")
+
+@test fn bounded()
+    assert(pick(next_state(7), 5) < 5)

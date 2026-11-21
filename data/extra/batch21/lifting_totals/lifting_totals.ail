@@ -1,0 +1,34 @@
+## Lifting totals: each lifter has three snatch and three clean-and-jerk attempts (negative means no lift);
+## the total is the best of each, no good lift in either is a bomb-out, and equal totals go to the lighter.
+
+struct Lifter
+    name str
+    body int
+    snatch List[int]
+    cj List[int]
+
+fn best(xs List[int]) int
+    xs.filter(|x| x > 0).max() else 0
+
+fn Lifter.total(self) int
+    s := best(self.snatch)
+    c := best(self.cj)
+    if s == 0 or c == 0 then 0 else s + c
+
+fn main()
+    lifters := [Lifter(name: "Ana", body: 588, snatch: [80, -84, 84], cj: [100, 104, -107]), Lifter(name: "Bea", body: 579, snatch: [-82, 82, -86], cj: [102, 106, -110]), Lifter(name: "Cai", body: 601, snatch: [78, 81, 83], cj: [-100, -100, -100]), Lifter(name: "Dan", body: 594, snatch: [85, -88, -88], cj: [105, -109, 109]), Lifter(name: "Eva", body: 590, snatch: [79, 82, -85], cj: [98, 101, 103])]
+    ranked := lifters.sorted(by: |l| (-l.total(), l.body))
+    mut place := 1
+    for l in ranked
+        kg := "{l.body / 10}.{l.body % 10}"
+        if l.total() == 0
+            print("--  {l.name:<4} ({kg} kg) bombed out")
+        else
+            print("{place}.  {l.name:<4} ({kg} kg) {best(l.snatch)} + {best(l.cj)} = {l.total()}")
+            place += 1
+    made := lifters.fold(0, |acc, l| acc + l.snatch.count(|x| x > 0) + l.cj.count(|x| x > 0))
+    print("{made} of {lifters.len() * 6} attempts were good lifts")
+
+@test fn best_lift()
+    assert_eq(best([-5, 3, -9]), 3)
+    assert_eq(best([-1, -2]), 0)

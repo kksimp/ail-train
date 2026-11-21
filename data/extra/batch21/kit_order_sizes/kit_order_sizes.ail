@@ -1,0 +1,32 @@
+## Kit order: members' shirt and hoodie orders are totalled per size; the supplier sells packs of five of
+## one size, so the packs to buy, the spares and the cost are worked out with sizes listed small to large.
+
+fn packs(n int) int
+    (n + 4) / 5
+
+fn main()
+    sizes := ["XS", "S", "M", "L", "XL"]
+    orders := [("Amy", "shirt", "S"), ("Raj", "shirt", "L"), ("Tess", "hoodie", "M"), ("Ola", "shirt", "M"), ("Ken", "shirt", "XL"), ("Lin", "hoodie", "S"), ("Max", "shirt", "M"), ("Pam", "hoodie", "L"), ("Ray", "shirt", "L"), ("Sue", "shirt", "XS"), ("Tom", "hoodie", "M"), ("Uli", "shirt", "M"), ("Val", "shirt", "L"), ("Wes", "hoodie", "XL")]
+    prices := {"shirt": 6000, "hoodie": 11000}
+    mut count := Map[str, int]()
+    for o in orders
+        count["{o.1} {o.2}"] += 1
+    mut spend := 0
+    mut spare := 0
+    for item in ["shirt", "hoodie"]
+        mut parts := List[str]()
+        for s in sizes
+            n := count.get_or("{item} {s}", 0)
+            if n > 0
+                p := packs(n)
+                spare += p * 5 - n
+                spend += p * prices[item]
+                parts.push("{s} {n} ({p} pk)")
+        joined := parts.join(", ")
+        print("{item}: {joined}")
+    print("spare items: {spare}")
+    print("order cost: {spend / 100}.{spend % 100:02}")
+
+@test fn pack_rounding()
+    assert_eq(packs(11), 3)
+    assert_eq(packs(5), 1)

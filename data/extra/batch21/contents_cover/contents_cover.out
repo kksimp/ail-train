@@ -1,0 +1,13 @@
+contents worth 11000
+Hale: insured 11000, 0% under-insured
+  claim   450 -> paid 350.00
+  claim  3000 -> paid 2900.00
+  claim    80 -> paid 0.00
+Iqbal: insured 8000, 27% under-insured
+  claim   450 -> paid 77.27
+  claim  3000 -> paid 1931.81
+  claim    80 -> paid 0.00
+Jones: insured 5500, 50% under-insured
+  claim   450 -> paid 125.00
+  claim  3000 -> paid 1400.00
+  claim    80 -> paid 0.00

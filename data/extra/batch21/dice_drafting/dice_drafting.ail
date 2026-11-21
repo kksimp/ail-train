@@ -1,0 +1,56 @@
+## Dice drafting: an original game; each round six seeded dice are rolled and two players draft them in
+## turn, one always taking the highest die, the other chasing pairs (5 bonus points per pair it completes).
+
+fn next_state(s int) int
+    (s * 1103515245 + 12345) % 2147483648
+
+fn pairs(xs List[int]) int
+    mut n := 0
+    for v in 1..=6
+        n += xs.count(|x| x == v) / 2
+    n
+
+fn choose(pool List[int], mine List[int], chase bool) int
+    mut best := 0
+    for i, d in pool.enumerate()
+        if d > pool[best]
+            best = i
+    if chase
+        mut pair := -1
+        for i, d in pool.enumerate()
+            if mine.contains(d) and (pair < 0 or d > pool[pair])
+                pair = i
+        if pair >= 0
+            return pair
+    best
+
+fn main()
+    names := ["High", "Pairs"]
+    mut s := 99
+    mut totals := [0, 0]
+    for r in 0..4
+        mut pool := List[int]()
+        for k in 0..6
+            s = next_state(s)
+            pool.push((s >> 16) % 6 + 1)
+        rolled := pool.sorted()
+        mut picks := [List[int](), List[int]()]
+        mut who := r % 2
+        while not pool.is_empty()
+            i := choose(pool, picks[who], who == 1)
+            picks[who].push(pool[i])
+            pool.remove_at(i)
+            who = 1 - who
+        mut line := List[str]()
+        for p in 0..2
+            pts := picks[p].sum() + 5 * pairs(picks[p])
+            totals[p] += pts
+            line.push("{names[p]} {picks[p]} = {pts}")
+        joined := line.join(", ")
+        print("round {r + 1}: rolled {rolled}; {joined}")
+    print("totals: High {totals[0]}, Pairs {totals[1]}")
+
+@test fn pair_count()
+    assert_eq(pairs([4, 4, 4]), 1)
+    assert_eq(choose([2, 6, 3], [3], true), 2)
+    assert_eq(choose([2, 6, 3], [3], false), 1)

@@ -1,0 +1,9 @@
+ 6x4  in: crop 6000x4000 (100% kept), 1000 ppi, excellent
+ 7x5  in: crop 5600x4000 (93% kept), 800 ppi, excellent
+10x8  in: crop 5000x4000 (83% kept), 500 ppi, excellent
+12x8  in: crop 6000x4000 (100% kept), 500 ppi, excellent
+15x10 in: crop 6000x4000 (100% kept), 400 ppi, excellent
+20x16 in: crop 5000x4000 (83% kept), 250 ppi, good
+30x20 in: crop 6000x4000 (100% kept), 200 ppi, good
+36x24 in: crop 6000x4000 (100% kept), 166 ppi, poor
+largest good print: 30x20

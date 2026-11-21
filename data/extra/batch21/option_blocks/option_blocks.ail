@@ -1,0 +1,42 @@
+## Option blocks: GCSE subjects run in timetable blocks A, B and C; a pupil's three choices fit if each can
+## come from a different block, found by trying every order of the blocks, otherwise the clash is reported.
+
+fn fits(choices List[str], blocks Map[char, List[str]]) List[char]
+    names := ['A', 'B', 'C']
+    for a in 0..3
+        for b in 0..3
+            for c in 0..3
+                if a == b or b == c or a == c
+                    continue
+                order := [names[a], names[b], names[c]]
+                mut ok := true
+                for k in 0..3
+                    if not blocks[order[k]].contains(choices[k])
+                        ok = false
+                if ok
+                    return order
+    []
+
+fn main()
+    blocks := {'A': ["History", "Art", "Computing"], 'B': ["Geography", "Music", "Computing", "French"], 'C': ["History", "Drama", "Spanish", "Art"]}
+    pupils := [("Ivy", ["History", "Computing", "Art"]), ("Jake", ["Art", "Drama", "Spanish"]), ("Kia", ["Music", "French", "History"]), ("Leo", ["Computing", "Geography", "Drama"]), ("Mae", ["Art", "History", "French"])]
+    mut clashes := 0
+    for p in pupils
+        name, picks := p
+        order := fits(picks, blocks)
+        if order.is_empty()
+            clashes += 1
+            wanted := picks.join(", ")
+            print("{name}: {wanted} clash, choose again")
+        else
+            mut parts := List[str]()
+            for k in 0..3
+                parts.push("{picks[k]} ({order[k]})")
+            placed := parts.join(", ")
+            print("{name}: {placed}")
+    print("{clashes} pupils need to change a choice")
+
+@test fn clash()
+    blocks := {'A': ["Art"], 'B': ["Drama"], 'C': ["Drama"]}
+    assert(fits(["Art", "Drama", "Drama"], blocks).len() == 3)
+    assert(fits(["Drama", "Art", "Art"], blocks).is_empty())

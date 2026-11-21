@@ -1,0 +1,45 @@
+## Blood pressure bands: a reading falls in the higher of its systolic and diastolic bands (normal,
+## elevated, stage 1, stage 2, crisis); the average of the morning readings gets its own band too.
+
+enum Band
+    Normal
+    Elevated
+    Stage1
+    Stage2
+    Crisis
+
+fn sys_rank(s int) int
+    if s > 180 then 4 elif s >= 140 then 3 elif s >= 130 then 2 elif s >= 120 then 1 else 0
+
+fn dia_rank(d int) int
+    if d > 120 then 4 elif d >= 90 then 3 elif d >= 80 then 2 else 0
+
+fn classify(s int, d int) Band
+    Band.variants()[sys_rank(s).max(dia_rank(d))]
+
+fn main()
+    readings := [("Mon", "am", 128, 82), ("Mon", "pm", 121, 76), ("Tue", "am", 134, 79), ("Tue", "pm", 118, 74), ("Wed", "am", 142, 91), ("Wed", "pm", 126, 80), ("Thu", "am", 119, 78), ("Fri", "am", 131, 85), ("Fri", "pm", 117, 72)]
+    mut counts := Map[str, int]()
+    mut ms := 0
+    mut md := 0
+    mut mornings := 0
+    for r in readings
+        day, when, s, d := r
+        b := classify(s, d)
+        counts[b.name()] += 1
+        if when == "am"
+            ms += s
+            md += d
+            mornings += 1
+        print("{day} {when}: {s}/{d} {b.name()}")
+    avg_s := ms / mornings
+    avg_d := md / mornings
+    print("morning average {avg_s}/{avg_d}: {classify(avg_s, avg_d).name()}")
+    for b in Band.variants()
+        n := counts.get_or(b.name(), 0)
+        if n > 0
+            print("{b.name()}: {n}")
+
+@test fn higher_band_wins()
+    assert(classify(125, 85) == Band.Stage1)
+    assert(classify(110, 70) == Band.Normal)

@@ -1,0 +1,25 @@
+## Fruit thinning: along each branch one fruitlet is kept per 15 cm; working out from the trunk, a fruitlet
+## stays if it sits at least 15 cm beyond the last one kept, and the rest are picked off.
+
+fn thin(ps List[int], gap int) List[int]
+    mut kept := List[int]()
+    for p in ps.sorted()
+        last := kept.last() else -1000
+        if p - last >= gap
+            kept.push(p)
+    kept
+
+fn main()
+    branches := [[5, 9, 22, 30, 31, 47, 60], [12, 14, 16, 40, 41, 55, 58, 71, 90], [3, 18, 33, 48], [70, 8, 25, 26, 52]]
+    mut kept_all := 0
+    mut picked := 0
+    for i, b in branches.enumerate()
+        k := thin(b, 15)
+        kept_all += k.len()
+        picked += b.len() - k.len()
+        print("branch {i + 1}: keep {k} ({b.len() - k.len()} picked off)")
+    grams := kept_all * 150
+    print("{kept_all} kept, {picked} removed; expected crop about {grams / 1000}.{grams % 1000 / 100} kg")
+
+@test fn spacing()
+    assert_eq(thin([0, 10, 15, 29, 31], 15), [0, 15, 31])

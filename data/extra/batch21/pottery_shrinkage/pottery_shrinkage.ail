@@ -1,0 +1,27 @@
+## Pottery shrinkage: a 100 mm line on a test tile measures less after firing, giving the clay's shrinkage
+## s; a pot must be thrown at target / (1 - s) to come out the right size, shown for three clay bodies.
+
+struct Clay
+    name str
+    fired_mm float
+
+fn Clay.shrink(self) float
+    (100.0 - self.fired_mm) / 100.0
+
+fn throw_size(target float, s float) float
+    target / (1.0 - s)
+
+fn main()
+    clays := [Clay(name: "stoneware", fired_mm: 88.0), Clay(name: "porcelain", fired_mm: 86.0), Clay(name: "earthenware", fired_mm: 93.0)]
+    pieces := [("mug height", 100.0), ("bowl width", 150.0), ("plate width", 260.0)]
+    for c in clays
+        pct := c.shrink() * 100.0
+        print("{c.name} shrinks {pct:.1}%")
+        for p in pieces
+            what, mm := p
+            t := throw_size(mm, c.shrink())
+            extra := t - mm
+            print("  {what:<11} {mm:.0} mm fired: throw {t:.1} mm (+{extra:.1})")
+
+@test fn back_to_target()
+    assert((throw_size(88.0, 0.12) - 100.0).abs() < 0.000001)

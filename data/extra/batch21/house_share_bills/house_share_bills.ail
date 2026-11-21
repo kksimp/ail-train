@@ -1,0 +1,48 @@
+## House share bills: each utility bill covers a run of days and is split by person-days, so a housemate
+## who lived there for part of the period pays only for their nights; leftover cents go to the largest remainders.
+
+struct Mate
+    name str
+    moved_in int
+    moved_out int
+
+fn overlap(m Mate, from int, to int) int
+    lo := m.moved_in.max(from)
+    hi := m.moved_out.min(to)
+    if hi < lo then 0 else hi - lo + 1
+
+fn split(amount int, days List[int]) List[int]
+    total := days.sum()
+    mut shares := [amount * d / total for d in days]
+    mut left := amount - shares.sum()
+    idx := [i for i in 0..days.len()]
+    order := idx.sorted(by: |i| -((amount * days[i]) % total))
+    for i in order
+        if left == 0
+            break
+        shares[i] += 1
+        left -= 1
+    shares
+
+fn money(c int) str
+    "{c / 100}.{c % 100:02}"
+
+fn main()
+    mates := [Mate(name: "Rosa", moved_in: 1, moved_out: 365), Mate(name: "Tom", moved_in: 1, moved_out: 140), Mate(name: "Uma", moved_in: 60, moved_out: 365), Mate(name: "Vic", moved_in: 200, moved_out: 365)]
+    bills := [("gas", 1, 90, 41250), ("electric", 91, 181, 30999), ("water", 182, 273, 18800), ("broadband", 274, 365, 12000)]
+    mut owed := Map[str, int]()
+    for b in bills
+        what, from, to, amount := b
+        days := [overlap(m, from, to) for m in mates]
+        shares := split(amount, days)
+        mut parts := List[str]()
+        for i, m in mates.enumerate()
+            owed[m.name] += shares[i]
+            parts.push("{m.name} {money(shares[i])}")
+        joined := parts.join(", ")
+        print("{what:<9} {money(amount):>7}: {joined}")
+    for name, c in owed
+        print("{name:<5} owes {money(c):>7} for the year")
+
+@test fn even_split()
+    assert_eq(split(100, [1, 1, 1]), [34, 33, 33])

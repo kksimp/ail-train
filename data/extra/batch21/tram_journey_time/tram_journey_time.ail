@@ -1,0 +1,46 @@
+## Tram journey time: arrival times along a line add each stop's running time and dwell; an express
+## that skips minor stops saves their dwell and the 20 s it takes to brake and pull away there.
+
+struct Stop
+    name str
+    run int
+    dwell int
+    major bool
+
+fn mmss(s int) str
+    m := s / 60
+    r := s % 60
+    "{m}:{r:02}"
+
+fn times(stops List[Stop], express bool) List[int]
+    mut t := 0
+    mut out := List[int]()
+    for i, s in stops.enumerate()
+        t += s.run
+        if express and not s.major
+            t -= 20
+            out.push(-1)
+        else
+            out.push(t)
+            if i < stops.len() - 1
+                t += s.dwell
+    out
+
+fn show(t int) str
+    if t < 0 then "-" else mmss(t)
+
+fn main()
+    line := [Stop(name: "Depot", run: 0, dwell: 30, major: true), Stop(name: "Market", run: 95, dwell: 25, major: false), Stop(name: "Bridge", run: 120, dwell: 30, major: true), Stop(name: "Park", run: 80, dwell: 20, major: false), Stop(name: "College", run: 100, dwell: 40, major: true), Stop(name: "Mill", run: 90, dwell: 20, major: false), Stop(name: "Terminus", run: 110, dwell: 0, major: true)]
+    slow := times(line, false)
+    fast := times(line, true)
+    print("stop       all  express")
+    for i, s in line.enumerate()
+        a := show(slow[i])
+        b := show(fast[i])
+        print("{s.name:<9} {a:>5} {b:>8}")
+    last := line.len() - 1
+    saved := slow[last] - fast[last]
+    print("express saves {mmss(saved)} end to end")
+
+@test fn clock()
+    assert_eq(mmss(605), "10:05")

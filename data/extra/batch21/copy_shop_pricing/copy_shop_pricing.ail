@@ -1,0 +1,36 @@
+## Copy shop pricing: printed sides cost 8 cents in black and white or 35 in colour, a job over 100 sides
+## gets 10% off and over 500 sides 20% off, and paper is 2 cents a sheet, halved by printing both sides.
+
+struct PrintJob
+    customer str
+    pages int
+    copies int
+    colour bool
+    duplex bool
+
+fn sheets(pages int, copies int, duplex bool) int
+    if duplex then (pages + 1) / 2 * copies else pages * copies
+
+fn PrintJob.price(self) int
+    sides := self.pages * self.copies
+    rate := if self.colour then 35 else 8
+    off := if sides > 500 then 20 elif sides > 100 then 10 else 0
+    sides * rate * (100 - off) / 100 + sheets(self.pages, self.copies, self.duplex) * 2
+
+fn money(c int) str
+    "{c / 100}.{c % 100:02}"
+
+fn main()
+    jobs := [PrintJob(customer: "school", pages: 12, copies: 60, colour: false, duplex: true), PrintJob(customer: "cafe menus", pages: 2, copies: 40, colour: true, duplex: true), PrintJob(customer: "thesis", pages: 87, copies: 3, colour: false, duplex: false), PrintJob(customer: "flyers", pages: 1, copies: 150, colour: true, duplex: false), PrintJob(customer: "minutes", pages: 5, copies: 10, colour: false, duplex: true)]
+    mut day := 0
+    for j in jobs
+        p := j.price()
+        day += p
+        sides := j.pages * j.copies
+        kind := if j.colour then "colour" else "b&w"
+        print("{j.customer:<10} {sides:>4} {kind:<6} sides on {sheets(j.pages, j.copies, j.duplex):>3} sheets: {money(p)}")
+    print("day's printing: {money(day)}")
+
+@test fn duplex_sheets()
+    assert_eq(sheets(5, 10, true), 30)
+    assert_eq(sheets(5, 10, false), 50)

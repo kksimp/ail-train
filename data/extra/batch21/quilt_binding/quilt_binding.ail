@@ -1,0 +1,35 @@
+## Quilt binding: binding is the quilt's perimeter plus 12 inches for corners and joins, cut in 2.5 inch
+## strips across 42 inch fabric (40 usable), and the fabric is bought in quarter yards of 9 inches.
+
+fn strips(w int, h int) int
+    length := 2 * (w + h) + 12
+    (length + 39) / 40
+
+fn quarters(n int) int
+    (n * 25 + 89) / 90
+
+fn yards(q int) str
+    whole := q / 4
+    frac := match q % 4
+        1 => "1/4"
+        2 => "1/2"
+        3 => "3/4"
+        _ => ""
+    if whole == 0 then "{frac} yd" elif frac == "" then "{whole} yd" else "{whole} {frac} yd"
+
+fn main()
+    quilts := [("baby", 36, 44), ("lap", 50, 65), ("twin", 66, 90), ("queen", 90, 108), ("runner", 14, 72)]
+    mut total_q := 0
+    for q in quilts
+        name, w, h := q
+        n := strips(w, h)
+        qs := quarters(n)
+        total_q += qs
+        inches := 2 * (w + h) + 12
+        print("{name:<6} {w}x{h}: {inches} in of binding, {n} strips, buy {yards(qs)}")
+    print("all five: {yards(total_q)}")
+
+@test fn quarter_yards()
+    assert_eq(yards(5), "1 1/4 yd")
+    assert_eq(yards(2), "1/2 yd")
+    assert_eq(quarters(4), 2)

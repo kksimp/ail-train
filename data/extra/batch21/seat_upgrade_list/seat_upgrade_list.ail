@@ -1,0 +1,42 @@
+## Seat upgrade list: passengers waiting for an upgrade are ordered by loyalty tier, then fare class, then
+## check-in time; the free seats go down the list and everyone else learns their place.
+
+enum Tier
+    Gold
+    Silver
+    Bronze
+    Basic
+
+struct Waiting
+    name str
+    tier Tier
+    fare char
+    checked int
+
+fn tier_rank(t Tier) int
+    match t
+        Gold => 0
+        Silver => 1
+        Bronze => 2
+        Basic => 3
+
+fn fare_rank(f char) int
+    match f
+        'Y' => 0
+        'B' => 1
+        'M' => 2
+        _ => 3
+
+fn main()
+    seats := 3
+    queue := [Waiting(name: "Ng", tier: Tier.Silver, fare: 'M', checked: 610), Waiting(name: "Okafor", tier: Tier.Gold, fare: 'Y', checked: 655), Waiting(name: "Price", tier: Tier.Basic, fare: 'Y', checked: 540), Waiting(name: "Quinn", tier: Tier.Gold, fare: 'M', checked: 600), Waiting(name: "Ruiz", tier: Tier.Silver, fare: 'Y', checked: 630), Waiting(name: "Shah", tier: Tier.Bronze, fare: 'B', checked: 560), Waiting(name: "Tran", tier: Tier.Silver, fare: 'Y', checked: 615), Waiting(name: "Ueda", tier: Tier.Basic, fare: 'K', checked: 500)]
+    order := queue.sorted(by: |w| (tier_rank(w.tier), fare_rank(w.fare), w.checked))
+    for i, w in order.enumerate()
+        label := if i < seats then "UPGRADED" else "waitlist {i - seats + 1}"
+        print("{i + 1}. {w.name:<7} {w.tier.name():<7} fare {w.fare}: {label}")
+    golds := order.take(seats).count(|w| w.tier == Tier.Gold)
+    print("{golds} of {seats} seats went to Gold members")
+
+@test fn fares()
+    assert_eq(fare_rank('B'), 1)
+    assert_eq(tier_rank(Tier.Bronze), 2)

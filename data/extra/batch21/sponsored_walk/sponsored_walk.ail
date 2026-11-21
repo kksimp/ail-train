@@ -1,0 +1,40 @@
+## Sponsored walk: sponsors pledge per km (with an optional cap) or a fixed sum; each walker's total gets
+## 25% Gift Aid added on the pledges from taxpaying sponsors.
+
+struct Pledge
+    walker str
+    sponsor str
+    per_km int
+    cap int
+    fixed int
+    taxpayer bool
+
+fn pledge_amount(per_km int, cap int, fixed int, km int) int
+    if per_km == 0
+        return fixed
+    raw := per_km * km
+    if cap > 0 then raw.min(cap) else raw
+
+fn money(c int) str
+    "{c / 100}.{c % 100:02}"
+
+fn main()
+    km := {"Hana": 21, "Iain": 13, "Jude": 30}
+    pledges := [Pledge(walker: "Hana", sponsor: "Gran", per_km: 100, cap: 0, fixed: 0, taxpayer: true), Pledge(walker: "Hana", sponsor: "Office", per_km: 0, cap: 0, fixed: 5000, taxpayer: false), Pledge(walker: "Iain", sponsor: "Dad", per_km: 200, cap: 2000, fixed: 0, taxpayer: true), Pledge(walker: "Iain", sponsor: "Neighbour", per_km: 50, cap: 0, fixed: 0, taxpayer: false), Pledge(walker: "Jude", sponsor: "Aunt", per_km: 75, cap: 2000, fixed: 0, taxpayer: true), Pledge(walker: "Jude", sponsor: "Coach", per_km: 0, cap: 0, fixed: 1500, taxpayer: true), Pledge(walker: "Jude", sponsor: "Friend", per_km: 25, cap: 0, fixed: 0, taxpayer: false)]
+    mut grand := 0
+    for walker, dist in km
+        mine := pledges.filter(|p| p.walker == walker)
+        mut raised := 0
+        mut aid := 0
+        for p in mine
+            amt := pledge_amount(p.per_km, p.cap, p.fixed, dist)
+            raised += amt
+            if p.taxpayer
+                aid += amt / 4
+        grand += raised + aid
+        print("{walker:<5} {dist} km, {mine.len()} sponsors: {money(raised)} + gift aid {money(aid)} = {money(raised + aid)}")
+    print("raised in all: {money(grand)}")
+
+@test fn capped()
+    assert_eq(pledge_amount(50, 1000, 0, 30), 1000)
+    assert_eq(pledge_amount(0, 0, 700, 30), 700)

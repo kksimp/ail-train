@@ -1,0 +1,40 @@
+## High jump countback: each athlete's attempts at a height are o (clear), x (fail) or - (pass); athletes
+## rank by best height cleared, then fewest failures at that height, then fewest failures overall.
+
+struct Jumper
+    name str
+    marks List[str]
+
+struct Result
+    name str
+    best int
+    at_best int
+    total int
+
+fn fails(s str) int
+    s.count("x")
+
+fn judge(j Jumper, heights List[int]) Result
+    mut best := 0
+    mut at_best := 0
+    mut total := 0
+    for i, m in j.marks.enumerate()
+        total += fails(m)
+        if m.ends_with("o")
+            best = heights[i]
+            at_best = fails(m)
+    Result(name: j.name, best: best, at_best: at_best, total: total)
+
+fn main()
+    heights := [150, 155, 160, 165, 170]
+    field := [Jumper(name: "Ama", marks: ["o", "o", "xo", "xxo", "xxx"]), Jumper(name: "Bea", marks: ["-", "o", "o", "xxo", "xxx"]), Jumper(name: "Cleo", marks: ["o", "xo", "o", "o", "xxx"]), Jumper(name: "Dina", marks: ["o", "o", "o", "xxx"]), Jumper(name: "Eve", marks: ["xo", "o", "xxo", "xxx"]), Jumper(name: "Fay", marks: ["o", "o", "xxo", "-", "xxx"])]
+    results := [judge(j, heights) for j in field]
+    ranked := results.sorted(by: |r| (-r.best, r.at_best, r.total))
+    for i, r in ranked.enumerate()
+        print("{i + 1}. {r.name:<5} {r.best} cm, {r.at_best} misses there, {r.total} in all")
+    split := ranked.count(|r| r.best == ranked[0].best)
+    print("{split} athletes cleared the winning height")
+
+@test fn count_x()
+    assert_eq(fails("xxo"), 2)
+    assert_eq(fails("-"), 0)

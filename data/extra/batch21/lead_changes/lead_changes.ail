@@ -1,0 +1,53 @@
+## Lead changes: replays a basketball scoring log to count lead changes (the leader switching sides, with
+## ties allowed in between), times the score was tied, each side's biggest lead and the longest scoring run.
+
+fn leader_of(h int, a int) char
+    if h > a then 'H' elif a > h then 'A' else '-'
+
+fn team(c char) str
+    if c == 'H' then "Hawks" else "Owls"
+
+fn main()
+    log := [(1, 'H', 2), (2, 'A', 3), (3, 'A', 2), (4, 'H', 3), (5, 'H', 2), (6, 'A', 2), (7, 'H', 1), (8, 'A', 3), (9, 'A', 2), (10, 'A', 2), (11, 'H', 3), (12, 'H', 3), (13, 'H', 2), (14, 'A', 1), (15, 'H', 2), (16, 'A', 3)]
+    mut home := 0
+    mut away := 0
+    mut leader := '-'
+    mut changes := 0
+    mut ties := 0
+    mut big_h := 0
+    mut big_a := 0
+    mut run_side := '-'
+    mut run := 0
+    mut best_run := 0
+    mut best_side := '-'
+    for e in log
+        minute, side, pts := e
+        if side == 'H'
+            home += pts
+        else
+            away += pts
+        now := leader_of(home, away)
+        if now == '-'
+            ties += 1
+        elif leader != '-' and now != leader
+            changes += 1
+            print("min {minute:>2}: {team(now)} take the lead, {home}-{away}")
+        if now != '-'
+            leader = now
+        big_h = big_h.max(home - away)
+        big_a = big_a.max(away - home)
+        if side == run_side
+            run += pts
+        else
+            run_side = side
+            run = pts
+        if run > best_run
+            best_run = run
+            best_side = side
+    print("final {home}-{away}, {changes} lead changes, tied {ties} times")
+    print("biggest leads: Hawks {big_h}, Owls {big_a}")
+    print("best run: {best_run} unanswered points by the {team(best_side)}")
+
+@test fn who_leads()
+    assert_eq(leader_of(10, 12), 'A')
+    assert_eq(leader_of(7, 7), '-')

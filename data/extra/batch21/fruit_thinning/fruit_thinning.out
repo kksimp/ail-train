@@ -1,0 +1,5 @@
+branch 1: keep [5, 22, 47] (4 picked off)
+branch 2: keep [12, 40, 55, 71, 90] (4 picked off)
+branch 3: keep [3, 18, 33, 48] (0 picked off)
+branch 4: keep [8, 25, 52, 70] (1 picked off)
+16 kept, 9 removed; expected crop about 2.4 kg

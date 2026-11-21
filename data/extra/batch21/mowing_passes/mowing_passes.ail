@@ -1,0 +1,35 @@
+## Mowing passes: a mower cutting 46 cm with 6 cm of overlap advances 40 cm a pass, so a lawn needs its width
+## over 40 cm passes, rounded up; walking 50 m a minute plus 6 s for each turn gives the time per lawn.
+
+struct Lawn
+    name str
+    length int
+    width_cm int
+
+fn passes(width_cm int) int
+    (width_cm + 39) / 40
+
+fn Lawn.seconds(self) int
+    n := passes(self.width_cm)
+    n * self.length * 60 / 50 + (n - 1) * 6
+
+fn mmss(s int) str
+    m := s / 60
+    r := s % 60
+    "{m}:{r:02}"
+
+fn main()
+    lawns := [Lawn(name: "front", length: 12, width_cm: 650), Lawn(name: "back", length: 25, width_cm: 1100), Lawn(name: "verge", length: 30, width_cm: 120), Lawn(name: "orchard", length: 18, width_cm: 1480)]
+    mut total := 0
+    for l in lawns
+        n := passes(l.width_cm)
+        walk := n * l.length
+        total += l.seconds()
+        print("{l.name:<8} {n:>2} passes, {walk:>3} m walked, {mmss(l.seconds())}")
+    print("whole garden: {mmss(total)}")
+    longest := lawns.max(by: |l| l.seconds()) else lawns[0]
+    print("longest job: {longest.name}")
+
+@test fn pass_count()
+    assert_eq(passes(650), 17)
+    assert_eq(passes(640), 16)

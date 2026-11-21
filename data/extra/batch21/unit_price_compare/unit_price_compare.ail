@@ -1,0 +1,32 @@
+## Unit price compare: shelf packs of the same food are compared by price per 100 g, using a multibuy
+## deal's price per pack when there is one, and the cheapest pack in each category is named.
+
+struct Pack
+    kind str
+    label str
+    grams int
+    cents int
+    deal_qty int
+    deal_cents int
+
+fn Pack.per100(self) float
+    each := self.deal_cents.to_float() / self.deal_qty.to_float()
+    each / self.grams.to_float()
+
+fn main()
+    packs := [Pack(kind: "rice", label: "500 g bag", grams: 500, cents: 129, deal_qty: 1, deal_cents: 129), Pack(kind: "rice", label: "2 kg sack", grams: 2000, cents: 450, deal_qty: 1, deal_cents: 450), Pack(kind: "rice", label: "1 kg bag, 2 for 4", grams: 1000, cents: 249, deal_qty: 2, deal_cents: 400), Pack(kind: "pasta", label: "500 g", grams: 500, cents: 95, deal_qty: 1, deal_cents: 95), Pack(kind: "pasta", label: "750 g, 3 for 5", grams: 750, cents: 199, deal_qty: 3, deal_cents: 500), Pack(kind: "oats", label: "1 kg", grams: 1000, cents: 175, deal_qty: 1, deal_cents: 175), Pack(kind: "oats", label: "500 g organic", grams: 500, cents: 110, deal_qty: 1, deal_cents: 110)]
+    mut kinds := List[str]()
+    for p in packs
+        if not kinds.contains(p.kind)
+            kinds.push(p.kind)
+        print("{p.kind:<6} {p.label:<18} {p.per100():.3} per 100 g")
+    for k in kinds
+        group := packs.filter(|p| p.kind == k)
+        best := group.min(by: |p| (p.per100() * 100000.0).to_int()) else group[0]
+        worst := group.max(by: |p| (p.per100() * 100000.0).to_int()) else group[0]
+        ratio := worst.per100() / best.per100()
+        print("best {k}: {best.label} ({ratio:.2}x cheaper than the dearest)")
+
+@test fn half_per_100()
+    p := Pack(kind: "x", label: "y", grams: 500, cents: 250, deal_qty: 1, deal_cents: 250)
+    assert_eq(p.per100(), 0.5)

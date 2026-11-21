@@ -1,0 +1,30 @@
+## Partner rotation: six leads keep their places while seven follows move one place round the circle each dance,
+## so one follow sits out each time; the program lists the pairs and checks every pairing occurs in 7 dances.
+
+fn follow_at(pos int, dance int, n int) int
+    (pos + dance) % n
+
+fn main()
+    leads := ["Al", "Bo", "Cy", "Dev", "Eli", "Fox"]
+    follows := ["Gia", "Hen", "Isa", "Jo", "Kay", "Liv", "Mo"]
+    mut pairs := Set[str]()
+    mut sat := List[str]()
+    for d in 0..7
+        mut line := List[str]()
+        for p in 0..leads.len()
+            f := follows[follow_at(p, d, follows.len())]
+            pairs.add("{leads[p]}-{f}")
+            line.push("{leads[p]}-{f}")
+        out := follows[follow_at(6, d, follows.len())]
+        sat.push(out)
+        if d < 3
+            joined := line.join(" ")
+            print("dance {d + 1}: {joined}; sitting out {out}")
+    print("...")
+    total := leads.len() * follows.len()
+    print("after 7 dances: {pairs.len()} of {total} pairings danced")
+    rest := sat.join(", ")
+    print("sit-outs in order: {rest}")
+
+@test fn rolls_over()
+    assert_eq(follow_at(5, 3, 7), 1)

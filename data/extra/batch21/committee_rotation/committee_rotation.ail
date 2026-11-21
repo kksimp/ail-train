@@ -1,0 +1,35 @@
+## Committee rotation: each year the chair, secretary and treasurer go to members who have not held that
+## role in the last three years, preferring whoever has served least overall (list order on ties).
+
+fn recent(holders List[str], n int) List[str]
+    holders.slice((holders.len() - n).max(0))
+
+fn main()
+    members := ["Ada", "Bo", "Cy", "Di", "Ed"]
+    roles := ["chair", "secretary", "treasurer"]
+    mut past := Map[str, List[str]]()
+    mut served := Map[str, int]()
+    for year in 2024..2030
+        mut taken := Set[str]()
+        mut parts := List[str]()
+        for role in roles
+            blocked := recent(past.get_or(role, []), 3)
+            free := members.filter(|m| not taken.contains(m) and not blocked.contains(m))
+            if free.is_empty()
+                parts.push("{role} vacant")
+                continue
+            idx := [i for i in 0..free.len()]
+            best := idx.min(by: |i| (served.get_or(free[i], 0), i)) else 0
+            who := free[best]
+            taken.add(who)
+            served[who] += 1
+            past.push(role, who)
+            parts.push("{role} {who}")
+        joined := parts.join(", ")
+        print("{year}: {joined}")
+    for m in members
+        print("{m}: {served.get_or(m, 0)} terms")
+
+@test fn last_three()
+    assert_eq(recent(["a", "b", "c", "d"], 3), ["b", "c", "d"])
+    assert_eq(recent(["a"], 3), ["a"])

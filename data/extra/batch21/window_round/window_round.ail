@@ -1,0 +1,33 @@
+## Window round: each house is cleaned every 4 or 8 weeks from its first week; the round for each of the
+## next eight weeks counts the houses due and the takings, and names the busiest week's houses.
+
+struct House
+    address str
+    every int
+    first int
+    price int
+
+fn due(week int, every int, first int) bool
+    week >= first and (week - first) % every == 0
+
+fn main()
+    houses := [House(address: "1 Elm Rd", every: 4, first: 1, price: 1200), House(address: "3 Elm Rd", every: 8, first: 2, price: 1500), House(address: "7 Elm Rd", every: 4, first: 4, price: 1000), House(address: "2 Oak St", every: 4, first: 1, price: 1800), House(address: "9 Oak St", every: 8, first: 5, price: 2200), House(address: "4 Ash Cl", every: 4, first: 2, price: 900), House(address: "6 Ash Cl", every: 8, first: 1, price: 1300)]
+    mut best_week := 0
+    mut best_n := -1
+    mut total := 0
+    for week in 1..=8
+        on := houses.filter(|h| due(week, h.every, h.first))
+        pay := on.fold(0, |acc, h| acc + h.price)
+        total += pay
+        if on.len() > best_n
+            best_n = on.len()
+            best_week = week
+        print("week {week}: {on.len()} houses, {pay / 100}.{pay % 100:02}")
+    busy := houses.filter(|h| due(best_week, h.every, h.first)).map(|h| h.address)
+    joined := busy.join(", ")
+    print("busiest week {best_week}: {joined}")
+    print("eight weeks takings {total / 100}.{total % 100:02}")
+
+@test fn schedule()
+    assert(due(5, 4, 1))
+    assert(not due(5, 8, 1))

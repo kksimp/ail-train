@@ -1,0 +1,36 @@
+## Trip stay window: pairs every outbound bus with every return bus, keeps the pairs that allow the minimum
+## stay and get home by the cutoff, and picks the pair with the longest time in town, earliest home on ties.
+
+fn hhmm(t int) str
+    h := t / 60
+    m := t % 60
+    "{h:02}:{m:02}"
+
+fn main()
+    outs := [(420, 495), (510, 590), (600, 668), (720, 790)]
+    backs := [(900, 975), (1020, 1100), (1140, 1205), (1290, 1360)]
+    min_stay := 120
+    cutoff := 1320
+    mut valid := List[List[int]]()
+    for i, o in outs.enumerate()
+        for j, b in backs.enumerate()
+            stay := b.0 - o.1
+            if stay >= min_stay and b.1 <= cutoff
+                valid.push([i, j, stay])
+    total := outs.len() * backs.len()
+    print("{valid.len()} of {total} pairs work")
+    for i, o in outs.enumerate()
+        mine := valid.filter(|v| v[0] == i)
+        if v := mine.max(by: |x| x[2])
+            b := backs[v[1]]
+            print("out {hhmm(o.0)} -> latest back {hhmm(b.0)}, {v[2] / 60} h {v[2] % 60:02} m in town")
+        else
+            print("out {hhmm(o.0)} -> no return fits")
+    ranked := valid.sorted(by: |x| (-x[2], backs[x[1]].1))
+    best := ranked[0]
+    print("best: leave {hhmm(outs[best[0]].0)}, home {hhmm(backs[best[1]].1)}")
+    short := ranked[ranked.len() - 1]
+    print("shortest workable stay: {short[2]} min")
+
+@test fn clock()
+    assert_eq(hhmm(1205), "20:05")

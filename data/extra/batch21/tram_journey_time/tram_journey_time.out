@@ -1,0 +1,9 @@
+stop       all  express
+Depot      0:00     0:00
+Market     2:05        -
+Bridge     4:30     3:45
+Park       6:20        -
+College    8:20     6:55
+Mill      10:30        -
+Terminus  12:40    10:35
+express saves 2:05 end to end

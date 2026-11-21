@@ -1,0 +1,41 @@
+## Opening hours: a shop's hours differ by weekday, with a lunch closure on some days and holidays shut;
+## for each question time the program says open or closed and, when closed, the next opening.
+
+fn hhmm(t int) str
+    h := t / 60
+    m := t % 60
+    "{h:02}:{m:02}"
+
+fn is_open(hours List[List[List[int]]], holidays Set[int], day int, t int) bool
+    if holidays.contains(day)
+        return false
+    hours[day % 7].any(|w| w[0] <= t and t < w[1])
+
+fn next_open(hours List[List[List[int]]], holidays Set[int], day int, t int) List[int]
+    for d in day..day + 14
+        if holidays.contains(d)
+            continue
+        for w in hours[d % 7]
+            if d > day or w[0] > t
+                return [d, w[0]]
+    [-1, 0]
+
+fn main()
+    names := ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+    hours := [[[540, 780], [840, 1050]], [[540, 780], [840, 1050]], [[540, 780]], [[540, 780], [840, 1170]], [[540, 1050]], [[600, 960]], []]
+    holidays := {7}
+    asks := [(0, 600), (0, 800), (2, 900), (5, 1000), (6, 700), (3, 1100), (8, 530)]
+    for a in asks
+        day, t := a
+        when := "{names[day % 7]} {hhmm(t)}"
+        if is_open(hours, holidays, day, t)
+            print("{when}: open")
+        else
+            n := next_open(hours, holidays, day, t)
+            later := if n[0] == day then "today" else names[n[0] % 7]
+            print("{when}: closed, opens {later} {hhmm(n[1])}")
+
+@test fn monday_morning()
+    hours := [[[540, 780]], [], [], [], [], [], []]
+    assert(is_open(hours, Set[int](), 0, 600))
+    assert(not is_open(hours, Set[int](), 0, 780))

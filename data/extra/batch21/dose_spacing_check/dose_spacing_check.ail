@@ -1,0 +1,33 @@
+## Dose spacing check: a painkiller may be taken every 4 hours and at most 4 times in any 24 hours; each
+## logged dose is checked against both rules, and the next time a dose is allowed is worked out.
+
+fn clock(t int) str
+    days := ["Mon", "Tue", "Wed"]
+    m := t % 1440
+    h := m / 60
+    mm := m % 60
+    "{days[t / 1440]} {h:02}:{mm:02}"
+
+fn gap_ok(prev int, t int) bool
+    t - prev >= 240
+
+fn main()
+    doses := [450, 690, 900, 1140, 1380, 1710, 1950, 2200]
+    for i, t in doses.enumerate()
+        mut notes := List[str]()
+        if i > 0 and not gap_ok(doses[i - 1], t)
+            notes.push("only {t - doses[i - 1]} min after the last")
+        in_day := doses.take(i + 1).count(|d| d > t - 1440)
+        if in_day > 4
+            notes.push("dose {in_day} within 24 h")
+        verdict := if notes.is_empty() then "ok" else notes.join("; ")
+        print("{clock(t)}: {verdict}")
+    last := doses[doses.len() - 1]
+    window := doses.filter(|d| d > last - 1440)
+    by_gap := last + 240
+    by_count := if window.len() >= 4 then window[window.len() - 4] + 1440 else 0
+    print("next dose allowed {clock(by_gap.max(by_count))}")
+
+@test fn four_hours()
+    assert(gap_ok(450, 690))
+    assert(not gap_ok(690, 900))

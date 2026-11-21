@@ -1,0 +1,39 @@
+## Fun-run categories: a runner's age on race day (one less if the birthday is yet to come) puts them in
+## Junior, Senior or a veteran band (V40, V50, V60); the fastest in each category and overall are named.
+
+struct Runner
+    name str
+    born List[int]
+    secs int
+
+fn age_on(by int, bm int, bd int, y int, m int, d int) int
+    before := m < bm or (m == bm and d < bd)
+    if before then y - by - 1 else y - by
+
+fn category(age int) str
+    if age < 18 then "Junior" elif age < 40 then "Senior" elif age < 50 then "V40" elif age < 60 then "V50" else "V60"
+
+fn mmss(s int) str
+    m := s / 60
+    r := s % 60
+    "{m}:{r:02}"
+
+fn main()
+    runners := [Runner(name: "Aled", born: [1986, 5, 17], secs: 1405), Runner(name: "Bryn", born: [1986, 5, 18], secs: 1388), Runner(name: "Cerys", born: [2010, 1, 3], secs: 1622), Runner(name: "Dafydd", born: [1974, 11, 30], secs: 1517), Runner(name: "Efa", born: [1961, 2, 14], secs: 1764), Runner(name: "Ffion", born: [1999, 8, 9], secs: 1352), Runner(name: "Gwen", born: [1972, 3, 21], secs: 1490), Runner(name: "Huw", born: [2009, 5, 17], secs: 1580)]
+    mut best := Map[str, int]()
+    for i, r in runners.enumerate()
+        age := age_on(r.born[0], r.born[1], r.born[2], 2026, 5, 17)
+        cat := category(age)
+        print("{r.name:<7} age {age:>2} {cat:<6} {mmss(r.secs)}")
+        cur := best.get(cat) else -1
+        if cur < 0 or r.secs < runners[cur].secs
+            best[cat] = i
+    for cat in ["Junior", "Senior", "V40", "V50", "V60"]
+        if w := best.get(cat)
+            print("{cat} winner: {runners[w].name}")
+    fastest := runners.min(by: |r| r.secs) else runners[0]
+    print("overall: {fastest.name} in {mmss(fastest.secs)}")
+
+@test fn birthday_tomorrow()
+    assert_eq(age_on(1986, 5, 18, 2026, 5, 17), 39)
+    assert_eq(age_on(1986, 5, 17, 2026, 5, 17), 40)

@@ -1,0 +1,38 @@
+## Lane battle: an original card game where each player assigns six cards to three lanes; a lane goes to
+## the higher sum, a tied sum to the player with fewer cards there, and taking two lanes wins the match.
+
+fn lane_totals(cards List[List[int]]) List[List[int]]
+    mut out := [[0, 0], [0, 0], [0, 0]]
+    for c in cards
+        out[c[1]][0] += c[0]
+        out[c[1]][1] += 1
+    out
+
+fn lane_winner(a List[int], b List[int]) int
+    if a[0] != b[0]
+        return if a[0] > b[0] then 0 else 1
+    if a[1] != b[1]
+        return if a[1] < b[1] then 0 else 1
+    -1
+
+fn main()
+    matches := [([[9, 0], [2, 0], [7, 1], [3, 1], [8, 2], [1, 2]], [[6, 0], [4, 0], [10, 1], [5, 2], [3, 2], [2, 2]]), ([[10, 0], [9, 1], [1, 1], [4, 2], [3, 2], [2, 2]], [[5, 0], [5, 0], [6, 1], [4, 1], [8, 2], [1, 2]]), ([[6, 0], [6, 1], [6, 2], [1, 0], [1, 1], [1, 2]], [[7, 0], [5, 1], [3, 2], [4, 2], [2, 1], [2, 1]])]
+    names := ["Ash", "Bay"]
+    for m, game in matches.enumerate()
+        a := lane_totals(game.0)
+        b := lane_totals(game.1)
+        mut won := [0, 0]
+        mut parts := List[str]()
+        for lane in 0..3
+            w := lane_winner(a[lane], b[lane])
+            label := if w < 0 then "drawn" else names[w]
+            if w >= 0
+                won[w] += 1
+            parts.push("lane {lane + 1} {a[lane][0]}-{b[lane][0]} {label}")
+        result := if won[0] >= 2 then names[0] elif won[1] >= 2 then names[1] else "nobody"
+        joined := parts.join(", ")
+        print("match {m + 1}: {joined}; winner {result}")
+
+@test fn fewer_cards_break_ties()
+    assert_eq(lane_winner([10, 2], [10, 3]), 0)
+    assert_eq(lane_winner([10, 2], [10, 2]), -1)

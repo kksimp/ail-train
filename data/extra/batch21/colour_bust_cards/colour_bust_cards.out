@@ -1,0 +1,12 @@
+round 1 Ada R3 P6          -> 9
+round 1 Ben P3 Y3 Y6       -> 0
+round 1 Cy  B3 Y2 Y1       -> 0
+round 1 Di  B4 B2          -> 0
+round 2 Ada Y5 B5          -> 10
+round 2 Ben R2 P1 G1       -> 4
+round 2 Cy  G2 G5          -> 0
+round 2 Di  P4 R1 P2       -> 0
+Ada stops at 2: 19 points
+Ben stops at 3: 4 points
+Cy stops at 4: 0 points
+Di stops at 5: 0 points

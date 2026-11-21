@@ -1,0 +1,33 @@
+## Bead necklace: a colour pattern repeats along the strand; the bead count is (length - 20 mm clasp) over
+## the bead size, colours are counted bead by bead, and a pattern cut short at the clasp is reported.
+
+fn bead_count(length int, bead int) int
+    (length - 20) / bead
+
+fn main()
+    designs := [("choker", "RGB", 360, 6), ("princess", "RRWBBW", 480, 8), ("bracelet", "GY", 190, 4), ("opera", "RWGWBW", 800, 10)]
+    mut grand := Map[char, int]()
+    for d in designs
+        name, pattern, length, bead := d
+        n := bead_count(length, bead)
+        colours := pattern.chars()
+        mut counts := Map[char, int]()
+        for i in 0..n
+            col := colours[i % colours.len()]
+            counts[col] += 1
+            grand[col] += 1
+        mut parts := List[str]()
+        for k in counts.keys().sorted()
+            parts.push("{k}{counts[k]}")
+        joined := parts.join(" ")
+        tail := n % colours.len()
+        note := if tail == 0 then "ends on a full repeat" else "ends {tail} beads into a repeat"
+        print("{name:<8} {n} beads: {joined}; {note}")
+    mut all_parts := List[str]()
+    for g in grand.keys().sorted()
+        all_parts.push("{g}{grand[g]}")
+    shopping := all_parts.join(" ")
+    print("beads to buy: {shopping}")
+
+@test fn count()
+    assert_eq(bead_count(360, 6), 56)

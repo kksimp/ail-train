@@ -1,0 +1,47 @@
+## AGM motions: the meeting is quorate when a quarter of the members are present (proxies count); an
+## ordinary motion needs more votes for than against, a special one 75% of votes cast, abstentions aside.
+
+enum Kind
+    Ordinary
+    Special
+
+struct Motion
+    title str
+    kind Kind
+    yes int
+    no int
+    abstain int
+
+fn passes(m Motion) bool
+    cast := m.yes + m.no
+    match m.kind
+        Ordinary => m.yes > m.no
+        Special => cast > 0 and m.yes * 100 >= cast * 75
+
+fn main()
+    members := 132
+    present := 29
+    proxies := 6
+    voters := present + proxies
+    quorum := (members + 3) / 4
+    if voters < quorum
+        print("not quorate: {voters} of {quorum} needed")
+        return
+    print("quorate: {voters} voting, {quorum} needed")
+    motions := [Motion(title: "approve accounts", kind: Kind.Ordinary, yes: 30, no: 2, abstain: 3), Motion(title: "raise fees 5%", kind: Kind.Ordinary, yes: 15, no: 15, abstain: 5), Motion(title: "change constitution", kind: Kind.Special, yes: 26, no: 9, abstain: 0), Motion(title: "new trophy", kind: Kind.Special, yes: 27, no: 8, abstain: 0), Motion(title: "merge with rowing club", kind: Kind.Special, yes: 20, no: 4, abstain: 11), Motion(title: "buy a minibus", kind: Kind.Ordinary, yes: 22, no: 10, abstain: 9)]
+    mut carried := 0
+    for m in motions
+        if m.yes + m.no + m.abstain > voters
+            print("{m.title}: count error, recount")
+            continue
+        cast := m.yes + m.no
+        pct := if cast == 0 then 0 else m.yes * 100 / cast
+        verdict := if passes(m) then "carried" else "lost"
+        if passes(m)
+            carried += 1
+        print("{m.title} ({m.kind.name()}): {m.yes}-{m.no}, {pct}% for: {verdict}")
+    print("{carried} motions carried")
+
+@test fn three_quarters()
+    m := Motion(title: "x", kind: Kind.Special, yes: 3, no: 1, abstain: 9)
+    assert(passes(m))

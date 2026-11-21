@@ -1,0 +1,28 @@
+## Contents cover: when a home's contents are insured for less than they are worth, the average clause
+## scales every claim by sum insured over true value, and the policy excess is taken off what remains.
+
+struct Policy
+    holder str
+    insured int
+    excess int
+
+fn payout(claim int, insured int, value int, excess int) int
+    scaled := if insured >= value then claim else claim * insured / value
+    (scaled - excess).max(0)
+
+fn main()
+    items := [("sofa", 120000), ("television", 80000), ("beds", 150000), ("clothes", 300000), ("kitchen goods", 220000), ("laptop", 90000), ("bikes", 140000)]
+    value := items.fold(0, |acc, it| acc + it.1)
+    print("contents worth {value / 100}")
+    policies := [Policy(holder: "Hale", insured: 1100000, excess: 10000), Policy(holder: "Iqbal", insured: 800000, excess: 25000), Policy(holder: "Jones", insured: 550000, excess: 10000)]
+    claims := [45000, 300000, 8000]
+    for p in policies
+        under := if p.insured >= value then 0 else (value - p.insured) * 100 / value
+        print("{p.holder}: insured {p.insured / 100}, {under}% under-insured")
+        for c in claims
+            got := payout(c, p.insured, value, p.excess)
+            print("  claim {c / 100:>5} -> paid {got / 100}.{got % 100:02}")
+
+@test fn half_cover()
+    assert_eq(payout(1000, 5000, 10000, 0), 500)
+    assert_eq(payout(1000, 20000, 10000, 2000), 0)

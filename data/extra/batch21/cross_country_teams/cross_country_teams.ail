@@ -1,0 +1,36 @@
+## Cross-country teams: a club scores the sum of its first five finishers' places; clubs with fewer than
+## five finishers do not score, and a tie is broken by whose sixth runner finished first.
+
+fn score(places List[int]) int
+    places.take(5).sum()
+
+fn sixth(places List[int]) int
+    if places.len() > 5 then places[5] else 999
+
+fn main()
+    finish := "ABCBABACBAACBCBCDDDACDDEE"
+    names := {'A': "Alder", 'B': "Beech", 'C': "Cedar", 'D': "Damson", 'E': "Elm"}
+    mut places := Map[char, List[int]]()
+    for i, c in finish.chars().enumerate()
+        places.push(c, i + 1)
+    mut scoring := List[char]()
+    for club, ps in places
+        if ps.len() >= 5
+            scoring.push(club)
+        else
+            print("{names[club]}: only {ps.len()} finishers, no team score")
+    ranked := scoring.sorted(by: |c| (score(places[c]), sixth(places[c])))
+    for i, c in ranked.enumerate()
+        ps := places[c]
+        top := ps.take(5)
+        six := sixth(ps)
+        sx := if six == 999 then "none" else "{six}"
+        print("{i + 1}. {names[c]:<7} {score(ps):>3} points {top} (6th runner {sx})")
+    a := ranked[0]
+    b := ranked[1]
+    if score(places[a]) == score(places[b])
+        print("{names[a]} beat {names[b]} on the sixth runner")
+
+@test fn five_count()
+    assert_eq(score([1, 4, 5, 9, 10, 12]), 29)
+    assert_eq(sixth([1, 2, 3]), 999)

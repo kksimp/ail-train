@@ -1,0 +1,36 @@
+## Hall capacity: a room's safe capacity is the smaller of its floor area over the space each person needs
+## for the layout (standing 0.5 m2, theatre 0.8, banquet 1.2) and its exit width at 100 people per metre.
+
+struct Room
+    name str
+    area int
+    exits List[int]
+
+fn area_cap(area int, tenths int) int
+    area * 10 / tenths
+
+fn Room.exit_cap(self) int
+    self.exits.sum()
+
+fn main()
+    rooms := [Room(name: "main hall", area: 240, exits: [110, 110, 90]), Room(name: "studio", area: 64, exits: [90]), Room(name: "bar", area: 85, exits: [80, 75]), Room(name: "garden room", area: 150, exits: [120])]
+    layouts := [("standing", 5), ("theatre", 8), ("banquet", 12)]
+    print("room         standing  theatre  banquet")
+    mut limited := 0
+    for r in rooms
+        mut cells := List[str]()
+        for l in layouts
+            tenths := l.1
+            by_area := area_cap(r.area, tenths)
+            cap := by_area.min(r.exit_cap())
+            flag := if cap < by_area then "*" else " "
+            if cap < by_area
+                limited += 1
+            cells.push("{cap:>7}{flag}")
+        row := cells.join(" ").trim_end()
+        print("{r.name:<12} {row}")
+    print("* exits limit the number ({limited} cases)")
+
+@test fn standing()
+    assert_eq(area_cap(240, 5), 480)
+    assert_eq(area_cap(64, 12), 53)

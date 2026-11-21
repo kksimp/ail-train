@@ -1,0 +1,38 @@
+## Three-pile trick: 21 cards are dealt into three piles of seven, the pile holding the chosen card is put
+## between the other two, and after three deals the chosen card always sits 11th from the top.
+
+fn deal_round(cards List[int], chosen int) List[int]
+    mut piles := [List[int](), List[int](), List[int]()]
+    for i, c in cards.enumerate()
+        piles[i % 3].push(c)
+    mut k := 0
+    for p in 0..3
+        if piles[p].contains(chosen)
+            k = p
+    others := [p for p in 0..3 if p != k]
+    mut out := piles[others[0]]
+    out.extend(piles[k])
+    out.extend(piles[others[1]])
+    out
+
+fn after_three(chosen int) List[int]
+    mut cards := [c for c in 1..=21]
+    mut places := List[int]()
+    for r in 0..3
+        cards = deal_round(cards, chosen)
+        places.push((cards.index_of(chosen) else 0) + 1)
+    places
+
+fn main()
+    trace := after_three(5)
+    print("card 5 moves to places {trace} after each deal")
+    trace2 := after_three(19)
+    print("card 19 moves to places {trace2} after each deal")
+    mut all_eleven := true
+    for c in 1..=21
+        if after_three(c)[2] != 11
+            all_eleven = false
+    print("every card ends 11th: {all_eleven}")
+
+@test fn ends_middle()
+    assert_eq(after_three(1)[2], 11)

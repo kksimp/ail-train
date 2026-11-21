@@ -1,0 +1,60 @@
+## Fifteen captures: an original card game; a played card takes the largest set of table cards that sums
+## with it to exactly 15 (bitmask search, first set found on ties), and otherwise the lowest card is laid down.
+
+fn next_state(s int) int
+    (s * 1103515245 + 12345) % 2147483648
+
+fn best_mask(table List[int], need int) List[int]
+    mut best := [0, 0]
+    limit := 1 << table.len()
+    for mask in 1..limit
+        mut total := 0
+        mut n := 0
+        for b in 0..table.len()
+            if ((mask >> b) & 1) == 1
+                total += table[b]
+                n += 1
+        if total == need and n > best[1]
+            best = [mask, n]
+    best
+
+fn main()
+    mut deck := [k / 4 + 1 for k in 0..40]
+    mut s := 77
+    for t in 0..39
+        i := 39 - t
+        s = next_state(s)
+        deck.swap(i, (s >> 16) % (i + 1))
+    mut table := deck.take(4)
+    mut pos := 4
+    mut hands := [List[int](), List[int]()]
+    mut score := [0, 0]
+    mut turn := 0
+    while true
+        if hands[0].is_empty() and hands[1].is_empty()
+            if pos >= deck.len()
+                break
+            for p in 0..2
+                hands[p] = deck.slice(pos, pos + 3)
+                pos += 3
+        mut cap := [0, 0, -1]
+        for h, card in hands[turn].enumerate()
+            m := best_mask(table, 15 - card)
+            if m[1] > cap[1]
+                cap = [m[0], m[1], h]
+        if cap[2] < 0
+            low := hands[turn].index_of(hands[turn].min() else 0) else 0
+            table.push(hands[turn][low])
+            hands[turn].remove_at(low)
+        else
+            table = [table[b] for b in 0..table.len() if ((cap[0] >> b) & 1) == 0]
+            hands[turn].remove_at(cap[2])
+            score[turn] += cap[1] + 1
+        turn = 1 - turn
+    winner := if score[0] > score[1] then "North" elif score[1] > score[0] then "South" else "nobody"
+    print("North took {score[0]} cards, South {score[1]}")
+    print("left on the table: {table}")
+    print("winner: {winner}")
+
+@test fn makes_fifteen()
+    assert_eq(best_mask([5, 3, 7, 2], 10), [11, 3])
