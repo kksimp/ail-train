@@ -1,0 +1,23 @@
+## Digital roots: repeated digit sums down to one digit, checked against the 1 + (n - 1) % 9
+## shortcut, with the persistence (number of rounds) for each number.
+
+fn digit_sum(n int) int
+    mut x := n
+    mut s := 0
+    while x > 0
+        s += x % 10
+        x /= 10
+    s
+
+fn main()
+    for n in [7, 38, 999, 123456789, 65536, 1000000007]
+        mut x := n
+        mut rounds := 0
+        while x >= 10
+            x = digit_sum(x)
+            rounds += 1
+        shortcut := 1 + (n - 1) % 9
+        print("{n}: root {x}, {rounds} rounds, shortcut agrees {x == shortcut}")
+
+@test fn sum()
+    assert_eq(digit_sum(38), 11)

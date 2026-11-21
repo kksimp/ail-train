@@ -1,0 +1,31 @@
+## Latin square: builds n x n Latin squares by cyclic shifts, verifies every row and column
+## holds each symbol once, and checks a broken square too.
+
+fn build(n int) List[List[int]]
+    mut sq := List[List[int]]()
+    for r in 0..n
+        sq.push([(r + c) % n + 1 for c in 0..n])
+    sq
+
+fn is_latin(sq List[List[int]]) bool
+    n := sq.len()
+    want := [k for k in 1..=n]
+    for i in 0..n
+        if sq[i].sorted() != want
+            return false
+        col := [sq[r][i] for r in 0..n]
+        if col.sorted() != want
+            return false
+    true
+
+fn main()
+    sq := build(5)
+    for row in sq
+        print(row.map(|x| "{x}").join(" "))
+    print("latin: {is_latin(sq)}")
+    mut bad := build(4)
+    bad[2] = [1, 2, 3, 4]
+    print("broken latin: {is_latin(bad)}")
+
+@test fn three()
+    assert(is_latin(build(3)))

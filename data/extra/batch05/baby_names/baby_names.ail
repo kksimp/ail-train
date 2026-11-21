@@ -1,0 +1,24 @@
+## Name ranks: yearly counts of first names; prints each year's top three, the biggest
+## climber between the first and last year, and names that appear every year.
+
+fn main()
+    years := [
+        (2022, {"Ava": 410, "Leo": 395, "Mia": 380, "Kai": 210, "Zoe": 300}),
+        (2023, {"Ava": 400, "Leo": 420, "Mia": 350, "Kai": 290, "Ivy": 240}),
+        (2024, {"Leo": 430, "Ava": 380, "Kai": 360, "Mia": 330, "Ivy": 310}),
+    ]
+    for y in years
+        year, counts := y
+        top := counts.keys().sorted(by: |n| (-counts[n], n)).take(3).join(", ")
+        print("{year}: {top}")
+    first := years[0].1
+    last := years[years.len() - 1].1
+    common := first.keys().filter(|n| last.contains(n)).sorted()
+    climber := common.max(by: |n| (last[n] - first[n], n)) else ""
+    print("biggest climber: {climber} (+{last[climber] - first[climber]})")
+    every := common.filter(|n| years.all(|y| y.1.contains(n)))
+    shown := every.join(", ")
+    print("every year: {shown}")
+
+@test fn top()
+    assert_eq(["b", "a"].sorted(), ["a", "b"])

@@ -1,0 +1,19 @@
+## Seat allocation: shares parliament seats among parties by the D'Hondt method, printing
+## each round's winner and the final seat counts.
+
+fn main()
+    votes := [("Red", 34000), ("Blue", 29000), ("Green", 12500), ("Gold", 8100)]
+    seats := 9
+    mut won := Map[str, int]()
+    for v in votes
+        won[v.0] = 0
+    for s in 1..=seats
+        best := votes.max(by: |v| v.1 * 1000 / (won[v.0] + 1)) else votes[0]
+        won[best.0] += 1
+        print("seat {s}: {best.0}")
+    for v in votes
+        share := v.1 * 100 / votes.map(|x| x.1).sum()
+        print("{v.0}: {won[v.0]} seats ({share}% of votes)")
+
+@test fn quotient()
+    assert_eq(34000 / 2, 17000)

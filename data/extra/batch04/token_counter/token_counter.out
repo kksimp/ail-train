@@ -1,0 +1,6 @@
+3 + 41 * x => 3 | + | 41 | * | x
+  name=1 number=2 operator=2
+(rate_b - 7) / total => ( | rate_b | - | 7 | ) | / | total
+  bracket=2 name=2 number=1 operator=2
+max(a, 10) ^ 2 => max | ( | a | , | 10 | ) | ^ | 2
+  bracket=2 name=2 number=2 operator=2

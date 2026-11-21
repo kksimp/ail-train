@@ -1,0 +1,23 @@
+## Connecting trains: given a timetable of direct trains, finds the earliest arrival at each
+## station from a start time by relaxing connections in departure order.
+
+fn hm(m int) str
+    "{m / 60:02}:{m % 60:02}"
+
+fn main()
+    trains := [("A", "B", 480, 530), ("A", "C", 490, 600), ("B", "C", 540, 580), ("B", "D", 545, 640), ("C", "D", 590, 620), ("C", "E", 610, 700), ("D", "E", 630, 690), ("A", "E", 500, 720)]
+    mut best := {"A": 470}
+    for t in trains.sorted(by: |t| (t.2, t.0))
+        from, to, dep, arr := t
+        if at := best.get(from)
+            if at <= dep
+                if arr < (best.get(to) else 100000)
+                    best[to] = arr
+    for s in ["A", "B", "C", "D", "E"]
+        if m := best.get(s)
+            print("{s}: {hm(m)}")
+        else
+            print("{s}: unreachable")
+
+@test fn time()
+    assert_eq(hm(605), "10:05")

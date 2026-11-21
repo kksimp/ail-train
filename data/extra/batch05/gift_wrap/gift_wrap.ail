@@ -1,0 +1,21 @@
+## Gift wrap: paper needed for box-shaped presents (surface area plus the smallest side as
+## overlap) and ribbon (smallest perimeter plus a bow equal to the volume in cm).
+
+fn main()
+    boxes := ["20x30x10", "15x15x15", "40x5x8", "12x9x30"]
+    mut paper := 0
+    mut ribbon := 0
+    for b in boxes
+        dims := b.split("x").map(|p| p.to_int() else 0).sorted()
+        l := dims[0]
+        w := dims[1]
+        h := dims[2]
+        area := 2 * (l * w + w * h + h * l) + l * w
+        rib := 2 * (l + w) + l * w * h / 100
+        paper += area
+        ribbon += rib
+        print("{b}: paper {area} cm2, ribbon {rib} cm")
+    print("total paper {paper} cm2, ribbon {ribbon} cm")
+
+@test fn cube()
+    assert_eq(2 * (3 * 3 * 3) + 9, 63)

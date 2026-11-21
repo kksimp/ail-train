@@ -1,0 +1,8 @@
+add-back buffet    engine-coach1-coach2-buffet
+add-back coach3    engine-coach1-coach2-buffet-coach3
+drop-back          engine-coach1-coach2-buffet
+add-front pilot    pilot-engine-coach1-coach2-buffet
+drop-front         engine-coach1-coach2-buffet
+add-back coach3    engine-coach1-coach2-buffet-coach3
+insert-2 sleeper   engine-coach1-sleeper-coach2-buffet-coach3
+6 vehicles

@@ -1,0 +1,24 @@
+## Membership fees: a club charges by age band with a family cap; households are billed
+## and the cap saving is shown.
+
+fn fee(age int) int
+    if age < 5
+        return 0
+    if age < 18
+        return 4000
+    if age >= 65
+        return 5000
+    9000
+
+fn main()
+    cap := 20000
+    households := [("Ito", [41, 39, 12, 9, 3]), ("Lund", [70, 68]), ("Moss", [35, 16, 14, 11]), ("Nair", [29])]
+    for h in households
+        name, ages := h
+        full := ages.map(fee).sum()
+        bill := if full > cap then cap else full
+        saving := full - bill
+        print("{name}: {ages.len()} members, {full / 100} before cap, pays {bill / 100}, saves {saving / 100}")
+
+@test fn toddler()
+    assert_eq(fee(2), 0)

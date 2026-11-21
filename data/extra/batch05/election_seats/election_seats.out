@@ -1,0 +1,13 @@
+seat 1: Red
+seat 2: Blue
+seat 3: Red
+seat 4: Blue
+seat 5: Green
+seat 6: Red
+seat 7: Blue
+seat 8: Red
+seat 9: Gold
+Red: 4 seats (40% of votes)
+Blue: 3 seats (34% of votes)
+Green: 1 seats (14% of votes)
+Gold: 1 seats (9% of votes)

@@ -1,0 +1,43 @@
+## Token counter: splits arithmetic expressions into number, name, operator and bracket
+## tokens and prints a count of each kind per expression.
+
+fn kind(c char) str
+    if c.is_digit()
+        return "number"
+    if c.is_alpha() or c == '_'
+        return "name"
+    if c == '(' or c == ')'
+        return "bracket"
+    "operator"
+
+fn tokens(s str) List[(str, str)]
+    cs := s.chars()
+    mut out := List[(str, str)]()
+    mut i := 0
+    while i < cs.len()
+        c := cs[i]
+        if c == ' '
+            i += 1
+            continue
+        k := kind(c)
+        mut j := i + 1
+        if k == "number" or k == "name"
+            while j < cs.len() and kind(cs[j]) == k and cs[j] != ' '
+                j += 1
+        out.push((k, s.slice(i, j)))
+        i = j
+    out
+
+fn main()
+    for e in ["3 + 41 * x", "(rate_b - 7) / total", "max(a, 10) ^ 2"]
+        ts := tokens(e)
+        shown := ts.map(|t| t.1).join(" | ")
+        print("{e} => {shown}")
+        mut counts := Map[str, int]()
+        for t in ts
+            counts[t.0] += 1
+        summary := counts.keys().sorted().map(|k| "{k}={counts[k]}").join(" ")
+        print("  {summary}")
+
+@test fn simple()
+    assert_eq(tokens("12+x").len(), 3)

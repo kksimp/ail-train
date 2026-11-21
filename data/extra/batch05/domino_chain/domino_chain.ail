@@ -1,0 +1,40 @@
+## Domino chain: finds an order that lays all dominoes end to end with matching pips,
+## flipping tiles as needed, by backtracking from each start tile.
+
+fn extend(tiles List[(int, int)], used List[bool], end int, chain List[(int, int)]) List[(int, int)]?
+    if chain.len() == tiles.len()
+        return chain
+    for i in 0..tiles.len()
+        if used[i]
+            continue
+        t := tiles[i]
+        mut u := used
+        u[i] = true
+        if t.0 == end
+            mut c := chain
+            c.push(t)
+            if done := extend(tiles, u, t.1, c)
+                return done
+        if t.1 == end and t.0 != t.1
+            mut c := chain
+            c.push((t.1, t.0))
+            if done := extend(tiles, u, t.0, c)
+                return done
+    none
+
+fn main()
+    sets := [[(1, 2), (2, 3), (3, 1), (1, 4), (4, 4)], [(5, 6), (6, 2), (2, 2), (2, 5)], [(1, 2), (3, 4)]]
+    for tiles in sets
+        mut found := false
+        for s in 0..tiles.len()
+            mut used := [false for _ in 0..tiles.len()]
+            used[s] = true
+            if c := extend(tiles, used, tiles[s].1, [tiles[s]])
+                print(c.map(|t| "[{t.0}|{t.1}]").join(""))
+                found = true
+                break
+        if not found
+            print("no chain")
+
+@test fn pair()
+    assert(extend([(1, 2), (2, 3)], [true, false], 2, [(1, 2)]) != none)

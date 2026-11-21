@@ -1,0 +1,28 @@
+## Bitmap font: draws digits from a 3x5 bitmap font stored as row bit patterns, printing a
+## number with one column of space between digits.
+
+fn main()
+    font := [
+        [7, 5, 5, 5, 7], [2, 6, 2, 2, 7], [7, 1, 7, 4, 7], [7, 1, 7, 1, 7], [5, 5, 7, 1, 1],
+        [7, 4, 7, 1, 7], [7, 4, 7, 5, 7], [7, 1, 2, 2, 2], [7, 5, 7, 5, 7], [7, 5, 7, 1, 7],
+    ]
+    for number in ["2026", "8.1"]
+        for row in 0..5
+            mut parts := List[str]()
+            for c in number.chars()
+                if c == '.'
+                    dot := if row == 4 then "#" else " "
+                    parts.push(dot)
+                    continue
+                d := c.to_digit(10) else 0
+                bits := font[d][row]
+                mut cell := ""
+                for b in [4, 2, 1]
+                    mark := if (bits & b) != 0 then "#" else " "
+                    cell = "{cell}{mark}"
+                parts.push(cell)
+            print(parts.join(" ").trim_end())
+        print("")
+
+@test fn bits()
+    assert_eq(5 & 4, 4)

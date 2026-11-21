@@ -1,7 +1,0 @@
-(a[b]{c}): balanced, depth 2
-((())): balanced, depth 3
-([)]: expected ] at 2, found )
-{[}: expected ] at 2, found }
-a)b: unexpected ) at 1
-[[{}]: 1 left open
-x: balanced, depth 0
