@@ -27,8 +27,10 @@ other languages; teach through docs, diagnostics and auto-fix).
 | D6 | No model or model identifier is written into any committed file. The base model is named only in the untracked `config.local` on the Mac and in chat. | standing rule |
 | D7 | Everything runs on Kaleb's machines, never in a cloud container, and costs nothing (no paid API). | standing rule |
 | D8 | Training starts only after AIL 0.2.0 is tagged and Kaleb says go. | Kaleb |
-| D9 | The core card stays as the system prompt on every training example (2026-11-20). The sequence cap rises to about 4096 to hold it; the preflight measures memory and speed at that length. | Kaleb |
+| D9 | *(Superseded by D12.)* The core card stays as the system prompt on every training example (2026-11-20). The sequence cap rises to about 4096 to hold it; the preflight measures memory and speed at that length. | Kaleb |
 | D10 | The M1 preflight measures three candidate sizes, about 1.5B, 3B and 4B, each at the D9 sequence length; the base is picked from the measured numbers (2026-11-20). D1's order still holds unless that card says otherwise. | Kaleb |
+| D12 | D9 replaced (2026-11-21, after the M1 measurements): a one-line system prompt on every example, sequence cap 2048. The core card was ~80% of every example's tokens; with it only ~1.5B at 8 layers fit and an epoch would take days. Evaluation arms may still put the card in the prompt. | Kaleb |
+| D13 | First run base (2026-11-21): the ~1.5B code-trained instruct candidate (Apache-2.0), LoRA on 16 layers. ~3B only after its result (D1). | Kaleb |
 | D11 | Grow the training set to about 3,000 distinct compiler-checked programs (2026-11-20). Project threads write them in batches under `data/extra/`; the Mac checks each with `tools/check_extra/run.sh`; only passing programs are kept. No paid service. | Kaleb |
 
 Open (ask Kaleb with a tappable card when reached): which concrete base model (section 4), whether a published
