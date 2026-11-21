@@ -16,11 +16,11 @@ fn main()
     ]
     mut classes := Map[str, int]()
     mut errors := List[str]()
-    mut bytes := 0
+    mut sent := 0
     for l in lines
         parts := l.split(" ")
         code := parts[2].to_int() else 0
-        bytes += parts[3].to_int() else 0
+        sent += parts[3].to_int() else 0
         classes["{code / 100}xx"] += 1
         if code >= 500
             errors.push("{parts[1]} ({code})")
@@ -28,7 +28,7 @@ fn main()
         print("{k}: {classes[k]}")
     shown := errors.join(", ")
     print("server errors: {shown}")
-    print("{bytes} bytes sent in {lines.len()} requests")
+    print("{sent} bytes sent in {lines.len()} requests")
 
 @test fn class()
     assert_eq(404 / 100, 4)
