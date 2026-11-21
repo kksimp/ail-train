@@ -1,0 +1,51 @@
+## Mana curve: two 20-card decks for an invented card game are shuffled 300 times each; over six turns (mana
+## equal to the turn) the player casts the dearest affordable card first. Compares wasted mana and casts.
+
+struct Rng
+    state int
+
+fn Rng.below(mut self, n int) int
+    self.state = (self.state * 1103515245 + 12345) % 2147483648
+    (self.state / 65536) % n
+
+fn play_game(deck List[int], mut rng Rng) List[int]
+    mut cards := deck
+    for i in 0..cards.len()
+        j := i + rng.below(cards.len() - i)
+        cards.swap(i, j)
+    mut hand := cards.slice(0, 4)
+    mut wasted := 0
+    mut cast := 0
+    for turn in 1..=6
+        hand.push(cards[3 + turn])
+        mut mana := turn
+        while true
+            fits := hand.filter(|c| c <= mana)
+            dearest := fits.max() else break
+            idx := hand.index_of(dearest) else break
+            hand.remove_at(idx)
+            mana -= dearest
+            cast += 1
+        wasted += mana
+    [wasted, cast]
+
+fn main()
+    decks := [("low curve", [1, 1, 1, 1, 2, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 5, 5, 6, 6]), ("high curve", [1, 1, 2, 2, 3, 3, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 6, 7, 7, 7])]
+    mut rng := Rng(state: 1337)
+    print("six turns, mana equal to the turn, 300 shuffled games per deck")
+    for d in decks
+        title, deck := d
+        mut wasted := 0
+        mut cast := 0
+        for g in 0..300
+            r := play_game(deck, mut rng)
+            wasted += r[0]
+            cast += r[1]
+        w := wasted.to_float() / 300.0
+        c := cast.to_float() / 300.0
+        print("{title:<10}: {w:.3} mana wasted of 21, {c:.3} cards cast per game")
+
+@test fn spends_all()
+    mut rng := Rng(state: 1)
+    r := play_game([1, 1, 1, 1, 1, 1, 1, 1, 1, 1], mut rng)
+    assert_eq(r[1], 10)

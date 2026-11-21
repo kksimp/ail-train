@@ -1,0 +1,35 @@
+## Shirt sizes: a fieldless `Size` enum read from order text with `Size.from_str`, counted by
+## `name()`, listed in `Size.variants()` order, and stepped up a size by position in the variants list.
+
+enum Size
+    XS
+    S
+    M
+    L
+    XL
+
+fn read_size(text str) Size?
+    Size.from_str(text.trim().to_upper())
+
+fn size_up(s Size) Size
+    all_sizes := Size.variants()
+    i := all_sizes.index_of(s) else 0
+    all_sizes[(i + 1).min(all_sizes.len() - 1)]
+
+fn main()
+    orders := ["m", "L", "xl", "XXL", " s ", "M", "l", "medium"]
+    mut counts := Map[str, int]()
+    mut unknown := List[str]()
+    for o in orders
+        sz := read_size(o) else
+            unknown.push(o.trim())
+            continue
+        counts[sz.name()] += 1
+    for v in Size.variants()
+        print("{v.name():<2} {counts.get_or(v.name(), 0)}")
+    bad := unknown.join(", ")
+    print("not understood: {bad}")
+    print("M sold out, offer {size_up(Size.M).name()}; XL stays {size_up(Size.XL).name()}")
+
+@test fn reads_lower_case()
+    assert_eq((read_size(" xs ") else Size.XL).name(), "XS")

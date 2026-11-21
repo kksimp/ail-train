@@ -1,0 +1,31 @@
+## Reservoir rule: a 1000-unit reservoir meets a demand of 100 a month; above 800 it also releases a quarter
+## of the excess, below 400 it rations to 60, and anything over the top spills. A year of inflows is run.
+
+fn release(level int) int
+    if level > 800
+        return 100 + (level - 800) / 4
+    if level < 400
+        return 60.min(level)
+    100
+
+fn main()
+    months := ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+    inflow := [180, 320, 420, 300, 60, 0, 0, 0, 0, 10, 20, 90]
+    mut level := 600
+    mut short := 0
+    mut spilled := 0
+    for m in 0..12
+        level += inflow[m]
+        out := release(level)
+        level -= out
+        spill := (level - 1000).max(0)
+        level -= spill
+        spilled += spill
+        if out < 100
+            short += 100 - out
+        print("{months[m]}: in {inflow[m]:>3}, out {out:>3}, spill {spill:>3}, level {level:>4}")
+    print("year: {spilled} spilled, demand short by {short}")
+
+@test fn rationing()
+    assert_eq(release(350), 60)
+    assert_eq(release(900), 125)

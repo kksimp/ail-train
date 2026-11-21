@@ -1,0 +1,27 @@
+## Bus ETA board: minutes until each bus arrives sit in a `Deque`; every minute each entry is
+## lowered with `d.set(i, d[i] - 1)`, arrived buses leave from the front and a new one joins every third minute.
+
+fn main()
+    mut etas := Deque[int]()
+    for e in [2, 7, 12, 20]
+        etas.push_back(e)
+    mut departed := 0
+    for minute in 1..=6
+        for i in 0..etas.len()
+            etas.set(i, etas[i] - 1)
+        while (etas.first() else 99) <= 0
+            _ := etas.pop_front()
+            departed += 1
+            print("minute {minute}: a bus has left the stop")
+        if minute % 3 == 0
+            last := etas.last() else 0
+            etas.push_back(last + 8)
+        print("minute {minute}: due in {etas.to_list()}")
+    soon := etas.first() else 0
+    print("{departed} departed, next in {soon} min")
+
+@test fn set_by_index()
+    mut d := Deque[int]()
+    d.push_back(5)
+    d.set(0, 3)
+    assert_eq(d[0], 3)

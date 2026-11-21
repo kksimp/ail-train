@@ -1,0 +1,29 @@
+## Tracking redirects: a parcel code is looked up with `if s := status.get(code)`; a relabelled
+## parcel is followed through a redirect map to its new code, and anything else has no record.
+
+fn resolve(status Map[str, str], redirect Map[str, str], code str) str
+    if s := status.get(code)
+        return s
+    if r := redirect.get(code)
+        s2 := status.get(r) else "unknown parcel"
+        return "relabelled {r}, {s2}"
+    "no record"
+
+fn main()
+    status := {"TRK100": "in transit", "TRK200": "delivered", "TRK300": "held at depot"}
+    redirect := {"TRK150": "TRK300", "TRK999": "TRK998"}
+    queries := ["TRK100", "TRK150", "TRK200", "TRK999", "TRK404"]
+    mut found := 0
+    for code in queries
+        text := resolve(status, redirect, code)
+        if text != "no record"
+            found += 1
+        print("{code}: {text}")
+    print("answered {found} of {queries.len()} queries")
+    delivered := status.count(|k, v| v == "delivered")
+    print("delivered parcels: {delivered}")
+
+@test fn unknown_code()
+    st := {"a": "x"}
+    rd := {"b": "a"}
+    assert_eq(resolve(st, rd, "c"), "no record")

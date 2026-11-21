@@ -1,0 +1,33 @@
+## Desk split: a generic `Desk[T]` covers a range from `lo` to `hi`, and one generic `assign[T Ord]`
+## sends fun-run entrants to a registration desk by surname range and to a race by age range.
+
+struct Desk[T]
+    name str
+    lo T
+    hi T
+
+fn in_range[T Ord](x T, lo T, hi T) bool
+    lo <= x and x <= hi
+
+fn assign[T Ord](desks List[Desk[T]], x T) str
+    for d in desks
+        if in_range(x, d.lo, d.hi)
+            return d.name
+    "help desk"
+
+fn main()
+    by_name := [Desk(name: "desk A", lo: "A", hi: "Gz"), Desk(name: "desk B", lo: "H", hi: "Mz"), Desk(name: "desk C", lo: "N", hi: "Zz")]
+    by_age := [Desk(name: "junior 2 km", lo: 8, hi: 15), Desk(name: "open 5 km", lo: 16, hi: 59), Desk(name: "veterans 5 km", lo: 60, hi: 99)]
+    people := [("Okafor", 34), ("Brennan", 67), ("Haas", 12), ("Zubiri", 45), ("mcleod", 29), ("Ito", 5)]
+    mut queues := Map[str, int]()
+    for p in people
+        surname, age := p
+        desk := assign(by_name, surname)
+        race := assign(by_age, age)
+        queues[desk] += 1
+        print("{surname:<8} age {age:>2}: {desk}, {race}")
+    for d, n in queues
+        print("{d}: {n} in the queue")
+
+@test fn bounds_inclusive()
+    assert(in_range("Mz", "H", "Mz"))

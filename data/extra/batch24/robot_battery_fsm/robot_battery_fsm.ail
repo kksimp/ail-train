@@ -1,0 +1,42 @@
+## Patrol robot: a state machine with an enum carrying data; the robot patrols a corridor of 8 cells away from
+## its dock, heads home when its battery would not last much longer, charges to full, and goes out again.
+
+enum Mode
+    Patrol(dir int)
+    Homing
+    Charging
+
+fn main()
+    mut mode := Mode.Patrol(dir: 1)
+    mut pos := 0
+    mut battery := 100
+    mut last := ""
+    for tick in 0..60
+        mode = match mode
+            Patrol(dir) =>
+                battery -= 6
+                mut d := dir
+                if pos + d < 0 or pos + d > 7
+                    d = -d
+                pos += d
+                if battery <= pos * 4 + 12 then Mode.Homing else Mode.Patrol(dir: d)
+            Homing =>
+                battery -= 4
+                pos -= 1
+                if pos == 0 then Mode.Charging else Mode.Homing
+            Charging =>
+                battery = (battery + 25).min(100)
+                if battery == 100 then Mode.Patrol(dir: 1) else Mode.Charging
+        now := match mode
+            Patrol => "patrol"
+            Homing => "homing"
+            Charging => "charging"
+        if now != last
+            print("tick {tick:>2}: {now} at cell {pos}, battery {battery}%")
+            last = now
+
+@test fn bounce()
+    mut d := 1
+    if 7 + d > 7
+        d = -d
+    assert_eq(d, -1)

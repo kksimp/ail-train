@@ -1,0 +1,33 @@
+## Paint matching by Delta E: colours in CIELAB (lightness L, green-red a, blue-yellow b) differ by the
+## straight-line distance sqrt(dL^2 + da^2 + db^2) (CIE76); each sample's closest chip is named with how visible the gap is.
+
+struct Lab
+    name str
+    l float
+    a float
+    b float
+
+fn delta(x Lab, y Lab) float
+    dl := x.l - y.l
+    da := x.a - y.a
+    db := x.b - y.b
+    (dl * dl + da * da + db * db).sqrt()
+
+fn verdict(d float) str
+    if d < 1.0 then "invisible" elif d < 2.3 then "just noticeable" elif d < 10.0 then "visible side by side" else "different colour"
+
+fn main()
+    chips := [Lab(name: "sage", l: 62.0, a: -12.0, b: 18.0), Lab(name: "moss", l: 48.0, a: -15.0, b: 30.0), Lab(name: "clay", l: 55.0, a: 22.0, b: 28.0), Lab(name: "slate", l: 45.0, a: -2.0, b: -9.0), Lab(name: "linen", l: 90.0, a: 1.0, b: 9.0), Lab(name: "rust", l: 42.0, a: 30.0, b: 38.0)]
+    samples := [Lab(name: "wall A", l: 61.2, a: -11.5, b: 18.6), Lab(name: "wall B", l: 52.0, a: -14.0, b: 26.0), Lab(name: "door", l: 47.5, a: 25.5, b: 34.0), Lab(name: "trim", l: 88.4, a: 0.6, b: 10.2), Lab(name: "shutter", l: 30.0, a: 5.0, b: -25.0)]
+    for s in samples
+        mut best := chips[0]
+        for c in chips
+            if delta(s, c) < delta(s, best)
+                best = c
+        d := delta(s, best)
+        print("{s.name:<8} closest {best.name:<6} dE {d:>5.2}  {verdict(d)}")
+
+@test fn same()
+    x := Lab(name: "x", l: 50.0, a: 3.0, b: 4.0)
+    y := Lab(name: "y", l: 50.0, a: 0.0, b: 0.0)
+    assert_eq(delta(x, y), 5.0)

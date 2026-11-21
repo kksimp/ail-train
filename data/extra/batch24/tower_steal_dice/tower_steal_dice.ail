@@ -1,0 +1,44 @@
+## Tower steal: an original dice game for three; a roll of 1 to 4 adds that many blocks to your tower, a 5
+## steals the top two blocks of the tallest rival tower, and a 6 knocks one off your own. First to 15 wins.
+
+struct Rng
+    state int
+
+fn Rng.die(mut self) int
+    self.state = (self.state * 1103515245 + 12345) % 2147483648
+    1 + (self.state / 65536) % 6
+
+fn tallest_rival(towers List[int], me int) int
+    mut best := -1
+    for i in 0..towers.len()
+        if i != me and (best < 0 or towers[i] > towers[best])
+            best = i
+    best
+
+fn main()
+    names := ["Iris", "Joss", "Kemi"]
+    mut towers := [0, 0, 0]
+    mut rng := Rng(state: 66)
+    mut turn := 0
+    mut steals := 0
+    while (towers.max() else 0) < 15
+        me := turn % 3
+        roll := rng.die()
+        if roll <= 4
+            towers[me] += roll
+        elif roll == 5
+            victim := tallest_rival(towers, me)
+            taken := towers[victim].min(2)
+            towers[victim] -= taken
+            towers[me] += taken
+            steals += 1
+        else
+            towers[me] = (towers[me] - 1).max(0)
+        if turn % 3 == 2
+            print("round {turn / 3 + 1:>2}: {towers}")
+        turn += 1
+    winner := towers.index_of(towers.max() else 0) else 0
+    print("{names[winner]} wins after {turn} turns with towers {towers}, {steals} steals")
+
+@test fn rival_choice()
+    assert_eq(tallest_rival([9, 4, 7], 0), 2)

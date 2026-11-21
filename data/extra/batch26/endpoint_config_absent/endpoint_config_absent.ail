@@ -1,0 +1,34 @@
+## Endpoint config: `load` returns `!Endpoint` with inferred errors, so `?` on a missing "host" key
+## or an unreadable port fails it with `Absent`; the port alone falls back to 443 with `else`.
+
+struct Endpoint
+    host str
+    port int
+
+fn load(cfg Map[str, str]) !Endpoint
+    host := cfg.get("host")?
+    text := cfg.get("port") else "443"
+    port := text.to_int()?
+    Endpoint(host: host, port: port)
+
+fn main()
+    configs := [
+        {"host": "db.local", "port": "5432"},
+        {"host": "cache.local"},
+        {"port": "80"},
+        {"host": "api.local", "port": "eighty"},
+        {"host": "mail.local", "port": "587", "tls": "on"},
+    ]
+    mut usable := List[Endpoint]()
+    for i, c in configs.enumerate()
+        if ep := load(c)
+            print("config {i + 1}: {ep.host}:{ep.port}")
+            usable.push(ep)
+        else
+            print("config {i + 1}: rejected ({c.len()} keys)")
+    secure := usable.count(|e| e.port == 443 or e.port == 587)
+    print("{usable.len()} usable, {secure} on secure ports")
+
+@test fn default_port()
+    ep := load({"host": "h"})?
+    assert_eq(ep.port, 443)

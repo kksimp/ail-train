@@ -1,0 +1,9 @@
+Ada  arrives  0, dry done at  75, waited  0 min
+Bo   arrives  5, dry done at  80, waited  0 min
+Cy   arrives 10, dry done at 120, waited 35 min
+Di   arrives 12, dry done at 125, waited 38 min
+Ed   arrives 20, dry done at 165, waited 70 min
+Flo  arrives 25, dry done at 170, waited 70 min
+Gus  arrives 40, dry done at 210, waited 95 min
+Hal  arrives 41, dry done at 215, waited 99 min
+total waiting 407 min over 8 loads

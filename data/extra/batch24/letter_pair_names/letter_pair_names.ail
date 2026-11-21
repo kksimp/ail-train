@@ -1,0 +1,45 @@
+## Letter-pair names: counts which letter follows which in a few real-sounding names (with ^ for the start
+## and $ for the end), then walks those pairs with a seeded generator to make new names of 4 to 8 letters.
+
+struct Rng
+    state int
+
+fn Rng.below(mut self, n int) int
+    self.state = (self.state * 1103515245 + 12345) % 2147483648
+    (self.state / 65536) % n
+
+fn main()
+    sample := ["marta", "loren", "tobias", "selma", "orin", "talia", "bram", "elena", "rosamund", "milo"]
+    mut follow := Map[char, List[char]]()
+    for word in sample
+        mut prev := '^'
+        for ch in word.chars()
+            follow.push(prev, ch)
+            prev = ch
+        follow.push(prev, '$')
+    mut rng := Rng(state: 3141)
+    mut made := List[str]()
+    mut tries := 0
+    while made.len() < 8
+        tries += 1
+        mut letters := List[char]()
+        mut cur := '^'
+        while letters.len() < 9
+            options := follow.get(cur) else break
+            cur = options[rng.below(options.len())]
+            if cur == '$'
+                break
+            letters.push(cur)
+        word := letters.join("")
+        if word.len() >= 4 and word.len() <= 8 and not sample.contains(word) and not made.contains(word)
+            made.push(word)
+    print(made.slice(0, 4).join(", "))
+    print(made.slice(4).join(", "))
+    starts := follow.get('^') else List[char]()
+    print("{tries} walks for 8 new names; {starts.len()} start letters seen")
+
+@test fn pairs_counted()
+    mut f := Map[char, List[char]]()
+    f.push('a', 'b')
+    f.push('a', 'c')
+    assert_eq((f.get('a') else List[char]()).len(), 2)

@@ -1,0 +1,6 @@
+abcd      +3 -> dcbabcd
+aacecaaa  +1 -> aaacecaaa
+racecar   +0 -> racecar
+banana    +5 -> ananabanana
+abab      +1 -> babab
+noonday   +3 -> yadnoonday

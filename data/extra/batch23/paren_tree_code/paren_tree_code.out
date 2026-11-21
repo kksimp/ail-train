@@ -1,0 +1,11 @@
+((()())((()())())()) (20 bits for 10 nodes)
+root  depth 0 subtree 10 parent -
+docs  depth 1 subtree  3 parent root
+a.md  depth 2 subtree  1 parent docs
+b.md  depth 2 subtree  1 parent docs
+src   depth 1 subtree  5 parent root
+lib   depth 2 subtree  3 parent src
+x.rs  depth 3 subtree  1 parent lib
+y.rs  depth 3 subtree  1 parent lib
+main  depth 2 subtree  1 parent src
+test  depth 1 subtree  1 parent root

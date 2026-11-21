@@ -1,0 +1,34 @@
+## Stereographic projection: a point (x, y, z) on the unit sphere maps from the north pole to the plane as
+## (x / (1 - z), y / (1 - z)); the inverse (2X, 2Y, r^2 - 1) / (r^2 + 1) brings it back, and the pole itself has no image.
+
+fn unit(v List[float]) List[float]
+    n := (v[0] * v[0] + v[1] * v[1] + v[2] * v[2]).sqrt()
+    v.map(|c| c / n)
+
+fn project(p List[float]) List[float] ! str
+    if p[2] > 0.999999
+        return "the north pole has no image"
+    d := 1.0 - p[2]
+    [p[0] / d, p[1] / d]
+
+fn back(q List[float]) List[float]
+    r2 := q[0] * q[0] + q[1] * q[1]
+    [2.0 * q[0] / (r2 + 1.0), 2.0 * q[1] / (r2 + 1.0), (r2 - 1.0) / (r2 + 1.0)]
+
+fn main()
+    places := [("south pole", [0.0, 0.0, -1.0]), ("on equator", [1.0, 0.0, 0.0]), ("southern", [2.0, 1.0, -2.0]), ("northern", [1.0, -1.0, 1.0]), ("high north", [1.0, 2.0, 8.0]), ("north pole", [0.0, 0.0, 5.0])]
+    for pl in places
+        name, raw := pl
+        p := unit(raw)
+        if q := project(p)
+            r := (q[0] * q[0] + q[1] * q[1]).sqrt()
+            b := back(q)
+            err := ((b[0] - p[0]).abs() + (b[1] - p[1]).abs() + (b[2] - p[2]).abs())
+            ok := if err < 0.000000001 then "round trip ok" else "round trip off"
+            print("{name:<11} z {p[2]:>6.3} -> ({q[0]:>6.3}, {q[1]:>6.3}) radius {r:>6.3}, {ok}")
+        else err
+            print("{name:<11} {err}")
+
+@test fn equator_stays()
+    q := project([0.0, 1.0, 0.0])?
+    assert_eq(q, [0.0, 1.0])

@@ -1,0 +1,6 @@
+200 servers; requests placed at random
+  200 requests (mean   1): busiest with one choice   4, with two choices   2
+ 2000 requests (mean  10): busiest with one choice  20, with two choices  12
+20000 requests (mean 100): busiest with one choice 137, with two choices 102
+three choices for 2000 requests: busiest 12
+servers left idle by 200 requests with one choice: 68

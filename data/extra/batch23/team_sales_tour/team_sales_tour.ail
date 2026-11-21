@@ -1,0 +1,60 @@
+## Subtree sums by Euler tour: numbering people in depth-first order makes every manager's team one contiguous
+## range [tin, tout), so a Fenwick tree over that order answers team totals and takes single-person updates.
+
+struct Fenwick
+    tree List[int]
+
+fn Fenwick.add(mut self, i int, delta int)
+    mut k := i + 1
+    while k < self.tree.len()
+        self.tree[k] += delta
+        k += (k & (-k))
+
+fn Fenwick.prefix(self, i int) int
+    mut k := i
+    mut s := 0
+    while k > 0
+        s += self.tree[k]
+        k -= (k & (-k))
+    s
+
+fn tour(kids List[List[int]], v int, mut tin List[int], mut tout List[int], mut clock List[int])
+    tin[v] = clock[0]
+    clock[0] += 1
+    for c in kids[v]
+        tour(kids, c, mut tin, mut tout, mut clock)
+    tout[v] = clock[0]
+
+fn report(names List[str], managers List[int], fw Fenwick, tin List[int], tout List[int])
+    for m in managers
+        total := fw.prefix(tout[m]) - fw.prefix(tin[m])
+        print("  team of {names[m]:<5} {total:>4} (people {tin[m]}..{tout[m] - 1} in tour order)")
+
+fn main()
+    names := ["Ana", "Ben", "Cleo", "Dev", "Eve", "Finn", "Gia", "Hal"]
+    parent := [-1, 0, 0, 1, 1, 2, 2, 5]
+    sales := [10, 40, 25, 70, 55, 30, 45, 60]
+    mut kids := [List[int]() for a in names]
+    mut tin := [0 for b in names]
+    mut tout := [0 for c in names]
+    for v in 1..names.len()
+        kids[parent[v]].push(v)
+    mut clock := [0]
+    tour(kids, 0, mut tin, mut tout, mut clock)
+    mut fw := Fenwick(tree: [0, 0, 0, 0, 0, 0, 0, 0, 0])
+    for v in 0..names.len()
+        fw.add(tin[v], sales[v])
+    managers := [0, 1, 2, 5]
+    print("monthly sales by team:")
+    report(names, managers, fw, tin, tout)
+    fw.add(tin[7], 25)
+    fw.add(tin[3], -20)
+    print("after Hal sells 25 more and Dev returns 20:")
+    report(names, managers, fw, tin, tout)
+
+@test fn fenwick_prefix()
+    mut fw := Fenwick(tree: [0, 0, 0, 0])
+    fw.add(0, 5)
+    fw.add(2, 7)
+    assert_eq(fw.prefix(3), 12)
+    assert_eq(fw.prefix(1), 5)

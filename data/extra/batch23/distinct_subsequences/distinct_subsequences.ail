@@ -1,0 +1,39 @@
+## Distinct subsequences: count(i) = 2 count(i-1) minus the count just before the previous copy of the same
+## letter (those were made twice); a second table counts the ways a word occurs as a subsequence of a text.
+
+fn distinct_count(s str) int
+    mut dp := [1]
+    mut last := Map[char, int]()
+    cs := s.chars()
+    for i in 1..=cs.len()
+        c := cs[i - 1]
+        mut v := dp[i - 1] * 2
+        if last.contains(c)
+            v -= dp[last[c] - 1]
+        dp.push(v)
+        last[c] = i
+    dp[cs.len()]
+
+fn ways(text str, word str) int
+    w := word.chars()
+    mut dp := [1]
+    for _ in 0..w.len()
+        dp.push(0)
+    for c in text.chars()
+        mut j := w.len()
+        while j >= 1
+            if w[j - 1] == c
+                dp[j] += dp[j - 1]
+            j -= 1
+    dp[w.len()]
+
+fn main()
+    for s in ["abc", "aba", "aaa", "banana", "mississippi", "abcdefghij"]
+        print("{s:<12} {distinct_count(s)} distinct subsequences (with the empty one)")
+    for pair in [("rabbbit", "rabbit"), ("babgbag", "bag"), ("subsequence", "sue"), ("aaaaa", "aa")]
+        t, w := pair
+        print("{w} inside {t}: {ways(t, w)} ways")
+
+@test fn counts()
+    assert_eq(distinct_count("aaa"), 4)
+    assert_eq(ways("rabbbit", "rabbit"), 3)

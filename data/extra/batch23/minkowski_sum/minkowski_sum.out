@@ -1,0 +1,4 @@
+obstacle: (4,2) (8,3) (7,7) (3,6)
+no-go region for the robot's anchor: (3,0) (7,1) (8,3) (7,7) (5,7) (1,6) (2,2)
+doubled areas: obstacle 34, robot 4, region 72
+unit square + 2-square: (0,0) (3,0) (3,3) (0,3)

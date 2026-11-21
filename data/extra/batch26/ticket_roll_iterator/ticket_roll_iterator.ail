@@ -1,0 +1,35 @@
+## Ticket roll: a `Roll` struct with `fn next(mut self) int?` hands out raffle numbers, skipping any
+## that contain "13", so `for` loops and comprehensions read it; the loop works on a copy of the roll.
+
+struct Roll
+    cur int
+    last int
+
+fn Roll.next(mut self) int?
+    while self.cur <= self.last
+        n := self.cur
+        self.cur += 1
+        text := "{n}"
+        if not text.contains("13")
+            return n
+    none
+
+fn main()
+    roll := Roll(cur: 108, last: 120)
+    mut issued := List[str]()
+    for t in roll
+        issued.push("{t}")
+    shown := issued.join(" ")
+    print("tickets: {shown}")
+    print("roll still starts at {roll.cur}")
+    big := Roll(cur: 1125, last: 1140)
+    got := [t for t in big]
+    print("1125 to 1140 gives {got.len()} tickets, skipping {16 - got.len()}")
+    evens := [t for t in Roll(cur: 1, last: 20) if t % 2 == 0]
+    print("even tickets 1-20: {evens}")
+
+@test fn skips_thirteen()
+    mut r := Roll(cur: 12, last: 14)
+    a := r.next() else 0
+    b := r.next() else 0
+    assert_eq(a + b, 26)

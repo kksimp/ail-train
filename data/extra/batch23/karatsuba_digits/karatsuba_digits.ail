@@ -1,0 +1,60 @@
+## Karatsuba multiplication on decimal digit lists: split each number in half and use three half-size products,
+## (a0 + a1)(b0 + b1) - a0 b0 - a1 b1 giving the middle term, counting single-digit products against schoolbook.
+
+fn digits(s str) List[int]
+    [c.code() - 48 for c in s.chars()].reversed()
+
+fn kara(a List[int], b List[int], mut count List[int]) List[int]
+    n := a.len()
+    size := 2 * n
+    mut out := [0 for i in 0..size]
+    if n <= 4
+        for i in 0..n
+            for j in 0..n
+                count[0] += 1
+                out[i + j] += a[i] * b[j]
+        return out
+    half := n / 2
+    a0 := a.slice(0, half)
+    a1 := a.slice(half, n)
+    b0 := b.slice(0, half)
+    b1 := b.slice(half, n)
+    z0 := kara(a0, b0, mut count)
+    z2 := kara(a1, b1, mut count)
+    sa := [a0[i] + a1[i] for i in 0..half]
+    sb := [b0[i] + b1[i] for i in 0..half]
+    z1 := kara(sa, sb, mut count)
+    for i in 0..n
+        out[i] += z0[i]
+        out[i + half] += z1[i] - z0[i] - z2[i]
+        out[i + n] += z2[i]
+    out
+
+fn show(coeffs List[int]) str
+    mut cs := coeffs
+    cs.extend([0, 0, 0])
+    mut ds := List[int]()
+    mut carry := 0
+    for c in cs
+        v := c + carry
+        ds.push(v % 10)
+        carry = v / 10
+    while ds.len() > 1 and ds[ds.len() - 1] == 0
+        _ := ds.pop()
+    parts := ["{d}" for d in ds.reversed()]
+    parts.join("")
+
+fn main()
+    pi := "3141592653589793238462643383279502884197169399375105820974944592"
+    eul := "2718281828459045235360287471352662497757247093699959574966967627"
+    for pair in [["1234", "5678"], [pi.slice(0, 16), eul.slice(0, 16)], [pi.slice(0, 32), eul.slice(0, 32)], [pi, eul]]
+        a := digits(pair[0])
+        b := digits(pair[1])
+        mut count := [0]
+        product := show(kara(a, b, mut count))
+        print("{a.len()} digits: {pair[0]} x {pair[1]}")
+        print("  = {product} ({count[0]} digit products, schoolbook {a.len() * b.len()})")
+
+@test fn small()
+    mut count := [0]
+    assert_eq(show(kara(digits("1200"), digits("0034"), mut count)), "40800")

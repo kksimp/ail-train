@@ -1,0 +1,31 @@
+## Trader pairs: buyers with a top price and sellers with a bottom price meet in rotating pairs each round
+## (buyer i meets seller i + round); when the buyer's limit covers the seller's they trade at the midpoint.
+
+struct Trader
+    name str
+    limit int
+    done bool
+
+fn main()
+    mut buyers := [("B1", 95), ("B2", 80), ("B3", 72), ("B4", 68), ("B5", 52), ("B6", 40)].map(|t| Trader(name: t.0, limit: t.1, done: false))
+    mut sellers := [("S1", 30), ("S2", 58), ("S3", 85), ("S4", 66), ("S5", 70), ("S6", 45)].map(|t| Trader(name: t.0, limit: t.1, done: false))
+    mut prices := List[int]()
+    for r in 0..6
+        mut deals := 0
+        for i in 0..6
+            j := (i + r) % 6
+            if not buyers[i].done and not sellers[j].done and buyers[i].limit >= sellers[j].limit
+                price := (buyers[i].limit + sellers[j].limit) / 2
+                buyers[i].done = true
+                sellers[j].done = true
+                prices.push(price)
+                deals += 1
+                print("round {r + 1}: {buyers[i].name} buys from {sellers[j].name} at {price}")
+        if deals == 0
+            print("round {r + 1}: no deal")
+    left := buyers.filter(|b| not b.done).map(|b| b.name).join(", ")
+    mean := prices.sum().to_float() / prices.len().to_float()
+    print("{prices.len()} trades, mean price {mean:.2}, buyers left out: {left}")
+
+@test fn midpoint()
+    assert_eq((95 + 30) / 2, 62)

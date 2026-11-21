@@ -1,0 +1,45 @@
+## Office party guest list: staff form a reporting tree and nobody enjoys a party with their direct manager, so pick
+## guests to maximise total fun; tree DP keeps two sums per person (invited, not invited), filled from the leaves up.
+
+struct Person
+    name str
+    fun int
+    boss int
+
+fn best(people List[Person], i int, mut with_ List[int], mut without List[int])
+    with_[i] = people[i].fun
+    without[i] = 0
+    for k in 0..people.len()
+        if people[k].boss == i
+            best(people, k, mut with_, mut without)
+            with_[i] += without[k]
+            without[i] += with_[k].max(without[k])
+
+fn pick(people List[Person], i int, may bool, with_ List[int], without List[int], mut out List[str])
+    invite := may and with_[i] > without[i]
+    if invite
+        out.push(people[i].name)
+    for k in 0..people.len()
+        if people[k].boss == i
+            pick(people, k, not invite, with_, without, mut out)
+
+fn main()
+    people := [Person(name: "Iris", fun: 5, boss: -1), Person(name: "Omar", fun: 6, boss: 0), Person(name: "Pia", fun: 4, boss: 0), Person(name: "Raj", fun: 3, boss: 1), Person(name: "Sue", fun: 4, boss: 1), Person(name: "Tom", fun: 7, boss: 2), Person(name: "Uma", fun: 2, boss: 2), Person(name: "Vic", fun: 1, boss: 2), Person(name: "Wes", fun: 6, boss: 4), Person(name: "Xia", fun: 3, boss: 5)]
+    count := people.len()
+    mut with_ := [0 for p in people]
+    mut without := [0 for q in people]
+    best(people, 0, mut with_, mut without)
+    for i in 0..count
+        print("{people[i].name:<5} invited {with_[i]:>2}, not invited {without[i]:>2}")
+    mut out := List[str]()
+    pick(people, 0, true, with_, without, mut out)
+    total := with_[0].max(without[0])
+    shown := out.join(", ")
+    print("guests: {shown} (fun {total})")
+
+@test fn two_people()
+    people := [Person(name: "A", fun: 2, boss: -1), Person(name: "B", fun: 5, boss: 0)]
+    mut with_ := [0, 0]
+    mut without := [0, 0]
+    best(people, 0, mut with_, mut without)
+    assert_eq(without[0], 5)

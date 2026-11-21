@@ -1,0 +1,60 @@
+## Min-conflicts search for n queens: start with one queen per column in a seeded random row, then repeatedly pick a
+## random attacked queen and move it to the row in its column with the fewest attacks (ties broken at random).
+
+struct Lcg
+    state int
+
+fn Lcg.next(mut self, n int) int
+    self.state = (self.state * 1103515245 + 12345) % 2147483648
+    (self.state >> 8) % n
+
+fn attacks(rows List[int], col int, row int) int
+    mut count := 0
+    for k in 0..rows.len()
+        if k != col
+            r := rows[k]
+            if r == row or (r - row).abs() == (k - col).abs()
+                count += 1
+    count
+
+fn solve(n int, mut rng Lcg, mut steps List[int]) List[int]
+    mut rows := List[int]()
+    for _ in 0..n
+        rows.push(rng.next(n))
+    for step in 0..5000
+        bad := [c for c in 0..n if attacks(rows, c, rows[c]) > 0]
+        if bad.len() == 0
+            steps[0] = step
+            return rows
+        col := bad[rng.next(bad.len())]
+        mut least := n + 1
+        mut options := List[int]()
+        for r in 0..n
+            a := attacks(rows, col, r)
+            if a < least
+                least = a
+                options = [r]
+            elif a == least
+                options.push(r)
+        rows[col] = options[rng.next(options.len())]
+    steps[0] = -1
+    rows
+
+fn main()
+    mut rng := Lcg(state: 12)
+    mut steps := [0]
+    board := solve(8, mut rng, mut steps)
+    print("8 queens after {steps[0]} moves:")
+    for r in 0..8
+        mut line := List[str]()
+        for c in 0..8
+            mark := if board[c] == r then "Q" else "."
+            line.push(mark)
+        print(line.join(" "))
+    for n in [16, 32, 64]
+        _ := solve(n, mut rng, mut steps)
+        print("{n} queens: solved after {steps[0]} moves")
+
+@test fn no_attacks()
+    rows := [1, 3, 0, 2]
+    assert_eq(attacks(rows, 0, 1), 0)

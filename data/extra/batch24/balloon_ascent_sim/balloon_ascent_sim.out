@@ -1,0 +1,10 @@
+t 100 s: height  2112.6 m, speed  2.72 m/s
+t 200 s: height  2026.3 m, speed  2.78 m/s
+t 300 s: height  1997.2 m, speed  2.11 m/s
+t 400 s: height  1983.9 m, speed  1.27 m/s
+t 500 s: height  1980.0 m, speed  0.45 m/s
+t 600 s: height  1982.7 m, speed -0.20 m/s
+t 700 s: height  1989.0 m, speed -0.59 m/s
+t 800 s: height  1996.7 m, speed -0.73 m/s
+t 900 s: height  2003.6 m, speed -0.64 m/s
+highest 2120.6 m; neutral height is 2000.0 m

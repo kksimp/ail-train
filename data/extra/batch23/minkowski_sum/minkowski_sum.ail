@@ -1,0 +1,60 @@
+## Minkowski sum of convex polygons: start both at their lowest corner and merge their edge vectors in angle order
+## (a cross product says which turns first); sliding a robot's shape around an obstacle gives its no-go region.
+
+fn lowest_first(p List[List[int]]) List[List[int]]
+    mut k := 0
+    for i in 1..p.len()
+        if p[i][1] < p[k][1] or (p[i][1] == p[k][1] and p[i][0] < p[k][0])
+            k = i
+    mut out := List[List[int]]()
+    for i in 0..p.len()
+        out.push(p[(k + i) % p.len()])
+    out
+
+fn minkowski(a0 List[List[int]], b0 List[List[int]]) List[List[int]]
+    mut a := lowest_first(a0)
+    mut b := lowest_first(b0)
+    n := a.len()
+    m := b.len()
+    a.extend([a[0], a[1]])
+    b.extend([b[0], b[1]])
+    mut out := List[List[int]]()
+    mut i := 0
+    mut j := 0
+    while i < n or j < m
+        out.push([a[i][0] + b[j][0], a[i][1] + b[j][1]])
+        ex := a[i + 1][0] - a[i][0]
+        ey := a[i + 1][1] - a[i][1]
+        fx := b[j + 1][0] - b[j][0]
+        fy := b[j + 1][1] - b[j][1]
+        c := ex * fy - ey * fx
+        if c >= 0 and i < n
+            i += 1
+        if c <= 0 and j < m
+            j += 1
+    out
+
+fn twice_area(p List[List[int]]) int
+    mut s := 0
+    for i in 0..p.len()
+        q := p[(i + 1) % p.len()]
+        s += p[i][0] * q[1] - q[0] * p[i][1]
+    s
+
+fn show(p List[List[int]]) str
+    parts := ["({v[0]},{v[1]})" for v in p]
+    parts.join(" ")
+
+fn main()
+    obstacle := [[4, 2], [8, 3], [7, 7], [3, 6]]
+    robot := [[0, 0], [2, 0], [1, 2]]
+    flipped := [[-v[0], -v[1]] for v in robot]
+    region := minkowski(obstacle, flipped)
+    print("obstacle: {show(obstacle)}")
+    print("no-go region for the robot's anchor: {show(region)}")
+    print("doubled areas: obstacle {twice_area(obstacle)}, robot {twice_area(robot)}, region {twice_area(region)}")
+    squares := minkowski([[0, 0], [1, 0], [1, 1], [0, 1]], [[0, 0], [2, 0], [2, 2], [0, 2]])
+    print("unit square + 2-square: {show(squares)}")
+
+@test fn square_sum()
+    assert_eq(twice_area(minkowski([[0, 0], [1, 0], [1, 1], [0, 1]], [[0, 0], [1, 0], [1, 1], [0, 1]])), 8)

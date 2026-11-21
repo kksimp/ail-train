@@ -1,0 +1,10 @@
+leg 1: at A buy 20 grain (markup 6), gold 100
+leg 2: at B buy 13 cloth (markup 17), gold 17
+leg 3: at C buy 20 grain (markup 1), gold 381
+leg 4: at A buy 20 grain (markup 2), gold 461
+leg 5: at B buy 20 cloth (markup 13), gold 41
+leg 6: at C nothing worth carrying, gold 961
+leg 7: at A nothing worth carrying, gold 961
+leg 8: at B buy 20 grain (markup 9), gold 801
+leg 9: at C buy 20 grain (markup 1), gold 881
+back at A with 1161 gold; prices now [[14, 40], [12, 37], [17, 42]]

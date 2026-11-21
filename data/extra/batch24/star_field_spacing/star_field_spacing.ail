@@ -1,0 +1,39 @@
+## Star field: seeded points in a 40 by 20 sky are kept only if no kept star is nearer than about 4.5 units
+## (squared distance under 20); prints the sky, how many draws were refused, and the closest kept pair.
+
+struct Rng
+    state int
+
+fn Rng.below(mut self, n int) int
+    self.state = (self.state * 1103515245 + 12345) % 2147483648
+    (self.state / 65536) % n
+
+fn d2(a List[int], b List[int]) int
+    (a[0] - b[0]) * (a[0] - b[0]) + (a[1] - b[1]) * (a[1] - b[1])
+
+fn main()
+    mut rng := Rng(state: 9001)
+    mut stars := List[List[int]]()
+    mut refused := 0
+    for k in 0..70
+        px := rng.below(40)
+        py := rng.below(20)
+        p := [px, py]
+        if stars.any(|s| d2(s, p) < 20)
+            refused += 1
+        else
+            stars.push(p)
+    for row in 0..10
+        mut line := List[char]()
+        for col in 0..40
+            line.push(if stars.any(|s| s[0] == col and s[1] / 2 == row) then '*' else '.')
+        print(line.join(""))
+    mut best := 100000
+    for i in 0..stars.len()
+        for j in (i + 1)..stars.len()
+            best = best.min(d2(stars[i], stars[j]))
+    gap := best.to_float().sqrt()
+    print("{stars.len()} stars kept, {refused} refused, closest pair {gap:.3} apart")
+
+@test fn spacing()
+    assert_eq(d2([0, 0], [3, 4]), 25)

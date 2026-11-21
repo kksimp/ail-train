@@ -1,0 +1,27 @@
+## Census density table: each region's people per square kilometre and share of the national population
+## and land, ranked by density, with the national figure and how many times denser the top region is than the bottom.
+
+struct Region
+    name str
+    people int
+    km2 int
+
+fn Region.density(self) float
+    self.people.to_float() / self.km2.to_float()
+
+fn main()
+    regions := [Region(name: "Harbourside", people: 1840000, km2: 1250), Region(name: "Midvale", people: 920000, km2: 6450), Region(name: "Northfell", people: 210000, km2: 18200), Region(name: "Riverlands", people: 1330000, km2: 9800), Region(name: "Eastmarsh", people: 455000, km2: 7100), Region(name: "Highcairn", people: 96000, km2: 21500)]
+    people := regions.fold(0, |a, r| a + r.people)
+    land := regions.fold(0, |a, r| a + r.km2)
+    ranked := regions.sorted(by: |r| -r.density())
+    for i, r in ranked.enumerate()
+        share_p := r.people.to_float() / people.to_float() * 100.0
+        share_l := r.km2.to_float() / land.to_float() * 100.0
+        print("{i + 1}. {r.name:<12} {r.people:>9,} people {r.km2:>6,} km2 {r.density():>7.1}/km2  {share_p:>4.1}% of people on {share_l:>4.1}% of land")
+    national := people.to_float() / land.to_float()
+    ratio := ranked[0].density() / ranked[ranked.len() - 1].density()
+    print("national {national:.1}/km2; the densest region is {ratio:.0} times the sparsest")
+
+@test fn dens()
+    r := Region(name: "x", people: 5000, km2: 20)
+    assert_eq(r.density(), 250.0)

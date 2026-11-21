@@ -1,0 +1,4 @@
+1000 keys on 5 servers: alpha:191 bravo:212 charlie:195 delta:214 echo:188
+charlie leaves: 195 keys move, 0 of them were not on charlie
+now: alpha:253 bravo:253 delta:261 echo:233
+foxtrot joins: 163 keys move, 163 of them to foxtrot

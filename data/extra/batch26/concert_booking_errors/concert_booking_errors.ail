@@ -1,0 +1,49 @@
+## Concert booking errors: booking a seat can fail with a `SeatError` or a `PayError`, declared as
+## `! SeatError | PayError`; `?` passes each on and `match err` on the type counts which part failed.
+
+error enum SeatError
+    Taken(seat str) "seat {seat} is taken"
+    NoSuchSeat(seat str) "no seat {seat}"
+
+error enum PayError
+    Declined "card declined"
+    OverLimit(limit int) "over the {limit} limit"
+
+fn check(taken Set[str], seat str) ! SeatError
+    row := seat.char_at(0) else 'Z'
+    num := seat.slice(1).to_int() else 0
+    if row < 'A' or row > 'D' or num < 1 or num > 8
+        return SeatError.NoSuchSeat(seat: seat)
+    if taken.contains(seat)
+        return SeatError.Taken(seat: seat)
+
+fn charge(cents int, card str) ! PayError
+    if card.ends_with("0000")
+        return PayError.Declined
+    if cents > 15000
+        return PayError.OverLimit(limit: 150)
+
+fn book(mut taken Set[str], seat str, cents int, card str) int ! SeatError | PayError
+    check(taken, seat)?
+    charge(cents, card)?
+    taken.add(seat)
+    taken.len()
+
+fn main()
+    mut taken := Set[str]()
+    mut seat_fails := 0
+    mut pay_fails := 0
+    reqs := [("A3", 4500, "4111-2222"), ("A3", 4500, "4111-3333"), ("E1", 3000, "4111-4444"), ("B7", 18000, "4111-5555"), ("C2", 6000, "5500-0000"), ("D8", 4500, "4111-6666")]
+    for r in reqs
+        seat, cents, card := r
+        n := book(mut taken, seat, cents, card) else err
+            match err
+                SeatError => seat_fails += 1
+                PayError => pay_fails += 1
+            print("{seat}: {err}")
+            continue
+        print("{seat}: booked ({n} sold)")
+    print("seat problems {seat_fails}, payment problems {pay_fails}")
+
+@test fn bad_seat()
+    assert_err(check(Set[str](), "Z9"), SeatError.NoSuchSeat)

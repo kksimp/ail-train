@@ -1,0 +1,9 @@
+welcome mira_k
+refused 'jo': too short
+welcome zed99
+refused '9lives': must start with a letter
+refused 'anna.b': bad character '.'
+refused 'ThisNameIsWayTooLong': too long (20 chars)
+refused 'ZED99': zed99 is taken
+welcome sam
+3 accounts made, 5 refused

@@ -1,0 +1,6 @@
+event  2 (talk:miller): done - talk to the miller
+event  7 (pick:wheat): done - gather 3 wheat
+event  9 (scare:crow): done - scare off 2 crows
+event 11 (talk:miller): done - return to the miller
+quest complete: 50 gold and the miller's thanks
+4 events did not count

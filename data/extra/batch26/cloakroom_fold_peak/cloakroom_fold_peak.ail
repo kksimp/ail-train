@@ -1,0 +1,19 @@
+## Cloakroom peak: coats handed in and collected per quarter hour; a `fold` with a tuple
+## accumulator gives the closing count and the peak, and the timeline marks slots over the hanger limit.
+
+HANGERS := 15
+
+fn main()
+    deltas := [3, 5, 4, -2, 6, -1, -7, 2, -6, -4]
+    mut level := 0
+    for i, d in deltas.enumerate()
+        level += d
+        mins := 19 * 60 + i * 15
+        mark := if level > HANGERS then " over limit" else ""
+        print("{mins / 60}:{mins % 60:02} {d:>3} -> {level:>2}{mark}")
+    last, peak := deltas.fold((0, 0), |acc, d| (acc.0 + d, (acc.0 + d).max(acc.1)))
+    handed := deltas.filter(|d| d > 0).sum()
+    print("coats handed in {handed}, peak {peak} on {HANGERS} hangers, {last} left at close")
+
+@test fn fold_sums()
+    assert_eq([1, -1, 2].fold(0, |a, d| a + d), 2)

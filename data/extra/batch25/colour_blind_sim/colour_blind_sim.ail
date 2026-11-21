@@ -1,0 +1,38 @@
+## Colour-blind check for a chart palette: each colour is passed through a 3x3 matrix that imitates
+## protanopia, deuteranopia or tritanopia, and pairs whose simulated colours land within 40 RGB units are flagged.
+
+struct Vision
+    name str
+    m List[List[float]]
+
+fn simulate(v Vision, rgb List[int]) List[int]
+    mut out := List[int]()
+    for row in v.m
+        x := row[0] * rgb[0].to_float() + row[1] * rgb[1].to_float() + row[2] * rgb[2].to_float()
+        out.push((x + 0.5).floor().to_int())
+    out
+
+fn dist2(a List[int], b List[int]) int
+    mut d := 0
+    for i in 0..3
+        d += (a[i] - b[i]) * (a[i] - b[i])
+    d
+
+fn main()
+    names := ["red", "green", "blue", "orange", "purple", "brown"]
+    palette := [[214, 39, 40], [44, 160, 44], [31, 119, 180], [255, 127, 14], [148, 103, 189], [140, 86, 75]]
+    visions := [Vision(name: "protanopia", m: [[0.567, 0.433, 0.0], [0.558, 0.442, 0.0], [0.0, 0.242, 0.758]]), Vision(name: "deuteranopia", m: [[0.625, 0.375, 0.0], [0.7, 0.3, 0.0], [0.0, 0.3, 0.7]]), Vision(name: "tritanopia", m: [[0.95, 0.05, 0.0], [0.0, 0.433, 0.567], [0.0, 0.475, 0.525]])]
+    for v in visions
+        sim := palette.map(|c| simulate(v, c))
+        mut clashes := List[str]()
+        for i in 0..sim.len()
+            for j in i + 1..sim.len()
+                if dist2(sim[i], sim[j]) < 1600
+                    clashes.push("{names[i]}/{names[j]}")
+        shown := if clashes.is_empty() then "none" else clashes.join(", ")
+        print("{v.name:<13} red looks {sim[0]}, clashes: {shown}")
+
+@test fn grey_stays()
+    v := Vision(name: "id", m: [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]])
+    assert_eq(simulate(v, [10, 20, 30]), [10, 20, 30])
+    assert_eq(dist2([0, 0, 0], [3, 4, 0]), 25)

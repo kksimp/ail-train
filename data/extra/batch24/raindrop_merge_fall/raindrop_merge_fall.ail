@@ -1,0 +1,31 @@
+## Raindrops: drops of different sizes fall 2 + size units a tick, so big drops fall faster; a drop that
+## catches the one below joins it (sizes add), and the program logs each merge and landing.
+
+struct Droplet
+    name str
+    height int
+    size int
+
+fn main()
+    mut drops := [Droplet(name: "a", height: 20, size: 1), Droplet(name: "b", height: 31, size: 3), Droplet(name: "c", height: 45, size: 2), Droplet(name: "d", height: 52, size: 5), Droplet(name: "e", height: 70, size: 1)]
+    mut tick := 0
+    while not drops.is_empty()
+        tick += 1
+        for mut d in drops
+            d.height -= 2 + d.size
+        mut i := 1
+        while i < drops.len()
+            if drops[i].height <= drops[i - 1].height
+                upper := drops.remove_at(i)
+                drops[i - 1].size += upper.size
+                drops[i - 1].name = "{drops[i - 1].name}{upper.name}"
+                print("tick {tick:>2}: {upper.name} catches up and joins, now {drops[i - 1].name} of size {drops[i - 1].size}")
+            else
+                i += 1
+        while not drops.is_empty() and drops[0].height <= 0
+            gone := drops.remove_at(0)
+            print("tick {tick:>2}: {gone.name} lands with size {gone.size}")
+    print("all drops down after {tick} ticks")
+
+@test fn bigger_falls_faster()
+    assert(2 + 5 > 2 + 1)

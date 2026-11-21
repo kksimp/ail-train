@@ -1,0 +1,10 @@
+split 2:30.0   103.7 W  2k in 10:00.0
+split 2:00.0   202.5 W  2k in 8:00.0
+split 1:52.5   245.8 W  2k in 7:30.0
+split 1:45.0   302.3 W  2k in 7:00.0
+split 1:38.2   369.6 W  2k in 6:32.8
+split 1:30.0   480.1 W  2k in 6:00.0
+100 W needs a split of 2:31.8
+200 W needs a split of 2:00.5
+300 W needs a split of 1:45.3
+400 W needs a split of 1:35.6

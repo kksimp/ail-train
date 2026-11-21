@@ -1,0 +1,8 @@
+form     from     levenshtein 2  with swaps 1
+recieve  receive  levenshtein 2  with swaps 1
+teh      the      levenshtein 2  with swaps 1
+acress   caress   levenshtein 2  with swaps 1
+kitten   sitting  levenshtein 3  with swaps 3
+abcdef   badcfe   levenshtein 4  with swaps 3
+ca       abc      levenshtein 3  with swaps 3
+swaps saved 5 edits in total

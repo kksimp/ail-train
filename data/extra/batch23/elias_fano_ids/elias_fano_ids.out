@@ -1,0 +1,5 @@
+12 ids below 128: low bits per id l = 3
+low parts:  [3, 1, 6, 6, 7, 1, 1, 2, 4, 0, 7, 0]
+high bits:  10110110001001110000110000100
+space: 65 bits, against 84 bits for plain 7-bit ids
+decoded:    [3, 9, 14, 22, 23, 41, 57, 58, 60, 88, 95, 120]

@@ -1,0 +1,9 @@
+paragraph 1 (6 lines): p1:6
+paragraph 2 (3 lines): p1:3
+paragraph 3 (2 lines): p2:2
+paragraph 4 (4 lines): p2:4
+paragraph 5 (5 lines): p2:3 p3:2
+paragraph 6 (3 lines): p3:3
+paragraph 7 (8 lines): p3:5 p4:3
+paragraph 8 (4 lines): p4:4
+4 pages, 2 widow or orphan fixes

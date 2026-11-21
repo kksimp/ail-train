@@ -1,0 +1,32 @@
+## Longest common substring: table cell (i, j) is the length of the common run ending at a[i-1] and b[j-1],
+## one more than its diagonal neighbour when the letters match and 0 otherwise; the largest cell wins.
+
+fn common(a str, b str) str
+    xs := a.chars()
+    ys := b.chars()
+    width := ys.len() + 1
+    mut prev := List[int]()
+    for _ in 0..width
+        prev.push(0)
+    mut best := 0
+    mut end_a := 0
+    for i in 1..=xs.len()
+        mut cur := [0]
+        for j in 1..=ys.len()
+            v := if xs[i - 1] == ys[j - 1] then prev[j - 1] + 1 else 0
+            cur.push(v)
+            if v > best
+                best = v
+                end_a = i
+        prev = cur
+    a.slice(end_a - best, end_a)
+
+fn main()
+    pairs := [("GATTACAGT", "CTTACAGA"), ("photograph", "telegraph"), ("interstellar", "stellarator"), ("abc", "xyz"), ("sunflower", "mayflower"), ("rhythm", "algorithm")]
+    for pair in pairs
+        a, b := pair
+        c := common(a, b)
+        print("{a:<13} {b:<12} -> [{c}] length {c.len()}")
+
+@test fn graph()
+    assert_eq(common("photograph", "telegraph"), "graph")

@@ -1,0 +1,37 @@
+## STAR voting: voters score every candidate 0 to 5; the two highest totals go to an automatic runoff,
+## where each ballot counts for whichever finalist it scored higher (equal scores count for neither).
+
+fn main()
+    cands := ["Ivy", "Jun", "Kai", "Lev"]
+    ballots := [(14, [5, 4, 0, 1]), (10, [4, 3, 1, 0]), (11, [0, 5, 5, 2]), (9, [0, 5, 3, 0]), (7, [5, 0, 0, 5]), (3, [3, 3, 3, 3])]
+    mut totals := [0, 0, 0, 0]
+    mut voters := 0
+    for b in ballots
+        count, scores := b
+        voters += count
+        for i in 0..4
+            totals[i] += count * scores[i]
+    order := [i for i in 0..4].sorted(by: |i| -totals[i])
+    for i in order
+        avg := totals[i].to_float() / voters.to_float()
+        print("{cands[i]:<4} {totals[i]:>4} points, mean {avg:.2}")
+    a := order[0]
+    b := order[1]
+    mut for_a := 0
+    mut for_b := 0
+    mut level := 0
+    for bl in ballots
+        count, scores := bl
+        if scores[a] > scores[b]
+            for_a += count
+        elif scores[b] > scores[a]
+            for_b += count
+        else
+            level += count
+    winner := if for_a >= for_b then cands[a] else cands[b]
+    print("runoff {cands[a]} {for_a} - {for_b} {cands[b]} ({level} no preference)")
+    upset := if winner != cands[a] then ", beating the score leader" else ""
+    print("winner {winner}{upset}")
+
+@test fn totals()
+    assert_eq(14 * 5 + 10 * 4 + 7 * 5 + 3 * 3, 154)

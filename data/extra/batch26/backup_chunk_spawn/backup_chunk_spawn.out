@@ -1,0 +1,5 @@
+chunk 1:  185272 vs  185272 ok
+chunk 2:  669096 vs  669096 ok
+chunk 3:   27706 vs  658810 MISMATCH, re-upload
+chunk 4:  523530 vs  523530 ok
+1 of 4 chunks need sending again

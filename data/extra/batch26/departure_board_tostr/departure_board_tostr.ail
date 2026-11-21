@@ -1,0 +1,38 @@
+## Departure board: `impl ToStr for Flight` gives each flight its board line (code, route and
+## expected time with any delay), so interpolation prints it; flights sort by expected time.
+
+struct Flight
+    code str
+    origin str
+    dest str
+    dep int
+    delay int
+
+impl ToStr for Flight
+    fn to_str(self) str
+        t := dep + delay
+        h := t / 60
+        m := t % 60
+        note := if delay > 0 then " (+{delay} min)" else ""
+        "{code:<7}{origin}-{dest} {h:02}:{m:02}{note}"
+
+fn main()
+    flights := [
+        Flight(code: "NA210", origin: "LHR", dest: "JFK", dep: 520, delay: 0),
+        Flight(code: "QS77", origin: "CDG", dest: "LHR", dep: 495, delay: 35),
+        Flight(code: "TR4410", origin: "FRA", dest: "LHR", dep: 545, delay: 0),
+        Flight(code: "ML903", origin: "AMS", dest: "LHR", dep: 480, delay: 10),
+    ]
+    board := flights.sorted(by: |f| f.dep + f.delay)
+    for f in board
+        print("{f}")
+    late := flights.filter(|f| f.delay > 0)
+    lost := late.map(|f| f.delay).sum()
+    print("delayed: {late.len()}, total delay {lost} min")
+    swapped := flights.count(|f| f.dep + f.delay > 530)
+    print("leaving after 08:50: {swapped}")
+
+@test fn board_line()
+    f := Flight(code: "X1", origin: "LHR", dest: "JFK", dep: 520, delay: 5)
+    s := "{f}"
+    assert_eq(s, "X1     LHR-JFK 08:45 (+5 min)")

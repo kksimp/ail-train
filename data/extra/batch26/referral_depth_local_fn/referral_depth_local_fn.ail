@@ -1,0 +1,33 @@
+## Referral depth: a map says who referred whom; local functions inside `main` call themselves
+## to find each member's depth below the founder and the chain back, and a map counts direct referrals.
+
+fn root_of(parents Map[str, str], u str) str
+    mut cur := u
+    while p := parents.get(cur)
+        cur = p
+    cur
+
+fn main()
+    parents := {"bea": "ann", "cal": "ann", "dov": "bea", "eli": "dov", "fay": "cal", "gus": "eli"}
+    fn depth(u str) int
+        up := parents.get(u) else return 0
+        1 + depth(up)
+    fn chain(u str) str
+        up := parents.get(u) else return u
+        "{u} <- {chain(up)}"
+    members := ["ann", "bea", "cal", "dov", "eli", "fay", "gus"]
+    for m in members
+        print("{m}: depth {depth(m)}")
+    deepest := members.max(by: |m| depth(m)) else "ann"
+    print("longest chain: {chain(deepest)}")
+    mut direct := Map[str, int]()
+    for child, p in parents
+        direct[p] += 1
+    for p, n in direct
+        print("{p} referred {n}")
+    founder := root_of(parents, "fay")
+    print("everyone traces back to {founder}")
+
+@test fn founder_is_root()
+    ps := {"b": "a", "c": "b"}
+    assert_eq(root_of(ps, "c"), "a")

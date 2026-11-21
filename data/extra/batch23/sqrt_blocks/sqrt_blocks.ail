@@ -1,0 +1,51 @@
+## Square-root decomposition: 25 readings are cut into 5 blocks of 5 with a stored sum each, so a range sum reads at
+## most two partial blocks plus whole block sums, and a point update changes one value and one block sum.
+
+struct Blocks
+    vals List[int]
+    sums List[int]
+    size int
+
+fn Blocks.make(vals List[int], size int) Blocks
+    mut sums := List[int]()
+    for i in 0..vals.len()
+        if i % size == 0
+            sums.push(0)
+        sums[i / size] += vals[i]
+    Blocks(vals: vals, sums: sums, size: size)
+
+fn Blocks.set(mut self, i int, v int)
+    self.sums[i / self.size] += v - self.vals[i]
+    self.vals[i] = v
+
+fn Blocks.range_sum(self, lo int, hi int) List[int]
+    mut total := 0
+    mut reads := 0
+    mut i := lo
+    while i <= hi
+        if i % self.size == 0 and i + self.size - 1 <= hi
+            total += self.sums[i / self.size]
+            i += self.size
+        else
+            total += self.vals[i]
+            i += 1
+        reads += 1
+    [total, reads]
+
+fn main()
+    readings := [4, 8, 1, 9, 3, 7, 2, 6, 5, 5, 8, 1, 4, 7, 3, 9, 2, 6, 8, 4, 1, 5, 7, 3, 6]
+    mut b := Blocks.make(readings, 5)
+    print("block sums: {b.sums}")
+    for q in [[0, 24], [3, 17], [6, 8], [10, 19]]
+        r := b.range_sum(q[0], q[1])
+        brute := b.vals.slice(q[0], q[1] + 1).sum()
+        print("sum of {q[0]:>2}..{q[1]:>2} = {r[0]:>3} after {r[1]:>2} reads (check {brute})")
+    b.set(12, 20)
+    b.set(3, 0)
+    print("after two updates, block sums: {b.sums}")
+    after := b.range_sum(3, 17)
+    print("sum of 3..17 = {after[0]}")
+
+@test fn whole_blocks()
+    b := Blocks.make([1, 2, 3, 4], 2)
+    assert_eq(b.range_sum(0, 3), [10, 2])

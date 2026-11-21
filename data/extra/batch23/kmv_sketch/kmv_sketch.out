@@ -1,0 +1,3 @@
+after 3000 items: A 1391 distinct (est 1747), B 1387 distinct (est 1400)
+after 30000 items: A 7314 distinct (est 7073), B 7355 distinct (est 7236)
+union: 11304 distinct, estimate from merged sketches 10839

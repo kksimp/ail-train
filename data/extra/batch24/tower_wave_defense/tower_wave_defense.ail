@@ -1,0 +1,41 @@
+## Tower defence balance: five enemies walk a 20-cell path one cell a tick; each tower hits the most advanced
+## enemy within 2 cells for 4. For each wave's enemy health, finds the fewest towers that let nothing through.
+
+fn leaks(towers List[int], hp int) int
+    mut pos := List[int]()
+    mut life := List[int]()
+    mut leaked := 0
+    for tick in 0..40
+        if tick % 2 == 0 and tick < 10
+            pos.push(0)
+            life.push(hp)
+        for t in towers
+            mut target := -1
+            for e in 0..pos.len()
+                if life[e] > 0 and (pos[e] - t).abs() <= 2 and (target < 0 or pos[e] > pos[target])
+                    target = e
+            if target >= 0
+                life[target] -= 4
+        for e in 0..pos.len()
+            if life[e] > 0
+                pos[e] += 1
+                if pos[e] == 20
+                    leaked += 1
+                    life[e] = 0
+    leaked
+
+fn main()
+    spots := [3, 8, 13, 17, 6, 11, 15, 19]
+    for hp in [12, 20, 30, 45, 60, 80]
+        mut need := -1
+        for k in 1..=spots.len()
+            if leaks(spots.slice(0, k), hp) == 0
+                need = k
+                break
+        if need < 0
+            print("health {hp:>2}: even {spots.len()} towers leak {leaks(spots, hp)} enemies")
+        else
+            print("health {hp:>2}: {need} towers hold the path")
+
+@test fn no_towers_all_leak()
+    assert_eq(leaks(List[int](), 5), 5)

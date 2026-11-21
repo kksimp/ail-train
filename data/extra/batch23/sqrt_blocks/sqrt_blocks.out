@@ -1,0 +1,7 @@
+block sums: [25, 25, 23, 29, 22]
+sum of  0..24 = 124 after  5 reads (check 124)
+sum of  3..17 =  77 after  7 reads (check 77)
+sum of  6.. 8 =  13 after  3 reads (check 13)
+sum of 10..19 =  52 after  2 reads (check 52)
+after two updates, block sums: [16, 25, 39, 29, 22]
+sum of 3..17 = 84

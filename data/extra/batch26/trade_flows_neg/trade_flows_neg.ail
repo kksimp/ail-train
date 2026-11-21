@@ -1,0 +1,41 @@
+## Trade flows: goods and services amounts form a `Flow` with `Add` and unary `Neg`, so each
+## partner's balance is exports + -imports, the totals use `+=`, and the biggest deficit is picked out.
+
+struct Flow
+    goods int
+    services int
+
+impl Add for Flow
+    fn add(self, o Flow) Flow
+        Flow(goods: goods + o.goods, services: services + o.services)
+
+impl Neg for Flow
+    fn neg(self) Flow
+        Flow(goods: -goods, services: -services)
+
+fn Flow.net(self) int
+    self.goods + self.services
+
+fn main()
+    partners := [
+        ("Atlantis", Flow(goods: 420, services: 130), Flow(goods: 380, services: 90)),
+        ("Borduria", Flow(goods: 150, services: 60), Flow(goods: 240, services: 20)),
+        ("Cascadia", Flow(goods: 90, services: 75), Flow(goods: 60, services: 110)),
+    ]
+    mut total := Flow(goods: 0, services: 0)
+    mut worst := ""
+    mut worst_net := 0
+    for p in partners
+        name, exports, imports := p
+        bal := exports + -imports
+        total += bal
+        print("{name:<9} goods {bal.goods:>4}, services {bal.services:>4}, net {bal.net():>4}")
+        if bal.net() < worst_net
+            worst_net = bal.net()
+            worst = name
+    print("overall   goods {total.goods:>4}, services {total.services:>4}, net {total.net():>4}")
+    print("biggest deficit: {worst} ({worst_net})")
+
+@test fn negation_cancels()
+    f := Flow(goods: 3, services: -2)
+    assert_eq(f + -f, Flow(goods: 0, services: 0))

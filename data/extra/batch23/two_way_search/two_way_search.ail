@@ -1,0 +1,59 @@
+## Bidirectional BFS: grow the smaller frontier one full level at a time from both ends until they meet; on numbers
+## mod 10007 linked by +1, -1, doubling and halving, levels grow fast, so it labels far fewer nodes than one-way BFS.
+
+fn neighbours(v int, n int) List[int]
+    [(v + 1) % n, (v + n - 1) % n, v * 2 % n, v * 5004 % n]
+
+fn one_way(n int, s int, t int) List[int]
+    mut d := [-1 for x in 0..n]
+    d[s] = 0
+    mut queue := [s]
+    mut head := 0
+    while head < queue.len()
+        u := queue[head]
+        head += 1
+        for v in neighbours(u, n)
+            if d[v] < 0
+                d[v] = d[u] + 1
+                if v == t
+                    return [d[v], queue.len() + 1]
+                queue.push(v)
+    [d[t], queue.len()]
+
+fn expand(front List[int], n int, mut mine List[int], other List[int], mut stats List[int]) List[int]
+    mut next := List[int]()
+    for u in front
+        for v in neighbours(u, n)
+            if other[v] >= 0 and (stats[1] < 0 or mine[u] + 1 + other[v] < stats[1])
+                stats[1] = mine[u] + 1 + other[v]
+            if mine[v] < 0
+                mine[v] = mine[u] + 1
+                stats[0] += 1
+                next.push(v)
+    next
+
+fn two_way(n int, s int, t int) List[int]
+    mut ds := [-1 for y in 0..n]
+    mut dt := [-1 for z in 0..n]
+    ds[s] = 0
+    dt[t] = 0
+    mut fs := [s]
+    mut ft := [t]
+    mut stats := [2, -1]
+    while stats[1] < 0 and fs.len() > 0 and ft.len() > 0
+        if fs.len() <= ft.len()
+            fs = expand(fs, n, mut ds, dt, mut stats)
+        else
+            ft = expand(ft, n, mut dt, ds, mut stats)
+    [stats[1], stats[0]]
+
+fn main()
+    n := 10007
+    print("{n} nodes, from node 1; 5004 halves because 2 x 5004 = 1 mod {n}")
+    for t in [9, 77, 500, 1234, 3141, 9999]
+        a := one_way(n, 1, t)
+        b := two_way(n, 1, t)
+        print("to {t:>4}: distance {a[0]:>2} | one-way labels {a[1]:>4} | two-way labels {b[1]:>3} (distance {b[0]})")
+
+@test fn same_distance()
+    assert_eq(one_way(10007, 1, 500)[0], two_way(10007, 1, 500)[0])

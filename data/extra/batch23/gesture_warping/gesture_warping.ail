@@ -1,0 +1,37 @@
+## Dynamic time warping: D(i, j) = |a_i - b_j| + min(D(i-1, j), D(i, j-1), D(i-1, j-1)) lines up two sensor traces
+## that move at different speeds; a recorded gesture is matched to the template with the smallest warped cost.
+
+fn dtw(a List[int], b List[int]) int
+    big := 1000000000
+    mut prev := [0]
+    for _ in 0..b.len()
+        prev.push(big)
+    for i in 1..=a.len()
+        mut cur := [big]
+        for j in 1..=b.len()
+            step := (a[i - 1] - b[j - 1]).abs()
+            cur.push(step + prev[j].min(cur[j - 1]).min(prev[j - 1]))
+        prev = cur
+    prev[b.len()]
+
+fn main()
+    templates := [("wave", [0, 3, 6, 3, 0, -3, -6, -3, 0]), ("push", [0, 1, 4, 9, 9, 9, 4, 1, 0]), ("flick", [0, 8, 0, 0, 0, 0, 0, 0, 0])]
+    recordings := [("rec1", [0, 2, 3, 5, 6, 6, 3, 1, 0, -2, -4, -6, -5, -3, 0]), ("rec2", [0, 0, 1, 3, 5, 9, 10, 9, 9, 5, 2, 0]), ("rec3", [1, 7, 1, 0, 0])]
+    for r in recordings
+        rname, trace := r
+        mut best := ""
+        mut best_cost := -1
+        mut parts := List[str]()
+        for t in templates
+            tname, shape := t
+            c := dtw(trace, shape)
+            parts.push("{tname} {c}")
+            if best_cost < 0 or c < best_cost
+                best_cost = c
+                best = tname
+        shown := parts.join(", ")
+        print("{rname}: {shown} -> {best}")
+    print("same trace at half speed: {dtw([1, 1, 5, 5, 2, 2], [1, 5, 2])}")
+
+@test fn identical()
+    assert_eq(dtw([1, 2, 3], [1, 2, 3]), 0)

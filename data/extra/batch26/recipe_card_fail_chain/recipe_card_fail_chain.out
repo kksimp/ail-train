@@ -1,0 +1,4 @@
+shortbread: 3 items, 370 g, mostly flour
+risotto: rejected, 'x' is not a whole number
+bread: rejected, expected 'N g name' in '250 water'
+brine: rejected, quantity must be positive

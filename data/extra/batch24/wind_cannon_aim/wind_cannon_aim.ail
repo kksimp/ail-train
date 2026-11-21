@@ -1,0 +1,39 @@
+## Cannon in a headwind: a 30 m/s shot with linear drag (0.1 per second) and a 4 m/s headwind is stepped in
+## 0.01 s slices; bisection on the horizontal share of the launch speed finds the low shot that lands at 50 m.
+
+fn flight(share float) List[float]
+    speed := 30.0
+    mut vx := speed * share
+    mut vy := speed * (1.0 - share * share).sqrt()
+    mut x := 0.0
+    mut y := 0.0
+    mut t := 0.0
+    dt := 0.01
+    while y >= 0.0
+        ax := -0.1 * (vx + 4.0)
+        ay := -9.8 - 0.1 * vy
+        vx += ax * dt
+        vy += ay * dt
+        x += vx * dt
+        y += vy * dt
+        t += dt
+    [x, t]
+
+fn main()
+    mut lo := 0.70
+    mut hi := 0.99
+    for share in [0.3, 0.5, 0.7, 0.9, 0.99]
+        r := flight(share)
+        print("share {share:.2}: lands at {r[0]:.2} m after {r[1]:.2} s")
+    for k in 0..30
+        mid := (lo + hi) / 2.0
+        if flight(mid)[0] > 50.0
+            lo = mid
+        else
+            hi = mid
+    r := flight(lo)
+    print("aim with share {lo:.4} of the speed forward: lands at {r[0]:.2} m")
+
+@test fn upright_shot()
+    r := flight(0.0)
+    assert(r[0] < 0.0)

@@ -1,0 +1,5 @@
+13 faults, 5 distinct codes
+1. E12 x4 (30%): paper jam
+2. E31 x4 (30%): network lost
+3. E07 x3 (23%): card reader timeout
+seen once: E02, E44

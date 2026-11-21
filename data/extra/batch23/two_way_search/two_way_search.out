@@ -1,0 +1,7 @@
+10007 nodes, from node 1; 5004 halves because 2 x 5004 = 1 mod 10007
+to    9: distance  4 | one-way labels   25 | two-way labels  27 (distance 4)
+to   77: distance  9 | one-way labels  495 | two-way labels 169 (distance 9)
+to  500: distance 11 | one-way labels 1613 | two-way labels 332 (distance 11)
+to 1234: distance 12 | one-way labels 3632 | two-way labels 445 (distance 12)
+to 3141: distance 13 | one-way labels 5564 | two-way labels 629 (distance 13)
+to 9999: distance  5 | one-way labels   54 | two-way labels  38 (distance 5)

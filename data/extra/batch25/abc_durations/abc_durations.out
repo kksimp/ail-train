@@ -1,0 +1,4 @@
+waltz  want 6 units: 6 6 6 6 6 -> all bars full
+jig    want 6 units: 6 6 5 7 -> wrong bars [3, 4]
+march  want 8 units: 8 8 8 -> all bars full
+reel   want 8 units: 8 8 8 -> all bars full

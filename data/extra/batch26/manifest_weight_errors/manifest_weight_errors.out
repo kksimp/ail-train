@@ -1,0 +1,7 @@
+manifest of 3: 4350 g
+manifest rejected: box B2: not a number '4OO'
+manifest rejected: box C1: weight must be positive
+manifest rejected: no colon in 'D1 900'
+two good manifests: 8700 g
+shipment stopped: box B2: not a number '4OO'
+shipment weight 0

@@ -1,0 +1,40 @@
+## School catchments: every cell of a town grid belongs to the school nearest by Manhattan (street)
+## distance, ties shown as *; each school's cell count and farthest walk are listed.
+
+fn main()
+    schools := [("A", 1, 2), ("B", 2, 9), ("C", 6, 4), ("D", 6, 10)]
+    rows := 8
+    cols := 12
+    mut counts := [0, 0, 0, 0]
+    mut farthest := [0, 0, 0, 0]
+    mut ties := 0
+    for r in 0..rows
+        mut line := List[str]()
+        for c in 0..cols
+            mut best := -1
+            mut best_d := 1000
+            mut tied := false
+            for i, s in schools.enumerate()
+                _, sr, sc := s
+                d := (r - sr).abs() + (c - sc).abs()
+                if d < best_d
+                    best = i
+                    best_d = d
+                    tied = false
+                elif d == best_d
+                    tied = true
+            if tied
+                ties += 1
+                line.push("*")
+            else
+                counts[best] += 1
+                farthest[best] = farthest[best].max(best_d)
+                letter := schools[best].0
+                line.push(letter.to_lower())
+        print(line.join(""))
+    for i, s in schools.enumerate()
+        print("school {s.0}: {counts[i]} cells, farthest {farthest[i]} blocks")
+    print("{ties} cells are equally far from two schools")
+
+@test fn manhattan()
+    assert_eq((3 - 1).abs() + (0 - 4).abs(), 6)

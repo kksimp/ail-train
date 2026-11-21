@@ -1,0 +1,27 @@
+## Game gold: 200 players each earn 40 gold a day from quests (the faucet) and pay 15 a day in repairs plus an
+## auction tax on a tenth of the money each day (the sinks); the gold per player settles where they balance.
+
+fn simulate(tax_pct int) List[int]
+    players := 200
+    mut supply := players * 100
+    mut each := List[int]()
+    for day in 1..=60
+        supply += 40 * players
+        supply -= 15 * players
+        supply -= supply / 10 * tax_pct / 100
+        if day % 10 == 0
+            each.push(supply / players)
+    each
+
+fn main()
+    low := simulate(20)
+    high := simulate(50)
+    print("day   20% tax         50% tax")
+    for i in 0..6
+        sword_low := 50 * low[i] / 100
+        sword_high := 50 * high[i] / 100
+        print("{(i + 1) * 10:>3}  {low[i]:>5} each, sword {sword_low:>4}  {high[i]:>5} each, sword {sword_high:>4}")
+    print("balance points: {25 * 1000 / 20} and {25 * 1000 / 50} gold per player")
+
+@test fn grows_at_first()
+    assert(simulate(20)[0] > 100)

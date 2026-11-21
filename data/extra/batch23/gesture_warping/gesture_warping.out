@@ -1,0 +1,4 @@
+rec1: wave 6, push 33, flick 36 -> wave
+rec2: wave 29, push 5, flick 17 -> push
+rec3: wave 18, push 13, flick 3 -> flick
+same trace at half speed: 0

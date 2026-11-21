@@ -1,0 +1,51 @@
+## Counting polyominoes: grow every shape of n - 1 squares by one neighbouring square and keep each new shape once,
+## translated to the corner (fixed shapes); the smallest of its 8 rotations and reflections names it as a free shape.
+
+fn key_of(cells List[List[int]]) str
+    mut minx := 1000
+    mut miny := 1000
+    for c in cells
+        minx = minx.min(c[0])
+        miny = miny.min(c[1])
+    moved := [[c[0] - minx, c[1] - miny] for c in cells].sorted(by: |c| (c[0], c[1]))
+    parts := ["{c[0]},{c[1]}" for c in moved]
+    parts.join(";")
+
+fn free_key(cells List[List[int]]) str
+    mut best := ""
+    for t in 0..8
+        mut moved := List[List[int]]()
+        for c in cells
+            x := if t % 2 == 1 then -c[0] else c[0]
+            y := if (t / 2) % 2 == 1 then -c[1] else c[1]
+            turned := if t >= 4 then [y, x] else [x, y]
+            moved.push(turned)
+        k := key_of(moved)
+        if best == "" or k < best
+            best = k
+    best
+
+fn main()
+    mut level := Map[str, List[List[int]]]()
+    level["0,0"] = [[0, 0]]
+    print("size 1: 1 fixed, 1 free")
+    for size in 2..=7
+        mut next := Map[str, List[List[int]]]()
+        for k, cells in level
+            for c in cells
+                for d in [[1, 0], [-1, 0], [0, 1], [0, -1]]
+                    cell := [c[0] + d[0], c[1] + d[1]]
+                    if not cells.contains(cell)
+                        mut grown := cells
+                        grown.push(cell)
+                        gk := key_of(grown)
+                        if not next.contains(gk)
+                            next[gk] = grown
+        mut free := Set[str]()
+        for name, shape in next
+            free.add(free_key(shape))
+        print("size {size}: {next.len()} fixed, {free.len()} free")
+        level = next
+
+@test fn domino_key()
+    assert_eq(key_of([[5, 5], [5, 6]]), "0,0;0,1")

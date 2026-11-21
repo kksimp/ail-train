@@ -1,0 +1,30 @@
+## Tenney height: a just interval p/q in lowest terms is ranked by log2(p * q), so simple ratios like 3/2
+## count as more consonant than 9/8 or 45/32; the list is sorted by p * q and shown with each interval's size in cents.
+
+struct Ratio
+    name str
+    p int
+    q int
+
+fn gcd(a int, b int) int
+    if b == 0 then a else gcd(b, a % b)
+
+fn log2(x float) float
+    two := 2.0
+    x.ln() / two.ln()
+
+fn main()
+    raw := [Ratio(name: "tritone", p: 45, q: 32), Ratio(name: "fifth", p: 6, q: 4), Ratio(name: "major third", p: 5, q: 4), Ratio(name: "octave", p: 2, q: 1), Ratio(name: "whole tone", p: 9, q: 8), Ratio(name: "fourth", p: 8, q: 6), Ratio(name: "minor third", p: 6, q: 5), Ratio(name: "harmonic seventh", p: 7, q: 4), Ratio(name: "major sixth", p: 5, q: 3), Ratio(name: "minor sixth", p: 8, q: 5), Ratio(name: "semitone", p: 16, q: 15), Ratio(name: "major seventh", p: 15, q: 8)]
+    mut reduced := List[Ratio]()
+    for r in raw
+        g := gcd(r.p, r.q)
+        reduced.push(Ratio(name: r.name, p: r.p / g, q: r.q / g))
+    for r in reduced.sorted(by: |r| r.p * r.q)
+        h := log2((r.p * r.q).to_float())
+        size := 1200.0 * log2(r.p.to_float() / r.q.to_float())
+        frac := "{r.p}/{r.q}"
+        print("{r.name:<17} {frac:>5}  height {h:>5.2}  {size:>7.1} cents")
+
+@test fn reduce()
+    assert_eq(gcd(8, 6), 2)
+    assert((log2(6.0) - 2.584963).abs() < 0.000001)

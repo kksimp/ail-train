@@ -1,0 +1,36 @@
+## Sorting by angle without trigonometry: a point's half (upper: y > 0, or y = 0 and x > 0) comes first, then within a
+## half the cross product says which direction is reached first counter-clockwise; nearer points break ties.
+
+fn upper(p List[int]) bool
+    p[1] > 0 or (p[1] == 0 and p[0] > 0)
+
+fn before(a List[int], b List[int]) bool
+    ua := upper(a)
+    ub := upper(b)
+    if ua != ub
+        return ua
+    c := a[0] * b[1] - a[1] * b[0]
+    if c != 0
+        return c > 0
+    a[0] * a[0] + a[1] * a[1] < b[0] * b[0] + b[1] * b[1]
+
+fn sweep(pts List[List[int]]) List[List[int]]
+    mut out := List[List[int]]()
+    for p in pts
+        mut i := out.len()
+        out.push(p)
+        while i > 0 and before(out[i], out[i - 1])
+            out.swap(i, i - 1)
+            i -= 1
+    out
+
+fn main()
+    contacts := [[3, 4], [-2, 5], [5, 0], [0, -7], [-6, -1], [1, 1], [-4, 0], [2, -3], [6, 8], [0, 3], [-3, -3], [4, -1]]
+    order := sweep(contacts)
+    print("radar sweep from due east, counter-clockwise:")
+    for i, p in order.enumerate()
+        half := if upper(p) then "upper" else "lower"
+        print("{i + 1:>2}. ({p[0]:>2}, {p[1]:>2}) {half}")
+
+@test fn axis_order()
+    assert_eq(sweep([[0, -1], [-1, 0], [0, 1], [1, 0]]), [[1, 0], [0, 1], [-1, 0], [0, -1]])

@@ -1,0 +1,36 @@
+## Baggage cart unload: bags are stacked on a cart with priority bags loaded last, then
+## `while b := cart.pop()` unloads them at the carousel, so priority bags come off first.
+
+struct Bag
+    tag str
+    kg int
+    priority bool
+
+fn main()
+    checked := [
+        Bag(tag: "LX401", kg: 18, priority: false),
+        Bag(tag: "LX402", kg: 23, priority: true),
+        Bag(tag: "LX403", kg: 12, priority: false),
+        Bag(tag: "LX404", kg: 31, priority: false),
+        Bag(tag: "LX405", kg: 9, priority: true),
+    ]
+    mut cart := List[Bag]()
+    for b in checked.filter(|b| not b.priority)
+        cart.push(b)
+    for b in checked.filter(|b| b.priority)
+        cart.push(b)
+    weight := cart.map(|b| b.kg).sum()
+    print("cart holds {cart.len()} bags, {weight} kg")
+    mut n := 1
+    while b := cart.pop()
+        heavy := if b.kg > 23 then " (heavy tag)" else ""
+        flag := if b.priority then "priority " else ""
+        print("{n}. {flag}{b.tag} {b.kg} kg{heavy}")
+        n += 1
+    left := cart.pop() else Bag(tag: "nothing", kg: 0, priority: false)
+    print("after unloading: {left.tag} on the cart")
+
+@test fn pop_takes_last()
+    mut xs := [1, 2]
+    top := xs.pop() else 0
+    assert_eq(top, 2)

@@ -1,0 +1,34 @@
+## Sensor calibration: a copy of raw readings (tenths of a degree) is shifted by an offset through
+## `calibrate(mut xs, offset)` and spikes are clamped with `for mut x in xs`; the raw list stays as read.
+
+fn calibrate(mut xs List[int], offset int)
+    for i in 0..xs.len()
+        xs[i] += offset
+
+fn clamp_spikes(mut xs List[int], lo int, hi int) int
+    mut fixed := 0
+    for mut x in xs
+        if x < lo or x > hi
+            x = x.max(lo).min(hi)
+            fixed += 1
+    fixed
+
+fn tenths(v int) str
+    "{v / 10}.{v % 10}"
+
+fn main()
+    raw := [212, 215, 230, 990, 218, 140, 221]
+    mut clean := raw
+    calibrate(mut clean, -12)
+    n := clamp_spikes(mut clean, 150, 260)
+    print("raw:       {raw}")
+    print("corrected: {clean}")
+    print("clamped {n} spikes")
+    avg := clean.sum() / clean.len()
+    top := clean.max() else 0
+    print("mean {tenths(avg)} C, max {tenths(top)} C")
+
+@test fn shifts_in_place()
+    mut xs := [1, 2]
+    calibrate(mut xs, 3)
+    assert_eq(xs, [4, 5])

@@ -1,0 +1,39 @@
+## Hero health: a game hero's hit points stay between 0 and the maximum by `invariant`; `hit` and
+## `heal` use `ensures` with `old(self.hp)` to promise the direction of change and the amount healed.
+
+struct Hero
+    name str
+    hp int
+    max_hp int
+    invariant hp >= 0 and hp <= max_hp
+
+fn Hero.hit(mut self, dmg int)
+    requires dmg >= 0
+    ensures self.hp <= old(self.hp)
+    self.hp = (self.hp - dmg).max(0)
+
+fn Hero.heal(mut self, n int) int
+    requires n > 0
+    ensures self.hp >= old(self.hp)
+    ensures result == self.hp - old(self.hp)
+    before := self.hp
+    self.hp = (self.hp + n).min(self.max_hp)
+    self.hp - before
+
+fn main()
+    mut h := Hero(name: "Wren", hp: 100, max_hp: 100)
+    events := [("hit", 30), ("hit", 25), ("heal", 40), ("hit", 70), ("heal", 100), ("hit", 120)]
+    for e in events
+        kind, n := e
+        if kind == "hit"
+            h.hit(n)
+            print("{h.name} takes {n}: {h.hp}/{h.max_hp}")
+        else
+            got := h.heal(n)
+            print("{h.name} drinks a {n} potion, gains {got}: {h.hp}/{h.max_hp}")
+    status := if h.hp == 0 then "knocked out" else "standing"
+    print("{h.name} is {status}")
+
+@test fn heal_capped()
+    mut h := Hero(name: "t", hp: 90, max_hp: 100)
+    assert_eq(h.heal(50), 10)

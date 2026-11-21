@@ -1,0 +1,41 @@
+## Virtual pet: hunger rises and energy and fun fall each hour (all kept between 0 and 10); a care plan of
+## feeding, naps and play runs for a day, and the pet's mood comes from whichever need is worst.
+
+struct Pet
+    hunger int
+    energy int
+    fun int
+
+fn Pet.hour(mut self, action str)
+    self.hunger = (self.hunger + 1).min(10)
+    self.energy = (self.energy - 1).max(0)
+    self.fun = (self.fun - 1).max(0)
+    match action
+        "feed" => self.hunger = (self.hunger - 5).max(0)
+        "nap" => self.energy = (self.energy + 5).min(10)
+        "play" =>
+            self.fun = (self.fun + 5).min(10)
+            self.energy = (self.energy - 1).max(0)
+        _ => return
+
+fn Pet.mood(self) str
+    worst := [self.hunger, 10 - self.energy, 10 - self.fun].max() else 0
+    if worst >= 8
+        return "miserable"
+    if worst >= 5
+        return "grumpy"
+    if worst >= 3
+        return "fine"
+    "happy"
+
+fn main()
+    plan := ["", "nap", "feed", "play", "", "nap", "", "play", "feed", "nap", "", "play", "", "nap", "feed", "", "play", "nap", "", "", "feed", "nap", "", ""]
+    mut pet := Pet(hunger: 2, energy: 8, fun: 7)
+    for h, action in plan.enumerate()
+        pet.hour(action)
+        if h % 3 == 2
+            print("hour {h + 1:>2}: hunger {pet.hunger:>2}, energy {pet.energy:>2}, fun {pet.fun:>2} -> {pet.mood()}")
+
+@test fn mood_from_worst()
+    p := Pet(hunger: 9, energy: 10, fun: 10)
+    assert_eq(p.mood(), "miserable")

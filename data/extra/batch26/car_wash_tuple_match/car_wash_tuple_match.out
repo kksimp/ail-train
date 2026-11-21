@@ -1,0 +1,12 @@
+AB12 (S, dirt 1): quick wash
+CD34 (M, dirt 0): rinse only
+EF56 (V, dirt 5): van bay
+GH78 (L, dirt 4): deluxe wash
+IJ90 (M, dirt 2): standard wash
+KL11 (S, dirt 3): standard wash
+quick wash: 1
+rinse only: 1
+van bay: 1
+deluxe wash: 1
+standard wash: 2
+takings 56.00

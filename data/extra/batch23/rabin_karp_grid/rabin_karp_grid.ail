@@ -1,0 +1,60 @@
+## Two-dimensional Rabin-Karp: each grid row gets rolling hashes of every window as wide as the pattern,
+## then a second rolling hash runs down each column of those; equal hashes are confirmed cell by cell.
+
+MOD := 1000003
+B1 := 257
+B2 := 263
+
+fn power(b int, e int) int
+    mut r := 1
+    for _ in 0..e
+        r = r * b % MOD
+    r
+
+fn row_hashes(cs List[char], w int) List[int]
+    top := power(B1, w - 1)
+    mut out := List[int]()
+    mut h := 0
+    for i in 0..cs.len()
+        if i >= w
+            h = (h - cs[i - w].code() * top % MOD + MOD) % MOD
+        h = (h * B1 + cs[i].code()) % MOD
+        if i >= w - 1
+            out.push(h)
+    out
+
+fn verify(grid List[str], pattern List[str], top int, left int) bool
+    for k in 0..pattern.len()
+        if grid[top + k].slice(left, left + pattern[0].len()) != pattern[k]
+            return false
+    true
+
+fn main()
+    grid := ["xabxxabx", "xcdxxcdx", "xxxabxxx", "abxcdxab", "cdxxxxcd", "xxabcdxx"]
+    pattern := ["ab", "cd"]
+    w := pattern[0].len()
+    ph := pattern.len()
+    rows := [row_hashes(line.chars(), w) for line in grid]
+    mut target := 0
+    for p in pattern
+        target = (target * B2 + row_hashes(p.chars(), w)[0]) % MOD
+    down := power(B2, ph - 1)
+    mut hits := List[str]()
+    for c in 0..rows[0].len()
+        mut h := 0
+        for r in 0..grid.len()
+            if r >= ph
+                h = (h - rows[r - ph][c] * down % MOD + MOD) % MOD
+            h = (h * B2 + rows[r][c]) % MOD
+            if r >= ph - 1 and h == target
+                top := r - ph + 1
+                if verify(grid, pattern, top, c)
+                    hits.push("({top}, {c})")
+    for row in grid
+        print(row)
+    print("pattern ab/cd: {hits.len()} matches confirmed cell by cell")
+    shown := hits.join(" ")
+    print("top-left corners (row, col): {shown}")
+
+@test fn single_letters()
+    assert_eq(row_hashes("ab".chars(), 1), [97, 98])

@@ -1,0 +1,60 @@
+## Karger's minimum cut: contract random edges (picked by a seeded linear congruential generator) until two
+## groups are left, then count the edges between them; repeating the trial keeps the smallest cut seen.
+
+struct Lcg
+    state int
+
+fn Lcg.next(mut self, n int) int
+    self.state = (self.state * 1103515245 + 12345) % 2147483648
+    self.state / 65536 % n
+
+fn find(mut parent List[int], x int) int
+    mut v := x
+    while parent[v] != v
+        parent[v] = parent[parent[v]]
+        v = parent[v]
+    v
+
+fn trial(n int, edges List[List[int]], mut rng Lcg) int
+    mut parent := List[int]()
+    for i in 0..n
+        parent.push(i)
+    mut groups := n
+    while groups > 2
+        e := edges[rng.next(edges.len())]
+        a := find(mut parent, e[0])
+        b := find(mut parent, e[1])
+        if a != b
+            parent[a] = b
+            groups -= 1
+    mut cut := 0
+    for f in edges
+        fa := find(mut parent, f[0])
+        fb := find(mut parent, f[1])
+        if fa != fb
+            cut += 1
+    cut
+
+fn main()
+    mut edges := List[List[int]]()
+    for i in 0..4
+        start := i + 1
+        for j in start..4
+            edges.push([i, j])
+            edges.push([i + 4, j + 4])
+    for extra in [[0, 4], [3, 7], [1, 2]]
+        edges.push(extra)
+    print("8 nodes, {edges.len()} edges: two tight clusters joined by two links")
+    mut rng := Lcg(state: 2024)
+    mut cuts := List[int]()
+    for _ in 0..12
+        cuts.push(trial(8, edges, mut rng))
+    best := cuts.min() else 0
+    hits := cuts.count(|c| c == best)
+    print("cut found by each trial: {cuts}")
+    print("smallest cut {best}, found in {hits} of {cuts.len()} trials")
+    print("one trial succeeds with chance at least 2/(n(n-1)) = 1/28")
+
+@test fn single_edge()
+    mut rng := Lcg(state: 1)
+    assert_eq(trial(2, [[0, 1]], mut rng), 1)

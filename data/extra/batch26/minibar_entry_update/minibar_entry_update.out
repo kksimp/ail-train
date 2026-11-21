@@ -1,0 +1,5 @@
+room 101: water 0, snacks 2, charge 9.00
+room 102: water 2, snacks 2, charge 4.00
+room 103: water 1, snacks 3, charge 2.50
+restocked copy has 3 snacks, room 102 still 2
+after storing it back room 102 has 3

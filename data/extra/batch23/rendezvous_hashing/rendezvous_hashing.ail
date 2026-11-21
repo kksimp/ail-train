@@ -1,0 +1,55 @@
+## Rendezvous (highest random weight) hashing: each key goes to the server whose hash of (server, key) is largest;
+## removing a server moves only the keys it held, adding one takes keys only for itself, and no ring is needed.
+
+fn score(server str, key int) int
+    mut h := 2166136261
+    for c in server.chars()
+        h = ((h ^ c.code()) * 16777619) % 4294967296
+    h = ((h ^ key) * 16777619) % 4294967296
+    h = (h >> 15) ^ h
+    h = h * 73244475 % 4294967296
+    (h >> 16) ^ h
+
+fn owner(servers List[str], key int) str
+    mut best := ""
+    mut top := -1
+    for s in servers
+        v := score(s, key)
+        if v > top
+            top = v
+            best = s
+    best
+
+fn loads(servers List[str], owners List[str]) str
+    mut parts := List[str]()
+    for s in servers
+        n := owners.count(|o| o == s)
+        parts.push("{s}:{n}")
+    parts.join(" ")
+
+fn main()
+    servers := ["alpha", "bravo", "charlie", "delta", "echo"]
+    keys := [k * 37 + 11 for k in 0..1000]
+    before := [owner(servers, k1) for k1 in keys]
+    print("1000 keys on 5 servers: {loads(servers, before)}")
+    gone := "charlie"
+    fewer := servers.filter(|s| s != gone)
+    after := [owner(fewer, k2) for k2 in keys]
+    mut moved := 0
+    mut innocent := 0
+    for i in 0..keys.len()
+        if before[i] != after[i]
+            moved += 1
+            if before[i] != gone
+                innocent += 1
+    print("charlie leaves: {moved} keys move, {innocent} of them were not on charlie")
+    print("now: {loads(fewer, after)}")
+    mut more := servers
+    more.push("foxtrot")
+    grown := [owner(more, k3) for k3 in keys]
+    taken := [t for t in 0..keys.len() if grown[t] != before[t]]
+    to_new := taken.count(|t2| grown[t2] == "foxtrot")
+    print("foxtrot joins: {taken.len()} keys move, {to_new} of them to foxtrot")
+
+@test fn single_server()
+    assert_eq(owner(["solo"], 42), "solo")

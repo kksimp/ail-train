@@ -1,0 +1,7 @@
+minute 0: taxi 1 picks up at (1,1) after 2 min, free again at 10
+minute 2: taxi 3 picks up at (8,2) after 2 min, free again at 14
+minute 3: taxi 2 picks up at (4,4) after 2 min, free again at 15
+minute 4: taxi 1 picks up at (0,8) after 16 min, free again at 30
+minute 6: taxi 3 picks up at (6,6) after 12 min, free again at 28
+minute 7: taxi 2 picks up at (9,9) after 8 min, free again at 24
+total wait 42 min, empty km per taxi [12, 2, 6]

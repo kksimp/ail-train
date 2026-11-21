@@ -1,0 +1,41 @@
+## Ghazal check: the opening couplet's two lines share their final words (the radif), and every later
+## couplet's second line must end with that radif after a rhyming word (the qafia, here its last three letters).
+
+fn radif(a str, b str) List[str]
+    wa := a.words()
+    wb := b.words()
+    mut n := 0
+    while n < wa.len() and n < wb.len() and wa[wa.len() - 1 - n] == wb[wb.len() - 1 - n]
+        n += 1
+    wa.slice(wa.len() - n)
+
+fn check(line str, refrain List[str], rhyme str) str
+    ws := line.words()
+    n := refrain.len()
+    if ws.len() <= n or ws.slice(ws.len() - n) != refrain
+        return "radif missing"
+    q := ws[ws.len() - n - 1]
+    key := q.slice((q.len() - 3).max(0))
+    if key != rhyme
+        return "qafia {q} does not rhyme"
+    "ok, qafia {q}"
+
+fn main()
+    couplets := [("Where are you now who lies beneath your spell tonight", "and in what quiet house of stone you dwell tonight"), ("The rain is soft upon the roof and window glass", "and every drop has secrets it will tell tonight"), ("I waited by the river while the lanterns burned", "and heard far off a solitary bell tonight"), ("The market closed the singers gone the streets are bare", "but still I have a song I mean to sell tomorrow"), ("The stars are many over all the sleeping town", "and none of them is bright enough to shine tonight"), ("My name is in the final line as custom asks", "so Ash the poet bids the world farewell tonight")]
+    a, b := couplets[0]
+    refrain := radif(a, b)
+    first_qafia := a.words()[a.words().len() - refrain.len() - 1]
+    rhyme := first_qafia.slice(first_qafia.len() - 3)
+    shown := refrain.join(" ")
+    print("radif: {shown}, rhyme: -{rhyme}")
+    mut good := 0
+    for i in 1..couplets.len()
+        verdict := check(couplets[i].1, refrain, rhyme)
+        if verdict.starts_with("ok")
+            good += 1
+        print("couplet {i + 1}: {verdict}")
+    print("{good} of {couplets.len() - 1} couplets keep the form")
+
+@test fn refrain()
+    assert_eq(radif("a b night", "c b night"), ["b", "night"])
+    assert_eq(check("we dwell here", ["here"], "ell"), "ok, qafia dwell")

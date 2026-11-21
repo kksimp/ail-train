@@ -1,0 +1,31 @@
+## Exam timer: extra time is a percentage of the base length and rest breaks come every 60 minutes;
+## `requires` guards the inputs and `ensures` bounds each result, then each candidate's end time is printed.
+
+fn allowed(base int, extra_pct int) int
+    requires base > 0 and extra_pct >= 0 and extra_pct <= 100
+    ensures result >= base and result <= base * 2
+    base + base * extra_pct / 100
+
+fn breaks(minutes int, every int) int
+    requires every > 0
+    ensures result * every <= minutes
+    minutes / every
+
+fn clock(m int) str
+    "{m / 60:02}:{m % 60:02}"
+
+fn main()
+    start := 9 * 60 + 30
+    cands := [("A101", 120, 0), ("A102", 120, 25), ("A103", 90, 50), ("A104", 150, 10), ("A105", 90, 100)]
+    mut last := start
+    for c in cands
+        id, base, pct := c
+        mins := allowed(base, pct)
+        rests := breaks(mins, 60)
+        ends := start + mins + rests * 10
+        last = last.max(ends)
+        print("{id}: {base} min +{pct}% = {mins} min, {rests} breaks, ends {clock(ends)}")
+    print("invigilators stay until {clock(last)}")
+
+@test fn quarter_extra()
+    assert_eq(allowed(80, 25), 100)

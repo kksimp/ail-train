@@ -1,0 +1,47 @@
+## Manifest weights: each "box:grams" line is read by a `T ! str` function; a manifest adds its
+## boxes and names the failing box by hand in `else err`, and a shipment passes failures on with `?`.
+
+fn grams(field str) int ! str
+    n := field.trim().to_int() else return "not a number '{field}'"
+    if n <= 0
+        return "weight must be positive"
+    n
+
+fn manifest(lines List[str]) int ! str
+    mut acc := 0
+    for l in lines
+        parts := l.split(":")
+        if parts.len() != 2
+            return "no colon in '{l}'"
+        w := grams(parts[1]) else err
+            return "box {parts[0]}: {err}"
+        acc += w
+    acc
+
+fn shipment(all List[List[str]]) int ! str
+    mut acc := 0
+    for m in all
+        acc += manifest(m)?
+    acc
+
+fn main()
+    good := ["A1:1200", "A2: 850", "A3:2300"]
+    typo := ["B1:400", "B2:4OO"]
+    empty := ["C1:0"]
+    broken := ["D1 900"]
+    for m in [good, typo, empty, broken]
+        if w := manifest(m)
+            print("manifest of {m.len()}: {w} g")
+        else err
+            print("manifest rejected: {err}")
+    if total := shipment([good, good])
+        print("two good manifests: {total} g")
+    else err
+        print("shipment rejected: {err}")
+    whole := shipment([good, typo, broken]) else err
+        print("shipment stopped: {err}")
+        0
+    print("shipment weight {whole}")
+
+@test fn spaces_allowed()
+    assert_eq(grams(" 75 ") else 0, 75)

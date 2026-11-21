@@ -1,0 +1,49 @@
+## Toll plaza: tag cars take 3 seconds and cash cars 14; each car uses the lane of its kind that frees up
+## first. Compares mean waits with two tag and two cash lanes against three tag lanes and one cash lane.
+
+fn mean_waits(cars List[List[int]], tag_lanes int, cash_lanes int) List[float]
+    mut tag_free := List[int]()
+    mut cash_free := List[int]()
+    for i in 0..tag_lanes
+        tag_free.push(0)
+    for i in 0..cash_lanes
+        cash_free.push(0)
+    mut waits := [0, 0]
+    mut counts := [0, 0]
+    for car in cars
+        t := car[0]
+        kind := car[1]
+        mut lanes := if kind == 0 then tag_free else cash_free
+        mut best := 0
+        for i in 1..lanes.len()
+            if lanes[i] < lanes[best]
+                best = i
+        start := lanes[best].max(t)
+        service := if kind == 0 then 3 else 14
+        lanes[best] = start + service
+        waits[kind] += start - t
+        counts[kind] += 1
+        if kind == 0
+            tag_free = lanes
+        else
+            cash_free = lanes
+    [waits[0].to_float() / counts[0].to_float(), waits[1].to_float() / counts[1].to_float()]
+
+fn main()
+    mut cars := List[List[int]]()
+    mut seed := 31
+    mut t := 0
+    for i in 0..60
+        seed = (seed * 75 + 74) % 65537
+        t += seed % 5
+        kind := if seed % 3 == 0 then 1 else 0
+        cars.push([t, kind])
+    cash := cars.count(|c| c[1] == 1)
+    print("{cars.len()} cars in {t} seconds, {cash} paying cash")
+    for plan in [[2, 2], [3, 1]]
+        w := mean_waits(cars, plan[0], plan[1])
+        print("{plan[0]} tag + {plan[1]} cash lanes: tag wait {w[0]:.2} s, cash wait {w[1]:.2} s")
+
+@test fn lone_car_never_waits()
+    w := mean_waits([[0, 0], [100, 1]], 1, 1)
+    assert_eq(w[1], 0.0)

@@ -1,0 +1,6 @@
+queue: Eli > Bea > Cal > Dot > Abe
+bed 1: Eli (waited 12 min)
+bed 2: Bea (waited 5 min)
+bed 3: Cal (waited 90 min)
+still waiting: 2
+most urgent: Eli

@@ -1,0 +1,29 @@
+## Population pyramid: men and women per ten-year age band drawn as back-to-back bars scaled to the
+## largest band, with the sex ratio (men per 100 women) by band and the band holding the median person.
+
+fn bar(n int, top int) str
+    "#".repeat((n * 20 + top / 2) / top)
+
+fn main()
+    bands := ["0-9", "10-19", "20-29", "30-39", "40-49", "50-59", "60-69", "70-79", "80+"]
+    men := [612, 640, 701, 688, 652, 598, 470, 301, 98]
+    women := [585, 611, 690, 694, 671, 623, 512, 382, 196]
+    top := (men.max() else 1).max(women.max() else 1)
+    for k in 0..bands.len()
+        i := bands.len() - 1 - k
+        left := bar(men[i], top).pad_left(20, ' ')
+        right := bar(women[i], top)
+        ratio := men[i] * 100 / women[i]
+        print("{left} {bands[i]:^7} {right} ({ratio})")
+    total := men.sum() + women.sum()
+    mut seen := 0
+    mut median := ""
+    for i in 0..bands.len()
+        seen += men[i] + women[i]
+        if median == "" and seen * 2 >= total
+            median = bands[i]
+    print("{total} thousand people, median age band {median}, overall {men.sum() * 100 / women.sum()} men per 100 women")
+
+@test fn bars()
+    assert_eq(bar(701, 701), "#".repeat(20))
+    assert_eq(bar(98, 701), "###")

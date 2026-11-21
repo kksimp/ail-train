@@ -1,0 +1,52 @@
+## Maximum onset syllabification: the consonants between two vowel groups go to the next syllable as
+## the longest ending that is a legal English onset (tr, str, pl...), and the rest close the syllable before.
+
+fn is_vowel(c char) bool
+    "aeiouy".contains(c)
+
+fn legal(s str, onsets Set[str]) bool
+    (s.len() == 1 and s != "x") or onsets.contains(s)
+
+fn syllabify(w str, onsets Set[str]) str
+    cs := w.chars()
+    n := cs.len()
+    mut sylls := List[str]()
+    mut cur := List[char]()
+    mut i := 0
+    while i < n and not is_vowel(cs[i])
+        cur.push(cs[i])
+        i += 1
+    while i < n
+        while i < n and is_vowel(cs[i])
+            cur.push(cs[i])
+            i += 1
+        mut cluster := List[char]()
+        while i < n and not is_vowel(cs[i])
+            cluster.push(cs[i])
+            i += 1
+        if i == n
+            cur.extend(cluster)
+            break
+        mut k := 0
+        while k < cluster.len() and not legal(cluster.slice(k).join(""), onsets)
+            k += 1
+        cur.extend(cluster.slice(0, k))
+        sylls.push(cur.join(""))
+        cur = cluster.slice(k)
+    sylls.push(cur.join(""))
+    sylls.join(".")
+
+fn main()
+    onsets := {"pl", "pr", "tr", "dr", "kl", "kr", "cl", "cr", "bl", "br", "gl", "gr", "fl", "fr", "st", "str", "sp", "spr", "sk", "sl", "sm", "sn", "sw", "tw"}
+    words := ["extra", "instrument", "pumpkin", "lobster", "acrobat", "pilgrim", "atlas", "empty", "sandwich", "explain"]
+    mut total := 0
+    for w in words
+        s := syllabify(w, onsets)
+        count := s.split(".").len()
+        total += count
+        print("{w:<11} {s} ({count})")
+    print("{total} syllables in {words.len()} words")
+
+@test fn no_tl_onset()
+    ons := {"tr", "pl"}
+    assert_eq(syllabify("atlas", ons), "at.las")

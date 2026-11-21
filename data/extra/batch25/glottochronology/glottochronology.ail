@@ -1,0 +1,26 @@
+## Glottochronology: if a language keeps a share r = 0.86 of its core vocabulary per thousand years, two
+## sister languages sharing a share c of cognates split t = ln(c) / (2 ln r) millennia ago.
+
+struct Pair
+    a str
+    b str
+    shared int
+
+fn split_years(shared int) float
+    c := shared.to_float() / 100.0
+    r := 0.86
+    c.ln() / (2.0 * r.ln()) * 1000.0
+
+fn main()
+    pairs := [Pair(a: "English", b: "German", shared: 59), Pair(a: "English", b: "Dutch", shared: 63), Pair(a: "German", b: "Dutch", shared: 81), Pair(a: "Spanish", b: "Italian", shared: 77), Pair(a: "Spanish", b: "Portuguese", shared: 85), Pair(a: "English", b: "Spanish", shared: 27), Pair(a: "Swedish", b: "Danish", shared: 88)]
+    for p in pairs.sorted(by: |p| -p.shared)
+        t := split_years(p.shared)
+        label := "{p.a}-{p.b}"
+        print("{label:<19} {p.shared:>3}% shared, split about {t:>5.0} years ago")
+    r := 0.86
+    kept := r * r * 100.0
+    print("after 1000 years apart two languages still share {kept:.1}%")
+
+@test fn identical()
+    assert(split_years(100).abs() < 0.000001)
+    assert((split_years(74) - 998.2).abs() < 0.1)

@@ -1,0 +1,29 @@
+## Sliding puck: a puck launched along the ice slows at 0.5 m/s^2, bounces off the end wall at 20 m keeping
+## 60% of its speed, and must stop between 12 and 14 m; launch speeds are tried in half metre per second steps.
+
+fn stop_point(speed float) float
+    mut x := 0.0
+    mut v := speed
+    dt := 0.01
+    while v.abs() > 0.005
+        decel := if v > 0.0 then -0.5 else 0.5
+        v += decel * dt
+        x += v * dt
+        if x > 20.0
+            x = 40.0 - x
+            v = -0.6 * v
+    x
+
+fn main()
+    mut good := List[float]()
+    for k in 0..10
+        speed := 4.0 + 0.5 * k.to_float()
+        at := stop_point(speed)
+        mark := if at >= 12.0 and at <= 14.0 then "  <- in the zone" else ""
+        print("launch {speed:.1} m/s: stops at {at:.2} m{mark}")
+        if mark != ""
+            good.push(speed)
+    print("{good.len()} launch speeds land in the zone")
+
+@test fn slow_puck_stays_short()
+    assert(stop_point(1.0) < 2.0)

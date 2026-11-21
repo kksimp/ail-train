@@ -1,0 +1,17 @@
+ 1   110.0 Hz  A2      0.0 cents
+ 2   220.0 Hz  A3      0.0 cents
+ 3   330.0 Hz  E4      2.0 cents
+ 4   440.0 Hz  A4      0.0 cents
+ 5   550.0 Hz  C#5    -13.7 cents
+ 6   660.0 Hz  E5      2.0 cents
+ 7   770.0 Hz  G5    -31.2 cents
+ 8   880.0 Hz  A5      0.0 cents
+ 9   990.0 Hz  B5      3.9 cents
+10  1100.0 Hz  C#6    -13.7 cents
+11  1210.0 Hz  D#6    -48.7 cents
+12  1320.0 Hz  E6      2.0 cents
+13  1430.0 Hz  F6     40.5 cents
+14  1540.0 Hz  G6    -31.2 cents
+15  1650.0 Hz  G#6    -11.7 cents
+16  1760.0 Hz  A6      0.0 cents
+partials more than 15 cents off: [7, 11, 13, 14]

@@ -1,0 +1,51 @@
+## Longest repeated piece: binary search on the length L, since a repeat of length L implies one of L - 1;
+## each test slides a polynomial rolling hash (base 131, mod 1000000007) and confirms equal hashes by text.
+
+MOD := 1000000007
+
+fn repeat_at(s str, cs List[char], size int) int
+    if size == 0
+        return 0
+    mut top := 1
+    for _ in 0..size
+        top = top * 131 % MOD
+    mut seen := Map[int, int]()
+    mut h := 0
+    for i in 0..cs.len()
+        h = (h * 131 + cs[i].code()) % MOD
+        if i >= size
+            h = (h - cs[i - size].code() * top % MOD + MOD) % MOD
+        if i >= size - 1
+            start := i - size + 1
+            if seen.contains(h)
+                first := seen[h]
+                if s.slice(first, first + size) == s.slice(start, start + size)
+                    return first
+            else
+                seen[h] = start
+    -1
+
+fn longest(s str) str
+    cs := s.chars()
+    mut lo := 0
+    mut hi := cs.len() - 1
+    mut best := 0
+    mut pos := 0
+    while lo <= hi
+        mid := (lo + hi) / 2
+        at := repeat_at(s, cs, mid)
+        if at >= 0
+            best = mid
+            pos = at
+            lo = mid + 1
+        else
+            hi = mid - 1
+    s.slice(pos, pos + best)
+
+fn main()
+    for s in ["banana", "mississippi", "abcdefg", "to be or not to be", "abcabcabc", "the cat sat on the mat"]
+        r := longest(s)
+        print("{s:<22} -> [{r}] ({r.len()} letters)")
+
+@test fn banana()
+    assert_eq(longest("banana"), "ana")

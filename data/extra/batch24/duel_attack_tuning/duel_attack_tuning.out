@@ -1,0 +1,12 @@
+A  6: rogue needs 20 rounds, knight 6 -> knight
+A  7: rogue needs 15 rounds, knight 6 -> knight
+A  8: rogue needs 12 rounds, knight 6 -> knight
+A  9: rogue needs 10 rounds, knight 6 -> knight
+A 10: rogue needs  9 rounds, knight 6 -> knight
+A 11: rogue needs  8 rounds, knight 6 -> knight
+A 12: rogue needs  7 rounds, knight 6 -> knight
+A 13: rogue needs  6 rounds, knight 6 -> draw
+A 14: rogue needs  6 rounds, knight 6 -> draw
+A 15: rogue needs  5 rounds, knight 6 -> rogue
+A 16: rogue needs  5 rounds, knight 6 -> rogue
+closest fight at A = 13

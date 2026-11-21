@@ -1,0 +1,45 @@
+## One runway: each landing or take-off holds the runway for 2 minutes; whenever it is free the earliest
+## waiting landing goes first and take-offs go only when no plane is waiting to land.
+
+struct Op
+    time int
+    flight str
+
+impl Ord for Op
+
+fn main()
+    landings := [Op(time: 0, flight: "L1"), Op(time: 1, flight: "L2"), Op(time: 2, flight: "L3"), Op(time: 7, flight: "L4"), Op(time: 8, flight: "L5"), Op(time: 9, flight: "L6"), Op(time: 16, flight: "L7")]
+    takeoffs := [Op(time: 0, flight: "T1"), Op(time: 3, flight: "T2"), Op(time: 4, flight: "T3"), Op(time: 5, flight: "T4"), Op(time: 12, flight: "T5")]
+    mut land_q := Heap[Op]()
+    mut take_q := Heap[Op]()
+    mut now := 0
+    mut li := 0
+    mut ti := 0
+    mut delay := [0, 0]
+    while li < landings.len() or ti < takeoffs.len() or not land_q.is_empty() or not take_q.is_empty()
+        while li < landings.len() and landings[li].time <= now
+            land_q.push(landings[li])
+            li += 1
+        while ti < takeoffs.len() and takeoffs[ti].time <= now
+            take_q.push(takeoffs[ti])
+            ti += 1
+        if not land_q.is_empty()
+            op := land_q.pop() else break
+            delay[0] += now - op.time
+            print("{now:>2}: {op.flight} lands, {now - op.time} min late")
+            now += 2
+        elif not take_q.is_empty()
+            op := take_q.pop() else break
+            delay[1] += now - op.time
+            print("{now:>2}: {op.flight} takes off, {now - op.time} min late")
+            now += 2
+        else
+            now += 1
+    print("landing delay {delay[0]} min, take-off delay {delay[1]} min")
+
+@test fn earliest_first()
+    mut h := Heap[Op]()
+    h.push(Op(time: 5, flight: "b"))
+    h.push(Op(time: 2, flight: "a"))
+    top := h.pop() else return
+    assert_eq(top.flight, "a")

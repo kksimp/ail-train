@@ -1,0 +1,8 @@
+11 boxes, longest nesting chain has 6
+   3 x  3
+   5 x  4
+   6 x  7
+   7 x  8
+   8 x  9
+  10 x 10
+three boxes of width 4 nest 1 deep

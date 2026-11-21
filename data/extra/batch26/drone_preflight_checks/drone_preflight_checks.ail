@@ -1,0 +1,44 @@
+## Drone preflight: each check has a value and an allowed range; `all` decides readiness, `find`
+## names the first failure, `filter` lists readings within 5 of a limit, and a changed copy is re-run.
+
+struct Check
+    name str
+    value int
+    min int
+    max int
+
+fn ok(c Check) bool
+    c.min <= c.value and c.value <= c.max
+
+fn near(c Check) bool
+    ok(c) and (c.value - c.min < 5 or c.max - c.value < 5)
+
+fn verdict(label str, checks List[Check])
+    ready := checks.all(|c| ok(c))
+    print("{label}: ready {ready}")
+    if bad := checks.find(|c| not ok(c))
+        print("  first failure: {bad.name} {bad.value} (allowed {bad.min}-{bad.max})")
+    warn := checks.filter(|c| near(c)).map(|c| c.name)
+    if not warn.is_empty()
+        shown := warn.join(", ")
+        print("  near a limit: {shown}")
+
+fn main()
+    checks := [
+        Check(name: "battery", value: 87, min: 30, max: 100),
+        Check(name: "gps sats", value: 9, min: 6, max: 99),
+        Check(name: "wind", value: 38, min: 0, max: 35),
+        Check(name: "motor temp", value: 41, min: 0, max: 70),
+        Check(name: "prop hours", value: 147, min: 0, max: 150),
+        Check(name: "signal", value: 72, min: 50, max: 100),
+    ]
+    verdict("09:00", checks)
+    mut later := checks
+    for mut c in later
+        if c.name == "wind"
+            c.value = 22
+    verdict("11:00", later)
+    print("09:00 wind still {checks[2].value}")
+
+@test fn out_of_range()
+    assert(not ok(Check(name: "x", value: 5, min: 6, max: 9)))

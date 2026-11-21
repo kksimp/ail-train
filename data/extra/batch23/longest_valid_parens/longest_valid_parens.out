@@ -1,0 +1,7 @@
+(()                        longest  2 at  1: ()
+)()())                     longest  4 at  1: ()()
+()(()                      longest  2 at  0: ()
+(()())())(                 longest  8 at  0: (()())()
+)(((((()())()()))()(()))(  longest 22 at  2: ((((()())()()))()(()))
+))((                       longest  0 at  0: -
+()()()                     longest  6 at  0: ()()()

@@ -1,0 +1,25 @@
+## Duel tuning: a knight (120 hp, armour 3, one 14-point blow a round) against a rogue (80 hp, two blows of
+## A a round, less armour); sweeps A to find the value that makes the fight closest to a draw.
+
+fn rounds_to_kill(hp int, per_round int) int
+    if per_round <= 0
+        return 1000
+    (hp + per_round - 1) / per_round
+
+fn main()
+    knight_needs := rounds_to_kill(80, 14)
+    mut best := -1
+    mut best_gap := 1000
+    for a in 6..=16
+        rogue_needs := rounds_to_kill(120, 2 * (a - 3))
+        verdict := if rogue_needs < knight_needs then "rogue" elif rogue_needs > knight_needs then "knight" else "draw"
+        print("A {a:>2}: rogue needs {rogue_needs:>2} rounds, knight {knight_needs} -> {verdict}")
+        gap := (rogue_needs - knight_needs).abs()
+        if gap < best_gap
+            best_gap = gap
+            best = a
+    print("closest fight at A = {best}")
+
+@test fn ceiling()
+    assert_eq(rounds_to_kill(80, 14), 6)
+    assert_eq(rounds_to_kill(84, 14), 6)

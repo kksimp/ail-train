@@ -1,0 +1,31 @@
+## Bumper cars on a ring: four cars drive round a 100 m track (distances in decimetres); when a car runs into
+## the one ahead, the two swap speeds as equal masses do, so speed passes along the line while order stays.
+
+fn main()
+    mut dist := [0, 250, 500, 750]
+    mut speed := [9, 4, 6, 2]
+    mut bumps := 0
+    for tick in 1..=600
+        for i in 0..4
+            dist[i] += speed[i]
+        for i in 0..4
+            j := (i + 1) % 4
+            ahead := if j == 0 then dist[j] + 1000 else dist[j]
+            if dist[i] >= ahead
+                tmp := speed[i]
+                speed[i] = speed[j]
+                speed[j] = tmp
+                dist[i] = ahead - 1
+                bumps += 1
+        if tick % 150 == 0
+            print("after {tick / 10} s: speeds {speed}, {bumps} bumps so far")
+    for i in 0..4
+        driven := dist[i] - 250 * i
+        print("car {i + 1}: {driven / 10} m driven, {driven / 1000} full laps")
+
+@test fn swap()
+    mut s := [9, 4]
+    tmp := s[0]
+    s[0] = s[1]
+    s[1] = tmp
+    assert_eq(s, [4, 9])

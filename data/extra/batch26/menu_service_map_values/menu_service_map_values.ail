@@ -1,0 +1,25 @@
+## Menu service charge: `map_values` makes new price maps from a menu in cents, one with a 12.5%
+## service charge added and one with lunchtime prices (mains 20% off), keeping the menu's order.
+
+fn lunch_price(name str, cents int) int
+    if name == "risotto" or name == "steak" then cents - cents / 5 else cents
+
+fn money(c int) str
+    "{c / 100}.{c % 100:02}"
+
+fn main()
+    menu := {"soup": 650, "risotto": 1450, "steak": 2400, "tart": 780}
+    served := menu.map_values(|k, v| v + v / 8)
+    lunch := menu.map_values(|k, v| lunch_price(k, v))
+    print("item      menu  +12.5%   lunch")
+    for item, cents in menu
+        print("{item:<8}{money(cents):>6}{money(served[item]):>8}{money(lunch[item]):>8}")
+    table := ["soup", "steak", "steak", "tart"]
+    bill := table.map(|t| served[t]).sum()
+    early := table.map(|t| lunch[t]).sum()
+    print("table of four: {money(bill)} with service, {money(early)} at lunch")
+
+@test fn service_eighth()
+    m := {"a": 800}
+    s := m.map_values(|k, v| v + v / 8)
+    assert_eq(s["a"], 900)

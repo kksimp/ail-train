@@ -1,0 +1,38 @@
+## Language guessing: each language's sample text gives a ranked list of letter trigrams (words padded
+## with _), and a sentence goes to the language whose ranking is closest by the out-of-place distance.
+
+fn profile(text str, keep int) List[str]
+    mut counts := Map[str, int]()
+    for w in text.to_lower().words()
+        cs := "_{w}_".chars()
+        for i in 0..cs.len() - 2
+            g := cs.slice(i, i + 3).join("")
+            counts[g] += 1
+    keys := counts.keys().sorted(by: |k| (-counts[k], k))
+    keys.slice(0, keep.min(keys.len()))
+
+fn distance(doc List[str], lang List[str]) int
+    mut d := 0
+    for i, g in doc.enumerate()
+        if j := lang.index_of(g)
+            d += (i - j).abs()
+        else
+            d += lang.len()
+    d
+
+fn main()
+    names := ["English", "Spanish", "German"]
+    samples := ["the quick brown fox jumps over the lazy dog and the cat sat on the mat while the children were playing in the garden with their friends there is nothing that they would rather do than this", "el perro come la comida en la casa de su madre y los chicos juegan en el jardin con sus amigos todos los dias porque les gusta mucho estar juntos en la calle", "der hund isst das essen in dem haus seiner mutter und die kinder spielen mit ihren freunden in dem garten jeden tag weil sie gerne zusammen sind auf der strasse"]
+    profiles := samples.map(|s| profile(s, 60))
+    tests := ["the children and the dog", "los perros de la casa", "die kinder und der hund", "they were in the garden", "con sus amigos en la calle", "spielen sie in dem garten"]
+    for t in tests
+        doc := profile(t, 60)
+        scores := profiles.map(|p| distance(doc, p))
+        mut best := 0
+        for i in 1..scores.len()
+            if scores[i] < scores[best]
+                best = i
+        print("{t:<27} {scores} -> {names[best]}")
+
+@test fn padded()
+    assert_eq(profile("ab", 10), ["_ab", "ab_"])

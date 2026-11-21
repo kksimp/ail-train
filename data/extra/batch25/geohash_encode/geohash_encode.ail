@@ -1,0 +1,61 @@
+## Geohash: longitude and latitude ranges are halved in turn, each half chosen adding a bit (longitude
+## first), and every five bits become one base-32 character; nearby places share a prefix, and decoding gives a box.
+
+ALPHABET := "0123456789bcdefghjkmnpqrstuvwxyz"
+
+fn encode(lat float, lon float, chars int) str
+    mut lat_lo := -90.0
+    mut lat_hi := 90.0
+    mut lon_lo := -180.0
+    mut lon_hi := 180.0
+    mut out := List[str]()
+    mut bits := 0
+    mut value := 0
+    mut even := true
+    while out.len() < chars
+        if even
+            mid := (lon_lo + lon_hi) / 2.0
+            bit := if lon >= mid then 1 else 0
+            value = value * 2 + bit
+            if lon >= mid
+                lon_lo = mid
+            else
+                lon_hi = mid
+        else
+            mid := (lat_lo + lat_hi) / 2.0
+            bit := if lat >= mid then 1 else 0
+            value = value * 2 + bit
+            if lat >= mid
+                lat_lo = mid
+            else
+                lat_hi = mid
+        even = not even
+        bits += 1
+        if bits == 5
+            out.push(ALPHABET.slice(value, value + 1))
+            bits = 0
+            value = 0
+    out.join("")
+
+fn shared(a str, b str) int
+    ac := a.chars()
+    bc := b.chars()
+    mut n := 0
+    while n < ac.len() and n < bc.len() and ac[n] == bc[n]
+        n += 1
+    n
+
+fn main()
+    places := [("Eiffel Tower", 48.8584, 2.2945), ("Louvre", 48.8606, 2.3376), ("Notre-Dame", 48.853, 2.3499), ("Big Ben", 51.5007, -0.1246), ("Statue of Liberty", 40.6892, -74.0445), ("Christ the Redeemer", -22.9519, -43.2105)]
+    mut hashes := List[str]()
+    for p in places
+        name, lat, lon := p
+        h := encode(lat, lon, 8)
+        hashes.push(h)
+        print("{name:<20} {h}")
+    for j in 1..places.len()
+        print("{places[0].0} and {places[j].0} share {shared(hashes[0], hashes[j])} characters")
+
+@test fn origin()
+    assert_eq(encode(0.0, 0.0, 2), "s0")
+    assert_eq(shared("u09t", "u09w"), 3)

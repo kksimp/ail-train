@@ -1,0 +1,46 @@
+## Repair shop: a mill needs five machines running; each runs 30 to 49 hours before it breaks, one fitter
+## repairs a machine in 6 hours, and spares stand in. Shows how many spares stop the mill running short.
+
+struct Rng
+    state int
+
+fn Rng.life(mut self) int
+    self.state = (self.state * 1103515245 + 12345) % 2147483648
+    30 + (self.state / 65536) % 20
+
+fn short_hours(spares int) List[int]
+    mut rng := Rng(state: 99)
+    mut running := List[int]()
+    for i in 0..5
+        running.push(rng.life())
+    mut stand_by := spares
+    mut broken := 0
+    mut repair_left := 0
+    mut short := 0
+    mut fixed := 0
+    for hour in 0..400
+        broke_now := running.count(|t| t == hour)
+        running = running.filter(|t| t != hour)
+        broken += broke_now
+        while running.len() < 5 and stand_by > 0
+            stand_by -= 1
+            running.push(hour + rng.life())
+        if repair_left == 0 and broken > 0
+            broken -= 1
+            repair_left = 6
+        if repair_left > 0
+            repair_left -= 1
+            if repair_left == 0
+                stand_by += 1
+                fixed += 1
+        if running.len() < 5
+            short += 1
+    [short, fixed]
+
+fn main()
+    for spares in 0..=3
+        r := short_hours(spares)
+        print("{spares} spares: running short {r[0]:>3} of 400 hours, {r[1]} repairs")
+
+@test fn spares_help()
+    assert(short_hours(3)[0] <= short_hours(0)[0])

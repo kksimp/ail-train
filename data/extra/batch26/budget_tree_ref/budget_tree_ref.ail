@@ -1,0 +1,38 @@
+## Budget tree: festival teams form a tree of `ref Team` cells, each with its own spend and its
+## sub-teams; totals roll up recursively, and a late invoice on a leaf shows at the root through the shared cell.
+
+struct Team
+    name str
+    spent int
+    subs List[ref Team]
+
+fn total(t ref Team) int
+    mut acc := t.spent
+    for s in t.subs
+        acc += total(s)
+    acc
+
+fn show(t ref Team, depth int)
+    pad := " ".repeat(depth * 2)
+    print("{pad}{t.name}: own {t.spent}, total {total(t)}")
+    for s in t.subs
+        show(s, depth + 1)
+
+fn main()
+    food := ref Team(name: "food", spent: 1200, subs: [])
+    music := ref Team(name: "music", spent: 2500, subs: [])
+    venue := ref Team(name: "venue", spent: 3000, subs: [food, music])
+    posters := ref Team(name: "posters", spent: 300, subs: [])
+    ads := ref Team(name: "ads", spent: 900, subs: [])
+    marketing := ref Team(name: "marketing", spent: 100, subs: [posters, ads])
+    fest := ref Team(name: "festival", spent: 500, subs: [venue, marketing])
+    show(fest, 0)
+    food.spent += 450
+    print("late food invoice of 450 posted")
+    print("venue now {total(venue)}, festival now {total(fest)}")
+
+@test fn leaf_change_rolls_up()
+    leaf := ref Team(name: "a", spent: 5, subs: [])
+    root := ref Team(name: "r", spent: 1, subs: [leaf])
+    leaf.spent = 10
+    assert_eq(total(root), 11)

@@ -1,0 +1,36 @@
+## Bus bunching: three buses circle twelve stops, 5 minutes apart; a bus dwells 1 minute plus a minute per
+## three people waiting, and people gather one per 2 minutes, so a late bus slows further and the next catches up.
+
+struct Arrival
+    time int
+    bus int
+    stop int
+
+impl Ord for Arrival
+
+fn dwell(now int, last_visit int) int
+    waiting := (now - last_visit) / 2
+    1 + waiting / 3
+
+fn main()
+    mut last := List[int]()
+    for s in 0..12
+        last.push(0)
+    mut events := Heap[Arrival]()
+    events.push(Arrival(time: 0, bus: 0, stop: 0))
+    events.push(Arrival(time: 0, bus: 1, stop: 4))
+    events.push(Arrival(time: 6, bus: 2, stop: 8))
+    mut prev := -1
+    while ev := events.pop()
+        if ev.time > 500
+            break
+        stay := dwell(ev.time, last[ev.stop])
+        last[ev.stop] = ev.time
+        if ev.stop == 0
+            gap := if prev < 0 then "first" else "{ev.time - prev} min after the last bus"
+            print("minute {ev.time:>3}: bus {ev.bus + 1} at the depot stop, {gap}")
+            prev = ev.time
+        events.push(Arrival(time: ev.time + stay + 5, bus: ev.bus, stop: (ev.stop + 1) % 12))
+
+@test fn long_gap_long_dwell()
+    assert_eq(dwell(30, 0), 6)

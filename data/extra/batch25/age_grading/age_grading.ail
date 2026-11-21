@@ -1,0 +1,43 @@
+## Age grading for 10 km runs: a runner's age factor (interpolated between five-year table ages) turns the
+## open standard into an age standard; age grade = age standard / actual time, and actual x factor is the age-graded time.
+
+fn secs(t str) int
+    parts := t.split(":")
+    mut total := 0
+    for p in parts
+        total = total * 60 + (p.to_int() else 0)
+    total
+
+fn clock(s int) str
+    m := s / 60
+    raw := "{s % 60}"
+    r := raw.pad_left(2, '0')
+    "{m}:{r}"
+
+fn factor(age int) float
+    ages := [30, 35, 40, 45, 50, 55, 60, 65, 70, 75]
+    table := [1.0, 0.9921, 0.9668, 0.9406, 0.9143, 0.8880, 0.8617, 0.8354, 0.8091, 0.7795]
+    if age <= 30
+        return 1.0
+    for i in 0..ages.len() - 1
+        if age <= ages[i + 1]
+            t := (age - ages[i]).to_float() / 5.0
+            return table[i] + (table[i + 1] - table[i]) * t
+    table[table.len() - 1]
+
+fn main()
+    open_standard := 1571.0
+    runners := [("Abe", 28, "41:20"), ("Bina", 44, "44:05"), ("Carl", 57, "46:30"), ("Dora", 63, "52:10"), ("Emil", 71, "58:45"), ("Fern", 36, "37:15")]
+    for r in runners
+        name, age, time := r
+        f := factor(age)
+        actual := secs(time).to_float()
+        grade := open_standard / f / actual * 100.0
+        level := if grade >= 90.0 then "world class" elif grade >= 80.0 then "national" elif grade >= 70.0 then "regional" elif grade >= 60.0 then "local" else "recreational"
+        graded := (actual * f + 0.5).floor().to_int()
+        print("{name:<5} {age} {time}  factor {f:.4}  grade {grade:>5.1}%  {level:<12} graded {clock(graded)}")
+
+@test fn times()
+    assert_eq(secs("41:20"), 2480)
+    assert_eq(clock(2480), "41:20")
+    assert_eq(factor(30), 1.0)

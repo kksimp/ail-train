@@ -1,0 +1,55 @@
+## K minimum values: keep the 48 smallest distinct 32-bit hashes of a stream; if the k-th smallest is h_k, about
+## (k - 1) 2^32 / h_k items are distinct, and two sketches merge by keeping the 48 smallest of both for a union.
+
+fn mix(x int) int
+    mut h := x * 73244475 % 4294967296
+    h = (h >> 16) ^ h
+    h = h * 73244475 % 4294967296
+    (h >> 16) ^ h
+
+struct Kmv
+    k int
+    vals List[int]
+
+fn Kmv.add(mut self, h int)
+    if not self.vals.contains(h)
+        self.vals.push(h)
+        self.vals.sort()
+        if self.vals.len() > self.k
+            _ := self.vals.pop()
+
+fn Kmv.estimate(self) int
+    if self.vals.len() < self.k
+        return self.vals.len()
+    (self.k - 1) * 4294967296 / self.vals[self.k - 1]
+
+fn main()
+    mut state := 3
+    mut a := Kmv(k: 48, vals: [])
+    mut b := Kmv(k: 48, vals: [])
+    mut sa := Set[int]()
+    mut sb := Set[int]()
+    for i in 0..30000
+        state = (state * 1103515245 + 12345) % 2147483648
+        x := (state >> 8) % 9000
+        if i % 2 == 0
+            a.add(mix(x))
+            sa.add(x)
+        else
+            y := x + 4000
+            b.add(mix(y))
+            sb.add(y)
+        if i == 2999 or i == 29999
+            print("after {i + 1} items: A {sa.len()} distinct (est {a.estimate()}), B {sb.len()} distinct (est {b.estimate()})")
+    mut u := Kmv(k: 48, vals: [])
+    for h in a.vals
+        u.add(h)
+    for h2 in b.vals
+        u.add(h2)
+    print("union: {sa.union(sb).len()} distinct, estimate from merged sketches {u.estimate()}")
+
+@test fn small_exact()
+    mut s := Kmv(k: 4, vals: [])
+    s.add(10)
+    s.add(10)
+    assert_eq(s.estimate(), 1)

@@ -1,0 +1,23 @@
+## Kiosk faults: ticket kiosks log fault codes; a counting map with `m[k] += 1` and `m.top(3)`
+## names the three most common (ties in first-seen order) with their share and a looked-up meaning.
+
+fn main()
+    faults := ["E12", "E07", "E12", "E31", "E07", "E12", "E44", "E31", "E12", "E07", "E02", "E31", "E31"]
+    meaning := {"E12": "paper jam", "E07": "card reader timeout", "E31": "network lost"}
+    mut counts := Map[str, int]()
+    for code in faults
+        counts[code] += 1
+    print("{faults.len()} faults, {counts.len()} distinct codes")
+    for i, code in counts.top(3).enumerate()
+        n := counts[code]
+        what := meaning.get_or(code, "unknown fault")
+        print("{i + 1}. {code} x{n} ({n * 100 / faults.len()}%): {what}")
+    rare := counts.keys().filter(|k| counts[k] == 1).sorted()
+    shown := rare.join(", ")
+    print("seen once: {shown}")
+
+@test fn top_one()
+    mut c := Map[str, int]()
+    c["a"] += 1
+    c["b"] += 2
+    assert_eq(c.top(1), ["b"])

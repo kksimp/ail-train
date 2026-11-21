@@ -1,0 +1,42 @@
+## Cinema blocks: a `Grid` of seats (1 booked, 0 free) built from row strings; each group gets the
+## first row, front to back, with a run of enough free seats side by side, leftmost first.
+
+struct Spot
+    row int
+    start int
+
+fn seat(c char) int
+    if c == 'x' then 1 else 0
+
+fn mark(v int) str
+    if v == 1 then "x" else "."
+
+fn find_block(g Grid[int], n int) Spot?
+    for r in 0..g.rows
+        mut run := 0
+        for c in 0..g.cols
+            run = if g[r, c] == 0 then run + 1 else 0
+            if run == n
+                return Spot(row: r, start: c - n + 1)
+    none
+
+fn main()
+    plan := ["xx..x....x", "x.xx..xxxx", "..........", "xxxx...xxx", "..x.x.x.x."]
+    mut hall := Grid.from(plan.map(|s| s.chars().map(seat)))
+    for n in [4, 6, 3, 2, 5]
+        s := find_block(hall, n) else
+            print("group of {n}: no block free")
+            continue
+        for c in s.start..s.start + n
+            hall[s.row, c] = 1
+        letter := char.from_code(65 + s.row) else '?'
+        print("group of {n}: row {letter} seats {s.start + 1}-{s.start + n}")
+    for r in 0..hall.rows
+        print(hall.row(r).map(mark).join(""))
+    free := hall.to_list().flatten().count(|v| v == 0)
+    print("free seats left: {free}")
+
+@test fn empty_row_block()
+    g := Grid.fill(1, 5, 0)
+    s := find_block(g, 3) else Spot(row: -1, start: -1)
+    assert_eq(s.start, 0)

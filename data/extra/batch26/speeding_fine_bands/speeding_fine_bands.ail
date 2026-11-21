@@ -1,0 +1,38 @@
+## Speeding fine bands: constants give the camera tolerance (10% plus 2 km/h), the fine and penalty
+## points for each band of excess speed, and the points that bring a ban; points add up per plate.
+
+TOLERANCE_PCT := 10
+TOLERANCE_ADD := 2
+BAND_TOPS := [10, 20, 30]
+FINES := [0, 100, 250]
+POINTS := [0, 3, 4]
+TOP_FINE := 500
+TOP_POINTS := 6
+BAN_AT := 6
+
+fn penalty(over int) List[int]
+    for i in 0..BAND_TOPS.len()
+        if over <= BAND_TOPS[i]
+            return [FINES[i], POINTS[i]]
+    [TOP_FINE, TOP_POINTS]
+
+fn main()
+    seen := [("AB1", 50, 54), ("CD2", 50, 63), ("AB1", 30, 49), ("EF3", 80, 112), ("CD2", 100, 128), ("GH4", 30, 36)]
+    mut points := Map[str, int]()
+    for s in seen
+        plate, limit, speed := s
+        allowed := limit + limit * TOLERANCE_PCT / 100 + TOLERANCE_ADD
+        if speed <= allowed
+            points[plate] += 0
+            print("{plate} {speed} in a {limit}: within tolerance")
+            continue
+        p := penalty(speed - limit)
+        points[plate] += p[1]
+        action := if p[0] == 0 then "warning letter" else "fine {p[0]}, {p[1]} points"
+        print("{plate} {speed} in a {limit}: {speed - limit} over, {action}")
+    for plate, n in points
+        status := if n >= BAN_AT then " - driving ban" else ""
+        print("{plate}: {n} points{status}")
+
+@test fn top_band()
+    assert_eq(penalty(45), [500, 6])

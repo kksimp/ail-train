@@ -1,0 +1,27 @@
+## Filler batches: a carton filling line weighs four cartons per batch; one reading outside
+## 450-550 g rejects the whole batch with `continue check`, and only clean batches give a mean.
+
+fn main()
+    batches := [[512, 498, 505, 501], [499, 0, 502, 500], [510, 507, 515, 509], [495, 503, 1200, 497], [501, 499, 500, 502]]
+    mut means := List[int]()
+    mut rejected := 0
+    check: for i, b in batches.enumerate()
+        for x in b
+            if x < 450 or x > 550
+                print("batch {i + 1} rejected: reading {x} g")
+                rejected += 1
+                continue check
+        avg := b.sum() / b.len()
+        means.push(avg)
+        print("batch {i + 1} ok, mean {avg} g")
+    overall := means.sum() / means.len()
+    print("kept {means.len()}, rejected {rejected}, mean of kept {overall} g")
+
+@test fn labelled_continue()
+    mut kept := 0
+    rows: for r in [[1, 2], [3, -1], [4, 5]]
+        for x in r
+            if x < 0
+                continue rows
+        kept += 1
+    assert_eq(kept, 2)

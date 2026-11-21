@@ -1,0 +1,42 @@
+## Weekday arithmetic: a `Weekday` wraps a day number mod 7 with `Add` and `Sub`, so a bin round
+## every 9 days from a Tuesday gets each collection's weekday and a reminder three days before.
+
+DAYS := ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+
+struct Weekday
+    n int
+
+impl Add for Weekday
+    fn add(self, o Weekday) Weekday
+        Weekday(n: (n + o.n) % 7)
+
+impl Sub for Weekday
+    fn sub(self, o Weekday) Weekday
+        Weekday(n: (n - o.n + 7) % 7)
+
+fn shift(days int) Weekday
+    Weekday(n: days % 7)
+
+fn Weekday.label(self) str
+    DAYS[self.n]
+
+fn main()
+    start := Weekday(n: 1)
+    every := shift(9)
+    mut day := start
+    for k in 0..5
+        reminder := day - shift(3)
+        print("collection {k + 1}: day {k * 9} ({day.label()}), reminder {reminder.label()}")
+        day += every
+    meeting := start + shift(30)
+    print("30 days after Tue is {meeting.label()}")
+    mut weekend := 0
+    mut d := start
+    for _ in 0..14
+        if d.n >= 5
+            weekend += 1
+        d += every
+    print("weekend collections in the first 14: {weekend}")
+
+@test fn wraps_round()
+    assert_eq((Weekday(n: 6) + shift(3)).n, 2)

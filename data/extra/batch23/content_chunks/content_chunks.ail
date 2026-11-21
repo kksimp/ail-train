@@ -1,0 +1,57 @@
+## Content-defined chunking: a rolling hash over the last 6 characters cuts a chunk wherever hash % 13 == 0 (with a
+## minimum and maximum size), so inserting a word only changes nearby chunks, while fixed-size blocks all shift.
+
+MOD := 1000003
+BASE := 257
+WIN := 6
+
+fn chunks(text str) List[str]
+    cs := text.chars()
+    mut top := 1
+    steps := WIN - 1
+    for _ in 0..steps
+        top = top * BASE % MOD
+    mut out := List[str]()
+    mut start := 0
+    mut h := 0
+    for i in 0..cs.len()
+        if i >= WIN
+            h = (h - cs[i - WIN].code() * top % MOD + MOD) % MOD
+        h = (h * BASE + cs[i].code()) % MOD
+        size := i - start + 1
+        if (size >= 4 and h % 13 == 0) or size >= 40
+            out.push(text.slice(start, i + 1))
+            start = i + 1
+    if start < cs.len()
+        out.push(text.slice(start))
+    out
+
+fn fixed(text str, size int) List[str]
+    mut out := List[str]()
+    mut i := 0
+    while i < text.len()
+        out.push(text.slice(i, (i + size).min(text.len())))
+        i += size
+    out
+
+fn shared(a List[str], b List[str]) int
+    mut have := Set[str]()
+    for x in a
+        have.add(x)
+    b.count(|x| have.contains(x))
+
+fn main()
+    before := "the archive keeps every version of every file, and a backup only sends the pieces that changed since the last run, so small edits stay cheap to store and to send"
+    after := "the archive keeps every single version of every file, and a backup only sends the pieces that changed since the last run, so small edits stay cheap to store and to send"
+    ca := chunks(before)
+    cb := chunks(after)
+    print("content-defined: {ca.len()} chunks before, {cb.len()} after, {shared(ca, cb)} reused")
+    fa := fixed(before, 16)
+    fb := fixed(after, 16)
+    print("fixed 16-char:   {fa.len()} chunks before, {fb.len()} after, {shared(fa, fb)} reused")
+    for i in 0..4
+        print("  chunk {i}: [{cb[i]}]")
+
+@test fn covers_text()
+    parts := chunks("abcdefghijklmnopqrstuvwxyz0123456789")
+    assert_eq(parts.join(""), "abcdefghijklmnopqrstuvwxyz0123456789")

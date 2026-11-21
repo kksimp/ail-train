@@ -1,0 +1,61 @@
+## Single transferable vote for two seats: the Droop quota is votes / (seats + 1) + 1; a candidate over
+## quota is elected and the surplus moves on at a reduced weight (kept in thousandths, truncated), else the lowest is eliminated.
+
+struct Paper
+    prefs List[str]
+    weight int
+
+fn top(p Paper, out Set[str]) str
+    for c in p.prefs
+        if not out.contains(c)
+            return c
+    ""
+
+fn milli(v int) str
+    frac := "{v % 1000}".pad_left(3, '0')
+    "{v / 1000}.{frac}"
+
+fn main()
+    groups := [(12, ["Ash", "Bea"]), (9, ["Bea", "Ash", "Cy"]), (5, ["Cy", "Bea"]), (4, ["Dee", "Cy"]), (6, ["Eve", "Dee", "Cy"]), (3, ["Bea", "Eve"]), (1, ["Cy"])]
+    mut papers := List[Paper]()
+    for g in groups
+        count, prefs := g
+        for k in 0..count
+            papers.push(Paper(prefs: prefs, weight: 1000))
+    cands := ["Ash", "Bea", "Cy", "Dee", "Eve"]
+    seats := 2
+    quota := (papers.len() / (seats + 1) + 1) * 1000
+    print("{papers.len()} papers, quota {milli(quota)}")
+    mut out := Set[str]()
+    mut elected := List[str]()
+    mut round := 1
+    while elected.len() < seats
+        mut tallies := Map[str, int]()
+        for c in cands
+            if not out.contains(c)
+                tallies[c] = 0
+        for p in papers
+            t := top(p, out)
+            if t != ""
+                tallies[t] += p.weight
+        shown := tallies.keys().map(|k| "{k} {milli(tallies[k])}").join(", ")
+        print("round {round}: {shown}")
+        best := tallies.keys().sorted(by: |k| -tallies[k])[0]
+        if tallies[best] >= quota or tallies.len() <= seats - elected.len()
+            elected.push(best)
+            surplus := tallies[best] - quota
+            for mut p in papers
+                if top(p, out) == best
+                    p.weight = p.weight * surplus.max(0) / tallies[best]
+            out.add(best)
+            print("  {best} elected, surplus {milli(surplus.max(0))}")
+        else
+            low := tallies.keys().sorted(by: |k| tallies[k])[0]
+            out.add(low)
+            print("  {low} eliminated")
+        round += 1
+    names := elected.join(" and ")
+    print("elected: {names}")
+
+@test fn thousandths()
+    assert_eq(milli(12050), "12.050")

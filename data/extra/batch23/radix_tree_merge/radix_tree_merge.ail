@@ -1,0 +1,49 @@
+## Radix tree: a letter trie is compressed by merging every chain of nodes that have one child and end no
+## word into a single edge labelled with the whole piece; prints both node counts and the compressed tree.
+
+struct Trie
+    kids List[Map[char, int]]
+    ends List[bool]
+
+fn Trie.add(mut self, w str)
+    mut at := 0
+    for c in w.chars()
+        if not self.kids[at].contains(c)
+            self.kids.push(Map[char, int]())
+            self.ends.push(false)
+            self.kids[at][c] = self.kids.len() - 1
+        at = self.kids[at][c]
+    self.ends[at] = true
+
+fn show(t Trie, at int, depth int, mut lines List[str])
+    keys := t.kids[at].keys().sorted()
+    for c in keys
+        mut label := List[char]()
+        label.push(c)
+        mut node := t.kids[at][c]
+        while t.kids[node].len() == 1 and not t.ends[node]
+            only := t.kids[node].keys().sorted()[0]
+            label.push(only)
+            node = t.kids[node][only]
+        pad := " ".repeat(depth * 2)
+        mark := if t.ends[node] then " *" else ""
+        piece := label.join("")
+        lines.push("{pad}{piece}{mark}")
+        show(t, node, depth + 1, mut lines)
+
+fn main()
+    words := ["romane", "romanus", "romulus", "rubens", "ruber", "rubicon", "rubicundus", "rub"]
+    mut t := Trie(kids: [Map[char, int]()], ends: [false])
+    for w in words
+        t.add(w)
+    mut lines := List[str]()
+    show(t, 0, 0, mut lines)
+    print("trie nodes {t.kids.len()}, radix nodes {lines.len() + 1} (with the root)")
+    for l in lines
+        print(l)
+
+@test fn shared_prefix()
+    mut t := Trie(kids: [Map[char, int]()], ends: [false])
+    t.add("ab")
+    t.add("ac")
+    assert_eq(t.kids.len(), 4)

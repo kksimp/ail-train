@@ -1,0 +1,6 @@
+300 keys; n(n-1)/2 = 44850
+first pivot,  sorted input:    44850
+first pivot,  shuffled input:   2366
+random pivot (seed 1), sorted:   2898
+random pivot (seed 2), sorted:   2523
+random pivot (seed 3), sorted:   2500

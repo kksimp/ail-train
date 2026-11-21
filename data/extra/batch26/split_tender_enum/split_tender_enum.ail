@@ -1,0 +1,48 @@
+## Split tender: a sale is paid with any mix of card, cash and voucher tenders (an enum with fields);
+## change comes only from cash, voucher excess is forfeited, and a short payment is flagged.
+
+enum Tender
+    Card(last4 str, cents int)
+    Cash(cents int)
+    Voucher(code str, cents int)
+
+fn amount(t Tender) int
+    match t
+        Card(_, c) => c
+        Cash(c) => c
+        Voucher(_, c) => c
+
+fn label(t Tender) str
+    match t
+        Card(last4, _) => "card ..{last4}"
+        Cash(_) => "cash"
+        Voucher(code, _) => "voucher {code}"
+
+fn money(c int) str
+    "{c / 100}.{c % 100:02}"
+
+fn settle(total int, tenders List[Tender])
+    mut paid := 0
+    mut cash := 0
+    for t in tenders
+        paid += amount(t)
+        match t
+            Cash(c) => cash += c
+            _ => continue
+    names := tenders.map(|t| label(t)).join(" and ")
+    if paid < total
+        print("{money(total)} by {names}: short {money(total - paid)}")
+        return
+    change := (paid - total).min(cash)
+    lost := paid - total - change
+    print("{money(total)} by {names}: change {money(change)}, forfeited {money(lost)}")
+
+fn main()
+    settle(2350, [Tender.Card(last4: "4412", cents: 2000), Tender.Cash(cents: 500)])
+    settle(1800, [Tender.Voucher(code: "GIFT20", cents: 2000)])
+    settle(4200, [Tender.Voucher(code: "GIFT10", cents: 1000), Tender.Card(last4: "9031", cents: 3000)])
+    settle(990, [Tender.Cash(cents: 2000)])
+    settle(1500, [Tender.Voucher(code: "GIFT5", cents: 500), Tender.Cash(cents: 1200)])
+
+@test fn cash_amount()
+    assert_eq(amount(Tender.Cash(cents: 5)), 5)

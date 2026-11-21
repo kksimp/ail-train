@@ -1,0 +1,9 @@
+[ 0,  4]: 3 different values
+[ 3,  9]: 5 different values
+[ 1,  1]: 1 different values
+[ 5, 15]: 7 different values
+[ 0, 15]: 7 different values
+[10, 13]: 3 different values
+[ 2,  7]: 5 different values
+[ 8, 12]: 5 different values
+window steps: 38 (rescanning each range would read 55)

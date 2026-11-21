@@ -1,0 +1,50 @@
+## Montgomery multiplication with R = 2^16: numbers live as aR mod n, and REDC divides by R with a mask and a shift
+## instead of reducing mod n; n' = -1/n mod R comes from Newton steps, and powers match plain square-and-multiply.
+
+R := 65536
+
+fn neg_inverse(n int) int
+    mut inv := 1
+    for _ in 0..5
+        t := (n * inv) % R
+        inv = (inv * ((R + 2 - t) % R)) % R
+    (R - inv) % R
+
+fn redc(t int, n int, np int) int
+    m := ((t % R) * np) % R
+    u := (t + m * n) / R
+    if u >= n then u - n else u
+
+fn mont_pow(a int, e int, n int, np int) int
+    mut x := R % n
+    mut base := (a * R) % n
+    mut k := e
+    while k > 0
+        if (k & 1) == 1
+            x = redc(x * base, n, np)
+        base = redc(base * base, n, np)
+        k = k >> 1
+    redc(x, n, np)
+
+fn plain_pow(a int, e int, n int) int
+    mut x := 1
+    mut base := a % n
+    mut k := e
+    while k > 0
+        if (k & 1) == 1
+            x = x * base % n
+        base = base * base % n
+        k = k >> 1
+    x
+
+fn main()
+    for n in [3329, 40961, 65521]
+        np := neg_inverse(n)
+        check := (n * np) % R
+        print("n = {n}: n' = {np}, n * n' mod R = {check}")
+        for a in [3, 12345]
+            e := n - 2
+            print("  {a}^{e}: Montgomery {mont_pow(a, e, n, np)}, plain {plain_pow(a, e, n)}")
+
+@test fn small_power()
+    assert_eq(mont_pow(2, 10, 3329, neg_inverse(3329)), 1024)

@@ -1,0 +1,38 @@
+## Stage light mix: an `Rgb` colour with `Add` (channels add, capped at 255) and `Sub` (floored at 0)
+## so stage fixtures are summed with `+=` and a gel filter is taken off; perceived brightness per step.
+
+struct Rgb
+    r int
+    g int
+    b int
+
+impl Add for Rgb
+    fn add(self, o Rgb) Rgb
+        Rgb(r: (r + o.r).min(255), g: (g + o.g).min(255), b: (b + o.b).min(255))
+
+impl Sub for Rgb
+    fn sub(self, o Rgb) Rgb
+        Rgb(r: (r - o.r).max(0), g: (g - o.g).max(0), b: (b - o.b).max(0))
+
+impl ToStr for Rgb
+    fn to_str(self) str
+        "rgb({r}, {g}, {b})"
+
+fn brightness(c Rgb) int
+    (c.r * 299 + c.g * 587 + c.b * 114) / 1000
+
+fn main()
+    fixtures := [("red wash", Rgb(r: 200, g: 0, b: 0)), ("blue wash", Rgb(r: 0, g: 0, b: 180)), ("amber spot", Rgb(r: 120, g: 80, b: 0)), ("white spot", Rgb(r: 90, g: 90, b: 90))]
+    mut stage := Rgb(r: 0, g: 0, b: 0)
+    for f in fixtures
+        name, c := f
+        stage += c
+        print("+ {name:<11} -> {stage}, brightness {brightness(stage)}")
+    gel := Rgb(r: 0, g: 60, b: 100)
+    filtered := stage - gel
+    print("through gel -> {filtered}, brightness {brightness(filtered)}")
+    blackout := stage - stage
+    print("blackout -> {blackout}")
+
+@test fn caps_at_full()
+    assert_eq((Rgb(r: 200, g: 0, b: 0) + Rgb(r: 100, g: 5, b: 0)).r, 255)

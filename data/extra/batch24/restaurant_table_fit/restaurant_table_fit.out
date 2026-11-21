@@ -1,0 +1,9 @@
+  0: Ito    (2) at the 2-seat table, waited 0
+  5: Kahn   (5) at the 6-seat table, waited 0
+  8: Lee    (4) at the 4-seat table, waited 0
+ 12: Nair   (3) at the 4-seat table, waited 0
+ 15: Olsen  (2) at the 2-seat table, waited 0
+ 50: Quist  (2) at the 2-seat table, waited 25
+ 57: Park   (4) at the 4-seat table, waited 37
+ 75: Moss   (6) at the 6-seat table, waited 65
+mean wait 15.875 minutes

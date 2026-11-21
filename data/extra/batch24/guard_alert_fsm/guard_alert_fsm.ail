@@ -1,0 +1,58 @@
+## Guard alertness: a game guard's state machine fed by noise levels 0 to 3 each second; calm turns suspicious
+## at noise 2, suspicion becomes alert on more noise or calms after 3 quiet seconds, and alert decays to search.
+
+enum Watch
+    Calm
+    Suspicious(left int)
+    Alert(left int)
+    Search(left int)
+
+fn react(w Watch, noise int) Watch
+    match w
+        Calm => if noise >= 2 then Watch.Suspicious(left: 3) else Watch.Calm
+        Suspicious(left) =>
+            if noise >= 2
+                Watch.Alert(left: 4)
+            elif left <= 1
+                Watch.Calm
+            else
+                Watch.Suspicious(left: left - 1)
+        Alert(left) =>
+            if noise >= 1
+                Watch.Alert(left: 4)
+            elif left <= 1
+                Watch.Search(left: 5)
+            else
+                Watch.Alert(left: left - 1)
+        Search(left) =>
+            if noise >= 1
+                Watch.Alert(left: 4)
+            elif left <= 1
+                Watch.Calm
+            else
+                Watch.Search(left: left - 1)
+
+fn label(w Watch) str
+    match w
+        Calm => "calm"
+        Suspicious => "suspicious"
+        Alert => "alert"
+        Search => "searching"
+
+fn main()
+    noise := [0, 1, 2, 0, 0, 0, 2, 3, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    mut w := Watch.Calm
+    mut seconds := Map[str, int]()
+    for t, n in noise.enumerate()
+        before := label(w)
+        w = react(w, n)
+        after := label(w)
+        seconds[after] += 1
+        if after != before
+            print("second {t:>2}: noise {n}, {before} -> {after}")
+    for name, s in seconds
+        print("{name}: {s} s")
+
+@test fn quiet_suspicion_fades()
+    w := react(Watch.Suspicious(left: 1), 0)
+    assert_eq(label(w), "calm")

@@ -1,0 +1,53 @@
+## Larder vectors: amounts of flour, eggs and milk form a `Larder` with `Add` and `Sub`, so recipe
+## needs add up and come off what is in the cupboard; negative parts become a shopping list.
+
+struct Larder
+    flour int
+    eggs int
+    milk int
+
+impl Add for Larder
+    fn add(self, o Larder) Larder
+        Larder(flour: flour + o.flour, eggs: eggs + o.eggs, milk: milk + o.milk)
+
+impl Sub for Larder
+    fn sub(self, o Larder) Larder
+        Larder(flour: flour - o.flour, eggs: eggs - o.eggs, milk: milk - o.milk)
+
+impl ToStr for Larder
+    fn to_str(self) str
+        "{flour} g flour, {eggs} eggs, {milk} ml milk"
+
+fn Larder.shortfall(self) List[str]
+    mut out := List[str]()
+    if self.flour < 0
+        out.push("flour {-self.flour} g")
+    if self.eggs < 0
+        out.push("eggs {-self.eggs}")
+    if self.milk < 0
+        out.push("milk {-self.milk} ml")
+    out
+
+fn report(label str, left Larder)
+    short := left.shortfall()
+    if short.is_empty()
+        print("{label}: nothing to buy, left {left}")
+    else
+        need := short.join(", ")
+        print("{label}: buy {need}")
+
+fn main()
+    have := Larder(flour: 500, eggs: 5, milk: 800)
+    pancakes := Larder(flour: 200, eggs: 2, milk: 300)
+    cake := Larder(flour: 250, eggs: 4, milk: 100)
+    print("pancakes need {pancakes}")
+    print("cake needs {cake}")
+    both := pancakes + cake
+    print("together {both}")
+    report("both", have - both)
+    report("double pancakes", have - (pancakes + pancakes))
+    report("cake twice", have - cake - cake)
+
+@test fn self_minus_self()
+    h := Larder(flour: 3, eggs: 2, milk: 1)
+    assert_eq(h - h, Larder(flour: 0, eggs: 0, milk: 0))

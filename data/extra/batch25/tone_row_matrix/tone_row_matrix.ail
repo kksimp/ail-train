@@ -1,0 +1,31 @@
+## Twelve-tone matrix: a row's prime forms run across and its inversions down; cell (i, j) is
+## I0[i] + P0[j] mod 12, so every row and column is a transposed or inverted copy holding all twelve pitch classes.
+
+fn digit(p int) str
+    "0123456789TE".slice(p, p + 1)
+
+fn matrix(row List[int]) List[List[int]]
+    p0 := row.map(|p| (p - row[0] + 12) % 12)
+    i0 := p0.map(|p| (12 - p) % 12)
+    mut m := List[List[int]]()
+    for i in 0..12
+        m.push(p0.map(|p| (i0[i] + p) % 12))
+    m
+
+fn main()
+    row := [7, 10, 2, 6, 9, 0, 4, 8, 11, 1, 3, 5]
+    m := matrix(row)
+    for r in m
+        print(r.map(|p| digit(p)).join(" "))
+    mut ok := 0
+    for i in 0..12
+        col := m.map(|r| r[i])
+        row_set := {x for x in m[i]}
+        col_set := {x for x in col}
+        if row_set.len() == 12 and col_set.len() == 12
+            ok += 1
+    print("{ok} rows and columns hold all twelve classes")
+
+@test fn diagonal()
+    m := matrix([7, 10, 2, 6, 9, 0, 4, 8, 11, 1, 3, 5])
+    assert_eq([m[0][0], m[5][5], m[11][11]], [0, 0, 0])

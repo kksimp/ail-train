@@ -1,0 +1,34 @@
+## Ant trails: one ant a minute leaves the nest and picks the short (4 minute) or long (7 minute) trail with
+## chance in proportion to its scent; a returning ant adds 10 scent and scent decays a tenth every 5 minutes.
+
+struct Rng
+    state int
+
+fn Rng.below(mut self, n int) int
+    self.state = (self.state * 1103515245 + 12345) % 2147483648
+    (self.state / 65536) % n
+
+fn main()
+    mut rng := Rng(state: 5)
+    lengths := [4, 7]
+    mut scent := [5, 5]
+    mut returns := List[List[int]]()
+    mut window := [0, 0]
+    for t in 0..60
+        for r in returns
+            if r[0] == t
+                scent[r[1]] += 10
+        if t % 5 == 4
+            scent = scent.map(|v| v - v / 10)
+        trail := if rng.below(scent[0] + scent[1]) < scent[0] then 0 else 1
+        window[trail] += 1
+        returns.push([t + 2 * lengths[trail], trail])
+        if t % 10 == 9
+            print("minutes {t - 9:>2}-{t:>2}: short {window[0]:>2}, long {window[1]:>2}, scent {scent}")
+            window = [0, 0]
+    trips := returns.filter(|r| r[0] < 60)
+    food := trips.count(|r| r[1] == 0)
+    print("{trips.len()} ants back by minute 60, {food} of them by the short trail")
+
+@test fn decay()
+    assert_eq(25 - 25 / 10, 23)

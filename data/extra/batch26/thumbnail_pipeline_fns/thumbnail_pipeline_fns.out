@@ -1,0 +1,4 @@
+thumb: halve > halve > multiple of 8 > at least 64
+  4000, 1366, 333, 150 -> [1000, 336, 80, 64]
+preview: cap 1024 > multiple of 8
+  4000, 1366, 333, 150 -> [1024, 1024, 328, 144]

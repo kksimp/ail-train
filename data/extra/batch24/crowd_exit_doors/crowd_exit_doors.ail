@@ -1,0 +1,60 @@
+## Crowd exit: people in a walled room step each tick to a free neighbouring cell nearer a door (distances
+## from a breadth-first search out of both doors); a door lets one person out per tick, nearest people first.
+
+fn steps_from_doors(g List[List[char]]) List[List[int]]
+    h := g.len()
+    w := g[0].len()
+    mut dist := List[List[int]]()
+    mut queue := Deque[int]()
+    for r in 0..h
+        mut row := List[int]()
+        for c in 0..w
+            if g[r][c] == 'D'
+                row.push(0)
+                queue.push_back(r * w + c)
+            else
+                row.push(-1)
+        dist.push(row)
+    while p := queue.pop_front()
+        for q in [p - w, p + w, p - 1, p + 1]
+            if q >= 0 and q < h * w and g[q / w][q % w] != '#' and dist[q / w][q % w] < 0
+                dist[q / w][q % w] = dist[p / w][p % w] + 1
+                queue.push_back(q)
+    dist
+
+fn main()
+    room := ["#####D#####", "#.........#", "#.p.p..p..#", "#..p...p..D", "#.p..p....#", "#...p...p.#", "###########"]
+    g := room.map(|line| line.chars())
+    w := g[0].len()
+    dist := steps_from_doors(g)
+    mut people := [r * w + c for r in 0..g.len() for c in 0..w if g[r][c] == 'p']
+    mut out_by := Map[int, int]()
+    mut tick := 0
+    while not people.is_empty()
+        tick += 1
+        order := people.sorted(by: |p| (dist[p / w][p % w], p))
+        mut taken := {p for p in people}
+        mut used := Set[int]()
+        mut stay := List[int]()
+        for p in order
+            mut best := p
+            mut gone := false
+            for q in [p - w, p + w, p - 1, p + 1]
+                if g[q / w][q % w] == 'D' and not used.contains(q) and not gone
+                    used.add(q)
+                    out_by[q] += 1
+                    gone = true
+                elif g[q / w][q % w] != '#' and g[q / w][q % w] != 'D' and not taken.contains(q) and dist[q / w][q % w] < dist[best / w][best % w]
+                    best = q
+            taken.remove(p)
+            if not gone
+                taken.add(best)
+                stay.push(best)
+        people = stay
+        print("tick {tick}: {people.len()} still inside")
+    for door, n in out_by
+        print("door at row {door / w}, column {door % w}: {n} people")
+
+@test fn door_distance()
+    d := steps_from_doors([['#', 'D', '#'], ['#', '.', '#'], ['#', '.', '#']])
+    assert_eq(d[2][1], 2)

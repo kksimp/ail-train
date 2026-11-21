@@ -1,0 +1,43 @@
+## Liang hyphenation: patterns like hy3ph or n2at put numbers between letters; every pattern found in
+## the dotted word raises the numbers at its gaps, and an odd number marks a break (two letters kept before, three after).
+
+fn hyphenate(word str, patterns List[str]) str
+    w := ".{word}.".chars()
+    mut points := List[int]()
+    for i in 0..w.len() + 1
+        points.push(0)
+    for p in patterns
+        mut letters := List[char]()
+        mut nums := [0]
+        for c in p.chars()
+            if d := c.to_digit(10)
+                nums[nums.len() - 1] = d
+            else
+                letters.push(c)
+                nums.push(0)
+        n := letters.len()
+        for i in 0..w.len() - n + 1
+            if w.slice(i, i + n) == letters
+                for j in 0..n + 1
+                    points[i + j] = points[i + j].max(nums[j])
+    cs := word.chars()
+    mut out := List[str]()
+    for k in 0..cs.len()
+        if k >= 2 and k <= cs.len() - 3 and points[k + 1] % 2 == 1
+            out.push("-")
+        out.push("{cs[k]}")
+    out.join("")
+
+fn main()
+    patterns := ["hy3ph", "he2n", "hena4", "hen5at", "1na", "n2at", "1tio", "2io", "o2n", "1ca", "4m1p", "pu2t", "5pute", "put3er", "1ta", "2bl", "1le", "4ble.", "1ber", "1mo"]
+    words := ["hyphenation", "computer", "nation", "table", "station", "cucumber", "memorable", "onion"]
+    mut breaks := 0
+    for w in words
+        h := hyphenate(w, patterns)
+        breaks += h.count("-")
+        print("{w:<12} {h}")
+    print("{breaks} break points from {patterns.len()} patterns")
+
+@test fn knuth()
+    pats := ["hy3ph", "he2n", "hena4", "hen5at", "1na", "n2at", "1tio", "2io", "o2n"]
+    assert_eq(hyphenate("hyphenation", pats), "hy-phen-ation")

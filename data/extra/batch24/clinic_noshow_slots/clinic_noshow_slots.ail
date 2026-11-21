@@ -1,0 +1,36 @@
+## Clinic slots: eight 15-minute appointments from 9:00; patients come early or late or not at all, and the
+## doctor sees whoever is present with the earliest slot, never before their slot. Prints starts and idle time.
+
+fn hhmm(m int) str
+    h := 9 + m / 60
+    mm := m % 60
+    "{h}:{mm:02}"
+
+fn main()
+    names := ["Abe", "Bea", "Col", "Dot", "Eve", "Fin", "Gwen", "Hank"]
+    late := [5, -10, 0, 99, 20, -5, 0, 35]
+    consult := [12, 20, 15, 0, 10, 18, 25, 12]
+    mut seen := List[bool]()
+    for i in 0..8
+        seen.push(late[i] == 99)
+    mut now := 0
+    mut idle := 0
+    mut done := late.count(|x| x == 99)
+    while done < 8
+        mut pick := -1
+        for i in 0..8
+            if not seen[i] and i * 15 + late[i] <= now and i * 15 <= now
+                pick = i
+                break
+        if pick < 0
+            now += 1
+            idle += 1
+            continue
+        seen[pick] = true
+        done += 1
+        print("{names[pick]:<5} slot {hhmm(pick * 15)}, seen {hhmm(now)}")
+        now += consult[pick]
+    print("Dot did not come; doctor idle {idle} min, finished at {hhmm(now)}")
+
+@test fn times()
+    assert_eq(hhmm(75), "10:15")

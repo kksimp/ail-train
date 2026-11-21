@@ -1,0 +1,6 @@
+south pole  z -1.000 -> ( 0.000,  0.000) radius  0.000, round trip ok
+on equator  z  0.000 -> ( 1.000,  0.000) radius  1.000, round trip ok
+southern    z -0.667 -> ( 0.400,  0.200) radius  0.447, round trip ok
+northern    z  0.577 -> ( 1.366, -1.366) radius  1.932, round trip ok
+high north  z  0.963 -> ( 3.261,  6.523) radius  7.293, round trip ok
+north pole  the north pole has no image

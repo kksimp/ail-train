@@ -1,0 +1,8 @@
+oven 1: baguette    0 to  25
+oven 2: rolls       0 to  15
+oven 2: rye        15 to  65
+oven 1: brioche    25 to  55
+oven 1: sourdough  55 to 100
+oven 2: focaccia   65 to  85
+oven 2: buns       85 to 100
+earliest proved first: all out at 110; longest bake first: all out at 100

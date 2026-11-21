@@ -1,0 +1,45 @@
+## Restaurant tables: a party takes the smallest free table that seats it; parties that cannot sit wait in
+## a list that is scanned in arrival order whenever a table frees, so a small party may sit ahead of a big one.
+
+struct Party
+    name str
+    arrive int
+    size int
+    stay int
+
+fn smallest_free(tables List[int], free_at List[int], size int, now int) int
+    mut pick := -1
+    for i in 0..tables.len()
+        if free_at[i] <= now and tables[i] >= size and (pick < 0 or tables[i] < tables[pick])
+            pick = i
+    pick
+
+fn main()
+    tables := [2, 2, 4, 4, 6]
+    mut free_at := [0, 0, 0, 0, 0]
+    parties := [Party(name: "Ito", arrive: 0, size: 2, stay: 50), Party(name: "Kahn", arrive: 5, size: 5, stay: 70), Party(name: "Lee", arrive: 8, size: 4, stay: 60), Party(name: "Moss", arrive: 10, size: 6, stay: 80), Party(name: "Nair", arrive: 12, size: 3, stay: 45), Party(name: "Olsen", arrive: 15, size: 2, stay: 40), Party(name: "Park", arrive: 20, size: 4, stay: 55), Party(name: "Quist", arrive: 25, size: 2, stay: 30)]
+    mut waiting := List[int]()
+    mut seated := 0
+    mut now := 0
+    mut total_wait := 0
+    while seated < parties.len()
+        for i, p in parties.enumerate()
+            if p.arrive == now
+                waiting.push(i)
+        mut still := List[int]()
+        for i in waiting
+            p := parties[i]
+            t := smallest_free(tables, free_at, p.size, now)
+            if t < 0
+                still.push(i)
+            else
+                free_at[t] = now + p.stay
+                seated += 1
+                total_wait += now - p.arrive
+                print("{now:>3}: {p.name:<6} ({p.size}) at the {tables[t]}-seat table, waited {now - p.arrive}")
+        waiting = still
+        now += 1
+    print("mean wait {total_wait.to_float() / parties.len().to_float():.3} minutes")
+
+@test fn picks_smallest()
+    assert_eq(smallest_free([6, 2, 4], [0, 0, 0], 3, 0), 2)

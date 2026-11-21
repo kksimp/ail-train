@@ -1,0 +1,72 @@
+## Library of Congress Cutter numbers: an author's initial letter is followed by a digit for the second
+## letter (from tables that differ after a vowel, after S, after Qu and after other consonants) and one for the third letter.
+
+fn second_digit(first char, second char, third char) int
+    if "AEIOU".contains(first)
+        vowel := match second
+            'b' => 2
+            'd' => 3
+            'l' | 'm' => 4
+            'n' => 5
+            'p' => 6
+            'r' => 7
+            's' | 't' => 8
+            'u' | 'v' | 'w' | 'x' | 'y' => 9
+            _ => 2
+        return vowel
+    if first == 'S'
+        if second == 'c' and third == 'h'
+            return 3
+        ess := match second
+            'a' => 2
+            'e' => 4
+            'h' | 'i' => 5
+            'm' | 'n' | 'o' | 'p' => 6
+            't' => 7
+            'u' => 8
+            'w' | 'x' | 'y' | 'z' => 9
+            _ => 2
+        return ess
+    match second
+        'a' => 3
+        'e' => 4
+        'i' => 5
+        'o' => 6
+        'r' => 7
+        'u' => 8
+        'y' => 9
+        _ => 2
+
+fn third_digit(c char) int
+    match c
+        'a'..='d' => 3
+        'e'..='h' => 4
+        'i'..='l' => 5
+        'm'..='o' => 6
+        'p'..='s' => 7
+        't'..='v' => 8
+        _ => 9
+
+fn cutter(name str) str
+    cs := name.chars()
+    n2 := second_digit(cs[0], cs[1], cs[2])
+    n3 := third_digit(cs[2])
+    ".{cs[0]}{n2}{n3}"
+
+fn main()
+    authors := ["Adams", "Ellison", "Ondaatje", "Smith", "Schmidt", "Sterne", "Campbell", "Ceccarelli", "Tolkien", "Morrison", "Woolf", "Brontë", "Austen", "Hughes"]
+    mut seen := Map[str, str]()
+    for a in authors
+        c := cutter(a)
+        clash := seen.get(c) else ""
+        note := if clash == "" then "" else " (same as {clash}, add a further digit)"
+        if clash == ""
+            seen[c] = a
+        print("{a:<11} {c}{note}")
+    order := authors.sorted(by: |a| cutter(a))
+    shown := order.join(", ")
+    print("shelf order: {shown}")
+
+@test fn smith()
+    assert_eq(cutter("Smith"), ".S65")
+    assert_eq(cutter("Adams"), ".A33")

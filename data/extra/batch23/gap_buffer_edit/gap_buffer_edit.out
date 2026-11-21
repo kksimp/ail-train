@@ -1,0 +1,5 @@
+type             [helo world______] -> helo world
+left 7           [hel______o world] -> helo world
+type l           [hell_____o world] -> hello world
+right 7          [hello world_____] -> hello world
+type !           [hello world!____] -> hello world!

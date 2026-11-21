@@ -1,0 +1,31 @@
+## Column grid: a container split into 12 columns with fixed gutters has column width (W - 11 g) / 12,
+## a span of n columns is n columns plus n - 1 gutters, and a row of spans gets its x offsets by adding them up.
+
+struct Grid12
+    width float
+    gutter float
+
+fn Grid12.col(self) float
+    (self.width - 11.0 * self.gutter) / 12.0
+
+fn Grid12.span(self, n int) float
+    n.to_float() * self.col() + (n - 1).to_float() * self.gutter
+
+fn main()
+    grids := [Grid12(width: 1200.0, gutter: 24.0), Grid12(width: 960.0, gutter: 20.0), Grid12(width: 390.0, gutter: 12.0)]
+    for g in grids
+        spans := [1, 2, 3, 4, 6, 8, 12].map(|n| "{n}:{g.span(n):.1}").join(" ")
+        print("{g.width:.0}/{g.gutter:.0}: col {g.col():.2}  {spans}")
+    g := grids[0]
+    mut x := 0.0
+    mut parts := List[str]()
+    for n in [3, 6, 3]
+        parts.push("{n} cols at x={x:.0} w={g.span(n):.0}")
+        x += g.span(n) + g.gutter
+    print(parts.join(", "))
+    print("row ends at {x - g.gutter:.0} of {g.width:.0}")
+
+@test fn whole()
+    g := Grid12(width: 1200.0, gutter: 24.0)
+    assert_eq(g.col(), 78.0)
+    assert_eq(g.span(12), 1200.0)

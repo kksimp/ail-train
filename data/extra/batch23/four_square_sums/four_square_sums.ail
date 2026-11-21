@@ -1,0 +1,60 @@
+## Lagrange's four-square theorem: every whole number is a sum of four squares; a search finds one, a brute count of
+## signed ordered ways r4(n) matches Jacobi's 8 x (sum of divisors not divisible by 4), and 4^a(8b+7) needs all four.
+
+fn isqrt(x int) int
+    mut r := 0
+    while (r + 1) * (r + 1) <= x
+        r += 1
+    r
+
+fn find(n int) List[int]
+    for a in 0..=isqrt(n)
+        for b in 0..=a
+            for c in 0..=b
+                rest := n - a * a - b * b - c * c
+                d := isqrt(rest.max(0))
+                if rest >= 0 and d * d == rest and d <= c
+                    return [a, b, c, d]
+    [0]
+
+fn r4(n int) int
+    s := isqrt(n)
+    low := -s
+    mut ways := 0
+    for a in low..=s
+        for b in low..=s
+            for c in low..=s
+                rest := n - a * a - b * b - c * c
+                d := isqrt(rest.max(0))
+                if rest >= 0 and d * d == rest
+                    ways += if d == 0 then 1 else 2
+    ways
+
+fn three_squares(n int) bool
+    for a in 0..=isqrt(n)
+        for b in 0..=a
+            rest := n - a * a - b * b
+            c := isqrt(rest.max(0))
+            if rest >= 0 and c * c == rest
+                return true
+    false
+
+fn jacobi_count(n int) int
+    mut total := 0
+    for d in 1..=n
+        if n % d == 0 and d % 4 != 0
+            total += d
+    8 * total
+
+fn main()
+    for n in [1, 7, 15, 30, 100, 127, 310]
+        sq := find(n)
+        print("{n:>3} = {sq[0]}^2 + {sq[1]}^2 + {sq[2]}^2 + {sq[3]}^2, r4 = {r4(n)}, Jacobi {jacobi_count(n)}")
+    mut needs_four := List[int]()
+    for n in 1..60
+        if not three_squares(n)
+            needs_four.push(n)
+    print("below 60, three squares are not enough for: {needs_four}")
+
+@test fn seven()
+    assert_eq(find(7), [2, 1, 1, 1])

@@ -1,0 +1,6 @@
+home   counted 1645 (true count between 1644 and 1645; actual 1645)
+news   counted  987 (true count between 984 and 987; actual 986)
+shop   counted  791 (true count between 7 and 791; actual 672)
+help   counted  789 (true count between 1 and 789; actual 438)
+terms  counted  788 (true count between 2 and 788; actual 122)
+5 counters followed a stream of 5000 views over 10 pages

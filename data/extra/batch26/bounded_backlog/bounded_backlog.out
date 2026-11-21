@@ -1,0 +1,10 @@
+printer jam: queued
+vpn down: queued
+new laptop: queued
+password reset: refused
+broken chair: refused
+working on printer jam
+retry broken chair: true, waiting 3, refused 2
+alarm 517 dropped
+alarm 610 dropped
+alarms kept [401, 402], dropped 2

@@ -1,0 +1,47 @@
+## Bed request order: `impl Ord for Request` with a hand-written `cmp` puts emergencies first, then
+## the longest wait, then the lower ward number; the ward sorts requests and a `Heap` hands out beds.
+
+struct Request
+    patient str
+    emergency bool
+    waited int
+    ward int
+
+impl Ord for Request
+    fn cmp(self, other Request) Ordering
+        if emergency and not other.emergency
+            return Less
+        if other.emergency and not emergency
+            return Greater
+        if waited > other.waited
+            return Less
+        if waited < other.waited
+            return Greater
+        if ward < other.ward
+            return Less
+        if ward > other.ward
+            return Greater
+        Equal
+
+fn main()
+    reqs := [
+        Request(patient: "Abe", emergency: false, waited: 40, ward: 3),
+        Request(patient: "Bea", emergency: true, waited: 5, ward: 2),
+        Request(patient: "Cal", emergency: false, waited: 90, ward: 1),
+        Request(patient: "Dot", emergency: false, waited: 40, ward: 1),
+        Request(patient: "Eli", emergency: true, waited: 12, ward: 4),
+    ]
+    order := reqs.sorted().map(|r| r.patient).join(" > ")
+    print("queue: {order}")
+    mut beds := Heap.from(reqs)
+    for b in 1..=3
+        if r := beds.pop()
+            print("bed {b}: {r.patient} (waited {r.waited} min)")
+    print("still waiting: {beds.len()}")
+    first := reqs.min() else reqs[0]
+    print("most urgent: {first.patient}")
+
+@test fn emergency_beats_wait()
+    a := Request(patient: "a", emergency: true, waited: 1, ward: 9)
+    b := Request(patient: "b", emergency: false, waited: 500, ward: 1)
+    assert(a < b)

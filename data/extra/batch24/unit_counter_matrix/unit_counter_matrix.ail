@@ -1,0 +1,32 @@
+## Unit counters: spears beat horse, horse beats bows, bows beat spears (double effect, half the other way);
+## every 20-unit army is scored by its worst edge over three likely enemy mixes, so no single type wins.
+
+fn power(mine List[int], theirs List[int]) int
+    mult := [[2, 4, 1], [1, 2, 4], [4, 1, 2]]
+    mut total := 0
+    for i in 0..3
+        for j in 0..3
+            total += mine[i] * theirs[j] * mult[i][j]
+    total
+
+fn edges(mine List[int], mixes List[List[int]]) List[int]
+    mixes.map(|e| power(mine, e) - power(e, mine))
+
+fn worst(mine List[int], mixes List[List[int]]) int
+    edges(mine, mixes).min() else 0
+
+fn main()
+    mixes := [[10, 6, 4], [4, 10, 6], [12, 2, 6]]
+    mut options := List[List[int]]()
+    for s in 0..=20
+        for h in 0..=(20 - s)
+            options.push([s, h, 20 - s - h])
+    ranked := options.sorted(by: |a| -worst(a, mixes))
+    for k in 0..4
+        a := ranked[k]
+        print("{a[0]:>2} spear, {a[1]:>2} horse, {a[2]:>2} bow: edges {edges(a, mixes)}, worst {worst(a, mixes)}")
+    bows := [0, 0, 20]
+    print("all bows: edges {edges(bows, mixes)}, worst {worst(bows, mixes)}")
+
+@test fn mirror_is_even()
+    assert_eq(edges([3, 3, 3], [[3, 3, 3]]), [0])

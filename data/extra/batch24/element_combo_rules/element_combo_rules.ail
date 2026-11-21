@@ -1,0 +1,30 @@
+## Element mixing: a rule engine for an invented crafting game; rules are tried in priority order, and the
+## first whose two ingredients are both in the bag fires, until no rule can fire. Prints each reaction.
+
+struct Rule
+    a str
+    b str
+    makes str
+
+fn fires(bag Map[str, int], r Rule) bool
+    if r.a == r.b
+        return bag.get_or(r.a, 0) >= 2
+    bag.get_or(r.a, 0) >= 1 and bag.get_or(r.b, 0) >= 1
+
+fn main()
+    rules := [Rule(a: "steam", b: "air", makes: "cloud"), Rule(a: "lava", b: "water", makes: "stone"), Rule(a: "fire", b: "earth", makes: "lava"), Rule(a: "fire", b: "water", makes: "steam"), Rule(a: "earth", b: "water", makes: "mud"), Rule(a: "mud", b: "fire", makes: "brick"), Rule(a: "stone", b: "stone", makes: "wall")]
+    mut bag := {"fire": 4, "water": 5, "earth": 3, "air": 1}
+    mut step := 0
+    while true
+        r := rules.find(|rule| fires(bag, rule)) else break
+        bag[r.a] -= 1
+        bag[r.b] -= 1
+        bag[r.makes] += 1
+        step += 1
+        print("{step:>2}. {r.a} + {r.b} -> {r.makes}")
+    left := bag.keys().filter(|k| bag[k] > 0).map(|k| "{k} {bag[k]}")
+    shown := left.join(", ")
+    print("left in the bag: {shown}")
+
+@test fn pair_needs_two()
+    assert(not fires({"stone": 1}, Rule(a: "stone", b: "stone", makes: "wall")))

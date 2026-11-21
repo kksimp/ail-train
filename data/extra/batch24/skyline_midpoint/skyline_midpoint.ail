@@ -1,0 +1,40 @@
+## Hill skyline: midpoint displacement on 17 points; each midpoint is the mean of its ends plus a seeded
+## offset within plus or minus the current spread, which halves at each level. Drawn as columns of #.
+
+struct Rng
+    state int
+
+fn Rng.below(mut self, n int) int
+    self.state = (self.state * 1103515245 + 12345) % 2147483648
+    (self.state / 65536) % n
+
+fn fill(mut h List[int], a int, b int, spread int, mut rng Rng)
+    if b - a < 2
+        return
+    m := (a + b) / 2
+    offset := rng.below(2 * spread + 1) - spread
+    h[m] = ((h[a] + h[b]) / 2 + offset).max(0).min(10)
+    fill(mut h, a, m, spread / 2, mut rng)
+    fill(mut h, m, b, spread / 2, mut rng)
+
+fn column(v int, row int) char
+    if v >= row then '#' else '.'
+
+fn main()
+    mut h := List[int]()
+    for i in 0..17
+        h.push(0)
+    h[0] = 7
+    h[16] = 3
+    mut rng := Rng(state: 23)
+    fill(mut h, 0, 16, 8, mut rng)
+    for level in 0..10
+        row := 10 - level
+        print(h.map(|v| column(v, row)).join(""))
+    print("heights {h}")
+
+@test fn ends_kept()
+    mut h := [4, 0, 8]
+    mut rng := Rng(state: 1)
+    fill(mut h, 0, 2, 0, mut rng)
+    assert_eq(h, [4, 6, 8])

@@ -1,0 +1,57 @@
+## Ability rotation: over 8 turns a hero picks Jab (3), Slash (7, then 2 turns cooling), Blast (12, 4 turns)
+## or Focus (doubles the next hit, 3 turns); a depth-first search finds the best order, beating plain greed.
+
+NAMES := ["Jab", "Slash", "Blast", "Focus"]
+DMG := [3, 7, 12, 0]
+COOL := [0, 2, 4, 3]
+
+fn gain(a int, focused bool) int
+    if focused and a != 3 then DMG[a] * 2 else DMG[a]
+
+fn after(cds List[int], a int) List[int]
+    mut out := cds.map(|c| (c - 1).max(0))
+    out[a] = COOL[a]
+    out
+
+fn best(left int, cds List[int], focused bool) int
+    if left == 0
+        return 0
+    mut top := 0
+    for a in 0..4
+        if cds[a] == 0
+            top = top.max(gain(a, focused) + best(left - 1, after(cds, a), a == 3))
+    top
+
+fn main()
+    mut cds := [0, 0, 0, 0]
+    mut focused := false
+    mut plan := List[str]()
+    mut total := 0
+    for t in 0..8
+        target := best(8 - t, cds, focused)
+        for a in 0..4
+            if cds[a] == 0 and gain(a, focused) + best(7 - t, after(cds, a), a == 3) == target
+                plan.push(NAMES[a])
+                total += gain(a, focused)
+                cds = after(cds, a)
+                focused = a == 3
+                break
+    shown := plan.join(" ")
+    print("best:   {shown} = {total}")
+    mut g_cds := [0, 0, 0, 0]
+    mut greedy := List[str]()
+    mut g_total := 0
+    for t in 0..8
+        mut pick := 0
+        for a in 0..3
+            if g_cds[a] == 0 and DMG[a] > DMG[pick]
+                pick = a
+        greedy.push(NAMES[pick])
+        g_total += DMG[pick]
+        g_cds = after(g_cds, pick)
+    g_shown := greedy.join(" ")
+    print("greedy: {g_shown} = {g_total}")
+    print("search gains {total - g_total} damage over greed")
+
+@test fn cooling()
+    assert_eq(after([0, 1, 3, 0], 1), [0, 2, 2, 0])

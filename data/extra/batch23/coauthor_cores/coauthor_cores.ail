@@ -1,0 +1,45 @@
+## k-core decomposition: repeatedly remove the person with the fewest remaining collaborators; the largest such
+## count seen so far when a person is removed is their core number, and the top core is the tightest group.
+
+fn cores(n int, links List[List[int]]) List[int]
+    mut adj := List[List[int]]()
+    mut deg := List[int]()
+    mut gone := List[bool]()
+    mut core := List[int]()
+    for _ in 0..n
+        adj.push(List[int]())
+        deg.push(0)
+        gone.push(false)
+        core.push(0)
+    for l in links
+        adj[l[0]].push(l[1])
+        adj[l[1]].push(l[0])
+        deg[l[0]] += 1
+        deg[l[1]] += 1
+    mut k := 0
+    for step in 0..n
+        mut pick := -1
+        for v in 0..n
+            if not gone[v] and (pick < 0 or deg[v] < deg[pick])
+                pick = v
+        k = k.max(deg[pick])
+        core[pick] = k
+        gone[pick] = true
+        for w in adj[pick]
+            if not gone[w]
+                deg[w] -= 1
+    core
+
+fn main()
+    names := ["Ada", "Bo", "Cy", "Di", "Ed", "Flo", "Gus", "Hy", "Ira", "Jo"]
+    links := [[0, 1], [0, 2], [0, 3], [1, 2], [1, 3], [2, 3], [3, 4], [4, 5], [4, 6], [5, 6], [6, 7], [7, 8], [2, 4], [9, 8]]
+    core := cores(names.len(), links)
+    for v in 0..names.len()
+        print("{names[v]:<4} core {core[v]}")
+    top := core.max() else 0
+    group := [names[v] for v in 0..names.len() if core[v] == top]
+    shown := group.join(" ")
+    print("tightest group ({top}-core): {shown}")
+
+@test fn triangle_with_tail()
+    assert_eq(cores(4, [[0, 1], [1, 2], [2, 0], [2, 3]]), [2, 2, 2, 1])

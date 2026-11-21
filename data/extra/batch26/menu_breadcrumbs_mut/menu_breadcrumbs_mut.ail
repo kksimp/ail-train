@@ -1,0 +1,34 @@
+## Menu breadcrumbs: a recursive walk over a kiosk's menu tree (a map from item to sub-items)
+## carries the path so far and appends each leaf's "Home > Tickets > Single" trail to a `mut` list.
+
+fn walk(tree Map[str, List[str]], node str, path List[str], mut out List[str])
+    mut here := path
+    here.push(node)
+    kids := tree.get(node) else List[str]()
+    if kids.is_empty()
+        out.push(here.join(" > "))
+        return
+    for k in kids
+        walk(tree, k, here, mut out)
+
+fn main()
+    tree := {
+        "Home": ["Tickets", "Account", "Help"],
+        "Tickets": ["Single", "Day pass", "Season"],
+        "Account": ["Top up", "History"],
+        "Season": ["Monthly", "Annual"],
+    }
+    mut crumbs := List[str]()
+    walk(tree, "Home", List[str](), mut crumbs)
+    for c in crumbs
+        print(c)
+    deepest := crumbs.map(|c| c.split(" > ").len()).max() else 0
+    print("{crumbs.len()} screens, deepest {deepest} levels")
+    seasons := crumbs.count(|c| c.contains("Season"))
+    print("season screens: {seasons}")
+
+@test fn one_leaf()
+    mut out := List[str]()
+    t := {"a": ["b"]}
+    walk(t, "a", List[str](), mut out)
+    assert_eq(out, ["a > b"])

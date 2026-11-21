@@ -1,0 +1,33 @@
+## Boot log scan: `take_while` keeps the healthy lines before the first ERROR, `find` names that
+## error, and `skip_while` jumps to the login prompt to list the users who signed in after it.
+
+fn report(name str, lines List[str])
+    healthy := lines.take_while(|l| not l.contains("ERROR"))
+    print("{name}: {healthy.len()} of {lines.len()} lines before any error")
+    if bad := lines.find(|l| l.contains("ERROR"))
+        print("  first error: {bad}")
+    after := lines.skip_while(|l| not l.contains("login:"))
+    users := after.skip(1).map(|l| (l.split(" ").last() else "?"))
+    if users.is_empty()
+        print("  nobody signed in")
+    else
+        names := users.join(", ")
+        print("  signed in: {names}")
+
+fn main()
+    first := [
+        "[0.00] kernel start",
+        "[0.41] mount root",
+        "[1.02] net up",
+        "[1.30] ERROR disk sdb missing",
+        "[1.31] retry sdb",
+        "[2.10] login: ready",
+        "[2.50] user anna",
+        "[3.00] user ben",
+    ]
+    second := ["[0.00] kernel start", "[0.39] mount root", "[0.97] net up", "[1.88] login: ready"]
+    report("monday boot", first)
+    report("tuesday boot", second)
+
+@test fn take_while_stops()
+    assert_eq([1, 2, 5, 1].take_while(|x| x < 3), [1, 2])

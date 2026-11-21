@@ -1,0 +1,4 @@
+tickets: 108 109 110 111 112 114 115 116 117 118 119 120
+roll still starts at 108
+1125 to 1140 gives 6 tickets, skipping 10
+even tickets 1-20: [2, 4, 6, 8, 10, 12, 14, 16, 18, 20]

@@ -1,0 +1,7 @@
+tile 1: mean 118, max 255, dark pixels 14
+tile 2: mean 122, max 253, dark pixels 10
+tile 3: mean 127, max 251, dark pixels 11
+tile 4: mean 128, max 254, dark pixels 10
+tile 5: mean 132, max 254, dark pixels 11
+tile 6: mean 128, max 250, dark pixels 12
+brightest tile: 5

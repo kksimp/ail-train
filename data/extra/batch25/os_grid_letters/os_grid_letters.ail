@@ -1,0 +1,31 @@
+## British National Grid references: easting and northing in metres pick two letters for the 500 km and
+## 100 km squares (I is skipped), then the metres within the square are cut to the wanted number of digits each.
+
+fn letter(n int) str
+    k := if n > 7 then n + 1 else n
+    c := char.from_code(65 + k) else '?'
+    "{c}"
+
+fn grid_ref(e int, n int, digits int) str
+    e100 := e / 100000
+    n100 := n / 100000
+    l1 := (19 - n100) - (19 - n100) % 5 + (e100 + 10) / 5
+    l2 := (19 - n100) * 5 % 25 + e100 % 5
+    mut div := 1
+    for _ in 0..5 - digits
+        div *= 10
+    e_text := "{e % 100000 / div}"
+    n_text := "{n % 100000 / div}"
+    ee := e_text.pad_left(digits, '0')
+    nn := n_text.pad_left(digits, '0')
+    "{letter(l1)}{letter(l2)} {ee} {nn}"
+
+fn main()
+    places := [("Big Ben", 530047, 179951), ("Edinburgh Castle", 325130, 673470), ("Snowdon", 260950, 354370), ("Ben Nevis", 216600, 771200), ("Land's End", 134200, 25300), ("Lerwick", 447500, 1141300), ("York Minster", 460300, 452200)]
+    for p in places
+        name, e, n := p
+        print("{name:<17} {grid_ref(e, n, 3):<13} {grid_ref(e, n, 5)}")
+
+@test fn tq()
+    assert_eq(grid_ref(530047, 179951, 3), "TQ 300 799")
+    assert_eq(letter(8), "J")

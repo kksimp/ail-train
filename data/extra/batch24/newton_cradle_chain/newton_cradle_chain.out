@@ -1,0 +1,8 @@
+t 0.500 s: balls 1 and 2 collide
+t 0.750 s: balls 2 and 3 collide
+t 1.275 s: balls 3 and 4 collide
+t 1.500 s: balls 1 and 2 collide
+t 1.500 s: balls 4 and 5 collide
+t 2.175 s: balls 3 and 4 collide
+6 collisions, then no pair is closing; speeds -0.667, 0.000, 0.148, 0.593, 1.778
+kinetic energy 2.0000 J (2.0000 at the start)

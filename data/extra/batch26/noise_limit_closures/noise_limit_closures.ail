@@ -1,0 +1,27 @@
+## Noise limits: `over(limit)` returns a closure `|db| db > limit`, one for the day limit and one
+## for the night; each hourly reading uses the right one, and a captured margin finds near misses.
+
+fn over(limit int) fn(int) bool
+    |db| db > limit
+
+fn main()
+    day_check := over(55)
+    night_check := over(45)
+    readings := [(6, 48), (8, 58), (12, 54), (18, 61), (22, 50), (23, 47), (2, 44), (3, 52)]
+    mut breaches := 0
+    for r in readings
+        h, db := r
+        is_day := h >= 7 and h < 23
+        loud := if is_day then day_check(db) else night_check(db)
+        limit := if is_day then 55 else 45
+        verdict := if loud then "BREACH" else "ok"
+        if loud
+            breaches += 1
+        print("{h:02}:00 {db} dB (limit {limit}) {verdict}")
+    margin := 3
+    near := readings.filter(|r| r.0 >= 7 and r.0 < 23 and r.1 > 55 - margin and r.1 <= 55)
+    print("breaches: {breaches}; near the day limit: {near.len()}")
+
+@test fn closure_keeps_limit()
+    f := over(10)
+    assert(f(11))

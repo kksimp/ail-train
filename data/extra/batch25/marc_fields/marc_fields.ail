@@ -1,0 +1,43 @@
+## MARC-style records: each line is a three-digit tag, indicators and $-coded subfields; the title comes
+## from 245 $a and $b, the author from 100 $a, the date from 264 $c, and a record without a 245 is rejected.
+
+fn subfields(line str) Map[char, str]
+    mut out := Map[char, str]()
+    parts := line.split("$")
+    for p in parts.slice(1)
+        cs := p.chars()
+        if cs.len() > 1
+            out[cs[0]] = cs.slice(1).join("").trim()
+    out
+
+fn clean(s str) str
+    mut t := s.trim()
+    while t.ends_with(" /") or t.ends_with(" :") or t.ends_with(",") or t.ends_with(".")
+        t = t.slice(0, t.len() - 1).trim()
+    t
+
+fn cite(record List[str]) str ! Fail
+    mut fields := Map[str, str]()
+    for line in record
+        fields[line.slice(0, 3)] = line
+    title_line := fields.get("245") else return Fail(msg: "no 245 title field")
+    t := subfields(title_line)
+    mut title := clean(t.get_or('a', ""))
+    sub := clean(t.get_or('b', ""))
+    if sub != ""
+        title = "{title}: {sub}"
+    author := clean(subfields(fields.get_or("100", "")).get_or('a', "Anonymous"))
+    date := clean(subfields(fields.get_or("264", "")).get_or('c', "n.d."))
+    "{author}. {title} ({date})"
+
+fn main()
+    records := [["100 1  $aTolkien, J. R. R.,", "245 14 $aThe hobbit :$bor there and back again /$cJ.R.R. Tolkien.", "264  1 $aLondon :$bAllen & Unwin,$c1937."], ["100 1  $aShelley, Mary,", "245 10 $aFrankenstein /$cMary Shelley.", "264  1 $aLondon :$bLackington,$c1818."], ["245 00 $aBeowulf :$ba new verse translation.", "264  1 $aNew York :$bNorton,$c2000."], ["100 1  $aAusten, Jane.", "264  1 $c1813."]]
+    for r in records
+        if c := cite(r)
+            print(c)
+        else err
+            print("rejected: {err.msg}")
+
+@test fn tidy()
+    assert_eq(clean("The hobbit :"), "The hobbit")
+    assert_eq(clean("1937."), "1937")

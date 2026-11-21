@@ -1,0 +1,26 @@
+## Tile brightness: six 8x8 image tiles come from a seeded generator, and a parallel comprehension
+## `[stats(s) par for s in seeds]` gives each tile's mean, maximum and dark-pixel count in order.
+
+fn tile(seed int) List[int]
+    mut x := seed
+    mut px := List[int]()
+    for _ in 0..64
+        x = (x * 1103515245 + 12345) % 2147483648
+        px.push((x / 65536) % 256)
+    px
+
+fn stats(seed int) List[int]
+    px := tile(seed)
+    [px.sum() / px.len(), (px.max() else 0), px.count(|p| p < 40)]
+
+fn main()
+    seeds := [11, 22, 33, 44, 55, 66]
+    results := [stats(s) par for s in seeds]
+    for i, r in results.enumerate()
+        print("tile {i + 1}: mean {r[0]:>3}, max {r[1]:>3}, dark pixels {r[2]:>2}")
+    means := results.map(|r| r[0])
+    brightest := means.index_of(means.max() else 0) else 0
+    print("brightest tile: {brightest + 1}")
+
+@test fn tile_size()
+    assert_eq(tile(1).len(), 64)

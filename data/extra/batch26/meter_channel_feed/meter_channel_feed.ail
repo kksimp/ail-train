@@ -1,0 +1,28 @@
+## Meter channel feed: a spawned task sends smart meter readings through a bounded `Channel` and
+## closes it; the main task receives them in order until `recv` gives none, and works out each hour's use.
+
+fn produce(out Channel[int], readings List[int])
+    for r in readings
+        out.send(r)
+    out.close()
+
+fn main() !
+    ch := Channel[int](3)
+    p := spawn produce(ch, [4012, 4019, 4031, 4031, 4058, 4060])
+    mut prev := -1
+    mut used := List[int]()
+    while true
+        v := ch.recv() else break
+        if prev >= 0
+            used.push(v - prev)
+        print("reading {v} kWh")
+        prev = v
+    p.wait()?
+    print("hourly use: {used}")
+    peak := used.max() else 0
+    idle := used.count(|u| u == 0)
+    print("peak hour {peak} kWh, idle hours {idle}")
+
+@test fn usage_list()
+    xs := [1, 4, 9]
+    assert_eq(xs.windows(2).map(|w| w[1] - w[0]), [3, 5])

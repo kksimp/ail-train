@@ -1,0 +1,49 @@
+## Kitchen steps: a recipe as an enum of preheat, chop, stir, bake and rest steps; one `match` sums
+## hands-on seconds, another the waiting time, and a named field pattern `Rest(mins: 0)` serves at once.
+
+enum Step
+    Preheat(temp int)
+    Chop(item str, mins int)
+    Stir(secs int)
+    Bake(mins int)
+    Rest(mins int)
+
+fn hands_on(step Step) int
+    match step
+        Chop(_, m) => m * 60
+        Stir(s) => s
+        _ => 0
+
+fn waiting(step Step) int
+    match step
+        Bake(m) => m * 60
+        Rest(m) => m * 60
+        Preheat(t) => t / 20 * 60
+        _ => 0
+
+fn describe(step Step) str
+    match step
+        Preheat(t) => "preheat to {t} C"
+        Chop(item, m) => "chop {item} ({m} min)"
+        Stir(s) => "stir {s} s"
+        Bake(m) => "bake {m} min"
+        Rest(mins: 0) => "serve at once"
+        Rest(m) => "rest {m} min"
+
+fn clock(secs int) str
+    "{secs / 60} min {secs % 60} s"
+
+fn run(name str, steps List[Step])
+    print("{name}:")
+    for i, s in steps.enumerate()
+        print("  {i + 1}. {describe(s)}")
+    work := steps.map(|s| hands_on(s)).sum()
+    idle := steps.map(|s| waiting(s)).sum()
+    print("  hands-on {clock(work)}, waiting {clock(idle)}")
+
+fn main()
+    run("root bake", [Step.Preheat(temp: 200), Step.Chop(item: "onions", mins: 6), Step.Chop(item: "carrots", mins: 4), Step.Stir(secs: 90), Step.Bake(mins: 35), Step.Rest(mins: 10)])
+    run("quick eggs", [Step.Stir(secs: 45), Step.Rest(mins: 0)])
+
+@test fn bake_wait()
+    assert_eq(waiting(Step.Bake(mins: 2)), 120)

@@ -1,0 +1,47 @@
+## Hanging rope: eight links of 1 m start straight out sideways from a fixed hook; Verlet steps with gravity
+## and a little damping, then ten passes that pull each pair back to 1 m apart, let the rope swing down.
+
+fn main()
+    n := 9
+    mut x := List[float]()
+    mut y := List[float]()
+    for i in 0..n
+        x.push(i.to_float())
+        y.push(0.0)
+    mut px := x
+    mut py := y
+    dt := 0.02
+    for step in 1..=400
+        for i in 1..n
+            vx := (x[i] - px[i]) * 0.99
+            vy := (y[i] - py[i]) * 0.99
+            px[i] = x[i]
+            py[i] = y[i]
+            x[i] += vx
+            y[i] += vy - 9.8 * dt * dt
+        for pass in 0..10
+            for i in 0..(n - 1)
+                dx := x[i + 1] - x[i]
+                dy := y[i + 1] - y[i]
+                d := (dx * dx + dy * dy).sqrt()
+                fix := (d - 1.0) / d / 2.0
+                if i > 0
+                    x[i] += dx * fix
+                    y[i] += dy * fix
+                x[i + 1] -= dx * fix
+                y[i + 1] -= dy * fix
+        if step % 100 == 0
+            end_depth := 0.0 - y[n - 1]
+            print("step {step}: rope end at depth {end_depth:.3} m")
+    mut length := 0.0
+    for i in 0..(n - 1)
+        dx := x[i + 1] - x[i]
+        dy := y[i + 1] - y[i]
+        length += (dx * dx + dy * dy).sqrt()
+    depths := y.slice(1).map(|v| 0.0 - v).map(|v| "{v:.2}").join(" ")
+    print("depth of each joint: {depths}")
+    print("rope length {length:.3} m (8 m when every link is exact)")
+
+@test fn link_fix()
+    d := 1.5
+    assert(((d - 1.0) / d / 2.0 - 1.0 / 6.0).abs() < 0.000000001)

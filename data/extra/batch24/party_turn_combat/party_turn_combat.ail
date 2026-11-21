@@ -1,0 +1,67 @@
+## Party combat: knight, archer and mage implement one `Fighter` trait with different damage patterns (steady,
+## a volley every third turn, a blast every other turn); they fight a 230 hp boss that strikes them in turn.
+
+trait Fighter
+    fn label(self) str
+    fn damage(self, turn int) int
+
+struct Knight
+    power int
+
+struct Archer
+    arrow int
+
+struct Mage
+    blast int
+
+impl Fighter for Knight
+    fn label(self) str
+        "knight"
+    fn damage(self, turn int) int
+        power
+
+impl Fighter for Archer
+    fn label(self) str
+        "archer"
+    fn damage(self, turn int) int
+        if turn % 3 == 0 then arrow * 3 else arrow
+
+impl Fighter for Mage
+    fn label(self) str
+        "mage"
+    fn damage(self, turn int) int
+        if turn % 2 == 0 then blast else 0
+
+fn main()
+    mut party := List[any Fighter]()
+    party.push(Knight(power: 9))
+    party.push(Archer(arrow: 5))
+    party.push(Mage(blast: 22))
+    mut hp := [60, 35, 30]
+    mut boss := 230
+    mut dealt := [0, 0, 0]
+    mut turn := 0
+    while boss > 0 and hp.any(|h| h > 0)
+        turn += 1
+        for i in 0..3
+            if hp[i] > 0
+                d := party[i].damage(turn)
+                boss -= d
+                dealt[i] += d
+        if boss <= 0
+            break
+        mut target := (turn - 1) % 3
+        while hp[target] <= 0
+            target = (target + 1) % 3
+        hp[target] = (hp[target] - 14).max(0)
+        if hp[target] == 0
+            print("turn {turn}: the {party[target].label()} falls")
+    result := if boss <= 0 then "boss defeated" else "party defeated"
+    print("{result} in turn {turn}, hp left {hp}")
+    for i in 0..3
+        print("{party[i].label():<7} dealt {dealt[i]}")
+
+@test fn archer_volley()
+    a := Archer(arrow: 5)
+    assert_eq(a.damage(3), 15)
+    assert_eq(a.damage(4), 5)

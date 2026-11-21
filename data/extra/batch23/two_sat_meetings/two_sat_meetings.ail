@@ -1,0 +1,51 @@
+## 2-SAT for meeting slots: each team meets in the morning or the afternoon, and every rule says "a or b" about two
+## such choices; fixing one open choice and following the implications it forces either sticks or must be flipped.
+
+fn try_set(lit int, imp Map[int, List[int]], val List[int]) List[int]
+    mut v := val
+    mut queue := [lit]
+    while q := queue.pop()
+        want := 1 - q % 2
+        if v[q / 2] == want
+            continue
+        if v[q / 2] != -1
+            return List[int]()
+        v[q / 2] = want
+        for nxt in imp.get_or(q, List[int]())
+            queue.push(nxt)
+    v
+
+fn solve(n int, rules List[List[int]]) List[int]
+    mut imp := Map[int, List[int]]()
+    for r in rules
+        a := 2 * r[0] + 1 - r[1]
+        b := 2 * r[2] + 1 - r[3]
+        imp.push((a ^ 1), b)
+        imp.push((b ^ 1), a)
+    mut val := [-1 for t in 0..n]
+    for x in 0..n
+        if val[x] == -1
+            first := try_set(2 * x, imp, val)
+            second := if first.len() > 0 then first else try_set(2 * x + 1, imp, val)
+            if second.len() == 0
+                return second
+            val = second
+    val
+
+fn main()
+    teams := ["Ann", "Bob", "Cy", "Di"]
+    base := [[0, 1, 1, 1], [0, 0, 1, 0], [1, 1, 2, 0], [2, 1, 3, 1], [3, 0, 0, 0], [2, 0, 3, 0]]
+    mut tight := base
+    for r in [[0, 1, 2, 1], [0, 1, 2, 0], [0, 0, 3, 1], [0, 0, 3, 0]]
+        tight.push(r)
+    for rules in [base.slice(0, 3), base, tight]
+        val := solve(teams.len(), rules)
+        mut plan := List[str]()
+        for t in 0..val.len()
+            slot := if val[t] == 1 then "AM" else "PM"
+            plan.push("{teams[t]} {slot}")
+        shown := if plan.len() == 0 then "no plan meets every rule" else plan.join(", ")
+        print("{rules.len()} rules: {shown}")
+
+@test fn forced()
+    assert_eq(solve(1, [[0, 1, 0, 1]]), [1])

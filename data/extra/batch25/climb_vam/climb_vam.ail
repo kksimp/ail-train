@@ -1,0 +1,31 @@
+## Climbing speed: VAM is metres climbed per hour (length x gradient / time), and dividing it by
+## (2 + gradient / 10) x 100 estimates the rider's power in watts per kilogram (Ferrari's rule of thumb).
+
+struct Climb
+    name str
+    km float
+    grade float
+    time str
+
+fn minutes(t str) float
+    parts := t.split(":")
+    (parts[0].to_int() else 0).to_float() + (parts[1].to_int() else 0).to_float() / 60.0
+
+fn main()
+    climbs := [Climb(name: "Col du Pin", km: 8.4, grade: 7.2, time: "27:40"), Climb(name: "Mur de Brac", km: 1.2, grade: 12.5, time: "5:55"), Climb(name: "Alto Verde", km: 14.8, grade: 6.1, time: "48:12"), Climb(name: "Passo Nero", km: 21.0, grade: 5.4, time: "69:00"), Climb(name: "Hill Road", km: 3.5, grade: 4.0, time: "9:05")]
+    mut best := ""
+    mut best_vam := 0.0
+    for c in climbs
+        gain := c.km * c.grade * 10.0
+        hours := minutes(c.time) / 60.0
+        vam := gain / hours
+        wkg := vam / ((2.0 + c.grade / 10.0) * 100.0)
+        if vam > best_vam
+            best_vam = vam
+            best = c.name
+        print("{c.name:<11} {gain:>6.0} m in {c.time:>5}  VAM {vam:>5.0} m/h  about {wkg:.2} W/kg")
+    print("fastest climbing: {best}")
+
+@test fn vam()
+    gain := 10.0 * 8.0 * 10.0
+    assert_eq(gain / 0.5, 1600.0)

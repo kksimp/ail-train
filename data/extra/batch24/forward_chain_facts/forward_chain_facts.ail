@@ -1,0 +1,33 @@
+## Forward chaining: a tiny rule engine for a garden; each pass fires every rule whose facts all hold and adds
+## its conclusion, until a pass adds nothing. Prints what each pass learned and answers a few questions.
+
+struct Rule
+    needs List[str]
+    gives str
+
+fn main()
+    rules := [Rule(needs: ["rain"], gives: "wet soil"), Rule(needs: ["wet soil", "warm"], gives: "seeds sprout"), Rule(needs: ["seeds sprout", "no weeding"], gives: "weeds spread"), Rule(needs: ["weeds spread"], gives: "low harvest"), Rule(needs: ["seeds sprout", "sun"], gives: "beans climb"), Rule(needs: ["beans climb", "warm"], gives: "beans flower"), Rule(needs: ["frost"], gives: "seedlings die")]
+    mut known := Set[str]()
+    for f in ["rain", "warm", "sun", "no weeding"]
+        known.add(f)
+    mut pass_no := 0
+    while true
+        pass_no += 1
+        mut learned := List[str]()
+        for r in rules
+            if not known.contains(r.gives) and r.needs.all(|n| known.contains(n))
+                learned.push(r.gives)
+        if learned.is_empty()
+            break
+        for f in learned
+            known.add(f)
+        shown := learned.join(", ")
+        print("pass {pass_no}: {shown}")
+    print("stopped after pass {pass_no} with {known.len()} facts")
+    for q in ["beans flower", "low harvest", "seedlings die"]
+        answer := if known.contains(q) then "yes" else "no"
+        print("{q}? {answer}")
+
+@test fn needs_all()
+    known := {"rain"}
+    assert(not ["rain", "warm"].all(|n| known.contains(n)))

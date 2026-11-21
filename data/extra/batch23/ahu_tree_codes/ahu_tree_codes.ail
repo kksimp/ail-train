@@ -1,0 +1,34 @@
+## Rooted tree isomorphism (AHU): each node's code is "(" + its children's codes sorted + ")", so two rooted
+## trees have the same shape exactly when their root codes are equal, whatever order the children come in.
+
+fn children(parents List[int]) List[List[int]]
+    mut kids := List[List[int]]()
+    for _ in 0..parents.len()
+        kids.push(List[int]())
+    for v in 0..parents.len()
+        if parents[v] >= 0
+            kids[parents[v]].push(v)
+    kids
+
+fn code(kids List[List[int]], v int) str
+    mut parts := List[str]()
+    for c in kids[v]
+        parts.push(code(kids, c))
+    parts.sort()
+    inner := parts.join("")
+    "({inner})"
+
+fn main()
+    names := ["A", "B", "C", "D", "E"]
+    trees := [[-1, 0, 0, 1, 1, 2], [-1, 0, 0, 2, 2, 1], [-1, 0, 1, 2, 2, 0], [-1, 0, 0, 0, 1, 2], [-1, 2, 0, 2, 0, 4]]
+    mut groups := Map[str, List[str]]()
+    for i in 0..trees.len()
+        c := code(children(trees[i]), 0)
+        print("{names[i]}: {c}")
+        groups.push(c, names[i])
+    for shape, members in groups
+        shown := members.join(" ")
+        print("same shape: {shown}")
+
+@test fn leaf()
+    assert_eq(code(children([-1]), 0), "()")

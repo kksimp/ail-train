@@ -1,0 +1,9 @@
+TV (7): aisle 2 level 3
+lamp (2): aisle 1 level 2
+rug (9): aisle 3 level 2
+piano (12): nowhere
+vase (6): aisle 1 level 4
+aisle 1 free: [0, 2, 2, 0]
+aisle 2 free: [3, 1, 1, 0]
+aisle 3 free: [5, 0, 2, 7]
+free volume left: 23

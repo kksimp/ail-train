@@ -1,0 +1,8 @@
+1. target 20.5 C
+2. boost for 30 min
+3. boost for 45 min
+4. target 19.0 C
+5. away 3 days, holding 12.0 C
+6. heating off
+Heater(target: 120, boost: 0, away: 3, on: false)
+boost minutes asked for: 45

@@ -1,0 +1,26 @@
+## Exam resits: first-sitting and resit marks are paired with `zip` (0 means no resit); each
+## student keeps the better mark, and counts show who passed and whose resit improved the mark.
+
+PASS := 50
+
+fn best(a int, b int) int
+    a.max(b)
+
+fn main()
+    names := ["Ada", "Bo", "Cy", "Di", "Ed"]
+    first := [48, 71, 39, 55, 62]
+    resit := [61, 0, 44, 52, 0]
+    pairs := first.zip(resit)
+    for i, p in pairs.enumerate()
+        a, b := p
+        mark := best(a, b)
+        verdict := if mark >= PASS then "pass" else "fail"
+        note := if b == 0 then "no resit" elif b > a then "resit +{b - a}" else "resit lower, kept {a}"
+        print("{names[i]:<4} {a:>3} {b:>3} -> {mark:>3} {verdict} ({note})")
+    passed := pairs.count(|p| best(p.0, p.1) >= PASS)
+    sat := pairs.count(|p| p.1 > 0)
+    gained := pairs.count(|p| p.1 > p.0)
+    print("passed {passed} of {names.len()}; {gained} of {sat} resits improved")
+
+@test fn keeps_better()
+    assert_eq(best(55, 52), 55)

@@ -1,0 +1,45 @@
+## Counting triangles in a friendship graph: point each edge from the lower-degree end to the higher one, then test
+## each pair of a node's outgoing edges; every triangle is found exactly once, and clustering = triangles / pairs.
+
+fn main()
+    names := ["Ana", "Ben", "Cleo", "Dev", "Eve", "Finn", "Gia", "Hugo"]
+    edges := [[0, 1], [0, 2], [1, 2], [1, 3], [2, 3], [3, 4], [4, 5], [4, 6], [5, 6], [6, 7], [2, 4], [1, 7]]
+    mut deg := [0 for p in names]
+    mut linked := Set[int]()
+    for e in edges
+        linked.add(e[0] * 100 + e[1])
+        linked.add(e[1] * 100 + e[0])
+        deg[e[0]] += 1
+        deg[e[1]] += 1
+    mut out := Map[int, List[int]]()
+    for e in edges
+        a := e[0]
+        b := e[1]
+        if deg[a] < deg[b] or (deg[a] == deg[b] and a < b)
+            out.push(a, b)
+        else
+            out.push(b, a)
+    mut tri := [0 for q in names]
+    mut checks := 0
+    mut found := List[str]()
+    for v in 0..names.len()
+        outs := out.get_or(v, List[int]())
+        for i in 0..outs.len()
+            for j in 0..i
+                checks += 1
+                x := outs[i]
+                y := outs[j]
+                if linked.contains(x * 100 + y)
+                    tri[v] += 1
+                    tri[x] += 1
+                    tri[y] += 1
+                    found.push("{names[v]}-{names[x]}-{names[y]}")
+    shown := found.join(", ")
+    print("{found.len()} triangles after {checks} pair checks: {shown}")
+    for v in 0..names.len()
+        pairs := deg[v] * (deg[v] - 1) / 2
+        print("{names[v]:<5} friends {deg[v]}, triangles {tri[v]} of {pairs} friend pairs")
+
+@test fn pair_count()
+    deg := 4
+    assert_eq(deg * (deg - 1) / 2, 6)

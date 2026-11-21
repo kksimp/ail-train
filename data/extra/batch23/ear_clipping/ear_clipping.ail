@@ -1,0 +1,49 @@
+## Ear clipping: a corner of a counter-clockwise polygon is an ear when it turns left and no other corner lies in
+## its triangle; cutting ears one by one leaves n - 2 triangles whose doubled areas add up to the shoelace total.
+
+fn cross(o List[int], a List[int], b List[int]) int
+    (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0])
+
+fn inside(p List[int], a List[int], b List[int], c List[int]) bool
+    cross(a, b, p) >= 0 and cross(b, c, p) >= 0 and cross(c, a, p) >= 0
+
+fn triangulate(poly List[List[int]]) List[List[int]]
+    mut idx := [i for i in 0..poly.len()]
+    mut tris := List[List[int]]()
+    while idx.len() > 3
+        n := idx.len()
+        mut cut := -1
+        for k in 0..n
+            a := poly[idx[(k + n - 1) % n]]
+            b := poly[idx[k]]
+            c := poly[idx[(k + 1) % n]]
+            if cut < 0 and cross(a, b, c) > 0
+                mut clear := true
+                for other in idx
+                    p := poly[other]
+                    if p != a and p != b and p != c and inside(p, a, b, c)
+                        clear = false
+                if clear
+                    cut = k
+        tris.push([idx[(cut + n - 1) % n], idx[cut], idx[(cut + 1) % n]])
+        idx.remove_at(cut)
+    tris.push([idx[0], idx[1], idx[2]])
+    tris
+
+fn main()
+    poly := [[0, 0], [8, 0], [8, 6], [5, 3], [4, 7], [2, 4], [0, 6]]
+    mut twice := 0
+    for i in 0..poly.len()
+        j := (i + 1) % poly.len()
+        twice += poly[i][0] * poly[j][1] - poly[j][0] * poly[i][1]
+    tris := triangulate(poly)
+    mut sum2 := 0
+    for t in tris
+        a2 := cross(poly[t[0]], poly[t[1]], poly[t[2]])
+        sum2 += a2
+        print("triangle {t[0]}-{t[1]}-{t[2]}: doubled area {a2}")
+    print("{tris.len()} triangles for {poly.len()} corners")
+    print("doubled areas: triangles {sum2}, shoelace {twice}")
+
+@test fn square()
+    assert_eq(triangulate([[0, 0], [2, 0], [2, 2], [0, 2]]).len(), 2)

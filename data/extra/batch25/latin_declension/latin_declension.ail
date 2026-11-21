@@ -1,0 +1,45 @@
+## Latin declension: the nominative and genitive singular identify a noun's class (-a, -ae first; -us, -ī
+## second masculine; -um, -ī second neuter); the stem then takes ten case endings, and some forms fill several cells.
+
+enum Decl
+    First
+    SecondMasc
+    SecondNeut
+
+fn classify(nom str, gen str) Decl ! str
+    if nom.ends_with("a") and gen.ends_with("ae")
+        return First
+    if nom.ends_with("us") and gen.ends_with("ī")
+        return SecondMasc
+    if nom.ends_with("um") and gen.ends_with("ī")
+        return SecondNeut
+    return "{nom}, {gen}: not first or second declension"
+
+fn forms(nom str, d Decl) List[str]
+    endings := match d
+        First => ["a", "ae", "ae", "am", "ā", "ae", "ārum", "īs", "ās", "īs"]
+        SecondMasc => ["us", "ī", "ō", "um", "ō", "ī", "ōrum", "īs", "ōs", "īs"]
+        SecondNeut => ["um", "ī", "ō", "um", "ō", "a", "ōrum", "īs", "a", "īs"]
+    stem := nom.slice(0, nom.len() - endings[0].len())
+    endings.map(|e| "{stem}{e}")
+
+fn main()
+    nouns := [("puella", "puellae"), ("dominus", "dominī"), ("bellum", "bellī"), ("rēx", "rēgis"), ("via", "viae")]
+    for n in nouns
+        nom, gen := n
+        if d := classify(nom, gen)
+            fs := forms(nom, d)
+            sg := fs.slice(0, 5).join(" ")
+            pl := fs.slice(5).join(" ")
+            mut counts := Map[str, int]()
+            for f in fs
+                counts[f] += 1
+            most := counts.keys().sorted(by: |k| -counts[k])[0]
+            print("{nom} ({d}): sg {sg} | pl {pl} | {most} x{counts[most]}")
+        else err
+            print("skipped {err}")
+
+@test fn girl()
+    fs := forms("puella", Decl.First)
+    assert_eq(fs[6], "puellārum")
+    assert_eq(fs.count(|f| f == "puellae"), 3)

@@ -1,0 +1,32 @@
+## Middle pick: one generic `middle[T Ord]` sorts a copy and returns the lower-middle element (or
+## none when empty); an estate agent uses it on asking prices, viewing times and `Ord` offers.
+
+struct Offer
+    amount int
+    buyer str
+
+impl Ord for Offer
+
+fn middle[T Ord](xs List[T]) T?
+    if xs.is_empty()
+        return none
+    s := xs.sorted()
+    s[(s.len() - 1) / 2]
+
+fn main()
+    prices := [325000, 289000, 410000, 298500, 352000]
+    p := middle(prices) else 0
+    print("middle asking price: {p:,}")
+    times := ["14:30", "09:15", "11:00", "16:45"]
+    t := middle(times) else "-"
+    print("middle viewing slot: {t}")
+    offers := [Offer(amount: 310000, buyer: "Lee"), Offer(amount: 305000, buyer: "Diaz"), Offer(amount: 318000, buyer: "Kaur")]
+    if o := middle(offers)
+        print("middle offer: {o.amount:,} from {o.buyer}")
+    top := offers.max() else Offer(amount: 0, buyer: "-")
+    print("best offer: {top.amount:,} from {top.buyer}")
+    sold := middle(List[int]()) else -1
+    print("no sales yet: {sold}")
+
+@test fn odd_count_middle()
+    assert_eq(middle([3, 1, 2]) else 0, 2)

@@ -1,0 +1,46 @@
+## Parcel delivery options: an enum with courier distance, locker site and size, store pickup and
+## drone weight; `match` with guards prices each option and marks heavy drone parcels impossible.
+
+enum Delivery
+    Courier(km int)
+    Locker(site str, size char)
+    Pickup
+    Drone(grams int)
+
+fn fee(d Delivery) int
+    match d
+        Courier(km) if km > 20 => 650 + (km - 20) * 25
+        Courier(_) => 650
+        Locker(_, 'L') => 420
+        Locker(_, _) => 299
+        Pickup => 0
+        Drone(g) if g > 2000 => -1
+        Drone(_) => 899
+
+fn describe(d Delivery) str
+    match d
+        Courier(km) => "courier {km} km"
+        Locker(site, size) => "locker {site} ({size})"
+        Pickup => "store pickup"
+        Drone(g) => "drone {g} g"
+
+fn money(c int) str
+    "{c / 100}.{c % 100:02}"
+
+fn main()
+    orders := [Delivery.Courier(km: 8), Delivery.Courier(km: 34), Delivery.Locker(site: "Elm St", size: 'L'), Delivery.Locker(site: "Mill Rd", size: 'S'), Delivery.Pickup, Delivery.Drone(grams: 1500), Delivery.Drone(grams: 2600)]
+    mut total := 0
+    mut refused := 0
+    for o in orders
+        f := fee(o)
+        text := describe(o)
+        if f < 0
+            print("{text:<20} not possible")
+            refused += 1
+            continue
+        total += f
+        print("{text:<20} {money(f):>6}")
+    print("fees {money(total)}, {refused} refused")
+
+@test fn long_courier()
+    assert_eq(fee(Delivery.Courier(km: 21)), 675)

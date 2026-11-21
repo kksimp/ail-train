@@ -1,0 +1,42 @@
+## Winding number: count how many times a closed flight path circles each beacon, adding 1 for an edge crossing the
+## beacon's row upward with the beacon on its left and taking 1 for a downward crossing; even-odd only sees parity.
+
+fn side(a List[int], b List[int], p List[int]) int
+    (b[0] - a[0]) * (p[1] - a[1]) - (p[0] - a[0]) * (b[1] - a[1])
+
+fn winding(path List[List[int]], p List[int]) int
+    mut wn := 0
+    for i in 0..path.len()
+        a := path[i]
+        b := path[(i + 1) % path.len()]
+        if a[1] <= p[1]
+            if b[1] > p[1] and side(a, b, p) > 0
+                wn += 1
+        elif b[1] <= p[1] and side(a, b, p) < 0
+            wn -= 1
+    wn
+
+fn crossings(path List[List[int]], p List[int]) int
+    mut count := 0
+    for i in 0..path.len()
+        a := path[i]
+        b := path[(i + 1) % path.len()]
+        if (a[1] > p[1]) != (b[1] > p[1])
+            s := side(a, b, p)
+            if (s > 0) == (b[1] > a[1])
+                count += 1
+    count
+
+fn main()
+    star := [[0, 10], [-6, -8], [10, 4], [-10, 4], [6, -8]]
+    beacons := [[0, 0], [0, 7], [5, 3], [-7, 3], [12, 0], [0, -6]]
+    print("flight path: a five-pointed star drawn in one stroke")
+    for b in beacons
+        w := winding(star, b)
+        parity := if crossings(star, b) % 2 == 1 then "inside" else "outside"
+        print("beacon ({b[0]:>3}, {b[1]:>2}): circled {w} times, even-odd says {parity}")
+
+@test fn square_once()
+    sq := [[0, 0], [4, 0], [4, 4], [0, 4]]
+    assert_eq(winding(sq, [2, 2]), 1)
+    assert_eq(winding(sq, [5, 2]), 0)

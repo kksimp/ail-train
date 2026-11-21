@@ -1,0 +1,40 @@
+## Weather advice: a week's forecast as an enum (rain in mm, sun with a UV index, wind with gusts,
+## snow in cm, fog); `match` with guards picks advice and a second match finds the outdoor days.
+
+enum Sky
+    Rain(mm int)
+    Sun(uv int)
+    Wind(kph int, gust int)
+    Snow(cm int)
+    Fog
+
+fn advice(s Sky) str
+    match s
+        Rain(mm) if mm >= 20 => "heavy rain, stay in"
+        Rain(_) => "take an umbrella"
+        Sun(uv) if uv >= 8 => "very high UV, hat and shade"
+        Sun(uv) if uv >= 3 => "wear sunscreen"
+        Sun(_) => "fine day"
+        Wind(_, g) if g >= 80 => "gale, secure the bins"
+        Wind(k, _) => "breezy at {k} km/h"
+        Snow(cm) => "snow {cm} cm, allow extra time"
+        Fog => "fog, drive slowly"
+
+fn outdoor(s Sky) bool
+    match s
+        Sun(_) => true
+        Wind(k, _) => k < 30
+        Rain(mm) => mm < 2
+        _ => false
+
+fn main()
+    days := ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+    week := [Sky.Rain(mm: 4), Sky.Sun(uv: 9), Sky.Wind(kph: 25, gust: 40), Sky.Wind(kph: 55, gust: 95), Sky.Fog, Sky.Sun(uv: 2), Sky.Rain(mm: 28)]
+    for i, s in week.enumerate()
+        print("{days[i]}: {advice(s)}")
+    good := [days[i] for i in 0..7 if outdoor(week[i])]
+    shown := good.join(" ")
+    print("picnic days: {shown}")
+
+@test fn fog_text()
+    assert_eq(advice(Sky.Fog), "fog, drive slowly")

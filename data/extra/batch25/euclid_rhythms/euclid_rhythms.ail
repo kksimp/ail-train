@@ -1,0 +1,34 @@
+## Euclidean rhythms: k onsets spread as evenly as possible over n steps; step i sounds when
+## (i * k) mod n < k (the bucket form of Bjorklund's method), which gives tresillo, cinquillo and many bell patterns.
+
+fn pattern(k int, n int) str
+    mut cs := List[str]()
+    for i in 0..n
+        mark := if i * k % n < k then "x" else "."
+        cs.push(mark)
+    cs.join("")
+
+fn gaps(p str) List[int]
+    mut hits := List[int]()
+    for i, c in p.chars().enumerate()
+        if c == 'x'
+            hits.push(i)
+    mut out := List[int]()
+    for j in 0..hits.len()
+        next_hit := if j + 1 < hits.len() then hits[j + 1] else hits[0] + p.len()
+        out.push(next_hit - hits[j])
+    out
+
+fn main()
+    named := [(3, 8, "tresillo"), (5, 8, "cinquillo"), (2, 5, "khafif-e-ramal"), (3, 7, "ruchenitza"), (4, 9, "aksak"), (5, 12, "venda clapping"), (7, 12, "bembe bell"), (7, 16, "samba"), (9, 16, "rumba variant")]
+    for r in named
+        k, n, name := r
+        p := pattern(k, n)
+        g := gaps(p)
+        even := (g.max() else 0) - (g.min() else 0) <= 1
+        note := if even then "" else " (uneven)"
+        print("E({k},{n:>2}) {p:<16} {g} {name}{note}")
+
+@test fn tresillo()
+    assert_eq(pattern(3, 8), "x..x..x.")
+    assert_eq(gaps("x..x..x."), [3, 3, 2])

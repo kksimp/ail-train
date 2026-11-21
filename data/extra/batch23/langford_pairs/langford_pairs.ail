@@ -1,0 +1,35 @@
+## Langford pairings: arrange 1,1,2,2,...,n,n so the two copies of k have exactly k numbers between them; placing the
+## largest pair first and backtracking counts every arrangement (each one is found twice, once reversed).
+
+fn place(k int, n int, mut seq List[int], mut first List[str]) int
+    if k == 0
+        if first.len() == 0
+            first.push(seq.join(" "))
+        return 1
+    mut count := 0
+    size := 2 * n
+    last := size - k - 1
+    for i in 0..last
+        if seq[i] == 0 and seq[i + k + 1] == 0
+            seq[i] = k
+            seq[i + k + 1] = k
+            count += place(k - 1, n, mut seq, mut first)
+            seq[i] = 0
+            seq[i + k + 1] = 0
+    count
+
+fn main()
+    for n in 3..=8
+        mut seq := List[int]()
+        size := 2 * n
+        for _ in 0..size
+            seq.push(0)
+        mut first := List[str]()
+        found := place(n, n, mut seq, mut first)
+        example := if first.len() > 0 then first[0] else "none"
+        print("n = {n}: {found / 2} pairings (up to reversal), e.g. {example}")
+
+@test fn three()
+    mut seq := [0, 0, 0, 0, 0, 0]
+    mut first := List[str]()
+    assert_eq(place(3, 3, mut seq, mut first), 2)

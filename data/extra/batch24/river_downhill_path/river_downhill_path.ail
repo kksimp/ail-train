@@ -1,0 +1,44 @@
+## River path: a height map is a tilted plane plus seeded bumps; water from a spring in the top left corner
+## steps to its lowest lower neighbour each time and stops in a hollow, which becomes a pond.
+
+struct Rng
+    state int
+
+fn Rng.below(mut self, n int) int
+    self.state = (self.state * 1103515245 + 12345) % 2147483648
+    (self.state / 65536) % n
+
+fn lowest_step(h List[List[int]], r int, c int) List[int]
+    mut best := [r, c]
+    for d in [(-1, 0), (1, 0), (0, -1), (0, 1)]
+        rr := r + d.0
+        cc := c + d.1
+        if rr >= 0 and rr < h.len() and cc >= 0 and cc < h[0].len() and h[rr][cc] < h[best[0]][best[1]]
+            best = [rr, cc]
+    best
+
+fn main()
+    mut rng := Rng(state: 7)
+    mut h := List[List[int]]()
+    for r in 0..8
+        mut row := List[int]()
+        for c in 0..10
+            row.push(40 - 3 * r - 2 * c + rng.below(6))
+        h.push(row)
+    mut path := [[0, 0]]
+    while true
+        here := path[path.len() - 1]
+        nxt := lowest_step(h, here[0], here[1])
+        if nxt == here
+            break
+        path.push(nxt)
+    for r in 0..8
+        mut line := List[str]()
+        for c in 0..10
+            line.push(if path.contains([r, c]) then "*" else ".")
+        print(line.join(""))
+    last := path[path.len() - 1]
+    print("{path.len()} cells from height {h[0][0]} down to {h[last[0]][last[1]]}, pond at row {last[0]}, column {last[1]}")
+
+@test fn stays_in_hollow()
+    assert_eq(lowest_step([[1, 5], [5, 5]], 0, 0), [0, 0])

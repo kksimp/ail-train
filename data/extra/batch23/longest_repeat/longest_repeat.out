@@ -1,0 +1,6 @@
+banana                 -> [ana] (3 letters)
+mississippi            -> [issi] (4 letters)
+abcdefg                -> [] (0 letters)
+to be or not to be     -> [to be] (5 letters)
+abcabcabc              -> [abcabc] (6 letters)
+the cat sat on the mat -> [the ] (4 letters)

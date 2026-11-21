@@ -1,0 +1,43 @@
+## Ice melt: on a lake map an ice cell (#) melts into open water (~) once two or more of its four
+## neighbours are open water, all at once each day; rock (o) never melts, so ice sheltered by rock lasts.
+
+fn water_near(g List[List[char]], r int, c int) int
+    mut n := 0
+    for d in [(-1, 0), (1, 0), (0, -1), (0, 1)]
+        rr := r + d.0
+        cc := c + d.1
+        if rr >= 0 and rr < g.len() and cc >= 0 and cc < g[0].len()
+            if g[rr][cc] == '~'
+                n += 1
+    n
+
+fn melt_day(g List[List[char]]) List[List[char]]
+    mut out := g
+    for r in 0..g.len()
+        for c in 0..g[0].len()
+            if g[r][c] == '#' and water_near(g, r, c) >= 2
+                out[r][c] = '~'
+    out
+
+fn ice_count(g List[List[char]]) int
+    g.fold(0, |acc, row| acc + row.count(|ch| ch == '#'))
+
+fn main()
+    lake := ["~~~~~~~~~~", "~########~", "~##o#####~", "~#oo####o~", "~##o###oo~", "~########~", "~~~~~~~~~~"]
+    mut g := lake.map(|line| line.chars())
+    print("day 0: {ice_count(g)} ice cells")
+    mut day := 0
+    while true
+        nxt := melt_day(g)
+        if nxt == g
+            break
+        g = nxt
+        day += 1
+        print("day {day}: {ice_count(g)} ice cells")
+    print("no more melting after day {day}:")
+    for row in g
+        print(row.join(""))
+
+@test fn corner_melts_first()
+    g := melt_day([['~', '~'], ['~', '#']])
+    assert_eq(ice_count(g), 0)

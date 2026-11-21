@@ -1,0 +1,44 @@
+## Reduplication in morphology: Indonesian plurals copy the whole word, Tagalog's future copies the first
+## consonant and vowel (CV-), and Ilocano plurals copy the first consonant, vowel and consonant (CVC-).
+
+enum Kind
+    Full
+    CvPrefix
+    CvcPrefix
+
+fn is_vowel(c char) bool
+    "aeiou".contains(c)
+
+fn first_cv(w str) str
+    cs := w.chars()
+    if is_vowel(cs[0])
+        return "{cs[0]}"
+    "{cs[0]}{cs[1]}"
+
+fn first_cvc(w str) str
+    cs := w.chars()
+    cv := first_cv(w)
+    n := cv.len()
+    if n < cs.len() and not is_vowel(cs[n])
+        return "{cv}{cs[n]}"
+    cv
+
+fn redup(k Kind, w str) str
+    match k
+        Full => "{w}-{w}"
+        CvPrefix => "{first_cv(w)}{w}"
+        CvcPrefix => "{first_cvc(w)}{w}"
+
+fn main()
+    data := [("Indonesian", Kind.Full, "buku", "books"), ("Indonesian", Kind.Full, "rumah", "houses"), ("Tagalog", Kind.CvPrefix, "sulat", "will write"), ("Tagalog", Kind.CvPrefix, "basa", "will read"), ("Tagalog", Kind.CvPrefix, "inom", "will drink"), ("Ilocano", Kind.CvcPrefix, "pusa", "cats"), ("Ilocano", Kind.CvcPrefix, "kalding", "goats"), ("Ilocano", Kind.CvcPrefix, "talon", "fields")]
+    mut added := 0
+    for d in data
+        lang, k, w, gloss := d
+        out := redup(k, w)
+        added += out.len() - w.len()
+        print("{lang:<10} {w:<8} -> {out:<14} '{gloss}'")
+    print("{added} letters added by copying")
+
+@test fn ilocano()
+    assert_eq(redup(Kind.CvcPrefix, "pusa"), "puspusa")
+    assert_eq(redup(Kind.CvPrefix, "inom"), "iinom")

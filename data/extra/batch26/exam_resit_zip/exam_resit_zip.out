@@ -1,0 +1,6 @@
+Ada   48  61 ->  61 pass (resit +13)
+Bo    71   0 ->  71 pass (no resit)
+Cy    39  44 ->  44 fail (resit +5)
+Di    55  52 ->  55 pass (resit lower, kept 55)
+Ed    62   0 ->  62 pass (no resit)
+passed 4 of 5; 2 of 3 resits improved

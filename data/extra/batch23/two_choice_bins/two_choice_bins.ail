@@ -1,0 +1,42 @@
+## The power of two choices: throwing each ball into one random bin leaves the fullest bin far above average, while
+## looking at two random bins and taking the emptier one keeps the maximum load close to the mean.
+
+struct Lcg
+    state int
+
+fn Lcg.next(mut self, n int) int
+    self.state = (self.state * 1103515245 + 12345) % 2147483648
+    (self.state >> 8) % n
+
+fn throw(balls int, bins int, choices int, seed int) List[int]
+    mut rng := Lcg(state: seed)
+    mut load := List[int]()
+    for _ in 0..bins
+        load.push(0)
+    for b in 0..balls
+        mut pick := rng.next(bins)
+        for c in 1..choices
+            other := rng.next(bins)
+            if load[other] < load[pick]
+                pick = other
+        load[pick] += 1
+    load
+
+fn main()
+    bins := 200
+    print("{bins} servers; requests placed at random")
+    for balls in [200, 2000, 20000]
+        one := throw(balls, bins, 1, 17)
+        two := throw(balls, bins, 2, 17)
+        mean := balls / bins
+        m1 := one.max() else 0
+        m2 := two.max() else 0
+        print("{balls:>5} requests (mean {mean:>3}): busiest with one choice {m1:>3}, with two choices {m2:>3}")
+    three := throw(2000, bins, 3, 17)
+    m3 := three.max() else 0
+    print("three choices for 2000 requests: busiest {m3}")
+    idle := throw(200, bins, 1, 17).count(|x| x == 0)
+    print("servers left idle by 200 requests with one choice: {idle}")
+
+@test fn all_placed()
+    assert_eq(throw(50, 7, 2, 1).sum(), 50)

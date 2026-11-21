@@ -1,0 +1,42 @@
+## Bakery ovens: dough batches finish proving at set minutes and two ovens bake one batch each; when an oven
+## frees it takes, among the proved batches, either the earliest proved or the longest bake. Compares both.
+
+struct Batch
+    bread str
+    ready int
+    bake int
+
+fn run(batches List[Batch], longest_first bool, show bool) int
+    mut oven_free := [0, 0]
+    mut done := List[bool]()
+    for b in batches
+        done.push(false)
+    mut left := batches.len()
+    mut finish := 0
+    while left > 0
+        o := if oven_free[0] <= oven_free[1] then 0 else 1
+        now := oven_free[o]
+        mut pick := -1
+        for i, b in batches.enumerate()
+            if not done[i] and b.ready <= now
+                if pick < 0 or (longest_first and b.bake > batches[pick].bake)
+                    pick = i
+        if pick < 0
+            oven_free[o] = now + 1
+            continue
+        done[pick] = true
+        left -= 1
+        oven_free[o] = now + batches[pick].bake
+        finish = finish.max(oven_free[o])
+        if show
+            print("oven {o + 1}: {batches[pick].bread:<9} {now:>3} to {oven_free[o]:>3}")
+    finish
+
+fn main()
+    batches := [Batch(bread: "rolls", ready: 0, bake: 15), Batch(bread: "baguette", ready: 0, bake: 25), Batch(bread: "rye", ready: 5, bake: 50), Batch(bread: "brioche", ready: 10, bake: 30), Batch(bread: "focaccia", ready: 20, bake: 20), Batch(bread: "sourdough", ready: 30, bake: 45), Batch(bread: "buns", ready: 35, bake: 15)]
+    a := run(batches, false, false)
+    b := run(batches, true, true)
+    print("earliest proved first: all out at {a}; longest bake first: all out at {b}")
+
+@test fn single_batch()
+    assert_eq(run([Batch(bread: "x", ready: 3, bake: 10)], false, false), 13)

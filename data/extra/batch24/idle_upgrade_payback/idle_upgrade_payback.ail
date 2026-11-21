@@ -1,0 +1,44 @@
+## Idle game upgrades: gold flows in each second, and three upgrades add income for a price that grows 15%
+## each purchase; saving for the best payback (price / gain) is raced against buying the cheapest upgrade.
+
+struct Upgrade
+    name str
+    cost int
+    gain int
+
+fn race(best_payback bool, show bool) List[int]
+    mut ups := [Upgrade(name: "cart", cost: 15, gain: 1), Upgrade(name: "mill", cost: 100, gain: 8), Upgrade(name: "mine", cost: 1100, gain: 50)]
+    mut gold := 0
+    mut income := 1
+    mut bought := 0
+    mut second := 0
+    while gold < 20000
+        second += 1
+        gold += income
+        while true
+            mut pick := 0
+            for i in 1..3
+                if best_payback
+                    if ups[i].cost * ups[pick].gain < ups[pick].cost * ups[i].gain
+                        pick = i
+                elif ups[i].cost < ups[pick].cost
+                    pick = i
+            if ups[pick].cost > gold
+                break
+            gold -= ups[pick].cost
+            income += ups[pick].gain
+            bought += 1
+            if show and bought <= 5
+                print("  second {second:>3}: buy {ups[pick].name} for {ups[pick].cost}, income now {income}")
+            ups[pick].cost = ups[pick].cost * 115 / 100
+    [second, bought, income]
+
+fn main()
+    print("saving for best payback:")
+    a := race(true, true)
+    b := race(false, false)
+    print("best payback reaches 20000 gold in {a[0]} s ({a[1]} upgrades, income {a[2]}/s)")
+    print("cheapest first reaches it in {b[0]} s ({b[1]} upgrades, income {b[2]}/s)")
+
+@test fn price_growth()
+    assert_eq(100 * 115 / 100, 115)

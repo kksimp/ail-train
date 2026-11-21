@@ -1,0 +1,25 @@
+## Speaker slots: confirmed speakers then the waitlist form one lazy `Seq` with `chain`, which `zip`s
+## with the session times so speakers fill slots until either runs out; the rest stay on the waitlist.
+
+fn main()
+    confirmed := ["Okafor", "Lindqvist", "Ruiz"]
+    waitlist := ["Chen", "Haddad", "Novak"]
+    times := ["09:00", "09:40", "10:20", "11:00", "11:40"]
+    extra := Seq.of(waitlist)
+    lineup := Seq.of(confirmed).chain(move extra)
+    plan := Seq.of(times).zip(move lineup).collect()
+    for p in plan
+        t, who := p
+        tag := if confirmed.contains(who) then "" else " (from waitlist)"
+        print("{t} {who}{tag}")
+    left := waitlist.len() - (plan.len() - confirmed.len())
+    print("{plan.len()} slots filled, {left} still waiting")
+    more := Seq.of(waitlist)
+    room_b := Seq.of(confirmed).chain(move more).enumerate().filter(|p| p.0 % 2 == 1).map(|p| p.1).collect()
+    shown := room_b.join(", ")
+    print("if every second talk moved to room B: {shown}")
+
+@test fn chain_order()
+    a := Seq.of([1, 2])
+    b := Seq.of([3])
+    assert_eq(a.chain(move b).collect(), [1, 2, 3])

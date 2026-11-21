@@ -1,0 +1,43 @@
+## Fractional knapsack: when goods can be split, take them in order of value per kilo, whole while they fit and then
+## a fraction of the next; this greedy is optimal here, unlike for whole items, where it can miss the best load.
+
+struct Good
+    name str
+    value int
+    kilos int
+
+fn main()
+    goods := [Good(name: "saffron", value: 120, kilos: 2), Good(name: "vanilla", value: 150, kilos: 5), Good(name: "pepper", value: 60, kilos: 6), Good(name: "cinnamon", value: 90, kilos: 9), Good(name: "cumin", value: 40, kilos: 8)]
+    cap := 15
+    order := goods.sorted(by: |g| -(g.value.to_float() / g.kilos.to_float()))
+    mut room := cap
+    mut total := 0.0
+    for g in order
+        if room == 0
+            break
+        take := room.min(g.kilos)
+        part := g.value.to_float() * take.to_float() / g.kilos.to_float()
+        total += part
+        room -= take
+        print("{g.name:<9} {take:>2} of {g.kilos} kg -> {part:>6.2}")
+    print("split goods, {cap} kg bag: {total:.2}")
+    mut whole := 0
+    mut left := cap
+    for g in order
+        if g.kilos <= left
+            whole += g.value
+            left -= g.kilos
+    mut best := 0
+    for mask in 0..32
+        mut v := 0
+        mut w := 0
+        for i in 0..5
+            if ((mask >> i) & 1) == 1
+                v += goods[i].value
+                w += goods[i].kilos
+        if w <= cap and v > best
+            best = v
+    print("whole goods only: greedy {whole}, best possible {best}")
+
+@test fn ratio_order()
+    assert(150.0 / 5.0 > 60.0 / 6.0)

@@ -1,0 +1,55 @@
+## Most trees on one straight line: from each tree, every other tree's direction is reduced by the gcd and given a
+## fixed sign, so trees on a common line through it share a key; the biggest count plus one (and duplicates) wins.
+
+fn gcd(a int, b int) int
+    if b == 0 then a.abs() else gcd(b, a % b)
+
+fn best_line(pts List[List[int]]) List[int]
+    mut best := 0
+    mut pair := [0, 0]
+    for i in 0..pts.len()
+        mut dirs := Map[str, int]()
+        mut first := Map[str, int]()
+        mut same := 0
+        for j in 0..pts.len()
+            if j != i
+                mut dx := pts[j][0] - pts[i][0]
+                mut dy := pts[j][1] - pts[i][1]
+                if dx == 0 and dy == 0
+                    same += 1
+                else
+                    g := gcd(dx, dy)
+                    dx /= g
+                    dy /= g
+                    if dx < 0 or (dx == 0 and dy < 0)
+                        dx = -dx
+                        dy = -dy
+                    key := "{dx},{dy}"
+                    dirs[key] += 1
+                    if not first.contains(key)
+                        first[key] = j
+        for dkey, count in dirs
+            if count + same + 1 > best
+                best = count + same + 1
+                pair = [i, first[dkey]]
+        if same + 1 > best
+            best = same + 1
+            pair = [i, i]
+    [best, pair[0], pair[1]]
+
+fn main()
+    trees := [[1, 1], [3, 2], [5, 3], [4, 1], [2, 3], [1, 4], [7, 4], [6, 6], [9, 5], [0, 5]]
+    b := best_line(trees)
+    p := trees[b[1]]
+    q := trees[b[2]]
+    print("{trees.len()} trees; the best line holds {b[0]} of them")
+    print("it runs through ({p[0]}, {p[1]}) and ({q[0]}, {q[1]})")
+    mut on := List[str]()
+    for t in trees
+        if (q[0] - p[0]) * (t[1] - p[1]) == (q[1] - p[1]) * (t[0] - p[0])
+            on.push("({t[0]}, {t[1]})")
+    shown := on.join(" ")
+    print("trees on it: {shown}")
+
+@test fn diagonal()
+    assert_eq(best_line([[0, 0], [1, 1], [2, 2], [3, 0]])[0], 3)

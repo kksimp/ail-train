@@ -1,0 +1,42 @@
+## Particles in a box: five points move in a 10 by 6 box in steps of 0.05 s and bounce off the walls by
+## mirroring the overshoot; counting hits on each wall shows which walls feel the most pressure.
+
+struct P
+    x float
+    y float
+    vx float
+    vy float
+
+fn main()
+    w := 10.0
+    h := 6.0
+    mut ps := [P(x: 1.0, y: 1.0, vx: 4.3, vy: 2.7), P(x: 5.0, y: 3.0, vx: -3.1, vy: 1.9), P(x: 8.0, y: 5.0, vx: 1.7, vy: -4.4), P(x: 2.0, y: 4.0, vx: -2.6, vy: -2.2), P(x: 6.0, y: 1.5, vx: 5.2, vy: 0.9)]
+    mut hits := [0, 0, 0, 0]
+    dt := 0.05
+    for step in 0..200
+        for mut p in ps
+            p.x += p.vx * dt
+            p.y += p.vy * dt
+            if p.x < 0.0
+                p.x = -p.x
+                p.vx = -p.vx
+                hits[0] += 1
+            elif p.x > w
+                p.x = 2.0 * w - p.x
+                p.vx = -p.vx
+                hits[1] += 1
+            if p.y < 0.0
+                p.y = -p.y
+                p.vy = -p.vy
+                hits[2] += 1
+            elif p.y > h
+                p.y = 2.0 * h - p.y
+                p.vy = -p.vy
+                hits[3] += 1
+    for i, p in ps.enumerate()
+        print("particle {i + 1}: at ({p.x:.2}, {p.y:.2})")
+    print("wall hits in 10 s: left {hits[0]}, right {hits[1]}, floor {hits[2]}, ceiling {hits[3]}")
+
+@test fn mirror()
+    x := -0.25
+    assert_eq(-x, 0.25)

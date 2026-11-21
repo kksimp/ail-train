@@ -1,0 +1,22 @@
+def resource(overs_left, wickets):
+    overs = [50, 40, 30, 25, 20, 15, 10, 5, 0]
+    rows = [[1000, 893, 751, 665, 566, 452, 321, 172, 0], [838, 767, 664, 595, 512, 417, 304, 168, 0], [624, 590, 527, 484, 429, 360, 274, 159, 0], [362, 351, 332, 314, 290, 256, 206, 132, 0]]
+    row = rows[wickets // 2]
+    for i in range(len(overs) - 1):
+        hi = overs[i]
+        lo = overs[i + 1]
+        if lo <= overs_left <= hi:
+            return row[i + 1] + (row[i] - row[i + 1]) * (overs_left - lo) // (hi - lo)
+    return 0
+
+def tenths(r):
+    return f"{r // 10}.{r % 10}"
+
+first = 250
+cases = [("cut to 40 overs before the start", 50, 0, 40), ("rain at 30 overs left, 2 down, 10 lost", 30, 2, 20), ("rain at 27 overs left, 4 down, 12 lost", 27, 4, 15), ("rain at 12 overs left, 6 down, 7 lost", 12, 6, 5), ("rain at 8 overs left, 0 down, all lost", 8, 0, 0)]
+for label, at, wk, resume in cases:
+    lost = resource(at, wk) - resource(resume, wk)
+    r2 = 1000 - lost
+    par = first * r2 // 1000
+    print(f"{label}: {tenths(lost)}% lost, target {par + 1}")
+print(f"full innings resources {tenths(resource(50, 0))}%")

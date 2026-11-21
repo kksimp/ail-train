@@ -1,0 +1,23 @@
+## Balloon ascent: a sealed balloon's lift falls as the air thins (density 1.2 - 0.0001 x height), against
+## its weight and quadratic drag; Euler steps of 1 s show it rising, overshooting and settling at its ceiling.
+
+fn accel(h float, v float) float
+    air := 1.2 - 0.0001 * h
+    lift := 9.8 * (air * 3.0 - 3.0) / 0.9
+    lift - 0.004 * v * v.abs()
+
+fn main()
+    mut h := 0.0
+    mut v := 0.0
+    mut top := 0.0
+    for t in 1..=900
+        v += accel(h, v)
+        h += v
+        if h > top
+            top = h
+        if t % 100 == 0
+            print("t {t:>3} s: height {h:>7.1} m, speed {v:>5.2} m/s")
+    print("highest {top:.1} m; neutral height is {(1.2 - 1.0) / 0.0001:.1} m")
+
+@test fn rises_at_ground()
+    assert(accel(0.0, 0.0) > 0.0)

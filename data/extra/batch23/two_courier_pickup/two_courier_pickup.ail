@@ -1,0 +1,60 @@
+## Two couriers at once: both start top-left and move right or down to the bottom-right, collecting parcel counts;
+## a cell visited by both pays once. dp over step k and the two rows (columns follow) beats one courier alone.
+
+NEG := -1000000
+
+fn best_two(g List[List[int]]) int
+    rows := g.len()
+    cols := g[0].len()
+    mut dp := List[List[int]]()
+    for r0 in 0..rows
+        dp.push([NEG for r2 in 0..rows])
+    dp[0][0] = g[0][0]
+    steps := rows + cols - 2
+    for k in 1..=steps
+        mut next := List[List[int]]()
+        for r1 in 0..rows
+            mut cur_row := List[int]()
+            for r2 in 0..rows
+                c1 := k - r1
+                c2 := k - r2
+                mut v := NEG
+                if c1 >= 0 and c1 < cols and c2 >= 0 and c2 < cols
+                    mut prev := dp[r1][r2]
+                    if r1 > 0
+                        prev = prev.max(dp[r1 - 1][r2])
+                    if r2 > 0
+                        prev = prev.max(dp[r1][r2 - 1])
+                    if r1 > 0 and r2 > 0
+                        prev = prev.max(dp[r1 - 1][r2 - 1])
+                    if prev > NEG
+                        gain := if r1 == r2 then g[r1][c1] else g[r1][c1] + g[r2][c2]
+                        v = prev + gain
+                cur_row.push(v)
+            next.push(cur_row)
+        dp = next
+    dp[rows - 1][rows - 1]
+
+fn best_one(g List[List[int]]) int
+    mut best := List[List[int]]()
+    for r in 0..g.len()
+        mut row := List[int]()
+        for c in 0..g[0].len()
+            up := if r > 0 then best[r - 1][c] else NEG
+            left := if c > 0 then row[c - 1] else NEG
+            v := if r + c == 0 then g[r][c] else g[r][c] + up.max(left)
+            row.push(v)
+        best.push(row)
+    best[g.len() - 1][g[0].len() - 1]
+
+fn main()
+    g := [[0, 3, 1, 1, 0], [2, 0, 0, 4, 1], [1, 5, 0, 0, 2], [0, 0, 3, 1, 0], [4, 0, 1, 0, 2]]
+    for row in g
+        print(row.join(" "))
+    one := best_one(g)
+    two := best_two(g)
+    print("one courier: {one} parcels")
+    print("two couriers together: {two} parcels ({two - one} more)")
+
+@test fn tiny()
+    assert_eq(best_two([[1, 2], [3, 4]]), 10)

@@ -1,0 +1,29 @@
+## Ripple mod four: a ring of 25 cells holding 0 to 3, where each new value is (left + 2 x self + right)
+## mod 4, started from one cell set to 1; the values are drawn as . - + # so the ripples show.
+
+fn ripple(xs List[int]) List[int]
+    n := xs.len()
+    [(xs[(i + n - 1) % n] + 2 * xs[i] + xs[(i + 1) % n]) % 4 for i in 0..n]
+
+fn glyph(v int) char
+    match v
+        0 => '.'
+        1 => '-'
+        2 => '+'
+        _ => '#'
+
+fn main()
+    mut xs := List[int]()
+    for i in 0..25
+        xs.push(if i == 12 then 1 else 0)
+    for t in 0..10
+        row := xs.map(glyph).join("")
+        print("{t:>2} {row}")
+        xs = ripple(xs)
+    for t in 10..40
+        xs = ripple(xs)
+    alive := xs.count(|v| v != 0)
+    print("after 40 steps: {alive} of 25 cells are not zero, total {xs.sum()}")
+
+@test fn spread()
+    assert_eq(ripple([0, 1, 0]), [1, 2, 1])

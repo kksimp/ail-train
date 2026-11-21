@@ -1,0 +1,39 @@
+## Schulze method: d[a][b] counts voters preferring a to b; the strength of a path is its weakest link,
+## and a Floyd-Warshall pass finds the strongest path p between every pair; a beats b when p[a][b] > p[b][a].
+
+fn main()
+    names := ["A", "B", "C", "D", "E"]
+    groups := [(5, "ACBED"), (5, "ADECB"), (8, "BEDAC"), (3, "CABED"), (7, "CAEBD"), (2, "CBADE"), (7, "DCEBA"), (8, "EBADC")]
+    n := names.len()
+    mut d := [[0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0]]
+    for g in groups
+        count, order := g
+        pos := order.chars().map(|c| c.code() - 65)
+        for x in 0..n
+            for y in x + 1..n
+                d[pos[x]][pos[y]] += count
+    mut p := [[0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0]]
+    for i in 0..n
+        for j in 0..n
+            if i != j and d[i][j] > d[j][i]
+                p[i][j] = d[i][j]
+    for k in 0..n
+        for i in 0..n
+            for j in 0..n
+                if i != j and i != k and j != k
+                    p[i][j] = p[i][j].max(p[i][k].min(p[k][j]))
+    for i in 0..n
+        print("{names[i]}  d {d[i]}  p {p[i]}")
+    mut wins := List[int]()
+    for i in 0..n
+        beaten := [j for j in 0..n if j != i and p[i][j] > p[j][i]]
+        wins.push(beaten.len())
+    idx := [k for k in 0..n]
+    ranking := idx.sorted(by: |k| -wins[k]).map(|k| names[k])
+    shown := ranking.join(" > ")
+    print("ranking: {shown}")
+
+@test fn weakest_link()
+    a := 28
+    b := 25
+    assert_eq(a.max(b.min(30)), 28)

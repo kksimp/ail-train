@@ -1,0 +1,25 @@
+## Domino run: each domino falls in a time that grows with its height, and it reaches the next one only if
+## the gap is shorter than its height; the chain is timed domino by domino and stops at the first gap too wide.
+
+struct Domino
+    at float
+    height float
+
+fn main()
+    row := [Domino(at: 0.0, height: 4.0), Domino(at: 3.0, height: 4.0), Domino(at: 6.5, height: 5.0), Domino(at: 10.0, height: 5.0), Domino(at: 14.5, height: 6.0), Domino(at: 18.0, height: 3.0), Domino(at: 20.5, height: 3.0), Domino(at: 24.0, height: 4.0)]
+    mut t := 0.0
+    mut fallen := 1
+    print("domino 1 pushed at 0.000 s")
+    for i in 0..(row.len() - 1)
+        gap := row[i + 1].at - row[i].at
+        if gap >= row[i].height
+            print("domino {i + 1} falls short: gap {gap:.1} is not less than its height {row[i].height:.1}")
+            break
+        t += 0.1 * row[i].height.sqrt() * gap / row[i].height
+        fallen += 1
+        print("domino {i + 2} hit at {t:.3} s")
+    print("{fallen} of {row.len()} dominoes fell")
+
+@test fn reach()
+    d := Domino(at: 0.0, height: 4.0)
+    assert(3.0 < d.height)

@@ -1,0 +1,43 @@
+## Termite piles: wood chips lie scattered round a ring of 30 cells; three termites wander by seeded steps,
+## pick up a chip where they stand when empty-handed and drop it on the next cell they reach that holds chips.
+
+struct Rng
+    state int
+
+fn Rng.below(mut self, n int) int
+    self.state = (self.state * 1103515245 + 12345) % 2147483648
+    (self.state / 65536) % n
+
+fn glyph(n int) str
+    if n == 0
+        return "."
+    "{n.min(9)}"
+
+fn show(cells List[int]) str
+    cells.map(glyph).join("")
+
+fn main()
+    mut rng := Rng(state: 2468)
+    mut cells := List[int]()
+    for i in 0..30
+        cells.push(if rng.below(3) == 0 then 1 else 0)
+    mut pos := [0, 10, 20]
+    mut carrying := [false, false, false]
+    print("start      {show(cells)}")
+    for step in 1..=3000
+        for t in 0..3
+            pos[t] = (pos[t] + 29 + 2 * rng.below(2)) % 30
+            if not carrying[t] and cells[pos[t]] > 0
+                cells[pos[t]] -= 1
+                carrying[t] = true
+            elif carrying[t] and cells[pos[t]] > 0
+                cells[pos[t]] += 1
+                carrying[t] = false
+        if step % 600 == 0
+            piles := cells.count(|n| n > 0)
+            print("step {step:>4}  {show(cells)}  {piles} piles")
+    held := carrying.count(|c| c)
+    print("chips on the ground {cells.sum()}, in jaws {held}")
+
+@test fn display()
+    assert_eq(show([0, 3, 12]), ".39")

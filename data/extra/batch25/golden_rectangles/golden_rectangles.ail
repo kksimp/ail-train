@@ -1,0 +1,31 @@
+## Golden rectangles: cutting the largest square off a rectangle again and again (Euclid with squares)
+## leaves Fibonacci squares for 89 x 55 but pairs of equal squares for A4; Fibonacci ratios close in on phi.
+
+fn squares(w int, h int) List[int]
+    mut a := w
+    mut b := h
+    mut out := List[int]()
+    while b > 0
+        for i in 0..a / b
+            out.push(b)
+        r := a % b
+        a = b
+        b = r
+    out
+
+fn main()
+    five := 5.0
+    phi := (1.0 + five.sqrt()) / 2.0
+    print("89 x 55 squares: {squares(89, 55)}")
+    print("297 x 210 squares: {squares(297, 210)}")
+    pairs := [(3, 2), (5, 3), (8, 5), (13, 8), (21, 13), (34, 21), (55, 34)]
+    for p in pairs
+        a, b := p
+        r := a.to_float() / b.to_float()
+        print("{a}/{b} = {r:.6}, off phi by {r - phi:>9.6}")
+    main_col := 960.0 / phi
+    print("a 960 px page splits into {main_col:.1} and {960.0 - main_col:.1} px")
+
+@test fn fib()
+    assert_eq(squares(8, 5), [5, 3, 2, 1, 1])
+    assert_eq(squares(6, 4), [4, 2, 2])

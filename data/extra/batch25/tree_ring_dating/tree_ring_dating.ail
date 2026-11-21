@@ -1,0 +1,46 @@
+## Tree-ring cross-dating: an undated timber's ring widths are slid along a dated master chronology and
+## Pearson's r is worked out at each position; the best match dates the outermost ring to a calendar year.
+
+struct Fit
+    off int
+    r float
+
+fn pearson(a List[float], b List[float]) float
+    n := a.len().to_float()
+    ma := a.fold(0.0, |s, x| s + x) / n
+    mb := b.fold(0.0, |s, x| s + x) / n
+    mut sab := 0.0
+    mut saa := 0.0
+    mut sbb := 0.0
+    for i in 0..a.len()
+        da := a[i] - ma
+        db := b[i] - mb
+        sab += da * db
+        saa += da * da
+        sbb += db * db
+    sab / (saa * sbb).sqrt()
+
+fn main()
+    mut seed := 2024
+    mut master := List[float]()
+    for i in 0..40
+        seed = (seed * 1103515245 + 12345) % 2147483648
+        master.push(0.5 + (seed % 1000).to_float() / 1000.0)
+    start := 1700
+    mut sample := List[float]()
+    for i in 0..12
+        seed = (seed * 1103515245 + 12345) % 2147483648
+        noise := ((seed % 200) - 100).to_float() / 1000.0
+        sample.push(master[23 + i] * 1.3 + noise)
+    mut scores := List[Fit]()
+    for off in 0..master.len() - sample.len() + 1
+        scores.push(Fit(off: off, r: pearson(sample, master.slice(off, off + sample.len()))))
+    best := scores.sorted(by: |s| -(s.r * 1000000.0).to_int())
+    for k in 0..3
+        f := best[k]
+        print("rings {start + f.off}-{start + f.off + 11}: r = {f.r:.3}")
+    off0 := best[0].off
+    print("outermost ring dated to {start + off0 + 11}, master covers {start}-{start + master.len() - 1}")
+
+@test fn perfect()
+    assert((pearson([1.0, 2.0, 3.0], [2.0, 4.0, 6.0]) - 1.0).abs() < 0.000001)

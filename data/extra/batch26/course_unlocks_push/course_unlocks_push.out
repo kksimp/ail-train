@@ -1,0 +1,7 @@
+Stats 1 unlocks Stats 2, Data Viz
+Stats 2 unlocks ML
+Linear Algebra unlocks ML, Graphics
+ML unlocks Robotics
+Mechanics unlocks Robotics
+with Stats 1 and Linear Algebra: Data Viz, Graphics, Stats 2
+open the most: Linear Algebra and Stats 1

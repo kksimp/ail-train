@@ -1,0 +1,8 @@
+t= 50: exact 14, estimate 12, buckets [1, 1, 2, 2, 4, 4]
+t=100: exact 21, estimate 20, buckets [1, 1, 2, 4, 8, 8]
+t=150: exact 15, estimate 15, buckets [1, 2, 4, 4, 8]
+t=200: exact 20, estimate 22, buckets [1, 1, 2, 2, 4, 8, 8]
+t=250: exact 44, estimate 42, buckets [1, 1, 2, 2, 4, 8, 16, 16]
+t=300: exact 47, estimate 48, buckets [1, 1, 2, 4, 8, 8, 16, 16]
+t=350: exact 44, estimate 50, buckets [1, 1, 2, 2, 4, 8, 8, 16, 16]
+t=400: exact 47, estimate 40, buckets [1, 1, 2, 4, 8, 16, 16]

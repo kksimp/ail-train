@@ -1,0 +1,52 @@
+## Ring chase: an original race on a 16-space ring; each player moves one of two tokens by a seeded roll of
+## 1 to 4, capturing when it can (the victim goes back to its start) and else moving its rearmost token.
+
+struct Rng
+    state int
+
+fn Rng.roll(mut self) int
+    self.state = (self.state * 1103515245 + 12345) % 2147483648
+    1 + (self.state / 65536) % 4
+
+struct Token
+    owner int
+    pos int
+    walked int
+
+fn main()
+    starts := [0, 8]
+    names := ["Red", "Blue"]
+    mut tokens := [Token(owner: 0, pos: 0, walked: 0), Token(owner: 0, pos: 0, walked: 0), Token(owner: 1, pos: 8, walked: 0), Token(owner: 1, pos: 8, walked: 0)]
+    mut laps := [0, 0]
+    mut rng := Rng(state: 12)
+    mut turn := 0
+    while laps[0] < 3 and laps[1] < 3
+        p := turn % 2
+        roll := rng.roll()
+        mine := [k for k in 0..4 if tokens[k].owner == p]
+        mut pick := mine[0]
+        if tokens[mine[1]].walked < tokens[pick].walked
+            pick = mine[1]
+        for i in mine
+            land := (tokens[i].pos + roll) % 16
+            if tokens.any(|t| t.owner != p and t.pos == land)
+                pick = i
+        tokens[pick].pos = (tokens[pick].pos + roll) % 16
+        tokens[pick].walked += roll
+        at := tokens[pick].pos
+        for mut t in tokens
+            if t.owner != p and t.pos == at
+                t.pos = starts[t.owner]
+                t.walked = 0
+                print("turn {turn + 1:>2}: {names[p]} rolls {roll} and sends a {names[1 - p]} token home from {at}")
+        if tokens[pick].walked >= 16
+            laps[p] += 1
+            tokens[pick].pos = starts[p]
+            tokens[pick].walked = 0
+            print("turn {turn + 1:>2}: {names[p]} completes lap {laps[p]}")
+        turn += 1
+    winner := if laps[0] == 3 then names[0] else names[1]
+    print("{winner} wins after {turn} turns, laps {laps}")
+
+@test fn wraps()
+    assert_eq((14 + 4) % 16, 2)

@@ -1,0 +1,51 @@
+## Kana to Hepburn romaji: a table built from the kana rows, a small ya/yu/yo joins the kana before it
+## (ki+ya is kya, shi+ya is sha), a small tsu doubles the next consonant (tch before ch), and n before a vowel or y takes an apostrophe.
+
+fn table() Map[str, str]
+    rows := [("あいうえお", "a i u e o"), ("かきくけこ", "ka ki ku ke ko"), ("がぎぐげご", "ga gi gu ge go"), ("さしすせそ", "sa shi su se so"), ("ざじずぜぞ", "za ji zu ze zo"), ("たちつてと", "ta chi tsu te to"), ("だでど", "da de do"), ("なにぬねの", "na ni nu ne no"), ("はひふへほ", "ha hi fu he ho"), ("ばびぶべぼ", "ba bi bu be bo"), ("まみむめも", "ma mi mu me mo"), ("やゆよ", "ya yu yo"), ("らりるれろ", "ra ri ru re ro"), ("わを", "wa o")]
+    mut m := Map[str, str]()
+    for r in rows
+        kana, roman := r
+        romans := roman.split(" ")
+        for i, k in kana.chars().enumerate()
+            m["{k}"] = romans[i]
+    m
+
+fn romanise(word str, m Map[str, str]) str
+    small := {'ゃ': "a", 'ゅ': "u", 'ょ': "o"}
+    cs := word.chars()
+    mut out := List[str]()
+    mut double := false
+    for i, c in cs.enumerate()
+        mut r := ""
+        if c == 'っ'
+            double = true
+            continue
+        elif small.contains(c)
+            prev := out.pop() else ""
+            stem := prev.slice(0, prev.len() - 1)
+            glide := if stem.len() == 1 and stem != "j" then "y" else ""
+            r = "{stem}{glide}{small[c]}"
+        elif c == 'ん'
+            nxt := word.char_at(i + 1) else ' '
+            r = if "あいうえおやゆよ".contains(nxt) then "n'" else "n"
+        else
+            r = m.get_or("{c}", "?")
+        if double
+            lead := if r.starts_with("ch") then "t" else r.slice(0, 1)
+            r = "{lead}{r}"
+            double = false
+        out.push(r)
+    out.join("")
+
+fn main()
+    m := table()
+    words := ["さくら", "きょうと", "しんぶん", "がっこう", "まっちゃ", "きんようび", "ふじさん", "ちゅうしゃ", "じゃま", "ほっかいどう"]
+    for w in words
+        print("{w}: {romanise(w, m)}")
+    print("{m.len()} kana in the table")
+
+@test fn sha()
+    m := table()
+    assert_eq(romanise("しゃしん", m), "shashin")
+    assert_eq(romanise("きって", m), "kitte")

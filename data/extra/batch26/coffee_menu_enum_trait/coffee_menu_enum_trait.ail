@@ -1,0 +1,46 @@
+## Coffee menu: a `Drink` enum with fields (oat milk, extra shots, steeping minutes) implements a
+## `Priced` trait whose methods `match self`; table orders are totalled and the dearest drink found.
+
+enum Drink
+    Espresso
+    Latte(oat bool)
+    Mocha(shots int)
+    Tea(minutes int)
+
+trait Priced
+    fn cents(self) int
+    fn label(self) str
+
+impl Priced for Drink
+    fn cents(self) int
+        match self
+            Espresso => 220
+            Latte(oat) => if oat then 360 else 330
+            Mocha(s) => 350 + (s - 1) * 60
+            Tea(_) => 250
+    fn label(self) str
+        match self
+            Espresso => "espresso"
+            Latte(oat) => if oat then "oat latte" else "latte"
+            Mocha(s) => "mocha x{s}"
+            Tea(m) => "tea ({m} min)"
+
+fn money(c int) str
+    "{c / 100}.{c % 100:02}"
+
+fn main()
+    tables := [
+        [Drink.Espresso, Drink.Latte(oat: true), Drink.Mocha(shots: 2)],
+        [Drink.Tea(minutes: 4), Drink.Latte(oat: false), Drink.Latte(oat: false)],
+        [Drink.Mocha(shots: 3), Drink.Espresso],
+    ]
+    for i, t in tables.enumerate()
+        names := t.map(|d| d.label()).join(", ")
+        total := t.map(|d| d.cents()).sum()
+        print("table {i + 1}: {names} = {money(total)}")
+    every := tables.flatten()
+    dearest := every.max(by: |d| d.cents()) else Drink.Espresso
+    print("dearest drink: {dearest.label()} at {money(dearest.cents())}")
+
+@test fn three_shot_mocha()
+    assert_eq(Drink.Mocha(shots: 3).cents(), 470)

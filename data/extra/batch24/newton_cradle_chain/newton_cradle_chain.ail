@@ -1,0 +1,45 @@
+## Collision chain: five balls on a track, the first moving at 2 m/s and one twice as heavy in the middle;
+## each next contact is found from gaps and closing speeds, then resolved as a 1-D elastic collision.
+
+fn main()
+    mass := [1.0, 1.0, 2.0, 1.0, 1.0]
+    mut x := [0.0, 1.0, 1.5, 2.2, 2.6]
+    mut v := [2.0, 0.0, 0.0, 0.0, 0.0]
+    mut t := 0.0
+    mut count := 0
+    while count < 12
+        mut soonest := -1.0
+        mut pair := -1
+        for i in 0..4
+            closing := v[i] - v[i + 1]
+            if closing > 0.0
+                dt := (x[i + 1] - x[i]) / closing
+                if pair < 0 or dt < soonest
+                    soonest = dt
+                    pair = i
+        if pair < 0
+            break
+        for i in 0..5
+            x[i] += v[i] * soonest
+        t += soonest
+        a := pair
+        b := pair + 1
+        m1 := mass[a]
+        m2 := mass[b]
+        u1 := v[a]
+        u2 := v[b]
+        v[a] = ((m1 - m2) * u1 + 2.0 * m2 * u2) / (m1 + m2)
+        v[b] = ((m2 - m1) * u2 + 2.0 * m1 * u1) / (m1 + m2)
+        count += 1
+        print("t {t:.3} s: balls {a + 1} and {b + 1} collide")
+    speeds := v.map(|s| "{s:.3}").join(", ")
+    print("{count} collisions, then no pair is closing; speeds {speeds}")
+    mut ke := 0.0
+    for i in 0..5
+        ke = ke + 0.5 * mass[i] * v[i] * v[i]
+    print("kinetic energy {ke:.4} J (2.0000 at the start)")
+
+@test fn equal_masses_swap()
+    m1 := 1.0
+    m2 := 1.0
+    assert_eq(((m1 - m2) * 2.0 + 2.0 * m2 * 0.0) / (m1 + m2), 0.0)

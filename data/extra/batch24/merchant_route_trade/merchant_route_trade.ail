@@ -1,0 +1,38 @@
+## Merchant loop: a trader circles towns A, B and C, sells everything on arrival, then buys up to 20 of the
+## good with the best markup at the next town; every 5 units bought raise a price by 1 and every 5 sold lower it.
+
+fn main()
+    towns := ["A", "B", "C"]
+    goods := ["grain", "cloth"]
+    mut price := [[10, 40], [16, 31], [13, 48]]
+    mut gold := 300
+    mut cargo := -1
+    mut amount := 0
+    for leg in 0..9
+        here := leg % 3
+        there := (leg + 1) % 3
+        if cargo >= 0
+            gold += amount * price[here][cargo]
+            price[here][cargo] -= amount / 5
+        mut pick := -1
+        mut best := 0
+        for g in 0..2
+            margin := price[there][g] - price[here][g]
+            if margin > best
+                best = margin
+                pick = g
+        cargo = pick
+        amount = 0
+        if pick >= 0
+            amount = 20.min(gold / price[here][pick])
+            gold -= amount * price[here][pick]
+            price[here][pick] += amount / 5
+            print("leg {leg + 1}: at {towns[here]} buy {amount} {goods[pick]} (markup {best}), gold {gold}")
+        else
+            print("leg {leg + 1}: at {towns[here]} nothing worth carrying, gold {gold}")
+    if cargo >= 0
+        gold += amount * price[0][cargo]
+    print("back at A with {gold} gold; prices now {price}")
+
+@test fn units_move_price()
+    assert_eq(20 / 5, 4)

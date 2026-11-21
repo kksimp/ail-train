@@ -1,0 +1,34 @@
+## Toggle pegs: balls fall through four rows of pegs, and each peg sends a ball left or right by its current
+## setting and then flips; 32 balls end up spread exactly evenly, unlike the bell curve of random bounces.
+
+fn drop_ball(mut pegs List[List[bool]]) int
+    mut slot := 0
+    for row in 0..pegs.len()
+        right := pegs[row][slot]
+        pegs[row][slot] = not right
+        slot = slot * 2 + (if right then 1 else 0)
+    slot
+
+fn main()
+    mut pegs := List[List[bool]]()
+    for row in 0..4
+        mut line := List[bool]()
+        for k in 0..(1 << row)
+            line.push(false)
+        pegs.push(line)
+    mut bins := [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    mut order := List[int]()
+    for ball in 0..32
+        b := drop_ball(mut pegs)
+        bins[b] += 1
+        if ball < 8
+            order.push(b)
+    print("first eight balls land in bins {order}")
+    print("bin counts after 32 balls {bins}")
+    states := pegs.map(|line| line.count(|p| p))
+    print("pegs set to the right per row {states}")
+
+@test fn first_ball_goes_left()
+    mut pegs := [[false], [false, false]]
+    assert_eq(drop_ball(mut pegs), 0)
+    assert_eq(drop_ball(mut pegs), 2)

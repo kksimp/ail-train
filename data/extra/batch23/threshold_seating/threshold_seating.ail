@@ -1,0 +1,60 @@
+## Threshold accepting for a seating plan: random swaps of two guests at a round table are kept unless they lower the
+## neighbour happiness by more than a threshold that shrinks to zero; plain hill climbing (threshold 0) gets stuck sooner.
+
+struct Lcg
+    state int
+
+fn Lcg.next(mut self, n int) int
+    self.state = (self.state * 1103515245 + 12345) % 2147483648
+    (self.state >> 8) % n
+
+fn happiness(seats List[int], like List[List[int]]) int
+    mut total := 0
+    for i in 0..seats.len()
+        j := (i + 1) % seats.len()
+        total += like[seats[i]][seats[j]]
+    total
+
+fn improve(start List[int], like List[List[int]], top int, rounds int, seed int) int
+    mut rng := Lcg(state: seed)
+    mut seats := start
+    mut cur := happiness(seats, like)
+    mut best := cur
+    for t in 0..rounds
+        limit := top * (rounds - t) / rounds
+        a := rng.next(seats.len())
+        b := rng.next(seats.len())
+        seats.swap(a, b)
+        h := happiness(seats, like)
+        if h >= cur - limit
+            cur = h
+            best = best.max(cur)
+        else
+            seats.swap(a, b)
+    best
+
+fn main()
+    n := 12
+    mut rng := Lcg(state: 314)
+    mut like := List[List[int]]()
+    for i in 0..n
+        mut row := List[int]()
+        for j in 0..n
+            row.push(0)
+        like.push(row)
+    for i in 0..n
+        from := i + 1
+        for j in from..n
+            v := rng.next(21) - 10
+            like[i][j] = v
+            like[j][i] = v
+    start := [i for i in 0..n]
+    print("{n} guests, neighbour likes from -10 to 10; seated in order: {happiness(start, like)}")
+    for seed in [1, 2, 3]
+        hill := improve(start, like, 0, 3000, seed)
+        thresh := improve(start, like, 8, 3000, seed)
+        print("run {seed}: hill climbing {hill:>3}, threshold accepting {thresh:>3}")
+
+@test fn ring_sum()
+    like := [[0, 1, 2], [1, 0, 3], [2, 3, 0]]
+    assert_eq(happiness([0, 1, 2], like), 6)

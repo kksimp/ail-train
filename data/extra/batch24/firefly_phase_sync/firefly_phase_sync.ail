@@ -1,0 +1,47 @@
+## Firefly sync: eight fireflies in a ring count from seeded phases up to 100, flash and restart; a flash
+## nudges both neighbours 15 closer, which can set them off in the same tick, so the flashing drifts into step.
+
+struct Rng
+    state int
+
+fn Rng.below(mut self, n int) int
+    self.state = (self.state * 1103515245 + 12345) % 2147483648
+    (self.state / 65536) % n
+
+fn tick_once(mut ph List[int]) bool
+    n := ph.len()
+    mut flashed := List[bool]()
+    mut queue := Deque[int]()
+    for i in 0..n
+        ph[i] += 1
+        flashed.push(ph[i] >= 100)
+        if ph[i] >= 100
+            queue.push_back(i)
+    while k := queue.pop_front()
+        ph[k] = 0
+        for j in [(k + n - 1) % n, (k + 1) % n]
+            if not flashed[j]
+                ph[j] += 15
+                if ph[j] >= 100
+                    flashed[j] = true
+                    queue.push_back(j)
+    flashed.any(|f| f)
+
+fn main()
+    mut rng := Rng(state: 5)
+    mut ph := List[int]()
+    for i in 0..8
+        ph.push(rng.below(100))
+    print("start phases {ph}")
+    for w in 0..8
+        mut flash_ticks := 0
+        for t in 0..100
+            if tick_once(mut ph)
+                flash_ticks += 1
+        print("ticks {w * 100:>3}-{w * 100 + 99:>3}: flashes on {flash_ticks} separate ticks")
+    print("end phases {ph}")
+
+@test fn neighbour_pulled_along()
+    mut ph := [99, 90, 10]
+    assert(tick_once(mut ph))
+    assert_eq(ph, [0, 0, 41])

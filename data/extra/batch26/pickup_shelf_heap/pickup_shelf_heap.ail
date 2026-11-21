@@ -1,0 +1,30 @@
+## Pickup shelf: click-and-collect orders sit in a min-`Heap` by ready time (then name); every
+## half hour the desk hands over each order whose time has come, reading the next one with `peek`.
+
+struct Pickup
+    time int
+    name str
+
+impl Ord for Pickup
+
+fn clock(m int) str
+    t := 9 * 60 + m
+    "{t / 60:02}:{t % 60:02}"
+
+fn main()
+    orders := [Pickup(time: 75, name: "Okoro"), Pickup(time: 30, name: "Batista"), Pickup(time: 30, name: "Chen"), Pickup(time: 120, name: "Dahl"), Pickup(time: 50, name: "Evans"), Pickup(time: 95, name: "Ford")]
+    queue := Heap.from(orders).to_sorted().map(|p| p.name).join(", ")
+    print("ready order: {queue}")
+    mut shelf := Heap.from(orders)
+    for tick in [30, 60, 90, 120]
+        mut handed := List[str]()
+        while (shelf.peek()?.time else 10000) <= tick
+            p := shelf.pop() else break
+            handed.push("{p.name} (ready {clock(p.time)})")
+        shown := if handed.is_empty() then "nobody" else handed.join(", ")
+        print("{clock(tick)}: {shown}")
+    print("left on the shelf: {shelf.len()}")
+
+@test fn smallest_first()
+    h := Heap.from([5, 2, 8])
+    assert_eq(h.peek() else 0, 2)

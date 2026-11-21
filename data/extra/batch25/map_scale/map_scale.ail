@@ -1,0 +1,25 @@
+## Map scales: at 1:N one map centimetre is N centimetres on the ground, so a 4 cm walk is 4N / 100000 km,
+## a kilometre is 100000 / N cm of map, and areas scale by N squared (N^2 / 100000000 hectares per square cm).
+
+fn parse(s str) int ! Fail
+    parts := s.split(":")
+    if parts.len() != 2 or parts[0] != "1"
+        return Fail(msg: "bad scale {s}")
+    n := parts[1].to_int() else return Fail(msg: "bad scale {s}")
+    n
+
+fn main()
+    print("scale        1 cm      4 cm walk  1 km on map  1 cm2")
+    for text in ["1:10000", "1:25000", "1:50000", "1:63360", "1:250000", "1:1000000", "1/50000"]
+        if n := parse(text)
+            one_cm := n / 100
+            walk := 4.0 * n.to_float() / 100000.0
+            km := 100000.0 / n.to_float()
+            ha := n.to_float() * n.to_float() / 100000000.0
+            print("{text:<10} {one_cm:>7} m  {walk:>8.2} km  {km:>8.3} cm  {ha:>8.2} ha")
+        else err
+            print("{text:<10} {err.msg}")
+
+@test fn parsing()
+    assert_eq(parse("1:25000")?, 25000)
+    assert_err(parse("2:5"))

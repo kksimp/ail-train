@@ -69,10 +69,19 @@ everyday forms with less common built-ins. Each batch is checked on the Mac befo
   (batch21) and finance, economics, operations and logistics (batch22). The 6 failures were two int overflows or
   out-of-range reads that Python hid, one bar length rounded differently (Python's `round` goes to even, AIL's
   away from zero) and three wrongly worked-out test values. All 500 pass.
+- `batch23/` to `batch26/`: 396 programs written in parallel: classic algorithms and data structures second
+  pass (batch23), simulations and small engines of original design (batch24), humanities, geography, language,
+  music and sport (batch25) and AIL language features second pass, including structured concurrency (batch26).
+  The Mac check found 7 program mistakes (a `Drop` struct, a `par for` holding a mutex, an `if` on a fallible
+  call with no `else`, a list of `none` with no optional type, three wrong test values). Four batch26 programs
+  were dropped because the native backend can't build them yet (an optional `any Trait`, `.get(k) else` on a
+  generic struct, and a derived `Ord` on a struct with an enum field, filed as kksimp/ail#1419). All 396 pass.
+  In the full run cron_minutes and pinyin_marks hit the same shared test-runner cache race as golf_card; run
+  alone, both pass.
 
 ## Status
 
-**Checked: 2240 of 2240 pass** (40 drills, 100 each in batch01 to batch22) with ail 3d0c5c913 (0.2.0 release candidate) on 2026-11-21 (`RESULTS.txt`). On the drills' first
+**Checked: 2636 of 2636 pass** (40 drills, 100 each in batch01 to batch25, 96 in batch26) with ail 3d0c5c913 (0.2.0 release candidate) on 2026-11-21 (`RESULTS.txt`). On the drills' first
 run 34 passed; 6 were fixed (four AIL forms guessed wrong: `str ! str`, calling a `fn` field as a method,
 `Grid.to_list().sum()` on rows, an `if :=` on a failing result with no `else`; two Python twins were wrong).
 These were written in a cloud session, where AIL builds are not allowed.

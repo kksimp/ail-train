@@ -1,0 +1,22 @@
+## Egg cartons: eggs are graded by weight (S under 53 g, M to 62, L to 72, XL above) with
+## `group_by`, then each grade is boxed six to a carton with `chunks(6)`, noting part-filled cartons.
+
+fn grade(g int) str
+    if g < 53 then "S" elif g < 63 then "M" elif g < 73 then "L" else "XL"
+
+fn main()
+    weights := [64, 58, 71, 49, 66, 75, 61, 68, 70, 55, 63, 77, 52, 69, 60, 65, 72, 59, 66, 74, 67, 62, 53, 70]
+    groups := weights.group_by(grade)
+    mut cartons := 0
+    for g in ["S", "M", "L", "XL"]
+        eggs := groups.get(g) else List[int]()
+        boxes := eggs.chunks(6)
+        cartons += boxes.len()
+        part := boxes.filter(|b| b.len() < 6)
+        note := if part.is_empty() then "all full" else "one holds {part[0].len()}"
+        print("{g:<2} {eggs.len():>2} eggs -> {boxes.len()} cartons, {note}")
+    heaviest := weights.max() else 0
+    print("{weights.len()} eggs in {cartons} cartons, heaviest {heaviest} g")
+
+@test fn chunk_count()
+    assert_eq([1, 2, 3, 4, 5].chunks(2).len(), 3)

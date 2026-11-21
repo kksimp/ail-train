@@ -1,0 +1,37 @@
+## Pick list: warehouse orders are expanded with `flat_map` into one pick task per unit
+## ("sku@order"), then `group_by` on the aisle letter gives each picker's walk; a set counts SKUs.
+
+struct Line
+    sku str
+    qty int
+
+struct Order
+    id int
+    lines List[Line]
+
+fn tasks(o Order) List[str]
+    mut out := List[str]()
+    for l in o.lines
+        for _ in 0..l.qty
+            out.push("{l.sku}@{o.id}")
+    out
+
+fn main()
+    orders := [
+        Order(id: 501, lines: [Line(sku: "A-12", qty: 2), Line(sku: "C-03", qty: 1)]),
+        Order(id: 502, lines: [Line(sku: "B-07", qty: 3)]),
+        Order(id: 503, lines: [Line(sku: "A-12", qty: 1), Line(sku: "B-01", qty: 1), Line(sku: "C-03", qty: 2)]),
+    ]
+    picks := orders.flat_map(tasks)
+    print("{picks.len()} picks from {orders.len()} orders")
+    by_aisle := picks.group_by(|p| p.slice(0, 1))
+    for aisle in by_aisle.keys().sorted()
+        walk := by_aisle[aisle]
+        shown := walk.join(" ")
+        print("aisle {aisle} ({walk.len()}): {shown}")
+    skus := {p.split("@")[0] for p in picks}
+    listed := skus.sorted().join(", ")
+    print("distinct SKUs: {listed}")
+
+@test fn one_task_per_unit()
+    assert_eq(tasks(Order(id: 1, lines: [Line(sku: "Z", qty: 2)])).len(), 2)

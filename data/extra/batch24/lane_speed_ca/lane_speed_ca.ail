@@ -1,0 +1,39 @@
+## Ring road: eight cars on a 30-cell loop; each tick every car speeds up by one, up to 3 cells a tick
+## but never more than the empty cells ahead, then all move at once. A jam of stopped cars dissolves.
+
+struct Car
+    pos int
+    speed int
+
+fn road(cars List[Car], size int) str
+    mut cells := List[str]()
+    for i in 0..size
+        cells.push(".")
+    for car in cars
+        cells[car.pos] = "{car.speed}"
+    cells.join("")
+
+fn tick(mut cars List[Car], size int)
+    n := cars.len()
+    mut speeds := List[int]()
+    for k in 0..n
+        gap := (cars[(k + 1) % n].pos - cars[k].pos - 1 + size) % size
+        speeds.push((cars[k].speed + 1).min(3).min(gap))
+    for k in 0..n
+        cars[k].speed = speeds[k]
+        cars[k].pos = (cars[k].pos + speeds[k]) % size
+
+fn main()
+    size := 30
+    mut cars := [0, 1, 2, 3, 4, 5, 14, 22].map(|p| Car(pos: p, speed: 0))
+    mut moved := 0
+    for t in 0..10
+        print("{t:>2} {road(cars, size)}")
+        tick(mut cars, size)
+        moved += cars.fold(0, |acc, car| acc + car.speed)
+    print("mean speed over 10 ticks: {moved.to_float() / 80.0:.3} cells a tick")
+
+@test fn blocked_car_waits()
+    mut cars := [Car(pos: 0, speed: 0), Car(pos: 1, speed: 0)]
+    tick(mut cars, 3)
+    assert_eq(cars[0].speed, 0)

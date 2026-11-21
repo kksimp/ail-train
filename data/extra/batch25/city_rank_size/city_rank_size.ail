@@ -1,0 +1,32 @@
+## Rank-size rule: the r-th largest city should hold about P1 / r people; each city's actual size is set
+## against that, the primacy ratio P1 / P2 is shown, and a least-squares fit of ln P on ln r gives the real exponent.
+
+fn main()
+    cities := [("Port Alder", 2450000), ("Kingsbridge", 910000), ("Eastholm", 780000), ("Marrow", 455000), ("Fenwick", 402000), ("Saltash", 330000), ("Dunmore", 268000), ("Ollerby", 241000)]
+    ranked := cities.sorted(by: |c| -c.1)
+    first_pop := ranked[0].1
+    p1 := first_pop.to_float()
+    mut sx := 0.0
+    mut sy := 0.0
+    mut sxx := 0.0
+    mut sxy := 0.0
+    for i, c in ranked.enumerate()
+        r := (i + 1).to_float()
+        expect := p1 / r
+        pop := c.1
+        share := pop.to_float() / expect * 100.0
+        print("{i + 1}. {c.0:<12} {c.1:>9,}  rule says {expect:>9.0}  ({share:>5.1}%)")
+        x := r.ln()
+        y := pop.to_float().ln()
+        sx += x
+        sy += y
+        sxx += x * x
+        sxy += x * y
+    n := ranked.len().to_float()
+    slope := (n * sxy - sx * sy) / (n * sxx - sx * sx)
+    second_pop := ranked[1].1
+    primacy := p1 / second_pop.to_float()
+    print("primacy ratio {primacy:.2}, fitted exponent {-slope:.2} (the rule says 1.00)")
+
+@test fn rule()
+    assert_eq(1200000.0 / 4.0, 300000.0)

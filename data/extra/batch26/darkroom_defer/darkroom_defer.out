@@ -1,0 +1,14 @@
+contact sheet: safelight on
+  print 1: expose 8 s
+  print 1: into the wash
+contact sheet: safelight off
+kept 1
+enlargement: safelight on
+  print 1: expose 15 s
+  print 1: into the wash
+  print 2: expose 25 s
+  print 2: overexposed, binned
+  print 2: into the wash
+enlargement: safelight off
+kept 1
+darkroom locked

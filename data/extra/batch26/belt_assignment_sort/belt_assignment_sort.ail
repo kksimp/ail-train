@@ -1,0 +1,42 @@
+## Belt assignment: arrivals are sorted in place with `sort(by: |a| (a.landed, a.flight))`; each
+## takes the reclaim belt that frees first (international only on belts 1-2), and `sorted(by:)` ranks bag counts.
+
+struct Arrival
+    flight str
+    landed int
+    bags int
+    intl bool
+
+fn pick(free List[int], allowed int) int
+    mut best := 0
+    for b in 1..allowed
+        if free[b] < free[best]
+            best = b
+    best
+
+fn clock(m int) str
+    t := 14 * 60 + m
+    "{t / 60:02}:{t % 60:02}"
+
+fn main()
+    mut arrivals := [
+        Arrival(flight: "EZ214", landed: 5, bags: 150, intl: false),
+        Arrival(flight: "BA331", landed: 0, bags: 210, intl: true),
+        Arrival(flight: "FR882", landed: 12, bags: 180, intl: false),
+        Arrival(flight: "LH907", landed: 5, bags: 240, intl: true),
+        Arrival(flight: "KL112", landed: 20, bags: 90, intl: true),
+        Arrival(flight: "U2310", landed: 25, bags: 120, intl: false),
+    ]
+    arrivals.sort(by: |a| (a.landed, a.flight))
+    mut free := [0, 0, 0]
+    for a in arrivals
+        allowed := if a.intl then 2 else 3
+        b := pick(free, allowed)
+        start := (a.landed + 10).max(free[b])
+        free[b] = start + a.bags / 30 + 5
+        print("{a.flight} landed {clock(a.landed)}: belt {b + 1}, {clock(start)}-{clock(free[b])}")
+    busiest := arrivals.sorted(by: |a| (-a.bags, a.flight)).take(2).map(|a| a.flight).join(", ")
+    print("most bags: {busiest}")
+
+@test fn first_free_belt()
+    assert_eq(pick([5, 3, 1], 2), 1)

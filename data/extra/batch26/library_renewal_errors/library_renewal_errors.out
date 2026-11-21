@@ -1,0 +1,8 @@
+renew 101: now due day 34
+renew 101: now due day 48
+renew 102: refused, already renewed 2 times
+renew 103: refused, reserved by Priya
+renew 104: refused, book 104 is not on loan
+renew 101: refused, already renewed 2 times
+refused (not on loan, limit, reserved): [1, 2, 1]
+latest due day: 48

@@ -1,0 +1,40 @@
+## Lane jockeying: shoppers join the shorter of two checkout lanes; each minute, if one lane is two or more
+## people longer, its last shopper switches. Prints when each shopper finishes and how many switched.
+
+struct Shopper
+    id int
+    left int
+    switched bool
+
+fn main()
+    arrivals := [(0, 4), (0, 2), (1, 5), (1, 1), (2, 3), (2, 2), (3, 6), (3, 1), (4, 2), (4, 3)]
+    mut lanes := [List[Shopper](), List[Shopper]()]
+    mut done := 0
+    mut switches := 0
+    mut minute := 0
+    while done < arrivals.len()
+        for i, a in arrivals.enumerate()
+            if a.0 == minute
+                lane := if lanes[1].len() < lanes[0].len() then 1 else 0
+                lanes[lane].push(Shopper(id: i + 1, left: a.1, switched: false))
+        for k in 0..2
+            if lanes[k].len() >= lanes[1 - k].len() + 2
+                mut s := lanes[k].pop() else continue
+                s.switched = true
+                switches += 1
+                lanes[1 - k].push(s)
+        minute += 1
+        for k in 0..2
+            if not lanes[k].is_empty()
+                lanes[k][0].left -= 1
+                if lanes[k][0].left == 0
+                    s := lanes[k].remove_at(0)
+                    note := if s.switched then " (switched)" else ""
+                    print("minute {minute:>2}: shopper {s.id} leaves lane {k + 1}{note}")
+                    done += 1
+    print("{switches} switches, last shopper out at minute {minute}")
+
+@test fn front_counts_down()
+    mut lane := [Shopper(id: 1, left: 2, switched: false)]
+    lane[0].left -= 1
+    assert_eq(lane[0].left, 1)

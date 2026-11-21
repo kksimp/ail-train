@@ -1,0 +1,35 @@
+## Car wash programs: `match` on a (size, dirt level) tuple with literal, wildcard and guarded
+## arms picks each car's wash; prices come from a string `match`, and a map counts each program.
+
+fn program(size char, dirt int) str
+    match (size, dirt)
+        ('V', _) => "van bay"
+        (_, 0) => "rinse only"
+        ('S', d) if d <= 2 => "quick wash"
+        (_, d) if d >= 4 => "deluxe wash"
+        _ => "standard wash"
+
+fn price(name str) int
+    match name
+        "van bay" => 1500
+        "rinse only" => 300
+        "quick wash" => 600
+        "deluxe wash" => 1400
+        _ => 900
+
+fn main()
+    cars := [("AB12", 'S', 1), ("CD34", 'M', 0), ("EF56", 'V', 5), ("GH78", 'L', 4), ("IJ90", 'M', 2), ("KL11", 'S', 3)]
+    mut counts := Map[str, int]()
+    mut takings := 0
+    for car in cars
+        plate, size, dirt := car
+        p := program(size, dirt)
+        counts[p] += 1
+        takings += price(p)
+        print("{plate} ({size}, dirt {dirt}): {p}")
+    for name, n in counts
+        print("{name}: {n}")
+    print("takings {takings / 100}.{takings % 100:02}")
+
+@test fn small_light_dirt()
+    assert_eq(program('S', 2), "quick wash")

@@ -1,0 +1,45 @@
+## Trip checklists: each trip starts as a copy of one template checklist, then adds and ticks its
+## own items with `mut self` methods; because structs copy, the template itself never changes.
+
+struct Checklist
+    trip str
+    items List[str]
+    done List[bool]
+
+fn Checklist.add(mut self, item str)
+    self.items.push(item)
+    self.done.push(false)
+
+fn Checklist.tick(mut self, item str)
+    if i := self.items.index_of(item)
+        self.done[i] = true
+
+fn Checklist.left(self) List[str]
+    [self.items[i] for i in 0..self.items.len() if not self.done[i]]
+
+fn report(c Checklist)
+    rest := c.left().join(", ")
+    print("{c.trip}: {c.items.len()} items, still to pack: {rest}")
+
+fn main()
+    template := Checklist(trip: "template", items: ["passport", "charger", "toothbrush", "tickets"], done: [false, false, false, false])
+    mut beach := template
+    beach.trip = "beach"
+    beach.add("sunscreen")
+    beach.tick("passport")
+    beach.tick("tickets")
+    mut ski := template
+    ski.trip = "ski"
+    ski.add("gloves")
+    ski.add("goggles")
+    ski.tick("charger")
+    ski.tick("gloves")
+    report(beach)
+    report(ski)
+    report(template)
+
+@test fn template_untouched()
+    t := Checklist(trip: "t", items: ["a"], done: [false])
+    mut c := t
+    c.add("b")
+    assert_eq(t.items.len(), 1)

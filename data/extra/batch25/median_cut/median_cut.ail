@@ -1,0 +1,45 @@
+## Median cut colour quantisation: the box of colours with the widest channel range is sorted on that
+## channel and split at its median, until there are four boxes; each box's average colour joins the palette.
+
+fn spread(px List[List[int]]) List[int]
+    mut best := 0
+    mut chan := 0
+    for c in 0..3
+        vals := px.map(|p| p[c])
+        r := (vals.max() else 0) - (vals.min() else 0)
+        if r > best
+            best = r
+            chan = c
+    [best, chan]
+
+fn hex(px List[List[int]]) str
+    mut parts := List[str]()
+    for c in 0..3
+        total := px.fold(0, |acc, p| acc + p[c])
+        avg := total / px.len()
+        parts.push("{avg:02x}")
+    joined := parts.join("")
+    "#{joined}"
+
+fn main()
+    pixels := [[250, 240, 230], [245, 235, 220], [30, 40, 60], [25, 35, 70], [200, 60, 50], [210, 70, 40], [190, 50, 60], [60, 150, 70], [70, 160, 60], [50, 140, 80], [240, 230, 240], [20, 30, 50]]
+    channels := ["red", "green", "blue"]
+    mut boxes := [pixels]
+    while boxes.len() < 4
+        mut pick := 0
+        for i in 0..boxes.len()
+            if spread(boxes[i])[0] > spread(boxes[pick])[0]
+                pick = i
+        chan := spread(boxes[pick])[1]
+        ordered := boxes[pick].sorted(by: |p| p[chan])
+        half := ordered.len() / 2
+        boxes.remove_at(pick)
+        boxes.push(ordered.slice(0, half))
+        boxes.push(ordered.slice(half))
+        channel := channels[chan]
+        print("split on {channel} at {ordered[half][chan]}")
+    for b in boxes
+        print("{b.len()} pixels -> {hex(b)}")
+
+@test fn widest()
+    assert_eq(spread([[0, 10, 0], [5, 90, 2]]), [80, 1])

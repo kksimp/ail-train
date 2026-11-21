@@ -1,0 +1,34 @@
+## Bike hire constants: top-level constants hold the unlock fee, per-minute rates for pedal and
+## electric bikes, members' free minutes and the daily cap; each ride's fare is built from them.
+
+UNLOCK := 100
+PER_MIN := 15
+EBIKE_PER_MIN := 25
+FREE_MINS := 10
+DAY_CAP := 1500
+
+fn fare(mins int, ebike bool, member bool) int
+    rate := if ebike then EBIKE_PER_MIN else PER_MIN
+    paid := if member then (mins - FREE_MINS).max(0) else mins
+    (UNLOCK + paid * rate).min(DAY_CAP)
+
+fn money(c int) str
+    "{c / 100}.{c % 100:02}"
+
+fn main()
+    rides := [(12, false, false), (12, false, true), (45, true, false), (70, true, true), (8, false, true)]
+    mut total := 0
+    mut capped := 0
+    for r in rides
+        mins, ebike, member := r
+        f := fare(mins, ebike, member)
+        kind := if ebike then "e-bike" else "bike"
+        who := if member then "member" else "guest"
+        if f == DAY_CAP
+            capped += 1
+        total += f
+        print("{mins:>3} min {kind:<6} {who:<6} {money(f):>6}")
+    print("{rides.len()} rides, {money(total)} in all, {capped} at the {money(DAY_CAP)} cap")
+
+@test fn member_free_minutes()
+    assert_eq(fare(8, false, true), 100)

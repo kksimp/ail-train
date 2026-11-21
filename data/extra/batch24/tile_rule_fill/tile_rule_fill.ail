@@ -1,0 +1,43 @@
+## Tile rules: a strip of 12 map tiles is filled left to right where water may only touch sand or water,
+## sand touches water or grass, and grass touches sand, grass or rock; seeded choices backtrack to end in water.
+
+struct Rng
+    state int
+
+fn Rng.below(mut self, n int) int
+    self.state = (self.state * 1103515245 + 12345) % 2147483648
+    (self.state / 65536) % n
+
+fn allowed(a int, b int) bool
+    (a - b).abs() <= 1
+
+fn fill(mut strip List[int], mut rng Rng, mut backs List[int]) bool
+    if strip.len() == 12
+        return strip[11] == 0
+    last := strip[strip.len() - 1]
+    start := rng.below(4)
+    for k in 0..4
+        t := (start + k) % 4
+        if allowed(last, t)
+            strip.push(t)
+            if fill(mut strip, mut rng, mut backs)
+                return true
+            _ := strip.pop()
+            backs[0] += 1
+    false
+
+fn main()
+    names := "~:\"^"
+    marks := names.chars()
+    for seed in [3, 33, 333]
+        mut rng := Rng(state: seed)
+        mut strip := [3]
+        mut backs := [0]
+        if fill(mut strip, mut rng, mut backs)
+            shown := strip.map(|t| marks[t]).join("")
+            print("seed {seed:>3}: {shown}  ({backs[0]} backtracks)")
+    print("key: ~ water, : sand, \" grass, ^ rock; every strip starts on rock")
+
+@test fn neighbours()
+    assert(allowed(0, 1))
+    assert(not allowed(0, 2))

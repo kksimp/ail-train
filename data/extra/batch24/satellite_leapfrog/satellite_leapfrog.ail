@@ -1,0 +1,40 @@
+## Orbit integrators: a satellite on a circular orbit (GM = 1, radius 1, speed 1) is stepped 1000 times with
+## dt = 0.05 by plain Euler and by leapfrog (kick, drift, kick); Euler spirals outward while leapfrog holds.
+
+fn accel(x float, y float) List[float]
+    r2 := x * x + y * y
+    r3 := r2 * r2.sqrt()
+    [-x / r3, -y / r3]
+
+fn main()
+    dt := 0.05
+    mut ex := 1.0
+    mut ey := 0.0
+    mut evx := 0.0
+    mut evy := 1.0
+    mut lx := 1.0
+    mut ly := 0.0
+    mut lvx := 0.0
+    mut lvy := 1.0
+    for step in 1..=1000
+        a := accel(ex, ey)
+        ex += evx * dt
+        ey += evy * dt
+        evx += a[0] * dt
+        evy += a[1] * dt
+        b := accel(lx, ly)
+        lvx += b[0] * dt / 2.0
+        lvy += b[1] * dt / 2.0
+        lx += lvx * dt
+        ly += lvy * dt
+        c := accel(lx, ly)
+        lvx += c[0] * dt / 2.0
+        lvy += c[1] * dt / 2.0
+        if step % 200 == 0
+            er := (ex * ex + ey * ey).sqrt()
+            lr := (lx * lx + ly * ly).sqrt()
+            print("t {step / 20:>2}: Euler radius {er:.4}, leapfrog radius {lr:.4}")
+
+@test fn pull_points_inward()
+    a := accel(2.0, 0.0)
+    assert_eq(a[0], -0.25)

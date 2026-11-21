@@ -1,0 +1,42 @@
+## Z-function search: z[i] is the length of the longest piece starting at i that matches the start of the
+## string; on pattern + "|" + text every z equal to the pattern length marks an occurrence, in linear time.
+
+fn z_array(cs List[char]) List[int]
+    n := cs.len()
+    mut z := List[int]()
+    for _ in 0..n
+        z.push(0)
+    mut l := 0
+    mut r := 0
+    for i in 1..n
+        if i < r
+            z[i] = (r - i).min(z[i - l])
+        while i + z[i] < n and cs[z[i]] == cs[i + z[i]]
+            z[i] += 1
+        if i + z[i] > r
+            l = i
+            r = i + z[i]
+    z
+
+fn find_all(pattern str, text str) List[int]
+    joined := "{pattern}|{text}"
+    z := z_array(joined.chars())
+    m := pattern.len()
+    start := m + 1
+    mut hits := List[int]()
+    for i in start..z.len()
+        if z[i] == m
+            hits.push(i - start)
+    hits
+
+fn main()
+    text := "abracadabra cadabra abra"
+    print("text: {text}")
+    for p in ["abra", "cad", "bra c", "dab", "a", "zz"]
+        hits := find_all(p, text)
+        print("{p:<6} found {hits.len()} times at {hits}")
+    z := z_array("aabxaab".chars())
+    print("z of aabxaab: {z}")
+
+@test fn z_basic()
+    assert_eq(z_array("aaaa".chars()), [0, 3, 2, 1])

@@ -1,0 +1,5 @@
+AAABBB        n=2: AB.AB.AB (8 slots, bound 8)
+AAABBB        n=0: ABABAB (6 slots, bound 6)
+AAAAAABCDEFG  n=2: ABCADEAFGA..A..A (16 slots, bound 16)
+AABBCCDD      n=3: ABCDABCD (8 slots, bound 8)
+AAAABBBCC     n=1: ABABACABC (9 slots, bound 9)

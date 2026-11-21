@@ -1,0 +1,52 @@
+## Sanskrit vowel sandhi: when a word ending in a vowel meets one starting with a vowel they fuse:
+## a + a is ā, a + i is e, a + u is o, a + e is ai, a + o is au, like vowels lengthen, and i or u before another vowel turn to y or v.
+
+fn short(c char) char
+    match c
+        'ā' => 'a'
+        'ī' => 'i'
+        'ū' => 'u'
+        _ => c
+
+fn long(c char) str
+    match c
+        'a' => "ā"
+        'i' => "ī"
+        _ => "ū"
+
+fn join(first str, second str) str
+    a := first.chars()
+    b := second.chars()
+    x := short(a[a.len() - 1])
+    y := short(b[0])
+    head := a.slice(0, a.len() - 1).join("")
+    tail := b.slice(1).join("")
+    whole := b.join("")
+    if not "aiu".contains(x) or not "aiueo".contains(y)
+        return "{first} {second}"
+    if x == y
+        return "{head}{long(x)}{tail}"
+    if x == 'a'
+        mid := match y
+            'i' => "e"
+            'u' => "o"
+            'e' => "ai"
+            _ => "au"
+        return "{head}{mid}{tail}"
+    glide := if x == 'i' then "y" else "v"
+    "{head}{glide}{whole}"
+
+fn main()
+    pairs := [("na", "asti"), ("deva", "indra"), ("sūrya", "udaya"), ("iti", "api"), ("su", "āgatam"), ("guru", "upadeśa"), ("rāma", "eva"), ("nadī", "iva"), ("tava", "odana"), ("vana", "gacchati")]
+    mut fused := 0
+    for p in pairs
+        first, second := p
+        j := join(first, second)
+        if not j.contains(" ")
+            fused += 1
+        print("{first} + {second} = {j}")
+    print("{fused} of {pairs.len()} pairs fused")
+
+@test fn devendra()
+    assert_eq(join("deva", "indra"), "devendra")
+    assert_eq(join("su", "āgatam"), "svāgatam")

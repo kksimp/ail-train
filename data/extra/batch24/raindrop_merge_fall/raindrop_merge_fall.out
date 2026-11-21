@@ -1,0 +1,6 @@
+tick  3: d catches up and joins, now cd of size 7
+tick  6: b catches up and joins, now ab of size 4
+tick  7: ab lands with size 4
+tick  7: cd lands with size 7
+tick 24: e lands with size 1
+all drops down after 24 ticks

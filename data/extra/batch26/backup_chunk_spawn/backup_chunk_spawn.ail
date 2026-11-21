@@ -1,0 +1,33 @@
+## Backup chunk check: four uploaded chunks are hashed in parallel tasks with `spawn` and `wait()?`,
+## and each rolling hash (h = h * 31 + code mod 1000003) is compared with the manifest made before upload.
+
+fn rolling(data str) int
+    mut h := 7
+    for c in data.chars()
+        h = (h * 31 + c.code()) % 1000003
+    h
+
+fn main() !
+    original := ["header:v2;size=4096", "rows 0-999 of orders", "rows 1000-1999 of orders", "footer:end"]
+    manifest := original.map(rolling)
+    uploaded := ["header:v2;size=4096", "rows 0-999 of orders", "rows 1000-1999 of 0rders", "footer:end"]
+    a := spawn rolling(uploaded[0])
+    b := spawn rolling(uploaded[1])
+    c := spawn rolling(uploaded[2])
+    d := spawn rolling(uploaded[3])
+    ha := a.wait()?
+    hb := b.wait()?
+    hc := c.wait()?
+    hd := d.wait()?
+    got := [ha, hb, hc, hd]
+    mut bad := 0
+    for i in 0..got.len()
+        ok := got[i] == manifest[i]
+        if not ok
+            bad += 1
+        verdict := if ok then "ok" else "MISMATCH, re-upload"
+        print("chunk {i + 1}: {got[i]:>7} vs {manifest[i]:>7} {verdict}")
+    print("{bad} of {got.len()} chunks need sending again")
+
+@test fn empty_hash()
+    assert_eq(rolling(""), 7)

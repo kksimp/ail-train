@@ -1,0 +1,32 @@
+## Dependency ratios across census years: youth (0-14) and old-age (65+) people per 100 of working age
+## (15-64), their total, and the support ratio of workers per older person; under 50 marks a demographic window.
+
+struct Census
+    year int
+    young int
+    working int
+    old int
+
+fn Census.ratio(self, n int) float
+    n.to_float() / self.working.to_float() * 100.0
+
+fn main()
+    years := [Census(year: 1960, young: 4210, working: 5900, old: 520), Census(year: 1980, young: 4480, working: 7650, old: 790), Census(year: 2000, young: 3720, working: 9480, old: 1150), Census(year: 2020, young: 2960, working: 10120, old: 1890), Census(year: 2040, young: 2610, working: 9300, old: 2950)]
+    print("year  youth   old  total  workers per older person")
+    for c in years
+        y := c.ratio(c.young)
+        o := c.ratio(c.old)
+        t := y + o
+        support := c.working.to_float() / c.old.to_float()
+        tag := if t < 50.0 then "  window" else ""
+        print("{c.year}  {y:>5.1} {o:>5.1}  {t:>5.1}  {support:>5.1}{tag}")
+    mut first := 0
+    for c in years
+        if first == 0 and c.ratio(c.young) + c.ratio(c.old) < 50.0
+            first = c.year
+    print("first census inside the window: {first}")
+
+@test fn ratio()
+    c := Census(year: 1, young: 30, working: 60, old: 15)
+    assert_eq(c.ratio(c.young), 50.0)
+    assert_eq(c.ratio(c.old), 25.0)

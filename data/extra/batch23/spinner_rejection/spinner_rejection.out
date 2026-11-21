@@ -1,0 +1,7 @@
+sector 1 weight 9: 1801 (expected 1800) ##################
+sector 2 weight 3:  618 (expected  600) ######
+sector 3 weight 6: 1153 (expected 1200) ###########
+sector 4 weight 1:  195 (expected  200) #
+sector 5 weight 4:  814 (expected  800) ########
+sector 6 weight 7: 1419 (expected 1400) ##############
+accepted 6000 of 10824 proposals: rate 0.554, theory 0.556

@@ -1,0 +1,48 @@
+## SimHash: every word's 32-bit FNV-1a hash votes +1 or -1 on each bit position, and the signs of the totals form
+## the document's fingerprint; near-duplicate texts end up only a few bits apart in Hamming distance.
+
+fn fnv(word str) int
+    mut h := 2166136261
+    for c in word.chars()
+        h = ((h ^ c.code()) * 16777619) % 4294967296
+    h
+
+fn simhash(text str) int
+    mut votes := List[int]()
+    for _ in 0..32
+        votes.push(0)
+    for w in text.words()
+        h := fnv(w)
+        for b in 0..32
+            if ((h >> b) & 1) == 1
+                votes[b] += 1
+            else
+                votes[b] -= 1
+    mut fp := 0
+    for b in 0..32
+        if votes[b] > 0
+            fp = fp | (1 << b)
+    fp
+
+fn distance(a int, b int) int
+    mut x := a ^ b
+    mut count := 0
+    while x != 0
+        count += (x & 1)
+        x = x >> 1
+    count
+
+fn main()
+    docs := ["the quick brown fox jumps over the lazy dog near the river bank", "the quick brown fox jumped over the lazy dog near the river bank", "a quick brown fox jumps over a lazy dog by the river bank", "share markets fell sharply today as investors sold technology shares", "investors sold technology shares today as markets fell sharply"]
+    fps := [simhash(d) for d in docs]
+    for i in 0..docs.len()
+        print("doc {i}: {fps[i]:08x}")
+    for i in 0..docs.len()
+        mut row := List[str]()
+        for j in 0..docs.len()
+            row.push("{distance(fps[i], fps[j]):>3}")
+        shown := row.join("")
+        print("bits apart from doc {i}:{shown}")
+
+@test fn same_text()
+    assert_eq(distance(simhash("a b c"), simhash("a b c")), 0)

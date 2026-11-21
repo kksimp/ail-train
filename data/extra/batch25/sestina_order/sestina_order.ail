@@ -1,0 +1,42 @@
+## Sestina end words: each stanza reuses the six end words of the one before in the spiral order
+## 6 1 5 2 4 3, so the seventh would repeat the first; the same spiral on n words has period n only for some n.
+
+fn spiral(n int) List[int]
+    mut order := List[int]()
+    mut lo := 1
+    mut hi := n
+    while lo <= hi
+        order.push(hi)
+        if lo < hi
+            order.push(lo)
+        lo += 1
+        hi -= 1
+    order
+
+fn period(n int) int
+    order := spiral(n)
+    start := [i for i in 1..=n]
+    mut cur := start
+    mut steps := 0
+    while true
+        cur = order.map(|k| cur[k - 1])
+        steps += 1
+        if cur == start
+            break
+    steps
+
+fn main()
+    mut words := ["night", "river", "stone", "bread", "window", "hands"]
+    first := words
+    order := spiral(6)
+    for s in 1..=6
+        line := words.join(" ")
+        print("stanza {s}: {line}")
+        words = order.map(|k| words[k - 1])
+    print("stanza 7 would repeat stanza 1: {words == first}")
+    good := [n for n in 1..=12 if period(n) == n]
+    print("spirals with period n up to 12: {good}")
+
+@test fn sestina()
+    assert_eq(spiral(6), [6, 1, 5, 2, 4, 3])
+    assert_eq(period(6), 6)

@@ -1,0 +1,36 @@
+## Regular numbers (2^a 3^b 5^c), the sizes a mixed-radix FFT handles well: Dijkstra's three-pointer merge builds them
+## in order, each the smallest of 2, 3 and 5 times an earlier one, then the next good FFT size above a signal length.
+
+fn regulars(count int) List[int]
+    mut h := [1]
+    mut i2 := 0
+    mut i3 := 0
+    mut i5 := 0
+    while h.len() < count
+        a := h[i2] * 2
+        b := h[i3] * 3
+        c := h[i5] * 5
+        v := a.min(b).min(c)
+        h.push(v)
+        if v == a
+            i2 += 1
+        if v == b
+            i3 += 1
+        if v == c
+            i5 += 1
+    h
+
+fn main()
+    h := regulars(1000)
+    first := h.slice(0, 20)
+    print("first 20: {first}")
+    print("100th: {h[99]}, 1000th: {h[999]}")
+    for length in [1000, 1100, 4097, 30001, 100000]
+        mut k := 0
+        while h[k] < length
+            k += 1
+        waste := h[k] - length
+        print("signal of {length:>6} samples -> FFT size {h[k]:>6} ({waste} padding)")
+
+@test fn first_ten()
+    assert_eq(regulars(10), [1, 2, 3, 4, 5, 6, 8, 9, 10, 12])

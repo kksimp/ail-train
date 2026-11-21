@@ -1,0 +1,13 @@
+card 501 issued for room 12
+card 502 issued for room 14
+card 503 issued for room 12
+card 502 opens room 14
+card 503 refused at room 14: card is for room 12
+card 501 revoked
+card 501 refused at room 12: unknown card
+card 504 issued for room 15
+card 503 opens room 12
+room 12: cards [503]
+room 14: cards [502]
+room 15: cards [504]
+2 refused swipes

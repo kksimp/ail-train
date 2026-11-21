@@ -1,0 +1,56 @@
+## Moss on damp stone: an original automaton on a wall map where a bare damp cell (~) grows moss when two
+## or more of its four neighbours hold moss, and moss on a dry cell (.) dies unless three neighbours hold moss.
+
+fn moss_near(g List[List[int]], r int, c int) int
+    mut n := 0
+    if r > 0
+        n += g[r - 1][c]
+    if r + 1 < g.len()
+        n += g[r + 1][c]
+    if c > 0
+        n += g[r][c - 1]
+    if c + 1 < g[r].len()
+        n += g[r][c + 1]
+    n
+
+fn next_state(cur int, wet bool, n int) int
+    if cur == 1 and (wet or n >= 3)
+        return 1
+    if cur == 0 and wet and n >= 2
+        return 1
+    0
+
+fn main()
+    damp := ["~~~~......", "~~~~~.....", ".~~~~~~...", "...~~~~~..", "....~~~...", ".....~...."]
+    mut g := List[List[int]]()
+    for line in damp
+        mut zeros := List[int]()
+        for k in 0..line.len()
+            zeros.push(0)
+        g.push(zeros)
+    g[0][0] = 1
+    g[1][1] = 1
+    g[0][3] = 1
+    g[2][6] = 1
+    for gen in 1..=5
+        mut nxt := List[List[int]]()
+        for r in 0..g.len()
+            cells := damp[r].chars()
+            mut row := List[int]()
+            for c in 0..cells.len()
+                row.push(next_state(g[r][c], cells[c] == '~', moss_near(g, r, c)))
+            nxt.push(row)
+        g = nxt
+        total := g.fold(0, |acc, cells_row| acc + cells_row.sum())
+        print("generation {gen}: {total} moss cells")
+    for r in 0..g.len()
+        cells := damp[r].chars()
+        mut out := List[str]()
+        for c in 0..cells.len()
+            mark := if g[r][c] == 1 then '#' else cells[c]
+            out.push("{mark}")
+        print(out.join(""))
+
+@test fn rules()
+    assert_eq(next_state(0, true, 2), 1)
+    assert_eq(next_state(1, false, 2), 0)

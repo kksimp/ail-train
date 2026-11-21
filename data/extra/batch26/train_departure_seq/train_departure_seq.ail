@@ -1,0 +1,28 @@
+## Train departures: a generator yields departure minutes every 20 minutes from 06:10, skipping a
+## 10:00-11:00 engineering gap; callers `take`, `skip_while`, `take_while` and `collect` it lazily.
+
+fn departures(first int, every int, gap_from int, gap_to int) Seq[int]
+    mut t := first
+    while t < 24 * 60
+        if t < gap_from or t >= gap_to
+            yield t
+        t += every
+
+fn clock(m int) str
+    "{m / 60:02}:{m % 60:02}"
+
+fn main()
+    first5 := departures(370, 20, 600, 660).take(5).collect()
+    shown := first5.map(clock).join(" ")
+    print("first trains: {shown}")
+    after := departures(370, 20, 600, 660).skip_while(|t| t < 585).take(3).collect()
+    later := after.map(clock).join(" ")
+    print("after 09:45: {later}")
+    morning := departures(370, 20, 600, 660).take_while(|t| t < 720).collect()
+    print("trains before noon: {morning.len()}")
+    day := departures(370, 20, 600, 660).collect()
+    final := day.last() else 0
+    print("{day.len()} trains a day, last at {clock(final)}")
+
+@test fn gap_skipped()
+    assert_eq(departures(0, 30, 30, 60).take(3).collect(), [0, 60, 90])

@@ -1,0 +1,42 @@
+## Vending refill: a machine's slots are changed in place with `for mut slot in slots`, once to sell
+## (refusing sold-out slots) and once to refill each slot to capacity, counting the items loaded.
+
+struct Slot
+    code str
+    item str
+    count int
+    cap int
+    price int
+
+fn main()
+    mut slots := [
+        Slot(code: "A1", item: "crisps", count: 4, cap: 8, price: 120),
+        Slot(code: "B2", item: "water", count: 1, cap: 6, price: 90),
+        Slot(code: "C1", item: "chocolate", count: 0, cap: 5, price: 150),
+        Slot(code: "C3", item: "gum", count: 3, cap: 10, price: 60),
+    ]
+    mut takings := 0
+    for code in ["A1", "A1", "B2", "C1", "A1", "B2", "A1", "C3"]
+        mut sold := false
+        for mut slot in slots
+            if slot.code == code and slot.count > 0
+                slot.count -= 1
+                takings += slot.price
+                sold = true
+        if not sold
+            print("{code}: sold out")
+    print("takings {takings / 100}.{takings % 100:02}")
+    for s in slots
+        print("{s.code} {s.item:<9} {s.count}/{s.cap}")
+    mut loaded := 0
+    for mut slot in slots
+        loaded += slot.cap - slot.count
+        slot.count = slot.cap
+    full := slots.all(|s| s.count == s.cap)
+    print("refilled {loaded} items, all full: {full}")
+
+@test fn for_mut_changes()
+    mut xs := [Slot(code: "x", item: "y", count: 1, cap: 3, price: 1)]
+    for mut s in xs
+        s.count = s.cap
+    assert_eq(xs[0].count, 3)

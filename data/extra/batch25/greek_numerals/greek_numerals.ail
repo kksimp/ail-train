@@ -1,0 +1,60 @@
+## Greek alphabetic numerals: units, tens and hundreds each have nine letters (with the old letters
+## stigma, koppa and sampi), a keraia ʹ ends the number and a lower sign ͵ before a letter multiplies it by a thousand.
+
+UNITS := "αβγδεϛζηθ"
+TENS := "ικλμνξοπϙ"
+HUNDREDS := "ρστυφχψωϡ"
+
+fn letter(row str, d int) str
+    c := row.char_at(d - 1) else '?'
+    "{c}"
+
+fn to_greek(n int) str
+    mut out := List[str]()
+    th := n / 1000
+    if th > 0
+        out.push("͵{letter(UNITS, th)}")
+    h := n / 100 % 10
+    t := n / 10 % 10
+    u := n % 10
+    if h > 0
+        out.push(letter(HUNDREDS, h))
+    if t > 0
+        out.push(letter(TENS, t))
+    if u > 0
+        out.push(letter(UNITS, u))
+    out.push("ʹ")
+    out.join("")
+
+fn value(s str) int
+    mut total := 0
+    mut scale := 1
+    for c in s.chars()
+        if c == '͵'
+            scale = 1000
+            continue
+        mut v := 0
+        if i := UNITS.find("{c}")
+            v = i + 1
+        elif i := TENS.find("{c}")
+            v = (i + 1) * 10
+        elif i := HUNDREDS.find("{c}")
+            v = (i + 1) * 100
+        total += v * scale
+        scale = 1
+    total
+
+fn main()
+    mut ok := 0
+    nums := [1, 6, 12, 99, 256, 666, 900, 1821, 2026, 9999]
+    for n in nums
+        g := to_greek(n)
+        back := value(g)
+        if back == n
+            ok += 1
+        print("{n:>5} = {g} (reads back as {back})")
+    print("{ok} of {nums.len()} round trips agree")
+
+@test fn six_six_six()
+    assert_eq(to_greek(666), "χξϛʹ")
+    assert_eq(value("͵ακαʹ"), 1021)

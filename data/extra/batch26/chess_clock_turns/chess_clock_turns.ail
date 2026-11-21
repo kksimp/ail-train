@@ -1,0 +1,45 @@
+## Chess clock: a blitz clock (3 minutes plus a 2-second increment) keeps whose turn it is as an
+## enum; `press` takes the time used, adds the increment, passes the turn, and reports a flag fall.
+
+enum Side
+    White
+    Black
+
+struct Clock
+    white int
+    black int
+    inc int
+    turn Side
+
+fn Clock.press(mut self, used int) bool
+    match self.turn
+        White =>
+            self.white -= used
+            if self.white < 0
+                return false
+            self.white += self.inc
+            self.turn = Black
+        Black =>
+            self.black -= used
+            if self.black < 0
+                return false
+            self.black += self.inc
+            self.turn = White
+    true
+
+fn mss(s int) str
+    "{s / 60}:{s % 60:02}"
+
+fn main()
+    mut c := Clock(white: 180, black: 180, inc: 2, turn: Side.White)
+    for i, used in [12, 30, 25, 41, 60, 18, 95, 22].enumerate()
+        mover := c.turn.name()
+        if not c.press(used)
+            print("move {i + 1}: {mover} used {used} s and lost on time")
+            break
+        print("move {i + 1}: {mover} {used} s, clocks {mss(c.white)} | {mss(c.black)}")
+    print("turn now: {c.turn.name()}")
+
+@test fn flag_falls()
+    mut c := Clock(white: 10, black: 10, inc: 2, turn: Side.White)
+    assert(not c.press(11))

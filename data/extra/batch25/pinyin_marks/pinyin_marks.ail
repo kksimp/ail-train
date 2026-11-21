@@ -1,0 +1,40 @@
+## Pinyin tone marks: a tone number after each syllable becomes a mark on one vowel: on a or e if
+## present, on the o of ou, otherwise on the last vowel; v stands for ü and tone 5 is neutral with no mark.
+
+fn plain(c char) char
+    if c == 'v' then 'ü' else c
+
+fn mark(syl str) str
+    marks := {'a': "āáǎà", 'e': "ēéěè", 'i': "īíǐì", 'o': "ōóǒò", 'u': "ūúǔù", 'ü': "ǖǘǚǜ"}
+    cs := syl.chars()
+    tone := cs[cs.len() - 1].to_digit(10) else 5
+    letters := cs.slice(0, cs.len() - 1).map(|c| plain(c))
+    if tone == 5
+        return letters.join("")
+    mut at := -1
+    for i, c in letters.enumerate()
+        if c == 'a' or c == 'e'
+            at = i
+        elif c == 'o' and i + 1 < letters.len() and letters[i + 1] == 'u' and at < 0
+            at = i
+    if at < 0
+        for i, c in letters.enumerate()
+            if marks.contains(c)
+                at = i
+    mut out := letters
+    out[at] = marks[letters[at]].chars()[tone - 1]
+    out.join("")
+
+fn main()
+    phrases := ["ni3 hao3", "zhong1 guo2", "xie4 xie5", "lv4 se4", "dui4 bu5 qi3", "shui3 jiao4", "liu2 xue2 sheng1", "gou3 you3"]
+    mut syllables := 0
+    for p in phrases
+        sylls := p.split(" ")
+        syllables += sylls.len()
+        marked := sylls.map(|s| mark(s)).join(" ")
+        print("{p:<16} {marked}")
+    print("{syllables} syllables marked")
+
+@test fn hao()
+    assert_eq(mark("hao3"), "hǎo")
+    assert_eq(mark("gui4"), "guì")

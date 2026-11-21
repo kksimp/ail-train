@@ -1,0 +1,8 @@
+coordinates:
+  skipped 'x,1'
+  skipped '7'
+  read (3, 4) (10, -2)
+spans:
+  skipped '5-3'
+  skipped 'a-b'
+  read 10..20 40..45, total width 15

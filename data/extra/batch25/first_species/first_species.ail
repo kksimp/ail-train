@@ -1,0 +1,50 @@
+## First-species counterpoint check: every vertical interval must be consonant (no seconds, fourths or
+## sevenths), two perfect intervals of the same size may not follow each other, and the motion types are counted.
+
+enum Motion
+    Parallel
+    Similar
+    Contrary
+    Oblique
+
+fn motion(dl int, du int, same bool) Motion
+    if dl == 0 or du == 0
+        return Oblique
+    if (dl > 0) != (du > 0)
+        return Contrary
+    if same then Parallel else Similar
+
+fn review(cf List[int], cp List[int]) List[str]
+    mut faults := List[str]()
+    mut counts := Map[str, int]()
+    for i in 0..cf.len()
+        iv := (cp[i] - cf[i]) % 12
+        if not [0, 3, 4, 7, 8, 9].contains(iv)
+            faults.push("bar {i + 1}: dissonance ({cp[i] - cf[i]} semitones)")
+        if i > 0
+            prev := (cp[i - 1] - cf[i - 1]) % 12
+            m := motion(cf[i] - cf[i - 1], cp[i] - cp[i - 1], prev == iv)
+            counts[m.name()] += 1
+            if m == Motion.Parallel and (iv == 0 or iv == 7)
+                faults.push("bar {i + 1}: parallel perfect interval")
+    mut parts := List[str]()
+    for k, v in counts
+        parts.push("{k} {v}")
+    summary := parts.join(", ")
+    faults.push("motion: {summary}")
+    faults
+
+fn main()
+    cf := [62, 65, 64, 62, 67, 65, 69, 67, 65, 64, 62]
+    good := [69, 69, 67, 69, 71, 72, 72, 71, 74, 73, 74]
+    bad := [69, 69, 71, 69, 71, 72, 74, 71, 74, 73, 74]
+    for pair in [("Fux's line", good), ("student line", bad)]
+        label, cp := pair
+        notes := review(cf, cp)
+        print("{label}: {notes.len() - 1} faults")
+        for n in notes
+            print("  {n}")
+
+@test fn contrary()
+    assert_eq(motion(2, -1, false), Motion.Contrary)
+    assert_eq(review([60, 62], [67, 69]).len(), 2)

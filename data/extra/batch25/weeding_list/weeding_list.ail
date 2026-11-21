@@ -1,0 +1,46 @@
+## Collection weeding (CREW rules): each Dewey class has a maximum age and a maximum time since the last loan;
+## an item is a weeding candidate when it passes both, or at once when it is worn, and the reasons are listed.
+
+struct Item
+    title str
+    class int
+    published int
+    last_loan int
+    worn bool
+
+fn limits(class int) List[int]
+    match class / 100
+        0 => [5, 3]
+        3 => [10, 3]
+        5 => [10, 5]
+        6 => [5, 3]
+        8 => [100, 5]
+        9 => [15, 5]
+        _ => [10, 5]
+
+fn main()
+    year := 2026
+    items := [Item(title: "Windows 7 basics", class: 5, published: 2010, last_loan: 2016, worn: false), Item(title: "Local history atlas", class: 911, published: 1998, last_loan: 2025, worn: false), Item(title: "Gardening month by month", class: 635, published: 2008, last_loan: 2019, worn: false), Item(title: "Pride and Prejudice", class: 823, published: 1990, last_loan: 2026, worn: true), Item(title: "Moby-Dick", class: 813, published: 1985, last_loan: 2018, worn: false), Item(title: "Birds of the coast", class: 598, published: 2015, last_loan: 2024, worn: false), Item(title: "Tax guide 2019", class: 336, published: 2019, last_loan: 2020, worn: false), Item(title: "Chemistry primer", class: 540, published: 2012, last_loan: 2023, worn: false)]
+    mut weed := 0
+    for it in items
+        lim := limits(it.class)
+        age := year - it.published
+        idle := year - it.last_loan
+        mut reasons := List[str]()
+        if age > lim[0] and idle > lim[1]
+            reasons.push("{age} years old, {idle} since a loan")
+        if it.worn
+            reasons.push("worn")
+        raw := "{it.class}"
+        cls := raw.pad_left(3, '0')
+        if reasons.is_empty()
+            print("keep   {cls} {it.title}")
+        else
+            weed += 1
+            why := reasons.join("; ")
+            print("weed   {cls} {it.title}: {why}")
+    print("{weed} of {items.len()} items to review")
+
+@test fn fiction()
+    assert_eq(limits(823), [100, 5])
+    assert_eq(limits(5), [5, 3])

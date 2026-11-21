@@ -1,0 +1,22 @@
+## Bobbing block: a 1 m tall block with 60% of water's density is let go with only 0.2 m under water; the
+## buoyancy of the sunk depth against its weight, with drag, bobs it until it floats at 0.6 m.
+
+fn accel(depth float, v float) float
+    g := 9.8
+    g * (depth - 0.6) / 0.6 * -1.0 - 0.8 * v
+
+fn main()
+    mut depth := 0.2
+    mut v := 0.0
+    dt := 0.01
+    mut deepest := depth
+    for step in 1..=600
+        v += accel(depth, v) * dt
+        depth += v * dt
+        deepest = deepest.max(depth)
+        if step % 100 == 0
+            print("t {step / 100} s: depth {depth:.3} m")
+    print("deepest {deepest:.3} m, settling toward 0.600 m")
+
+@test fn floats_at_rest()
+    assert(accel(0.6, 0.0).abs() < 0.000001)

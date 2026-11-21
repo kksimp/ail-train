@@ -1,0 +1,29 @@
+## Baseline grid: every text style's line height (font size x line-height ratio) is rounded up to the next
+## multiple of an 8 px grid, so stacked blocks of headings, body text and captions keep every baseline on the grid.
+
+struct Style
+    name str
+    size int
+    pct int
+
+fn snapped(s Style) int
+    (s.size * s.pct + 799) / 800 * 8
+
+fn main()
+    styles := [Style(name: "display", size: 36, pct: 120), Style(name: "heading", size: 24, pct: 125), Style(name: "subhead", size: 20, pct: 140), Style(name: "body", size: 16, pct: 150), Style(name: "caption", size: 13, pct: 160)]
+    for s in styles
+        raw := (s.size * s.pct).to_float() / 100.0
+        line := snapped(s)
+        print("{s.name:<8} {s.size}px x {s.pct}% = {raw:>4.1} px -> {line} px ({line / 8} rows)")
+    blocks := [("display", 1), ("body", 4), ("heading", 2), ("body", 6), ("caption", 2)]
+    mut y := 0
+    for b in blocks
+        name, lines := b
+        st := styles.find(|s| s.name == name) else styles[3]
+        print("  {name:<8} x{lines} starts at y = {y}")
+        y += snapped(st) * lines
+    print("page column ends at y = {y}, on grid: {y % 8 == 0}")
+
+@test fn body()
+    assert_eq(snapped(Style(name: "b", size: 16, pct: 150)), 24)
+    assert_eq(snapped(Style(name: "c", size: 13, pct: 160)), 24)

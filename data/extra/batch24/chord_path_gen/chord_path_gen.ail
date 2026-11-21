@@ -1,0 +1,34 @@
+## Chord progressions: a table says which chords may follow each chord in a major key; a seeded walk from I
+## adds five chords, re-drawing the last until it may lead to V, and the phrase closes with V and I.
+
+struct Rng
+    state int
+
+fn Rng.below(mut self, n int) int
+    self.state = (self.state * 1103515245 + 12345) % 2147483648
+    (self.state / 65536) % n
+
+fn main()
+    next := {"I": ["IV", "V", "vi", "ii", "iii"], "ii": ["V", "vii"], "iii": ["vi", "IV"], "IV": ["V", "I", "ii"], "V": ["I", "vi"], "vi": ["ii", "IV"], "vii": ["I", "iii"]}
+    mut rng := Rng(state: 1960)
+    mut redraws := 0
+    for phrase in 1..=4
+        mut chords := ["I"]
+        while chords.len() < 6
+            here := chords[chords.len() - 1]
+            options := next.get(here) else ["I"]
+            pick := options[rng.below(options.len())]
+            fits := (next.get(pick) else ["I"]).contains("V")
+            if chords.len() == 5 and not fits
+                redraws += 1
+                continue
+            chords.push(pick)
+        chords.push("V")
+        chords.push("I")
+        shown := chords.join(" - ")
+        print("phrase {phrase}: {shown}")
+    print("{redraws} sixth chords re-drawn so the cadence V - I could follow")
+
+@test fn table_lookup()
+    next := {"V": ["I", "vi"]}
+    assert((next.get("V") else ["x"]).contains("I"))

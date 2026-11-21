@@ -1,0 +1,35 @@
+## Coin swapping: twelve people start with ten coins; every round each person with a coin hands one to a
+## partner picked by a seeded generator. Fair exchanges still spread wealth into a few rich and many poor.
+
+struct Rng
+    state int
+
+fn Rng.pick(mut self, n int) int
+    self.state = (self.state * 1103515245 + 12345) % 2147483648
+    (self.state / 65536) % n
+
+fn top_share(coins List[int]) int
+    best := coins.sorted().reversed()
+    (best[0] + best[1] + best[2]) * 100 / coins.sum()
+
+fn main()
+    mut rng := Rng(state: 2024)
+    mut coins := List[int]()
+    for i in 0..12
+        coins.push(10)
+    for rnd in 1..=300
+        for giver in 0..12
+            if coins[giver] > 0
+                mut taker := rng.pick(11)
+                if taker >= giver
+                    taker += 1
+                coins[giver] -= 1
+                coins[taker] += 1
+        if rnd % 60 == 0
+            broke := coins.count(|c| c == 0)
+            richest := coins.max() else 0
+            print("round {rnd:>3}: richest {richest}, broke {broke}, top three hold {top_share(coins)}%")
+    print("final purses: {coins.sorted().reversed()}")
+
+@test fn share()
+    assert_eq(top_share([10, 10, 10, 10]), 75)

@@ -1,0 +1,60 @@
+## Vose's alias method: scale each weight by n, pair every short column with a tall one that tops it up, and a draw
+## is one column pick plus one biased coin; built here in exact integers, then checked against 12000 seeded draws.
+
+struct Lcg
+    state int
+
+fn Lcg.next(mut self, n int) int
+    self.state = (self.state * 1103515245 + 12345) % 2147483648
+    (self.state >> 8) % n
+
+fn build(w List[int], mut prob List[int], mut alias List[int])
+    n := w.len()
+    total := w.sum()
+    mut scaled := [x * n for x in w]
+    mut small := List[int]()
+    mut large := List[int]()
+    for i in 0..n
+        prob.push(total)
+        alias.push(i)
+        if scaled[i] < total
+            small.push(i)
+        else
+            large.push(i)
+    while small.len() > 0 and large.len() > 0
+        s := small.pop() else 0
+        l := large.pop() else 0
+        prob[s] = scaled[s]
+        alias[s] = l
+        scaled[l] = scaled[l] + scaled[s] - total
+        if scaled[l] < total
+            small.push(l)
+        else
+            large.push(l)
+
+fn main()
+    names := ["common", "uncommon", "rare", "epic", "legend"]
+    w := [50, 25, 15, 8, 2]
+    total := w.sum()
+    mut prob := List[int]()
+    mut alias := List[int]()
+    build(w, mut prob, mut alias)
+    for i in 0..w.len()
+        print("column {i}: keep {names[i]} if coin < {prob[i]}/{total}, else {names[alias[i]]}")
+    mut rng := Lcg(state: 5)
+    mut counts := [0, 0, 0, 0, 0]
+    draws := 12000
+    for _ in 0..draws
+        col := rng.next(w.len())
+        coin := rng.next(total)
+        pick := if coin < prob[col] then col else alias[col]
+        counts[pick] += 1
+    for i in 0..w.len()
+        expect := draws * w[i] / total
+        print("{names[i]:<9} drawn {counts[i]:>5}, expected {expect:>5}")
+
+@test fn uniform_weights()
+    mut prob := List[int]()
+    mut alias := List[int]()
+    build([1, 1, 1], mut prob, mut alias)
+    assert_eq(prob, [3, 3, 3])

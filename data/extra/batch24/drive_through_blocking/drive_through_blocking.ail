@@ -1,0 +1,26 @@
+## Drive-through: cars order at one window and pay and collect at the next, with no room in between, so a
+## car that has ordered blocks the order window until the pickup window is free. Times in seconds.
+
+struct Car
+    arrive int
+    order int
+    pickup int
+
+fn main()
+    cars := [Car(arrive: 0, order: 40, pickup: 30), Car(arrive: 20, order: 35, pickup: 90), Car(arrive: 30, order: 50, pickup: 25), Car(arrive: 70, order: 30, pickup: 40), Car(arrive: 80, order: 45, pickup: 120), Car(arrive: 100, order: 20, pickup: 30), Car(arrive: 160, order: 40, pickup: 35), Car(arrive: 300, order: 30, pickup: 30)]
+    mut order_free := 0
+    mut pickup_free := 0
+    mut blocked_total := 0
+    for i, c in cars.enumerate()
+        start := c.arrive.max(order_free)
+        ordered := start + c.order
+        at_window := ordered.max(pickup_free)
+        blocked := at_window - ordered
+        order_free = at_window
+        pickup_free = at_window + c.pickup
+        blocked_total += blocked
+        print("car {i + 1}: in {c.arrive:>3}, ordered {ordered:>3}, blocked {blocked:>3}, leaves {pickup_free:>3}")
+    print("order window blocked {blocked_total} s in all; last car leaves at {pickup_free} s")
+
+@test fn no_block_when_free()
+    assert_eq(100.max(80) - 100, 0)

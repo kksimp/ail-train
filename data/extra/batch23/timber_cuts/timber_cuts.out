@@ -1,0 +1,13 @@
+price list by length 1..8: [1, 5, 8, 9, 10, 17, 17, 20]
+length  1: best  1 by cutting 1       (uncut sells for 1)
+length  2: best  5 by cutting 2       (uncut sells for 5)
+length  3: best  8 by cutting 3       (uncut sells for 8)
+length  4: best 10 by cutting 2+2     (uncut sells for 9)
+length  5: best 13 by cutting 2+3     (uncut sells for 10)
+length  6: best 17 by cutting 6       (uncut sells for 17)
+length  7: best 18 by cutting 1+6     (uncut sells for 17)
+length  8: best 22 by cutting 2+6     (uncut sells for 20)
+length  9: best 25 by cutting 3+6     (uncut sells for -)
+length 10: best 27 by cutting 2+2+6   (uncut sells for -)
+length 11: best 30 by cutting 2+3+6   (uncut sells for -)
+length 12: best 34 by cutting 6+6     (uncut sells for -)

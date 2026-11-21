@@ -1,0 +1,47 @@
+## Image fitting modes: fill stretches to the box, contain scales by the smaller of box/image on each axis,
+## cover by the larger and crops the overflow, none keeps the size and scale-down picks contain only when it shrinks.
+
+enum Fit
+    Fill
+    Contain
+    Cover
+    Keep
+    ScaleDown
+
+fn scale(f Fit, w int, h int, bw int, bh int) float
+    sx := bw.to_float() / w.to_float()
+    sy := bh.to_float() / h.to_float()
+    match f
+        Fill => 1.0
+        Contain => sx.min(sy)
+        Cover => sx.max(sy)
+        Keep => 1.0
+        ScaleDown => sx.min(sy).min(1.0)
+
+fn layout(f Fit, w int, h int, bw int, bh int) str
+    if f == Fit.Fill
+        return "{bw}x{bh}"
+    s := scale(f, w, h, bw, bh)
+    dw := (w.to_float() * s + 0.5).floor().to_int()
+    dh := (h.to_float() * s + 0.5).floor().to_int()
+    if dw > bw or dh > bh
+        cw := (dw - bw).max(0)
+        ch := (dh - bh).max(0)
+        return "{dw}x{dh} crop {cw}x{ch}"
+    "{dw}x{dh} pad {(bw - dw) / 2},{(bh - dh) / 2}"
+
+fn main()
+    bw := 400
+    bh := 300
+    images := [(1600, 900), (600, 800), (300, 200), (400, 300), (250, 600)]
+    modes := [Fit.Fill, Fit.Contain, Fit.Cover, Fit.Keep, Fit.ScaleDown]
+    for img in images
+        w, h := img
+        print("{w}x{h} into {bw}x{bh}:")
+        parts := modes.map(|m| "{m.name()} {layout(m, w, h, bw, bh)}")
+        joined := parts.join(" | ")
+        print("  {joined}")
+
+@test fn cover()
+    assert_eq(layout(Fit.Cover, 1600, 900, 400, 300), "533x300 crop 133x0")
+    assert_eq(layout(Fit.Contain, 1600, 900, 400, 300), "400x225 pad 0,37")

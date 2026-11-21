@@ -1,0 +1,55 @@
+## Pack fill: a `Packable` trait gives each thing its weight, and one generic `fill[T Packable]`
+## takes items in order, skipping any that would pass the limit; used on hiking gear and a lunchbox.
+
+trait Packable
+    fn grams(self) int
+    fn label(self) str
+
+struct Gear
+    name str
+    weight int
+
+struct Snack
+    name str
+    weight int
+    kcal int
+
+impl Packable for Gear
+    fn grams(self) int
+        weight
+    fn label(self) str
+        name
+
+impl Packable for Snack
+    fn grams(self) int
+        weight
+    fn label(self) str
+        "{name} ({kcal} kcal)"
+
+fn fill[T Packable](items List[T], cap int) List[T]
+    mut out := List[T]()
+    mut used := 0
+    for it in items
+        if used + it.grams() > cap
+            print("  no room for {it.label()}")
+            continue
+        used += it.grams()
+        out.push(it)
+    out
+
+fn main()
+    gear := [Gear(name: "tent", weight: 1800), Gear(name: "stove", weight: 450), Gear(name: "sleeping bag", weight: 1100), Gear(name: "chair", weight: 900), Gear(name: "lantern", weight: 300)]
+    print("backpack, limit 3500 g:")
+    pack := fill(gear, 3500)
+    names := pack.map(|g| g.label()).join(", ")
+    total := pack.map(|g| g.grams()).sum()
+    print("packed {names}: {total} g")
+    snacks := [Snack(name: "apple", weight: 180, kcal: 95), Snack(name: "crackers", weight: 120, kcal: 480), Snack(name: "cheese", weight: 150, kcal: 600), Snack(name: "chocolate", weight: 100, kcal: 530)]
+    print("lunchbox, limit 400 g:")
+    lunch := fill(snacks, 400)
+    energy := lunch.map(|s| s.kcal).sum()
+    print("packed {lunch.len()} snacks: {energy} kcal")
+
+@test fn skips_heavy_item()
+    got := fill([Gear(name: "a", weight: 5), Gear(name: "b", weight: 9), Gear(name: "c", weight: 4)], 10)
+    assert_eq(got.len(), 2)

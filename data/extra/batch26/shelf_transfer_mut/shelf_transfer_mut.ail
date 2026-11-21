@@ -1,0 +1,36 @@
+## Shelf transfer: `transfer(mut src, mut dst, n)` moves books from the end of one shelf to another
+## until n are moved, the source is empty or the destination is full; both callers' shelves change.
+
+struct Shelf
+    label str
+    books List[str]
+    cap int
+
+fn transfer(mut src Shelf, mut dst Shelf, n int) int
+    mut moved := 0
+    while moved < n and dst.books.len() < dst.cap
+        b := src.books.pop() else break
+        dst.books.push(b)
+        moved += 1
+    moved
+
+fn sizes(a Shelf, b Shelf, c Shelf) str
+    "{a.label} {a.books.len()}, {b.label} {b.books.len()}, {c.label} {c.books.len()}"
+
+fn main()
+    mut fiction := Shelf(label: "fiction", books: ["Austen", "Bronte", "Dickens", "Eliot", "Hardy", "Woolf"], cap: 6)
+    mut overflow := Shelf(label: "overflow", books: ["Zola"], cap: 3)
+    mut cart := Shelf(label: "cart", books: [], cap: 10)
+    m1 := transfer(mut fiction, mut overflow, 4)
+    print("asked 4, moved {m1}: {sizes(fiction, overflow, cart)}")
+    m2 := transfer(mut overflow, mut cart, 5)
+    print("asked 5, moved {m2}: {sizes(fiction, overflow, cart)}")
+    m3 := transfer(mut fiction, mut cart, 2)
+    print("asked 2, moved {m3}: {sizes(fiction, overflow, cart)}")
+    on_cart := cart.books.join(", ")
+    print("cart order: {on_cart}")
+
+@test fn full_destination()
+    mut a := Shelf(label: "a", books: ["x"], cap: 1)
+    mut b := Shelf(label: "b", books: [], cap: 0)
+    assert_eq(transfer(mut a, mut b, 1), 0)

@@ -1,0 +1,36 @@
+## Rail speed types: `type Kmh = int` and `type Mph = int` are distinct, so a British limit in mph
+## must be converted before it is compared with a train's km/h; section times use `int(...)` for the arithmetic.
+
+type Kmh = int
+type Mph = int
+
+struct Section
+    name str
+    km int
+    limit Kmh
+
+fn to_kmh(v Mph) Kmh
+    Kmh(int(v) * 1609 / 1000)
+
+fn main()
+    route := [
+        Section(name: "Paris-Lille", km: 225, limit: Kmh(300)),
+        Section(name: "tunnel", km: 50, limit: Kmh(160)),
+        Section(name: "Kent line", km: 108, limit: to_kmh(Mph(186))),
+        Section(name: "London approach", km: 20, limit: to_kmh(Mph(60))),
+    ]
+    train := Kmh(250)
+    mut minutes := 0
+    for s in route
+        run := if train < s.limit then train else s.limit
+        lim := int(s.limit)
+        speed := int(run)
+        t := s.km * 60 / speed
+        minutes += t
+        print("{s.name:<16} limit {lim:>3} km/h, runs at {speed:>3}, {t} min")
+    print("journey {minutes / 60} h {minutes % 60} min")
+    capped := route.count(|s| s.limit < train)
+    print("sections below the train's top speed: {capped}")
+
+@test fn converts_mph()
+    assert_eq(to_kmh(Mph(100)), Kmh(160))

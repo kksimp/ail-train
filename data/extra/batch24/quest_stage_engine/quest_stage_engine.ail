@@ -1,0 +1,34 @@
+## Quest engine: a quest is a list of stages, each waiting for some number of one kind of event; a stream of
+## game events advances it, events for later stages are ignored until their turn, and finishing pays a reward.
+
+struct Stage
+    goal str
+    event str
+    need int
+
+fn main()
+    stages := [Stage(goal: "talk to the miller", event: "talk:miller", need: 1), Stage(goal: "gather 3 wheat", event: "pick:wheat", need: 3), Stage(goal: "scare off 2 crows", event: "scare:crow", need: 2), Stage(goal: "return to the miller", event: "talk:miller", need: 1)]
+    events := ["pick:wheat", "talk:miller", "pick:wheat", "scare:crow", "pick:wheat", "pick:berry", "pick:wheat", "scare:crow", "scare:crow", "talk:smith", "talk:miller"]
+    mut stage := 0
+    mut count := 0
+    mut ignored := 0
+    for i, e in events.enumerate()
+        if stage >= stages.len()
+            break
+        if e != stages[stage].event
+            ignored += 1
+            continue
+        count += 1
+        if count == stages[stage].need
+            print("event {i + 1:>2} ({e}): done - {stages[stage].goal}")
+            stage += 1
+            count = 0
+    if stage == stages.len()
+        print("quest complete: 50 gold and the miller's thanks")
+    else
+        print("quest stuck at: {stages[stage].goal}")
+    print("{ignored} events did not count")
+
+@test fn first_stage()
+    s := Stage(goal: "x", event: "talk:miller", need: 1)
+    assert_eq(s.need, 1)
