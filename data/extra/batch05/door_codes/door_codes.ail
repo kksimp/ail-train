@@ -1,0 +1,27 @@
+## Door codes: a keypad lock with a 4-digit code; entered attempts are checked, three wrong
+## tries in a row lock it for the next two attempts, and each outcome is logged.
+
+fn main()
+    code := "4729"
+    attempts := ["1111", "4729", "4720", "0000", "9999", "4729", "4729", "4729", "1234"]
+    mut wrong := 0
+    mut locked := 0
+    for a in attempts
+        if locked > 0
+            locked -= 1
+            print("{a}: locked ({locked} left)")
+            continue
+        if a == code
+            wrong = 0
+            print("{a}: open")
+        else
+            wrong += 1
+            right := [i for i in 0..4 if a.chars()[i] == code.chars()[i]].len()
+            print("{a}: wrong ({right} digits in place)")
+            if wrong == 3
+                locked = 2
+                wrong = 0
+                print("  keypad locked")
+
+@test fn match_code()
+    assert("4729" == "4729")

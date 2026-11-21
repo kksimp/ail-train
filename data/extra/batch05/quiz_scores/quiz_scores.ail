@@ -1,0 +1,28 @@
+## Quiz scores: teams answer rounds; correct answers score 2, jokers double a round, and
+## the leaderboard after each round is printed with ties sharing a rank.
+
+fn main()
+    teams := ["Owls", "Foxes", "Bears"]
+    rounds := [[5, 3, 4], [2, 6, 4], [4, 4, 5], [6, 2, 3]]
+    jokers := {"Owls": 2, "Foxes": 1, "Bears": 3}
+    mut total := Map[str, int]()
+    for t in teams
+        total[t] = 0
+    for r, scores in rounds.enumerate()
+        for i, t in teams.enumerate()
+            mut pts := scores[i] * 2
+            if jokers[t] == r + 1
+                pts *= 2
+            total[t] += pts
+        ranked := teams.sorted(by: |t| (-total[t], t))
+        mut line := List[str]()
+        mut rank := 0
+        for k, t in ranked.enumerate()
+            if k == 0 or total[t] != total[ranked[k - 1]]
+                rank = k + 1
+            line.push("{rank}. {t} {total[t]}")
+        shown := line.join("  ")
+        print("after round {r + 1}: {shown}")
+
+@test fn double()
+    assert_eq(6 * 2 * 2, 24)

@@ -1,0 +1,55 @@
+## River crossing: breadth-first search solves the farmer, wolf, goat and cabbage puzzle,
+## printing each crossing in the shortest solution.
+
+fn safe(s List[int]) bool
+    farmer := s[0]
+    wolf := s[1]
+    goat := s[2]
+    cabbage := s[3]
+    if wolf == goat and farmer != goat
+        return false
+    if goat == cabbage and farmer != goat
+        return false
+    true
+
+fn key(s List[int]) str
+    s.map(|x| "{x}").join("")
+
+fn main()
+    names := ["farmer", "wolf", "goat", "cabbage"]
+    start := [0, 0, 0, 0]
+    goal := "1111"
+    mut prev := Map[str, (str, str)]()
+    prev[key(start)] = ("", "")
+    mut queue := [start]
+    mut head := 0
+    while head < queue.len()
+        cur := queue[head]
+        head += 1
+        if key(cur) == goal
+            break
+        for item in 0..4
+            if item > 0 and cur[item] != cur[0]
+                continue
+            mut nxt := cur
+            nxt[0] = 1 - cur[0]
+            if item > 0
+                nxt[item] = 1 - cur[item]
+            k := key(nxt)
+            if safe(nxt) and not prev.contains(k)
+                what := if item == 0 then "alone" else "with the {names[item]}"
+                prev[k] = (key(cur), what)
+                queue.push(nxt)
+    mut steps := List[str]()
+    mut at := goal
+    while at != key(start)
+        p := prev[at]
+        steps.push(p.1)
+        at = p.0
+    steps.reverse()
+    for i, s in steps.enumerate()
+        side := if i % 2 == 0 then "across" else "back"
+        print("{i + 1}. farmer goes {side} {s}")
+
+@test fn wolf_eats_goat()
+    assert(not safe([1, 0, 0, 1]))

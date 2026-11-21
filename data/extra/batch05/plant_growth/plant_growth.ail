@@ -1,0 +1,20 @@
+## Plant growth: logistic growth of a seedling towards a maximum height, printed weekly
+## with a small bar, and the first week it passes half height.
+
+fn main()
+    max_h := 120.0
+    rate := 0.45
+    mut h := 4.0
+    mut half_week := -1
+    for week in 0..=16
+        if week > 0
+            h = h + rate * h * (1.0 - h / max_h)
+        bar := "=".repeat((h / 5.0).to_int())
+        if week % 2 == 0
+            print("week {week:>2}: {h:>6.1} cm |{bar}")
+        if half_week < 0 and h >= max_h / 2.0
+            half_week = week
+    print("passed half height in week {half_week}")
+
+@test fn grows()
+    assert(4.0 + 0.45 * 4.0 * (1.0 - 4.0 / 120.0) > 4.0)

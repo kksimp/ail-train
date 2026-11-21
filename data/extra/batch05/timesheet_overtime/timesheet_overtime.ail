@@ -1,0 +1,27 @@
+## Timesheet: clock-in and clock-out times per day; hours over 8 a day are overtime at 1.5x,
+## weekend hours are all at 2x, and weekly pay is computed in cents.
+
+fn minutes(t str) int
+    p := t.split(":")
+    (p[0].to_int() else 0) * 60 + (p[1].to_int() else 0)
+
+fn main()
+    rate := 1450
+    days := [("Mon", "08:00", "16:30"), ("Tue", "07:45", "18:15"), ("Wed", "09:00", "17:00"), ("Thu", "08:30", "19:00"), ("Sat", "10:00", "14:30")]
+    mut pay := 0
+    for d in days
+        day, start, finish := d
+        worked := minutes(finish) - minutes(start)
+        mut cents := 0
+        if day == "Sat" or day == "Sun"
+            cents = worked * rate * 2 / 60
+        else
+            normal := if worked > 480 then 480 else worked
+            extra := worked - normal
+            cents = normal * rate / 60 + extra * rate * 3 / 120
+        pay += cents
+        print("{day}: {worked / 60}h{worked % 60:02} -> {cents / 100}.{cents % 100:02}")
+    print("week: {pay / 100}.{pay % 100:02}")
+
+@test fn span()
+    assert_eq(minutes("16:30") - minutes("08:00"), 510)

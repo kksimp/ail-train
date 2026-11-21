@@ -1,0 +1,23 @@
+## Stair climbing: counts the ways to climb n stairs taking 1, 2 or 3 steps at a time, with
+## a table, and the ways when step 3 is broken and must be skipped.
+
+fn ways(n int, broken Set[int]) int
+    mut w := [0 for _ in 0..=n]
+    w[0] = 1
+    for i in 1..=n
+        if broken.contains(i)
+            continue
+        for s in [1, 2, 3]
+            if i - s >= 0
+                w[i] += w[i - s]
+    w[n]
+
+fn main()
+    intact := Set[int]()
+    for n in 1..=10
+        print("{n:>2} stairs: {ways(n, intact)} ways")
+    broken := {3}
+    print("10 stairs with step 3 broken: {ways(10, broken)}")
+
+@test fn three()
+    assert_eq(ways(3, Set[int]()), 4)

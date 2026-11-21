@@ -1,0 +1,21 @@
+## Colour mixer: parses hex colours, mixes pairs by averaging channels, converts to a grey
+## level with luminance weights, and prints the results as hex.
+
+fn channel(h str, i int) int
+    h.slice(1 + 2 * i, 3 + 2 * i).to_int(16) else 0
+
+fn hex(r int, g int, b int) str
+    "#{r:02x}{g:02x}{b:02x}"
+
+fn main()
+    pairs := [("#ff0000", "#0000ff"), ("#ffffff", "#000000"), ("#33aa77", "#cc5511"), ("#123456", "#654321")]
+    for p in pairs
+        a, b := p
+        r := (channel(a, 0) + channel(b, 0)) / 2
+        g := (channel(a, 1) + channel(b, 1)) / 2
+        bl := (channel(a, 2) + channel(b, 2)) / 2
+        grey := (0.299 * r.to_float() + 0.587 * g.to_float() + 0.114 * bl.to_float()).round().to_int()
+        print("{a} + {b} = {hex(r, g, bl)}, grey {hex(grey, grey, grey)}")
+
+@test fn red()
+    assert_eq(channel("#ff8000", 1), 128)

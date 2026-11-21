@@ -1,0 +1,23 @@
+## Music scales: builds major and natural minor scales from any root using the semitone
+## step patterns, spelling notes with sharps.
+
+fn scale(root str, steps List[int]) List[str]
+    notes := ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
+    mut i := notes.index_of(root) else 0
+    mut out := [notes[i]]
+    for s in steps
+        i = (i + s) % 12
+        out.push(notes[i])
+    out
+
+fn main()
+    major := [2, 2, 1, 2, 2, 2, 1]
+    minor := [2, 1, 2, 2, 1, 2, 2]
+    for root in ["C", "G", "D", "A#"]
+        a := scale(root, major).join(" ")
+        b := scale(root, minor).join(" ")
+        print("{root} major: {a}")
+        print("{root} minor: {b}")
+
+@test fn c_major()
+    assert_eq(scale("C", [2, 2, 1, 2, 2, 2, 1]).len(), 8)

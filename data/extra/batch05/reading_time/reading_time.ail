@@ -1,0 +1,16 @@
+## Reading time: estimates reading time for articles at 230 words per minute, rounding up
+## to whole minutes, and labels each as short, medium or long.
+
+fn main()
+    articles := [("Intro to AIL", 820), ("Garden notes", 140), ("Deep dive: GC", 4650), ("Weekly news", 1210), ("Recipe", 455)]
+    mut total := 0
+    for a in articles
+        title, words := a
+        minutes := (words + 229) / 230
+        total += minutes
+        label := if minutes <= 2 then "short" elif minutes <= 8 then "medium" else "long"
+        print("{title:<14} {words:>5} words  {minutes:>2} min  {label}")
+    print("all articles: {total} min")
+
+@test fn round_up()
+    assert_eq((231 + 229) / 230, 2)
