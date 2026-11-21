@@ -1,0 +1,34 @@
+## Heap sort: sorts a list in place by building a max-heap and repeatedly moving the root
+## to the end, printing the heap after building and the sorted result.
+
+fn sift_down(mut xs List[int], start int, end int)
+    mut root := start
+    while 2 * root + 1 < end
+        mut child := 2 * root + 1
+        if child + 1 < end and xs[child + 1] > xs[child]
+            child += 1
+        if xs[root] >= xs[child]
+            return
+        xs.swap(root, child)
+        root = child
+
+fn main()
+    mut xs := [31, 4, 15, 92, 65, 35, 89, 79, 32, 38, 46, 26]
+    n := xs.len()
+    mut i := n / 2 - 1
+    while i >= 0
+        sift_down(mut xs, i, n)
+        i -= 1
+    print("heap:   {xs}")
+    mut end := n - 1
+    while end > 0
+        xs.swap(0, end)
+        sift_down(mut xs, 0, end)
+        end -= 1
+    print("sorted: {xs}")
+    print("check:  {xs == xs.sorted()}")
+
+@test fn small()
+    mut ys := [1, 3, 2]
+    sift_down(mut ys, 0, 3)
+    assert_eq(ys[0], 3)

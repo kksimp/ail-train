@@ -1,0 +1,20 @@
+## Insertion sort trace: sorts a short list with insertion sort, printing the list after
+## each insertion and counting shifts.
+
+fn main()
+    mut xs := [7, 3, 9, 1, 6, 2, 8]
+    mut shifts := 0
+    for i in 1..xs.len()
+        key := xs[i]
+        mut j := i - 1
+        while j >= 0 and xs[j] > key
+            xs[j + 1] = xs[j]
+            shifts += 1
+            j -= 1
+        xs[j + 1] = key
+        shown := xs.map(|x| "{x}").join(" ")
+        print("insert {key}: {shown}")
+    print("{shifts} shifts")
+
+@test fn sorted()
+    assert_eq([3, 1, 2].sorted(), [1, 2, 3])

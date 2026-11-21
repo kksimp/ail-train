@@ -1,0 +1,10 @@
+1 2 Fizz 4 Buzz Fizz 7 8 Fizz Buzz 11 Fizz 13 14 FizzBuzz
+  Fizz: 33
+  Buzz: 20
+1 Ping 3 Ping 5 Ping Pong Ping 9 Ping 11 Ping 13 PingPong 15
+  Ping: 50
+  Pong: 14
+1 2 A B 5 AC 7 B A 10 11 ABC 13 14 A
+  A: 33
+  B: 25
+  C: 16

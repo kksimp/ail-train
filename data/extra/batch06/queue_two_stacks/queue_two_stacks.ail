@@ -1,0 +1,40 @@
+## Queue from stacks: a queue built from two stacks (in and out), with amortised moves
+## counted, driven by a script of enqueue and dequeue commands.
+
+struct TwoStack
+    inbox List[int]
+    outbox List[int]
+    moves int
+
+fn TwoStack.put(mut self, x int)
+    self.inbox.push(x)
+
+fn TwoStack.take(mut self) int?
+    if self.outbox.is_empty()
+        while not self.inbox.is_empty()
+            v := self.inbox.pop() else 0
+            self.outbox.push(v)
+            self.moves += 1
+    self.outbox.pop()
+
+fn main()
+    mut q := TwoStack(inbox: [], outbox: [], moves: 0)
+    script := "+1 +2 +3 - +4 - - +5 +6 - - - -"
+    mut out := List[str]()
+    for cmd in script.split(" ")
+        if cmd == "-"
+            if v := q.take()
+                out.push("{v}")
+            else
+                out.push("empty")
+        else
+            q.put(cmd.slice(1).to_int() else 0)
+    shown := out.join(" ")
+    print("dequeued: {shown}")
+    print("moves between stacks: {q.moves}")
+
+@test fn fifo()
+    mut q := TwoStack(inbox: [], outbox: [], moves: 0)
+    q.put(1)
+    q.put(2)
+    assert_eq(q.take() else 0, 1)
