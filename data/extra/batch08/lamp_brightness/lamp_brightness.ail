@@ -12,4 +12,4 @@ fn main()
         print("{x:.1} m: {lux:>6.1} lux {bar}")
 
 @test fn below()
-    assert_eq(400.0 / (0.8 * 0.8), 625.0)
+    assert_eq(400.0 / (0.5 * 0.5), 1600.0)
