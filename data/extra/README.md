@@ -42,10 +42,16 @@ everyday forms with less common built-ins. Each batch is checked on the Mac befo
   results. The 6 failures were `char.from_code` without `else`, `else` inside an index (needs parentheses), a
   Python `:+` sign in a twin, an `impl` block without a trait (struct methods are `fn T.name`) and a local named
   `bytes` (a type). All 100 pass.
+- `batch08/`: 100 programs, checked in steps of 20, 40, 60 and 100: physics, chemistry and finance formulas,
+  graph algorithms (bridges, max flow, A*, strongly connected parts), statistics and small machine-learning
+  methods, puzzles and simulations. The 2 failures were an exact float `assert_eq` (`400.0 / (0.8 * 0.8)`) and an
+  `int` overflow from doubling past 2^62 (AIL traps, Python twins never overflow). 11 programs were replaced
+  because they repeated earlier topics by meaning, not by name. From this batch, bundles are split with
+  `tools/split_bundle/split.py`. All 100 pass.
 
 ## Status
 
-**Checked: 740 of 740 pass** (40 drills, 100 each in batch01 to batch07) with ail 3d0c5c913 (0.2.0 release candidate) on 2026-11-21 (`RESULTS.txt`). On the drills' first
+**Checked: 840 of 840 pass** (40 drills, 100 each in batch01 to batch08) with ail 3d0c5c913 (0.2.0 release candidate) on 2026-11-21 (`RESULTS.txt`). On the drills' first
 run 34 passed; 6 were fixed (four AIL forms guessed wrong: `str ! str`, calling a `fn` field as a method,
 `Grid.to_list().sum()` on rows, an `if :=` on a failing result with no `else`; two Python twins were wrong).
 These were written in a cloud session, where AIL builds are not allowed.
