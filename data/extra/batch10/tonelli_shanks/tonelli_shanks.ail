@@ -1,0 +1,58 @@
+## Tonelli-Shanks: square roots modulo an odd prime; writes p - 1 = q * 2^s, starts from a
+## non-residue z and fixes the root step by step; numbers that are not squares get none.
+
+fn pow_mod(b int, e int, m int) int
+    mut result := 1
+    mut base := b % m
+    mut exp := e
+    while exp > 0
+        if exp % 2 == 1
+            result = result * base % m
+        base = base * base % m
+        exp = exp / 2
+    result
+
+fn sqrt_mod(n int, p int) int?
+    a := n % p
+    if a == 0
+        return 0
+    if pow_mod(a, (p - 1) / 2, p) != 1
+        return none
+    mut q := p - 1
+    mut s := 0
+    while q % 2 == 0
+        q = q / 2
+        s += 1
+    mut z := 2
+    while pow_mod(z, (p - 1) / 2, p) != p - 1
+        z += 1
+    mut m := s
+    mut c := pow_mod(z, q, p)
+    mut t := pow_mod(a, q, p)
+    mut r := pow_mod(a, (q + 1) / 2, p)
+    while t != 1
+        mut i := 0
+        mut t2 := t
+        while t2 != 1
+            t2 = t2 * t2 % p
+            i += 1
+        b := pow_mod(c, 1 << (m - i - 1), p)
+        m = i
+        c = b * b % p
+        t = t * c % p
+        r = r * b % p
+    r
+
+fn main()
+    for pair in [[10, 13], [2, 17], [5, 41], [3, 41], [99, 113], [1000, 1000003], [123456, 1000003]]
+        n := pair[0]
+        p := pair[1]
+        if r := sqrt_mod(n, p)
+            lo := if r < p - r then r else p - r
+            print("x^2 = {n} mod {p}: x = {lo} or {p - lo}, check {lo * lo % p}")
+        else
+            print("x^2 = {n} mod {p}: no root, {n} is not a square mod {p}")
+
+@test fn thirteen()
+    r := sqrt_mod(10, 13) else 0
+    assert_eq(r * r % 13, 10)

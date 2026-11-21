@@ -1,0 +1,56 @@
+## Pick's theorem: a polygon with lattice-point corners has area I + B/2 - 1, with B the lattice
+## points on its edges (sum of gcd of each edge's steps) and I those inside, counted to check.
+
+fn gcd(a int, b int) int
+    if b == 0 then a else gcd(b, a % b)
+
+fn on_edge(x1 int, y1 int, x2 int, y2 int, px int, py int) bool
+    cross := (x2 - x1) * (py - y1) - (y2 - y1) * (px - x1)
+    cross == 0 and px >= x1.min(x2) and px <= x1.max(x2) and py >= y1.min(y2) and py <= y1.max(y2)
+
+fn inside(xs List[int], ys List[int], px int, py int) bool
+    n := xs.len()
+    mut odd := false
+    for i in 0..n
+        j := (i + 1) % n
+        if (ys[i] > py) != (ys[j] > py)
+            num := (py - ys[i]) * (xs[j] - xs[i])
+            den := ys[j] - ys[i]
+            left := if den > 0 then px * den < xs[i] * den + num else px * den > xs[i] * den + num
+            if left
+                odd = not odd
+    odd
+
+fn main()
+    shapes := [[[0, 4, 4, 0], [0, 0, 3, 3]], [[0, 5, 2], [0, 1, 4]], [[1, 7, 8, 4, 0], [0, 1, 5, 7, 3]], [[0, 6, 6, 3, 0], [0, 0, 6, 2, 6]]]
+    for sh in shapes
+        xs := sh[0]
+        ys := sh[1]
+        n := xs.len()
+        mut twice := 0
+        mut boundary := 0
+        for i in 0..n
+            j := (i + 1) % n
+            twice += xs[i] * ys[j] - xs[j] * ys[i]
+            boundary += gcd((xs[j] - xs[i]).abs(), (ys[j] - ys[i]).abs())
+        twice = twice.abs()
+        interior := (twice - boundary + 2) / 2
+        mut counted := 0
+        x_lo := xs.min() else 0
+        x_hi := xs.max() else 0
+        y_lo := ys.min() else 0
+        y_hi := ys.max() else 0
+        for px in x_lo..=x_hi
+            for py in y_lo..=y_hi
+                mut edge := false
+                for i in 0..n
+                    j := (i + 1) % n
+                    if on_edge(xs[i], ys[i], xs[j], ys[j], px, py)
+                        edge = true
+                if not edge and inside(xs, ys, px, py)
+                    counted += 1
+        half := if twice % 2 == 1 then ".5" else ""
+        print("corners x {xs} y {ys}: area {twice / 2}{half}, B = {boundary}, I by Pick {interior}, counted {counted}")
+
+@test fn square()
+    assert(inside([0, 2, 2, 0], [0, 0, 2, 2], 1, 1))

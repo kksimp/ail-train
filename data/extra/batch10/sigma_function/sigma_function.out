@@ -1,0 +1,9 @@
+     n  sigma0  sigma1    sigma2  agrees
+    12       6      28       210  true
+    28       6      56      1050  true
+    60      12     168      5460  true
+   100       9     217     13671  true
+   360      24    1170    201110  true
+   496      10     992    328042  true
+   945      16    1920   1066000  true
+sigma1(12) * sigma1(35) = 1344, sigma1(420) = 1344

@@ -1,0 +1,56 @@
+## Bounded buffer: producers and consumers share a three-slot queue guarded by two counting
+## semaphores (free slots and filled slots); a step that would go below zero blocks and waits.
+
+struct Sem
+    count int
+
+fn Sem.try_down(mut self) bool
+    if self.count == 0
+        return false
+    self.count -= 1
+    true
+
+fn Sem.up(mut self)
+    self.count += 1
+
+fn main()
+    mut free := Sem(count: 3)
+    mut full := Sem(count: 0)
+    mut buf := Deque[int]()
+    steps := "CPPCPPPPCCCC"
+    mut item := 0
+    mut blocked := 0
+    mut waiting := List[char]()
+    for st in steps.chars()
+        mut acts := waiting
+        acts.push(st)
+        waiting = List[char]()
+        for k, who in acts.enumerate()
+            fresh := k == acts.len() - 1
+            if who == 'P'
+                if free.try_down()
+                    item += 1
+                    buf.push_back(item)
+                    full.up()
+                    print("produce {item:>2}  buffer {buf.to_list()}")
+                else
+                    waiting.push(who)
+                    if fresh
+                        blocked += 1
+                        print("producer waits: no free slot")
+            else
+                if full.try_down()
+                    got := buf.pop_front() else 0
+                    free.up()
+                    print("consume {got:>2}  buffer {buf.to_list()}")
+                else
+                    waiting.push(who)
+                    if fresh
+                        blocked += 1
+                        print("consumer waits: nothing to take")
+    print("{item} produced, {blocked} blocked calls, {buf.to_list().len()} left in the buffer")
+
+@test fn sem_blocks()
+    mut s := Sem(count: 1)
+    assert(s.try_down())
+    assert(not s.try_down())

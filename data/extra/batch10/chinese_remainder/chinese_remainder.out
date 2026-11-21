@@ -1,0 +1,5 @@
+x = 23 (mod 105): 2 mod 3, 3 mod 5, 2 mod 7
+x = 53 (mod 210): 1 mod 2, 2 mod 3, 3 mod 5, 4 mod 7
+x = 301 (mod 420): 1 mod 3, 1 mod 4, 1 mod 5, 0 mod 7
+x = 2425 (mod 2431): 5 mod 11, 7 mod 13, 11 mod 17
+smallest egg basket: 301, next 721

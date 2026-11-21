@@ -1,0 +1,61 @@
+## LSM levels: writes go to a small in-memory table that is flushed as a sorted run; two runs are
+## merged into the next level, newest value winning and deletions (tombstones) dropped at the bottom.
+
+struct Lsm
+    mem Map[str, int]
+    l0 List[Map[str, int]]
+    l1 Map[str, int]
+
+TOMB := -1
+
+fn Lsm.put(mut self, k str, v int)
+    self.mem[k] = v
+    if self.mem.len() == 3
+        self.l0.push(self.mem)
+        print("  flush {self.mem.len()} keys to L0 (now {self.l0.len()} runs)")
+        self.mem = Map[str, int]()
+    if self.l0.len() == 2
+        mut merged := self.l1
+        for run in self.l0
+            for key, val in run
+                merged[key] = val
+        mut bottom := Map[str, int]()
+        for key in merged.keys().sorted()
+            if merged[key] != TOMB
+                bottom[key] = merged[key]
+        self.l1 = bottom
+        self.l0 = List[Map[str, int]]()
+        print("  compact L0 into L1: {self.l1.len()} live keys")
+
+fn Lsm.get(self, k str) str
+    mut found := self.mem.get(k)
+    mut place := "memtable"
+    if found == none
+        mut i := self.l0.len() - 1
+        while i >= 0 and found == none
+            found = self.l0[i].get(k)
+            place = "L0 run {i}"
+            i -= 1
+    if found == none
+        found = self.l1.get(k)
+        place = "L1"
+    v := found else return "{k}: missing"
+    if v == TOMB
+        return "{k}: deleted ({place})"
+    "{k}: {v} ({place})"
+
+fn main()
+    mut db := Lsm(mem: Map[str, int](), l0: List[Map[str, int]](), l1: Map[str, int]())
+    writes := [("cat", 1), ("dog", 2), ("eel", 3), ("cat", 4), ("fox", 5), ("dog", TOMB), ("gnu", 7), ("ant", 8)]
+    for w in writes
+        k, v := w
+        print("put {k} = {v}")
+        db.put(k, v)
+    for k in ["cat", "dog", "eel", "ant"]
+        print(db.get(k))
+
+@test fn newest_wins()
+    mut db := Lsm(mem: Map[str, int](), l0: List[Map[str, int]](), l1: Map[str, int]())
+    db.put("a", 1)
+    db.put("a", 2)
+    assert_eq(db.get("a"), "a: 2 (memtable)")

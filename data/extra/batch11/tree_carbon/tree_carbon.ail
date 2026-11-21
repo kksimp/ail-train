@@ -1,0 +1,30 @@
+## Tree carbon: Chave's formula estimates above-ground biomass as 0.0673 (rho D^2 H)^0.976 kg
+## (wood density g/cm3, trunk diameter cm, height m); half is carbon, and carbon * 3.67 is the CO2.
+
+struct Tree
+    kind str
+    density float
+    dbh_cm float
+    height_m float
+
+fn Tree.biomass(self) float
+    x := self.density * self.dbh_cm * self.dbh_cm * self.height_m
+    0.0673 * x.pow(0.976)
+
+fn main()
+    trees := [Tree(kind: "oak", density: 0.65, dbh_cm: 60.0, height_m: 22.0), Tree(kind: "birch", density: 0.55, dbh_cm: 25.0, height_m: 15.0), Tree(kind: "pine", density: 0.42, dbh_cm: 40.0, height_m: 25.0), Tree(kind: "beech", density: 0.62, dbh_cm: 45.0, height_m: 28.0), Tree(kind: "willow", density: 0.38, dbh_cm: 30.0, height_m: 12.0)]
+    mut total_co2 := 0.0
+    for t in trees
+        mass := t.biomass()
+        carbon := mass * 0.47
+        co2 := carbon * 3.67
+        total_co2 += co2
+        print("{t.kind:<7} {t.dbh_cm} cm x {t.height_m} m: {mass:>7.1} kg wood, {carbon:>6.1} kg C, {co2 / 1000.0:.2} t CO2")
+    print("the five trees hold {total_co2 / 1000.0:.2} t of CO2")
+    order := trees.sorted(by: |tr| 0 - tr.biomass().to_int()).map(|tr| tr.kind).join(", ")
+    print("heaviest first: {order}")
+
+@test fn grows_with_height()
+    a := Tree(kind: "a", density: 0.5, dbh_cm: 30.0, height_m: 10.0)
+    b := Tree(kind: "b", density: 0.5, dbh_cm: 30.0, height_m: 20.0)
+    assert(b.biomass() > a.biomass())

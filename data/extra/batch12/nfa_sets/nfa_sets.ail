@@ -1,0 +1,43 @@
+## NFA sets: a nondeterministic automaton for "any mix of a and b ending in abb" (with empty
+## moves, as Thompson's construction builds it) is run by tracking the set of states it could be in.
+
+fn closure(states Set[int], eps Map[int, List[int]]) Set[int]
+    mut out := states
+    mut stack := states.to_list()
+    while s := stack.pop()
+        for t in eps.get_or(s, List[int]())
+            if out.add(t)
+                stack.push(t)
+    out
+
+fn step(states Set[int], ch char, moves Map[str, int]) Set[int]
+    mut out := Set[int]()
+    for s in states
+        key := "{s}{ch}"
+        if t := moves.get(key)
+            out.add(t)
+    out
+
+fn accepts(word str, eps Map[int, List[int]], moves Map[str, int], show bool) bool
+    mut cur := closure({0}, eps)
+    for ch in word.chars()
+        cur = closure(step(cur, ch, moves), eps)
+        if show
+            print("  after {ch}: {cur.sorted()}")
+    cur.contains(10)
+
+fn main()
+    eps := {0: [1, 7], 1: [2, 4], 3: [6], 5: [6], 6: [1, 7]}
+    moves := {"2a": 3, "4b": 5, "7a": 8, "8b": 9, "9b": 10}
+    first := closure({0}, eps).sorted()
+    print("start: {first}")
+    _ := accepts("babb", eps, moves, true)
+    for w in ["abb", "aabb", "babb", "abab", "ab", "bbbabb", ""]
+        verdict := if accepts(w, eps, moves, false) then "accept" else "reject"
+        print("'{w}' {verdict}")
+
+@test fn ends_in_abb()
+    eps := {0: [1, 7], 1: [2, 4], 3: [6], 5: [6], 6: [1, 7]}
+    moves := {"2a": 3, "4b": 5, "7a": 8, "8b": 9, "9b": 10}
+    assert(accepts("abb", eps, moves, false))
+    assert(not accepts("abba", eps, moves, false))

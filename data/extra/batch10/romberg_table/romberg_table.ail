@@ -1,0 +1,39 @@
+## Romberg integration: trapezoid sums with 1, 2, 4, 8... strips, each refined by Richardson
+## extrapolation (R[n][m] from R[n][m-1] and R[n-1][m-1]), reach 10 digits with very few points.
+
+fn h(kind int, x float) float
+    if kind == 0 then 4.0 / (1.0 + x * x) else 1.0 / x
+
+fn romberg(kind int, a float, b float, rows int) List[List[float]]
+    mut r := List[List[float]]()
+    mut strips := 1
+    for n in 0..rows
+        width := (b - a) / strips.to_float()
+        mut s := (h(kind, a) + h(kind, b)) / 2.0
+        for i in 1..strips
+            s += h(kind, a + i.to_float() * width)
+        mut row := [s * width]
+        mut factor := 4.0
+        for m in 1..=n
+            row.push(row[m - 1] + (row[m - 1] - r[n - 1][m - 1]) / (factor - 1.0))
+            factor *= 4.0
+        r.push(row)
+        strips *= 2
+    r
+
+fn cell(v float) str
+    "{v:.10}"
+
+fn main()
+    for kind in [0, 1]
+        title := if kind == 0 then "integral of 4/(1+x^2) on [0, 1] = pi" else "integral of 1/x on [1, 2] = ln 2"
+        print(title)
+        table := if kind == 0 then romberg(0, 0.0, 1.0, 5) else romberg(1, 1.0, 2.0, 5)
+        for row in table
+            cells := row.map(cell)
+            text := cells.join("  ")
+            print("    {text}")
+
+@test fn linear()
+    t := romberg(1, 1.0, 1.0, 1)
+    assert_eq(t[0][0], 0.0)

@@ -1,0 +1,46 @@
+## Shelf workload: shelves of books go in order to k proofreaders, each taking a run of shelves;
+## a binary search on the page limit, with a greedy check, finds the smallest largest workload.
+
+fn readers_needed(pages List[int], limit int) int
+    mut count := 1
+    mut load := 0
+    for p in pages
+        if load + p > limit
+            count += 1
+            load = p
+        else
+            load += p
+    count
+
+fn smallest_limit(pages List[int], k int) int
+    mut lo := pages.max() else 0
+    mut hi := pages.sum()
+    while lo < hi
+        mid := (lo + hi) / 2
+        if readers_needed(pages, mid) <= k
+            hi = mid
+        else
+            lo = mid + 1
+    lo
+
+fn main()
+    pages := [120, 340, 90, 410, 260, 180, 75, 300, 220, 150]
+    print("shelves: {pages}")
+    for k in [2, 3, 4, 5]
+        limit := smallest_limit(pages, k)
+        mut groups := List[str]()
+        mut load := 0
+        mut first := 1
+        for i, p in pages.enumerate()
+            if load + p > limit
+                groups.push("{first}-{i}:{load}")
+                first = i + 1
+                load = p
+            else
+                load += p
+        groups.push("{first}-{pages.len()}:{load}")
+        shown := groups.join(" ")
+        print("{k} readers, at most {limit} pages: {shown}")
+
+@test fn one_reader()
+    assert_eq(smallest_limit([5, 7], 1), 12)

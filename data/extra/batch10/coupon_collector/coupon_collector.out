@@ -1,0 +1,5 @@
+ 2 kinds: expected 3.00, simulated 3.00, worst run 15
+ 6 kinds: expected 14.70, simulated 14.86, worst run 62
+10 kinds: expected 29.29, simulated 29.57, worst run 96
+20 kinds: expected 71.95, simulated 71.92, worst run 194
+collecting 50 kinds takes about 225.0 draws

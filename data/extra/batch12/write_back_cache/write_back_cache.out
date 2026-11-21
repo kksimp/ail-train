@@ -1,0 +1,4 @@
+ops: R1 W1 W1 R2 W2 W1 R3 W3 R4 W1 W1 W4 R2 W2 W2
+write-through: 5 misses, 10 memory writes
+write-back:    5 misses, 2 memory writes, 3 dirty lines to flush
+write-back total after flush: 5

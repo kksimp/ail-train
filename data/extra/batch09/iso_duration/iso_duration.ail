@@ -1,0 +1,47 @@
+## ISO 8601 durations: reads text like P1DT2H30M by collecting digits until a unit letter (Y, M, W, D
+## before T; H, M, S after it), then totals seconds with 365-day years and 30-day months.
+
+fn seconds(text str) int ! str
+    cs := text.chars()
+    if cs.len() < 2 or cs[0] != 'P'
+        return "needs P and at least one part"
+    mut total := 0
+    mut num := List[char]()
+    mut in_time := false
+    mut parts := 0
+    for c in cs.slice(1)
+        if c.is_digit()
+            num.push(c)
+            continue
+        if c == 'T'
+            in_time = true
+            continue
+        if num.is_empty()
+            return "unit {c} has no number"
+        n := num.join("").to_int() else 0
+        num.clear()
+        size := match c
+            'Y' => if in_time then -1 else 31536000
+            'W' => if in_time then -1 else 604800
+            'D' => if in_time then -1 else 86400
+            'H' => if in_time then 3600 else -1
+            'M' => if in_time then 60 else 2592000
+            'S' => if in_time then 1 else -1
+            _ => -1
+        if size < 0
+            return "unit {c} not allowed here"
+        total += n * size
+        parts += 1
+    if not num.is_empty() or parts == 0
+        return "number without a unit"
+    total
+
+fn main()
+    for d in ["PT45S", "PT1H30M", "P1DT2H30M", "P3W", "P1M", "PT1M", "P1Y2M10DT2H30M", "P", "PT5X", "P2H"]
+        if s := seconds(d)
+            print("{d:<15} {s:>9} seconds ({s / 3600} h {s % 3600 / 60} min)")
+        else err
+            print("{d:<15} error: {err}")
+
+@test fn minutes()
+    assert_eq(seconds("PT2M") else 0, 120)

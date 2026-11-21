@@ -1,0 +1,49 @@
+## Power iteration: multiplying a vector by a matrix again and again lines it up with the
+## dominant eigenvector; the Rayleigh quotient gives the eigenvalue, here for two symmetric matrices.
+
+fn mat_vec(m List[List[float]], v List[float]) List[float]
+    [dot(m[i], v) for i in 0..v.len()]
+
+fn dot(a List[float], b List[float]) float
+    mut s := 0.0
+    for i in 0..a.len()
+        s += a[i] * b[i]
+    s
+
+fn normalised(v List[float]) List[float]
+    n := dot(v, v).sqrt()
+    v.map(|x| x / n)
+
+fn dominant(m List[List[float]]) List[float]
+    mut v := normalised([1.0 for i in 0..m.len()])
+    mut lambda := 0.0
+    mut steps := 0
+    while steps < 500
+        w := mat_vec(m, v)
+        next := dot(v, w)
+        v = normalised(w)
+        steps += 1
+        if (next - lambda).abs() < 0.000000000001
+            lambda = next
+            break
+        lambda = next
+    mut out := [lambda, steps.to_float()]
+    out.extend(v)
+    out
+
+fn main()
+    mats := [[[2.0, 1.0, 0.0], [1.0, 3.0, 1.0], [0.0, 1.0, 4.0]], [[4.0, 1.0, 1.0], [1.0, 4.0, 1.0], [1.0, 1.0, 4.0]], [[6.0, 2.0, 1.0], [2.0, 3.0, 1.0], [1.0, 1.0, 1.0]]]
+    for m in mats
+        r := dominant(m)
+        print("eigenvalue {r[0]:.6} after {r[1].to_int()} steps, vector [{r[2]:.4}, {r[3]:.4}, {r[4]:.4}]")
+        mv := mat_vec(m, r.slice(2))
+        mut gap := 0.0
+        for i in 0..3
+            d := (mv[i] - r[0] * r[2 + i]).abs()
+            if d > gap
+                gap = d
+        print("    |Av - lambda v| below 1e-5: {gap < 0.00001}")
+
+@test fn diagonal()
+    r := dominant([[3.0, 0.0], [0.0, 1.0]])
+    assert((r[0] - 3.0).abs() < 0.000001)

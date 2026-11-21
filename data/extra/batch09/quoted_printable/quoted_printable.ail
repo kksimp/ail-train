@@ -1,0 +1,49 @@
+## Quoted-printable: keeps printable ASCII as is, writes '=' and control characters as =XX in upper
+## case hex, and a space only when it ends a line; decoding turns each =XX back into its character.
+
+fn hex2(n int) str
+    h := "{n:02x}"
+    h.to_upper()
+
+fn encode_line(line str) str
+    cs := line.chars()
+    mut out := List[str]()
+    for i, c in cs.enumerate()
+        n := c.code()
+        if c == ' ' and i < cs.len() - 1
+            out.push(" ")
+        elif n >= 33 and n <= 126 and c != '='
+            out.push("{c}")
+        else
+            out.push("={hex2(n)}")
+    out.join("")
+
+fn decode_line(text str) str
+    cs := text.chars()
+    mut out := List[char]()
+    mut i := 0
+    while i < cs.len()
+        if cs[i] == '=' and i + 2 < cs.len()
+            pair := "{cs[i + 1]}{cs[i + 2]}"
+            n := pair.to_int(16) else 63
+            out.push(char.from_code(n) else '?')
+            i += 3
+        else
+            out.push(cs[i])
+            i += 1
+    out.join("")
+
+fn main()
+    tc := char.from_code(9) else ' '
+    tab := "{tc}"
+    lines := ["price = 5 euro", "a{tab}b", "ends with space ", "100% sure=yes", "plain text"]
+    mut same := 0
+    for line in lines
+        e := encode_line(line)
+        if decode_line(e) == line
+            same += 1
+        print("{e}")
+    print("{same} of {lines.len()} lines decode back exactly")
+
+@test fn equals()
+    assert_eq(encode_line("a=b"), "a=3Db")

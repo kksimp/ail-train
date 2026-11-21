@@ -1,0 +1,8 @@
+lane 3: []
+lane 2: [34, 47]
+lane 1: [8, 21, 26, 34, 47, 80]
+lane 0: [3, 8, 12, 17, 21, 26, 30, 34, 41, 47, 52, 58, 63, 69, 75, 80]
+find 47: found after 2 hops (a plain list scan takes up to 16)
+find 8: found after 1 hops (a plain list scan takes up to 16)
+find 80: found after 3 hops (a plain list scan takes up to 16)
+find 50: absent after 2 hops (a plain list scan takes up to 16)

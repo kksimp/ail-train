@@ -1,0 +1,12 @@
+n = 1: [1] sum 1, matches counted peaks: true
+n = 2: [1, 1] sum 2, matches counted peaks: true
+n = 3: [1, 3, 1] sum 5, matches counted peaks: true
+n = 4: [1, 6, 6, 1] sum 14, matches counted peaks: true
+n = 5: [1, 10, 20, 10, 1] sum 42, matches counted peaks: true
+n = 6: [1, 15, 50, 50, 15, 1] sum 132, matches counted peaks: true
+n = 7: [1, 21, 105, 175, 105, 21, 1] sum 429, matches counted peaks: true
+((())) has 1 peaks
+(()()) has 2 peaks
+(())() has 2 peaks
+()(()) has 2 peaks
+()()() has 3 peaks

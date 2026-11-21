@@ -1,0 +1,4 @@
+raw sum 2479c, folded 479e, checksum b861
+with checksum in place the sum is ffff
+after one word changes the sum is 1, so the header is rejected
+second header checksum b1e6

@@ -1,0 +1,30 @@
+## Tolerance stack-up: parts stacked in a housing leave a gap of housing minus parts; the worst
+## case adds every tolerance, while the statistical (root sum square) case adds them in quadrature.
+
+struct Part
+    name str
+    nominal_um int
+    tol_um int
+
+fn main()
+    parts := [Part(name: "bearing", nominal_um: 12000, tol_um: 20), Part(name: "spacer", nominal_um: 8500, tol_um: 50), Part(name: "gear", nominal_um: 15000, tol_um: 30), Part(name: "circlip", nominal_um: 1200, tol_um: 40)]
+    housing := 37000
+    housing_tol := 60
+    stack := parts.fold(0, |acc, p| acc + p.nominal_um)
+    gap := housing - stack
+    worst := parts.fold(housing_tol, |acc, p| acc + p.tol_um)
+    mut squares := housing_tol * housing_tol
+    for p in parts
+        squares += p.tol_um * p.tol_um
+        print("{p.name:<8} {p.nominal_um:>6} um +- {p.tol_um} um")
+    rss := squares.to_float().sqrt()
+    print("nominal gap {gap} um")
+    print("worst case: {gap - worst} to {gap + worst} um")
+    lo := gap.to_float() - rss
+    hi := gap.to_float() + rss
+    print("root sum square: {lo:.1} to {hi:.1} um")
+    fits := if gap - worst >= 0 then "always fits" else "may jam in the worst case"
+    print(fits)
+
+@test fn rss_of_three_four()
+    assert_eq((9 + 16).to_float().sqrt(), 5.0)

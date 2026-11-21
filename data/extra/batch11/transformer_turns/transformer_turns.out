@@ -1,0 +1,4 @@
+doorbell    92 turns:   9.2 V, 2.30 A,  21.16 W, primary 0.092 A
+lamp       120 turns:  12.0 V, 2.00 A,  24.00 W, primary 0.104 A
+charger    500 turns:  50.0 V, 2.00 A, 100.00 W, primary 0.435 A
+primary total 0.631 A: fuse blows

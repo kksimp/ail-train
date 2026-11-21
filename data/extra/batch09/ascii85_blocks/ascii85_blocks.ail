@@ -1,0 +1,59 @@
+## Ascii85: every 4 bytes form a 32-bit number written as 5 base-85 digits from '!' up, an all-zero
+## block becomes 'z', and a short last block is padded with zeros and cut to n + 1 characters.
+
+fn encode(bs List[int]) str
+    mut out := List[char]()
+    mut i := 0
+    while i < bs.len()
+        n := (bs.len() - i).min(4)
+        mut v := 0
+        for k in 0..4
+            b := if k < n then bs[i + k] else 0
+            v = v * 256 + b
+        if v == 0 and n == 4
+            out.push('z')
+        else
+            mut digits := List[char]()
+            for k in 0..5
+                digits.push(char.from_code(v % 85 + 33) else '?')
+                v = v / 85
+            digits.reverse()
+            out.extend(digits.slice(0, n + 1))
+        i += 4
+    out.join("")
+
+fn decode(text str) str
+    mut codes := List[int]()
+    for c in text.chars()
+        if c == 'z'
+            for k in 0..5
+                codes.push(0)
+        else
+            codes.push(c.code() - 33)
+    mut out := List[char]()
+    mut i := 0
+    while i < codes.len()
+        n := (codes.len() - i).min(5)
+        mut v := 0
+        for k in 0..5
+            d := if k < n then codes[i + k] else 84
+            v = v * 85 + d
+        mut bytes4 := List[char]()
+        for k in 0..4
+            bytes4.push(char.from_code(v % 256) else '?')
+            v = v / 256
+        bytes4.reverse()
+        out.extend(bytes4.slice(0, n - 1))
+        i += 5
+    out.join("")
+
+fn main()
+    for s in ["Man ", "Man is", "hello world", "sure.", "AIL"]
+        e := encode(s.chars().map(|c| c.code()))
+        back := decode(e)
+        print("{s:<12} -> {e:<15} back '{back}'")
+    zeros := encode([0, 0, 0, 0, 0, 0, 0, 0, 1])
+    print("eight zero bytes then 1 -> {zeros}")
+
+@test fn known()
+    assert_eq(encode([77, 97, 110, 32]), "9jqo^")

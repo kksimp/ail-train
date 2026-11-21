@@ -1,0 +1,30 @@
+## Letter patterns: each word is coded by the order its letters first appear (letter -> ABCA style),
+## so a cryptogram word can only stand for dictionary words with the same pattern.
+
+fn pattern(word str) str
+    mut seen := Map[char, char]()
+    mut out := List[char]()
+    for c in word.chars()
+        if not seen.contains(c)
+            seen[c] = char.from_code(65 + seen.len()) else '?'
+        out.push(seen[c])
+    out.join("")
+
+fn main()
+    dictionary := ["that", "high", "eyes", "noon", "deed", "puppy", "hello", "sees", "boot", "test", "teeth", "added", "level", "radar", "tooth", "otto", "abba", "attic"]
+    mut groups := Map[str, List[str]]()
+    for w in dictionary
+        groups.push(pattern(w), w)
+    for p, ws in groups
+        if ws.len() > 1
+            listed := ws.join(" ")
+            print("{p:<6} {listed}")
+    for secret in ["XQQX", "RKJRK", "MZZMJ", "WLXW"]
+        lower := secret.to_lower()
+        p := pattern(lower)
+        matches := groups.get(p) else List[str]()
+        shown := if matches.is_empty() then "no word" else matches.join(", ")
+        print("cipher {secret} ({p}) could be: {shown}")
+
+@test fn abca()
+    assert_eq(pattern("that"), "ABCA")

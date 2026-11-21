@@ -1,0 +1,41 @@
+## Table-driven DFA: a transition table indexed by state and character class (letter, digit, dot,
+## operator, other) decides whether a whole word is an identifier, integer, decimal or operator.
+
+fn class_of(c char) int
+    if c.is_alpha() or c == '_'
+        return 0
+    if c.is_digit()
+        return 1
+    if c == '.'
+        return 2
+    if "+-*/<>=!".contains(c)
+        return 3
+    4
+
+fn table() List[List[int]]
+    [[1, 2, -1, 5, -1], [1, 1, -1, -1, -1], [-1, 2, 3, -1, -1], [-1, 4, -1, -1, -1], [-1, 4, -1, -1, -1], [-1, -1, -1, 6, -1], [-1, -1, -1, -1, -1]]
+
+fn kind(state int) str
+    match state
+        1 => "identifier"
+        2 => "integer"
+        4 => "decimal"
+        5 | 6 => "operator"
+        _ => "rejected"
+
+fn main()
+    t := table()
+    for word in ["count", "x1", "_tmp", "42", "3.14", "3.", ".5", "1a", "+", "<=", "<=>", "a-b"]
+        mut state := 0
+        mut path := ["0"]
+        for c in word.chars()
+            state = t[state][class_of(c)]
+            path.push("{state}")
+            if state < 0
+                break
+        trail := path.join(">")
+        print("{word:<6} {trail:<14} {kind(state)}")
+
+@test fn decimal()
+    t := table()
+    assert_eq(t[t[t[t[0][1]][2]][1]][1], 4)

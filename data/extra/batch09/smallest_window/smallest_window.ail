@@ -1,0 +1,40 @@
+## Smallest window: two pointers grow a window until it holds every needed letter (with repeats),
+## then shrink it from the left while it keeps holding them, keeping the shortest window seen.
+
+fn smallest(text str, need str) str
+    t := text.chars()
+    mut want := Map[char, int]()
+    for c in need.chars()
+        want[c] += 1
+    mut have := Map[char, int]()
+    mut formed := 0
+    required := want.len()
+    mut best_start := -1
+    mut best_len := t.len() + 1
+    mut left := 0
+    for right in 0..t.len()
+        c := t[right]
+        have[c] += 1
+        if want.contains(c) and have[c] == want[c]
+            formed += 1
+        while formed == required
+            if right - left + 1 < best_len
+                best_len = right - left + 1
+                best_start = left
+            d := t[left]
+            have[d] -= 1
+            if want.contains(d) and have[d] < want[d]
+                formed -= 1
+            left += 1
+    if best_start < 0 then "" else text.slice(best_start, best_start + best_len)
+
+fn main()
+    cases := [("ADOBECODEBANC", "ABC"), ("this is a test string", "tist"), ("geeksforgeeks", "ork"), ("aaabbbccc", "abc"), ("hello", "xyz"), ("abbcabb", "abb")]
+    for p in cases
+        text, need := p
+        w := smallest(text, need)
+        shown := if w == "" then "none" else "'{w}'"
+        print("{need:<5} in '{text}': {shown}")
+
+@test fn basic()
+    assert_eq(smallest("ADOBECODEBANC", "ABC"), "BANC")

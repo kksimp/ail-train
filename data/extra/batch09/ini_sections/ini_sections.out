@@ -1,0 +1,11 @@
+line 10: database.pool set again, 4 -> 8
+line 13: no '=' in "broken line here"
+[server] 3 keys
+[database] 2 keys
+global.name = Corner Shop
+server.host = 0.0.0.0
+server.port = 8080
+database.path = data/shop.db
+database.pool = 8
+server.debug = false
+port + 1 = 8081

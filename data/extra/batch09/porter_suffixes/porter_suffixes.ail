@@ -1,0 +1,59 @@
+## Porter stemmer, step 1: plural -s endings, then -ed and -ing (restoring an e or undoubling a
+## consonant), then y to i; the measure m counts vowel-consonant runs and guards the e rule.
+
+fn cons(cs List[char], i int) bool
+    if "aeiou".contains(cs[i])
+        return false
+    cs[i] != 'y' or i == 0 or not cons(cs, i - 1)
+
+fn measure(w str) int
+    cs := w.chars()
+    mut m := 0
+    mut prev_vowel := false
+    for i in 0..cs.len()
+        v := not cons(cs, i)
+        if prev_vowel and not v
+            m += 1
+        prev_vowel = v
+    m
+
+fn has_vowel(w str) bool
+    w.chars().any(|c| "aeiou".contains(c))
+
+fn cvc(w str) bool
+    cs := w.chars()
+    n := cs.len()
+    n >= 3 and cons(cs, n - 3) and not cons(cs, n - 2) and cons(cs, n - 1) and not "wxy".contains(cs[n - 1])
+
+fn stem(word str) str
+    mut w := word
+    if w.ends_with("sses") or w.ends_with("ies")
+        w = w.slice(0, w.len() - 2)
+    elif w.ends_with("s") and not w.ends_with("ss")
+        w = w.slice(0, w.len() - 1)
+    mut cut := 0
+    if w.ends_with("ed") and has_vowel(w.slice(0, w.len() - 2))
+        cut = 2
+    elif w.ends_with("ing") and has_vowel(w.slice(0, w.len() - 3))
+        cut = 3
+    if cut > 0
+        w = w.slice(0, w.len() - cut)
+        cs := w.chars()
+        n := cs.len()
+        if w.ends_with("at") or w.ends_with("bl") or w.ends_with("iz")
+            w = "{w}e"
+        elif n >= 2 and cs[n - 1] == cs[n - 2] and cons(cs, n - 1) and not "lsz".contains(cs[n - 1])
+            w = w.slice(0, n - 1)
+        elif measure(w) == 1 and cvc(w)
+            w = "{w}e"
+    if w.ends_with("y") and has_vowel(w.slice(0, w.len() - 1))
+        w = "{w.slice(0, w.len() - 1)}i"
+    w
+
+fn main()
+    words := ["caresses", "ponies", "cats", "running", "plastered", "motoring", "sing", "conflated", "troubled", "sized", "hopping", "tanned", "falling", "hissing", "filing", "happy", "sky", "fizzed", "bled", "toys"]
+    for row in words.chunks(4)
+        print(row.map(|w| "{w} -> {stem(w)}").join(", "))
+
+@test fn ponies()
+    assert_eq(stem("ponies"), "poni")

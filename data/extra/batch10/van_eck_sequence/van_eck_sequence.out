@@ -1,0 +1,7 @@
+first 25: [0, 0, 1, 0, 2, 0, 2, 2, 1, 6, 0, 5, 0, 2, 6, 5, 4, 0, 5, 3, 0, 3, 2, 9, 0]
+zeros in the first 1000 terms: 198
+largest of the first 1000: 705
+5 first appears at position 11
+10 first appears at position 147
+20 first appears at position 55
+50 first appears at position 356

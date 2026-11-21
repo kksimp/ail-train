@@ -1,0 +1,6 @@
+eigenvalue 4.732051 after 31 steps, vector [0.2113, 0.5774, 0.7887]
+    |Av - lambda v| below 1e-5: true
+eigenvalue 6.000000 after 2 steps, vector [0.5774, 0.5774, 0.5774]
+    |Av - lambda v| below 1e-5: true
+eigenvalue 7.287992 after 14 steps, vector [0.8664, 0.4531, 0.2098]
+    |Av - lambda v| below 1e-5: true

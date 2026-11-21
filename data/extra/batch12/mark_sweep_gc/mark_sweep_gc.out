@@ -1,0 +1,3 @@
+both roots held: freed temp, buffer; 6 objects live
+session root dropped: freed session, cart, user, item; 2 objects live
+config root dropped: freed config, logger; 0 objects live

@@ -1,0 +1,4 @@
+start H2 1.0 I2 1.0: H2 0.2205, I2 0.2205, HI 1.5590 M (Kc check 50.0)
+start H2 1.0 I2 2.0: H2 0.0656, I2 1.0656, HI 1.8689 M (Kc check 50.0)
+start H2 0.5 I2 0.2: H2 0.3094, I2 0.0094, HI 0.3812 M (Kc check 50.0)
+start H2 2.0 I2 0.1: H2 1.9004, I2 0.0004, HI 0.1992 M (Kc check 50.0)

@@ -1,0 +1,50 @@
+## Philosopher forks: five diners each need the forks on both sides and take one per tick; taking
+## the left fork first deadlocks at once, while taking the lower-numbered fork first never does.
+
+enum State
+    Thinking(left int)
+    Hungry
+    Eating(left int)
+
+fn simulate(ordered bool, ticks int) str
+    mut forks := [-1, -1, -1, -1, -1]
+    mut st := [State.Hungry, State.Hungry, State.Hungry, State.Hungry, State.Hungry]
+    mut meals := [0, 0, 0, 0, 0]
+    for t in 0..ticks
+        mut changed := false
+        for i in 0..5
+            a := if ordered then i.min((i + 1) % 5) else i
+            b := if ordered then i.max((i + 1) % 5) else (i + 1) % 5
+            cur := st[i]
+            match cur
+                Thinking(n) =>
+                    st[i] = if n <= 1 then State.Hungry else State.Thinking(left: n - 1)
+                    changed = true
+                Eating(n) =>
+                    changed = true
+                    if n <= 1
+                        forks[a] = -1
+                        forks[b] = -1
+                        meals[i] += 1
+                        st[i] = State.Thinking(left: 2)
+                    else
+                        st[i] = State.Eating(left: n - 1)
+                Hungry =>
+                    if forks[a] == -1
+                        forks[a] = i
+                        changed = true
+                    elif forks[a] == i and forks[b] == -1
+                        forks[b] = i
+                        st[i] = State.Eating(left: 2)
+                        changed = true
+        if not changed
+            return "deadlock at tick {t}: every diner holds one fork"
+    "after {ticks} ticks meals are {meals}"
+
+fn main()
+    print("left first:   {simulate(false, 30)}")
+    print("lowest first: {simulate(true, 30)}")
+    print("lowest first, short run: {simulate(true, 6)}")
+
+@test fn naive_locks()
+    assert(simulate(false, 5).starts_with("deadlock"))

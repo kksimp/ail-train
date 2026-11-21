@@ -1,0 +1,5 @@
+concrete  n 0.013: flow at 0.25/0.5/1.0 m deep = 0.423 1.156 2.933 m3/s
+earth     n 0.025: flow at 0.25/0.5/1.0 m deep = 0.220 0.601 1.525 m3/s
+grass     n 0.035: flow at 0.25/0.5/1.0 m deep = 0.157 0.429 1.089 m3/s
+rubble    n 0.045: flow at 0.25/0.5/1.0 m deep = 0.122 0.334 0.847 m3/s
+an earth ditch carries 2 m3/s at about 1.24 m deep

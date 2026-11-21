@@ -1,0 +1,9 @@
+00  104  start: LOAD 4
+01  400  loop:  OUT        ; show the counter
+02  301  SUB 1
+03  505  JZ done
+04  601  JMP loop
+05  199  done:  LOAD 99
+06  400  OUT
+07  000  HALT
+output: [4, 3, 2, 1, 99]

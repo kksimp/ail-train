@@ -1,0 +1,38 @@
+## Secant method: Newton's step with the derivative replaced by the slope through the last two
+## guesses; solves Kepler's equation E - e sin E = M for a planet's eccentric anomaly.
+
+fn kepler(e float, m float, big float) float
+    big - e * big.sin() - m
+
+fn secant(e float, m float) List[float]
+    mut a := m
+    mut b := m + 0.1
+    mut steps := 0
+    while steps < 100
+        fa := kepler(e, m, a)
+        fb := kepler(e, m, b)
+        if fb == fa
+            break
+        c := b - fb * (b - a) / (fb - fa)
+        a = b
+        b = c
+        steps += 1
+        if (b - a).abs() < 0.000000000001
+            break
+    [b, steps.to_float()]
+
+fn main()
+    pi := 3.141592653589793
+    for e in [0.0167, 0.2056, 0.6, 0.9]
+        mut cells := List[str]()
+        for deg in [30.0, 90.0, 150.0]
+            m := deg * pi / 180.0
+            r := secant(e, m)
+            ea := r[0] * 180.0 / pi
+            cells.push("M {deg:.0}: E {ea:>8.4} ({r[1].to_int()} steps)")
+        row := cells.join(", ")
+        print("e {e:.4}: {row}")
+
+@test fn circular()
+    r := secant(0.0, 1.0)
+    assert((r[0] - 1.0).abs() < 0.000000001)

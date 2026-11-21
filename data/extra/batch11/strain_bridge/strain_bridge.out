@@ -1,0 +1,7 @@
+balance with 1000 / 2200 / 470: Rx = 1034.0 ohm
+balance with 330 / 1000 / 150: Rx = 454.5 ohm
+    0 microstrain: gauge 350.000 ohm, output 0.000 mV
+  100 microstrain: gauge 350.070 ohm, output 0.250 mV
+  500 microstrain: gauge 350.350 ohm, output 1.249 mV
+ 1000 microstrain: gauge 350.700 ohm, output 2.498 mV
+ 2000 microstrain: gauge 351.400 ohm, output 4.990 mV

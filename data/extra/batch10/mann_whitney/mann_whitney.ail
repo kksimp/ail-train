@@ -1,0 +1,41 @@
+## Mann-Whitney U: ranks two groups of reaction times together (ties share the average rank),
+## turns the rank sum of one group into U, and compares U with its mean using a normal z score.
+
+fn ranks(values List[float]) List[float]
+    order := [i for i in 0..values.len()].sorted(by: |i| values[i].to_int())
+    mut r := [0.0 for i in 0..values.len()]
+    mut i := 0
+    while i < order.len()
+        mut j := i
+        while j + 1 < order.len() and values[order[j + 1]] == values[order[i]]
+            j += 1
+        avg := (i + j + 2).to_float() / 2.0
+        for k in i..=j
+            r[order[k]] = avg
+        i = j + 1
+    r
+
+fn main()
+    coffee := [212.0, 198.0, 230.0, 205.0, 190.0, 221.0, 199.0, 205.0]
+    water := [240.0, 228.0, 251.0, 235.0, 219.0, 244.0, 230.0]
+    mut all_values := coffee
+    all_values.extend(water)
+    r := ranks(all_values)
+    n1 := coffee.len()
+    n2 := water.len()
+    mut r1 := 0.0
+    for i in 0..n1
+        r1 += r[i]
+    u1 := r1 - (n1 * (n1 + 1)).to_float() / 2.0
+    u2 := (n1 * n2).to_float() - u1
+    mean := (n1 * n2).to_float() / 2.0
+    sd := ((n1 * n2 * (n1 + n2 + 1)).to_float() / 12.0).sqrt()
+    z := (u1 - mean) / sd
+    print("ranks: {r}")
+    print("coffee rank sum {r1}, U1 = {u1}, U2 = {u2}")
+    print("mean U {mean}, sd {sd:.3}, z = {z:.3}")
+    verdict := if z.abs() > 1.96 then "differ at the 5% level" else "no clear difference"
+    print("the groups {verdict}")
+
+@test fn tied()
+    assert_eq(ranks([3.0, 1.0, 3.0]), [2.5, 1.0, 2.5])

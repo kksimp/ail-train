@@ -1,0 +1,43 @@
+## Primitive roots: g is a primitive root mod a prime p when its powers reach every non-zero
+## residue; it suffices that g^((p-1)/q) is not 1 for each prime q dividing p - 1.
+
+fn pow_mod(b int, e int, m int) int
+    mut result := 1
+    mut base := b % m
+    mut exp := e
+    while exp > 0
+        if exp % 2 == 1
+            result = result * base % m
+        base = base * base % m
+        exp = exp / 2
+    result
+
+fn prime_factors(n int) List[int]
+    mut out := List[int]()
+    mut x := n
+    mut p := 2
+    while p * p <= x
+        if x % p == 0
+            out.push(p)
+            while x % p == 0
+                x = x / p
+        p += 1
+    if x > 1
+        out.push(x)
+    out
+
+fn is_root(g int, p int) bool
+    prime_factors(p - 1).all(|q| pow_mod(g, (p - 1) / q, p) != 1)
+
+fn main()
+    for p in [7, 11, 13, 17, 19, 23, 41]
+        roots := [g for g in 1..p if is_root(g, p)]
+        print("p = {p:>2}: smallest {roots[0]}, {roots.len()} roots {roots}")
+    powers := [pow_mod(3, k, 7) for k in 1..=6]
+    print("powers of 3 mod 7: {powers}")
+    twos := [pow_mod(2, k, 7) for k in 1..=6]
+    print("powers of 2 mod 7: {twos} (order 3, not a root)")
+
+@test fn three_mod_seven()
+    assert(is_root(3, 7))
+    assert(not is_root(2, 7))

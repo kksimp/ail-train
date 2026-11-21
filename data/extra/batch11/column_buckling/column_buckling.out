@@ -1,0 +1,5 @@
+FixedFree     K 2.0: 40 mm bar     6.9 kN, 60 mm bar    34.9 kN
+PinnedPinned  K 1.0: 40 mm bar    27.6 kN, 60 mm bar   139.5 kN
+FixedPinned   K 0.7: 40 mm bar    56.2 kN, 60 mm bar   284.8 kN
+FixedFixed    K 0.5: 40 mm bar   110.2 kN, 60 mm bar   558.1 kN
+pinned 3 m strut for 50.0 kN needs 48.0 mm

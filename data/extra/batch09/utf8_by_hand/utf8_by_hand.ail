@@ -1,0 +1,36 @@
+## UTF-8 by hand: a code point below 128 takes one byte, below 2048 two, below 65536 three, else four;
+## the lead byte marks the length (110, 1110, 11110) and each follower carries 6 bits after 10.
+
+fn encode(cp int) List[int]
+    if cp < 128
+        return [cp]
+    if cp < 2048
+        return [192 | (cp >> 6), 128 | (cp & 63)]
+    if cp < 65536
+        return [224 | (cp >> 12), 128 | ((cp >> 6) & 63), 128 | (cp & 63)]
+    [240 | (cp >> 18), 128 | ((cp >> 12) & 63), 128 | ((cp >> 6) & 63), 128 | (cp & 63)]
+
+fn decode(bs List[int]) int
+    n := bs.len()
+    mut cp := if n == 1 then bs[0] elif n == 2 then (bs[0] & 31) elif n == 3 then (bs[0] & 15) else (bs[0] & 7)
+    for i in 1..n
+        cp = (cp << 6) | (bs[i] & 63)
+    cp
+
+fn main()
+    mut agree := 0
+    points := [65, 233, 223, 1046, 8364, 20013, 119070]
+    for cp in points
+        bs := encode(cp)
+        mine := bs.map(|b| "{b:02x}").join(" ")
+        c := char.from_code(cp) else '?'
+        one := "{c}"
+        theirs := one.to_bytes().hex(" ")
+        if mine == theirs
+            agree += 1
+        h := "{cp:04x}"
+        print("U+{h.to_upper():<6} {bs.len()} bytes: {mine:<12} back U+{decode(bs):04x}")
+    print("{agree} of {points.len()} match the built-in encoder")
+
+@test fn euro()
+    assert_eq(encode(8364), [226, 130, 172])

@@ -1,0 +1,34 @@
+## Alliteration runs: finds stretches of three or more words starting with the same letter, where
+## small joining words (a, the, of, and...) are skipped over without breaking the run.
+
+fn runs(line str) List[str]
+    small := {"a", "an", "the", "of", "and", "in", "on", "to"}
+    mut out := List[str]()
+    mut current := List[str]()
+    mut letter := ' '
+    for raw in line.split(" ")
+        w := raw.to_lower().chars().filter(|c| c.is_alpha()).join("")
+        if w == "" or small.contains(w)
+            continue
+        first := w.chars()[0]
+        if first == letter
+            current.push(w)
+        else
+            if current.len() >= 3
+                out.push(current.join(" "))
+            current = [w]
+            letter = first
+    if current.len() >= 3
+        out.push(current.join(" "))
+    out
+
+fn main()
+    lines := ["Peter Piper picked a peck of pickled peppers", "She sells sea shells by the sea shore", "Big bad bears bring blue berries home", "The cat sat on the mat", "Silly snakes slide, then tiny turtles take the trail"]
+    for line in lines
+        rs := runs(line)
+        shown := if rs.is_empty() then "no run" else rs.join(" / ")
+        print("{line}")
+        print("  -> {shown}")
+
+@test fn skip_small()
+    assert_eq(runs("wet and wild wind"), ["wet wild wind"])

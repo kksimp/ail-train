@@ -1,0 +1,39 @@
+## Pell equation: the smallest x, y with x^2 - D y^2 = 1, found among the convergents of the
+## continued fraction of sqrt(D); squaring x + y sqrt(D) then gives the next solution.
+
+fn pell(d int) List[int]
+    mut a0 := 0
+    while (a0 + 1) * (a0 + 1) <= d
+        a0 += 1
+    mut m := 0
+    mut den := 1
+    mut a := a0
+    mut h_prev := 1
+    mut h := a0
+    mut k_prev := 0
+    mut k := 1
+    mut terms := 1
+    while h * h - d * k * k != 1
+        m = den * a - m
+        den = (d - m * m) / den
+        a = (a0 + m) / den
+        h_new := a * h + h_prev
+        k_new := a * k + k_prev
+        h_prev = h
+        h = h_new
+        k_prev = k
+        k = k_new
+        terms += 1
+    [h, k, terms]
+
+fn main()
+    for d in [2, 3, 5, 7, 13, 19, 29]
+        r := pell(d)
+        x := r[0]
+        y := r[1]
+        x2 := x * x + d * y * y
+        y2 := 2 * x * y
+        print("D = {d:>2}: x = {x:>5}, y = {y:>4} after {r[2]} convergents; next {x2}, {y2}")
+
+@test fn root_two()
+    assert_eq(pell(2), [3, 2, 2])

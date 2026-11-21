@@ -1,0 +1,6 @@
+round 1: sent 0 1 2x 3-; ack 2
+round 2: sent 2 3 4 5x; ack 5
+round 3: sent 5x 6- 7- 8x; ack 5
+round 4: sent 5 6 7 8; ack 9
+round 5: sent 9; ack 10
+17 transmissions for 10 frames (x lost, - discarded out of order)

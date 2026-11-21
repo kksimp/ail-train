@@ -1,0 +1,35 @@
+## Frobenius numbers: with boxes of 6, 9 and 20 every order above 43 can be filled exactly; a
+## reachability table finds the largest impossible amount, and two coprime sizes give ab - a - b.
+
+fn reachable(sizes List[int], limit int) List[bool]
+    mut ok := [false for i in 0..=limit]
+    ok[0] = true
+    for n in 1..=limit
+        for s in sizes
+            if s <= n and ok[n - s]
+                ok[n] = true
+    ok
+
+fn frobenius(sizes List[int]) int
+    limit := 500
+    ok := reachable(sizes, limit)
+    mut last := -1
+    for n in 0..=limit
+        if not ok[n]
+            last = n
+    last
+
+fn main()
+    boxes := [6, 9, 20]
+    ok := reachable(boxes, 50)
+    gaps := [n for n in 1..=50 if not ok[n]]
+    print("impossible with {boxes}: {gaps}")
+    print("largest impossible: {frobenius(boxes)}")
+    for pair in [[5, 7], [4, 9], [8, 11], [3, 10]]
+        a := pair[0]
+        b := pair[1]
+        print("sizes {a} and {b}: table {frobenius(pair)}, formula {a * b - a - b}")
+    print("sizes 4 and 10 share a factor, so odd amounts never work: {frobenius([4, 10])}")
+
+@test fn chicken()
+    assert_eq(frobenius([6, 9, 20]), 43)

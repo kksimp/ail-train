@@ -1,0 +1,32 @@
+## MVCC visibility: each row version records the transaction that created it and the one that
+## deleted it; a snapshot sees a version only if its creator committed before the snapshot.
+
+struct Version
+    item str
+    price int
+    made int
+    gone int
+
+struct Snapshot
+    upto int
+    active List[int]
+
+fn Snapshot.done(self, tx int, aborted List[int]) bool
+    tx > 0 and tx < self.upto and not self.active.contains(tx) and not aborted.contains(tx)
+
+fn Snapshot.sees(self, v Version, aborted List[int]) bool
+    self.done(v.made, aborted) and not self.done(v.gone, aborted)
+
+fn main()
+    versions := [Version(item: "pen", price: 120, made: 1, gone: 4), Version(item: "pen", price: 135, made: 4, gone: 0), Version(item: "cap", price: 900, made: 2, gone: 0), Version(item: "mug", price: 450, made: 3, gone: 6), Version(item: "mug", price: 480, made: 6, gone: 0), Version(item: "bag", price: 2500, made: 5, gone: 0)]
+    aborted := [5]
+    snaps := [("snapshot at 3, T2 running", Snapshot(upto: 3, active: [2])), ("snapshot at 5, T4 running", Snapshot(upto: 5, active: [4])), ("snapshot at 7, none running", Snapshot(upto: 7, active: List[int]())), ("snapshot at 7, T6 running", Snapshot(upto: 7, active: [6]))]
+    for s in snaps
+        label, snap := s
+        seen := versions.filter(|v| snap.sees(v, aborted)).map(|v| "{v.item}={v.price}")
+        shown := seen.join(" ")
+        print("{label}: {shown}")
+
+@test fn uncommitted_hidden()
+    s := Snapshot(upto: 10, active: [3])
+    assert(not s.done(3, List[int]()))

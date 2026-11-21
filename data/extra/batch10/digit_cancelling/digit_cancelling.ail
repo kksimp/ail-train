@@ -1,0 +1,38 @@
+## Digit cancelling: two-digit fractions where wrongly striking a shared digit still gives the
+## right value, like 49/98 = 4/8; every striking position is tried and checked by cross-multiplying.
+
+struct Frac
+    num int
+    den int
+
+fn gcd(a int, b int) int
+    if b == 0 then a else gcd(b, a % b)
+
+fn Frac.reduced(self) Frac
+    g := gcd(self.num, self.den)
+    Frac(num: self.num / g, den: self.den / g)
+
+fn main()
+    mut found := List[Frac]()
+    for n in 10..100
+        for d in (n + 1)..100
+            if n % 10 == 0 and d % 10 == 0
+                continue
+            nd := [n / 10, n % 10]
+            dd := [d / 10, d % 10]
+            for i in 0..2
+                for j in 0..2
+                    if nd[i] == dd[j] and dd[1 - j] != 0
+                        a := nd[1 - i]
+                        b := dd[1 - j]
+                        if n * b == d * a
+                            found.push(Frac(num: n, den: d))
+                            print("{n}/{d} = {a}/{b} after striking the {nd[i]}s")
+    mut prod := Frac(num: 1, den: 1)
+    for f in found
+        prod = Frac(num: prod.num * f.num, den: prod.den * f.den).reduced()
+    print("product of the {found.len()} fractions: {prod.num}/{prod.den}")
+
+@test fn reduce()
+    r := Frac(num: 49, den: 98).reduced()
+    assert_eq([r.num, r.den], [1, 2])

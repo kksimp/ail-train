@@ -1,0 +1,62 @@
+## Treap priorities: each key gets a pseudo-random priority from a fixed-seed generator, and
+## rotations keep the heap order on priorities, so even sorted inserts give a shallow tree.
+
+struct Node
+    key int
+    pri int
+    left int
+    right int
+
+fn insert(mut ns List[Node], root int, key int, pri int) int
+    if root < 0
+        ns.push(Node(key: key, pri: pri, left: -1, right: -1))
+        return ns.len() - 1
+    if key < ns[root].key
+        lc := ns[root].left
+        ls := insert(mut ns, lc, key, pri)
+        ns[root].left = ls
+        if ns[ls].pri > ns[root].pri
+            ns[root].left = ns[ls].right
+            ns[ls].right = root
+            return ls
+    else
+        rc := ns[root].right
+        rs := insert(mut ns, rc, key, pri)
+        ns[root].right = rs
+        if ns[rs].pri > ns[root].pri
+            ns[root].right = ns[rs].left
+            ns[rs].left = root
+            return rs
+    root
+
+fn depth(ns List[Node], i int) int
+    if i < 0
+        return 0
+    1 + depth(ns, ns[i].left).max(depth(ns, ns[i].right))
+
+fn plain(mut ns List[Node], root int, key int) int
+    insert(mut ns, root, key, 0)
+
+fn main()
+    mut seed := 2024
+    mut ns := List[Node]()
+    mut root := -1
+    mut bst := List[Node]()
+    mut broot := -1
+    for key in 1..=31
+        seed = (seed * 75 + 74) % 65537
+        root = insert(mut ns, root, key, seed)
+        broot = plain(mut bst, broot, key)
+    print("31 sorted keys")
+    print("plain tree depth: {depth(bst, broot)}")
+    print("treap depth: {depth(ns, root)}")
+    print("treap root: key {ns[root].key}, priority {ns[root].pri}")
+    l := ns[root].left
+    r := ns[root].right
+    print("root children: {ns[l].key} and {ns[r].key}")
+
+@test fn heap_order()
+    mut ns := List[Node]()
+    mut root := insert(mut ns, -1, 5, 10)
+    root = insert(mut ns, root, 3, 50)
+    assert_eq(ns[root].key, 3)

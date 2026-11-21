@@ -1,0 +1,10 @@
+41 Heronian triangles with sides up to 30; smallest perimeters:
+    3, 4, 5: perimeter 12, area 6 (right)
+    5, 5, 6: perimeter 16, area 12
+    5, 5, 8: perimeter 18, area 12
+    6, 8, 10: perimeter 24, area 24 (right)
+    5, 12, 13: perimeter 30, area 30 (right)
+    10, 10, 12: perimeter 32, area 48
+    4, 13, 15: perimeter 32, area 24
+    10, 13, 13: perimeter 36, area 60
+area equal to perimeter: [[6, 8, 10], [5, 12, 13], [9, 10, 17], [7, 15, 20], [6, 25, 29]]

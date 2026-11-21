@@ -1,0 +1,65 @@
+## LU decomposition: Doolittle's method splits A into a unit lower triangle L and an upper
+## triangle U once; the determinant is U's diagonal product and each new right side costs two sweeps.
+
+fn decompose(a List[List[float]]) List[List[List[float]]]
+    n := a.len()
+    mut l := [[0.0 for j in 0..n] for i in 0..n]
+    mut u := [[0.0 for j in 0..n] for i in 0..n]
+    for i in 0..n
+        for k in i..n
+            mut s := 0.0
+            for j in 0..i
+                s += l[i][j] * u[j][k]
+            u[i][k] = a[i][k] - s
+        l[i][i] = 1.0
+        for k in (i + 1)..n
+            mut s := 0.0
+            for j in 0..i
+                s += l[k][j] * u[j][i]
+            l[k][i] = (a[k][i] - s) / u[i][i]
+    [l, u]
+
+fn solve(l List[List[float]], u List[List[float]], b List[float]) List[float]
+    n := b.len()
+    mut y := [0.0 for i in 0..n]
+    for i in 0..n
+        mut s := b[i]
+        for j in 0..i
+            s -= l[i][j] * y[j]
+        y[i] = s
+    mut x := [0.0 for i in 0..n]
+    mut i := n - 1
+    while i >= 0
+        mut s := y[i]
+        for j in (i + 1)..n
+            s -= u[i][j] * x[j]
+        x[i] = s / u[i][i]
+        i -= 1
+    x
+
+fn show(name str, m List[List[float]])
+    for row in m
+        cells := [format_cell(v) for v in row]
+        text := cells.join(" ")
+        print("{name} | {text}")
+
+fn format_cell(v float) str
+    "{v:>8.3}"
+
+fn main()
+    a := [[4.0, 3.0, 2.0], [8.0, 7.0, 9.0], [4.0, 6.0, 25.0]]
+    parts := decompose(a)
+    show("L", parts[0])
+    show("U", parts[1])
+    mut det := 1.0
+    for i in 0..3
+        det *= parts[1][i][i]
+    print("determinant {det:.3}")
+    for b in [[9.0, 24.0, 35.0], [2.0, 1.0, 3.0]]
+        x := solve(parts[0], parts[1], b)
+        print("b = {b}: x = [{x[0]:.5}, {x[1]:.5}, {x[2]:.5}]")
+
+@test fn two_by_two()
+    p := decompose([[2.0, 1.0], [4.0, 5.0]])
+    assert_eq(p[0][1][0], 2.0)
+    assert_eq(p[1][1][1], 3.0)

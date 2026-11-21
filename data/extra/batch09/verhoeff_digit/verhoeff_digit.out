@@ -1,0 +1,9 @@
+236 -> check digit 3
+12345 -> check digit 1
+142857 -> check digit 0
+8473643095483 -> check digit 5
+2363 valid: true
+2263 valid: false
+3263 valid: false
+2633 valid: false
+2336 valid: false

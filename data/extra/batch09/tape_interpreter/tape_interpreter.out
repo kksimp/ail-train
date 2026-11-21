@@ -1,0 +1,5 @@
+say Hi      -> Hi (149 steps)
+2 + 5       -> 7 (125 steps)
+count to 3  -> 123 (86 steps)
+broken      -> error: ']' at 7 has no '['
+unclosed    -> error: 1 '[' never closed

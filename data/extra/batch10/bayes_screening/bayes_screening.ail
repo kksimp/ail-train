@@ -1,0 +1,25 @@
+## Bayes screening: the chance that a positive test means disease, from prevalence, sensitivity
+## and specificity; for rare conditions most positives are false, and a second test helps.
+
+fn posterior(prior float, sens float, spec float) float
+    hit := sens * prior
+    false_alarm := (1.0 - spec) * (1.0 - prior)
+    hit / (hit + false_alarm)
+
+fn main()
+    sens := 0.9
+    spec := 0.95
+    print("sensitivity 90%, specificity 95%")
+    for prev in [0.001, 0.01, 0.05, 0.2, 0.5]
+        p := posterior(prev, sens, spec)
+        again := posterior(p, sens, spec)
+        pct := prev * 100.0
+        print("prevalence {pct:>5.1}%: one positive {p * 100.0:>5.1}%, two positives {again * 100.0:>5.1}%")
+    people := 100000
+    sick := people / 100
+    true_pos := sick * 90 / 100
+    false_pos := (people - sick) * 5 / 100
+    print("of {people} people with 1% sick: {true_pos} true and {false_pos} false positives")
+
+@test fn even_odds()
+    assert_eq(posterior(0.5, 0.5, 0.5), 0.5)

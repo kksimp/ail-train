@@ -1,0 +1,8 @@
+Ash      0   5   3   9  11
+Birch    5   0   2   4   6
+Cedar    3   2   0   6   8
+Dale     9   4   6   0   2
+Elm     11   6   8   2   0
+Ash > Cedar > Birch > Dale > Elm
+Birch > Dale > Elm
+Elm > Dale > Birch > Cedar > Ash

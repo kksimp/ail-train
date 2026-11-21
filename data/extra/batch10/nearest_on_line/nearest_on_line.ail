@@ -1,0 +1,33 @@
+## Nearest point on a segment: projects each house onto a straight road with the dot product,
+## clamps the parameter to the road's ends, and reports the distance to the nearest road point.
+
+struct House
+    name str
+    x float
+    y float
+
+fn nearest(ax float, ay float, bx float, b_y float, h House) List[float]
+    dx := bx - ax
+    dy := b_y - ay
+    raw := ((h.x - ax) * dx + (h.y - ay) * dy) / (dx * dx + dy * dy)
+    t := if raw < 0.0 then 0.0 elif raw > 1.0 then 1.0 else raw
+    px := ax + t * dx
+    py := ay + t * dy
+    d := ((h.x - px) * (h.x - px) + (h.y - py) * (h.y - py)).sqrt()
+    [t, px, py, d]
+
+fn main()
+    houses := [House(name: "mill", x: 3.0, y: 7.0), House(name: "farm", x: 9.0, y: 1.0), House(name: "chapel", x: -4.0, y: 2.0), House(name: "inn", x: 14.0, y: 9.0), House(name: "forge", x: 6.0, y: 4.0)]
+    for h in houses
+        r := nearest(0.0, 1.0, 12.0, 6.0, h)
+        place := if r[0] == 0.0 then "start of road" elif r[0] == 1.0 then "end of road" else "along the road"
+        print("{h.name:<7} -> ({r[1]:.3}, {r[2]:.3}) {place}, distance {r[3]:.3}")
+
+    closest := houses.min(by: |h| (nearest(0.0, 1.0, 12.0, 6.0, h)[3] * 1000.0).to_int())
+    if c := closest
+        print("closest to the road: {c.name}")
+
+@test fn foot()
+    r := nearest(0.0, 0.0, 10.0, 0.0, House(name: "x", x: 4.0, y: 3.0))
+    assert((r[0] - 0.4).abs() < 0.000001)
+    assert((r[3] - 3.0).abs() < 0.000001)

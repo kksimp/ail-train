@@ -1,0 +1,27 @@
+## Equilibrium: for H2 + I2 <-> 2 HI with Kc = 50, an ICE table gives (2x)^2 = Kc (a - x)(b - x),
+## a quadratic (4 - Kc) x^2 + Kc (a + b) x - Kc a b = 0 whose root below min(a, b) is the shift.
+
+fn shift(a float, b float, kc float) float
+    qa := 4.0 - kc
+    qb := kc * (a + b)
+    qc := 0.0 - kc * a * b
+    disc := (qb * qb - 4.0 * qa * qc).sqrt()
+    r1 := (0.0 - qb + disc) / (2.0 * qa)
+    r2 := (0.0 - qb - disc) / (2.0 * qa)
+    limit := if a < b then a else b
+    if r1 >= 0.0 and r1 <= limit then r1 else r2
+
+fn main()
+    kc := 50.0
+    for start in [(1.0, 1.0), (1.0, 2.0), (0.5, 0.2), (2.0, 0.1)]
+        a, b := start
+        x := shift(a, b, kc)
+        h2 := a - x
+        i2 := b - x
+        hi := 2.0 * x
+        check := hi * hi / (h2 * i2)
+        print("start H2 {a} I2 {b}: H2 {h2:.4}, I2 {i2:.4}, HI {hi:.4} M (Kc check {check:.1})")
+
+@test fn equal_start()
+    x := shift(1.0, 1.0, 4.0 + 0.0001)
+    assert(x > 0.49 and x < 0.51)

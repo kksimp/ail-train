@@ -1,0 +1,9 @@
+[0, 1, 2, 3] has rank 0
+[3, 2, 1, 0] has rank 23
+[1, 0, 3, 2] has rank 7
+[2, 0, 3, 1] has rank 13
+rank  0 of 4 items: [0, 1, 2, 3]
+rank  5 of 4 items: [0, 3, 2, 1]
+rank 17 of 4 items: [2, 3, 1, 0]
+rank 23 of 4 items: [3, 2, 1, 0]
+millionth ordering of 0..9: 2783915460, rank back 999999

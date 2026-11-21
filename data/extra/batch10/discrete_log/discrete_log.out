@@ -1,0 +1,5 @@
+3^x = 13 mod 17: x = 4, check 13
+2^x = 1000 mod 1019: x = 33, check 1000
+5^x = 123456 mod 1000003: x = 76616, check 123456
+2^x = 7 mod 7919: no solution
+4^x = 3 mod 7: no solution

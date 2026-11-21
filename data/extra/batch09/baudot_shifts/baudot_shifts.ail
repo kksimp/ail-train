@@ -1,0 +1,49 @@
+## Baudot (ITA2) teleprinter code: 5-bit codes mean a letter or a figure depending on the current
+## shift, so the encoder sends FIGS (27) or LTRS (31) only when the next character needs the other set.
+
+enum Shift
+    Letters
+    Figures
+
+fn table(s Shift) List[char]
+    match s
+        Letters => "~E~A SIU~DRJNFCKTZLWHYPQOBG~MXV~".chars()
+        Figures => "~3~- '87~$4~,!:(5+)2#6019?&~./=~".chars()
+
+fn encode(text str) List[int]
+    mut mode := Shift.Letters
+    mut out := [31]
+    for c in text.chars()
+        if c == ' '
+            out.push(4)
+            continue
+        mut at := table(mode).index_of(c) else -1
+        if at < 0
+            mode = if mode == Shift.Letters then Shift.Figures else Shift.Letters
+            out.push(if mode == Shift.Figures then 27 else 31)
+            at = table(mode).index_of(c) else 0
+        out.push(at)
+    out
+
+fn decode(codes List[int]) str
+    mut mode := Shift.Letters
+    mut out := List[char]()
+    for c in codes
+        if c == 27
+            mode = Shift.Figures
+        elif c == 31
+            mode = Shift.Letters
+        else
+            out.push(table(mode)[c])
+    out.join("")
+
+fn main()
+    for msg in ["CALL 999 NOW", "ROOM 12B AT 3", "HELLO WORLD", "PI=3.14"]
+        codes := encode(msg)
+        shifts := codes.count(|c| c == 27 or c == 31)
+        print("{msg:<14} {codes.len():>2} codes ({shifts} shifts), back '{decode(codes)}'")
+    first := encode("A1").map(|c| "{c:05b}").join(" ")
+    print("A1 on tape: {first}")
+
+@test fn sizes()
+    assert_eq(table(Shift.Letters).len(), 32)

@@ -1,0 +1,27 @@
+## Snow on roofs: the roof load is s = mu * sk, with shape factor mu = 0.8 up to 30 degrees,
+## 0.8 (60 - a) / 30 between 30 and 60 degrees and 0 beyond; total load is s times plan area.
+
+fn shape_factor(pitch float) float
+    if pitch <= 30.0
+        return 0.8
+    if pitch < 60.0
+        return 0.8 * (60.0 - pitch) / 30.0
+    0.0
+
+fn main()
+    regions := [("lowland", 0.5), ("hills", 1.0), ("mountain", 2.5)]
+    roofs := [("flat garage", 2.0, 18.0), ("house", 35.0, 80.0), ("chalet", 50.0, 120.0), ("spire", 65.0, 10.0)]
+    for rf in roofs
+        name, pitch, area := rf
+        mu := shape_factor(pitch)
+        mut parts := List[str]()
+        for rg in regions
+            region, sk := rg
+            total := mu * sk * area
+            parts.push("{region} {total:.1}")
+        line := parts.join(", ")
+        print("{name:<11} {pitch:>4.1} deg, mu {mu:.3}: {line} kN")
+
+@test fn steep_sheds()
+    assert_eq(shape_factor(70.0), 0.0)
+    assert_eq(shape_factor(45.0), 0.4)

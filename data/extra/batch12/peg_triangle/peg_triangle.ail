@@ -1,0 +1,49 @@
+## Peg triangle: the 15-hole triangle peg game, starting with the top hole empty; a depth-first
+## search over board bit masks, remembering dead positions, finds jumps that leave one peg.
+
+fn hole(r int, c int) int
+    r * (r + 1) / 2 + c
+
+fn jumps() List[List[int]]
+    dirs := [[0, 1], [1, 0], [1, 1], [0, -1], [-1, 0], [-1, -1]]
+    mut out := List[List[int]]()
+    for r in 0..5
+        for c in 0..=r
+            for d in dirs
+                r2 := r + 2 * d[0]
+                c2 := c + 2 * d[1]
+                if r2 >= 0 and r2 < 5 and c2 >= 0 and c2 <= r2
+                    out.push([hole(r, c), hole(r + d[0], c + d[1]), hole(r2, c2)])
+    out
+
+fn search(board int, moves List[List[int]], mut dead Set[int], mut path List[List[int]]) bool
+    pegs := [i for i in 0..15 if ((board >> i) & 1) == 1].len()
+    if pegs == 1
+        return true
+    if dead.contains(board)
+        return false
+    for m in moves
+        if ((board >> m[0]) & 1) == 1 and ((board >> m[1]) & 1) == 1 and ((board >> m[2]) & 1) == 0
+            after := (board ^ (1 << m[0])) ^ ((1 << m[1]) | (1 << m[2]))
+            path.push(m)
+            if search(after, moves, mut dead, mut path)
+                return true
+            _ := path.pop()
+    dead.add(board)
+    false
+
+fn main()
+    moves := jumps()
+    start := 32767 - 1
+    mut dead := Set[int]()
+    mut path := List[List[int]]()
+    print("{moves.len()} possible jumps on the board")
+    if search(start, moves, mut dead, mut path)
+        for i, m in path.enumerate()
+            print("{i + 1:>2}: peg {m[0]} jumps {m[1]} into {m[2]}")
+        print("one peg left after {path.len()} jumps")
+    else
+        print("no solution")
+
+@test fn numbering()
+    assert_eq(hole(4, 4), 14)

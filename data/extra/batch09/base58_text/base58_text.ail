@@ -1,0 +1,60 @@
+## Base58: treats the bytes as one big base-256 number and divides it by 58 again and again (long
+## division on a digit list), using an alphabet without 0, O, I and l; each leading zero byte becomes '1'.
+
+ALPHABET := "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
+
+fn encode(bs List[int]) str
+    letters := ALPHABET.chars()
+    mut num := bs
+    mut out := List[char]()
+    mut lead := 0
+    while lead < bs.len() and bs[lead] == 0
+        lead += 1
+    mut start := lead
+    while start < num.len()
+        mut rem := 0
+        for i in start..num.len()
+            acc := rem * 256 + num[i]
+            num[i] = acc / 58
+            rem = acc % 58
+        out.push(letters[rem])
+        while start < num.len() and num[start] == 0
+            start += 1
+    for i in 0..lead
+        out.push('1')
+    out.reverse()
+    out.join("")
+
+fn decode(text str) List[int]
+    mut num := List[int]()
+    mut lead := 0
+    for c in text.chars()
+        if num.is_empty() and c == '1'
+            lead += 1
+            continue
+        mut carry := ALPHABET.find(c) else 0
+        mut i := num.len() - 1
+        while i >= 0
+            acc := num[i] * 58 + carry
+            num[i] = acc % 256
+            carry = acc / 256
+            i -= 1
+        while carry > 0
+            num.insert(0, carry % 256)
+            carry = carry / 256
+    mut out := num
+    for i in 0..lead
+        out.insert(0, 0)
+    out
+
+fn main()
+    for s in ["Hello World!", "hello", "abc", "a"]
+        bs := s.chars().map(|c| c.code())
+        e := encode(bs)
+        back := decode(e).map(|b| char.from_code(b) else '?').join("")
+        print("{s:<13} -> {e:<18} back '{back}'")
+    e := encode([0, 0, 1, 255, 16])
+    print("bytes [0, 0, 1, 255, 16] -> {e} -> {decode(e)}")
+
+@test fn zeros()
+    assert_eq(encode([0, 0]), "11")

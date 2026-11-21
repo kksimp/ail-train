@@ -1,0 +1,46 @@
+## Polygon centroid: the balance point of a flat plate, from the shoelace terms weighted by each
+## edge's endpoints; for an L-shape it differs from the plain average of the corners.
+
+struct Plate
+    name str
+    xs List[float]
+    ys List[float]
+
+fn Plate.area(self) float
+    mut s := 0.0
+    n := self.xs.len()
+    for i in 0..n
+        j := (i + 1) % n
+        s += self.xs[i] * self.ys[j] - self.xs[j] * self.ys[i]
+    s / 2.0
+
+fn Plate.centroid(self) List[float]
+    mut cx := 0.0
+    mut cy := 0.0
+    n := self.xs.len()
+    for i in 0..n
+        j := (i + 1) % n
+        cross := self.xs[i] * self.ys[j] - self.xs[j] * self.ys[i]
+        cx += (self.xs[i] + self.xs[j]) * cross
+        cy += (self.ys[i] + self.ys[j]) * cross
+    a := self.area()
+    [cx / (6.0 * a), cy / (6.0 * a)]
+
+fn main()
+    plates := [Plate(name: "L-shape", xs: [0.0, 6.0, 6.0, 2.0, 2.0, 0.0], ys: [0.0, 0.0, 2.0, 2.0, 7.0, 7.0]), Plate(name: "triangle", xs: [0.0, 9.0, 3.0], ys: [0.0, 0.0, 6.0]), Plate(name: "kite", xs: [0.0, 4.0, 0.0, -1.0], ys: [0.0, 3.0, 7.0, 3.0]), Plate(name: "trapezium", xs: [0.0, 10.0, 7.0, 1.0], ys: [0.0, 0.0, 4.0, 4.0])]
+    for p in plates
+        c := p.centroid()
+        n := p.xs.len().to_float()
+        ax := p.xs.fold(0.0, |acc, v| acc + v) / n
+        ay := p.ys.fold(0.0, |acc, v| acc + v) / n
+        print("{p.name:<9} area {p.area():>5.1}, centroid ({c[0]:.3}, {c[1]:.3}), corner average ({ax:.3}, {ay:.3})")
+    bottom := 12.0
+    side := 10.0
+    mx := (bottom * 3.0 + side * 1.0) / (bottom + side)
+    my := (bottom * 1.0 + side * 4.5) / (bottom + side)
+    print("L-shape as two rectangles: ({mx:.3}, {my:.3})")
+
+@test fn square()
+    p := Plate(name: "sq", xs: [0.0, 2.0, 2.0, 0.0], ys: [0.0, 0.0, 2.0, 2.0])
+    assert_eq(p.area(), 4.0)
+    assert_eq(p.centroid(), [1.0, 1.0])

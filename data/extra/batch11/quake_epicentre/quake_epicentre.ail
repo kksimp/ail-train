@@ -1,0 +1,35 @@
+## Earthquake distance: P waves (6.0 km/s) outrun S waves (3.5 km/s), so the lag between them gives
+## the distance d = lag * vp * vs / (vp - vs), and the quake struck d / vp before the P wave arrived.
+
+struct Station
+    name str
+    p_arrival float
+    s_arrival float
+
+fn distance_km(lag float) float
+    vp := 6.0
+    vs := 3.5
+    lag * vp * vs / (vp - vs)
+
+fn clock(seconds float) str
+    whole := seconds.to_int()
+    tenths := ((seconds - whole.to_float()) * 10.0).to_int()
+    m := whole / 60
+    s := whole % 60
+    "12:{m:02}:{s:02}.{tenths}"
+
+fn main()
+    stations := [Station(name: "Harbour", p_arrival: 75.4, s_arrival: 98.9), Station(name: "Ridge", p_arrival: 62.0, s_arrival: 75.6), Station(name: "Valley", p_arrival: 91.3, s_arrival: 126.1)]
+    mut origins := List[float]()
+    for st in stations
+        lag := st.s_arrival - st.p_arrival
+        d := distance_km(lag)
+        origin := st.p_arrival - d / 6.0
+        origins.push(origin)
+        print("{st.name:<8} S-P lag {lag:>4.1} s: {d:>6.1} km away, quake at {clock(origin)}")
+    mean := origins.fold(0.0, |acc, o| acc + o) / origins.len().to_float()
+    nearest := stations.min(by: |st| ((st.s_arrival - st.p_arrival) * 10.0).to_int()) else stations[0]
+    print("average origin time {clock(mean)}, nearest station {nearest.name}")
+
+@test fn ten_second_lag()
+    assert_eq(distance_km(10.0), 84.0)

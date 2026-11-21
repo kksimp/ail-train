@@ -1,0 +1,58 @@
+## Truth tables: a recursive-descent parser (or below and, and below not) evaluates a logic formula for
+## every assignment of its variables, then calls it a tautology, a contradiction or satisfiable.
+
+fn parse_level(t List[str], mut pos int, env Map[str, bool], level int) bool
+    if level == 2
+        return parse_not(t, mut pos, env)
+    op := if level == 0 then "or" else "and"
+    mut v := parse_level(t, mut pos, env, level + 1)
+    while pos < t.len() and t[pos] == op
+        pos += 1
+        r := parse_level(t, mut pos, env, level + 1)
+        v = if level == 0 then v or r else v and r
+    v
+
+fn parse_not(t List[str], mut pos int, env Map[str, bool]) bool
+    tok := t[pos]
+    pos += 1
+    if tok == "not"
+        return not parse_not(t, mut pos, env)
+    if tok == "("
+        v := parse_level(t, mut pos, env, 0)
+        pos += 1
+        return v
+    env.get_or(tok, false)
+
+fn table(formula str) List[bool]
+    t := formula.replace("(", " ( ").replace(")", " ) ").split(" ").filter(|w| w != "")
+    mut names := List[str]()
+    for w in t.filter(|x| x.len() == 1 and x != "(" and x != ")")
+        if not names.contains(w)
+            names.push(w)
+    names.sort()
+    n := names.len()
+    mut out := List[bool]()
+    for row in 0..(1 << n)
+        mut env := Map[str, bool]()
+        for k, name in names.enumerate()
+            env[name] = ((row >> (n - 1 - k)) & 1) == 1
+        mut pos := 0
+        out.push(parse_level(t, mut pos, env, 0))
+    out
+
+fn main()
+    f := "(a or b) and not c"
+    print("a b c | {f}")
+    rows := table(f)
+    for row in 0..8
+        cells := [(row >> 2) & 1, (row >> 1) & 1, row & 1].join(" ")
+        r := if rows[row] then 1 else 0
+        print("{cells} | {r}")
+    for g in ["a or not a", "a and not a", "(a and b) or (not a and not b)"]
+        vs := table(g)
+        trues := vs.count(|x| x)
+        verdict := if trues == vs.len() then "tautology" elif trues == 0 then "contradiction" else "satisfiable"
+        print("{g}: true in {trues} of {vs.len()} rows, {verdict}")
+
+@test fn implies()
+    assert_eq(table("not a or b"), [true, true, false, true])

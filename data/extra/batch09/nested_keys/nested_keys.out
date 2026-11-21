@@ -1,0 +1,9 @@
+app.name = shop
+app.server.host = 0.0.0.0
+app.server.port = 8080
+app.cache.size = 64
+db.path = data.db
+line 10: bad indent of 3 spaces
+db.user = admin
+logging = off
+7 values read

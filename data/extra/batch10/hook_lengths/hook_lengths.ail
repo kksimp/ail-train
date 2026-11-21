@@ -1,0 +1,56 @@
+## Hook lengths: the number of standard Young tableaux of a shape is n! divided by the product of
+## its hook lengths; summing the squares of these counts over all shapes of n gives n!.
+
+fn hooks(shape List[int]) List[List[int]]
+    mut grid := List[List[int]]()
+    for r in 0..shape.len()
+        mut row := List[int]()
+        for c in 0..shape[r]
+            mut below := 0
+            for r2 in (r + 1)..shape.len()
+                if shape[r2] > c
+                    below += 1
+            row.push(shape[r] - c - 1 + below + 1)
+        grid.push(row)
+    grid
+
+fn tableaux(shape List[int]) int
+    n := shape.sum()
+    mut f := 1
+    for i in 2..=n
+        f *= i
+    for row in hooks(shape)
+        for h in row
+            f = f / h
+    f
+
+fn shapes(n int, max_part int) List[List[int]]
+    if n == 0
+        return [List[int]()]
+    mut out := List[List[int]]()
+    top := if n < max_part then n else max_part
+    mut first := top
+    while first >= 1
+        for rest in shapes(n - first, first)
+            mut s := [first]
+            s.extend(rest)
+            out.push(s)
+        first -= 1
+    out
+
+
+fn main()
+    for row in hooks([3, 2, 1])
+        print("hooks {row}")
+    for n in [4, 5, 6]
+        mut total := 0
+        mut parts := List[str]()
+        for s in shapes(n, n)
+            f := tableaux(s)
+            total += f * f
+            parts.push("{f}")
+        counts := parts.join(" ")
+        print("n = {n}: counts {counts}; sum of squares {total}")
+
+@test fn staircase()
+    assert_eq(tableaux([3, 2, 1]), 16)

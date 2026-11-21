@@ -1,0 +1,50 @@
+## Bacon's cipher: every letter becomes five A/B symbols (its alphabet index in binary), and the
+## symbols hide in an innocent cover text as letter case: lower case is A, upper case is B.
+
+fn code(c char) str
+    n := c.code() - 97
+    mut out := List[char]()
+    for k in 0..5
+        out.push(if ((n >> (4 - k)) & 1) == 1 then 'B' else 'A')
+    out.join("")
+
+fn hide(secret str, cover str) str
+    ab := secret.chars().map(|c| code(c)).join("").chars()
+    mut out := List[str]()
+    mut used := 0
+    for c in cover.chars()
+        if c.is_alpha() and used < ab.len()
+            out.push(if ab[used] == 'B' then "{c.to_upper()}" else "{c}")
+            used += 1
+        else
+            out.push("{c}")
+    out.join("")
+
+fn reveal(text str, want int) str
+    mut out := List[char]()
+    mut n := 0
+    mut count := 0
+    for c in text.chars()
+        if c.is_alpha()
+            bit := if c.is_upper() then 1 else 0
+            n = n * 2 + bit
+            count += 1
+            if count == 5 and out.len() < want
+                out.push(char.from_code(n + 97) else '?')
+                n = 0
+                count = 0
+    out.join("")
+
+fn main()
+    secret := "flee"
+    groups := secret.chars().map(|c| code(c)).join(" ")
+    print("{secret} -> {groups}")
+    cover := "the weather is lovely today and the garden looks fine"
+    hidden := hide(secret, cover)
+    print(hidden)
+    print("hidden message: {reveal(hidden, 4)}")
+    marked := hidden.chars().count(|c| c.is_upper())
+    print("{marked} capitals carry {secret.len() * 5} symbols")
+
+@test fn letter_b()
+    assert_eq(code('b'), "AAAAB")

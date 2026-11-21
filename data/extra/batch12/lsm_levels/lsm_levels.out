@@ -1,0 +1,15 @@
+put cat = 1
+put dog = 2
+put eel = 3
+  flush 3 keys to L0 (now 1 runs)
+put cat = 4
+put fox = 5
+put dog = -1
+  flush 3 keys to L0 (now 2 runs)
+  compact L0 into L1: 3 live keys
+put gnu = 7
+put ant = 8
+cat: 4 (L1)
+dog: missing
+eel: 3 (L1)
+ant: 8 (memtable)

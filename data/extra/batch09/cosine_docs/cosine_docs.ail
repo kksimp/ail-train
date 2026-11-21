@@ -1,0 +1,40 @@
+## Cosine similarity: each note becomes a vector of word counts, and two notes are compared by
+## dot(a, b) / (|a| |b|), so long and short notes on the same subject both score close to 1.
+
+fn counts(text str) Map[str, int]
+    mut m := Map[str, int]()
+    for w in text.split(" ")
+        m[w] += 1
+    m
+
+fn cosine(a Map[str, int], b Map[str, int]) float
+    mut dot := 0
+    for w, k in a
+        dot += k * b.get_or(w, 0)
+    na := a.values().map(|k| k * k).sum().to_float().sqrt()
+    nb := b.values().map(|k| k * k).sum().to_float().sqrt()
+    dot.to_float() / (na * nb)
+
+fn main()
+    notes := ["the train was late again this morning", "late train again so i missed the morning meeting", "bake the bread at a high heat for one hour", "the bread needs one more hour in the oven"]
+    vs := notes.map(|t| counts(t))
+    for i in 0..vs.len()
+        mut row := List[str]()
+        for j in 0..vs.len()
+            s := cosine(vs[i], vs[j])
+            row.push("{s:.3}")
+        cells := row.join("  ")
+        print("note {i + 1}: {cells}")
+    mut best := (0, 1)
+    mut best_s := -1.0
+    for i in 0..vs.len()
+        for j in i + 1..vs.len()
+            s := cosine(vs[i], vs[j])
+            if s > best_s
+                best_s = s
+                best = (i, j)
+    print("closest pair: notes {best.0 + 1} and {best.1 + 1}")
+
+@test fn same()
+    a := counts("x y")
+    assert((cosine(a, a) - 1.0).abs() < 0.000001)

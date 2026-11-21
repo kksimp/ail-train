@@ -1,0 +1,3 @@
+client: SynSent > Established > FinWait1 > FinWait2 > TimeWait > Closed
+server: Listen > SynReceived > Established > CloseWait > LastAck > Closed
+broken: SynSent > [ack not allowed in Tcp.SynSent] > Established > [listen not allowed in Tcp.Established] > CloseWait

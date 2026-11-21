@@ -1,0 +1,50 @@
+## Merkle blocks: a file's eight blocks are hashed, pairs of hashes are hashed upward to one root,
+## and two copies are compared from the root down, opening only subtrees whose hashes differ.
+
+fn leaf(s str) int
+    mut h := 7
+    for c in s.chars()
+        h = (h * 131 + c.code()) % 1000003
+    h
+
+fn pair(a int, b int) int
+    (a * 31 + b * 17 + 7) % 1000003
+
+fn tree(blocks List[str]) List[List[int]]
+    mut levels := [blocks.map(|b| leaf(b))]
+    while levels[levels.len() - 1].len() > 1
+        below := levels[levels.len() - 1]
+        levels.push([pair(below[2 * i], below[2 * i + 1]) for i in 0..below.len() / 2])
+    levels
+
+fn diff(a List[List[int]], b List[List[int]], lvl int, i int, mut out List[int], mut checks List[int])
+    checks[0] += 1
+    if a[lvl][i] == b[lvl][i]
+        return
+    if lvl == 0
+        out.push(i)
+        return
+    diff(a, b, lvl - 1, 2 * i, mut out, mut checks)
+    diff(a, b, lvl - 1, 2 * i + 1, mut out, mut checks)
+
+fn main()
+    old := ["intro", "setup", "usage", "config", "faq", "license", "credits", "index"]
+    mut new_copy := old
+    new_copy[2] = "usage v2"
+    new_copy[6] = "credits!"
+    ta := tree(old)
+    tb := tree(new_copy)
+    top := ta.len() - 1
+    print("root hashes: {ta[top][0]} and {tb[top][0]}")
+    for lvl in 0..ta.len()
+        print("level {lvl}: {ta[lvl].len()} hashes")
+    mut changed := List[int]()
+    mut checks := [0]
+    diff(ta, tb, top, 0, mut changed, mut checks)
+    names := changed.map(|i| old[i]).join(", ")
+    print("changed blocks {changed}: {names}")
+    print("{checks[0]} hash comparisons instead of {old.len()}")
+
+@test fn same_tree()
+    a := tree(["x", "y"])
+    assert_eq(a[1][0], pair(leaf("x"), leaf("y")))

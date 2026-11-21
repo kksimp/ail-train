@@ -1,0 +1,11 @@
+M3 = 7 is prime
+M5 = 31 is prime
+M7 = 127 is prime
+M11 = 2047 = 23 x 89
+M13 = 8191 is prime
+M17 = 131071 is prime
+M19 = 524287 is prime
+M23 = 8388607 = 47 x 178481
+M29 = 536870911 = 233 x 2304167
+M31 = 2147483647 is prime
+Mersenne prime exponents found: [3, 5, 7, 13, 17, 19, 31]

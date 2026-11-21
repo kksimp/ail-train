@@ -1,0 +1,80 @@
+## BST removals: a plain binary search tree of shelf numbers; removing a leaf, a node with one
+## child, and a node with two children (replaced by its in-order successor) keeps the order.
+
+struct Node
+    key int
+    left int
+    right int
+
+fn add(mut ns List[Node], root int, key int) int
+    if root < 0
+        ns.push(Node(key: key, left: -1, right: -1))
+        return ns.len() - 1
+    if key < ns[root].key
+        lc := ns[root].left
+        ls := add(mut ns, lc, key)
+        ns[root].left = ls
+    else
+        rc := ns[root].right
+        rs := add(mut ns, rc, key)
+        ns[root].right = rs
+    root
+
+fn remove(mut ns List[Node], root int, key int) int
+    if root < 0
+        return -1
+    l := ns[root].left
+    r := ns[root].right
+    if key < ns[root].key
+        ls := remove(mut ns, l, key)
+        ns[root].left = ls
+        return root
+    if key > ns[root].key
+        rs := remove(mut ns, r, key)
+        ns[root].right = rs
+        return root
+    if l < 0
+        return r
+    if r < 0
+        return l
+    mut s := r
+    while ns[s].left >= 0
+        s = ns[s].left
+    succ := ns[s].key
+    ns[root].key = succ
+    rest := remove(mut ns, r, succ)
+    ns[root].right = rest
+    root
+
+fn walk(ns List[Node], i int, pre bool, mut out List[int])
+    if i < 0
+        return
+    if pre
+        out.push(ns[i].key)
+    walk(ns, ns[i].left, pre, mut out)
+    if not pre
+        out.push(ns[i].key)
+    walk(ns, ns[i].right, pre, mut out)
+
+fn show(ns List[Node], root int) str
+    mut a := List[int]()
+    mut b := List[int]()
+    walk(ns, root, false, mut a)
+    walk(ns, root, true, mut b)
+    "in {a} pre {b}"
+
+fn main()
+    mut ns := List[Node]()
+    mut root := -1
+    for k in [50, 30, 70, 20, 40, 60, 80, 35, 45, 65]
+        root = add(mut ns, root, k)
+    print("start: {show(ns, root)}")
+    for k in [20, 60, 30, 50, 99]
+        root = remove(mut ns, root, k)
+        print("remove {k}: {show(ns, root)}")
+
+@test fn remove_root_leaf()
+    mut ns := List[Node]()
+    mut root := add(mut ns, -1, 5)
+    root = remove(mut ns, root, 5)
+    assert_eq(root, -1)

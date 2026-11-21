@@ -1,0 +1,8 @@
+depths: [0, 1, 1, 2, 2, 2, 3, 3, 3, 4]
+grandparents: [0, 0, 0, 0, 0, 0, 1, 1, 2, 3]
+Finn and Gail: Carl
+Hugo and Dina: Rose
+Ivy and Gail: Carl
+Hugo and Ivy: Rose
+Beth and Eve: Beth
+Ivy and Ivy: Ivy

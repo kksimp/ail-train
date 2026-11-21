@@ -1,0 +1,26 @@
+## Home brewing: alcohol by volume is (OG - FG) * 131.25 with gravities like 1.050, written here
+## as gravity points (1050); apparent attenuation is the share of sugar points the yeast ate.
+
+struct Batch
+    name str
+    og int
+    fg int
+
+fn Batch.abv(self) float
+    (self.og - self.fg).to_float() * 131.25 / 1000.0
+
+fn Batch.attenuation(self) float
+    (self.og - self.fg).to_float() / (self.og - 1000).to_float() * 100.0
+
+fn main()
+    batches := [Batch(name: "pale ale", og: 1052, fg: 1011), Batch(name: "stout", og: 1068, fg: 1018), Batch(name: "cider", og: 1055, fg: 1000), Batch(name: "barley wine", og: 1105, fg: 1028), Batch(name: "stuck batch", og: 1060, fg: 1042)]
+    for b in batches
+        att := b.attenuation()
+        note := if att < 65.0 then " (fermentation may have stalled)" else ""
+        print("{b.name:<12} OG 1.{b.og - 1000:03} FG 1.{b.fg - 1000:03}: {b.abv():.2}% ABV, attenuation {att:.1}%{note}")
+    strongest := batches.max(by: |x| x.og - x.fg) else batches[0]
+    print("strongest: {strongest.name}")
+
+@test fn ten_points()
+    b := Batch(name: "t", og: 1010, fg: 1002)
+    assert_eq(b.abv(), 1.05)

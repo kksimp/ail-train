@@ -1,0 +1,5 @@
+house tank  0.8 L/s up 25.0 m: 0.392 kW, 0.78 kWh a day
+irrigation  6.0 L/s up 12.0 m: 1.110 kW, 6.66 kWh a day
+borehole    2.5 L/s up 60.0 m: 2.698 kW, 10.79 kWh a day
+fountain    3.0 L/s up 1.5 m: 0.121 kW, 1.21 kWh a day
+all pumps: 19.45 kWh a day, 145.87 a month at 0.25 per kWh

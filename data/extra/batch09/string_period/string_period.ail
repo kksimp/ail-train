@@ -1,0 +1,35 @@
+## String period: the prefix function gives the longest border (a prefix that is also a suffix);
+## the smallest period is length minus that border, and the text is a pure repeat when it divides the length.
+
+fn prefix_function(cs List[char]) List[int]
+    n := cs.len()
+    mut pi := List[int]()
+    for i in 0..n
+        pi.push(0)
+    for i in 1..n
+        mut k := pi[i - 1]
+        while k > 0 and cs[i] != cs[k]
+            k = pi[k - 1]
+        if cs[i] == cs[k]
+            k += 1
+        pi[i] = k
+    pi
+
+fn main()
+    for s in ["abcabcabc", "abab", "abcab", "aaaaaa", "drumdrumdr", "xyz"]
+        pi := prefix_function(s.chars())
+        n := s.len()
+        p := n - pi[n - 1]
+        mut borders := List[str]()
+        mut b := pi[n - 1]
+        while b > 0
+            borders.push(s.slice(0, b))
+            b = pi[b - 1]
+        shown := if borders.is_empty() then "none" else borders.join(", ")
+        unit := s.slice(0, p)
+        rep := if n % p == 0 then "{unit} x {n / p}" else "not a whole repeat"
+        print("{s:<11} period {p}: {rep}; borders {shown}")
+
+@test fn ones()
+    pi := prefix_function("aaaa".chars())
+    assert_eq(4 - pi[3], 1)

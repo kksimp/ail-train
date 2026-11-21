@@ -1,0 +1,45 @@
+## Tiny regular expressions: a recursive matcher in the style of Pike and Kernighan handles literal
+## letters, '.' for any letter, 'x*' for zero or more, and the anchors '^' and '$'.
+
+fn here(re List[char], ri int, text List[char], ti int) bool
+    if ri == re.len()
+        return true
+    if ri + 1 < re.len() and re[ri + 1] == '*'
+        return star(re[ri], re, ri + 2, text, ti)
+    if re[ri] == '$' and ri + 1 == re.len()
+        return ti == text.len()
+    if ti < text.len() and (re[ri] == '.' or re[ri] == text[ti])
+        return here(re, ri + 1, text, ti + 1)
+    false
+
+fn star(c char, re List[char], ri int, text List[char], ti int) bool
+    mut t := ti
+    while not here(re, ri, text, t)
+        if t < text.len() and (text[t] == c or c == '.')
+            t += 1
+        else
+            return false
+    true
+
+fn matches(pattern str, s str) bool
+    re := pattern.chars()
+    text := s.chars()
+    if re.len() > 0 and re[0] == '^'
+        return here(re, 1, text, 0)
+    for start in 0..text.len() + 1
+        if here(re, 0, text, start)
+            return true
+    false
+
+fn main()
+    texts := ["abc", "ac", "abbbcd", "xabcx", "cab"]
+    for pattern in ["ab*c", "^ab*c$", "a.c", "^c", "b*$", "x.*x"]
+        mut cells := List[str]()
+        for t in texts
+            mark := if matches(pattern, t) then "yes" else "no"
+            cells.push("{t}={mark}")
+        shown := cells.join(" ")
+        print("{pattern:<7} {shown}")
+
+@test fn anchors()
+    assert(matches("^a.*z$", "abcz") and not matches("^a.*z$", "abczx"))

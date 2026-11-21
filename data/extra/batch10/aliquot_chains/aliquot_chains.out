@@ -1,0 +1,9 @@
+     12: reaches 0 through a prime
+     95: settles on the perfect number 6
+     25: settles on the perfect number 6
+    220: enters a loop of 2 at 220
+    562: enters a loop of 2 at 284
+  12496: enters a loop of 5 at 12496
+1264460: enters a loop of 4 at 1264460
+    276: still going after 30 steps
+chain from 12: [12, 16, 15, 9, 4, 3, 1, 0]

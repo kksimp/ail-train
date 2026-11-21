@@ -1,0 +1,10 @@
+s x7  00
+_ x6  01
+e x6  100
+l x4  101
+h x3  110
+a x2  1110
+b x1  11110
+t x1  111110
+y x1  111111
+90 bits for 31 letters (2.903 per letter) against 124 with fixed 4-bit codes

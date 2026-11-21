@@ -1,0 +1,5 @@
+Paris    40 Gbps via Oslo > Paris
+Rome     25 Gbps via Oslo > Paris > Rome
+Sofia    25 Gbps via Oslo > Paris > Rome > Sofia
+Turin    25 Gbps via Oslo > Paris > Rome > Turin
+Vienna   20 Gbps via Oslo > Paris > Rome > Sofia > Vienna

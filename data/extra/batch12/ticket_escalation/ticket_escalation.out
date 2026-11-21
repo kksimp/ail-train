@@ -1,0 +1,7 @@
+hour  4: #101 Priority.Urgent waited 4h -> Tier.Manager, page the manager
+hour  8: #104 closed at Tier.Desk
+hour 12: #102 closed at Tier.Desk
+hour 16: #105 Priority.High waited 10h -> Tier.Specialist
+hour 30: #103 Priority.Normal waited 28h -> Tier.Specialist
+hour 30: #105 Priority.High waited 24h -> Tier.Manager, page the manager
+open at the end: [101, 103, 105]

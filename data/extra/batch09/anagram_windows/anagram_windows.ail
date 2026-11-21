@@ -1,0 +1,39 @@
+## Anagram windows: slides a window the pattern's length along a letter stream, keeping letter counts
+## up to date as one letter enters and one leaves, and reports every window that is an anagram.
+
+fn counts_of(cs List[char]) List[int]
+    mut out := List[int]()
+    for i in 0..26
+        out.push(0)
+    for c in cs
+        out[c.code() - 97] += 1
+    out
+
+fn windows_of(text str, pat str) List[int]
+    t := text.chars()
+    m := pat.len()
+    want := counts_of(pat.chars())
+    mut have := counts_of(t.slice(0, m))
+    mut hits := List[int]()
+    if have == want
+        hits.push(0)
+    for i in m..t.len()
+        have[t[i].code() - 97] += 1
+        have[t[i - m].code() - 97] -= 1
+        if have == want
+            hits.push(i - m + 1)
+    hits
+
+fn main()
+    text := "cbaebabacdtablebleatbatabcab"
+    for pat in ["abc", "able", "tab", "zzz"]
+        hits := windows_of(text, pat)
+        mut parts := List[str]()
+        for h in hits
+            piece := text.slice(h, h + pat.len())
+            parts.push("{h}:{piece}")
+        shown := if parts.is_empty() then "none" else parts.join(" ")
+        print("{pat:<5} {hits.len()} windows: {shown}")
+
+@test fn tiny()
+    assert_eq(windows_of("abab", "ab"), [0, 1, 2])

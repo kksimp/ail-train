@@ -1,0 +1,13 @@
+put a 1
+put b 2
+get a: hit
+put c 3
+get a: hit
+get b: hit
+put d 4 (evicts c, used 1x)
+get c: miss
+get d: hit
+put e 5 (evicts b, used 2x)
+get b: miss
+get a: hit
+hits 5, misses 2, holding a d e

@@ -1,0 +1,53 @@
+## Burrows-Wheeler transform: sorts all rotations of a word ending in '$' and keeps the last column,
+## which groups equal letters into runs; the last-to-first mapping walks back to the original word.
+
+fn transform(w str) str
+    s := "{w}$"
+    n := s.len()
+    mut rots := List[str]()
+    for i in 0..n
+        rots.push("{s.slice(i)}{s.slice(0, i)}")
+    rots.sort()
+    mut last := List[char]()
+    for r in rots
+        last.push(r.char_at(n - 1) else '?')
+    last.join("")
+
+fn invert(b str) str
+    last := b.chars()
+    mut counts := Map[char, int]()
+    mut occ := List[int]()
+    for c in last
+        occ.push(counts.get_or(c, 0))
+        counts[c] += 1
+    mut start := Map[char, int]()
+    mut total := 0
+    for c in counts.keys().sorted()
+        start[c] = total
+        total += counts[c]
+    mut out := List[char]()
+    mut row := 0
+    for _ in 0..last.len() - 1
+        c := last[row]
+        out.push(c)
+        row = start[c] + occ[row]
+    out.reverse()
+    out.join("")
+
+fn runs(s str) int
+    cs := s.chars()
+    mut n := 1
+    for i in 1..cs.len()
+        if cs[i] != cs[i - 1]
+            n += 1
+    n
+
+fn main()
+    for w in ["banana", "mississippi", "abracadabra", "bookkeeper", "tobeornottobe"]
+        b := transform(w)
+        back := invert(b)
+        ok := if back == w then "ok" else "MISMATCH"
+        print("{w:<14} -> {b:<15} runs {runs(w):>2} -> {runs(b):>2}, back {ok}")
+
+@test fn banana()
+    assert_eq(transform("banana"), "annb$aa")

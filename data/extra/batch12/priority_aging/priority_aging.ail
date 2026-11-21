@@ -1,0 +1,44 @@
+## Priority aging: jobs run by priority (lower number first) without preemption; with aging,
+## every four ticks of waiting lifts a job's priority by one so a low-priority job cannot starve.
+
+struct Job
+    name str
+    arrive int
+    pri int
+    burst int
+
+fn run(jobs List[Job], aging bool) List[str]
+    mut done := List[bool]()
+    for j in jobs
+        done.push(false)
+    mut order := List[str]()
+    mut t := 0
+    while done.contains(false)
+        mut pick := -1
+        mut best := 1000
+        for i in 0..jobs.len()
+            if not done[i] and jobs[i].arrive <= t
+                boost := if aging then (t - jobs[i].arrive) / 4 else 0
+                eff := jobs[i].pri - boost
+                if eff < best
+                    best = eff
+                    pick = i
+        if pick < 0
+            t += 1
+            continue
+        order.push("{jobs[pick].name}({t}-{t + jobs[pick].burst})")
+        t += jobs[pick].burst
+        done[pick] = true
+    order
+
+fn main()
+    jobs := [Job(name: "backup", arrive: 0, pri: 9, burst: 3), Job(name: "web", arrive: 0, pri: 2, burst: 4), Job(name: "mail", arrive: 2, pri: 3, burst: 3), Job(name: "web2", arrive: 4, pri: 2, burst: 4), Job(name: "mail2", arrive: 7, pri: 3, burst: 3), Job(name: "web3", arrive: 10, pri: 2, burst: 4), Job(name: "mail3", arrive: 13, pri: 3, burst: 3)]
+    for aging in [false, true]
+        label := if aging then "with aging" else "no aging  "
+        order := run(jobs, aging)
+        shown := order.join(" ")
+        print("{label}: {shown}")
+    print("backup waits for every other job unless it ages")
+
+@test fn single()
+    assert_eq(run([Job(name: "a", arrive: 0, pri: 1, burst: 2)], true), ["a(0-2)"])

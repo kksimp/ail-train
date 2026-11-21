@@ -1,0 +1,5 @@
+region  count  sum    avg
+north       3  270   90.0
+west        2  215  107.5
+south       3  140   46.7
+4 groups, 3 with sum over 100; dropped ["east"]

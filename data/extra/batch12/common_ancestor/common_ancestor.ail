@@ -1,0 +1,46 @@
+## Common ancestor: binary lifting stores each person's 2^k-th ancestor in a family tree, so the
+## lowest common ancestor of two people is found by lifting both in power-of-two jumps.
+
+fn lca(up List[List[int]], depth List[int], a0 int, b0 int) int
+    mut a := a0
+    mut b := b0
+    if depth[a] < depth[b]
+        t := a
+        a = b
+        b = t
+    mut diff := depth[a] - depth[b]
+    mut k := 0
+    while diff > 0
+        if (diff & 1) == 1
+            a = up[k][a]
+        diff = diff >> 1
+        k += 1
+    if a == b
+        return a
+    mut j := up.len() - 1
+    while j >= 0
+        if up[j][a] != up[j][b]
+            a = up[j][a]
+            b = up[j][b]
+        j -= 1
+    up[0][a]
+
+fn main()
+    names := ["Rose", "Alan", "Beth", "Carl", "Dina", "Eve", "Finn", "Gail", "Hugo", "Ivy"]
+    parent := [0, 0, 0, 1, 1, 2, 3, 3, 5, 6]
+    mut depth := [0]
+    for i in 1..names.len()
+        depth.push(depth[parent[i]] + 1)
+    mut up := [parent]
+    for k in 1..4
+        prev := up[k - 1]
+        up.push([prev[prev[i]] for i in 0..names.len()])
+    print("depths: {depth}")
+    print("grandparents: {up[1]}")
+    pairs := [[6, 7], [8, 4], [9, 7], [8, 9], [2, 5], [9, 9]]
+    for p in pairs
+        c := lca(up, depth, p[0], p[1])
+        print("{names[p[0]]} and {names[p[1]]}: {names[c]}")
+
+@test fn siblings()
+    assert_eq(lca([[0, 0, 0]], [0, 1, 1], 1, 2), 0)

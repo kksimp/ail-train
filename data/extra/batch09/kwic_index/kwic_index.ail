@@ -1,0 +1,29 @@
+## Keyword in context: every word of a set of titles that is not a stop word becomes an index entry,
+## shown with the words before it right-aligned and the words after it, sorted by the keyword.
+
+struct Entry
+    key str
+    left str
+    right str
+
+fn main()
+    titles := ["The Old Man and the Sea", "A Tale of Two Cities", "The Man in the Iron Mask", "Sea of Tranquility"]
+    stop := {"the", "a", "and", "of", "in"}
+    mut entries := List[Entry]()
+    for t in titles
+        ws := t.split(" ")
+        for i, w in ws.enumerate()
+            if not stop.contains(w.to_lower())
+                left := ws.slice(0, i).join(" ")
+                right := ws.slice(i + 1).join(" ")
+                entries.push(Entry(key: w, left: left, right: right))
+    sorted_entries := entries.sorted(by: |e| (e.key.to_lower(), e.left))
+    for e in sorted_entries
+        mut before := e.left
+        if before.len() > 16
+            before = before.slice(before.len() - 16)
+        line := "{before:>16} [{e.key}] {e.right}"
+        print(line.trim_end())
+
+@test fn count()
+    assert_eq("Sea of Tranquility".split(" ").len(), 3)

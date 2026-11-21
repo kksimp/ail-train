@@ -1,0 +1,7 @@
+station   0 to  20: cut 125.0 m3, fill  40.0 m3
+station  20 to  40: cut 305.0 m3, fill   0.0 m3
+station  40 to  60: cut 240.0 m3, fill  35.0 m3
+station  60 to  80: cut  60.0 m3, fill 175.0 m3
+station  80 to 100: cut   0.0 m3, fill 230.0 m3
+cut 730.0 m3 gives 657.0 m3 of fill; fill needed 480.0 m3
+spare spoil 177.0 m3 to haul away

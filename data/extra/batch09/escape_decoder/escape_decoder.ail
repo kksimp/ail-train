@@ -1,0 +1,55 @@
+## Escape decoding: turns backslash sequences in raw text into characters: \n, \t, \\, \" and \xHH or
+## \u{HHHH} in hex, reporting an unknown escape or a short hex code with its position.
+
+fn decode(raw str) List[int] ! str
+    cs := raw.chars()
+    mut out := List[int]()
+    mut i := 0
+    while i < cs.len()
+        c := cs[i]
+        if c != '\\'
+            out.push(c.code())
+            i += 1
+            continue
+        if i + 1 >= cs.len()
+            return "lone backslash at {i}"
+        e := cs[i + 1]
+        if e == 'n'
+            out.push(10)
+            i += 2
+        elif e == 't'
+            out.push(9)
+            i += 2
+        elif e == '\\' or e == '"'
+            out.push(e.code())
+            i += 2
+        elif e == 'x'
+            if i + 4 > cs.len()
+                return "short \\x code at {i}"
+            hex := raw.slice(i + 2, i + 4)
+            v := hex.to_int(16) else return "bad hex '{hex}' at {i}"
+            out.push(v)
+            i += 4
+        elif e == 'u' and i + 2 < cs.len() and cs[i + 2] == '{'
+            close := raw.slice(i).find("}") else return "unclosed \\u at {i}"
+            hex := raw.slice(i + 3, i + close)
+            v := hex.to_int(16) else return "bad hex '{hex}' at {i}"
+            out.push(v)
+            i += close + 1
+        else
+            return "unknown escape \\{e} at {i}"
+    out
+
+fn label(n int) str
+    if n < 128 then "{n}" else "U+{n:x}"
+
+fn main()
+    for raw in [r"Hello\tWorld\n", "say \\\"hi\\\"", r"\x41\x42C", r"caf\u{e9} \u{1F600}", r"path\\to", r"bad \q here", r"cut \x4"]
+        if codes := decode(raw)
+            shown := codes.map(|n| label(n)).join(" ")
+            print("{raw:<22} {codes.len():>2} chars: {shown}")
+        else err
+            print("{raw:<22} error: {err}")
+
+@test fn tab()
+    assert_eq(decode(r"\t") else List[int](), [9])

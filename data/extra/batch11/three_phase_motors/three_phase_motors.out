@@ -1,0 +1,6 @@
+saw          5.5 kW:  10.6 A per line (single phase would be 32.0 A)
+compressor  11.0 kW:  20.5 A per line (single phase would be 61.8 A)
+extractor    3.0 kW:   6.4 A per line (single phase would be 19.2 A)
+lathe        7.5 kW:  14.5 A per line (single phase would be 43.6 A)
+total 52.0 A, spare 11.0 A
+largest load: compressor

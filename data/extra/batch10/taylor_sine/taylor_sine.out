@@ -1,0 +1,7 @@
+   0.0 deg: sin  0.000000 ( 1 terms), cos  1.000000 ( 2 terms), matches built-in: true
+  30.0 deg: sin  0.500000 ( 8 terms), cos  0.866025 ( 9 terms), matches built-in: true
+  45.0 deg: sin  0.707107 ( 9 terms), cos  0.707107 (10 terms), matches built-in: true
+  90.0 deg: sin  1.000000 (12 terms), cos  0.000000 (12 terms), matches built-in: true
+ 135.0 deg: sin  0.707107 (14 terms), cos -0.707107 (14 terms), matches built-in: true
+ 300.0 deg: sin -0.866025 (10 terms), cos  0.500000 (11 terms), matches built-in: true
+1000.0 deg: sin -0.984808 (11 terms), cos  0.173648 (12 terms), matches built-in: true

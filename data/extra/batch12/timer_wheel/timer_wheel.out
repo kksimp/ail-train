@@ -1,0 +1,15 @@
+set retry     for tick  3: slot 3, 0 turns
+set heartbeat for tick  5: slot 5, 0 turns
+set session   for tick 19: slot 3, 2 turns
+set flush     for tick  8: slot 0, 0 turns
+set lease     for tick 11: slot 3, 1 turns
+set probe     for tick  3: slot 3, 0 turns
+set audit     for tick 27: slot 3, 3 turns
+tick  3: retry fires
+tick  3: probe fires
+tick  5: heartbeat fires
+tick  8: flush fires
+tick 11: lease fires
+tick 19: session fires
+tick 27: audit fires
+13 timer checks over 28 ticks

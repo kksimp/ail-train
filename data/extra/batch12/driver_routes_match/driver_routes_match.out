@@ -1,0 +1,12 @@
+North loop  matched, drivers now [0, -1, -1, -1, -1, -1]
+Harbour     matched, drivers now [1, 0, -1, -1, -1, -1]
+Airport     matched, drivers now [1, 0, 2, -1, -1, -1]
+Old town    matched, drivers now [1, 0, 3, 2, -1, -1]
+Ring road   matched, drivers now [1, 0, 3, 2, 4, -1]
+Ana drives Harbour
+Bo drives North loop
+Cy drives Old town
+Dev drives Airport
+Eli drives Ring road
+Fay is spare
+5 of 5 routes covered

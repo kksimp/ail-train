@@ -1,0 +1,45 @@
+## Knight's tour: visits every square of a 6x6 board once with a knight, trying moves in
+## Warnsdorff order (the square with the fewest onward moves first) and backtracking if stuck.
+
+fn onward(b List[List[int]], r int, c int, jumps List[List[int]]) int
+    mut n := 0
+    for j in jumps
+        nr := r + j[0]
+        nc := c + j[1]
+        if nr >= 0 and nr < 6 and nc >= 0 and nc < 6 and b[nr][nc] == 0
+            n += 1
+    n
+
+fn tour(mut b List[List[int]], r int, c int, step int, jumps List[List[int]], mut tries List[int]) bool
+    b[r][c] = step
+    tries[0] += 1
+    if step == 36
+        return true
+    mut options := List[List[int]]()
+    for j in jumps
+        nr := r + j[0]
+        nc := c + j[1]
+        if nr >= 0 and nr < 6 and nc >= 0 and nc < 6 and b[nr][nc] == 0
+            options.push([onward(b, nr, nc, jumps), nr, nc])
+    for o in options.sorted()
+        if tour(mut b, o[1], o[2], step + 1, jumps, mut tries)
+            return true
+    b[r][c] = 0
+    false
+
+fn main()
+    jumps := [[2, 1], [1, 2], [-1, 2], [-2, 1], [-2, -1], [-1, -2], [1, -2], [2, -1]]
+    mut b := List[List[int]]()
+    for r in 0..6
+        b.push([0, 0, 0, 0, 0, 0])
+    mut tries := [0]
+    if tour(mut b, 0, 0, 1, jumps, mut tries)
+        for row in b
+            print(row.map(|x| "{x:>3}").join(""))
+        print("tour found after {tries[0]} placements")
+    else
+        print("no tour")
+
+@test fn corner_moves()
+    b := [[0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0]]
+    assert_eq(onward(b, 0, 0, [[2, 1], [1, 2], [-1, 2]]), 2)

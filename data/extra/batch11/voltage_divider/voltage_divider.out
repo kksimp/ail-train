@@ -1,0 +1,8 @@
+R1  10000 R2  10000: 6.000 V unloaded
+R1  10000 R2   4700: 3.837 V unloaded
+R1   2200 R2   1000: 3.750 V unloaded
+R1  47000 R2  33000: 4.950 V unloaded
+load    1000 ohm: 0.914 V,  76.2% low
+load   10000 ohm: 2.907 V,  24.2% low
+load  100000 ohm: 3.718 V,   3.1% low
+load 1000000 ohm: 3.825 V,   0.3% low

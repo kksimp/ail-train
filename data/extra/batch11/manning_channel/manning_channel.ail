@@ -1,0 +1,28 @@
+## Open channel flow: Manning's formula V = (1 / n) R^(2/3) S^(1/2), with hydraulic radius
+## R = area / wetted perimeter, gives the flow in a rectangular ditch for different linings.
+
+fn velocity(n float, width float, depth float, slope float) float
+    area := width * depth
+    wetted := width + 2.0 * depth
+    r := area / wetted
+    r.pow(2.0 / 3.0) * slope.sqrt() / n
+
+fn main()
+    linings := [("concrete", 0.013), ("earth", 0.025), ("grass", 0.035), ("rubble", 0.045)]
+    width := 1.5
+    slope := 0.002
+    for ln in linings
+        name, n := ln
+        mut cells := List[str]()
+        for d in [0.25, 0.5, 1.0]
+            q := velocity(n, width, d, slope) * width * d
+            cells.push("{q:.3}")
+        row := cells.join(" ")
+        print("{name:<9} n {n}: flow at 0.25/0.5/1.0 m deep = {row} m3/s")
+    mut depth := 0.01
+    while velocity(0.025, width, depth, slope) * width * depth < 2.0
+        depth += 0.01
+    print("an earth ditch carries 2 m3/s at about {depth:.2} m deep")
+
+@test fn smoother_is_faster()
+    assert(velocity(0.013, 1.0, 0.5, 0.001) > velocity(0.03, 1.0, 0.5, 0.001))

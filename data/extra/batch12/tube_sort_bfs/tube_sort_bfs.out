@@ -1,0 +1,8 @@
+1->4 giving RG|GBR|BRG|B|
+3->1 giving RGG|GBR|BR|B|
+2->3 giving RGG|GB|BRR|B|
+2->4 giving RGG|G|BRR|BB|
+1->2 giving R|GGG|BRR|BB|
+3->1 giving RRR|GGG|B|BB|
+3->4 giving RRR|GGG||BBB|
+7 pours, 687 states seen

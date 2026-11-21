@@ -1,0 +1,43 @@
+## Z-function: z[i] is the length of the longest piece starting at i that matches the start of the
+## string; searching joins pattern, a separator and the text, and a z value equal to the pattern length is a hit.
+
+fn z_array(cs List[char]) List[int]
+    n := cs.len()
+    mut z := List[int]()
+    for i in 0..n
+        z.push(0)
+    mut l := 0
+    mut r := 0
+    for i in 1..n
+        if i < r
+            z[i] = (r - i).min(z[i - l])
+        while i + z[i] < n and cs[z[i]] == cs[i + z[i]]
+            z[i] += 1
+        if i + z[i] > r
+            l = i
+            r = i + z[i]
+    z
+
+fn find_all(text str, pat str) List[int]
+    joined := "{pat}|{text}"
+    z := z_array(joined.chars())
+    m := pat.len()
+    mut hits := List[int]()
+    for i in m + 1..z.len()
+        if z[i] >= m
+            hits.push(i - m - 1)
+    hits
+
+fn main()
+    sample := "aabcaabxaaaz"
+    z := z_array(sample.chars())
+    shown := z.join(" ")
+    print("{sample}: {shown}")
+    text := "GATTACAGATTAGATTACA"
+    for pat in ["GATTA", "TTA", "ACA", "CAT"]
+        hits := find_all(text, pat)
+        spots := if hits.is_empty() then "none" else hits.join(", ")
+        print("{pat:<6} at {spots}")
+
+@test fn all_same()
+    assert_eq(z_array("aaaaa".chars()), [0, 4, 3, 2, 1])

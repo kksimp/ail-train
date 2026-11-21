@@ -1,0 +1,5 @@
+solid 1: triple product 1, volume 0.1667 (right-handed)
+solid 2: triple product 64, volume 10.6667 (right-handed)
+solid 3: triple product 0, volume 0.0000 (coplanar)
+solid 4: triple product -24, volume 4.0000 (left-handed)
+triangle (0,0,0) (1,2,3) (4,5,6): normal -3 6 -3, area 3.6742

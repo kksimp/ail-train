@@ -1,0 +1,24 @@
+## Voltage divider: Vout = Vin * R2 / (R1 + R2); a load across R2 sits in parallel with it and
+## pulls the output down, so a divider only holds its voltage when the load is much larger than R2.
+
+fn parallel(a float, b float) float
+    a * b / (a + b)
+
+fn divide(vin float, r1 float, r2 float) float
+    vin * r2 / (r1 + r2)
+
+fn main()
+    vin := 12.0
+    pairs := [[10000, 10000], [10000, 4700], [2200, 1000], [47000, 33000]]
+    for pr in pairs
+        v := divide(vin, pr[0].to_float(), pr[1].to_float())
+        print("R1 {pr[0]:>6} R2 {pr[1]:>6}: {v:.3} V unloaded")
+    ideal := divide(vin, 10000.0, 4700.0)
+    for load in [1000, 10000, 100000, 1000000]
+        eff := parallel(4700.0, load.to_float())
+        out := divide(vin, 10000.0, eff)
+        sag := (ideal - out) / ideal * 100.0
+        print("load {load:>7} ohm: {out:.3} V, {sag:>5.1}% low")
+
+@test fn equal_halves()
+    assert_eq(divide(10.0, 1000.0, 1000.0), 5.0)

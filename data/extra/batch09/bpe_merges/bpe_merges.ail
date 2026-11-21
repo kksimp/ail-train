@@ -1,0 +1,47 @@
+## Byte-pair encoding: starting from single letters, the most frequent neighbouring pair of symbols in
+## a word list (weighted by counts) is merged into one symbol, again and again, building a subword vocabulary.
+
+fn merge_word(syms List[str], a str, b str) List[str]
+    mut out := List[str]()
+    mut i := 0
+    while i < syms.len()
+        if i + 1 < syms.len() and syms[i] == a and syms[i + 1] == b
+            out.push("{a}{b}")
+            i += 2
+        else
+            out.push(syms[i])
+            i += 1
+    out
+
+fn main()
+    corpus := [("low", 5), ("lower", 2), ("newest", 6), ("widest", 3), ("lowest", 2)]
+    mut words := corpus.map(|c| c.0.chars().map(|ch| "{ch}"))
+    counts := corpus.map(|c| c.1)
+    mut merges := List[List[str]]()
+    for step in 1..7
+        mut pairs := Map[str, int]()
+        for wi, syms in words.enumerate()
+            for i in 0..syms.len() - 1
+                pairs["{syms[i]} {syms[i + 1]}"] += counts[wi]
+        mut best := ""
+        mut best_n := 0
+        for key in pairs.keys().sorted()
+            if pairs[key] > best_n
+                best = key
+                best_n = pairs[key]
+        ab := best.split(" ")
+        merges.push(ab)
+        for wi in 0..words.len()
+            words[wi] = merge_word(words[wi], ab[0], ab[1])
+        print("merge {step}: {ab[0]} + {ab[1]} ({best_n} times)")
+    for wi, syms in words.enumerate()
+        joined := syms.join(" ")
+        print("{corpus[wi].0:<7} {joined}")
+    mut fresh := "slowest".chars().map(|ch| "{ch}")
+    for m in merges
+        fresh = merge_word(fresh, m[0], m[1])
+    tokens := fresh.join(" ")
+    print("slowest -> {tokens}")
+
+@test fn merges_pair()
+    assert_eq(merge_word(["a", "b", "a", "b"], "a", "b"), ["ab", "ab"])

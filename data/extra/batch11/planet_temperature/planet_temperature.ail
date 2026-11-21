@@ -1,0 +1,24 @@
+## Planet temperature: a planet with albedo a at d AU from the Sun balances sunlight with its own
+## heat at T = 278.6 K * (1 - a)^(1/4) / sqrt(d); a thick atmosphere (Venus) runs far hotter than that.
+
+struct Planet
+    name str
+    au float
+    albedo float
+    actual_k float
+
+fn Planet.balance_k(self) float
+    278.6 * (1.0 - self.albedo).pow(0.25) / self.au.sqrt()
+
+fn main()
+    planets := [Planet(name: "Mercury", au: 0.387, albedo: 0.088, actual_k: 440.0), Planet(name: "Venus", au: 0.723, albedo: 0.76, actual_k: 737.0), Planet(name: "Earth", au: 1.0, albedo: 0.306, actual_k: 288.0), Planet(name: "Mars", au: 1.524, albedo: 0.25, actual_k: 215.0), Planet(name: "Jupiter", au: 5.2, albedo: 0.343, actual_k: 165.0)]
+    for p in planets
+        t := p.balance_k()
+        extra := p.actual_k - t
+        print("{p.name:<8} {p.au:>5.3} AU, albedo {p.albedo:.3}: {t:>5.1} K ({t - 273.15:>6.1} C), measured {p.actual_k} K, greenhouse {extra:>6.1} K")
+    warmest := planets.max(by: |pl| (pl.actual_k - pl.balance_k()).to_int()) else planets[0]
+    print("biggest greenhouse effect: {warmest.name}")
+
+@test fn black_body_at_one_au()
+    p := Planet(name: "x", au: 1.0, albedo: 0.0, actual_k: 0.0)
+    assert_eq(p.balance_k(), 278.6)

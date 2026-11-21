@@ -1,0 +1,60 @@
+## Shell word splitting: spaces separate words except inside single quotes (taken literally) or double
+## quotes (where backslash escapes a quote), and a backslash outside quotes escapes the next character.
+
+fn split_words(line str) List[str] ! str
+    cs := line.chars()
+    mut words := List[str]()
+    mut cur := List[char]()
+    mut started := false
+    mut i := 0
+    while i < cs.len()
+        c := cs[i]
+        if c == ' '
+            if started
+                words.push(cur.join(""))
+                cur.clear()
+                started = false
+            i += 1
+        elif c == '\''
+            started = true
+            i += 1
+            while i < cs.len() and cs[i] != '\''
+                cur.push(cs[i])
+                i += 1
+            if i >= cs.len()
+                return "unclosed single quote"
+            i += 1
+        elif c == '"'
+            started = true
+            i += 1
+            while i < cs.len() and cs[i] != '"'
+                if cs[i] == '\\' and i + 1 < cs.len()
+                    i += 1
+                cur.push(cs[i])
+                i += 1
+            if i >= cs.len()
+                return "unclosed double quote"
+            i += 1
+        elif c == '\\' and i + 1 < cs.len()
+            started = true
+            cur.push(cs[i + 1])
+            i += 2
+        else
+            started = true
+            cur.push(c)
+            i += 1
+    if started
+        words.push(cur.join(""))
+    words
+
+fn main()
+    lines := ["cp notes.txt 'my notes.txt'", "echo \"say \\\"hi\\\"\" now", "grep -r hello\\ world src", "printf '' x", "rm 'unfinished", "a\"\"b 'c'd"]
+    for line in lines
+        if ws := split_words(line)
+            shown := ws.map(|w| "[{w}]").join(" ")
+            print("{line:<29} -> {ws.len()} words: {shown}")
+        else err
+            print("{line:<29} -> error: {err}")
+
+@test fn plain()
+    assert_eq(split_words("a  b") else List[str](), ["a", "b"])

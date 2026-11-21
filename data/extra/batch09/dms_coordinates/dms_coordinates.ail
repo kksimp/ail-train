@@ -1,0 +1,35 @@
+## Degrees, minutes, seconds: parses map positions like 40 26 46 N into signed decimal degrees
+## (d + m/60 + s/3600, negative for S and W) and writes decimal degrees back as rounded d m s.
+
+fn to_decimal(text str) float ! str
+    p := text.split(" ")
+    if p.len() != 4
+        return "need 4 parts in '{text}'"
+    d := p[0].to_int() else return "bad degrees {p[0]}"
+    m := p[1].to_int() else return "bad minutes {p[1]}"
+    s := p[2].to_int() else return "bad seconds {p[2]}"
+    if m >= 60 or s >= 60
+        return "minutes and seconds must be below 60"
+    limit := if p[3] == "N" or p[3] == "S" then 90 else 180
+    if d > limit
+        return "{d} degrees is beyond {limit}"
+    value := d.to_float() + m.to_float() / 60.0 + s.to_float() / 3600.0
+    if p[3] == "S" or p[3] == "W" then -value else value
+
+fn to_dms(value float, pos str, neg str) str
+    total := (value.abs() * 3600.0).round().to_int()
+    hemi := if value < 0.0 then neg else pos
+    "{total / 3600} {total % 3600 / 60} {total % 60} {hemi}"
+
+fn main()
+    for text in ["40 26 46 N", "79 58 56 W", "33 51 54 S", "151 12 34 E", "51 30 0 N", "12 75 0 E", "95 0 0 N", "1 2 E"]
+        if v := to_decimal(text)
+            print("{text:<12} -> {v:>11.5}")
+        else err
+            print("{text:<12} -> error: {err}")
+    for v in [48.8584, -22.9519, 0.5]
+        dms := to_dms(v, "N", "S")
+        print("{v:>8.4} -> {dms}")
+
+@test fn back()
+    assert_eq(to_dms(-1.5, "E", "W"), "1 30 0 W")

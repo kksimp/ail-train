@@ -1,0 +1,37 @@
+## Ideal body weight: Devine, Robinson and Miller each add a fixed number of kilograms per inch
+## over 5 feet to a base weight, with different numbers for men and women; compares the three.
+
+enum Sex
+    Man
+    Woman
+
+fn estimates(sex Sex, cm float) List[float]
+    inches := cm / 2.54 - 60.0
+    match sex
+        Man => [50.0 + 2.3 * inches, 52.0 + 1.9 * inches, 56.2 + 1.41 * inches]
+        Woman => [45.5 + 2.3 * inches, 49.0 + 1.7 * inches, 53.1 + 1.36 * inches]
+
+fn biggest(xs List[float]) float
+    mut best := xs[0]
+    for x in xs
+        if x > best
+            best = x
+    best
+
+fn smallest(xs List[float]) float
+    mut low := xs[0]
+    for x in xs
+        if x < low
+            low = x
+    low
+
+fn main()
+    people := [(Sex.Man, 165.0), (Sex.Man, 180.0), (Sex.Man, 193.0), (Sex.Woman, 155.0), (Sex.Woman, 170.0)]
+    for pp in people
+        sex, cm := pp
+        e := estimates(sex, cm)
+        spread := biggest(e) - smallest(e)
+        print("{sex} {cm} cm: Devine {e[0]:.1}, Robinson {e[1]:.1}, Miller {e[2]:.1} kg (spread {spread:.1})")
+
+@test fn five_feet()
+    assert_eq(estimates(Sex.Man, 152.4)[0], 50.0)

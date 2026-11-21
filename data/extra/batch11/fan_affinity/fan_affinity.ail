@@ -1,0 +1,25 @@
+## Fan affinity laws: slowing a fan to a fraction s of full speed scales airflow by s, pressure by
+## s^2 and power by s^3, so a fan on a drive at 80% speed uses about half the power.
+
+fn main()
+    full_kw := 15.0
+    hours := 6000.0
+    price := 0.2
+    full_cost := full_kw * hours * price
+    print("full speed: {full_kw} kW, {full_cost:.1} a year")
+    for pct in [90, 80, 70, 60, 50]
+        s := pct.to_float() / 100.0
+        flow := s * 100.0
+        pressure := s * s * 100.0
+        kw := full_kw * s * s * s
+        saving := (full_kw - kw) * hours * price
+        print("{pct}% speed: flow {flow:.1}%, pressure {pressure:.1}%, power {kw:>6.3} kW, saves {saving:>7.1} a year")
+    target := 0.6
+    mut level := 100
+    while full_kw * (level.to_float() / 100.0).pow(3.0) > full_kw * target
+        level -= 1
+    print("power under 60% of full from {level}% speed")
+
+@test fn half_speed_eighth()
+    s := 0.5
+    assert_eq(15.0 * s * s * s, 1.875)

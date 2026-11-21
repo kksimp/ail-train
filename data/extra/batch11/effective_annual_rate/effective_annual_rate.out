@@ -1,0 +1,15 @@
+nominal 5.0%:
+  yearly       5.0000%
+  half-yearly  5.0625%
+  quarterly    5.0945%
+  monthly      5.1162%
+  daily        5.1267%
+  continuous   5.1271%
+nominal 20.0%:
+  yearly       20.0000%
+  half-yearly  21.0000%
+  quarterly    21.5506%
+  monthly      21.9391%
+  daily        22.1336%
+  continuous   22.1403%
+1000 at 20% compounded monthly for 5 years: 2695.97

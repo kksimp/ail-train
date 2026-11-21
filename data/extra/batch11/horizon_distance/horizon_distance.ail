@@ -1,0 +1,22 @@
+## Horizon distance: from height h the horizon lies sqrt(2 R h + h^2) away on a sphere of radius
+## R = 6371 km; two objects see each other when their horizon distances add up to the gap.
+
+fn horizon_km(h_m float) float
+    r := 6371000.0
+    (2.0 * r * h_m + h_m * h_m).sqrt() / 1000.0
+
+fn main()
+    spots := [("standing on a beach", 1.7), ("ship's lookout", 25.0), ("cliff top", 100.0), ("tall tower", 330.0), ("airliner", 11000.0)]
+    for sp in spots
+        name, h := sp
+        print("{name:<20} {h:>8.1} m: horizon {horizon_km(h):>6.1} km")
+    lighthouse := horizon_km(60.0)
+    eye := horizon_km(25.0)
+    seen := lighthouse + eye
+    print("a 60 m lighthouse is visible from the lookout up to {seen:.1} km away")
+    for gap in [30.0, 40.0, 50.0]
+        verdict := if gap <= seen then "light visible" else "below the horizon"
+        print("  at {gap} km: {verdict}")
+
+@test fn zero_height()
+    assert_eq(horizon_km(0.0), 0.0)

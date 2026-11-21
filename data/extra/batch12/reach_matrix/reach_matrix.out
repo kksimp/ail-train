@@ -1,0 +1,12 @@
+Alpha    1 1 1 1 1 0
+Bravo    1 1 1 1 1 0
+Charlie  1 1 1 1 1 0
+Delta    0 0 0 1 1 0
+Echo     0 0 0 1 1 0
+Foxtrot  0 0 0 1 1 1
+Alpha reaches 4, heard by 2
+Bravo reaches 4, heard by 2
+Charlie reaches 4, heard by 2
+Delta reaches 1, heard by 5
+Echo reaches 1, heard by 5
+Foxtrot reaches 2, heard by 0

@@ -1,0 +1,46 @@
+## Shannon-Fano coding: letters sorted by frequency are split where the two halves' totals are
+## closest, the left half adding a 0 and the right a 1, until each letter has its own prefix code.
+
+fn split(syms List[char], freq Map[char, int], lo int, hi int, prefix str, mut codes Map[char, str])
+    if hi - lo == 1
+        codes[syms[lo]] = if prefix == "" then "0" else prefix
+        return
+    mut total := 0
+    for i in lo..hi
+        total += freq[syms[i]]
+    mut acc := 0
+    mut best := lo + 1
+    mut best_gap := total + 1
+    for k in lo + 1..hi
+        acc += freq[syms[k - 1]]
+        gap := (2 * acc - total).abs()
+        if gap < best_gap
+            best_gap = gap
+            best = k
+    split(syms, freq, lo, best, "{prefix}0", mut codes)
+    split(syms, freq, best, hi, "{prefix}1", mut codes)
+
+fn show(c char) str
+    if c == ' ' then "_" else "{c}"
+
+fn main()
+    text := "she sells sea shells by the sea"
+    mut freq := Map[char, int]()
+    for c in text.chars()
+        freq[c] += 1
+    syms := freq.keys().sorted(by: |c| (-freq[c], c.code()))
+    mut codes := Map[char, str]()
+    split(syms, freq, 0, syms.len(), "", mut codes)
+    mut bits := 0
+    for c in syms
+        code := codes[c]
+        bits += freq[c] * code.len()
+        print("{show(c)} x{freq[c]:<2} {code}")
+    n := text.len()
+    avg := bits.to_float() / n.to_float()
+    print("{bits} bits for {n} letters ({avg:.3} per letter) against {n * 4} with fixed 4-bit codes")
+
+@test fn two()
+    mut codes := Map[char, str]()
+    split(['a', 'b'], {'a': 3, 'b': 1}, 0, 2, "", mut codes)
+    assert_eq(codes['b'], "1")

@@ -1,0 +1,5 @@
+256 sums per half instead of 65536 subsets
+best load 2000 of 2000, left half gives 653
+limit 500: right half alone reaches 487
+limit 1000: right half alone reaches 1000
+limit 3000: right half alone reaches 1783

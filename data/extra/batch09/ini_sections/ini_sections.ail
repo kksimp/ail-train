@@ -1,0 +1,36 @@
+## INI reader: [section] headers start groups, key = value lines are stored as section.key, ; and #
+## start comments, and keys before any header go in "global"; a repeated key is reported and replaced.
+
+fn main()
+    lines := ["; site settings", "name = Corner Shop", "[server]", "host = 0.0.0.0", "port = 8080", "# old: port = 80", "[database]", "path = data/shop.db", "pool = 4", "pool = 8", "[server]", "debug = false", "broken line here"]
+    mut values := Map[str, str]()
+    mut sections := List[str]()
+    mut section := "global"
+    for i, raw in lines.enumerate()
+        line := raw.trim()
+        if line == "" or line.starts_with(";") or line.starts_with("#")
+            continue
+        if line.starts_with("[") and line.ends_with("]")
+            section = line.slice(1, line.len() - 1).trim()
+            if not sections.contains(section)
+                sections.push(section)
+            continue
+        at := line.find("=") else -1
+        if at < 0
+            print("line {i + 1}: no '=' in \"{line}\"")
+            continue
+        key := "{section}.{line.slice(0, at).trim()}"
+        value := line.slice(at + 1).trim()
+        if values.contains(key)
+            print("line {i + 1}: {key} set again, {values[key]} -> {value}")
+        values[key] = value
+    for s in sections
+        keys := values.keys().filter(|k| k.starts_with("{s}."))
+        print("[{s}] {keys.len()} keys")
+    for k, v in values
+        print("{k} = {v}")
+    port := (values.get("server.port") else "0").to_int() else 0
+    print("port + 1 = {port + 1}")
+
+@test fn slices()
+    assert_eq("[db]".slice(1, 3), "db")

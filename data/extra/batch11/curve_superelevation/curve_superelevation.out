@@ -1,0 +1,8 @@
+ 50.0 km/h: f 0.16, minimum radius   89.5 m
+ 70.0 km/h: f 0.14, minimum radius  192.9 m
+ 90.0 km/h: f 0.12, minimum radius  354.3 m
+110.0 km/h: f 0.1, minimum radius  595.5 m
+130.0 km/h: f 0.1, minimum radius  831.7 m
+a 80.0 m curve is safe up to 40.0 km/h
+a 250.0 m curve is safe up to 70.0 km/h
+a 600.0 m curve is safe up to 110.0 km/h

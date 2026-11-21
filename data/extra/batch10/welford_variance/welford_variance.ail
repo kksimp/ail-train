@@ -1,0 +1,49 @@
+## Welford variance: a running mean and sum of squared deviations updated per value is stable,
+## while the textbook sum(x^2) - n mean^2 loses everything when values sit near one billion.
+
+struct Running
+    n int
+    mean float
+    m2 float
+
+fn Running.add(mut self, x float)
+    self.n += 1
+    delta := x - self.mean
+    self.mean += delta / self.n.to_float()
+    self.m2 += delta * (x - self.mean)
+
+fn Running.variance(self) float
+    self.m2 / (self.n - 1).to_float()
+
+fn naive(xs List[float]) float
+    mut s := 0.0
+    mut sq := 0.0
+    for x in xs
+        s += x
+        sq += x * x
+    n := xs.len().to_float()
+    (sq - s * s / n) / (n - 1.0)
+
+fn two_pass(xs List[float]) float
+    mut s := 0.0
+    for x in xs
+        s += x
+    m := s / xs.len().to_float()
+    mut d := 0.0
+    for x in xs
+        d += (x - m) * (x - m)
+    d / (xs.len() - 1).to_float()
+
+fn main()
+    for shift in [0.0, 1000.0, 1000000.0, 1000000000.0]
+        xs := [shift + 4.0, shift + 7.0, shift + 13.0, shift + 16.0]
+        mut r := Running(n: 0, mean: 0.0, m2: 0.0)
+        for x in xs
+            r.add(x)
+        print("shift {shift:>14.1}: naive {naive(xs):>10.4}, two-pass {two_pass(xs):.4}, Welford {r.variance():.4}")
+
+@test fn simple()
+    mut r := Running(n: 0, mean: 0.0, m2: 0.0)
+    for x in [1.0, 2.0, 3.0, 4.0]
+        r.add(x)
+    assert((r.variance() - 1.6666666666666667).abs() < 0.000001)

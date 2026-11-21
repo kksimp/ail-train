@@ -1,0 +1,60 @@
+## Prufer sequence: a labelled tree becomes n-2 numbers by repeatedly removing the smallest leaf
+## and writing down its neighbour; decoding rebuilds the same edges from the degree counts.
+
+fn encode(n int, edges List[List[int]]) List[int]
+    mut deg := List[int]()
+    for i in 0..n
+        deg.push(0)
+    for e in edges
+        deg[e[0]] += 1
+        deg[e[1]] += 1
+    mut code := List[int]()
+    for _ in 0..n - 2
+        mut leaf := 0
+        while deg[leaf] != 1
+            leaf += 1
+        mut nb := -1
+        for e in edges
+            if e[0] == leaf and deg[e[1]] > 0
+                nb = e[1]
+            elif e[1] == leaf and deg[e[0]] > 0
+                nb = e[0]
+        deg[leaf] = 0
+        deg[nb] -= 1
+        code.push(nb)
+    code
+
+fn decode(code List[int]) List[List[int]]
+    n := code.len() + 2
+    mut deg := List[int]()
+    for i in 0..n
+        deg.push(1)
+    for x in code
+        deg[x] += 1
+    mut edges := List[List[int]]()
+    for x in code
+        mut leaf := 0
+        while deg[leaf] != 1
+            leaf += 1
+        edges.push([leaf.min(x), leaf.max(x)])
+        deg[leaf] -= 1
+        deg[x] -= 1
+    last := [i for i in 0..n if deg[i] == 1]
+    edges.push([last[0], last[1]])
+    edges.sorted()
+
+fn main()
+    edges := [[0, 3], [1, 3], [2, 3], [3, 4], [4, 5], [5, 6], [5, 7]]
+    code := encode(8, edges)
+    print("tree edges: {edges}")
+    print("code: {code}")
+    back := decode(code)
+    print("decoded: {back}")
+    print("round trip ok: {back == edges.sorted()}")
+    star := decode([2, 2, 2, 2])
+    print("code [2, 2, 2, 2] is a star: {star}")
+    path := decode([1, 2, 3, 4])
+    print("code [1, 2, 3, 4] is a path: {path}")
+
+@test fn three_nodes()
+    assert_eq(encode(3, [[0, 1], [1, 2]]), [1])

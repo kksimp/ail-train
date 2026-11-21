@@ -1,0 +1,42 @@
+## Distance vector: each router keeps a cost to every destination and, each round, rebuilds it from
+## its neighbours' previous tables plus the link cost (Bellman-Ford), until nothing changes.
+
+INF := 999
+
+fn main()
+    names := ["A", "B", "C", "D", "E"]
+    n := names.len()
+    mut link := List[List[int]]()
+    for i in 0..n
+        mut row := List[int]()
+        for j in 0..n
+            cost := if i == j then 0 else INF
+            row.push(cost)
+        link.push(row)
+    for e in [[0, 1, 2], [1, 2, 3], [0, 3, 7], [2, 3, 1], [3, 4, 2], [2, 4, 6]]
+        link[e[0]][e[1]] = e[2]
+        link[e[1]][e[0]] = e[2]
+    mut dist := link
+    mut hop := List[List[int]]()
+    for i in 0..n
+        hop.push([j for j in 0..n])
+    mut round := 0
+    mut changed := true
+    while changed
+        changed = false
+        round += 1
+        old := dist
+        for i in 0..n
+            for d in 0..n
+                for k in 0..n
+                    if k != i and link[i][k] < INF and link[i][k] + old[k][d] < dist[i][d]
+                        dist[i][d] = link[i][k] + old[k][d]
+                        hop[i][d] = k
+                        changed = true
+        a_row := dist[0].map(|c| "{c}").join(" ")
+        print("round {round}: A sees {a_row}")
+    for d in 1..n
+        print("A to {names[d]}: cost {dist[0][d]} via {names[hop[0][d]]}")
+
+@test fn infinity()
+    assert(INF + INF > INF)

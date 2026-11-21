@@ -1,0 +1,7 @@
+report  clusters [2, 3, 4], 0 jumps
+photo   clusters [5, 6, 10, 12], 2 jumps
+notes   clusters [8, 11], 1 jumps
+song    clusters [14, 15, 16], 0 jumps
+deleted photo
+video   clusters [5, 6, 7, 9, 10], 1 jumps
+3 clusters free

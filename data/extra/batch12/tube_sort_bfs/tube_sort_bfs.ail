@@ -1,0 +1,72 @@
+## Tube sort: a liquid-sorting puzzle where the top colour run of one tube pours onto an empty tube
+## or the same colour if there is room; breadth-first search over states finds the fewest pours.
+
+fn pour(tubes List[str], a int, b int, cap int) List[str]
+    src := tubes[a].chars()
+    dst := tubes[b].chars()
+    if src.len() == 0 or dst.len() == cap
+        return List[str]()
+    colour := src[src.len() - 1]
+    if dst.len() > 0 and dst[dst.len() - 1] != colour
+        return List[str]()
+    mut run := 0
+    mut k := src.len() - 1
+    while k >= 0 and src[k] == colour
+        run += 1
+        k -= 1
+    amount := run.min(cap - dst.len())
+    mut extra := List[char]()
+    for i in 0..amount
+        extra.push(colour)
+    added := extra.join("")
+    mut out := tubes
+    out[a] = tubes[a].slice(0, src.len() - amount)
+    out[b] = "{tubes[b]}{added}"
+    out
+
+fn uniform(t str, cap int) bool
+    cs := t.chars()
+    if cs.len() == 0
+        return true
+    cs.len() == cap and cs.count(|c| c == cs[0]) == cap
+
+fn solved(tubes List[str], cap int) bool
+    tubes.all(|t| uniform(t, cap))
+
+fn main()
+    start := ["RGB", "GBR", "BRG", "", ""]
+    cap := 3
+    key := start.join("|")
+    mut came := {key: ""}
+    mut how := {key: ""}
+    mut queue := [start]
+    mut head := 0
+    mut goal := ""
+    while head < queue.len() and goal == ""
+        cur := queue[head]
+        head += 1
+        if solved(cur, cap)
+            goal = cur.join("|")
+        else
+            for a in 0..cur.len()
+                for b in 0..cur.len()
+                    if a != b
+                        nxt := pour(cur, a, b, cap)
+                        if nxt.len() > 0
+                            k := nxt.join("|")
+                            if not came.contains(k)
+                                came[k] = cur.join("|")
+                                how[k] = "{a + 1}->{b + 1}"
+                                queue.push(nxt)
+    mut steps := List[str]()
+    mut s := goal
+    while s != key
+        steps.push("{how[s]} giving {s}")
+        s = came[s]
+    steps.reverse()
+    for line in steps
+        print(line)
+    print("{steps.len()} pours, {came.len()} states seen")
+
+@test fn pour_onto_empty()
+    assert_eq(pour(["RR", ""], 0, 1, 3), ["", "RR"])

@@ -1,0 +1,6 @@
+cp notes.txt 'my notes.txt'   -> 3 words: [cp] [notes.txt] [my notes.txt]
+echo "say \"hi\"" now         -> 3 words: [echo] [say "hi"] [now]
+grep -r hello\ world src      -> 4 words: [grep] [-r] [hello world] [src]
+printf '' x                   -> 3 words: [printf] [] [x]
+rm 'unfinished                -> error: unclosed single quote
+a""b 'c'd                     -> 2 words: [ab] [cd]

@@ -1,0 +1,5 @@
+banana         -> annb$aa         runs  6 ->  5, back ok
+mississippi    -> ipssm$pissii    runs  8 ->  9, back ok
+abracadabra    -> ard$rcaaaabb    runs 11 ->  8, back ok
+bookkeeper     -> r$kepkoobee     runs  7 ->  9, back ok
+tobeornottobe  -> eoobbrttenot$o  runs 12 -> 11, back ok

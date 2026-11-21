@@ -1,0 +1,26 @@
+## Body surface area: Mosteller's sqrt(height cm * weight kg / 3600) and Du Bois's
+## 0.007184 W^0.425 H^0.725 in square metres, used to scale a dose given in mg per m2.
+
+struct Patient
+    name str
+    cm float
+    kg float
+
+fn mosteller(p Patient) float
+    (p.cm * p.kg / 3600.0).sqrt()
+
+fn du_bois(p Patient) float
+    0.007184 * p.kg.pow(0.425) * p.cm.pow(0.725)
+
+fn main()
+    patients := [Patient(name: "child", cm: 110.0, kg: 19.0), Patient(name: "teen", cm: 160.0, kg: 52.0), Patient(name: "adult", cm: 178.0, kg: 80.0), Patient(name: "tall adult", cm: 195.0, kg: 102.0)]
+    for p in patients
+        m := mosteller(p)
+        d := du_bois(p)
+        dose := m * 75.0
+        print("{p.name:<10} {p.cm} cm {p.kg} kg: Mosteller {m:.3} m2, Du Bois {d:.3} m2, dose {dose:.1} mg")
+    biggest := patients.max(by: |pt| (mosteller(pt) * 1000.0).to_int()) else patients[0]
+    print("largest surface: {biggest.name}")
+
+@test fn square()
+    assert_eq(mosteller(Patient(name: "x", cm: 180.0, kg: 80.0)), 2.0)

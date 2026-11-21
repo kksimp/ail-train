@@ -1,0 +1,35 @@
+## Window functions: staff rows are partitioned by team and ordered by pay, then each row gets
+## ROW_NUMBER, RANK (ties share a rank and leave a gap), a running total and the gap to the row above.
+
+struct Staff
+    team str
+    name str
+    pay int
+
+fn main()
+    rows := [Staff(team: "ops", name: "Ada", pay: 52), Staff(team: "dev", name: "Bo", pay: 70), Staff(team: "dev", name: "Cy", pay: 85), Staff(team: "ops", name: "Di", pay: 52), Staff(team: "dev", name: "Ed", pay: 70), Staff(team: "ops", name: "Flo", pay: 61), Staff(team: "dev", name: "Gil", pay: 64), Staff(team: "ops", name: "Hal", pay: 47)]
+    ordered := rows.sorted(by: |r| (r.team, -r.pay, r.name))
+    print("team name  pay  row rank running lag")
+    mut team := ""
+    mut row_no := 0
+    mut rank := 0
+    mut running := 0
+    mut prev_pay := 0
+    for r in ordered
+        if r.team != team
+            team = r.team
+            row_no = 0
+            running = 0
+            prev_pay = -1
+        row_no += 1
+        if r.pay != prev_pay
+            rank = row_no
+        running += r.pay
+        lag := if row_no == 1 then "-" else "{prev_pay - r.pay}"
+        print("{r.team:<4} {r.name:<4} {r.pay:>4} {row_no:>4} {rank:>4} {running:>7} {lag:>3}")
+        prev_pay = r.pay
+
+@test fn order_key()
+    a := Staff(team: "x", name: "a", pay: 5)
+    b := Staff(team: "x", name: "b", pay: 9)
+    assert_eq([a, b].sorted(by: |r| (r.team, -r.pay, r.name))[0].name, "b")

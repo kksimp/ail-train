@@ -1,0 +1,36 @@
+## String hashes: FNV-1a (xor each byte in, then multiply by the FNV prime, mod 2^32) and djb2
+## (h * 33 + byte) are compared by how evenly they spread similar keys over 8 buckets.
+
+fn fnv1a(s str) int
+    mut h := 2166136261
+    for c in s.chars()
+        h = h ^ c.code()
+        h = (h * 16777619) % 4294967296
+    h
+
+fn djb2(s str) int
+    mut h := 5381
+    for c in s.chars()
+        h = (h * 33 + c.code()) % 4294967296
+    h
+
+fn spread(keys List[str], kind int) List[int]
+    mut buckets := [0, 0, 0, 0, 0, 0, 0, 0]
+    for k in keys
+        h := if kind == 0 then fnv1a(k) else djb2(k)
+        buckets[h % 8] += 1
+    buckets
+
+fn main()
+    for w in ["", "a", "foobar", "hello", "hellp"]
+        print("{w:<7} fnv1a {fnv1a(w):08x}  djb2 {djb2(w):08x}")
+    keys := [i for i in 0..24].map(|i| "user{i}")
+    a := spread(keys, 0)
+    b := spread(keys, 1)
+    top_a := a.max() else 0
+    top_b := b.max() else 0
+    print("fnv1a buckets {a}, largest {top_a}")
+    print("djb2  buckets {b}, largest {top_b}")
+
+@test fn known()
+    assert_eq(fnv1a("a"), 3826002220)

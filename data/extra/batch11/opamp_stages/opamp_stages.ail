@@ -1,0 +1,35 @@
+## Op-amp stages: an inverting amplifier has gain -Rf / Rin, a non-inverting one 1 + Rf / Rg and a
+## follower 1; the output can't pass the supply rails, so large inputs clip at +-12 V.
+
+enum Stage
+    Inverting(rin float, rf float)
+    NonInverting(rg float, rf float)
+    Follower
+
+fn gain(s Stage) float
+    match s
+        Inverting(rin, rf) => 0.0 - rf / rin
+        NonInverting(rg, rf) => 1.0 + rf / rg
+        Follower => 1.0
+
+fn clip(v float, rail float) float
+    if v > rail
+        return rail
+    if v < 0.0 - rail
+        return 0.0 - rail
+    v
+
+fn main()
+    stages := [Stage.Inverting(rin: 1000.0, rf: 10000.0), Stage.NonInverting(rg: 1000.0, rf: 4700.0), Stage.Follower, Stage.Inverting(rin: 2200.0, rf: 1000.0)]
+    names := ["inverting x10", "non-inverting", "follower", "inverting /2.2"]
+    for i, s in stages.enumerate()
+        g := gain(s)
+        mut outs := List[str]()
+        for vin in [0.1, 0.5, 2.0]
+            v := clip(g * vin, 12.0)
+            outs.push("{v:.2}")
+        joined := outs.join(" ")
+        print("{names[i]:<15} gain {g:>6.2}: {joined}")
+
+@test fn follower_is_one()
+    assert_eq(gain(Stage.Follower), 1.0)

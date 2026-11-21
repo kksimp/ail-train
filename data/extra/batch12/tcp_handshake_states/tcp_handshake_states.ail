@@ -1,0 +1,51 @@
+## TCP states: a connection's state machine for opening (SYN, SYN-ACK, ACK) and closing (FIN, ACK);
+## each event either moves to the next state or is rejected as illegal in the current one.
+
+enum Tcp
+    Closed
+    Listen
+    SynSent
+    SynReceived
+    Established
+    FinWait1
+    FinWait2
+    CloseWait
+    LastAck
+    TimeWait
+
+fn step(s Tcp, ev str) Tcp ! Fail
+    next := match s
+        Closed => if ev == "connect" then Tcp.SynSent elif ev == "listen" then Tcp.Listen else Tcp.Closed
+        Listen => if ev == "syn" then Tcp.SynReceived else Tcp.Listen
+        SynSent => if ev == "synack" then Tcp.Established else Tcp.SynSent
+        SynReceived => if ev == "ack" then Tcp.Established else Tcp.SynReceived
+        Established => if ev == "close" then Tcp.FinWait1 elif ev == "fin" then Tcp.CloseWait else Tcp.Established
+        FinWait1 => if ev == "ack" then Tcp.FinWait2 else Tcp.FinWait1
+        FinWait2 => if ev == "fin" then Tcp.TimeWait else Tcp.FinWait2
+        CloseWait => if ev == "close" then Tcp.LastAck else Tcp.CloseWait
+        LastAck => if ev == "ack" then Tcp.Closed else Tcp.LastAck
+        TimeWait => if ev == "timeout" then Tcp.Closed else Tcp.TimeWait
+    if next == s
+        return Fail(msg: "{ev} not allowed in {s}")
+    next
+
+fn run(label str, events List[str])
+    mut s := Tcp.Closed
+    mut trail := List[str]()
+    for ev in events
+        if t := step(s, ev)
+            s = t
+            trail.push(s.name())
+        else err
+            trail.push("[{err.msg}]")
+    shown := trail.join(" > ")
+    print("{label}: {shown}")
+
+fn main()
+    run("client", ["connect", "synack", "close", "ack", "fin", "timeout"])
+    run("server", ["listen", "syn", "ack", "fin", "close", "ack"])
+    run("broken", ["connect", "ack", "synack", "listen", "fin"])
+
+@test fn opens()
+    s := step(Tcp.SynSent, "synack") else Tcp.Closed
+    assert_eq(s, Tcp.Established)

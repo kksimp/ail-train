@@ -1,0 +1,49 @@
+## LZ77: each step looks back over a 12-letter window for the longest earlier piece matching what
+## comes next (at most 6 letters) and emits (distance, length, next letter); decoding copies them back.
+
+struct Triple
+    back int
+    size int
+    ch char
+
+fn encode(s str, window int, ahead int) List[Triple]
+    cs := s.chars()
+    n := cs.len()
+    mut out := List[Triple]()
+    mut i := 0
+    while i < n
+        mut best_len := 0
+        mut best_off := 0
+        lo := (i - window).max(0)
+        mut j := i - 1
+        while j >= lo
+            mut k := 0
+            while k < ahead and i + k < n - 1 and cs[j + k] == cs[i + k]
+                k += 1
+            if k > best_len
+                best_len = k
+                best_off = i - j
+            j -= 1
+        out.push(Triple(back: best_off, size: best_len, ch: cs[i + best_len]))
+        i += best_len + 1
+    out
+
+fn decode(ts List[Triple]) str
+    mut out := List[char]()
+    for t in ts
+        for k in 0..t.size
+            out.push(out[out.len() - t.back])
+        out.push(t.ch)
+    out.join("")
+
+fn main()
+    for s in ["abracadabra", "aaaaaaaaaaaa", "banana_bandana", "abcabcabcabcx"]
+        ts := encode(s, 12, 6)
+        shown := ts.map(|t| "({t.back},{t.size},{t.ch})").join(" ")
+        ok := if decode(ts) == s then "ok" else "BAD"
+        print("{s}: {ts.len()} triples for {s.len()} letters, round trip {ok}")
+        print("  {shown}")
+
+@test fn single()
+    ts := encode("ab", 12, 6)
+    assert_eq(ts.len(), 2)

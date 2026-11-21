@@ -1,0 +1,39 @@
+## Motzkin paths: walks of n steps up (U), flat (F) or down (D) that never dip below the start
+## and end level; M(n) = M(n-1) + sum M(i) M(n-2-i), checked by generating every walk.
+
+fn motzkin(n int) List[int]
+    mut m := [1, 1]
+    for k in 2..=n
+        mut v := m[k - 1]
+        for i in 0..=(k - 2)
+            v += m[i] * m[k - 2 - i]
+        m.push(v)
+    m
+
+fn walks(n int, level int, path str, mut out List[str])
+    if level < 0 or level > n
+        return
+    if n == 0
+        if level == 0
+            out.push(path)
+        return
+    walks(n - 1, level + 1, "{path}U", mut out)
+    walks(n - 1, level, "{path}F", mut out)
+    walks(n - 1, level - 1, "{path}D", mut out)
+
+fn main()
+    m := motzkin(12)
+    print("M(0..12) = {m}")
+    for n in 1..=8
+        mut out := List[str]()
+        walks(n, 0, "", mut out)
+        print("length {n}: {out.len()} walks generated, recurrence {m[n]}")
+    mut four := List[str]()
+    walks(4, 0, "", mut four)
+    shown := four.join(" ")
+    print("length 4: {shown}")
+
+@test fn three()
+    mut out := List[str]()
+    walks(3, 0, "", mut out)
+    assert_eq(out, ["UFD", "UDF", "FUD", "FFF"])

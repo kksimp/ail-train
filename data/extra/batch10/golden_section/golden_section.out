@@ -1,0 +1,4 @@
+(x - 2)^2 + 1 on [0, 5]: minimum at 2.000000 value 1.000000 after 42 steps
+tin of 330 ml: surface by radius (cm) on [1, 10]: minimum at 3.744939 value 264.356811 after 43 steps
+e^x - 3x on [0, 3]: minimum at 1.098612 value -0.295837 after 41 steps
+tin radius by calculus 3.744939, height 7.489877; e^x - 3x by calculus at ln 3 = 1.098612

@@ -1,0 +1,10 @@
+0 start 5 lcp 0  a
+1 start 3 lcp 1  ana
+2 start 1 lcp 3  anana
+3 start 0 lcp 0  banana
+4 start 4 lcp 0  na
+5 start 2 lcp 2  nana
+banana       distinct substrings  15, longest repeat 'ana'
+mississippi  distinct substrings  53, longest repeat 'issi'
+abracadabra  distinct substrings  54, longest repeat 'abra'
+tattarrattat distinct substrings  60, longest repeat 'atta'

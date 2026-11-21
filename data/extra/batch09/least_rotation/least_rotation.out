@@ -1,0 +1,11 @@
+dcab    starts at 2 -> abdc
+bdca    starts at 3 -> abdc
+abdc    starts at 0 -> abdc
+cabd    starts at 1 -> abdc
+baba    starts at 1 -> abab
+abab    starts at 0 -> abab
+zyxzyw  starts at 5 -> wzyxzy
+wzyxzy  starts at 0 -> wzyxzy
+ring abdc: dcab bdca abdc cabd
+ring abab: baba abab
+ring wzyxzy: zyxzyw wzyxzy

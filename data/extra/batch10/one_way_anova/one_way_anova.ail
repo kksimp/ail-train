@@ -1,0 +1,35 @@
+## One-way ANOVA: compares the mean yields of plots under three fertilisers by splitting the
+## total variation into between-group and within-group sums of squares; F is their mean ratio.
+
+struct Group
+    name str
+    yields List[float]
+
+fn Group.mean(self) float
+    self.yields.fold(0.0, |acc, y| acc + y) / self.yields.len().to_float()
+
+fn main()
+    groups := [Group(name: "none", yields: [20.0, 22.0, 19.0, 24.0, 21.0]), Group(name: "compost", yields: [25.0, 27.0, 24.0, 26.0, 28.0]), Group(name: "nitrate", yields: [23.0, 30.0, 26.0, 29.0, 27.0])]
+    mut all_values := List[float]()
+    for g in groups
+        all_values.extend(g.yields)
+    grand := all_values.fold(0.0, |acc, y| acc + y) / all_values.len().to_float()
+
+    mut ssb := 0.0
+    mut ssw := 0.0
+    for g in groups
+        m := g.mean()
+        ssb += g.yields.len().to_float() * (m - grand) * (m - grand)
+        for y in g.yields
+            ssw += (y - m) * (y - m)
+        print("{g.name:<8} mean {m:.2}")
+    dfb := groups.len() - 1
+    dfw := all_values.len() - groups.len()
+    f := (ssb / dfb.to_float()) / (ssw / dfw.to_float())
+    print("grand mean {grand:.3}, between SS {ssb:.3} (df {dfb}), within SS {ssw:.3} (df {dfw})")
+    verdict := if f > 3.89 then "differ" else "do not clearly differ"
+    print("F = {f:.3}; critical 3.89 at 5%: the means {verdict}")
+
+@test fn mean_of_group()
+    g := Group(name: "x", yields: [1.0, 2.0, 3.0, 6.0])
+    assert_eq(g.mean(), 3.0)

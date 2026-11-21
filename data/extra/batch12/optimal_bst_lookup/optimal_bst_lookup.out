@@ -1,0 +1,10 @@
+pull
+  commit
+    add
+    log
+      diff
+      merge
+  status
+    push
+optimal cost 388, 2.410 comparisons per lookup
+middle-split tree cost 477

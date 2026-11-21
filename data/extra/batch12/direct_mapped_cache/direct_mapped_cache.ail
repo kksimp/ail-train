@@ -1,0 +1,40 @@
+## Direct-mapped cache: byte addresses split into tag, set index and 16-byte offset; a direct-mapped
+## cache of 4 lines is compared with a 2-way set-associative one of the same size (LRU per set).
+
+fn split(addr int, sets int) List[int]
+    block := addr / 16
+    [block / sets, block % sets, addr % 16]
+
+fn simulate(addrs List[int], ways int) int
+    sets := 4 / ways
+    mut tags := List[List[int]]()
+    for s in 0..sets
+        tags.push(List[int]())
+    mut hits := 0
+    for a in addrs
+        parts := split(a, sets)
+        tag := parts[0]
+        idx := parts[1]
+        if tags[idx].contains(tag)
+            hits += 1
+            at := tags[idx].index_of(tag) else 0
+            tags[idx].remove_at(at)
+        elif tags[idx].len() == ways
+            tags[idx].remove_at(0)
+        tags[idx].push(tag)
+    hits
+
+fn main()
+    addrs := [0, 4, 64, 8, 68, 128, 0, 72, 132, 16, 80, 20, 0, 64]
+    for a in addrs.slice(0, 5)
+        p := split(a, 4)
+        print("address {a:>3}: tag {p[0]}, set {p[1]}, offset {p[2]:>2}")
+    d := simulate(addrs, 1)
+    s := simulate(addrs, 2)
+    f := simulate(addrs, 4)
+    print("direct-mapped: {d} of {addrs.len()} hits")
+    print("2-way:         {s} of {addrs.len()} hits")
+    print("fully assoc.:  {f} of {addrs.len()} hits")
+
+@test fn fields()
+    assert_eq(split(100, 4), [1, 2, 4])

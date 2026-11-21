@@ -1,0 +1,66 @@
+## Toy RSA: keys from two small primes, e = 17 and d its inverse modulo (p-1)(q-1); pairs of
+## letters become numbers below n, are encrypted with m^e mod n and come back with c^d mod n.
+
+struct Key
+    n int
+    e int
+    d int
+
+fn pow_mod(b int, e int, m int) int
+    mut result := 1
+    mut base := b % m
+    mut exp := e
+    while exp > 0
+        if exp % 2 == 1
+            result = result * base % m
+        base = base * base % m
+        exp = exp / 2
+    result
+
+fn inverse(a int, m int) int
+    mut t := 0
+    mut new_t := 1
+    mut r := m
+    mut new_r := a
+    while new_r != 0
+        q := r / new_r
+        nt := t - q * new_t
+        t = new_t
+        new_t = nt
+        nr := r - q * new_r
+        r = new_r
+        new_r = nr
+    ((t % m) + m) % m
+
+fn Key.make(p int, q int, e int) Key
+    phi := (p - 1) * (q - 1)
+    Key(n: p * q, e: e, d: inverse(e, phi))
+
+fn Key.lock(self, m int) int
+    pow_mod(m, self.e, self.n)
+
+fn Key.unlock(self, c int) int
+    pow_mod(c, self.d, self.n)
+
+fn main()
+    k := Key.make(61, 53, 17)
+    print("public (n {k.n}, e {k.e}), private d {k.d}")
+    word := "MATHS!"
+    letters := [((c.code() - 65) % 26 + 26) % 26 for c in word.chars()]
+    mut blocks := List[int]()
+    mut i := 0
+    while i + 1 < letters.len()
+        blocks.push(letters[i] * 26 + letters[i + 1])
+        i += 2
+    locked := [k.lock(b) for b in blocks]
+    opened := [k.unlock(c) for c in locked]
+    print("blocks {blocks} -> cipher {locked} -> {opened}")
+    big := Key.make(1009, 1013, 65537)
+    for m in [42, 123456, 1000000]
+        c := big.lock(m)
+        print("n {big.n}: {m} -> {c} -> {big.unlock(c)}")
+
+@test fn round_trip()
+    k := Key.make(61, 53, 17)
+    assert_eq(k.d, 2753)
+    assert_eq(k.unlock(k.lock(65)), 65)

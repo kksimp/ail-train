@@ -1,0 +1,60 @@
+## Traversal rebuild: a binary tree is rebuilt from its preorder and inorder listings (the first
+## preorder item is the root and splits the inorder list), then printed postorder and by level.
+
+struct Node
+    label char
+    left int
+    right int
+
+fn rebuild(pre List[char], ino List[char], mut at List[int], lo int, hi int, mut ns List[Node]) int
+    if lo > hi
+        return -1
+    label := pre[at[0]]
+    at[0] += 1
+    mid := ino.index_of(label) else lo
+    l := rebuild(pre, ino, mut at, lo, mid - 1, mut ns)
+    r := rebuild(pre, ino, mut at, mid + 1, hi, mut ns)
+    ns.push(Node(label: label, left: l, right: r))
+    ns.len() - 1
+
+fn post(ns List[Node], i int, mut out List[char])
+    if i >= 0
+        post(ns, ns[i].left, mut out)
+        post(ns, ns[i].right, mut out)
+        out.push(ns[i].label)
+
+fn levels(ns List[Node], root int) List[str]
+    mut rows := List[str]()
+    mut cur := [root]
+    while cur.len() > 0
+        mut next_row := List[int]()
+        mut labels := List[char]()
+        for i in cur
+            labels.push(ns[i].label)
+            if ns[i].left >= 0
+                next_row.push(ns[i].left)
+            if ns[i].right >= 0
+                next_row.push(ns[i].right)
+        rows.push(labels.join(""))
+        cur = next_row
+    rows
+
+fn main()
+    for p in [("FBADCEGIH", "ABCDEFGHI"), ("ABDECF", "DBEAFC"), ("ABCD", "DCBA")]
+        pre_s, in_s := p
+        mut ns := List[Node]()
+        mut at := [0]
+        root := rebuild(pre_s.chars(), in_s.chars(), mut at, 0, pre_s.len() - 1, mut ns)
+        mut out := List[char]()
+        post(ns, root, mut out)
+        po := out.join("")
+        rows := levels(ns, root).join(" / ")
+        print("pre {pre_s} in {in_s}: post {po}, levels {rows}")
+
+@test fn three()
+    mut ns := List[Node]()
+    mut at := [0]
+    root := rebuild(['B', 'A', 'C'], ['A', 'B', 'C'], mut at, 0, 2, mut ns)
+    mut out := List[char]()
+    post(ns, root, mut out)
+    assert_eq(out.join(""), "ACB")

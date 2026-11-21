@@ -1,0 +1,39 @@
+## NAT ports: a home router rewrites each outgoing connection to its public address and a fresh
+## public port, remembers the pair, and lets replies in only on ports it handed out.
+
+struct Nat
+    public str
+    next_port int
+    out_map Map[str, int]
+    in_map Map[int, str]
+
+fn Nat.outbound(mut self, src str, dst str) str
+    if not self.out_map.contains(src)
+        self.out_map[src] = self.next_port
+        self.in_map[self.next_port] = src
+        self.next_port += 1
+    port := self.out_map[src]
+    "{src} -> {dst} becomes {self.public}:{port} -> {dst}"
+
+fn Nat.inbound(self, port int, from str) str
+    if inside := self.in_map.get(port)
+        return "{from} -> :{port} delivered to {inside}"
+    "{from} -> :{port} dropped, no mapping"
+
+fn main()
+    mut nat := Nat(public: "203.0.113.5", next_port: 40000, out_map: Map[str, int](), in_map: Map[int, str]())
+    print(nat.outbound("192.168.0.10:51000", "93.184.216.34:443"))
+    print(nat.outbound("192.168.0.11:51000", "93.184.216.34:443"))
+    print(nat.outbound("192.168.0.10:51000", "93.184.216.34:443"))
+    print(nat.outbound("192.168.0.12:6000", "8.8.8.8:53"))
+    print(nat.inbound(40001, "93.184.216.34:443"))
+    print(nat.inbound(40002, "8.8.8.8:53"))
+    print(nat.inbound(40007, "198.51.100.9:23"))
+    print("{nat.out_map.len()} mappings in use")
+
+@test fn reuse()
+    mut nat := Nat(public: "p", next_port: 9, out_map: Map[str, int](), in_map: Map[int, str]())
+    first := nat.outbound("a", "x")
+    second := nat.outbound("a", "y")
+    assert_eq(nat.next_port, 10)
+    assert(first != second)

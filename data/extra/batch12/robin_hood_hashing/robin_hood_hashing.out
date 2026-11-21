@@ -1,0 +1,12 @@
+oak   home 12
+elm   home  1
+ash   home  2
+fir   home  3
+yew   home  7
+box   home  4
+bay   home  7
+fig   home  5
+lime  home  4
+pine  home  4
+linear    : probe lengths [0, 0, 0, 0, 0, 2, 0, 1, 5, 0], longest 5, total 8
+robin hood: probe lengths [0, 0, 0, 0, 1, 2, 2, 1, 2, 0], longest 2, total 8

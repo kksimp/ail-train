@@ -1,0 +1,15 @@
+20 placed after 0 kicks []
+50 placed after 0 kicks []
+53 placed after 0 kicks []
+75 placed after 0 kicks []
+100 placed after 0 kicks []
+67 placed after 1 kicks [53]
+105 placed after 0 kicks []
+3 placed after 0 kicks []
+36 placed after 2 kicks [50, 53, 67]
+39 placed after 2 kicks [53, 50, 36]
+table A: [105, 50, 100, 3, 39, 75, 20]
+table B: [53, -1, 67, -1, -1, 36, -1]
+find 53: true
+find 36: true
+find 40: false

@@ -1,0 +1,46 @@
+## Permutation cycles: writes a shuffle in cycle notation, gets its order (how many repeats until
+## everything is home) as the lcm of the cycle lengths, and its sign from the number of cycles.
+
+fn gcd(a int, b int) int
+    if b == 0 then a else gcd(b, a % b)
+
+fn cycles_of(perm List[int]) List[List[int]]
+    mut seen := [false for i in 0..perm.len()]
+    mut out := List[List[int]]()
+    for s in 0..perm.len()
+        if not seen[s]
+            mut cyc := List[int]()
+            mut j := s
+            while not seen[j]
+                seen[j] = true
+                cyc.push(j + 1)
+                j = perm[j]
+            out.push(cyc)
+    out
+
+fn order_by_repeats(perm List[int]) int
+    mut cur := [i for i in 0..perm.len()]
+    mut k := 0
+    while true
+        cur = [perm[x] for x in cur]
+        k += 1
+        if cur == [i for i in 0..perm.len()]
+            break
+    k
+
+fn main()
+    perms := [[1, 2, 0, 4, 3], [3, 0, 1, 2, 5, 6, 4, 8, 9, 7], [0, 1, 2, 3], [7, 6, 5, 4, 3, 2, 1, 0], [1, 2, 3, 4, 5, 6, 7, 8, 0, 10, 11, 9]]
+    for p in perms
+        cs := cycles_of(p)
+        mut parts := List[str]()
+        mut order := 1
+        for c in cs
+            inner := c.join(" ")
+            parts.push("({inner})")
+            order = order / gcd(order, c.len()) * c.len()
+        sign := if (p.len() - cs.len()) % 2 == 0 then "even" else "odd"
+        text := parts.join("")
+        print("{text}: order {order} (repeats {order_by_repeats(p)}), {sign}")
+
+@test fn three_cycle()
+    assert_eq(cycles_of([1, 2, 0]), [[1, 2, 3]])

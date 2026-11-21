@@ -1,0 +1,6 @@
+order 5 x 40: warehouse yes, wallet yes, courier yes -> COMMIT
+order 10 x 30: warehouse yes, wallet yes, courier no -> ABORT
+order 6 x 90: warehouse yes, wallet no, courier yes -> ABORT
+order 8 x 60: warehouse yes, wallet yes, courier yes -> COMMIT
+order 3 x 200: warehouse yes, wallet no, courier yes -> ABORT
+2 of 5 orders committed

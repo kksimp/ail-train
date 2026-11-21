@@ -1,0 +1,5 @@
+none     mean 21.20
+compost  mean 26.00
+nitrate  mean 27.00
+grand mean 24.733, between SS 96.133 (df 2), within SS 54.800 (df 12)
+F = 10.526; critical 3.89 at 5%: the means differ

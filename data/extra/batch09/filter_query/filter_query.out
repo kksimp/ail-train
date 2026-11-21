@@ -1,0 +1,5 @@
+city = Oslo                            -> Ann, Cy
+age > 30 and role = ops                -> Cy, Ed
+role = design or age < 25              -> Bo, Di
+city != Oslo and age >= 29             -> Di, Ed
+age > 40 and city = Oslo or name = Bo  -> Bo, Cy

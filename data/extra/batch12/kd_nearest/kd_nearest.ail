@@ -1,0 +1,56 @@
+## KD nearest: a 2-d tree splits cafe locations alternately by x and y at the median; a nearest
+## search descends toward the query and only crosses a split when the circle reaches over it.
+
+struct Kd
+    x int
+    y int
+    name str
+    axis int
+    left int
+    right int
+
+fn build(mut ns List[Kd], pts List[Kd], axis int) int
+    if pts.len() == 0
+        return -1
+    mut sorted_pts := pts.sorted(by: |p| (p.y, p.x))
+    if axis == 0
+        sorted_pts = pts.sorted(by: |p| (p.x, p.y))
+    mid := sorted_pts.len() / 2
+    m := sorted_pts[mid]
+    l := build(mut ns, sorted_pts.slice(0, mid), 1 - axis)
+    r := build(mut ns, sorted_pts.slice(mid + 1), 1 - axis)
+    ns.push(Kd(x: m.x, y: m.y, name: m.name, axis: axis, left: l, right: r))
+    ns.len() - 1
+
+fn near(ns List[Kd], i int, qx int, qy int, mut best List[int])
+    if i < 0
+        return
+    best[2] += 1
+    n := ns[i]
+    d := (n.x - qx) * (n.x - qx) + (n.y - qy) * (n.y - qy)
+    if best[0] < 0 or d < best[1]
+        best[0] = i
+        best[1] = d
+    diff := if n.axis == 0 then qx - n.x else qy - n.y
+    first := if diff < 0 then n.left else n.right
+    second := if diff < 0 then n.right else n.left
+    near(ns, first, qx, qy, mut best)
+    if diff * diff < best[1]
+        near(ns, second, qx, qy, mut best)
+
+fn main()
+    cafes := [Kd(x: 2, y: 3, name: "Bean", axis: 0, left: -1, right: -1), Kd(x: 5, y: 4, name: "Brew", axis: 0, left: -1, right: -1), Kd(x: 9, y: 6, name: "Cup", axis: 0, left: -1, right: -1), Kd(x: 4, y: 7, name: "Drip", axis: 0, left: -1, right: -1), Kd(x: 8, y: 1, name: "Espresso", axis: 0, left: -1, right: -1), Kd(x: 7, y: 2, name: "Froth", axis: 0, left: -1, right: -1), Kd(x: 1, y: 9, name: "Grind", axis: 0, left: -1, right: -1), Kd(x: 6, y: 8, name: "Hops", axis: 0, left: -1, right: -1), Kd(x: 3, y: 5, name: "Java", axis: 0, left: -1, right: -1)]
+    mut ns := List[Kd]()
+    root := build(mut ns, cafes, 0)
+    print("root splits at {ns[root].name} ({ns[root].x}, {ns[root].y})")
+    for q in [[9, 2], [3, 3], [5, 9], [0, 0]]
+        mut best := [-1, 0, 0]
+        near(ns, root, q[0], q[1], mut best)
+        print("({q[0]}, {q[1]}): nearest {ns[best[0]].name}, squared distance {best[1]}, {best[2]} of {ns.len()} visited")
+
+@test fn single_point()
+    mut ns := List[Kd]()
+    root := build(mut ns, [Kd(x: 1, y: 1, name: "a", axis: 0, left: -1, right: -1)], 0)
+    mut best := [-1, 0, 0]
+    near(ns, root, 4, 5, mut best)
+    assert_eq(best[1], 25)

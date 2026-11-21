@@ -1,0 +1,40 @@
+## Poisson arrivals: with an average of lambda customers a minute, P(k) = lambda^k e^-lambda / k!
+## built term by term; compares the cumulative chance of a quiet or busy minute for three rates.
+
+fn table(lam float, upto int) List[float]
+    mut out := List[float]()
+    mut term := (-lam).exp()
+    for k in 0..=upto
+        out.push(term)
+        term = term * lam / (k + 1).to_float()
+    out
+
+fn main()
+    for lam in [0.5, 2.0, 4.5]
+        t := table(lam, 12)
+        mut cum := 0.0
+        mut cells := List[str]()
+        mut mode := 0
+        for k in 0..=6
+            cells.push(fmt(t[k]))
+            if t[k] > t[mode]
+                mode = k
+        for k in 0..=3
+            cum += t[k]
+        row := cells.join(" ")
+        print("lambda {lam:.1}: P(0..6) {row}")
+        print("    at most 3: {cum:.4}, more than 3: {1.0 - cum:.4}, most likely count {mode}")
+    t := table(2.0, 40)
+    mut mean := 0.0
+    mut sq := 0.0
+    for k in 0..=40
+        mean += k.to_float() * t[k]
+        sq += k.to_float() * k.to_float() * t[k]
+    print("lambda 2: mean {mean:.6}, variance {sq - mean * mean:.6}")
+
+fn fmt(v float) str
+    "{v:.4}"
+
+@test fn zero()
+    t := table(0.0, 2)
+    assert_eq(t, [1.0, 0.0, 0.0])

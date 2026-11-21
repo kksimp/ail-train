@@ -1,0 +1,44 @@
+## Bareiss determinant: fraction-free elimination keeps every entry an integer by dividing each
+## 2x2 update exactly by the previous pivot; checked against cofactor expansion on 4x4 matrices.
+
+fn bareiss(m0 List[List[int]]) int
+    mut m := m0
+    n := m.len()
+    mut sign := 1
+    mut prev := 1
+    for k in 0..(n - 1)
+        if m[k][k] == 0
+            mut swap := -1
+            for r in (k + 1)..n
+                if swap < 0 and m[r][k] != 0
+                    swap = r
+            if swap < 0
+                return 0
+            m.swap(k, swap)
+            sign = -sign
+        for i in (k + 1)..n
+            for j in (k + 1)..n
+                m[i][j] = (m[i][j] * m[k][k] - m[i][k] * m[k][j]) / prev
+        prev = m[k][k]
+    sign * m[n - 1][n - 1]
+
+fn cofactor(m List[List[int]]) int
+    n := m.len()
+    if n == 1
+        return m[0][0]
+    mut total := 0
+    for c in 0..n
+        minor := [[m[r][j] for j in 0..n if j != c] for r in 1..n]
+        term := m[0][c] * cofactor(minor)
+        total += if c % 2 == 0 then term else -term
+    total
+
+fn main()
+    mats := [[[2, -1, 0, 3], [1, 4, -2, 1], [0, 3, 5, -1], [2, 0, 1, 6]], [[0, 2, 1, 4], [3, 0, 2, 1], [1, 1, 0, 2], [2, 3, 1, 0]], [[1, 2, 3, 4], [2, 4, 6, 8], [0, 1, 0, 1], [5, 3, 2, 1]], [[7, 1, 3, 2], [4, 9, 1, 5], [2, 6, 8, 1], [3, 2, 4, 10]]]
+    for m in mats
+        print("{m}: Bareiss {bareiss(m)}, cofactors {cofactor(m)}")
+    hilbert_like := [[i + j + 1 for j in 0..5] for i in 0..5]
+    print("5x5 with rows i + j + 1: {bareiss(hilbert_like)} (rows are dependent)")
+
+@test fn small()
+    assert_eq(bareiss([[1, 2], [3, 4]]), -2)

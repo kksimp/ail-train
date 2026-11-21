@@ -1,0 +1,35 @@
+## Fletcher-16: two running sums mod 255, the second adding up the first, so unlike a plain byte sum
+## it notices swapped bytes; two appended check bytes bring both sums of the message to zero.
+
+fn sums(bs List[int]) List[int]
+    mut a := 0
+    mut b := 0
+    for x in bs
+        a = (a + x) % 255
+        b = (b + a) % 255
+    [a, b]
+
+fn fletcher(bs List[int]) int
+    s := sums(bs)
+    (s[1] << 8) | s[0]
+
+fn codes(s str) List[int]
+    s.chars().map(|c| c.code())
+
+fn main()
+    for s in ["abcde", "abcdef", "abcdefgh", "bacde"]
+        bs := codes(s)
+        plain := bs.sum() % 256
+        print("{s:<9} fletcher {fletcher(bs):04x}, plain sum {plain:02x}")
+    msg := codes("hello")
+    s := sums(msg)
+    c0 := 255 - (s[0] + s[1]) % 255
+    c1 := 255 - (s[0] + c0) % 255
+    mut sent := msg
+    sent.push(c0)
+    sent.push(c1)
+    check := sums(sent)
+    print("hello + check bytes {c0:02x} {c1:02x}: sums {check[0]} and {check[1]}")
+
+@test fn known()
+    assert_eq(fletcher(codes("abcde")), 51440)

@@ -1,0 +1,27 @@
+## Wind on signs: dynamic pressure is q = 0.613 v^2 pascals; a flat sign takes F = q A Cf with
+## Cf = 1.8, and the force at the sign's centre height bends the post at its base.
+
+struct Sign
+    name str
+    width float
+    height float
+    centre float
+
+fn Sign.force(self, v float) float
+    0.613 * v * v * self.width * self.height * 1.8
+
+fn main()
+    signs := [Sign(name: "shop sign", width: 1.2, height: 0.8, centre: 3.0), Sign(name: "road sign", width: 2.0, height: 1.5, centre: 2.5), Sign(name: "billboard", width: 6.0, height: 3.0, centre: 5.0)]
+    for v in [20.0, 30.0, 40.0]
+        q := 0.613 * v * v
+        print("wind {v} m/s ({q:.1} Pa):")
+        for s in signs
+            f := s.force(v)
+            m := f * s.centre / 1000.0
+            print("  {s.name:<10} {f / 1000.0:>6.2} kN, base moment {m:>7.2} kNm")
+    gust := signs.map(|sg| sg.force(40.0)).fold(0.0, |acc, x| acc + x) / 1000.0
+    print("all three in a 40 m/s gust: {gust:.2} kN")
+
+@test fn quadruple_at_double()
+    s := Sign(name: "t", width: 1.0, height: 1.0, centre: 1.0)
+    assert((s.force(20.0) / s.force(10.0) - 4.0).abs() < 0.000001)

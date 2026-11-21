@@ -1,0 +1,51 @@
+## Suffix array: sorts the start positions of every suffix of a word into dictionary order, then
+## Kasai's method gives each neighbour pair's common prefix; distinct substrings = n(n+1)/2 - sum(LCP).
+
+fn suffix_array(s str) List[int]
+    idx := [i for i in 0..s.len()]
+    idx.sorted(by: |i| s.slice(i))
+
+fn lcp_array(s str, sa List[int]) List[int]
+    n := sa.len()
+    cs := s.chars()
+    mut rank := List[int]()
+    mut lcp := List[int]()
+    for i in 0..n
+        rank.push(0)
+        lcp.push(0)
+    for i in 0..n
+        rank[sa[i]] = i
+    mut h := 0
+    for i in 0..n
+        if rank[i] > 0
+            j := sa[rank[i] - 1]
+            while i + h < n and j + h < n and cs[i + h] == cs[j + h]
+                h += 1
+            lcp[rank[i]] = h
+            if h > 0
+                h -= 1
+        else
+            h = 0
+    lcp
+
+fn main()
+    word := "banana"
+    sa := suffix_array(word)
+    lcp := lcp_array(word, sa)
+    for i in 0..sa.len()
+        suf := word.slice(sa[i])
+        print("{i} start {sa[i]} lcp {lcp[i]}  {suf}")
+    for w in ["banana", "mississippi", "abracadabra", "tattarrattat"]
+        a := suffix_array(w)
+        l := lcp_array(w, a)
+        n := w.len()
+        distinct := n * (n + 1) / 2 - l.sum()
+        mut best := 0
+        for k in 1..n
+            if l[k] > l[best]
+                best = k
+        rep := w.slice(a[best], a[best] + l[best])
+        print("{w:<12} distinct substrings {distinct:>3}, longest repeat '{rep}'")
+
+@test fn banana_order()
+    assert_eq(suffix_array("banana"), [5, 3, 1, 0, 4, 2])

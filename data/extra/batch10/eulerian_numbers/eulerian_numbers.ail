@@ -1,0 +1,43 @@
+## Eulerian numbers: A(n, k) counts orderings of 1..n with exactly k ascents (places where the
+## next value is larger); A(n, k) = (k+1) A(n-1, k) + (n-k) A(n-1, k-1), checked by brute force.
+
+fn eulerian(size int) List[List[int]]
+    mut a := [[1]]
+    for n in 1..=size
+        mut row := List[int]()
+        for k in 0..n
+            left := if k < a[n - 1].len() then (k + 1) * a[n - 1][k] else 0
+            right := if k > 0 then (n - k) * a[n - 1][k - 1] else 0
+            row.push(left + right)
+        a.push(row)
+    a
+
+fn count_ascents(mut perm List[int], mut used List[bool], n int, mut counts List[int])
+    if perm.len() == n
+        mut asc := 0
+        for i in 1..n
+            if perm[i] > perm[i - 1]
+                asc += 1
+        counts[asc] += 1
+        return
+    for v in 0..n
+        if not used[v]
+            used[v] = true
+            perm.push(v)
+            count_ascents(mut perm, mut used, n, mut counts)
+            _ := perm.pop()
+            used[v] = false
+
+fn main()
+    a := eulerian(7)
+    for n in 1..=7
+        print("n = {n}: {a[n]} sum {a[n].sum()}")
+    for n in [4, 5, 6]
+        mut perm := List[int]()
+        mut used := [false for i in 0..n]
+        mut counts := [0 for i in 0..n]
+        count_ascents(mut perm, mut used, n, mut counts)
+        print("brute force n = {n}: {counts}")
+
+@test fn three()
+    assert_eq(eulerian(3)[3], [1, 4, 1])

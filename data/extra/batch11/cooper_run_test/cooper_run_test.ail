@@ -1,0 +1,32 @@
+## Cooper test: the distance run in 12 minutes estimates aerobic fitness as
+## VO2max = (metres - 504.9) / 44.73 ml/kg/min, placed in a band from poor to excellent.
+
+enum Band
+    Poor
+    Fair
+    Good
+    Excellent
+
+fn vo2(metres int) float
+    (metres.to_float() - 504.9) / 44.73
+
+fn band(v float) Band
+    if v < 30.0 then Band.Poor elif v < 40.0 then Band.Fair elif v < 50.0 then Band.Good else Band.Excellent
+
+fn main()
+    runners := [("Ines", 2850), ("Tomas", 2100), ("Priya", 2400), ("Kofi", 3150), ("Lena", 1750)]
+    mut counts := Map[str, int]()
+    for rn in runners
+        name, metres := rn
+        v := vo2(metres)
+        b := band(v)
+        counts[b.name()] += 1
+        print("{name:<6} {metres} m: VO2max {v:.1} -> {b}")
+    for b in Band.variants()
+        print("{b.name()}: {counts.get_or(b.name(), 0)}")
+    goal := (45.0 * 44.73 + 504.9).ceil().to_int()
+    print("a VO2max of 45 needs {goal} m in 12 minutes")
+
+@test fn bands()
+    assert_eq(band(35.0), Band.Fair)
+    assert_eq(band(55.0), Band.Excellent)

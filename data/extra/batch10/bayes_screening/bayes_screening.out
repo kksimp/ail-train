@@ -1,0 +1,7 @@
+sensitivity 90%, specificity 95%
+prevalence   0.1%: one positive   1.8%, two positives  24.5%
+prevalence   1.0%: one positive  15.4%, two positives  76.6%
+prevalence   5.0%: one positive  48.6%, two positives  94.5%
+prevalence  20.0%: one positive  81.8%, two positives  98.8%
+prevalence  50.0%: one positive  94.7%, two positives  99.7%
+of 100000 people with 1% sick: 900 true and 4950 false positives

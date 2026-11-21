@@ -1,0 +1,8 @@
+011000015: weighted sum  20 -> valid
+123456780: weighted sum 150 -> valid
+123456789: weighted sum 159 -> invalid
+091000019: weighted sum  80 -> valid
+026009593: weighted sum 110 -> valid
+12345678 needs check digit 0
+07200080 needs check digit 5
+11100002 needs check digit 5

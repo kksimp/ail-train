@@ -1,0 +1,31 @@
+## Seesaw balance: each rider turns the plank by mass times distance from the pivot (negative on
+## the left); the side with more turning moment dips, and a last rider balances it at -sum / mass.
+
+struct Rider
+    name str
+    kg float
+    at float
+
+fn moment(riders List[Rider]) float
+    riders.fold(0.0, |acc, r| acc + r.kg * r.at)
+
+fn main()
+    mut riders := [Rider(name: "Mia", kg: 28.0, at: -2.0), Rider(name: "Leo", kg: 35.0, at: 1.5), Rider(name: "Ana", kg: 22.0, at: -1.0)]
+    for r in riders
+        side := if r.at < 0.0 then "left" else "right"
+        print("{r.name} {r.kg} kg at {r.at.abs()} m {side}: {r.kg * r.at:>6.1} kg m")
+    net := moment(riders)
+    dips := if net < 0.0 then "left" elif net > 0.0 then "right" else "neither"
+    print("net moment {net:.1} kg m, {dips} side dips")
+    spot := 0.0 - net / 30.0
+    if spot.abs() <= 2.5
+        print("Sam (30 kg) balances it at {spot:.2} m")
+        riders.push(Rider(name: "Sam", kg: 30.0, at: spot))
+    else
+        print("Sam cannot reach the balance point")
+    after := moment(riders)
+    print("after: {after.abs():.3} kg m with {riders.len()} riders")
+
+@test fn balanced()
+    rs := [Rider(name: "a", kg: 20.0, at: -2.0), Rider(name: "b", kg: 40.0, at: 1.0)]
+    assert_eq(moment(rs), 0.0)

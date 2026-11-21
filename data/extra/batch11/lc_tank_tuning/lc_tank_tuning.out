@@ -1,0 +1,7 @@
+  50 pF ->  1452.9 kHz
+ 100 pF ->  1027.3 kHz
+ 200 pF ->   726.4 kHz
+ 365 pF ->   537.7 kHz
+North AM     540 kHz needs  361.9 pF (in range)
+City Talk   1010 kHz needs  103.5 pF (in range)
+Coast       1700 kHz needs   36.5 pF (out of range)

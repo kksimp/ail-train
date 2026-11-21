@@ -1,0 +1,47 @@
+## TLB translate: virtual addresses split into a page number and a 256-byte offset; a two-entry
+## TLB (least recently used) is checked first, then the page table, and a missing page faults in.
+
+struct Mmu
+    tlb List[List[int]]
+    table Map[int, int]
+    next_frame int
+    faults int
+    tlb_hits int
+
+fn Mmu.translate(mut self, addr int) str
+    page := addr / 256
+    off := addr % 256
+    mut how := ""
+    mut frame := -1
+    for i in 0..self.tlb.len()
+        if self.tlb[i][0] == page
+            frame = self.tlb[i][1]
+            self.tlb.remove_at(i)
+            self.tlb_hits += 1
+            how = "TLB hit"
+            break
+    if frame < 0
+        if f := self.table.get(page)
+            frame = f
+            how = "table"
+        else
+            frame = self.next_frame
+            self.next_frame += 1
+            self.table[page] = frame
+            self.faults += 1
+            how = "page fault"
+        if self.tlb.len() == 2
+            self.tlb.remove_at(0)
+    self.tlb.push([page, frame])
+    phys := frame * 256 + off
+    "{addr:x} -> page {page}, offset {off:>3} ({how}) -> {phys:x}"
+
+fn main()
+    mut m := Mmu(tlb: List[List[int]](), table: {0: 5, 1: 9}, next_frame: 10, faults: 0, tlb_hits: 0)
+    for a in [0x012, 0x1a4, 0x0ff, 0x2c3, 0x105, 0x2ff, 0x330, 0x011, 0x3a0]
+        print(m.translate(a))
+    print("TLB hits {m.tlb_hits}, page faults {m.faults}, frames used {m.table.len()}")
+
+@test fn known_page()
+    mut m := Mmu(tlb: List[List[int]](), table: {0: 2}, next_frame: 3, faults: 0, tlb_hits: 0)
+    assert_eq(m.translate(0x010), "10 -> page 0, offset  16 (table) -> 210")

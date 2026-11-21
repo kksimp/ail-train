@@ -1,0 +1,30 @@
+## Gauss circle problem: counts the lattice points with x^2 + y^2 <= r^2 column by column with an
+## integer square root, and compares the count with the area pi r^2 as the radius grows.
+
+fn isqrt(v int) int
+    mut y := v.to_float().sqrt().to_int()
+    while (y + 1) * (y + 1) <= v
+        y += 1
+    while y * y > v
+        y -= 1
+    y
+
+fn lattice_count(r int) int
+    mut n := 0
+    for x in -r..=r
+        n += 2 * isqrt(r * r - x * x) + 1
+    n
+
+fn main()
+    pi := 3.141592653589793
+    print("radius   points        area    error  error/r")
+    for r in [1, 2, 5, 10, 20, 50, 100, 300]
+        n := lattice_count(r)
+        rf := r.to_float()
+        area := pi * rf * rf
+        err := n.to_float() - area
+        print("{r:>6} {n:>8} {area:>11.2} {err:>8.2} {err / rf:>8.3}")
+
+@test fn small()
+    assert_eq(lattice_count(1), 5)
+    assert_eq(lattice_count(2), 13)

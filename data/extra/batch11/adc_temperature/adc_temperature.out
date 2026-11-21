@@ -1,0 +1,10 @@
+one step is 3.223 mV
+0.00 V -> code    0 -> 0.0000 V
+0.75 V -> code  232 -> 0.7477 V
+1.65 V -> code  512 -> 1.6500 V
+3.30 V -> code 1023 -> 3.2968 V
+3.50 V -> code 1023 -> 3.2968 V
+sensor code 217: 19.9 C
+sensor code 232: 24.8 C
+sensor code 248: 29.9 C
+sensor code 261: 34.1 C

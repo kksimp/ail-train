@@ -1,0 +1,53 @@
+## Aliquot chains: repeatedly replace n by the sum of its proper divisors; a chain falls to 0
+## through a prime, stops at a perfect number, or loops through amicable or sociable numbers.
+
+enum Ending
+    Zero
+    Perfect(n int)
+    Loop(size int, entry int)
+    Open
+
+fn proper_sum(n int) int
+    if n == 1
+        return 0
+    mut s := 1
+    mut d := 2
+    while d * d <= n
+        if n % d == 0
+            s += d
+            if d * d != n
+                s += n / d
+        d += 1
+    s
+
+fn follow(start int, limit int) Ending
+    mut chain := [start]
+    while chain.len() <= limit
+        next := proper_sum(chain[chain.len() - 1])
+        if next == 0
+            return Ending.Zero
+        if next == chain[chain.len() - 1]
+            return Ending.Perfect(n: next)
+        if idx := chain.index_of(next)
+            return Ending.Loop(size: chain.len() - idx, entry: next)
+        chain.push(next)
+    Ending.Open
+
+fn describe(e Ending) str
+    match e
+        Zero => "reaches 0 through a prime"
+        Perfect(n) => "settles on the perfect number {n}"
+        Loop(size, entry) => "enters a loop of {size} at {entry}"
+        Open => "still going after 30 steps"
+
+fn main()
+    for start in [12, 95, 25, 220, 562, 12496, 1264460, 276]
+        print("{start:>7}: {describe(follow(start, 30))}")
+    mut steps := [12]
+    while steps.len() < 8 and steps[steps.len() - 1] > 0
+        steps.push(proper_sum(steps[steps.len() - 1]))
+    print("chain from 12: {steps}")
+
+@test fn amicable()
+    assert_eq(proper_sum(220), 284)
+    assert_eq(proper_sum(284), 220)

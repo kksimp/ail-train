@@ -1,0 +1,6 @@
+exact derivative of sin at 1: 0.540302305868
+h 0.1000: forward error 0.0429385533, central error 0.0009000537
+h 0.0100: forward error 0.0042163249 (/10), central error 0.0000090050 (/100)
+h 0.0010: forward error 0.0004208255 (/10), central error 0.0000000901 (/100)
+each tenth of h cuts the forward error 10 times and the central error 100 times
+second derivative of e^x at 0, 0.5, 1, 1.5, 2: 1.0000, 1.6487, 2.7183, 4.4817, 7.3891

@@ -1,0 +1,38 @@
+## Chinese remainder: solves systems like x = 2 mod 3, x = 3 mod 5, x = 2 mod 7 by folding the
+## congruences in pairs with the extended Euclidean algorithm; the moduli must be coprime.
+
+fn ext_gcd(a int, b int) List[int]
+    if b == 0
+        return [a, 1, 0]
+    r := ext_gcd(b, a % b)
+    [r[0], r[2], r[1] - (a / b) * r[2]]
+
+fn crt(rems List[int], mods List[int]) List[int]
+    mut x := rems[0]
+    mut m := mods[0]
+    for i in 1..mods.len()
+        mi := mods[i]
+        g := ext_gcd(m, mi)
+        inv := ((g[1] % mi) + mi) % mi
+        diff := (((rems[i] - x) % mi) + mi) % mi
+        k := diff * inv % mi
+        x = x + m * k
+        m = m * mi
+    [x, m]
+
+fn main()
+    systems := [[[2, 3, 2], [3, 5, 7]], [[1, 2, 3, 4], [2, 3, 5, 7]], [[1, 1, 1, 0], [3, 4, 5, 7]], [[5, 7, 11], [11, 13, 17]]]
+    for s in systems
+        rems := s[0]
+        mods := s[1]
+        r := crt(rems, mods)
+        mut parts := List[str]()
+        for i in 0..mods.len()
+            parts.push("{r[0] % mods[i]} mod {mods[i]}")
+        shown := parts.join(", ")
+        print("x = {r[0]} (mod {r[1]}): {shown}")
+    eggs := crt([1, 1, 1, 0], [3, 4, 5, 7])
+    print("smallest egg basket: {eggs[0]}, next {eggs[0] + eggs[1]}")
+
+@test fn classic()
+    assert_eq(crt([2, 3, 2], [3, 5, 7]), [23, 105])

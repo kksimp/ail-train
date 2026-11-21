@@ -1,0 +1,4 @@
+GET /search query 'q=tea&page=2' host shop.test, 2 headers, body ''
+POST /orders query '' host shop.test, 3 headers, body '{"tea": 2}'
+rejected: body is 5 bytes, header says 50
+rejected: bad request line 'FETCH /x'

@@ -1,0 +1,59 @@
+## Pratt parser: each operator has a binding power (+ - 10, * / 20, ^ 30, prefix minus 25); the parser
+## keeps folding operators stronger than its limit, and ^ uses one less on its right so it groups right.
+
+struct Res
+    text str
+    value int
+
+fn power(a int, b int) int
+    mut r := 1
+    for i in 0..b
+        r *= a
+    r
+
+fn bp(op str) int
+    match op
+        "+" | "-" => 10
+        "*" | "/" => 20
+        "^" => 30
+        _ => 0
+
+fn parse(toks List[str], mut pos int, min_bp int) Res
+    t := toks[pos]
+    pos += 1
+    mut left := Res(text: t, value: t.to_int() else 0)
+    if t == "-"
+        inner := parse(toks, mut pos, 25)
+        left = Res(text: "(-{inner.text})", value: -inner.value)
+    elif t == "("
+        left = parse(toks, mut pos, 0)
+        pos += 1
+    while pos < toks.len()
+        op := toks[pos]
+        p := bp(op)
+        if p == 0 or p <= min_bp
+            break
+        pos += 1
+        next_min := if op == "^" then p - 1 else p
+        right := parse(toks, mut pos, next_min)
+        value := match op
+            "+" => left.value + right.value
+            "-" => left.value - right.value
+            "*" => left.value * right.value
+            "/" => left.value / right.value
+            _ => power(left.value, right.value)
+        left = Res(text: "({left.text} {op} {right.text})", value: value)
+    left
+
+fn tokens(s str) List[str]
+    s.replace("(", " ( ").replace(")", " ) ").split(" ").filter(|t| t != "")
+
+fn main()
+    for src in ["1 + 2 * 3", "(1 + 2) * 3", "2 ^ 3 ^ 2", "- 2 ^ 2", "10 - 4 - 3", "64 / 4 / 2", "2 * (3 + 4) ^ 2 - 1"]
+        mut pos := 0
+        r := parse(tokens(src), mut pos, 0)
+        print("{src:<20} {r.text:<28} = {r.value}")
+
+@test fn right_assoc()
+    mut pos := 0
+    assert_eq(parse(tokens("2 ^ 3 ^ 2"), mut pos, 0).value, 512)

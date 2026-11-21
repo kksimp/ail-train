@@ -1,0 +1,8 @@
+ann -> ML: enrolled (2 prerequisites met)
+bo -> ML: refused, needs Stats
+cy -> ML: enrolled (2 prerequisites met)
+di -> ML: waitlisted at 1 (2 prerequisites met)
+bo -> Art: enrolled (0 prerequisites met)
+ann drops ML: di moves up
+ML: seats ["cy", "di"], waiting []
+Art: seats ["bo"], waiting []

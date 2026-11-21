@@ -1,0 +1,34 @@
+## Past tense: irregular verbs come from a table; regular verbs add -d after e, change consonant + y
+## to -ied, double a final consonant after one stressed short vowel (stop, plan), and otherwise add -ed.
+
+fn vowel(c char) bool
+    "aeiou".contains(c)
+
+fn past(verb str) str
+    irregular := {"go": "went", "eat": "ate", "see": "saw", "take": "took", "run": "ran", "write": "wrote", "drive": "drove"}
+    if irregular.contains(verb)
+        return irregular[verb]
+    cs := verb.chars()
+    n := cs.len()
+    last := cs[n - 1]
+    if last == 'e'
+        return "{verb}d"
+    if last == 'y' and not vowel(cs[n - 2])
+        return "{verb.slice(0, n - 1)}ied"
+    vowels := cs.count(|c| vowel(c))
+    short := n >= 3 and vowels == 1 and not vowel(last) and vowel(cs[n - 2]) and not vowel(cs[n - 3])
+    if short and not "wxy".contains(last)
+        return "{verb}{last}ed"
+    "{verb}ed"
+
+fn main()
+    verbs := ["walk", "bake", "cry", "play", "stop", "plan", "rain", "fix", "visit", "go", "write", "hop", "hope", "study"]
+    for row in verbs.chunks(5)
+        shown := row.map(|v| "{v}/{past(v)}").join("  ")
+        print(shown)
+    story := ["plan", "pack", "drive", "stop", "eat", "carry", "relax"]
+    told := story.map(|v| past(v)).join(", ")
+    print("yesterday we {told}")
+
+@test fn doubles()
+    assert_eq(past("stop"), "stopped")

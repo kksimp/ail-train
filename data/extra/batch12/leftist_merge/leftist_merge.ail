@@ -1,0 +1,66 @@
+## Leftist merge: two clinics' waiting lists are leftist heaps (each node's right spine is the
+## shorter), so merging walks only right spines; patients then leave in order of urgency score.
+
+struct Node
+    score int
+    name str
+    left int
+    right int
+    rank int
+
+fn rk(ns List[Node], i int) int
+    if i < 0 then 0 else ns[i].rank
+
+fn merge(mut ns List[Node], a int, b int) int
+    if a < 0
+        return b
+    if b < 0
+        return a
+    mut x := a
+    mut y := b
+    if ns[y].score < ns[x].score
+        x = b
+        y = a
+    r := ns[x].right
+    m := merge(mut ns, r, y)
+    ns[x].right = m
+    if rk(ns, ns[x].left) < rk(ns, ns[x].right)
+        l := ns[x].left
+        ns[x].left = ns[x].right
+        ns[x].right = l
+    rank := rk(ns, ns[x].right) + 1
+    ns[x].rank = rank
+    x
+
+fn add(mut ns List[Node], root int, score int, name str) int
+    ns.push(Node(score: score, name: name, left: -1, right: -1, rank: 1))
+    single := ns.len() - 1
+    merge(mut ns, root, single)
+
+fn main()
+    mut ns := List[Node]()
+    mut north := -1
+    for p in [(4, "Ali"), (9, "Bea"), (2, "Cal"), (7, "Dee")]
+        score, name := p
+        north = add(mut ns, north, score, name)
+    mut south := -1
+    for p in [(5, "Eve"), (1, "Fox"), (8, "Gus"), (3, "Hal"), (6, "Ida")]
+        score, name := p
+        south = add(mut ns, south, score, name)
+    print("north top: {ns[north].name}, south top: {ns[south].name}")
+    mut root := merge(mut ns, north, south)
+    print("merged root rank: {ns[root].rank}")
+    mut order := List[str]()
+    while root >= 0
+        order.push("{ns[root].name}({ns[root].score})")
+        l := ns[root].left
+        r := ns[root].right
+        root = merge(mut ns, l, r)
+    shown := order.join(" ")
+    print("seen in order: {shown}")
+
+@test fn smaller_on_top()
+    mut ns := List[Node]()
+    mut root := add(mut ns, -1, 5, "a")
+    root = add(mut ns, root, 2, "b")
+    assert_eq(ns[root].name, "b")

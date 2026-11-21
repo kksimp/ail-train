@@ -1,0 +1,5 @@
+coffee shops    HHI  2138: moderately concentrated
+phone networks  HHI  2750: highly concentrated
+search          HHI  7800: highly concentrated
+bakeries        HHI  5876: highly concentrated
+merging networks 1 and 3: HHI 2750 -> 4150 (+1400)

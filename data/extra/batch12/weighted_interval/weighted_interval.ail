@@ -1,0 +1,50 @@
+## Weighted interval scheduling: hall bookings with start, end and fee; sorted by end time, each
+## booking either joins the best plan before its start (found by binary search) or is skipped.
+
+struct Booking
+    who str
+    start int
+    end int
+    fee int
+
+fn last_before(bs List[Booking], i int) int
+    mut lo := 0
+    mut hi := i - 1
+    mut found := -1
+    while lo <= hi
+        mid := (lo + hi) / 2
+        if bs[mid].end <= bs[i].start
+            found = mid
+            lo = mid + 1
+        else
+            hi = mid - 1
+    found
+
+fn main()
+    raw := [Booking(who: "choir", start: 9, end: 12, fee: 120), Booking(who: "yoga", start: 10, end: 11, fee: 40), Booking(who: "wedding", start: 11, end: 17, fee: 300), Booking(who: "chess", start: 12, end: 14, fee: 90), Booking(who: "dance", start: 13, end: 16, fee: 150), Booking(who: "quiz", start: 16, end: 19, fee: 110), Booking(who: "film", start: 17, end: 20, fee: 130), Booking(who: "band", start: 19, end: 23, fee: 160)]
+    bs := raw.sorted(by: |b| b.end)
+    n := bs.len()
+    mut best := [0]
+    for i in 0..n
+        p := last_before(bs, i)
+        with_it := bs[i].fee + best[p + 1]
+        best.push(best[i].max(with_it))
+    mut chosen := List[str]()
+    mut k := n - 1
+    while k >= 0
+        p := last_before(bs, k)
+        if bs[k].fee + best[p + 1] >= best[k]
+            chosen.push("{bs[k].who} {bs[k].start}-{bs[k].end}")
+            k = p
+        else
+            k -= 1
+    chosen.reverse()
+    for c in chosen
+        print("book {c}")
+    print("best takings: {best[n]}")
+    greedy := bs.sorted(by: |b| -b.fee)
+    print("largest single fee: {greedy[0].who} at {greedy[0].fee}")
+
+@test fn binary_search()
+    bs := [Booking(who: "a", start: 0, end: 2, fee: 1), Booking(who: "b", start: 3, end: 5, fee: 1)]
+    assert_eq(last_before(bs, 1), 0)

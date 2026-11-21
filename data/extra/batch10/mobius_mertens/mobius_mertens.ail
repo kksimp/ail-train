@@ -1,0 +1,45 @@
+## Mobius and Mertens: mu(n) is 0 when a square divides n, else (-1)^k for k prime factors;
+## Mertens M(n) adds mu up to n, and mu summed over the divisors of any n > 1 is zero.
+
+fn mu(n int) int
+    mut x := n
+    mut k := 0
+    mut p := 2
+    while p * p <= x
+        if x % p == 0
+            x = x / p
+            if x % p == 0
+                return 0
+            k += 1
+        p += 1
+    if x > 1
+        k += 1
+    if k % 2 == 0 then 1 else -1
+
+fn divisor_sum(n int) int
+    mut s := 0
+    for d in 1..=n
+        if n % d == 0
+            s += mu(d)
+    s
+
+fn main()
+    first := [mu(n) for n in 1..=20]
+    print("mu(1..20) = {first}")
+    mut running := 0
+    mut marks := List[str]()
+    mut zeros := 0
+    for n in 1..=100
+        v := mu(n)
+        running += v
+        if v == 0
+            zeros += 1
+        if n % 20 == 0
+            marks.push("M({n}) = {running}")
+    print(marks.join(", "))
+    print("{100 - zeros} of 1..100 are square-free")
+    for n in [1, 12, 30, 97, 360]
+        print("sum of mu(d) over divisors of {n}: {divisor_sum(n)}")
+
+@test fn values()
+    assert_eq([mu(6), mu(8), mu(30)], [1, 0, -1])

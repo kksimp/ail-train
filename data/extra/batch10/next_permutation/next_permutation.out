@@ -1,0 +1,6 @@
+orders of 1 2 3: [1, 2, 3] [1, 3, 2] [2, 1, 3] [2, 3, 1] [3, 1, 2] [3, 2, 1]
+distinct orders of 1 1 2 2: 6
+next number after 534976 with the same digits: 536479
+next number after 12443322 with the same digits: 13222344
+4321 is already the largest with its digits
+next number after 1999 with the same digits: 9199

@@ -1,0 +1,31 @@
+## Card payoff: a 3,000 balance at 22% a year charges balance * 22 / 1200 each month (in cents);
+## paying only the minimum (2.5% of the balance, at least 25) takes far longer than a fixed payment.
+
+fn payoff(start int, fixed int) List[int]
+    mut balance := start
+    mut months := 0
+    mut interest := 0
+    while balance > 0 and months < 600
+        charge := balance * 22 / 1200
+        balance += charge
+        interest += charge
+        minimum := (balance * 25 / 1000).max(2500)
+        pay := if fixed > 0 then fixed else minimum
+        balance -= pay.min(balance)
+        months += 1
+    [months, interest]
+
+fn main()
+    start := 300000
+    plans := [("minimum only", 0), ("100 a month", 10000), ("150 a month", 15000), ("300 a month", 30000)]
+    for pl in plans
+        name, fixed := pl
+        res := payoff(start, fixed)
+        years := res[0] / 12
+        extra := res[0] % 12
+        cents := res[1] % 100
+        print("{name:<13} {res[0]:>3} months ({years} y {extra} m), interest {res[1] / 100}.{cents:02}")
+
+@test fn one_month()
+    res := payoff(10000, 20000)
+    assert_eq(res, [1, 183])

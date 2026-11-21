@@ -1,0 +1,29 @@
+## Tyre sizes: a 205/55R16 tyre is 2 * 205 * 0.55 mm of sidewall plus a 16 inch rim tall; a
+## different size changes the true speed when the speedometer shows 100 km/h by the diameter ratio.
+
+struct Tyre
+    width int
+    profile int
+    rim int
+
+fn Tyre.diameter(self) float
+    2.0 * self.width.to_float() * self.profile.to_float() / 100.0 + self.rim.to_float() * 25.4
+
+fn Tyre.label(self) str
+    "{self.width}/{self.profile}R{self.rim}"
+
+fn main()
+    original := Tyre(width: 205, profile: 55, rim: 16)
+    base := original.diameter()
+    print("original {original.label()}: {base:.1} mm, {base * 3.141592653589793 / 1000.0:.3} m per turn")
+    options := [Tyre(width: 225, profile: 45, rim: 17), Tyre(width: 215, profile: 55, rim: 16), Tyre(width: 225, profile: 40, rim: 18), Tyre(width: 195, profile: 65, rim: 15), Tyre(width: 235, profile: 45, rim: 18)]
+    for t in options
+        d := t.diameter()
+        diff := (d - base) / base * 100.0
+        real := 100.0 * d / base
+        ok := if diff.abs() <= 3.0 then "fits" else "too different"
+        print("{t.label():<9} {d:.1} mm ({diff:>5.2}%): at 100 on the dial you do {real:.1} km/h, {ok}")
+
+@test fn original_size()
+    t := Tyre(width: 205, profile: 55, rim: 16)
+    assert((t.diameter() - 631.9).abs() < 0.000001)

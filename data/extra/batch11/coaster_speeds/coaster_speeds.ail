@@ -1,0 +1,28 @@
+## Roller coaster: with no friction, energy conservation gives the speed at height h as
+## v = sqrt(v0^2 + 2 g (h0 - h)); a hill taller than h0 + v0^2 / (2 g) stops the train.
+
+fn speed_at(v0 float, h0 float, h float) float?
+    sq := v0 * v0 + 2.0 * 9.81 * (h0 - h)
+    if sq < 0.0
+        return none
+    sq.sqrt()
+
+fn main()
+    track := [("lift hill top", 45.0), ("first drop", 2.0), ("camel back", 30.0), ("loop top", 25.0), ("helix", 12.0), ("final hill", 47.0), ("brake run", 4.0)]
+    v0 := 1.5
+    h0 := 45.0
+    reach := h0 + v0 * v0 / (2.0 * 9.81)
+    print("energy reaches {reach:.2} m")
+    for point in track
+        name, h := point
+        if v := speed_at(v0, h0, h)
+            kmh := v * 3.6
+            print("{name:<13} {h:>4.1} m: {v:>5.2} m/s ({kmh:.1} km/h)")
+        else
+            print("{name:<13} {h:>4.1} m: the train rolls back before here")
+            break
+
+@test fn drop_from_rest()
+    v := speed_at(0.0, 20.0, 0.0) else 0.0
+    want := 392.4
+    assert((v - want.sqrt()).abs() < 0.000001)

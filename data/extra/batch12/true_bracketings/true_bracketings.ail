@@ -1,0 +1,52 @@
+## True bracketings: counts the ways to bracket a chain of true and false values joined by and,
+## or and xor so that it comes out true, with interval tables of true and false counts.
+
+fn count_true(vals List[bool], ops List[char]) int
+    n := vals.len()
+    mut t := List[List[int]]()
+    mut f := List[List[int]]()
+    for i in 0..n
+        mut tr := List[int]()
+        mut fr := List[int]()
+        for j in 0..n
+            tr.push(0)
+            fr.push(0)
+        t.push(tr)
+        f.push(fr)
+        if vals[i]
+            t[i][i] = 1
+        else
+            f[i][i] = 1
+    for gap in 1..n
+        for i in 0..n - gap
+            j := i + gap
+            for k in i..j
+                lt := t[i][k]
+                lf := f[i][k]
+                rt := t[k + 1][j]
+                rf := f[k + 1][j]
+                all_ways := (lt + lf) * (rt + rf)
+                yes := match ops[k]
+                    '&' => lt * rt
+                    '|' => all_ways - lf * rf
+                    _ => lt * rf + lf * rt
+                t[i][j] += yes
+                f[i][j] += all_ways - yes
+    t[0][n - 1]
+
+fn parse(expr str) int
+    mut vals := List[bool]()
+    mut ops := List[char]()
+    for ch in expr.chars()
+        if ch == 'T' or ch == 'F'
+            vals.push(ch == 'T')
+        else
+            ops.push(ch)
+    count_true(vals, ops)
+
+fn main()
+    for e in ["T|F&T", "T^F|F", "T&F^T|F", "F|T^F&T|F", "T^T^T^T", "F&F|T^T&F|T"]
+        print("{e:<12} {parse(e):>4} true bracketings")
+
+@test fn simple()
+    assert_eq(parse("T|F&T"), 2)

@@ -1,0 +1,59 @@
+## Two-pass assembler: the first pass gives every label the address of the next instruction, the
+## second encodes each instruction as opcode * 100 + operand; a tiny accumulator machine then runs it.
+
+fn assemble(src List[str]) List[int] ! str
+    ops := {"HALT": 0, "LOAD": 1, "SUB": 3, "OUT": 4, "JZ": 5, "JMP": 6}
+    mut labels := Map[str, int]()
+    mut code := List[List[str]]()
+    for line in src
+        mut ws := (line.split(";")[0]).words()
+        if not ws.is_empty() and ws[0].ends_with(":")
+            labels[ws[0].slice(0, ws[0].len() - 1)] = code.len()
+            ws = ws.slice(1)
+        if not ws.is_empty()
+            code.push(ws)
+    mut out := List[int]()
+    for ws in code
+        op := ops.get(ws[0]) else return "unknown instruction {ws[0]}"
+        mut arg := 0
+        if ws.len() > 1
+            arg = ws[1].to_int() else (labels.get(ws[1]) else -1)
+            if arg < 0
+                return "unknown label {ws[1]}"
+        out.push(op * 100 + arg)
+    out
+
+fn run(words List[int]) List[int]
+    mut acc := 0
+    mut pc := 0
+    mut outputs := List[int]()
+    while pc < words.len()
+        op := words[pc] / 100
+        arg := words[pc] % 100
+        pc += 1
+        if op == 1
+            acc = arg
+        elif op == 3
+            acc -= arg
+        elif op == 4
+            outputs.push(acc)
+        elif op == 6 or (op == 5 and acc == 0)
+            pc = arg
+        elif op == 0
+            break
+    outputs
+
+fn main()
+    countdown := ["start: LOAD 4", "loop:  OUT        ; show the counter", "       SUB 1", "       JZ done", "       JMP loop", "done:  LOAD 99", "       OUT", "       HALT"]
+    if words := assemble(countdown)
+        for i, w in words.enumerate()
+            print("{i:02}  {w:03}  {countdown[i].trim()}")
+        print("output: {run(words)}")
+    else err
+        print("error: {err}")
+
+@test fn encodes()
+    assert_eq(assemble(["x: JMP x"]) else List[int](), [600])
+
+@test fn missing_label()
+    assert_err(assemble(["LOAD 1", "JMP finish"]))

@@ -1,0 +1,20 @@
+## Temperature coefficient: Q10 = (R2 / R1)^(10 / (T2 - T1)) says how many times faster a process
+## runs per 10 degrees warmer; predicts rates at other temperatures as R1 * Q10^((T - T1) / 10).
+
+fn q10(r1 float, t1 float, r2 float, t2 float) float
+    (r2 / r1).pow(10.0 / (t2 - t1))
+
+fn main()
+    trials := [("frog heart, beats/min", 15.0, 22.0, 25.0, 41.0), ("seed respiration, uL/h", 10.0, 3.2, 20.0, 7.0), ("enzyme, umol/min", 20.0, 1.5, 35.0, 4.4)]
+    for tr in trials
+        name, t1, r1, t2, r2 := tr
+        q := q10(r1, t1, r2, t2)
+        mut preds := List[str]()
+        for t in [5.0, 30.0]
+            rate := r1 * q.pow((t - t1) / 10.0)
+            preds.push("{t} C: {rate:.1}")
+        joined := preds.join(", ")
+        print("{name}: Q10 {q:.2}; {joined}")
+
+@test fn doubling()
+    assert((q10(1.0, 10.0, 4.0, 30.0) - 2.0).abs() < 0.000001)

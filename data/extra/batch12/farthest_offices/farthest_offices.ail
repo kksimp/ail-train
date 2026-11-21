@@ -1,0 +1,53 @@
+## Farthest offices: the longest cable run in a tree-shaped office network, found with two
+## breadth-first searches (any office to its farthest, then from there to the farthest again).
+
+fn far(start int, adj List[List[int]], wt List[List[int]]) List[int]
+    mut dist := List[int]()
+    for i in 0..adj.len()
+        dist.push(-1)
+    dist[start] = 0
+    mut queue := [start]
+    mut head := 0
+    while head < queue.len()
+        u := queue[head]
+        head += 1
+        for k in 0..adj[u].len()
+            v := adj[u][k]
+            if dist[v] < 0
+                dist[v] = dist[u] + wt[u][k]
+                queue.push(v)
+    dist
+
+fn argmax(xs List[int]) int
+    mut best := 0
+    for i in 0..xs.len()
+        if xs[i] > xs[best]
+            best = i
+    best
+
+fn main()
+    names := ["Lobby", "Sales", "Ops", "Lab", "Print", "Server", "Archive", "Roof"]
+    links := [[0, 1, 30], [0, 2, 20], [2, 3, 45], [2, 4, 15], [3, 5, 25], [1, 6, 50], [4, 7, 10]]
+    mut adj := List[List[int]]()
+    mut wt := List[List[int]]()
+    for i in 0..names.len()
+        adj.push(List[int]())
+        wt.push(List[int]())
+    for l in links
+        adj[l[0]].push(l[1])
+        wt[l[0]].push(l[2])
+        adj[l[1]].push(l[0])
+        wt[l[1]].push(l[2])
+    first := far(0, adj, wt)
+    a := argmax(first)
+    second := far(a, adj, wt)
+    b := argmax(second)
+    print("farthest from {names[0]}: {names[a]} at {first[a]} m")
+    print("farthest from {names[a]}: {names[b]} at {second[b]} m")
+    print("longest cable run: {names[a]} to {names[b]}, {second[b]} m")
+    for i in 0..names.len()
+        ecc := far(i, adj, wt).max() else 0
+        print("{names[i]:<8} reaches every office within {ecc} m")
+
+@test fn pick_largest()
+    assert_eq(argmax([3, 9, 2, 9]), 1)

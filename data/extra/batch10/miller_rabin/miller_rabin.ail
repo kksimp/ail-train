@@ -1,0 +1,47 @@
+## Miller-Rabin: writes n - 1 = d * 2^s and checks each base for a witness of compositeness;
+## bases 2, 3, 5 and 7 decide every n below 3.2 billion, while single bases are fooled.
+
+fn pow_mod(b int, e int, m int) int
+    mut result := 1
+    mut base := b % m
+    mut exp := e
+    while exp > 0
+        if exp % 2 == 1
+            result = result * base % m
+        base = base * base % m
+        exp = exp / 2
+    result
+
+fn passes(n int, a int) bool
+    mut d := n - 1
+    mut s := 0
+    while d % 2 == 0
+        d = d / 2
+        s += 1
+    mut x := pow_mod(a, d, n)
+    if x == 1 or x == n - 1
+        return true
+    for _ in 1..s
+        x = x * x % n
+        if x == n - 1
+            return true
+    false
+
+fn trial_prime(n int) bool
+    mut p := 2
+    while p * p <= n
+        if n % p == 0
+            return false
+        p += 1
+    n > 1
+
+fn main()
+    bases := [2, 3, 5, 7]
+    for n in [97, 561, 2047, 7919, 1373653, 25326001, 1000000007, 2147483647]
+        fooled := bases.filter(|a| passes(n, a))
+        verdict := if fooled.len() == 4 then "prime" else "composite"
+        print("{n:>10}: passes bases {fooled}, says {verdict}, trial division {trial_prime(n)}")
+
+@test fn strong_liar()
+    assert(passes(2047, 2))
+    assert(not passes(2047, 3))

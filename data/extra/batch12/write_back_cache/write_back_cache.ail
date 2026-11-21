@@ -1,0 +1,52 @@
+## Write-back cache: a three-line LRU cache in front of slow memory; write-through sends every
+## store to memory, while write-back marks the line dirty and writes it only when it is evicted.
+
+struct Line
+    block int
+    dirty bool
+    last int
+
+fn run(ops List[str], write_back bool) List[int]
+    mut lines := List[Line]()
+    mut mem_writes := 0
+    mut misses := 0
+    for t, op in ops.enumerate()
+        kind := op.slice(0, 1)
+        block := op.slice(1).to_int() else 0
+        mut at := -1
+        for i in 0..lines.len()
+            if lines[i].block == block
+                at = i
+        if at < 0
+            misses += 1
+            if lines.len() == 3
+                mut old := 0
+                for i in 0..3
+                    if lines[i].last < lines[old].last
+                        old = i
+                if lines[old].dirty
+                    mem_writes += 1
+                lines.remove_at(old)
+            lines.push(Line(block: block, dirty: false, last: t))
+            at = lines.len() - 1
+        lines[at].last = t
+        if kind == "W"
+            if write_back
+                lines[at].dirty = true
+            else
+                mem_writes += 1
+    dirty_left := lines.count(|l| l.dirty)
+    [misses, mem_writes, dirty_left]
+
+fn main()
+    ops := ["R1", "W1", "W1", "R2", "W2", "W1", "R3", "W3", "R4", "W1", "W1", "W4", "R2", "W2", "W2"]
+    shown := ops.join(" ")
+    print("ops: {shown}")
+    a := run(ops, false)
+    b := run(ops, true)
+    print("write-through: {a[0]} misses, {a[1]} memory writes")
+    print("write-back:    {b[0]} misses, {b[1]} memory writes, {b[2]} dirty lines to flush")
+    print("write-back total after flush: {b[1] + b[2]}")
+
+@test fn repeated_writes()
+    assert_eq(run(["W5", "W5", "W5"], true), [1, 0, 1])

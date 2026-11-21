@@ -1,0 +1,47 @@
+## Wait-for cycle: deadlock detection on a graph where each process waits for others; a
+## three-colour depth-first search finds a cycle, the highest-numbered process in it is aborted.
+
+fn visit(u int, adj List[List[int]], alive List[bool], mut colour List[int], mut path List[int]) List[int]
+    colour[u] = 1
+    path.push(u)
+    for v in adj[u]
+        if alive[v]
+            if colour[v] == 1
+                at := path.index_of(v) else 0
+                return path.slice(at)
+            if colour[v] == 0
+                found := visit(v, adj, alive, mut colour, mut path)
+                if found.len() > 0
+                    return found
+    colour[u] = 2
+    _ := path.pop()
+    List[int]()
+
+fn main()
+    adj := [[1], [2, 4], [0], [4], [5], [3], [5]]
+    n := adj.len()
+    mut alive := List[bool]()
+    for i in 0..n
+        alive.push(true)
+    while true
+        mut colour := List[int]()
+        for i in 0..n
+            colour.push(0)
+        mut path := List[int]()
+        mut cycle := List[int]()
+        for s in 0..n
+            if alive[s] and colour[s] == 0 and cycle.len() == 0
+                cycle = visit(s, adj, alive, mut colour, mut path)
+        if cycle.len() == 0
+            break
+        shown := cycle.map(|p| "P{p}").join(" -> ")
+        victim := cycle.max() else 0
+        print("deadlock: {shown} -> P{cycle[0]}; abort P{victim}")
+        alive[victim] = false
+    left := [i for i in 0..n if alive[i]].map(|p| "P{p}").join(" ")
+    print("no deadlock left among {left}")
+
+@test fn two_cycle()
+    mut colour := [0, 0]
+    mut path := List[int]()
+    assert_eq(visit(0, [[1], [0]], [true, true], mut colour, mut path), [0, 1])

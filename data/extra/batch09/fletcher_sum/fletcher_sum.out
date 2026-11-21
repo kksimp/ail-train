@@ -1,0 +1,5 @@
+abcde     fletcher c8f0, plain sum ef
+abcdef    fletcher 2057, plain sum 55
+abcdefgh  fletcher 0627, plain sum 24
+bacde     fletcher c9f0, plain sum ef
+hello + check bytes bc 2d: sums 0 and 0

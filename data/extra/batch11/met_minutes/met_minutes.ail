@@ -1,0 +1,28 @@
+## Exercise energy: an activity of intensity MET burns MET * 3.5 * kg / 200 kcal a minute; gives
+## each activity's burn for 30 minutes and the minutes needed to burn 300 kcal, for two people.
+
+struct Activity
+    name str
+    met float
+
+fn per_minute(a Activity, kg float) float
+    a.met * 3.5 * kg / 200.0
+
+fn main()
+    acts := [Activity(name: "yoga", met: 2.5), Activity(name: "brisk walk", met: 4.3), Activity(name: "swimming", met: 6.0), Activity(name: "cycling", met: 8.0), Activity(name: "running", met: 9.8)]
+    for kg in [60.0, 80.0]
+        print("at {kg} kg:")
+        for a in acts
+            half_hour := per_minute(a, kg) * 30.0
+            need := (300.0 / per_minute(a, kg)).ceil().to_int()
+            print("  {a.name:<10} {half_hour:>6.2} kcal in 30 min, {need:>3} min for 300 kcal")
+    week := [("cycling", 45), ("yoga", 60), ("running", 30), ("swimming", 40)]
+    mut total := 0.0
+    for wk in week
+        name, minutes := wk
+        act := acts.find(|x| x.name == name) else acts[0]
+        total += per_minute(act, 75.0) * minutes.to_float()
+    print("a week for a 75 kg person: {total:.2} kcal")
+
+@test fn one_met()
+    assert_eq(per_minute(Activity(name: "rest", met: 1.0), 200.0), 3.5)

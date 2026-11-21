@@ -1,0 +1,58 @@
+## Two-dimensional parity: each 7-bit character gets an even-parity bit and a parity row is added
+## under the block; one flipped bit breaks exactly one row and one column, which locates and fixes it.
+
+fn bits_of(c char) List[int]
+    n := c.code()
+    mut out := List[int]()
+    for k in 0..7
+        out.push((n >> (6 - k)) & 1)
+    out
+
+fn with_parity(rows List[List[int]]) List[List[int]]
+    mut out := List[List[int]]()
+    for r in rows
+        mut row := r
+        row.push(r.sum() % 2)
+        out.push(row)
+    mut last := List[int]()
+    for c in 0..8
+        mut s := 0
+        for r in out
+            s += r[c]
+        last.push(s % 2)
+    out.push(last)
+    out
+
+fn show(grid List[List[int]])
+    for r in grid
+        print(r.join(""))
+
+fn main()
+    word := "PARITY"
+    mut grid := with_parity(word.chars().map(|c| bits_of(c)))
+    show(grid)
+    grid[2][4] = 1 - grid[2][4]
+    mut bad_row := -1
+    mut bad_col := -1
+    for r in 0..grid.len()
+        if grid[r].sum() % 2 != 0
+            bad_row = r
+    for c in 0..8
+        mut s := 0
+        for r in grid
+            s += r[c]
+        if s % 2 != 0
+            bad_col = c
+    print("after noise: row {bad_row} and column {bad_col} fail")
+    grid[bad_row][bad_col] = 1 - grid[bad_row][bad_col]
+    mut letters := List[char]()
+    for r in 0..word.len()
+        mut n := 0
+        for k in 0..7
+            n = n * 2 + grid[r][k]
+        letters.push(char.from_code(n) else '?')
+    fixed := letters.join("")
+    print("repaired text: {fixed}")
+
+@test fn a_bits()
+    assert_eq(bits_of('A'), [1, 0, 0, 0, 0, 0, 1])

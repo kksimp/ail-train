@@ -1,0 +1,35 @@
+## Elias gamma code: a positive number is written as its binary digits after (digit count - 1) zeros,
+## so a reader counts zeros to know how many bits follow; a list packs into one bit string and back.
+
+fn gamma(n int) str
+    bits := "{n:b}"
+    zeros := "0".repeat(bits.len() - 1)
+    "{zeros}{bits}"
+
+fn decode(stream str) List[int]
+    cs := stream.chars()
+    mut out := List[int]()
+    mut i := 0
+    while i < cs.len()
+        mut zeros := 0
+        while cs[i] == '0'
+            zeros += 1
+            i += 1
+        mut v := 0
+        for k in 0..zeros + 1
+            v = v * 2 + (cs[i + k].to_digit(10) else 0)
+        out.push(v)
+        i += zeros + 1
+    out
+
+fn main()
+    for n in [1, 2, 3, 4, 5, 9, 17, 100]
+        print("{n:>3} -> {gamma(n)}")
+    gaps := [3, 1, 7, 12, 2, 1, 1, 30]
+    stream := gaps.map(|g| gamma(g)).join("")
+    back := decode(stream).join(" ")
+    print("stream {stream}")
+    print("{stream.len()} bits for {gaps.len()} gaps, decoded {back}")
+
+@test fn one()
+    assert_eq(gamma(1), "1")

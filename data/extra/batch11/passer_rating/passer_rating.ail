@@ -1,0 +1,32 @@
+## Passer rating: four parts (completion rate, yards, touchdowns and interceptions per attempt),
+## each clamped to 0..2.375, are summed, divided by 6 and scaled by 100; 158.3 is perfect.
+
+struct Line
+    name str
+    att float
+    comp float
+    yards float
+    td float
+    ints float
+
+fn clamp(x float) float
+    if x < 0.0 then 0.0 elif x > 2.375 then 2.375 else x
+
+fn rating(l Line) float
+    a := clamp((l.comp / l.att - 0.3) * 5.0)
+    b := clamp((l.yards / l.att - 3.0) * 0.25)
+    c := clamp(l.td / l.att * 20.0)
+    d := clamp(2.375 - l.ints / l.att * 25.0)
+    (a + b + c + d) / 6.0 * 100.0
+
+fn main()
+    lines := [Line(name: "Hale", att: 520.0, comp: 350.0, yards: 4200.0, td: 32.0, ints: 9.0), Line(name: "Moreno", att: 480.0, comp: 290.0, yards: 3300.0, td: 18.0, ints: 14.0), Line(name: "Quist", att: 300.0, comp: 160.0, yards: 1900.0, td: 8.0, ints: 15.0), Line(name: "Perfect day", att: 20.0, comp: 18.0, yards: 300.0, td: 4.0, ints: 0.0)]
+    for l in lines
+        pct := l.comp / l.att * 100.0
+        print("{l.name:<11} {pct:>5.1}% complete, {l.yards / l.att:.3} yd/att: rating {rating(l):.1}")
+    best := lines.max(by: |x| (rating(x) * 10.0).to_int()) else lines[0]
+    print("best: {best.name}")
+
+@test fn caps()
+    assert_eq(clamp(3.0), 2.375)
+    assert_eq(clamp(-1.0), 0.0)

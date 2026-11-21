@@ -1,0 +1,10 @@
+PT45S                  45 seconds (0 h 0 min)
+PT1H30M              5400 seconds (1 h 30 min)
+P1DT2H30M           95400 seconds (26 h 30 min)
+P3W               1814400 seconds (504 h 0 min)
+P1M               2592000 seconds (720 h 0 min)
+PT1M                   60 seconds (0 h 1 min)
+P1Y2M10DT2H30M   37593000 seconds (10442 h 30 min)
+P               error: needs P and at least one part
+PT5X            error: unit X not allowed here
+P2H             error: unit H not allowed here

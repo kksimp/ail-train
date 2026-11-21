@@ -1,0 +1,13 @@
+wind 20.0 m/s (245.2 Pa):
+  shop sign    0.42 kN, base moment    1.27 kNm
+  road sign    1.32 kN, base moment    3.31 kNm
+  billboard    7.94 kN, base moment   39.72 kNm
+wind 30.0 m/s (551.7 Pa):
+  shop sign    0.95 kN, base moment    2.86 kNm
+  road sign    2.98 kN, base moment    7.45 kNm
+  billboard   17.88 kN, base moment   89.38 kNm
+wind 40.0 m/s (980.8 Pa):
+  shop sign    1.69 kN, base moment    5.08 kNm
+  road sign    5.30 kN, base moment   13.24 kNm
+  billboard   31.78 kN, base moment  158.89 kNm
+all three in a 40 m/s gust: 38.77 kN

@@ -1,0 +1,44 @@
+## Triangle centres: the centroid, circumcentre, incentre and orthocentre of a triangle from its
+## corners; the orthocentre, centroid and circumcentre lie on the Euler line with H = 3G - 2O.
+
+struct Pt
+    x float
+    y float
+
+fn dist(a Pt, b Pt) float
+    ((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y)).sqrt()
+
+fn circumcentre(a Pt, b Pt, c Pt) Pt
+    d := 2.0 * (a.x * (b.y - c.y) + b.x * (c.y - a.y) + c.x * (a.y - b.y))
+    a2 := a.x * a.x + a.y * a.y
+    b2 := b.x * b.x + b.y * b.y
+    c2 := c.x * c.x + c.y * c.y
+    Pt(x: (a2 * (b.y - c.y) + b2 * (c.y - a.y) + c2 * (a.y - b.y)) / d, y: (a2 * (c.x - b.x) + b2 * (a.x - c.x) + c2 * (b.x - a.x)) / d)
+
+fn show(p Pt) str
+    "({p.x:.3}, {p.y:.3})"
+
+fn main()
+    tris := [[Pt(x: 0.0, y: 0.0), Pt(x: 6.0, y: 0.0), Pt(x: 1.0, y: 4.0)], [Pt(x: 0.0, y: 0.0), Pt(x: 4.0, y: 0.0), Pt(x: 0.0, y: 3.0)], [Pt(x: -2.0, y: 1.0), Pt(x: 5.0, y: 2.0), Pt(x: 1.0, y: 7.0)]]
+    for t in tris
+        a := t[0]
+        b := t[1]
+        c := t[2]
+        g := Pt(x: (a.x + b.x + c.x) / 3.0, y: (a.y + b.y + c.y) / 3.0)
+        o := circumcentre(a, b, c)
+        h := Pt(x: 3.0 * g.x - 2.0 * o.x, y: 3.0 * g.y - 2.0 * o.y)
+        la := dist(b, c)
+        lb := dist(a, c)
+        lc := dist(a, b)
+        per := la + lb + lc
+        i := Pt(x: (la * a.x + lb * b.x + lc * c.x) / per, y: (la * a.y + lb * b.y + lc * c.y) / per)
+        print("triangle {show(a)} {show(b)} {show(c)}")
+        print("    centroid {show(g)}, circumcentre {show(o)} radius {dist(o, a):.3}")
+        print("    orthocentre {show(h)}, incentre {show(i)}")
+        ab := Pt(x: b.x - a.x, y: b.y - a.y)
+        ch := Pt(x: h.x - c.x, y: h.y - c.y)
+        print("    CH is perpendicular to AB: {(ab.x * ch.x + ab.y * ch.y).abs() < 0.000000001}")
+
+@test fn right_angle()
+    o := circumcentre(Pt(x: 0.0, y: 0.0), Pt(x: 4.0, y: 0.0), Pt(x: 0.0, y: 2.0))
+    assert_eq(o, Pt(x: 2.0, y: 1.0))

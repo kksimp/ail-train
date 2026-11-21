@@ -1,0 +1,5 @@
+old bulbs: n 8, mean 810.00, sd 12.65
+new bulbs: n 6, mean 868.50, sd 33.54
+rerun    : n 7, mean 811.57, sd 11.30
+old bulbs vs new bulbs: t = -4.061, df = 6.1 -> a real difference
+old bulbs vs rerun: t = -0.254, df = 13.0 -> no clear difference

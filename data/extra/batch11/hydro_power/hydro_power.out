@@ -1,0 +1,5 @@
+mill stream     0.5 m3/s x   4.0 m:     0.012 MW,     0.05 GWh a year,      14 homes
+hill scheme     2.0 m3/s x 120.0 m:     2.001 MW,     7.01 GWh a year,    2003 homes
+river dam     300.0 m3/s x  35.0 m:    90.644 MW,   357.32 GWh a year,  102091 homes
+gorge dam     900.0 m3/s x 150.0 m:  1218.402 MW,  5336.60 GWh a year, 1524743 homes
+all plants: 1311.1 MW

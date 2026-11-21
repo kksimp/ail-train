@@ -1,0 +1,6 @@
+abcabcabc   period 3: abc x 3; borders abcabc, abc
+abab        period 2: ab x 2; borders ab
+abcab       period 3: not a whole repeat; borders ab
+aaaaaa      period 1: a x 6; borders aaaaa, aaaa, aaa, aa, a
+drumdrumdr  period 4: not a whole repeat; borders drumdr, dr
+xyz         period 3: xyz x 1; borders none

@@ -1,0 +1,60 @@
+## Indentation lexer: like Python's tokenizer, a stack of indent widths turns deeper lines into INDENT
+## and shallower ones into one DEDENT per level popped; a dedent to an unknown width is an error.
+
+enum Tok
+    Indent
+    Dedent
+    Word(text str)
+    Newline
+
+fn show(t Tok) str
+    match t
+        Indent => "INDENT"
+        Dedent => "DEDENT"
+        Word(text) => text
+        Newline => "NL"
+
+fn lex(lines List[str]) List[Tok] ! str
+    mut stack := [0]
+    mut out := List[Tok]()
+    for i, line in lines.enumerate()
+        body := line.trim_start()
+        if body == ""
+            continue
+        indent := line.len() - body.len()
+        if indent > (stack.last() else 0)
+            stack.push(indent)
+            out.push(Tok.Indent)
+        else
+            while indent < (stack.last() else 0)
+                stack = stack.slice(0, stack.len() - 1)
+                out.push(Tok.Dedent)
+            if indent != (stack.last() else 0)
+                return "line {i + 1}: dedent to {indent} matches no outer level"
+        for w in body.split(" ")
+            out.push(Tok.Word(text: w))
+        out.push(Tok.Newline)
+    while stack.len() > 1
+        stack = stack.slice(0, stack.len() - 1)
+        out.push(Tok.Dedent)
+    out
+
+fn main()
+    good := ["if ready", "    start engine", "    if fast", "        boost", "", "    stop", "done"]
+    bad := ["loop", "    step", "  back"]
+    for prog in [good, bad]
+        if toks := lex(prog)
+            mut line := List[str]()
+            for t in toks
+                line.push(show(t))
+                if t == Tok.Newline
+                    print(line.join(" "))
+                    line.clear()
+            if not line.is_empty()
+                print(line.join(" "))
+        else err
+            print("error: {err}")
+
+@test fn flat()
+    toks := lex(["a", "b"]) else List[Tok]()
+    assert_eq(toks.len(), 4)

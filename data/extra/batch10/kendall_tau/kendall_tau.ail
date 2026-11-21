@@ -1,0 +1,36 @@
+## Kendall's tau: compares two judges' rankings by counting pairs of entries they order the same
+## way (concordant) or opposite ways (discordant); tau = (C - D) / (n(n-1)/2), from -1 to 1.
+
+struct Agreement
+    concordant int
+    discordant int
+
+fn Agreement.tau(self, n int) float
+    (self.concordant - self.discordant).to_float() / (n * (n - 1) / 2).to_float()
+
+fn compare(a List[int], b List[int]) Agreement
+    mut c := 0
+    mut d := 0
+    for i in 0..a.len()
+        for j in (i + 1)..a.len()
+            s := (a[i] - a[j]) * (b[i] - b[j])
+            if s > 0
+                c += 1
+            elif s < 0
+                d += 1
+    Agreement(concordant: c, discordant: d)
+
+fn main()
+    entries := ["scones", "tart", "trifle", "eclair", "flapjack", "brownie", "crumble", "muffin"]
+    judges := {"Ada": [1, 2, 3, 4, 5, 6, 7, 8], "Bo": [2, 1, 4, 3, 6, 5, 8, 7], "Cy": [8, 7, 6, 5, 4, 3, 2, 1], "Di": [3, 1, 6, 2, 8, 4, 7, 5]}
+    print("{entries.len()} entries, {entries.len() * (entries.len() - 1) / 2} pairs")
+    names := ["Ada", "Bo", "Cy", "Di"]
+    for i in 0..names.len()
+        for j in (i + 1)..names.len()
+            ag := compare(judges[names[i]], judges[names[j]])
+            t := ag.tau(entries.len())
+            print("{names[i]} vs {names[j]}: {ag.concordant:>2} agree, {ag.discordant:>2} disagree, tau {t:>7.4}")
+
+@test fn reverse()
+    ag := compare([1, 2, 3], [3, 2, 1])
+    assert_eq(ag.tau(3), -1.0)

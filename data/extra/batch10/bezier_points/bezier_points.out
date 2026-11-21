@@ -1,0 +1,9 @@
+t 0.0: (0.000, 0.000) matches Bernstein form: true
+t 0.2: (0.816, 1.544) matches Bernstein form: true
+t 0.4: (1.968, 2.512) matches Bernstein form: true
+t 0.6: (3.312, 2.808) matches Bernstein form: true
+t 0.8: (4.704, 2.336) matches Bernstein form: true
+t 1.0: (6.000, 1.000) matches Bernstein form: true
+length with   4 chords: 7.92093
+length with  16 chords: 8.01837
+length with 256 chords: 8.02482

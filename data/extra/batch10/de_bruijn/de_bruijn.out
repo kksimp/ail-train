@@ -1,0 +1,6 @@
+B(2, 3) length 8: 00010111, distinct windows 8
+B(2, 4) length 16: 0000100110101111, distinct windows 16
+B(3, 2) length 9: 001021122, distinct windows 9
+B(3, 3) length 27: 000100201101202102211121222, distinct windows 27
+B(4, 2) length 16: 0010203112132233, distinct windows 16
+a 3-digit keypad needs 1002 presses instead of 3000

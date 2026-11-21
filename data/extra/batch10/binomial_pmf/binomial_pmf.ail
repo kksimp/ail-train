@@ -1,0 +1,31 @@
+## Binomial distribution: the chance of exactly k successes in n tries, C(n, k) p^k (1 - p)^(n - k),
+## for a free-throw shooter; prints the table with bars, the mean np and the chance of at least 8.
+
+fn binom(n int, k int) int
+    mut r := 1
+    for i in 0..k
+        r = r * (n - i) / (i + 1)
+    r
+
+fn pmf(n int, k int, p float) float
+    binom(n, k).to_float() * p.pow(k.to_float()) * (1.0 - p).pow((n - k).to_float())
+
+fn main()
+    n := 10
+    p := 0.7
+    mut mean := 0.0
+    mut at_least_8 := 0.0
+    mut total := 0.0
+    for k in 0..=n
+        q := pmf(n, k, p)
+        total += q
+        mean += k.to_float() * q
+        if k >= 8
+            at_least_8 += q
+        bar := "#".repeat((q * 100.0).round().to_int())
+        sep := if bar.is_empty() then "" else " "
+        print("{k:>2} made: {q:.4}{sep}{bar}")
+    print("total {total:.6}, mean {mean:.4} (np = {n.to_float() * p:.4}), at least 8: {at_least_8:.4}")
+
+@test fn coin()
+    assert_eq(pmf(2, 1, 0.5), 0.5)

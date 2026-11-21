@@ -1,0 +1,65 @@
+## LFU cache: a three-slot cache that evicts the key used least often, breaking ties by the
+## oldest last use; each entry keeps its value, a use count and the tick of its last use.
+
+struct Entry
+    value int
+    uses int
+    last int
+
+struct Lfu
+    cap int
+    items Map[str, Entry]
+    tick int
+    hits int
+    misses int
+
+fn Lfu.get(mut self, key str) int?
+    self.tick += 1
+    if self.items.contains(key)
+        self.items[key].uses += 1
+        self.items[key].last = self.tick
+        self.hits += 1
+        return self.items[key].value
+    self.misses += 1
+    none
+
+fn Lfu.put(mut self, key str, value int) str
+    self.tick += 1
+    if self.items.contains(key)
+        self.items[key].value = value
+        self.items[key].uses += 1
+        self.items[key].last = self.tick
+        return ""
+    mut note := ""
+    if self.items.len() == self.cap
+        mut victim := ""
+        mut best := Entry(value: 0, uses: 1000000, last: 0)
+        for k, e in self.items
+            if e.uses < best.uses or (e.uses == best.uses and e.last < best.last)
+                victim = k
+                best = e
+        self.items.remove(victim)
+        note = " (evicts {victim}, used {best.uses}x)"
+    self.items[key] = Entry(value: value, uses: 1, last: self.tick)
+    note
+
+fn main()
+    mut c := Lfu(cap: 3, items: Map[str, Entry](), tick: 0, hits: 0, misses: 0)
+    ops := ["put a 1", "put b 2", "get a", "put c 3", "get a", "get b", "put d 4", "get c", "get d", "put e 5", "get b", "get a"]
+    for op in ops
+        parts := op.split(" ")
+        if parts[0] == "put"
+            v := parts[2].to_int() else 0
+            note := c.put(parts[1], v)
+            print("{op}{note}")
+        else
+            got := c.get(parts[1])
+            shown := if got == none then "miss" else "hit"
+            print("{op}: {shown}")
+    keys := c.items.keys().sorted().join(" ")
+    print("hits {c.hits}, misses {c.misses}, holding {keys}")
+
+@test fn evicts_rare()
+    mut c := Lfu(cap: 1, items: Map[str, Entry](), tick: 0, hits: 0, misses: 0)
+    _ := c.put("x", 1)
+    assert_eq(c.put("y", 2), " (evicts x, used 1x)")

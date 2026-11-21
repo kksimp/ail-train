@@ -1,0 +1,22 @@
+## PWM motor drive: switching 12 V on for a fraction of each 50 us cycle averages duty * 12 V; the
+## motor turns at Kv rpm per volt after the I * R drop in its winding, and the 8-bit register holds duty * 255.
+
+fn register(duty int) int
+    duty * 255 / 100
+
+fn main()
+    supply := 12.0
+    kv := 850.0
+    winding_drop := 1.5 * 0.8
+    period_ns := 50000
+    for duty in [0, 10, 25, 50, 75, 100]
+        avg := supply * duty.to_float() / 100.0
+        on_ns := period_ns * duty / 100
+        left := avg - winding_drop
+        rpm := if left > 0.0 then (kv * left).to_int() else 0
+        print("duty {duty:>3}%: register {register(duty):>3}, on {on_ns:>5} ns, average {avg:>5.2} V, {rpm:>5} rpm")
+    print("the motor starts turning above {winding_drop / supply * 100.0:.1}% duty")
+
+@test fn half_register()
+    assert_eq(register(50), 127)
+    assert_eq(register(100), 255)

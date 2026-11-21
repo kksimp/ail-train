@@ -1,0 +1,48 @@
+## Robin Hood hashing: linear probing where an arriving key takes the slot of any resident that
+## sits closer to its home, evening out probe lengths; compared with plain linear probing.
+
+fn home(s str) int
+    mut h := 0
+    for c in s.chars()
+        h = (h * 37 + c.code()) % 10007
+    h % 13
+
+fn place(keys List[str], robin bool) List[str]
+    mut slots := List[str]()
+    for i in 0..13
+        slots.push("")
+    for key in keys
+        mut k := key
+        mut pos := home(k)
+        mut dist := 0
+        while slots[pos] != ""
+            other := slots[pos]
+            od := (pos - home(other) + 13) % 13
+            if robin and od < dist
+                slots[pos] = k
+                k = other
+                dist = od
+            pos = (pos + 1) % 13
+            dist += 1
+        slots[pos] = k
+    slots
+
+fn dists(slots List[str]) List[int]
+    mut out := List[int]()
+    for i in 0..13
+        if slots[i] != ""
+            out.push((i - home(slots[i]) + 13) % 13)
+    out
+
+fn main()
+    keys := ["oak", "elm", "ash", "fir", "yew", "box", "bay", "fig", "lime", "pine"]
+    for k in keys
+        print("{k:<5} home {home(k):>2}")
+    for robin in [false, true]
+        d := dists(place(keys, robin))
+        name := if robin then "robin hood" else "linear"
+        longest := d.max() else 0
+        print("{name:<10}: probe lengths {d}, longest {longest}, total {d.sum()}")
+
+@test fn in_table()
+    assert(home("anything") < 13)

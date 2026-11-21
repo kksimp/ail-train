@@ -1,0 +1,21 @@
+## Wet and dry bulb: saturation vapour pressure is es(T) = 6.112 exp(17.67 T / (T + 243.5)) hPa;
+## the air's vapour is es(wet) - 0.00066 * 1013 * (dry - wet), and relative humidity is that over es(dry).
+
+fn sat(t float) float
+    6.112 * (17.67 * t / (t + 243.5)).exp()
+
+fn humidity(dry float, wet float) float
+    vapour := sat(wet) - 0.00066 * 1013.0 * (dry - wet)
+    vapour / sat(dry) * 100.0
+
+fn main()
+    readings := [("greenhouse", 28.0, 25.5), ("office", 22.0, 15.0), ("desert noon", 38.0, 19.0), ("cellar", 12.0, 11.5), ("sauna", 80.0, 40.0)]
+    for rd in readings
+        place, dry, wet := rd
+        rh := humidity(dry, wet)
+        feel := if rh < 30.0 then "dry" elif rh < 60.0 then "comfortable" else "humid"
+        print("{place:<12} dry {dry:>4.1} wet {wet:>4.1}: {rh:>5.1}% RH, {feel}")
+    print("saturation at 20 C: {sat(20.0):.2} hPa")
+
+@test fn same_bulbs_saturated()
+    assert((humidity(20.0, 20.0) - 100.0).abs() < 0.000001)

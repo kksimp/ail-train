@@ -1,0 +1,8 @@
+        97: passes bases [2, 3, 5, 7], says prime, trial division true
+       561: passes bases [], says composite, trial division false
+      2047: passes bases [2], says composite, trial division false
+      7919: passes bases [2, 3, 5, 7], says prime, trial division true
+   1373653: passes bases [2, 3], says composite, trial division false
+  25326001: passes bases [2, 3, 5], says composite, trial division false
+1000000007: passes bases [2, 3, 5, 7], says prime, trial division true
+2147483647: passes bases [2, 3, 5, 7], says prime, trial division true

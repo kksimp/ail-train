@@ -1,0 +1,5 @@
+572 -> check digit 4, full number 5724
+12345 -> check digit 9, full number 123459
+9876 -> check digit 9, full number 98769
+202611 -> check digit 8, full number 2026118
+314159266: 7 of 7 neighbour swaps and 81 of 81 typos caught

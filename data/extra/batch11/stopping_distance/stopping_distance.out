@@ -1,0 +1,6 @@
+road    30 km/h   50 km/h   80 km/h  110 km/h
+Dry       16.9     33.1     64.8    105.3
+Wet       19.6     40.5     83.7    141.0
+Snow      30.2     70.0    159.2    283.8
+Ice       47.9    119.2    285.0    521.7
+at 50 km/h a wet road adds 7.4 m

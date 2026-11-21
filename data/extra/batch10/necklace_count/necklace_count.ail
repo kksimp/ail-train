@@ -1,0 +1,49 @@
+## Necklace count: by Burnside's lemma the number of necklaces of n beads in k colours, up to
+## rotation, is (1/n) sum over d | n of phi(d) k^(n/d); a brute force over all strings agrees.
+
+fn gcd(a int, b int) int
+    if b == 0 then a else gcd(b, a % b)
+
+fn phi(n int) int
+    [i for i in 1..=n if gcd(i, n) == 1].len()
+
+fn ipow(b int, e int) int
+    mut r := 1
+    for _ in 0..e
+        r *= b
+    r
+
+fn burnside(n int, k int) int
+    mut total := 0
+    for d in 1..=n
+        if n % d == 0
+            total += phi(d) * ipow(k, n / d)
+    total / n
+
+fn brute(n int, k int) int
+    mut seen := Set[int]()
+    for code in 0..ipow(k, n)
+        mut digits := List[int]()
+        mut x := code
+        for i in 0..n
+            digits.push(x % k)
+            x = x / k
+        mut best := -1
+        for r in 0..n
+            mut v := 0
+            for i in 0..n
+                v = v * k + digits[(i + r) % n]
+            if best < 0 or v < best
+                best = v
+        seen.add(best)
+    seen.len()
+
+fn main()
+    for k in [2, 3]
+        for n in 1..=8
+            if k == 3 and n > 6
+                continue
+            print("{n} beads, {k} colours: Burnside {burnside(n, k):>4}, brute force {brute(n, k):>4}")
+
+@test fn six_two()
+    assert_eq(burnside(6, 2), 14)

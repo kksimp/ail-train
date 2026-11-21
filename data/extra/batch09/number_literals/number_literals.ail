@@ -1,0 +1,49 @@
+## Number literals: a small lexer reads 0x, 0o and 0b prefixes, underscores between digits and an
+## optional minus sign, giving each literal's value, or the reason it is malformed.
+
+fn digit_value(c char) int
+    if c.is_digit()
+        v := c.to_digit(10) else 0
+        return v
+    if c.is_alpha()
+        lower := "{c}".to_lower().chars()[0]
+        return lower.code() - 87
+    99
+
+fn read_literal(text str) int ! str
+    mut cs := text.chars()
+    mut sign := 1
+    if cs.len() > 0 and cs[0] == '-'
+        sign = -1
+        cs = cs.slice(1)
+    mut base := 10
+    if cs.len() >= 2 and cs[0] == '0' and "xob".contains(cs[1])
+        base = if cs[1] == 'x' then 16 elif cs[1] == 'o' then 8 else 2
+        cs = cs.slice(2)
+    if cs.is_empty()
+        return "no digits"
+    if cs[0] == '_' or cs[cs.len() - 1] == '_'
+        return "underscore at an end"
+    mut value := 0
+    mut prev := ' '
+    for c in cs
+        if c == '_'
+            if prev == '_'
+                return "double underscore"
+        else
+            d := digit_value(c)
+            if d >= base
+                return "'{c}' is not a base {base} digit"
+            value = value * base + d
+        prev = c
+    sign * value
+
+fn main()
+    for lit in ["42", "-17", "0x1F", "0xff_ff", "0o755", "0b1010_0101", "1_000_000", "0x", "12ab", "1__0", "0b102", "_5"]
+        if v := read_literal(lit)
+            print("{lit:<12} = {v}")
+        else err
+            print("{lit:<12} error: {err}")
+
+@test fn hex()
+    assert_eq(read_literal("0x10") else 0, 16)

@@ -1,0 +1,9 @@
+within 1 sd: 68.27%
+within 2 sd: 95.45%
+within 3 sd: 99.73%
+P(Z < -1.645) = 0.0500
+P(Z <  0.000) = 0.5000
+P(Z <  1.282) = 0.9001
+P(Z <  1.960) = 0.9750
+P(Z <  2.576) = 0.9950
+heights mean 170 cm, sd 7.5: between 160 and 185 cm 88.6%

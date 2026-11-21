@@ -1,0 +1,12 @@
+triangle (0.000, 0.000) (6.000, 0.000) (1.000, 4.000)
+    centroid (2.333, 1.333), circumcentre (3.000, 1.375) radius 3.300
+    orthocentre (1.000, 1.250), incentre (1.860, 1.452)
+    CH is perpendicular to AB: true
+triangle (0.000, 0.000) (4.000, 0.000) (0.000, 3.000)
+    centroid (1.333, 1.000), circumcentre (2.000, 1.500) radius 2.500
+    orthocentre (0.000, 0.000), incentre (1.000, 1.000)
+    CH is perpendicular to AB: true
+triangle (-2.000, 1.000) (5.000, 2.000) (1.000, 7.000)
+    centroid (1.333, 3.333), circumcentre (1.269, 3.115) radius 3.894
+    orthocentre (1.462, 3.769), incentre (1.378, 3.435)
+    CH is perpendicular to AB: true

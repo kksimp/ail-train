@@ -1,0 +1,35 @@
+## Kahan summation: adding many small floats to a running total loses their low bits; carrying a
+## compensation term recovers them, so ten million tenths sum to 1000000 almost exactly.
+
+struct Kahan
+    total float
+    carry float
+
+fn Kahan.add(mut self, x float)
+    y := x - self.carry
+    t := self.total + y
+    self.carry = (t - self.total) - y
+    self.total = t
+
+fn main()
+    for n in [10, 1000, 100000, 10000000]
+        mut naive := 0.0
+        mut k := Kahan(total: 0.0, carry: 0.0)
+        for _ in 0..n
+            naive += 0.1
+            k.add(0.1)
+        target := n.to_float() / 10.0
+        print("{n:>8} tenths: naive {naive:.10} (off {(naive - target).abs():.10}), Kahan {k.total:.10} (off {(k.total - target).abs():.10})")
+    mut big := 1.0
+    mut kb := Kahan(total: 1.0, carry: 0.0)
+    for i in 0..1000
+        big += 0.0000000000000001
+
+        kb.add(0.0000000000000001)
+    print("1 + a thousand 1e-16: naive {big:.16}, Kahan {kb.total:.16}")
+
+@test fn exact_halves()
+    mut k := Kahan(total: 0.0, carry: 0.0)
+    k.add(0.5)
+    k.add(0.25)
+    assert_eq(k.total, 0.75)

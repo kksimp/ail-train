@@ -1,0 +1,46 @@
+## English plurals: irregular nouns come from a table, then suffix rules apply in order: s/x/z/ch/sh
+## take -es, consonant + y becomes -ies, some f/fe words take -ves, consonant + o takes -oes, else -s.
+
+fn is_vowel(c char) bool
+    "aeiou".contains(c)
+
+fn plural(word str) str
+    irregular := {"child": "children", "mouse": "mice", "person": "people", "foot": "feet", "sheep": "sheep", "tooth": "teeth"}
+    if irregular.contains(word)
+        return irregular[word]
+    cs := word.chars()
+    n := cs.len()
+    last := cs[n - 1]
+    before := cs[n - 2]
+    if last == 's' or last == 'x' or last == 'z' or word.ends_with("ch") or word.ends_with("sh")
+        return "{word}es"
+    if last == 'y' and not is_vowel(before)
+        return "{word.slice(0, n - 1)}ies"
+    ves := ["knife", "leaf", "wolf", "life", "half", "shelf"]
+    if ves.contains(word)
+        stem := if last == 'e' then word.slice(0, n - 2) else word.slice(0, n - 1)
+        return "{stem}ves"
+    hero := ["potato", "hero", "tomato", "echo"]
+    if hero.contains(word)
+        return "{word}es"
+    "{word}s"
+
+fn count_of(n int, word str) str
+    shown := if n == 1 then word else plural(word)
+    "{n} {shown}"
+
+fn main()
+    words := ["box", "church", "baby", "day", "knife", "roof", "potato", "photo", "child", "sheep", "bus", "wolf"]
+    mut parts := List[str]()
+    for w in words
+        parts.push("{w} -> {plural(w)}")
+    for row in parts.chunks(4)
+        print(row.join(", "))
+    a := count_of(1, "mouse")
+    b := count_of(3, "mouse")
+    c := count_of(2, "tooth")
+    d := count_of(5, "fox")
+    print("{a}, {b}, {c}, {d}")
+
+@test fn rules()
+    assert_eq(plural("city"), "cities")

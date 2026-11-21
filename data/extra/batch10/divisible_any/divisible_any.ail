@@ -1,0 +1,37 @@
+## Inclusion-exclusion: how many numbers up to N are divisible by at least one of a few divisors,
+## adding and subtracting N / lcm over every non-empty subset (chosen by bit mask), against a count.
+
+fn gcd(a int, b int) int
+    if b == 0 then a else gcd(b, a % b)
+
+fn by_subsets(n int, ds List[int]) int
+    mut total := 0
+    for mask in 1..(1 << ds.len())
+        mut l := 1
+        mut bits := 0
+        for i in 0..ds.len()
+            if ((mask >> i) & 1) == 1
+                l = l / gcd(l, ds[i]) * ds[i]
+                bits += 1
+        if bits % 2 == 1
+            total += n / l
+        else
+            total -= n / l
+    total
+
+fn direct(n int, ds List[int]) int
+    mut c := 0
+    for x in 1..=n
+        if ds.any(|d| x % d == 0)
+            c += 1
+    c
+
+fn main()
+    cases := [[3, 5], [3, 5, 7], [2, 3, 5, 7], [4, 6, 10], [6, 10, 15]]
+    for n in [100, 1000]
+        for ds in cases
+            a := by_subsets(n, ds)
+            print("N = {n:>4}, divisors {ds}: {a} by inclusion-exclusion, {direct(n, ds)} counted, {n - a} left")
+
+@test fn fizzbuzz()
+    assert_eq(by_subsets(15, [3, 5]), 7)

@@ -1,0 +1,40 @@
+## Ubbi Dubbi: the children's language game puts "ub" in front of every group of vowels in a word,
+## except a silent e at the end; removing "ub" before each vowel group turns it back.
+
+fn vowel(c char) bool
+    "aeiou".contains(c)
+
+fn encode_word(w str) str
+    cs := w.chars()
+    n := cs.len()
+    mut out := List[str]()
+    mut prev := false
+    for i, c in cs.enumerate()
+        v := vowel(c)
+        silent := c == 'e' and i == n - 1 and n > 2 and not prev
+        if v and not prev and not silent
+            out.push("ub")
+        out.push("{c}")
+        prev = v
+    out.join("")
+
+fn decode_word(w str) str
+    cs := w.chars()
+    mut out := List[char]()
+    mut i := 0
+    while i < cs.len()
+        if i + 2 < cs.len() and cs[i] == 'u' and cs[i + 1] == 'b' and vowel(cs[i + 2])
+            i += 2
+        else
+            out.push(cs[i])
+            i += 1
+    out.join("")
+
+fn main()
+    for phrase in ["hello there", "ubbi dubbi", "make a cake", "queen of the sea", "round the moon"]
+        coded := phrase.split(" ").map(|w| encode_word(w)).join(" ")
+        back := coded.split(" ").map(|w| decode_word(w)).join(" ")
+        print("{phrase:<17} -> {coded:<28} -> {back}")
+
+@test fn hello()
+    assert_eq(encode_word("hello"), "hubellubo")

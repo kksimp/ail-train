@@ -1,0 +1,26 @@
+## Thermal expansion: a member of length L grows by alpha * L * dT; members laid at 15 C need a gap
+## for the hottest day (45 C) and shrink on the coldest (-20 C), shown in millimetres.
+
+struct Member
+    name str
+    metres float
+    alpha float
+
+fn Member.change_mm(self, dt float) float
+    self.alpha * self.metres * dt * 1000.0
+
+fn main()
+    laid := 15.0
+    members := [Member(name: "steel rail", metres: 18.0, alpha: 0.000012), Member(name: "bridge deck", metres: 120.0, alpha: 0.00001), Member(name: "alu window", metres: 2.4, alpha: 0.000023), Member(name: "copper pipe", metres: 30.0, alpha: 0.000017)]
+    for m in members
+        grow := m.change_mm(45.0 - laid)
+        shrink := m.change_mm(laid - (0.0 - 20.0))
+        swing := grow + shrink
+        print("{m.name:<12} {m.metres:>6.1} m: +{grow:.2} mm hot, -{shrink:.2} mm cold, swing {swing:.2} mm")
+    widest := members.max(by: |m| (m.metres * m.alpha * 1000000.0).to_int())
+    if w := widest
+        print("largest movement: {w.name}")
+
+@test fn one_metre_steel()
+    m := Member(name: "t", metres: 1.0, alpha: 0.000012)
+    assert((m.change_mm(100.0) - 1.2).abs() < 0.000001)

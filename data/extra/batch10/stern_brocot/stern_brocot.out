@@ -1,0 +1,6 @@
+1/1: (root) (0 steps), decodes to 1/1
+3/7: LLRR (4 steps), decodes to 3/7
+5/8: LRLR (4 steps), decodes to 5/8
+22/7: RRRLLLLLL (9 steps), decodes to 22/7
+355/113: RRRLLLLLLLRRRRRRRRRRRRRRR (25 steps), decodes to 355/113
+13/21: LRLRLR (6 steps), decodes to 13/21

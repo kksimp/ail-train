@@ -1,0 +1,25 @@
+## Market concentration: the Herfindahl-Hirschman index sums the squares of market shares in
+## percent; under 1500 is unconcentrated, over 2500 highly concentrated, and a merger adds 2 * s1 * s2.
+
+fn hhi(shares List[int]) int
+    shares.fold(0, |acc, s| acc + s * s)
+
+fn label(h int) str
+    if h < 1500 then "unconcentrated" elif h <= 2500 then "moderately concentrated" else "highly concentrated"
+
+fn main()
+    mut markets := Map[str, List[int]]()
+    markets["coffee shops"] = [12, 10, 9, 8, 8, 7, 6, 40]
+    markets["phone networks"] = [35, 30, 20, 15]
+    markets["search"] = [88, 6, 4, 2]
+    markets["bakeries"] = [5, 5, 4, 4, 3, 3, 76]
+    for name, shares in markets
+        h := hhi(shares)
+        print("{name:<15} HHI {h:>5}: {label(h)}")
+    phones := markets["phone networks"]
+    merged := [phones[0] + phones[2], phones[1], phones[3]]
+    after := hhi(merged)
+    print("merging networks 1 and 3: HHI {hhi(phones)} -> {after} (+{2 * phones[0] * phones[2]})")
+
+@test fn monopoly()
+    assert_eq(hhi([100]), 10000)

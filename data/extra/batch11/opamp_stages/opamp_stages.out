@@ -1,0 +1,4 @@
+inverting x10   gain -10.00: -1.00 -5.00 -12.00
+non-inverting   gain   5.70: 0.57 2.85 11.40
+follower        gain   1.00: 0.10 0.50 2.00
+inverting /2.2  gain  -0.45: -0.05 -0.23 -0.91

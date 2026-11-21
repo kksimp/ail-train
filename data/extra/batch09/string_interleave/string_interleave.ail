@@ -1,0 +1,48 @@
+## Interleaving check: decides by a table of prefixes whether a merged radio log keeps the letters of
+## two senders each in order, and recovers which sender every letter came from.
+
+fn interleave(a str, b str, c str) str
+    xa := a.chars()
+    xb := b.chars()
+    xc := c.chars()
+    la := xa.len()
+    lb := xb.len()
+    if la + lb != xc.len()
+        return "no (lengths differ)"
+    mut ok := List[List[bool]]()
+    for i in 0..la + 1
+        mut row := List[bool]()
+        for j in 0..lb + 1
+            row.push(false)
+        ok.push(row)
+    ok[0][0] = true
+    for i in 0..la + 1
+        for j in 0..lb + 1
+            if i > 0 and ok[i - 1][j] and xa[i - 1] == xc[i + j - 1]
+                ok[i][j] = true
+            if j > 0 and ok[i][j - 1] and xb[j - 1] == xc[i + j - 1]
+                ok[i][j] = true
+    if not ok[la][lb]
+        return "no"
+    mut marks := List[str]()
+    mut i := la
+    mut j := lb
+    while i + j > 0
+        if i > 0 and ok[i - 1][j] and xa[i - 1] == xc[i + j - 1]
+            marks.push("1")
+            i -= 1
+        else
+            marks.push("2")
+            j -= 1
+    marks.reverse()
+    pattern := marks.join("")
+    "yes {pattern}"
+
+fn main()
+    cases := [("abc", "def", "adbecf"), ("aabcc", "dbbca", "aadbbcbcac"), ("aabcc", "dbbca", "aadbbbaccc"), ("cat", "dog", "cdaotg"), ("hi", "yo", "hiyox")]
+    for t in cases
+        a, b, c := t
+        print("{a} + {b} -> {c}: {interleave(a, b, c)}")
+
+@test fn simple()
+    assert_eq(interleave("ab", "c", "acb"), "yes 121")

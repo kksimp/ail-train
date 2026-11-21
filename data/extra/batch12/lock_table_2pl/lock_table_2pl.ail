@@ -1,0 +1,48 @@
+## Lock table: a two-phase locking manager grants shared locks together and exclusive locks
+## alone; a conflicting request waits in a queue, and a commit releases locks and wakes waiters.
+
+struct Req
+    tx int
+    mode str
+    item str
+
+fn compatible(held List[Req], r Req) bool
+    for h in held
+        if h.item == r.item and h.tx != r.tx and (h.mode == "X" or r.mode == "X")
+            return false
+    true
+
+fn main()
+    script := [(1, "S", "acct"), (2, "S", "acct"), (3, "X", "acct"), (2, "X", "loan"), (1, "X", "loan"), (2, "commit", ""), (1, "commit", ""), (3, "commit", "")]
+    mut held := List[Req]()
+    mut waiting := List[Req]()
+    for s in script
+        tx, mode, item := s
+        if mode == "commit"
+            held = held.filter(|h| h.tx != tx)
+            print("T{tx} commits, releases its locks")
+            mut blocked_now := List[Req]()
+            for w in waiting
+                if compatible(held, w)
+                    held.push(w)
+                    print("  T{w.tx} wakes, gets {w.mode} on {w.item}")
+                else
+                    blocked_now.push(w)
+            waiting = blocked_now
+            continue
+        r := Req(tx: tx, mode: mode, item: item)
+        if waiting.any(|w| w.tx == tx)
+            print("T{tx} is blocked, request queued behind its wait")
+            waiting.push(r)
+        elif compatible(held, r)
+            held.push(r)
+            print("T{tx} gets {mode} on {item}")
+        else
+            waiting.push(r)
+            print("T{tx} waits for {mode} on {item}")
+    print("locks held at the end: {held.len()}, waiting: {waiting.len()}")
+
+@test fn shared_ok()
+    held := [Req(tx: 1, mode: "S", item: "a")]
+    assert(compatible(held, Req(tx: 2, mode: "S", item: "a")))
+    assert(not compatible(held, Req(tx: 2, mode: "X", item: "a")))

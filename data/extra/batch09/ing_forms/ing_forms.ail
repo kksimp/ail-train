@@ -1,0 +1,31 @@
+## Present participles: ie becomes -ying, a silent final e is dropped (but not in ee, ye or oe), a
+## final c gains k, one short vowel before a last consonant doubles it, and everything else adds -ing.
+
+fn vowel(c char) bool
+    "aeiou".contains(c)
+
+fn ing(verb str) str
+    cs := verb.chars()
+    n := cs.len()
+    last := cs[n - 1]
+    if verb.ends_with("ie")
+        return "{verb.slice(0, n - 2)}ying"
+    if last == 'e' and n > 2 and not "eyo".contains(cs[n - 2])
+        return "{verb.slice(0, n - 1)}ing"
+    if last == 'c'
+        return "{verb}king"
+    vowels := cs.count(|c| vowel(c))
+    if n >= 3 and vowels == 1 and not vowel(last) and vowel(cs[n - 2]) and not vowel(cs[n - 3]) and not "wxy".contains(last)
+        return "{verb}{last}ing"
+    "{verb}ing"
+
+fn main()
+    verbs := ["make", "die", "lie", "see", "run", "swim", "panic", "play", "fix", "agree", "dye", "toe", "open", "sit", "write", "picnic"]
+    for row in verbs.chunks(4)
+        print(row.map(|v| "{v} -> {ing(v)}").join(", "))
+    doubled := verbs.filter(|v| ing(v).len() == v.len() + 4)
+    shown := doubled.join(" ")
+    print("verbs that grow by a letter: {shown}")
+
+@test fn dying()
+    assert_eq(ing("die"), "dying")

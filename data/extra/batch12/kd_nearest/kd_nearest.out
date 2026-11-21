@@ -1,0 +1,5 @@
+root splits at Brew (5, 4)
+(9, 2): nearest Espresso, squared distance 2, 4 of 9 visited
+(3, 3): nearest Bean, squared distance 1, 4 of 9 visited
+(5, 9): nearest Hops, squared distance 2, 5 of 9 visited
+(0, 0): nearest Bean, squared distance 13, 4 of 9 visited

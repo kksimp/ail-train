@@ -1,0 +1,29 @@
+## Bolt circle: n holes spaced evenly on a pitch circle of diameter D sit at (r cos a, r sin a)
+## for a = start + 360 k / n degrees; adjacent holes are a chord 2 r sin(180 / n degrees) apart.
+
+PI := 3.141592653589793
+
+fn tidy(v float) float
+    if v.abs() < 0.0005 then 0.0 else v
+
+fn holes(n int, dia float, start float) List[str]
+    r := dia / 2.0
+    mut out := List[str]()
+    for k in 0..n
+        a := (start + 360.0 * k.to_float() / n.to_float()) * PI / 180.0
+        x := tidy(r * a.cos())
+        y := tidy(r * a.sin())
+        out.push("({x:.3}, {y:.3})")
+    out
+
+fn main()
+    for job in [(4, 100.0, 45.0), (5, 120.0, 90.0)]
+        n, dia, start := job
+        half_angle := PI / n.to_float()
+        chord := dia * half_angle.sin()
+        print("{n} holes on {dia} mm from {start} deg, {chord:.3} mm apart:")
+        for h in holes(n, dia, start)
+            print("  {h}")
+
+@test fn count()
+    assert_eq(holes(8, 50.0, 0.0).len(), 8)

@@ -1,0 +1,5 @@
+home 7 kW      10-80%:  384.0 min, 10-100%:  642.0 min
+wallbox 11 kW  10-80%:  244.4 min, 10-100%:  408.6 min
+rapid 50 kW    10-80%:   53.8 min, 10-100%:   89.9 min
+ultra 150 kW   10-80%:   26.9 min, 10-100%:   44.9 min
+10-80% draws 49.78 kWh from the grid, 14.93 at 0.30 per kWh

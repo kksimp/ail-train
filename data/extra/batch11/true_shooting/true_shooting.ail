@@ -1,0 +1,30 @@
+## Shooting efficiency: true shooting TS = points / (2 (FGA + 0.44 FTA)) counts free throws and
+## threes fairly, effective FG% = (FG + 0.5 * 3PM) / FGA; ranks a team's scorers by TS.
+
+struct Shooter
+    name str
+    points int
+    fga int
+    fgm int
+    threes int
+    fta int
+
+fn Shooter.ts(self) float
+    self.points.to_float() / (2.0 * (self.fga.to_float() + 0.44 * self.fta.to_float()))
+
+fn Shooter.efg(self) float
+    (self.fgm.to_float() + 0.5 * self.threes.to_float()) / self.fga.to_float()
+
+fn main()
+    team := [Shooter(name: "Adeyemi", points: 612, fga: 470, fgm: 228, threes: 41, fta: 150), Shooter(name: "Brandt", points: 480, fga: 410, fgm: 170, threes: 92, fta: 60), Shooter(name: "Castro", points: 395, fga: 300, fgm: 150, threes: 10, fta: 140), Shooter(name: "Dube", points: 260, fga: 240, fgm: 95, threes: 48, fta: 30)]
+    ranked := team.sorted(by: |s| 0 - (s.ts() * 10000.0).to_int())
+    for s in ranked
+        fg := s.fgm.to_float() / s.fga.to_float() * 100.0
+        print("{s.name:<9} FG {fg:.1}%, eFG {s.efg() * 100.0:.1}%, TS {s.ts() * 100.0:.1}%")
+    pts := team.fold(0, |acc, s| acc + s.points)
+    print("team points {pts}")
+
+@test fn twos_only()
+    s := Shooter(name: "x", points: 20, fga: 10, fgm: 10, threes: 0, fta: 0)
+    assert_eq(s.ts(), 1.0)
+    assert_eq(s.efg(), 1.0)

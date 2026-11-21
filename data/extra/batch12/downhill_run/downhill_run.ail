@@ -1,0 +1,48 @@
+## Downhill run: the longest ski run on a height map that always moves to a strictly lower
+## neighbouring cell, by depth-first search with a memo table of the best run from each cell.
+
+fn run_from(r int, c int, h List[List[int]], mut memo List[List[int]]) int
+    if memo[r][c] > 0
+        return memo[r][c]
+    mut best := 1
+    for d in [[-1, 0], [1, 0], [0, -1], [0, 1]]
+        nr := r + d[0]
+        nc := c + d[1]
+        if nr >= 0 and nr < h.len() and nc >= 0 and nc < h[0].len() and h[nr][nc] < h[r][c]
+            best = best.max(1 + run_from(nr, nc, h, mut memo))
+    memo[r][c] = best
+    best
+
+fn main()
+    h := [[92, 88, 85, 70, 64], [95, 81, 79, 66, 60], [90, 84, 72, 58, 55], [86, 77, 74, 51, 49], [80, 76, 68, 62, 40]]
+    mut memo := List[List[int]]()
+    for r in 0..5
+        memo.push([0, 0, 0, 0, 0])
+    mut br := 0
+    mut bc := 0
+    for r in 0..5
+        for c in 0..5
+            if run_from(r, c, h, mut memo) > memo[br][bc]
+                br = r
+                bc = c
+    mut path := [h[br][bc]]
+    mut cr := br
+    mut cc := bc
+    while memo[cr][cc] > 1
+        mut moved := false
+        for d in [[-1, 0], [1, 0], [0, -1], [0, 1]]
+            nr := cr + d[0]
+            nc := cc + d[1]
+            if not moved and nr >= 0 and nr < 5 and nc >= 0 and nc < 5 and h[nr][nc] < h[cr][cc] and memo[nr][nc] == memo[cr][cc] - 1
+                cr = nr
+                cc = nc
+                moved = true
+        path.push(h[cr][cc])
+    print("longest run: {path.len()} cells from row {br + 1}, column {bc + 1}")
+    print("heights: {path}")
+    for row in memo
+        print(row.map(|x| "{x:>3}").join(""))
+
+@test fn flat()
+    mut memo := [[0, 0]]
+    assert_eq(run_from(0, 0, [[5, 5]], mut memo), 1)

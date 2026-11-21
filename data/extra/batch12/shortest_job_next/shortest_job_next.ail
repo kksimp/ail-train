@@ -1,0 +1,51 @@
+## Shortest job next: one CPU runs jobs by shortest burst first, either to completion (SJF) or
+## switching whenever a shorter remaining job arrives (SRTF); prints timelines and mean waits.
+
+struct Job
+    name str
+    arrive int
+    burst int
+
+fn schedule(jobs List[Job], preempt bool) List[str]
+    mut left := jobs.map(|j| j.burst)
+    mut done := List[int]()
+    for j in jobs
+        done.push(-1)
+    mut timeline := List[str]()
+    mut t := 0
+    mut running := -1
+    while done.contains(-1)
+        if running < 0 or preempt
+            mut pick := -1
+            for i in 0..jobs.len()
+                if jobs[i].arrive <= t and left[i] > 0
+                    if pick < 0 or left[i] < left[pick]
+                        pick = i
+            running = pick
+        if running < 0
+            timeline.push(".")
+        else
+            timeline.push(jobs[running].name)
+            left[running] -= 1
+            if left[running] == 0
+                done[running] = t + 1
+                running = -1
+        t += 1
+    mut wait := 0
+    for i in 0..jobs.len()
+        wait += done[i] - jobs[i].arrive - jobs[i].burst
+    [timeline.join(""), "{wait}"]
+
+fn main()
+    jobs := [Job(name: "A", arrive: 0, burst: 7), Job(name: "B", arrive: 2, burst: 4), Job(name: "C", arrive: 4, burst: 1), Job(name: "D", arrive: 5, burst: 4), Job(name: "E", arrive: 15, burst: 2)]
+    for preempt in [false, true]
+        r := schedule(jobs, preempt)
+        name := if preempt then "SRTF" else "SJF "
+        total := r[1].to_int() else 0
+        mean := total.to_float() / jobs.len().to_float()
+        print("{name} {r[0]}")
+        print("     total wait {total}, mean {mean:.1}")
+
+@test fn one_job()
+    r := schedule([Job(name: "X", arrive: 1, burst: 2)], false)
+    assert_eq(r[0], ".XX")

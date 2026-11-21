@@ -1,0 +1,10 @@
+N =  100, divisors [3, 5]: 47 by inclusion-exclusion, 47 counted, 53 left
+N =  100, divisors [3, 5, 7]: 55 by inclusion-exclusion, 55 counted, 45 left
+N =  100, divisors [2, 3, 5, 7]: 78 by inclusion-exclusion, 78 counted, 22 left
+N =  100, divisors [4, 6, 10]: 36 by inclusion-exclusion, 36 counted, 64 left
+N =  100, divisors [6, 10, 15]: 26 by inclusion-exclusion, 26 counted, 74 left
+N = 1000, divisors [3, 5]: 467 by inclusion-exclusion, 467 counted, 533 left
+N = 1000, divisors [3, 5, 7]: 543 by inclusion-exclusion, 543 counted, 457 left
+N = 1000, divisors [2, 3, 5, 7]: 772 by inclusion-exclusion, 772 counted, 228 left
+N = 1000, divisors [4, 6, 10]: 366 by inclusion-exclusion, 366 counted, 634 left
+N = 1000, divisors [6, 10, 15]: 266 by inclusion-exclusion, 266 counted, 734 left

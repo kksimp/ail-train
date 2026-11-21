@@ -1,0 +1,6 @@
+user  read    write   export  delete
+rae   yes     -       -       -
+sol   yes     yes     -       -
+tam   yes     -       yes     -
+uma   yes     yes     yes     yes
+admin can: comment delete export invite read read_logs write

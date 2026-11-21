@@ -1,0 +1,47 @@
+## Boyer-Moore-Horspool: compares the pattern right to left at each alignment and, on a miss, slides
+## by a table entry for the text letter under the pattern's last place (pattern length if absent).
+
+fn skip_table(pat str) Map[char, int]
+    p := pat.chars()
+    m := p.len()
+    mut shift := Map[char, int]()
+    for i in 0..m - 1
+        shift[p[i]] = m - 1 - i
+    shift
+
+fn search(text str, pat str)
+    t := text.chars()
+    p := pat.chars()
+    m := p.len()
+    shift := skip_table(pat)
+    mut pos := 0
+    mut hits := List[int]()
+    mut tries := 0
+    mut looks := 0
+    while pos + m <= t.len()
+        tries += 1
+        mut j := m - 1
+        while j >= 0
+            looks += 1
+            if t[pos + j] != p[j]
+                break
+            j -= 1
+        if j < 0
+            hits.push(pos)
+        pos += shift.get_or(t[pos + m - 1], m)
+    spots := if hits.is_empty() then "none" else hits.join(", ")
+    print("{pat:<9} hits {spots}; {tries} alignments, {looks} letter checks")
+
+fn main()
+    table := skip_table("example")
+    mut parts := List[str]()
+    for k in table.keys().sorted()
+        parts.push("{k}={table[k]}")
+    shown := parts.join(" ")
+    print("skips for 'example': {shown}, others 7")
+    text := "here is a simple example of an example text"
+    for pat in ["example", "simple", "ex", "plex"]
+        search(text, pat)
+
+@test fn skips()
+    assert_eq(skip_table("abcab").get_or('a', 5), 1)

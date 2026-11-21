@@ -1,0 +1,36 @@
+## Verhoeff check digit: digits are permuted by position and combined with the dihedral group D5
+## multiplication table, catching every single-digit error and every swap of neighbouring digits.
+
+fn mult() List[List[int]]
+    [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9], [1, 2, 3, 4, 0, 6, 7, 8, 9, 5], [2, 3, 4, 0, 1, 7, 8, 9, 5, 6], [3, 4, 0, 1, 2, 8, 9, 5, 6, 7], [4, 0, 1, 2, 3, 9, 5, 6, 7, 8], [5, 9, 8, 7, 6, 0, 4, 3, 2, 1], [6, 5, 9, 8, 7, 1, 0, 4, 3, 2], [7, 6, 5, 9, 8, 2, 1, 0, 4, 3], [8, 7, 6, 5, 9, 3, 2, 1, 0, 4], [9, 8, 7, 6, 5, 4, 3, 2, 1, 0]]
+
+fn perm() List[List[int]]
+    [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9], [1, 5, 7, 6, 2, 8, 3, 0, 9, 4], [5, 8, 0, 3, 7, 9, 6, 1, 4, 2], [8, 9, 1, 6, 0, 4, 3, 5, 2, 7], [9, 4, 5, 3, 1, 2, 8, 7, 0, 6], [4, 2, 8, 6, 5, 7, 3, 9, 0, 1], [2, 7, 9, 3, 8, 0, 6, 4, 1, 5], [7, 0, 4, 6, 9, 1, 3, 2, 5, 8]]
+
+fn run(digits str, offset int) int
+    d := mult()
+    p := perm()
+    ds := digits.chars().reversed()
+    mut c := 0
+    for i, ch in ds.enumerate()
+        n := ch.to_digit(10) else 0
+        c = d[c][p[(i + offset) % 8][n]]
+    c
+
+fn check_digit(digits str) int
+    inv := [0, 4, 3, 2, 1, 5, 6, 7, 8, 9]
+    inv[run(digits, 1)]
+
+fn valid(full str) bool
+    run(full, 0) == 0
+
+fn main()
+    for num in ["236", "12345", "142857", "8473643095483"]
+        print("{num} -> check digit {check_digit(num)}")
+    good := "2363"
+    print("{good} valid: {valid(good)}")
+    for bad in ["2263", "3263", "2633", "2336"]
+        print("{bad} valid: {valid(bad)}")
+
+@test fn classic()
+    assert_eq(check_digit("236"), 3)

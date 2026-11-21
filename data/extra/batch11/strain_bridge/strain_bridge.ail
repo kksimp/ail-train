@@ -1,0 +1,21 @@
+## Wheatstone bridge: at balance the unknown arm is Rx = R3 * R2 / R1; with a 350 ohm strain gauge
+## (gauge factor 2.0) the gauge changes by R * GF * strain and the bridge output shows it in mV.
+
+fn balance(r1 float, r2 float, r3 float) float
+    r3 * r2 / r1
+
+fn bridge_out(volts float, r float, rx float) float
+    volts * (rx / (r + rx) - 0.5)
+
+fn main()
+    print("balance with 1000 / 2200 / 470: Rx = {balance(1000.0, 2200.0, 470.0):.1} ohm")
+    print("balance with 330 / 1000 / 150: Rx = {balance(330.0, 1000.0, 150.0):.1} ohm")
+    gauge := 350.0
+    for micro in [0, 100, 500, 1000, 2000]
+        strain := micro.to_float() / 1000000.0
+        rx := gauge * (1.0 + 2.0 * strain)
+        mv := bridge_out(5.0, gauge, rx) * 1000.0
+        print("{micro:>5} microstrain: gauge {rx:.3} ohm, output {mv:.3} mV")
+
+@test fn balanced_is_zero()
+    assert_eq(bridge_out(5.0, 350.0, 350.0), 0.0)

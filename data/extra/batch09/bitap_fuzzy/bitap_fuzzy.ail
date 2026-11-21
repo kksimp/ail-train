@@ -1,0 +1,42 @@
+## Bitap fuzzy search: one bit mask per error level tracks which pattern prefixes end at the current
+## letter; shifting and AND-ing with the letter's mask finds matches with at most k wrong letters.
+
+fn bitap(text str, pat str, k int) List[List[int]]
+    p := pat.chars()
+    m := p.len()
+    mut masks := Map[char, int]()
+    for i in 0..m
+        masks[p[i]] = masks.get_or(p[i], 0) | (1 << i)
+    full := (1 << m) - 1
+    hit := 1 << (m - 1)
+    mut r := List[int]()
+    for d in 0..k + 1
+        r.push(0)
+    mut found := List[List[int]]()
+    for i, c in text.chars().enumerate()
+        b := masks.get_or(c, 0)
+        mut old := r[0]
+        r[0] = (((r[0] << 1) | 1) & b) & full
+        for d in 1..k + 1
+            tmp := r[d]
+            r[d] = ((((r[d] << 1) | 1) & b) | ((old << 1) | 1)) & full
+            old = tmp
+        for d in 0..k + 1
+            if (r[d] & hit) != 0
+                found.push([i, d])
+                break
+    found
+
+fn main()
+    text := "the quick brown fox jumps over the lazy dog"
+    for pat in ["quack", "jumbs", "lazy", "brawn", "cat"]
+        hits := bitap(text, pat, 1)
+        if hits.is_empty()
+            print("{pat:<6} no match within 1 error")
+        for h in hits
+            start := h[0] - pat.len() + 1
+            piece := text.slice(start, h[0] + 1)
+            print("{pat:<6} ~ '{piece}' at {start}, {h[1]} error(s)")
+
+@test fn exact()
+    assert_eq(bitap("abcabc", "bc", 0), [[2, 0], [5, 0]])

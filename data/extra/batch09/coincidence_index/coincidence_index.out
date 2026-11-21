@@ -1,0 +1,10 @@
+plain text ioc 0.0794, cipher text ioc 0.0447
+key length 1: average column ioc 0.0447
+key length 2: average column ioc 0.0450
+key length 3: average column ioc 0.0482
+key length 4: average column ioc 0.0431
+key length 5: average column ioc 0.0749
+key length 6: average column ioc 0.0483
+key length 7: average column ioc 0.0406
+key length 8: average column ioc 0.0327
+most likely key length: 5

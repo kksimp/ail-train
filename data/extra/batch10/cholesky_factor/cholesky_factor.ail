@@ -1,0 +1,43 @@
+## Cholesky factor: a symmetric positive definite matrix is L times its transpose with L lower
+## triangular; a negative number under a square root shows the matrix is not positive definite.
+
+fn cholesky(a List[List[float]]) List[List[float]] ! str
+    n := a.len()
+    mut l := [[0.0 for j in 0..n] for i in 0..n]
+    for i in 0..n
+        for j in 0..=i
+            mut s := a[i][j]
+            for k in 0..j
+                s -= l[i][k] * l[j][k]
+            if i == j
+                if s <= 0.0
+                    return "not positive definite (pivot {s:.3} at row {i + 1})"
+                l[i][i] = s.sqrt()
+            else
+                l[i][j] = s / l[j][j]
+    l
+
+fn row_text(row List[float]) str
+    cells := [cell(v) for v in row]
+    cells.join(" ")
+
+fn cell(v float) str
+    "{v:>8.4}"
+
+fn main()
+    mats := [[[4.0, 12.0, -16.0], [12.0, 37.0, -43.0], [-16.0, -43.0, 98.0]], [[25.0, 15.0, -5.0], [15.0, 18.0, 0.0], [-5.0, 0.0, 11.0]], [[2.0, 3.0, 1.0], [3.0, 2.0, 1.0], [1.0, 1.0, 5.0]]]
+    for a in mats
+        if l := cholesky(a)
+            print("L for {a}:")
+            for row in l
+                print("    {row_text(row)}")
+            mut det := 1.0
+            for i in 0..3
+                det *= l[i][i] * l[i][i]
+            print("    determinant {det:.3}")
+        else err
+            print("{a}: {err}")
+
+@test fn two()
+    l := cholesky([[4.0, 2.0], [2.0, 2.0]]) else []
+    assert_eq(l, [[2.0, 0.0], [1.0, 1.0]])

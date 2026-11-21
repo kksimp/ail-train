@@ -1,0 +1,59 @@
+## Aho-Corasick: builds a trie of banned words with failure links (the longest proper suffix that is
+## also a trie path), then scans a chat message once, reporting every word that ends at each letter.
+
+struct Machine
+    edges List[Map[char, int]]
+    fail List[int]
+    out List[List[int]]
+
+fn build(words List[str]) Machine
+    mut edges := List[Map[char, int]]()
+    mut fail := List[int]()
+    mut out := List[List[int]]()
+    edges.push(Map[char, int]())
+    fail.push(0)
+    out.push(List[int]())
+    for wi, w in words.enumerate()
+        mut node := 0
+        for c in w.chars()
+            if not edges[node].contains(c)
+                edges.push(Map[char, int]())
+                fail.push(0)
+                out.push(List[int]())
+                edges[node][c] = edges.len() - 1
+            node = edges[node][c]
+        out[node].push(wi)
+    mut queue := edges[0].values()
+    mut head := 0
+    while head < queue.len()
+        u := queue[head]
+        head += 1
+        for c, v in edges[u]
+            queue.push(v)
+            mut f := fail[u]
+            while f > 0 and not edges[f].contains(c)
+                f = fail[f]
+            fail[v] = edges[f].get(c) else 0
+            extra := out[fail[v]]
+            out[v].extend(extra)
+    Machine(edges: edges, fail: fail, out: out)
+
+fn main()
+    words := ["he", "she", "his", "hers", "sea", "shore", "ell"]
+    m := build(words)
+    text := "she sells sea shells by the shore"
+    mut state := 0
+    mut found := 0
+    for i, c in text.chars().enumerate()
+        while state > 0 and not m.edges[state].contains(c)
+            state = m.fail[state]
+        state = m.edges[state].get(c) else 0
+        for wi in m.out[state]
+            w := words[wi]
+            start := i - w.len() + 1
+            print("{start:>3} {w}")
+            found += 1
+    print("{found} matches, {m.edges.len()} trie nodes")
+
+@test fn nodes()
+    assert_eq(build(["a", "ab"]).edges.len(), 3)

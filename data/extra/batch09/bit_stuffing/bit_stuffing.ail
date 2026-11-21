@@ -1,0 +1,49 @@
+## Bit stuffing: a framed link marks frames with the flag 01111110, so the sender inserts a 0 after
+## every five 1s in the data and the receiver removes it; the flag then never appears inside a frame.
+
+fn stuff(bits str) str
+    mut out := List[char]()
+    mut ones := 0
+    for c in bits.chars()
+        out.push(c)
+        if c == '1'
+            ones += 1
+            if ones == 5
+                out.push('0')
+                ones = 0
+        else
+            ones = 0
+    out.join("")
+
+fn unstuff(bits str) str
+    mut out := List[char]()
+    mut ones := 0
+    mut skip := false
+    for c in bits.chars()
+        if skip
+            skip = false
+            ones = 0
+            continue
+        out.push(c)
+        if c == '1'
+            ones += 1
+            if ones == 5
+                skip = true
+        else
+            ones = 0
+    out.join("")
+
+fn main()
+    flag := "01111110"
+    for data in ["0111111101111110", "11111111111", "0101010", "011111011111100"]
+        s := stuff(data)
+        added := s.len() - data.len()
+        inside := if s.contains(flag) then "flag inside!" else "no flag inside"
+        back := if unstuff(s) == data then "ok" else "BAD"
+        print("{data:<16} -> {s:<19} +{added} bits, {inside}, unstuff {back}")
+    body := stuff("0111111101111110")
+    frame := "{flag}{body}{flag}"
+    print("frame on the wire: {frame}")
+
+@test fn five()
+    assert_eq(stuff("11111"), "111110")

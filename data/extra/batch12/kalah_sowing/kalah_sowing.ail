@@ -1,0 +1,58 @@
+## Kalah sowing: seeds from a chosen pit are sown one per pit anticlockwise, skipping the other
+## player's store; ending in your own store earns another turn, ending in an empty pit captures.
+
+struct Board
+    pits List[int]
+
+fn on_side(player int, pos int) bool
+    if player == 0
+        return pos < 6
+    pos >= 7 and pos < 13
+
+fn Board.sow(mut self, player int, choice int) bool
+    start := if player == 0 then choice else 7 + choice
+    store := if player == 0 then 6 else 13
+    skip := if player == 0 then 13 else 6
+    mut seeds := self.pits[start]
+    self.pits[start] = 0
+    mut pos := start
+    while seeds > 0
+        pos = (pos + 1) % 14
+        if pos != skip
+            self.pits[pos] += 1
+            seeds -= 1
+    if pos == store
+        return true
+    if on_side(player, pos) and self.pits[pos] == 1
+        opp := 12 - pos
+        if self.pits[opp] > 0
+            self.pits[store] += self.pits[opp] + 1
+            self.pits[opp] = 0
+            self.pits[pos] = 0
+    false
+
+fn Board.show(self) str
+    a := self.pits.slice(0, 6).join(" ")
+    b := self.pits.slice(7, 13).join(" ")
+    "A {a} [{self.pits[6]}]  B {b} [{self.pits[13]}]"
+
+fn main()
+    mut board := Board(pits: [4, 4, 4, 4, 4, 4, 0, 4, 4, 4, 4, 4, 4, 0])
+    moves := [2, 3, 0, 5, 1, 4, 2, 0, 3, 5, 1, 4]
+    players := ["A", "B"]
+    mut turn := 0
+    for m in moves
+        base := if turn == 0 then 0 else 7
+        mut pick := m
+        while board.pits[base + pick] == 0
+            pick = (pick + 1) % 6
+        again := board.sow(turn, pick)
+        note := if again then ", goes again" else ""
+        print("{players[turn]} sows pit {pick + 1}{note}: {board.show()}")
+        if not again
+            turn = 1 - turn
+
+@test fn store_landing()
+    mut b := Board(pits: [4, 4, 4, 4, 4, 4, 0, 4, 4, 4, 4, 4, 4, 0])
+    assert(b.sow(0, 2))
+    assert_eq(b.pits[6], 1)

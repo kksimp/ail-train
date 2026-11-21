@@ -1,0 +1,5 @@
+abc + def -> adbecf: yes 121212
+aabcc + dbbca -> aadbbcbcac: yes 1122221121
+aabcc + dbbca -> aadbbbaccc: no
+cat + dog -> cdaotg: yes 121212
+hi + yo -> hiyox: no (lengths differ)

@@ -1,0 +1,48 @@
+## Next permutation: the next arrangement in lexicographic order, by finding the rightmost rise,
+## swapping in the smallest larger value from the right and reversing the tail; repeats are fine.
+
+fn next_perm(mut xs List[int]) bool
+    mut i := xs.len() - 2
+    while i >= 0 and xs[i] >= xs[i + 1]
+        i -= 1
+    if i < 0
+        return false
+    mut j := xs.len() - 1
+    while xs[j] <= xs[i]
+        j -= 1
+    xs.swap(i, j)
+    mut lo := i + 1
+    mut hi := xs.len() - 1
+    while lo < hi
+        xs.swap(lo, hi)
+        lo += 1
+        hi -= 1
+    true
+
+fn digits_of(n int) List[int]
+    [(c.to_digit(10) else 0) for c in "{n}".chars()]
+
+fn main()
+    mut xs := [1, 2, 3]
+    mut seen := ["{xs}"]
+    while next_perm(mut xs)
+        seen.push("{xs}")
+    listed := seen.join(" ")
+    print("orders of 1 2 3: {listed}")
+    mut ys := [1, 1, 2, 2]
+    mut count := 1
+    while next_perm(mut ys)
+        count += 1
+    print("distinct orders of 1 1 2 2: {count}")
+    for n in [534976, 12443322, 4321, 1999]
+        mut ds := digits_of(n)
+        if next_perm(mut ds)
+            shown := ds.join("")
+            print("next number after {n} with the same digits: {shown}")
+        else
+            print("{n} is already the largest with its digits")
+
+@test fn step()
+    mut xs := [1, 3, 2]
+    assert(next_perm(mut xs))
+    assert_eq(xs, [2, 1, 3])

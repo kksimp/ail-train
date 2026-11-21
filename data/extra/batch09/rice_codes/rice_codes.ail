@@ -1,0 +1,28 @@
+## Rice coding: a number n with parameter k is written as n >> k in unary (ones then a zero) followed
+## by its k low bits; trying k from 0 to 4 on sensor deltas finds the k that gives the fewest bits.
+
+fn rice(n int, k int) str
+    q := n >> k
+    ones := "1".repeat(q)
+    if k == 0
+        return "{ones}0"
+    low := n & ((1 << k) - 1)
+    bits := "{low:b}".pad_left(k, '0')
+    "{ones}0{bits}"
+
+fn main()
+    deltas := [3, 0, 5, 2, 9, 1, 4, 6, 2, 0, 12, 3]
+    for n in [0, 3, 6, 12]
+        print("{n:>2} with k=2: {rice(n, 2)}")
+    mut best_k := 0
+    mut best_bits := -1
+    for k in 0..5
+        total := deltas.map(|d| rice(d, k).len()).sum()
+        print("k={k}: {total} bits")
+        if best_bits < 0 or total < best_bits
+            best_bits = total
+            best_k = k
+    print("best k={best_k}: {best_bits} bits against {deltas.len() * 8} as bytes")
+
+@test fn zero_k()
+    assert_eq(rice(3, 0), "1110")

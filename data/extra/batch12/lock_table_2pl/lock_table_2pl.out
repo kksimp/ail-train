@@ -1,0 +1,11 @@
+T1 gets S on acct
+T2 gets S on acct
+T3 waits for X on acct
+T2 gets X on loan
+T1 waits for X on loan
+T2 commits, releases its locks
+  T1 wakes, gets X on loan
+T1 commits, releases its locks
+  T3 wakes, gets X on acct
+T3 commits, releases its locks
+locks held at the end: 0, waiting: 0

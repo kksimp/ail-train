@@ -1,0 +1,33 @@
+## Affine cipher: each letter x becomes (a*x + b) mod 26; decryption needs the inverse of a mod 26,
+## found by search, so a key whose a shares a factor with 26 is refused as an error.
+
+fn inverse(a int) int ! str
+    for k in 1..26
+        if (a * k) % 26 == 1
+            return k
+    return "a = {a} has no inverse mod 26"
+
+fn shift_text(text str, mul int, add int) str
+    mut out := List[char]()
+    for c in text.chars()
+        if c.is_upper()
+            x := c.code() - 65
+            y := ((mul * x + add) % 26 + 26) % 26
+            out.push(char.from_code(y + 65) else '?')
+        else
+            out.push(c)
+    out.join("")
+
+fn main()
+    msg := "MEET ME AT THE OLD MILL"
+    for key in [(5, 8), (7, 3), (25, 0), (13, 1)]
+        a, b := key
+        if inv := inverse(a)
+            secret := shift_text(msg, a, b)
+            back := shift_text(secret, inv, -inv * b)
+            print("a={a:<2} b={b} inverse {inv:<2} {secret} -> {back}")
+        else err
+            print("a={a:<2} b={b} refused: {err}")
+
+@test fn inv5()
+    assert_eq(inverse(5) else 0, 21)

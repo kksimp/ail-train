@@ -1,0 +1,47 @@
+## Skip list: each key is promoted to higher express lanes by fixed-seed coin flips; a search runs
+## along the top lane and drops down a level whenever the next key would overshoot.
+
+fn search(lanes List[List[int]], want int) List[int]
+    mut steps := 0
+    mut cur := -1
+    mut lvl := lanes.len() - 1
+    while lvl >= 0
+        lane := lanes[lvl]
+        mut i := 0
+        if cur >= 0
+            i = lane.index_of(cur) else 0
+            i += 1
+        while i < lane.len() and lane[i] <= want
+            cur = lane[i]
+            steps += 1
+            i += 1
+        lvl -= 1
+    found := if cur == want then 1 else 0
+    [found, steps]
+
+fn main()
+    keys := [3, 8, 12, 17, 21, 26, 30, 34, 41, 47, 52, 58, 63, 69, 75, 80]
+    mut seed := 99
+    mut levels := List[int]()
+    for k in keys
+        mut lv := 1
+        seed = (seed * 1103515245 + 12345) % 2147483648
+        mut bits := seed >> 16
+        while (bits & 1) == 1 and lv < 4
+            lv += 1
+            bits = bits >> 1
+        levels.push(lv)
+    mut lanes := List[List[int]]()
+    for l in 0..4
+        lanes.push([keys[i] for i in 0..keys.len() if levels[i] > l])
+    mut l := 3
+    while l >= 0
+        print("lane {l}: {lanes[l]}")
+        l -= 1
+    for want in [47, 8, 80, 50]
+        r := search(lanes, want)
+        verdict := if r[0] == 1 then "found" else "absent"
+        print("find {want}: {verdict} after {r[1]} hops (a plain list scan takes up to {keys.len()})")
+
+@test fn bottom_only()
+    assert_eq(search([[1, 2, 3]], 3), [1, 3])

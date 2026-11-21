@@ -1,0 +1,7 @@
+first 40: 1221121221221121122121121221121121221221
+run lengths: 122112122122112112212112121
+complete runs repeat the sequence: true
+first    100: 49 ones, share 0.4900
+first   1000: 502 ones, share 0.5020
+first  10000: 4996 ones, share 0.4996
+first 100000: 49972 ones, share 0.4997

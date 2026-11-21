@@ -3,6 +3,21 @@
 # Lints the AIL for known traps (keywords as names, `+` on strings, `else` inside an index, ...).
 # Split a bundle into data/extra/BATCH/NAME/{NAME.ail,NAME.py,NAME.out}; run the twin for .out.
 import sys, os, subprocess, re
+
+
+def else_in_index(code):
+    """True when an `else` sits directly inside `[...]` (not wrapped in parentheses), e.g. xs[f(c) else 0]."""
+    stack = []
+    for m in re.finditer(r'[\[\]()]|\belse\b|"(?:[^"\\]|\\.)*"', code):
+        tok = m.group(0)
+        if tok in ("[", "("):
+            stack.append(tok)
+        elif tok in ("]", ")"):
+            if stack:
+                stack.pop()
+        elif tok == "else" and stack and stack[-1] == "[":
+            return True
+    return False
 bundle, batch = sys.argv[1], sys.argv[2]
 extra = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "data", "extra")
 extra = os.path.normpath(extra)
@@ -33,7 +48,7 @@ for name, body in zip(progs[0::2], progs[1::2]):
         if ind % 4: probs.append(f"indent {ind} line {i}")
         if re.search(r"&&|\|\||\bnull\b|\belse if\b|\blet\b|\+= \"|\" \+ |\+ \"|\.(lower|upper)\(\)|\$\{|\.unwrap_or\(|\bpar\b|\bselect\b|\bany\b [a-z_]+ :=", l.split("#")[0]) : probs.append(f"habit line {i}: {l.strip()}")
         code = l.split("#")[0]
-        if re.search(r"\w\[[^\]\(]*\belse\b", code): probs.append(f"else inside index line {i}")
+        if else_in_index(code): probs.append(f"else inside index line {i}")
         if ":+" in code: probs.append(f"sign format line {i}")
         if re.match(r"impl [A-Z]\w*(\[.*\])?\s*$", code): probs.append(f"impl without trait line {i}")
         if "from_code(" in code and " else " not in code: probs.append(f"from_code without else line {i}")

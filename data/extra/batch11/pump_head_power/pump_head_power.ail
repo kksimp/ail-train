@@ -1,0 +1,29 @@
+## Pump power: lifting water takes P = rho g Q H / efficiency, where the head H adds 10% for pipe
+## friction; gives each pump's power, daily energy for its hours of running, and the cost.
+
+struct Duty
+    name str
+    litres_s float
+    lift_m float
+    eff float
+    hours float
+
+fn Duty.kw(self) float
+    head := self.lift_m * 1.1
+    1000.0 * 9.81 * (self.litres_s / 1000.0) * head / self.eff / 1000.0
+
+fn main()
+    duties := [Duty(name: "house tank", litres_s: 0.8, lift_m: 25.0, eff: 0.55, hours: 2.0), Duty(name: "irrigation", litres_s: 6.0, lift_m: 12.0, eff: 0.7, hours: 6.0), Duty(name: "borehole", litres_s: 2.5, lift_m: 60.0, eff: 0.6, hours: 4.0), Duty(name: "fountain", litres_s: 3.0, lift_m: 1.5, eff: 0.4, hours: 10.0)]
+    mut total := 0.0
+    for d in duties
+        kw := d.kw()
+        daily := kw * d.hours
+        total += daily
+        print("{d.name:<11} {d.litres_s} L/s up {d.lift_m} m: {kw:.3} kW, {daily:.2} kWh a day")
+    cost := total * 30.0 * 0.25
+    print("all pumps: {total:.2} kWh a day, {cost:.2} a month at 0.25 per kWh")
+
+@test fn higher_lift_more_power()
+    a := Duty(name: "a", litres_s: 1.0, lift_m: 10.0, eff: 0.5, hours: 1.0)
+    b := Duty(name: "b", litres_s: 1.0, lift_m: 20.0, eff: 0.5, hours: 1.0)
+    assert((b.kw() / a.kw() - 2.0).abs() < 0.000001)

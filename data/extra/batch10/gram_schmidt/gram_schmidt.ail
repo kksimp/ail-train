@@ -1,0 +1,45 @@
+## Gram-Schmidt: turns three independent vectors into an orthonormal basis by subtracting from
+## each its projections on the earlier basis vectors and scaling to length one.
+
+fn dot(a List[float], b List[float]) float
+    a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
+
+fn orthonormal(vs List[List[float]]) List[List[float]]
+    mut basis := List[List[float]]()
+    for v in vs
+        mut w := v
+        for e in basis
+            p := dot(v, e)
+            for i in 0..3
+                w[i] -= p * e[i]
+        n := dot(w, w).sqrt()
+        basis.push(w.map(|x| x / n))
+    basis
+
+fn show(v List[float]) str
+    "[{v[0]:>7.4}, {v[1]:>7.4}, {v[2]:>7.4}]"
+
+fn main()
+    vs := [[3.0, 1.0, 2.0], [1.0, 2.0, 1.0], [2.0, 1.0, 4.0]]
+    basis := orthonormal(vs)
+    for i in 0..3
+        print("v{i + 1} = {show(vs[i])} -> e{i + 1} = {show(basis[i])}")
+    mut worst := 0.0
+    for i in 0..3
+        for j in 0..3
+            target := if i == j then 1.0 else 0.0
+            off := (dot(basis[i], basis[j]) - target).abs()
+            if off > worst
+                worst = off
+    print("all dot products within 1e-12 of the identity: {worst < 0.000000000001}")
+    w := [1.0, 5.0, -2.0]
+    coords := [dot(w, e) for e in basis]
+    mut back := [0.0, 0.0, 0.0]
+    for k in 0..3
+        for i in 0..3
+            back[i] += coords[k] * basis[k][i]
+    print("[1, 5, -2] in the new basis: {show(coords)}, rebuilt {show(back)}")
+
+@test fn unit()
+    b := orthonormal([[2.0, 0.0, 0.0]])
+    assert_eq(b[0], [1.0, 0.0, 0.0])

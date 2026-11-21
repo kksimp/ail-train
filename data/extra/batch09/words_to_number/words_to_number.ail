@@ -1,0 +1,44 @@
+## Words to number: reads English number words left to right, adding units and tens to a running
+## group, multiplying it by a hundred, and moving it into the total at thousand and million.
+
+fn small_values() Map[str, int]
+    names := "zero one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen".split(" ")
+    mut m := Map[str, int]()
+    for i, n in names.enumerate()
+        m[n] = i
+    tens := "twenty thirty forty fifty sixty seventy eighty ninety".split(" ")
+    for i, n in tens.enumerate()
+        m[n] = (i + 2) * 10
+    m
+
+fn parse(text str) int ! str
+    values := small_values()
+    mut total := 0
+    mut group := 0
+    words := text.replace("-", " ").split(" ").filter(|w| w != "" and w != "and")
+    if words.is_empty()
+        return "empty"
+    for w in words
+        if values.contains(w)
+            group += values[w]
+        elif w == "hundred"
+            group *= 100
+        elif w == "thousand"
+            total += group * 1000
+            group = 0
+        elif w == "million"
+            total += group * 1000000
+            group = 0
+        else
+            return "unknown word '{w}'"
+    total + group
+
+fn main()
+    for t in ["forty-two", "two hundred and forty-five", "one thousand nine hundred eighty-four", "seven million three hundred thousand and seven", "twelve thousand", "ninety-nine thousand nine hundred ninety-nine", "three dozen", "zero"]
+        if n := parse(t)
+            print("{n:>9}  {t}")
+        else err
+            print("    error  {t}: {err}")
+
+@test fn simple()
+    assert_eq(parse("three hundred and one") else 0, 301)

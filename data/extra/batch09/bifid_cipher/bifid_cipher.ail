@@ -1,0 +1,42 @@
+## Bifid cipher: each letter's row and column in a keyed 5 by 5 square are written on two lines,
+## the row line then the column line are read as one stream, and its pairs become letters again.
+
+fn encrypt(square str, msg str) str
+    sq := square.chars()
+    mut rows := List[int]()
+    mut cols := List[int]()
+    for c in msg.chars()
+        d := if c == 'J' then 'I' else c
+        at := sq.index_of(d) else 0
+        rows.push(at / 5)
+        cols.push(at % 5)
+    mut stream := rows
+    stream.extend(cols)
+    mut out := List[char]()
+    for k in 0..msg.len()
+        out.push(sq[stream[2 * k] * 5 + stream[2 * k + 1]])
+    out.join("")
+
+fn decrypt(square str, code str) str
+    sq := square.chars()
+    mut stream := List[int]()
+    for c in code.chars()
+        at := sq.index_of(c) else 0
+        stream.push(at / 5)
+        stream.push(at % 5)
+    n := code.len()
+    mut out := List[char]()
+    for k in 0..n
+        out.push(sq[stream[k] * 5 + stream[n + k]])
+    out.join("")
+
+fn main()
+    square := "BGWKZQPNDSIOAXEFCLUMTHYVR"
+    for r in 0..5
+        print(square.slice(r * 5, r * 5 + 5))
+    for msg in ["FLEEATONCE", "DEFENDTHEHILL", "BIFID"]
+        code := encrypt(square, msg)
+        print("{msg:<13} -> {code:<13} -> {decrypt(square, code)}")
+
+@test fn known()
+    assert_eq(encrypt("BGWKZQPNDSIOAXEFCLUMTHYVR", "FLEEATONCE"), "UAEOLWRINS")

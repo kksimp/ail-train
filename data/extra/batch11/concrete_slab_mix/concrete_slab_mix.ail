@@ -1,0 +1,30 @@
+## Concrete slabs: wet volume is length x width x depth; the dry materials take 1.54 times that,
+## split 1:2:4 cement, sand and gravel, with cement at 1440 kg per cubic metre in 25 kg bags.
+
+struct Slab
+    name str
+    length float
+    width float
+    depth_mm float
+
+fn Slab.wet(self) float
+    self.length * self.width * self.depth_mm / 1000.0
+
+fn main()
+    slabs := [Slab(name: "shed base", length: 3.0, width: 2.4, depth_mm: 100.0), Slab(name: "patio", length: 5.0, width: 4.0, depth_mm: 75.0), Slab(name: "garage floor", length: 6.0, width: 3.5, depth_mm: 150.0)]
+    mut bags_total := 0
+    for s in slabs
+        dry := s.wet() * 1.54
+        cement := dry / 7.0
+        sand := dry * 2.0 / 7.0
+        gravel := dry * 4.0 / 7.0
+        kg := cement * 1440.0
+        bags := (kg / 25.0).ceil().to_int()
+        water := kg * 0.5
+        bags_total += bags
+        print("{s.name:<12} {s.wet():.3} m3 wet: {bags} bags cement, {sand:.2} m3 sand, {gravel:.2} m3 gravel, {water:.1} L water")
+    print("order {bags_total} bags in all")
+
+@test fn volume()
+    s := Slab(name: "t", length: 2.0, width: 2.0, depth_mm: 250.0)
+    assert_eq(s.wet(), 1.0)

@@ -1,0 +1,27 @@
+## Simpson's diversity: D = 1 - sum n(n - 1) / (N (N - 1)) is the chance that two animals picked
+## from a site belong to different species; compares pond-dipping sites by D and species richness.
+
+fn simpson(counts List[int]) float
+    total := counts.fold(0, |acc, n| acc + n)
+    pairs := counts.fold(0, |acc, n| acc + n * (n - 1))
+    1.0 - pairs.to_float() / (total * (total - 1)).to_float()
+
+fn main()
+    mut sites := Map[str, List[int]]()
+    sites["shaded pond"] = [40, 2, 1, 1]
+    sites["open pond"] = [12, 10, 9, 8, 6]
+    sites["ditch"] = [25, 25]
+    sites["lake edge"] = [15, 3, 7, 2, 9, 4]
+    mut best := ""
+    mut best_d := -1.0
+    for name, counts in sites
+        d := simpson(counts)
+        total := counts.fold(0, |acc, n| acc + n)
+        print("{name:<11} {counts.len()} species, {total:>2} animals: D {d:.3}")
+        if d > best_d
+            best = name
+            best_d = d
+    print("most diverse: {best}")
+
+@test fn single_species()
+    assert_eq(simpson([10]), 0.0)

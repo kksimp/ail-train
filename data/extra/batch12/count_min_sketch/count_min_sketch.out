@@ -1,0 +1,11 @@
+/home   true 124, estimate 128, over by 4
+/shop   true  63, estimate  63, over by 0
+/cart   true  36, estimate  36, over by 0
+/help   true  12, estimate  12, over by 0
+/blog   true  17, estimate  17, over by 0
+/about  true  11, estimate  11, over by 0
+/jobs   true   4, estimate  40, over by 36
+/news   true   9, estimate   9, over by 0
+/faq    true  12, estimate  12, over by 0
+/login  true  12, estimate  12, over by 0
+64 counters for 10 pages

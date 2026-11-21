@@ -1,0 +1,24 @@
+## Boiled eggs: Charles Williams' formula t = 0.451 M^(2/3) ln(0.76 (Tegg - Twater) / (Tyolk - Twater))
+## minutes, for egg mass M grams; the yolk sets at 63 C soft or 70 C firm, and water boils cooler up a mountain.
+
+fn boil_minutes(grams float, egg_c float, water_c float, yolk_c float) float
+    ratio := 0.76 * (egg_c - water_c) / (yolk_c - water_c)
+    0.451 * grams.pow(2.0 / 3.0) * ratio.ln()
+
+fn clock(minutes float) str
+    whole := minutes.to_int()
+    secs := ((minutes - whole.to_float()) * 60.0).to_int()
+    "{whole}:{secs:02}"
+
+fn main()
+    for size in [("small", 48.0), ("medium", 58.0), ("large", 68.0)]
+        name, grams := size
+        soft := boil_minutes(grams, 4.0, 100.0, 63.0)
+        firm := boil_minutes(grams, 4.0, 100.0, 70.0)
+        warm := boil_minutes(grams, 21.0, 100.0, 63.0)
+        print("{name:<6} {grams} g: soft {clock(soft)}, firm {clock(firm)}, soft from room temperature {clock(warm)}")
+    high := boil_minutes(58.0, 4.0, 90.0, 63.0)
+    print("medium soft egg where water boils at 90 C: {clock(high)}")
+
+@test fn clock_text()
+    assert_eq(clock(4.5), "4:30")

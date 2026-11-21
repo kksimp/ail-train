@@ -1,0 +1,22 @@
+## Belt drive: an open belt between pulleys of diameters D and d at centre distance C is about
+## 2C + pi (D + d) / 2 + (D - d)^2 / (4C) long; the driven pulley turns at rpm * d / D.
+
+PI := 3.141592653589793
+
+fn belt_length(big float, small float, centre float) float
+    gap := big - small
+    2.0 * centre + PI * (big + small) / 2.0 + gap * gap / (4.0 * centre)
+
+fn main()
+    standard := [900, 1000, 1120, 1250, 1400, 1600]
+    setups := [(200.0, 100.0, 350.0), (250.0, 80.0, 400.0), (160.0, 160.0, 300.0), (315.0, 90.0, 450.0)]
+    for st in setups
+        big, small, centre := st
+        need := belt_length(big, small, centre)
+        pick := standard.find(|b| b.to_float() >= need) else 0
+        driven := 1450.0 * small / big
+        speed := PI * small / 1000.0 * 1450.0 / 60.0
+        print("D {big} d {small} C {centre}: {need:>6.1} mm -> belt {pick}, driven {driven:>6.1} rpm, belt {speed:.2} m/s")
+
+@test fn equal_pulleys()
+    assert_eq(belt_length(100.0, 100.0, 200.0), 400.0 + PI * 100.0)

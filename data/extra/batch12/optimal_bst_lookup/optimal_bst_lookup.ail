@@ -1,0 +1,59 @@
+## Optimal BST: Knuth's dynamic programme picks the root of every key range so that a search tree
+## of command names costs the fewest weighted comparisons, given how often each name is looked up.
+
+fn build(f List[int], mut root List[List[int]]) int
+    n := f.len()
+    mut e := List[List[int]]()
+    for i in 0..n + 1
+        mut row := List[int]()
+        mut rrow := List[int]()
+        for j in 0..n + 1
+            row.push(0)
+            rrow.push(-1)
+        e.push(row)
+        root.push(rrow)
+    for size in 1..=n
+        for i in 0..n - size + 1
+            j := i + size
+            w := f.slice(i, j).sum()
+            mut best := -1
+            for r in i..j
+                c := e[i][r] + e[r + 1][j]
+                if best < 0 or c < best
+                    best = c
+                    root[i][j] = r
+            e[i][j] = best + w
+    e[0][n]
+
+fn show(i int, j int, depth int, root List[List[int]], keys List[str], mut out List[str])
+    if i >= j
+        return
+    r := root[i][j]
+    pad := "  ".repeat(depth)
+    out.push("{pad}{keys[r]}")
+    show(i, r, depth + 1, root, keys, mut out)
+    show(r + 1, j, depth + 1, root, keys, mut out)
+
+fn balanced(i int, j int, depth int, f List[int]) int
+    if i >= j
+        return 0
+    m := (i + j) / 2
+    f[m] * (depth + 1) + balanced(i, m, depth + 1, f) + balanced(m + 1, j, depth + 1, f)
+
+fn main()
+    keys := ["add", "commit", "diff", "log", "merge", "pull", "push", "status"]
+    freq := [30, 25, 8, 12, 3, 20, 22, 41]
+    mut root := List[List[int]]()
+    cost := build(freq, mut root)
+    mut lines := List[str]()
+    show(0, keys.len(), 0, root, keys, mut lines)
+    for l in lines
+        print(l)
+    total := freq.sum()
+    avg := cost.to_float() / total.to_float()
+    print("optimal cost {cost}, {avg:.3} comparisons per lookup")
+    print("middle-split tree cost {balanced(0, keys.len(), 0, freq)}")
+
+@test fn two_keys()
+    mut root := List[List[int]]()
+    assert_eq(build([1, 5], mut root), 7)

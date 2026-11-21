@@ -1,0 +1,40 @@
+## Indian digit grouping: the last three digits form one group and the rest go in pairs (12,34,56,789),
+## matching the words thousand, lakh (100,000) and crore (10,000,000), beside the usual groups of three.
+
+fn indian(n int) str
+    s := "{n}"
+    if s.len() <= 3
+        return s
+    head := s.slice(0, s.len() - 3)
+    tail := s.slice(s.len() - 3)
+    mut groups := List[str]()
+    mut end := head.len()
+    while end > 0
+        start := (end - 2).max(0)
+        groups.insert(0, head.slice(start, end))
+        end = start
+    groups.push(tail)
+    groups.join(",")
+
+fn spoken(n int) str
+    mut parts := List[str]()
+    crore := n / 10000000
+    lakh := n / 100000 % 100
+    thousand := n / 1000 % 100
+    rest := n % 1000
+    if crore > 0
+        parts.push("{crore} crore")
+    if lakh > 0
+        parts.push("{lakh} lakh")
+    if thousand > 0
+        parts.push("{thousand} thousand")
+    if rest > 0 or parts.is_empty()
+        parts.push("{rest}")
+    parts.join(" ")
+
+fn main()
+    for n in [999, 1000, 54321, 100000, 1234567, 98765432, 1500000000]
+        print("{n:>13,}  {indian(n):>14}  {spoken(n)}")
+
+@test fn lakh()
+    assert_eq(indian(1234567), "12,34,567")

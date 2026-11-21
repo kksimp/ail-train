@@ -48,10 +48,17 @@ everyday forms with less common built-ins. Each batch is checked on the Mac befo
   `int` overflow from doubling past 2^62 (AIL traps, Python twins never overflow). 11 programs were replaced
   because they repeated earlier topics by meaning, not by name. From this batch, bundles are split with
   `tools/split_bundle/split.py`. All 100 pass.
+- `batch09/` to `batch12/`: 400 programs written in parallel, one topic area each: text and strings (string
+  algorithms, encodings, ciphers, word games, tokenizers), mathematics (number theory, combinatorics, linear
+  algebra, numerical methods, statistics), applied formulas (engineering, chemistry, biology, sport, finance) and
+  algorithms and systems (graphs, DP, trees, caches, OS, networking, databases, games, business apps). Checked
+  with `JOBS=5 ONLY=batchNN tools/check_extra/run.sh`. The 4 failures were two outputs that depended on the last
+  bit of AIL's own `cos`/`sin` (AIL's maths can differ from libm by one ulp), a struct named `Task` (a prelude
+  type) and an `else` fallback inside an index. All 400 pass.
 
 ## Status
 
-**Checked: 840 of 840 pass** (40 drills, 100 each in batch01 to batch08) with ail 3d0c5c913 (0.2.0 release candidate) on 2026-11-21 (`RESULTS.txt`). On the drills' first
+**Checked: 1240 of 1240 pass** (40 drills, 100 each in batch01 to batch12) with ail 3d0c5c913 (0.2.0 release candidate) on 2026-11-21 (`RESULTS.txt`). On the drills' first
 run 34 passed; 6 were fixed (four AIL forms guessed wrong: `str ! str`, calling a `fn` field as a method,
 `Grid.to_list().sum()` on rows, an `if :=` on a failing result with no `else`; two Python twins were wrong).
 These were written in a cloud session, where AIL builds are not allowed.

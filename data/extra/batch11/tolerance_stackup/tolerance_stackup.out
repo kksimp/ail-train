@@ -1,0 +1,8 @@
+bearing   12000 um +- 20 um
+spacer     8500 um +- 50 um
+gear      15000 um +- 30 um
+circlip    1200 um +- 40 um
+nominal gap 300 um
+worst case: 100 to 500 um
+root sum square: 205.1 to 394.9 um
+always fits

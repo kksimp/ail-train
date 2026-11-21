@@ -1,0 +1,26 @@
+## Atomic mass: an element's standard mass is the abundance-weighted average of its isotopes'
+## masses; with two isotopes the abundance follows back from the average, x = (avg - m2) / (m1 - m2).
+
+struct Isotope
+    mass float
+    pct float
+
+fn average(isos List[Isotope]) float
+    isos.fold(0.0, |acc, i| acc + i.mass * i.pct / 100.0)
+
+fn main()
+    mut table := Map[str, List[Isotope]]()
+    table["chlorine"] = [Isotope(mass: 34.969, pct: 75.76), Isotope(mass: 36.966, pct: 24.24)]
+    table["magnesium"] = [Isotope(mass: 23.985, pct: 78.99), Isotope(mass: 24.986, pct: 10.0), Isotope(mass: 25.983, pct: 11.01)]
+    table["copper"] = [Isotope(mass: 62.93, pct: 69.15), Isotope(mass: 64.928, pct: 30.85)]
+    table["silicon"] = [Isotope(mass: 27.977, pct: 92.23), Isotope(mass: 28.976, pct: 4.68), Isotope(mass: 29.974, pct: 3.09)]
+    for name, isos in table
+        print("{name:<9} {isos.len()} isotopes: {average(isos):.3}")
+    avg := 10.811
+    m1 := 10.013
+    m2 := 11.009
+    x := (avg - m2) / (m1 - m2) * 100.0
+    print("boron at {avg} from {m1} and {m2}: {x:.1}% boron-10, {100.0 - x:.1}% boron-11")
+
+@test fn single()
+    assert_eq(average([Isotope(mass: 12.0, pct: 100.0)]), 12.0)

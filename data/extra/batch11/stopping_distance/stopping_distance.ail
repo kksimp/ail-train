@@ -1,0 +1,33 @@
+## Stopping distance: the car travels v * 1.5 s while the driver reacts, then v^2 / (2 mu g) while
+## braking, with road grip mu from 0.8 on dry tarmac down to 0.1 on ice.
+
+enum Road
+    Dry
+    Wet
+    Snow
+    Ice
+
+fn grip(r Road) float
+    match r
+        Dry => 0.8
+        Wet => 0.5
+        Snow => 0.2
+        Ice => 0.1
+
+fn stopping(kmh float, r Road) float
+    v := kmh / 3.6
+    v * 1.5 + v * v / (2.0 * grip(r) * 9.81)
+
+fn main()
+    speeds := [30.0, 50.0, 80.0, 110.0]
+    heads := speeds.map(|s| "{s.to_int():>3} km/h").join("  ")
+    print("road   {heads}")
+    for r in Road.variants()
+        cells := speeds.map(|sp| "{stopping(sp, r):>8.1}").join(" ")
+        print("{r.name():<5} {cells}")
+    gap := stopping(50.0, Road.Wet) - stopping(50.0, Road.Dry)
+    print("at 50 km/h a wet road adds {gap:.1} m")
+
+@test fn reaction_only()
+    v := 36.0 / 3.6
+    assert_eq(v * 1.5, 15.0)

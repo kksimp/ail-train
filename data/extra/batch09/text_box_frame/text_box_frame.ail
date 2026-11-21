@@ -1,0 +1,32 @@
+## Text box: draws a frame of + - | around lines of text with one space of padding, the box as wide
+## as the longest line, and a title centred in the top border.
+
+fn frame(title str, lines List[str], right bool) List[str]
+    mut width := title.len() + 2
+    for l in lines
+        width = width.max(l.len())
+    label := " {title} "
+    left_dashes := (width + 2 - label.len()) / 2
+    right_dashes := width + 2 - label.len() - left_dashes
+    mut out := List[str]()
+    dash := "-"
+    lead := dash.repeat(left_dashes)
+    trail := dash.repeat(right_dashes)
+    out.push("+{lead}{label}{trail}+")
+    for l in lines
+        body := if right then l.pad_left(width, ' ') else l.pad_right(width, ' ')
+        out.push("| {body} |")
+    bottom := dash.repeat(width + 2)
+    out.push("+{bottom}+")
+    out
+
+fn main()
+    note := ["Bins go out Tuesday night.", "Spare key is under the pot.", "Feed the cat twice a day."]
+    for line in frame("NOTE", note, false)
+        print(line)
+    prices := ["tea 2.50", "scone 3.25", "jam 0.75"]
+    for line in frame("MENU", prices, true)
+        print(line)
+
+@test fn width()
+    assert_eq(frame("T", ["abc"], false)[1], "| abc |")

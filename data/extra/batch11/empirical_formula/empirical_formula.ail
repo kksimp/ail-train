@@ -1,0 +1,52 @@
+## Empirical formula: mass percentages divided by atomic masses give mole amounts; dividing by
+## the smallest and multiplying by 1 to 6 until every number is near a whole gives the formula.
+
+struct Element
+    symbol str
+    percent float
+    mass float
+
+fn min_of(xs List[float]) float
+    mut low := xs[0]
+    for x in xs
+        if x < low
+            low = x
+    low
+
+fn near_whole(x float) bool
+    (x - x.round()).abs() < 0.1
+
+fn formula(els List[Element]) str
+    moles := els.map(|item| item.percent / item.mass)
+    low := min_of(moles)
+    for mult in 1..=6
+        counts := moles.map(|m| m / low * mult.to_float())
+        if counts.all(|c| near_whole(c))
+            mut parts := List[str]()
+            for i, e in els.enumerate()
+                n := counts[i].round().to_int()
+                piece := if n == 1 then e.symbol else "{e.symbol}{n}"
+                parts.push(piece)
+            return parts.join("")
+    "none under 6"
+
+fn el(symbol str, percent float) Element
+    mass := match symbol
+        "C" => 12.011
+        "H" => 1.008
+        "O" => 15.999
+        "N" => 14.007
+        "Fe" => 55.845
+        "P" => 30.974
+        _ => 1.0
+    Element(symbol: symbol, percent: percent, mass: mass)
+
+fn main()
+    samples := [[el("C", 40.0), el("H", 6.71), el("O", 53.29)], [el("C", 85.6), el("H", 14.4)], [el("Fe", 69.94), el("O", 30.06)], [el("P", 43.64), el("O", 56.36)], [el("N", 30.45), el("O", 69.55)], [el("C", 92.26), el("H", 7.74)]]
+    for els in samples
+        shares := els.map(|x| "{x.percent}% {x.symbol}").join(", ")
+        print("{shares} -> {formula(els)}")
+
+@test fn whole()
+    assert(near_whole(2.96))
+    assert(not near_whole(1.5))

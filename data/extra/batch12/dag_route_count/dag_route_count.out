@@ -1,0 +1,8 @@
+order: Summit > Ridge > Col > Tarn > Forest > Bridge > Car park
+Summit     1 routes, longest 0 legs
+Ridge      1 routes, longest 1 legs
+Col        1 routes, longest 1 legs
+Tarn       2 routes, longest 2 legs
+Forest     3 routes, longest 3 legs
+Bridge     6 routes, longest 4 legs
+Car park   9 routes, longest 5 legs

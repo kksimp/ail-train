@@ -1,0 +1,27 @@
+## Repeated dosing: each dose adds D / V to the blood level, which then decays by e^(-k t) with
+## k = ln 2 / half-life; peaks climb towards the steady state (D / V) / (1 - e^(-k tau)).
+
+fn main()
+    dose_mg := 500.0
+    volume_l := 40.0
+    half_life := 6.0
+    tau := 8.0
+    two := 2.0
+    k := two.ln() / half_life
+    keep := (0.0 - k * tau).exp()
+    step := dose_mg / volume_l
+    mut level := 0.0
+    for n in 1..=6
+        level += step
+        trough := level * keep
+        print("dose {n}: peak {level:.2} mg/L, before next {trough:.2} mg/L")
+        level = trough
+    peak_ss := step / (1.0 - keep)
+    trough_ss := peak_ss * keep
+    print("steady state: peak {peak_ss:.2} mg/L, trough {trough_ss:.2} mg/L")
+    print("{keep * 100.0:.1}% of each level remains after {tau} h")
+
+@test fn one_half_life()
+    two := 2.0
+    k := two.ln() / 6.0
+    assert(((0.0 - k * 6.0).exp() - 0.5).abs() < 0.000001)

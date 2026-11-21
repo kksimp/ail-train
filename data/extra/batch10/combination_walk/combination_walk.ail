@@ -1,0 +1,48 @@
+## Combination walk: steps through every k-subset of 1..n in lexicographic order by bumping the
+## rightmost index that can still grow and resetting those after it; finds the 3-subsets summing to 15.
+
+fn next_comb(mut c List[int], n int) bool
+    k := c.len()
+    mut i := k - 1
+    while i >= 0 and c[i] == n - k + i + 1
+        i -= 1
+    if i < 0
+        return false
+    c[i] += 1
+    for j in (i + 1)..k
+        c[j] = c[j - 1] + 1
+    true
+
+fn binom(n int, k int) int
+    mut r := 1
+    for i in 0..k
+        r = r * (n - i) / (i + 1)
+    r
+
+fn main()
+    mut c := [1, 2, 3]
+    mut listed := ["{c}"]
+    while next_comb(mut c, 5)
+        listed.push("{c}")
+    shown := listed.join(" ")
+    print("3 of 5: {shown}")
+    for nk in [[10, 4], [12, 6], [20, 3]]
+        mut d := [i for i in 1..=nk[1]]
+        mut count := 1
+        while next_comb(mut d, nk[0])
+            count += 1
+        print("{nk[1]} of {nk[0]}: walked {count}, formula {binom(nk[0], nk[1])}")
+    mut e := [1, 2, 3]
+    mut lines := List[str]()
+    while true
+        if e[0] + e[1] + e[2] == 15
+            lines.push("{e[0]}{e[1]}{e[2]}")
+        if not next_comb(mut e, 9)
+            break
+    joined := lines.join(" ")
+    print("3-subsets of 1..9 summing to 15: {joined} ({lines.len()}, the lines of a magic square)")
+
+@test fn steps()
+    mut c := [1, 4, 5]
+    assert(next_comb(mut c, 5))
+    assert_eq(c, [2, 3, 4])

@@ -1,0 +1,60 @@
+## Carmichael numbers: composites that fool the Fermat test for every coprime base; Korselt's
+## criterion says n is one when it is square-free and p - 1 divides n - 1 for each prime p of n.
+
+fn factors(n int) List[int]
+    mut out := List[int]()
+    mut x := n
+    mut p := 2
+    while p * p <= x
+        while x % p == 0
+            out.push(p)
+            x = x / p
+        p += 1
+    if x > 1
+        out.push(x)
+    out
+
+fn korselt(n int) bool
+    fs := factors(n)
+    if fs.len() < 2
+        return false
+    for i in 1..fs.len()
+        if fs[i] == fs[i - 1]
+            return false
+    fs.all(|p| (n - 1) % (p - 1) == 0)
+
+fn pow_mod(b int, e int, m int) int
+    mut result := 1
+    mut base := b % m
+    mut exp := e
+    while exp > 0
+        if exp % 2 == 1
+            result = result * base % m
+        base = base * base % m
+        exp = exp / 2
+    result
+
+fn gcd(a int, b int) int
+    if b == 0 then a else gcd(b, a % b)
+
+fn main()
+    mut found := List[int]()
+    for n in 3..20000
+        if korselt(n)
+            found.push(n)
+            fs := factors(n)
+            shown := fs.join(" x ")
+            print("{n:>5} = {shown}")
+    print("{found.len()} Carmichael numbers below 20000")
+    mut coprime := 0
+    mut fooled := 0
+    for a in 2..561
+        if gcd(a, 561) == 1
+            coprime += 1
+            if pow_mod(a, 560, 561) == 1
+                fooled += 1
+    print("561: {fooled} of {coprime} coprime bases give a^560 = 1 (mod 561)")
+
+@test fn first()
+    assert(korselt(561))
+    assert(not korselt(563))

@@ -1,0 +1,24 @@
+## Spending multiplier: each round people spend the share MPC (1 - t) of what they received, so an
+## injection grows by the geometric sum 1 / (1 - MPC (1 - t)); prints rounds against that limit.
+
+fn multiplier(mpc float, tax float) float
+    1.0 / (1.0 - mpc * (1.0 - tax))
+
+fn main()
+    injection := 100.0
+    mpc := 0.8
+    tax := 0.25
+    mut round_amount := injection
+    mut total := 0.0
+    for n in 1..=8
+        total += round_amount
+        print("round {n}: spent {round_amount:>6.2}, total {total:>6.2}")
+        round_amount = round_amount * mpc * (1.0 - tax)
+    limit := injection * multiplier(mpc, tax)
+    print("limit {limit:.2} (multiplier {multiplier(mpc, tax):.2})")
+    for pair in [(0.9, 0.0), (0.9, 0.3), (0.6, 0.2)]
+        m, t := pair
+        print("MPC {m}, tax {t}: multiplier {multiplier(m, t):.3}")
+
+@test fn no_spending()
+    assert_eq(multiplier(0.0, 0.2), 1.0)

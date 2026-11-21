@@ -1,0 +1,53 @@
+## Shortest common supersequence: the shortest word holding two words as subsequences is built by
+## walking back through their LCS table, writing shared letters once; its length is la + lb - LCS.
+
+fn merge(a str, b str) str
+    xa := a.chars()
+    xb := b.chars()
+    la := xa.len()
+    lb := xb.len()
+    mut dp := List[List[int]]()
+    for i in 0..la + 1
+        mut row := List[int]()
+        for j in 0..lb + 1
+            row.push(0)
+        dp.push(row)
+    for i in 1..la + 1
+        for j in 1..lb + 1
+            if xa[i - 1] == xb[j - 1]
+                dp[i][j] = dp[i - 1][j - 1] + 1
+            else
+                dp[i][j] = dp[i - 1][j].max(dp[i][j - 1])
+    mut out := List[char]()
+    mut i := la
+    mut j := lb
+    while i > 0 and j > 0
+        if xa[i - 1] == xb[j - 1]
+            out.push(xa[i - 1])
+            i -= 1
+            j -= 1
+        elif dp[i - 1][j] >= dp[i][j - 1]
+            out.push(xa[i - 1])
+            i -= 1
+        else
+            out.push(xb[j - 1])
+            j -= 1
+    while i > 0
+        out.push(xa[i - 1])
+        i -= 1
+    while j > 0
+        out.push(xb[j - 1])
+        j -= 1
+    out.reverse()
+    out.join("")
+
+fn main()
+    pairs := [("geek", "eke"), ("abac", "cab"), ("strand", "stranger"), ("pear", "pare"), ("abc", "xyz")]
+    for p in pairs
+        a, b := p
+        m := merge(a, b)
+        saved := a.len() + b.len() - m.len()
+        print("{a} + {b} -> {m} (length {m.len()}, {saved} shared)")
+
+@test fn same()
+    assert_eq(merge("abc", "abc"), "abc")

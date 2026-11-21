@@ -1,0 +1,50 @@
+## Golden-section search: narrows a bracket around the minimum of a one-humped function by
+## probing two points at the golden ratio, reusing one probe each step; used to size a cheap tin.
+
+fn cost(kind int, x float) float
+    match kind
+        0 => (x - 2.0) * (x - 2.0) + 1.0
+        1 => 2.0 * 3.141592653589793 * x * x + 2.0 * 330.0 / x
+        _ => x.exp() - 3.0 * x
+
+fn minimise(kind int, lo0 float, hi0 float) List[float]
+    five := 5.0
+    inv := (five.sqrt() - 1.0) / 2.0
+    mut lo := lo0
+    mut hi := hi0
+    mut c := hi - inv * (hi - lo)
+    mut d := lo + inv * (hi - lo)
+    mut fc := cost(kind, c)
+    mut fd := cost(kind, d)
+    mut steps := 0
+    while hi - lo > 0.00000001
+        if fc < fd
+            hi = d
+            d = c
+            fd = fc
+            c = hi - inv * (hi - lo)
+            fc = cost(kind, c)
+        else
+            lo = c
+            c = d
+            fc = fd
+            d = lo + inv * (hi - lo)
+            fd = cost(kind, d)
+        steps += 1
+    x := (lo + hi) / 2.0
+    [x, cost(kind, x), steps.to_float()]
+
+fn main()
+    names := ["(x - 2)^2 + 1 on [0, 5]", "tin of 330 ml: surface by radius (cm) on [1, 10]", "e^x - 3x on [0, 3]"]
+    ranges := [[0.0, 5.0], [1.0, 10.0], [0.0, 3.0]]
+    for k in 0..3
+        r := minimise(k, ranges[k][0], ranges[k][1])
+        print("{names[k]}: minimum at {r[0]:.6} value {r[1]:.6} after {r[2].to_int()} steps")
+    pi := 3.141592653589793
+    exact := (330.0 / (2.0 * pi)).cbrt()
+    three := 3.0
+    print("tin radius by calculus {exact:.6}, height {330.0 / (pi * exact * exact):.6}; e^x - 3x by calculus at ln 3 = {three.ln():.6}")
+
+@test fn parabola()
+    r := minimise(0, 0.0, 5.0)
+    assert((r[0] - 2.0).abs() < 0.0001)

@@ -1,0 +1,42 @@
+## Contraction expansion: whole-word exceptions (won't, can't, shan't) come from a table, then the
+## endings n't, 're, 'll, 've, 'm and 'd are expanded, keeping a capital first letter and punctuation.
+
+fn expand_word(word str) str
+    mut core := word
+    mut tail := ""
+    while core.len() > 0 and ".,!?".contains(core.chars()[core.len() - 1])
+        tail = "{core.slice(core.len() - 1)}{tail}"
+        core = core.slice(0, core.len() - 1)
+    lower := core.to_lower()
+    special := {"won't": "will not", "can't": "cannot", "shan't": "shall not", "it's": "it is", "that's": "that is"}
+    mut out := core
+    if special.contains(lower)
+        out = special[lower]
+    else
+        endings := [("n't", " not"), ("'re", " are"), ("'ll", " will"), ("'ve", " have"), ("'m", " am"), ("'d", " would")]
+        for e in endings
+            ending, full := e
+            if stem := lower.strip_suffix(ending)
+                out = "{stem}{full}"
+                break
+    if out != core and core.chars()[0].is_upper()
+        first := out.chars()[0].to_upper()
+        out = "{first}{out.slice(1)}"
+    "{out}{tail}"
+
+fn main()
+    lines := ["I'm sure we'll win; we won't lose!", "They're late and it's raining.", "You'd think she'd know.", "Can't stop, I've got to go!", "That's what we're doing."]
+    mut changed := 0
+    for line in lines
+        ws := line.split(" ")
+        mut out := List[str]()
+        for w in ws
+            e := expand_word(w)
+            if e != w
+                changed += 1
+            out.push(e)
+        print(out.join(" "))
+    print("{changed} contractions expanded")
+
+@test fn wont()
+    assert_eq(expand_word("Won't"), "Will not")

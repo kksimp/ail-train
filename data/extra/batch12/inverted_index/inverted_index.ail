@@ -1,0 +1,49 @@
+## Inverted index: each word maps to the sorted list of notes containing it; AND queries walk two
+## posting lists with two pointers, OR queries merge them, and NOT subtracts one from the other.
+
+fn both(a List[int], b List[int]) List[int]
+    mut i := 0
+    mut j := 0
+    mut out := List[int]()
+    while i < a.len() and j < b.len()
+        if a[i] == b[j]
+            out.push(a[i])
+            i += 1
+            j += 1
+        elif a[i] < b[j]
+            i += 1
+        else
+            j += 1
+    out
+
+fn either(a List[int], b List[int]) List[int]
+    mut s := Set[int]()
+    for x in a
+        s.add(x)
+    for x in b
+        s.add(x)
+    s.sorted()
+
+fn main()
+    notes := ["printer jams on floor two", "wifi drops in meeting room", "printer out of toner", "laptop wifi slow on floor two", "meeting room screen broken", "toner ordered for printer", "laptop battery swollen"]
+    mut index := Map[str, List[int]]()
+    for i, n in notes.enumerate()
+        for w in n.words()
+            post := index.get_or(w, List[int]())
+            if not post.contains(i)
+                index.push(w, i)
+    print("{index.len()} words indexed")
+    empty := List[int]()
+    queries := [["printer", "AND", "toner"], ["wifi", "OR", "laptop"], ["floor", "AND", "wifi"], ["printer", "NOT", "toner"], ["room", "AND", "fax"]]
+    for q in queries
+        a := index.get_or(q[0], empty)
+        b := index.get_or(q[2], empty)
+        hits := match q[1]
+            "AND" => both(a, b)
+            "OR" => either(a, b)
+            _ => a.filter(|x| not b.contains(x))
+        shown := q.join(" ")
+        print("{shown}: notes {hits}")
+
+@test fn intersect()
+    assert_eq(both([1, 3, 5], [3, 4, 5]), [3, 5])

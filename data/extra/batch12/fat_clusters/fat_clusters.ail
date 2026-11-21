@@ -1,0 +1,52 @@
+## FAT clusters: a file allocation table where each cluster entry points at the file's next
+## cluster; files are read by following chains, deleted by freeing them, and written first-fit.
+
+FREE := 0
+END := -1
+
+fn chain(fat List[int], start int) List[int]
+    mut out := [start]
+    mut c := start
+    while fat[c] != END
+        c = fat[c]
+        out.push(c)
+    out
+
+fn gaps(cs List[int]) int
+    mut n := 0
+    for i in 1..cs.len()
+        if cs[i] != cs[i - 1] + 1
+            n += 1
+    n
+
+fn write(mut fat List[int], size int) int
+    mut got := List[int]()
+    for c in 2..fat.len()
+        if fat[c] == FREE and got.len() < size
+            got.push(c)
+    if got.len() < size
+        return -1
+    for i in 0..size - 1
+        fat[got[i]] = got[i + 1]
+    fat[got[size - 1]] = END
+    got[0]
+
+fn main()
+    mut fat := [END, END, 3, 4, END, 6, 10, FREE, 11, FREE, 12, END, END, FREE, 15, 16, END, FREE]
+    mut files := {"report": 2, "photo": 5, "notes": 8, "song": 14}
+    for name, start in files
+        cs := chain(fat, start)
+        print("{name:<7} clusters {cs}, {gaps(cs)} jumps")
+    for c in chain(fat, files["photo"])
+        fat[c] = FREE
+    files.remove("photo")
+    print("deleted photo")
+    start := write(mut fat, 5)
+    files["video"] = start
+    vc := chain(fat, start)
+    print("video   clusters {vc}, {gaps(vc)} jumps")
+    free_left := [c for c in 2..fat.len() if fat[c] == FREE].len()
+    print("{free_left} clusters free")
+
+@test fn short_chain()
+    assert_eq(chain([0, 0, 3, END], 2), [2, 3])

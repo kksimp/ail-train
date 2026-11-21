@@ -1,0 +1,5 @@
+bananaaa   1 1 13 1 1 1 0 0           zeros 2, sum  18, decodes to bananaaa
+aaabbbccc  0 0 0 1 0 0 2 0 0          zeros 7, sum   3, decodes to aaabbbccc
+abcabcabc  0 1 2 2 2 2 2 2 2          zeros 1, sum  15, decodes to abcabcabc
+nnbaaa     13 0 2 2 0 0               zeros 3, sum  17, decodes to nnbaaa
+zzzzzy     25 0 0 0 0 25              zeros 4, sum  50, decodes to zzzzzy

@@ -1,0 +1,21 @@
+## Arrhenius rates: k = A exp(-Ea / RT), so the rate at T2 over the rate at T1 is
+## exp(Ea / R (1 / T1 - 1 / T2)); milk lasting 10 days at 4 C spoils faster when kept warmer.
+
+fn rate_ratio(ea float, t1_c float, t2_c float) float
+    t1 := t1_c + 273.15
+    t2 := t2_c + 273.15
+    (ea / 8.314 * (1.0 / t1 - 1.0 / t2)).exp()
+
+fn main()
+    ea := 80000.0
+    for temp in [0.0, 4.0, 8.0, 12.0, 20.0, 30.0]
+        ratio := rate_ratio(ea, 4.0, temp)
+        days := 10.0 / ratio
+        hours := days * 24.0
+        print("{temp:>4.1} C: {ratio:>6.2} times the fridge rate, lasts {days:>5.2} days ({hours:.1} h)")
+    two := 2.0
+    doubling_ea := 8.314 * two.ln() / (1.0 / 293.15 - 1.0 / 303.15)
+    print("a rate that doubles from 20 C to 30 C has Ea = {doubling_ea / 1000.0:.1} kJ/mol")
+
+@test fn same_temperature()
+    assert_eq(rate_ratio(50000.0, 25.0, 25.0), 1.0)

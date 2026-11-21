@@ -1,0 +1,31 @@
+## Hardy-Weinberg: allele frequencies p and q give genotype shares p^2, 2pq and q^2; a recessive
+## condition seen in q^2 of births implies 2pq carriers, and observed counts are tested by chi-square.
+
+fn carriers(incidence float) float
+    q := incidence.sqrt()
+    p := 1.0 - q
+    2.0 * p * q
+
+fn main()
+    for case_ in [("1 in 2500", 2500), ("1 in 10000", 10000), ("1 in 400", 400)]
+        label, n := case_
+        c := carriers(1.0 / n.to_float())
+        print("condition {label}: carriers {c * 100.0:.2}% (1 in {(1.0 / c).to_int()})")
+    aa := 380
+    ab := 440
+    bb := 180
+    total := aa + ab + bb
+    p := (2 * aa + ab).to_float() / (2 * total).to_float()
+    q := 1.0 - p
+    expected := [p * p * total.to_float(), 2.0 * p * q * total.to_float(), q * q * total.to_float()]
+    observed := [aa, ab, bb]
+    mut chi := 0.0
+    for i in 0..3
+        d := observed[i].to_float() - expected[i]
+        chi += d * d / expected[i]
+    print("observed {observed}, p {p:.3}, expected {expected[0]:.1} {expected[1]:.1} {expected[2]:.1}")
+    verdict := if chi < 3.84 then "fits equilibrium" else "departs from equilibrium"
+    print("chi-square {chi:.3}: {verdict}")
+
+@test fn half_and_half()
+    assert_eq(carriers(0.25), 0.5)

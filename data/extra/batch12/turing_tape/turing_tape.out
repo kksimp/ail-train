@@ -1,0 +1,5 @@
+increment 1011: 1100 in 3 steps
+increment 111: 1000 in 4 steps
+increment 0: 1 in 1 steps
+increment 1001: 1010 in 2 steps
+busy beaver: tape 1111 after 6 steps

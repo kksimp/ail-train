@@ -1,0 +1,29 @@
+## Capacitor banks: in parallel capacitances add, in series 1 / C = sum of 1 / Ci while the voltage
+## ratings add; stored energy is C V^2 / 2, shown for banks of 2.7 V, 100 F supercapacitors.
+
+fn parallel(caps List[float]) float
+    caps.fold(0.0, |acc, c| acc + c)
+
+fn series(caps List[float]) float
+    inv := caps.fold(0.0, |acc, c| acc + 1.0 / c)
+    1.0 / inv
+
+fn energy(c float, v float) float
+    c * v * v / 2.0
+
+fn main()
+    for n in [1, 2, 4, 6]
+        caps := [100.0 for k in 0..n]
+        cs := series(caps)
+        vs := 2.7 * n.to_float()
+        es := energy(cs, vs)
+        cp := parallel(caps)
+        ep := energy(cp, 2.7)
+        print("{n} cells: series {cs:>6.2} F at {vs:>4.1} V = {es:>6.1} J, parallel {cp:>5.1} F at 2.7 V = {ep:>6.1} J")
+    mixed := series([parallel([100.0, 100.0]), parallel([100.0, 100.0]), parallel([100.0, 100.0])])
+    joules := energy(mixed, 8.1)
+    wh := joules / 3600.0
+    print("3 pairs in series: {mixed:.2} F at 8.1 V holds {joules:.1} J = {wh:.4} Wh")
+
+@test fn two_in_series_halve()
+    assert_eq(series([100.0, 100.0]), 50.0)

@@ -1,0 +1,39 @@
+## Boustrophedon: text laid out the way an ox ploughs a field, left to right on one line and right to
+## left (letters mirrored) on the next; reading back reverses every second line again.
+
+fn pack(text str, width int) List[str]
+    mut lines := List[str]()
+    mut cur := List[str]()
+    mut used := 0
+    for w in text.split(" ")
+        extra := if cur.is_empty() then w.len() else w.len() + 1
+        if used + extra > width and not cur.is_empty()
+            lines.push(cur.join(" "))
+            cur = [w]
+            used = w.len()
+        else
+            cur.push(w)
+            used += extra
+    lines.push(cur.join(" "))
+    lines
+
+fn flip(s str) str
+    s.chars().reversed().join("")
+
+fn main()
+    text := "the plough turns at the end of each furrow and comes back the other way so the reader never jumps back"
+    width := 22
+    lines := pack(text, width)
+    mut carved := List[str]()
+    for i, l in lines.enumerate()
+        row := if i % 2 == 0 then l else flip(l).pad_left(width, ' ')
+        carved.push(row)
+        print(row)
+    mut read := List[str]()
+    for i, row in carved.enumerate()
+        read.push(if i % 2 == 0 then row else flip(row.trim_start()))
+    same := read.join(" ") == text
+    print("read back matches: {same}")
+
+@test fn mirror()
+    assert_eq(flip("abc"), "cba")

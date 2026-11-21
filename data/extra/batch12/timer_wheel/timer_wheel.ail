@@ -1,0 +1,32 @@
+## Timer wheel: timeouts hash into eight slots by expiry tick; a timer further away than one turn
+## also counts the turns left, and each tick only the current slot is examined.
+
+struct Timer
+    name str
+    rounds int
+
+fn main()
+    slots := 8
+    mut wheel := List[List[Timer]]()
+    for i in 0..slots
+        wheel.push(List[Timer]())
+    starts := [("retry", 3), ("heartbeat", 5), ("session", 19), ("flush", 8), ("lease", 11), ("probe", 3), ("audit", 27)]
+    for s in starts
+        name, delay := s
+        wheel[delay % slots].push(Timer(name: name, rounds: (delay - 1) / slots))
+        print("set {name:<9} for tick {delay:>2}: slot {delay % slots}, {(delay - 1) / slots} turns")
+    mut checked := 0
+    for tick in 1..=28
+        slot := tick % slots
+        mut keep := List[Timer]()
+        for t in wheel[slot]
+            checked += 1
+            if t.rounds == 0
+                print("tick {tick:>2}: {t.name} fires")
+            else
+                keep.push(Timer(name: t.name, rounds: t.rounds - 1))
+        wheel[slot] = keep
+    print("{checked} timer checks over 28 ticks")
+
+@test fn turns()
+    assert_eq((19 - 1) / 8, 2)
