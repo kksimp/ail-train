@@ -1,0 +1,23 @@
+## Cash rounding: where the smallest coin is 5 cents, cash totals round to the nearest 5
+## cents (2 down, 3 up) while card payments stay exact; prints both and the difference.
+
+fn round5(c int) int
+    r := c % 5
+    if r < 3 then c - r else c + 5 - r
+
+fn cents(c int) str
+    "{c / 100}.{c % 100:02}"
+
+fn main()
+    totals := [1001, 1002, 1003, 1004, 1005, 1236, 999, 4572]
+    mut drift := 0
+    for t in totals
+        r := round5(t)
+        drift += r - t
+        diff := r - t
+        sign := if diff > 0 then "+" else ""
+        print("{cents(t)} -> cash {cents(r)} ({sign}{diff})")
+    print("net rounding over {totals.len()} sales: {drift} cents")
+
+@test fn up()
+    assert_eq(round5(1003), 1005)

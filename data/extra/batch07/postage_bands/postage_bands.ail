@@ -1,0 +1,31 @@
+## Postage bands: prices parcels by weight band and size class, with a surcharge for
+## parcels over 60 cm on any side, and totals a sending session.
+
+fn price(grams int, longest int) (str, int)
+    bands := [(100, 85), (250, 135), (500, 210), (1000, 320), (2000, 495), (5000, 790)]
+    mut base := -1
+    for b in bands
+        if grams <= b.0
+            base = b.1
+            break
+    if base < 0
+        return ("too heavy", 0)
+    if longest > 60
+        return ("large", base + 450)
+    ("standard", base)
+
+fn main()
+    parcels := [("letter", 80, 24), ("book", 640, 30), ("lamp", 1900, 72), ("socks", 230, 20), ("anvil", 9000, 40), ("poster", 300, 90)]
+    mut total := 0
+    for p in parcels
+        name, grams, longest := p
+        kind, cost := price(grams, longest)
+        total += cost
+        if cost == 0
+            print("{name}: {grams} g, {kind}")
+        else
+            print("{name}: {grams} g, {longest} cm, {kind}, {cost / 100}.{cost % 100:02}")
+    print("total {total / 100}.{total % 100:02}")
+
+@test fn light()
+    assert_eq(price(50, 10).1, 85)

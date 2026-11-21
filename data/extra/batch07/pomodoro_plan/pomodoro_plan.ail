@@ -1,0 +1,25 @@
+## Pomodoro plan: splits tasks into 25-minute work blocks with 5-minute breaks and a
+## 20-minute break after every fourth block, printing a timetable from 09:00.
+
+fn hm(m int) str
+    "{m / 60:02}:{m % 60:02}"
+
+fn main()
+    tasks := [("report", 60), ("email", 20), ("slides", 75), ("review", 30)]
+    mut clock := 540
+    mut blocks := 0
+    for t in tasks
+        name, mins := t
+        mut left := mins
+        while left > 0
+            work := if left > 25 then 25 else left
+            print("{hm(clock)}-{hm(clock + work)} {name}")
+            clock += work
+            left -= work
+            blocks += 1
+            pause := if blocks % 4 == 0 then 20 else 5
+            clock += pause
+    print("{blocks} blocks, done by {hm(clock)}")
+
+@test fn time()
+    assert_eq(hm(565), "09:25")

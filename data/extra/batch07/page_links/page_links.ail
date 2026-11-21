@@ -1,0 +1,22 @@
+## Page links: builds the page-number bar for a results list, always showing the first and
+## last pages and two either side of the current one, with "..." for gaps.
+
+fn bar(current int, last int) str
+    mut parts := List[str]()
+    mut prev := 0
+    for p in 1..=last
+        near := p == 1 or p == last or (p >= current - 2 and p <= current + 2)
+        if not near
+            continue
+        if p - prev > 1
+            parts.push("...")
+        parts.push(if p == current then "[{p}]" else "{p}")
+        prev = p
+    parts.join(" ")
+
+fn main()
+    for c in [(1, 1), (1, 5), (3, 9), (6, 20), (19, 20), (10, 10), (4, 7)]
+        print("page {c.0} of {c.1}: {bar(c.0, c.1)}")
+
+@test fn single()
+    assert_eq(bar(1, 1), "[1]")

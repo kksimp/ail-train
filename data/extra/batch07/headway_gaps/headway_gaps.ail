@@ -1,0 +1,22 @@
+## Headways: gaps between tram departures at a stop are compared with the 10-minute plan;
+## gaps over 15 minutes and bunches under 4 minutes are flagged, with the average wait.
+
+fn main()
+    departures := [600, 610, 619, 622, 640, 649, 660, 663, 666, 690, 700, 710]
+    mut flags := List[str]()
+    mut sq := 0
+    mut total := 0
+    for i in 1..departures.len()
+        gap := departures[i] - departures[i - 1]
+        total += gap
+        sq += gap * gap
+        note := if gap > 15 then " long" elif gap < 4 then " bunched" else ""
+        if note != ""
+            flags.push("{departures[i]}")
+        print("{departures[i - 1] / 60:02}:{departures[i - 1] % 60:02} -> {departures[i] / 60:02}:{departures[i] % 60:02} gap {gap}{note}")
+    wait := sq.to_float() / (2.0 * total.to_float())
+    shown := flags.join(", ")
+    print("average wait {wait:.2} min (5.00 if regular); flagged arrivals at minute {shown}")
+
+@test fn even()
+    assert_eq((10 * 10 * 3) / (2 * 30), 5)

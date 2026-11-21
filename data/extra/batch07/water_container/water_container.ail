@@ -1,0 +1,26 @@
+## Water container: picks two walls from a row of heights that hold the most water between
+## them, using two pointers that move the shorter wall inwards.
+
+fn most_water(h List[int]) (int, int, int)
+    mut i := 0
+    mut j := h.len() - 1
+    mut best := (0, 0, 0)
+    while i < j
+        low := if h[i] < h[j] then h[i] else h[j]
+        area := low * (j - i)
+        if area > best.0
+            best = (area, i, j)
+        if h[i] < h[j]
+            i += 1
+        else
+            j -= 1
+    best
+
+fn main()
+    for walls in [[1, 8, 6, 2, 5, 4, 8, 3, 7], [1, 1], [4, 3, 2, 1, 4], [1, 2, 1], [2, 3, 10, 5, 7, 8, 9]]
+        b := most_water(walls)
+        shown := walls.map(|x| "{x}").join(" ")
+        print("[{shown}]: {b.0} between walls {b.1 + 1} and {b.2 + 1}")
+
+@test fn pair()
+    assert_eq(most_water([1, 1]).0, 1)

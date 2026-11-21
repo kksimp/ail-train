@@ -1,0 +1,33 @@
+## Seven segments: draws numbers on a three-row seven-segment display using a bit mask per
+## digit (segments a to g), and counts lit segments as a power estimate.
+
+fn main()
+    masks := [63, 6, 91, 79, 102, 109, 125, 7, 127, 111]
+    for number in ["0123", "4567", "89", "2026"]
+        mut top := List[str]()
+        mut mid := List[str]()
+        mut bot := List[str]()
+        mut lit := 0
+        for c in number.chars()
+            m := masks[c.to_digit(10) else 0]
+            a := if (m & 1) != 0 then "_" else " "
+            b := if (m & 2) != 0 then "|" else " "
+            cc := if (m & 4) != 0 then "|" else " "
+            d := if (m & 8) != 0 then "_" else " "
+            e := if (m & 16) != 0 then "|" else " "
+            f := if (m & 32) != 0 then "|" else " "
+            g := if (m & 64) != 0 then "_" else " "
+            top.push(" {a} ")
+            mid.push("{f}{g}{b}")
+            bot.push("{e}{d}{cc}")
+            mut x := m
+            while x > 0
+                lit += x & 1
+                x = x >> 1
+        print(top.join(" ").trim_end())
+        print(mid.join(" ").trim_end())
+        print(bot.join(" ").trim_end())
+        print("{number}: {lit} segments lit")
+
+@test fn eight()
+    assert_eq(127 & 64, 64)

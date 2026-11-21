@@ -1,0 +1,52 @@
+## Noughts minimax: picks the best move in noughts and crosses positions by searching the
+## whole game tree, scoring wins sooner higher, and shows the predicted result.
+
+fn winner(b List[char]) char
+    lines := [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]]
+    for l in lines
+        if b[l[0]] != '.' and b[l[0]] == b[l[1]] and b[l[1]] == b[l[2]]
+            return b[l[0]]
+    '.'
+
+fn score(b List[char], turn char, depth int) int
+    w := winner(b)
+    if w == 'X'
+        return 10 - depth
+    if w == 'O'
+        return depth - 10
+    if not b.contains('.')
+        return 0
+    mut best := if turn == 'X' then -100 else 100
+    for i in 0..9
+        if b[i] == '.'
+            mut nb := b
+            nb[i] = turn
+            other := if turn == 'X' then 'O' else 'X'
+            s := score(nb, other, depth + 1)
+            if turn == 'X' and s > best
+                best = s
+            if turn == 'O' and s < best
+                best = s
+    best
+
+fn main()
+    positions := [("X.O.X..O.", 'X'), ("XO.XO....", 'X'), ("XX.OO....", 'O'), ("X...O....", 'X'), ("OX.XO.X..", 'O')]
+    for p in positions
+        board := p.0.chars()
+        turn := p.1
+        mut best_move := -1
+        mut best := if turn == 'X' then -100 else 100
+        for i in 0..9
+            if board[i] == '.'
+                mut nb := board
+                nb[i] = turn
+                other := if turn == 'X' then 'O' else 'X'
+                s := score(nb, other, 1)
+                if (turn == 'X' and s > best) or (turn == 'O' and s < best)
+                    best = s
+                    best_move = i
+        result := if best > 0 then "X wins" elif best < 0 then "O wins" else "draw"
+        print("{p.0} {turn} to play: square {best_move + 1}, {result}")
+
+@test fn row()
+    assert_eq(winner("XXX......".chars()), 'X')

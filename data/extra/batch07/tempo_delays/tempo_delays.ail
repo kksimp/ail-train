@@ -1,0 +1,13 @@
+## Tempo delays: delay times in milliseconds for note lengths at several tempos (beats per
+## minute), including dotted and triplet values, as used to set an echo effect.
+
+fn main()
+    notes := [("1/4", 1.0), ("1/8", 0.5), ("1/8 dotted", 0.75), ("1/8 triplet", 1.0 / 3.0), ("1/16", 0.25)]
+    for bpm in [90, 120, 140]
+        beat := 60000.0 / bpm.to_float()
+        parts := notes.map(|n| "{n.0} {beat * n.1:.1}")
+        shown := parts.join(", ")
+        print("{bpm} bpm: {shown} ms")
+
+@test fn quarter()
+    assert_eq(60000.0 / 120.0, 500.0)
