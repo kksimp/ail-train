@@ -1,0 +1,35 @@
+## Longest rising run: the longest strictly increasing subsequence of daily step counts (not
+## necessarily on consecutive days), found by dynamic programming with back links.
+
+fn rising(xs List[int]) List[int]
+    n := xs.len()
+    mut best := List[int]()
+    mut back := List[int]()
+    for i in 0..n
+        best.push(1)
+        back.push(-1)
+        for j in 0..i
+            if xs[j] < xs[i] and best[j] + 1 > best[i]
+                best[i] = best[j] + 1
+                back[i] = j
+    mut end := 0
+    for i in 0..n
+        if best[i] > best[end]
+            end = i
+    mut out := List[int]()
+    mut k := end
+    while k >= 0
+        out.push(xs[k])
+        k = back[k]
+    out.reverse()
+    out
+
+fn main()
+    weeks := [[5200, 6100, 4800, 7000, 6500, 8200, 7900, 9100], [9000, 8500, 8000, 7500], [3000, 3500, 3200, 4100, 3900, 4400, 5000, 4700, 5600]]
+    for w in weeks
+        run := rising(w)
+        shown := run.join(" < ")
+        print("{run.len()} rising: {shown}")
+
+@test fn falling()
+    assert_eq(rising([3, 2, 1]).len(), 1)

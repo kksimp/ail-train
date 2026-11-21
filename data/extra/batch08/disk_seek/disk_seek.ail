@@ -1,0 +1,44 @@
+## Disk head scheduling: total head travel for a queue of cylinder requests under first come
+## first served, shortest seek first, and the elevator sweep that runs to the low end first.
+
+fn travel(start int, order List[int]) int
+    mut pos := start
+    mut moved := 0
+    for c in order
+        moved += (c - pos).abs()
+        pos = c
+    moved
+
+fn shortest_first(start int, requests List[int]) List[int]
+    mut left := requests
+    mut pos := start
+    mut order := List[int]()
+    while left.len() > 0
+        mut pick := 0
+        for i in 0..left.len()
+            gap := (left[i] - pos).abs()
+            best := (left[pick] - pos).abs()
+            if gap < best or (gap == best and left[i] < left[pick])
+                pick = i
+        pos = left[pick]
+        order.push(pos)
+        left.remove_at(pick)
+    order
+
+fn main()
+    head := 53
+    requests := [98, 183, 37, 122, 14, 124, 65, 67]
+    sorted_reqs := requests.sorted()
+    mut sweep := sorted_reqs.filter(|c| c <= head).reversed()
+    sweep.push(0)
+    sweep.extend(sorted_reqs.filter(|c| c > head))
+    mut look := sorted_reqs.filter(|c| c <= head).reversed()
+    look.extend(sorted_reqs.filter(|c| c > head))
+    plans := [("first come", requests), ("shortest seek", shortest_first(head, requests)), ("sweep", sweep), ("look", look)]
+    for p in plans
+        name, order := p
+        shown := order.join(" ")
+        print("{name:<13} {travel(head, order):>4} cylinders: {shown}")
+
+@test fn straight()
+    assert_eq(travel(0, [10, 20]), 20)

@@ -1,0 +1,4 @@
+((M1(M2M3))((M4M5)M6)): 15125 multiplications (left to right 40500)
+(M1M2): 6000 multiplications (left to right 6000)
+((M1(M2M3))M4): 26000 multiplications (left to right 48000)
+((M1M2)(M3M4)): 1440 multiplications (left to right 2500)

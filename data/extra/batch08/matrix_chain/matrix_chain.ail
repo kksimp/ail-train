@@ -1,0 +1,50 @@
+## Matrix chain order: the cheapest way to bracket a product of matrices, by dynamic
+## programming over chain lengths; prints the scalar multiplications and the bracketing.
+
+fn brackets(split List[List[int]], i int, j int) str
+    if i == j
+        return "M{i + 1}"
+    k := split[i][j]
+    left := brackets(split, i, k)
+    right := brackets(split, k + 1, j)
+    "({left}{right})"
+
+fn chain(dims List[int])
+    n := dims.len() - 1
+    mut cost := List[List[int]]()
+    mut split := List[List[int]]()
+    for i in 0..n
+        mut row := List[int]()
+        mut srow := List[int]()
+        for j in 0..n
+            row.push(0)
+            srow.push(0)
+        cost.push(row)
+        split.push(srow)
+    for span in 2..=n
+        for i in 0..n - span + 1
+            j := i + span - 1
+            cost[i][j] = -1
+            for k in i..j
+                c := cost[i][k] + cost[k + 1][j] + dims[i] * dims[k + 1] * dims[j + 1]
+                if cost[i][j] < 0 or c < cost[i][j]
+                    cost[i][j] = c
+                    split[i][j] = k
+    order := brackets(split, 0, n - 1)
+    naive := chain_left(dims)
+    print("{order}: {cost[0][n - 1]} multiplications (left to right {naive})")
+
+fn chain_left(dims List[int]) int
+    mut total := 0
+    for k in 1..dims.len() - 1
+        total += dims[0] * dims[k] * dims[k + 1]
+    total
+
+fn main()
+    chain([30, 35, 15, 5, 10, 20, 25])
+    chain([10, 20, 30])
+    chain([40, 20, 30, 10, 30])
+    chain([5, 100, 2, 50, 4])
+
+@test fn two()
+    assert_eq(chain_left([10, 20, 30]), 6000)
