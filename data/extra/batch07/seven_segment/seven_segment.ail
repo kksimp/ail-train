@@ -9,7 +9,7 @@ fn main()
         mut bot := List[str]()
         mut lit := 0
         for c in number.chars()
-            m := masks[c.to_digit(10) else 0]
+            m := masks[(c.to_digit(10) else 0)]
             a := if (m & 1) != 0 then "_" else " "
             b := if (m & 2) != 0 then "|" else " "
             cc := if (m & 4) != 0 then "|" else " "
