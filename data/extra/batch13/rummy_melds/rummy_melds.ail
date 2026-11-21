@@ -1,0 +1,50 @@
+## Rummy melds: a group is three or four cards of one rank in different suits, a run three or more
+## cards of one suit in consecutive ranks (ace low); invalid melds fail with the reason.
+
+enum Meld
+    Group(rank int)
+    Run(low int, high int)
+
+fn rank_of(card str) int
+    ("A23456789TJQK".find(card.slice(0, 1)) else 0) + 1
+
+fn points(rank int) int
+    if rank >= 10 then 10 else rank
+
+fn classify(cards List[str]) Meld ! str
+    if cards.len() < 3
+        return "too few cards"
+    ranks := cards.map(|c| rank_of(c))
+    mut suits := Set[str]()
+    for c in cards
+        suits.add(c.slice(1, 2))
+    if ranks.all(|r| r == ranks[0])
+        if suits.len() != cards.len() or cards.len() > 4
+            return "repeated suit"
+        return Meld.Group(rank: ranks[0])
+    if suits.len() != 1
+        return "mixed ranks and suits"
+    order := ranks.sorted()
+    for i in 1..order.len()
+        if order[i] != order[i - 1] + 1
+            return "gap in run"
+    Meld.Run(low: order[0], high: order[order.len() - 1])
+
+fn main()
+    melds := ["7H 7S 7D", "4C 5C 6C 7C", "QD KD JD", "9S 9S 9H", "2H 3H 5H", "AS 2S 3S", "8C 8D", "TH JS QH"]
+    mut total := 0
+    for line in melds
+        cards := line.split(" ")
+        if m := classify(cards)
+            text := match m
+                Group(r) => "group of rank {r}"
+                Run(lo, hi) => "run from {lo} to {hi}"
+            value := cards.map(|c| points(rank_of(c))).sum()
+            total += value
+            print("{line}: {text}, worth {value}")
+        else err
+            print("{line}: invalid, {err}")
+    print("points in valid melds: {total}")
+
+@test fn king_rank()
+    assert_eq(rank_of("KD"), 13)

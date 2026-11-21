@@ -1,0 +1,32 @@
+## Table tennis serves: the serve changes every two points, but from 10-10 it changes after every
+## point; a game is first to 11 with a two-point lead. Prints who served each point.
+
+fn server(a int, b int, first int) int
+    played := a + b
+    turns := if a >= 10 and b >= 10 then 10 + (played - 20) else played / 2
+    (first + turns) % 2
+
+fn main()
+    names := ["Rui", "Sam"]
+    games := ["ABBAABABBBAAABABABAAB", "ABABABABABABABABABABBAABAABB", "BBBBABBBBBABBB"]
+    for gi, points in games.enumerate()
+        first := gi % 2
+        mut a := 0
+        mut b := 0
+        mut order := List[str]()
+        for p in points.chars()
+            if (a >= 11 or b >= 11) and (a - b).abs() >= 2
+                break
+            s := server(a, b, first)
+            order.push(names[s].slice(0, 1))
+            if p == 'A'
+                a += 1
+            else
+                b += 1
+        winner := if a > b then names[0] else names[1]
+        shown := order.join("")
+        print("game {gi + 1}: {a}-{b} to {winner}")
+        print("  servers {shown}")
+
+@test fn deuce_alternates()
+    assert(server(10, 10, 0) != server(11, 10, 0))

@@ -1,0 +1,30 @@
+## Polyrhythm grid: two pulses of a and b beats in one bar line up on a grid of lcm(a, b) steps; the
+## grid shows each voice's hits and the steps where both strike together.
+
+fn gcd(a int, b int) int
+    if b == 0 then a else gcd(b, a % b)
+
+fn lcm(a int, b int) int
+    a / gcd(a, b) * b
+
+fn row(beats int, steps int) str
+    every := steps / beats
+    mut cells := List[str]()
+    for i in 0..steps
+        cells.push(if i % every == 0 then "x" else ".")
+    cells.join("")
+
+fn main()
+    for pair in [[4, 6], [3, 4], [5, 4], [7, 3]]
+        a := pair[0]
+        b := pair[1]
+        steps := lcm(a, b)
+        top := row(a, steps)
+        bottom := row(b, steps)
+        together := gcd(a, b)
+        print("{a} against {b} on {steps} steps, together {together} time(s) per bar")
+        print("  {top}")
+        print("  {bottom}")
+
+@test fn three_four()
+    assert_eq(lcm(3, 4), 12)

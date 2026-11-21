@@ -1,0 +1,32 @@
+## Goalie stats: save percentage is saves over shots, written hockey style without the leading zero,
+## and goals against average is goals allowed per 60 minutes of ice time counted in seconds.
+
+struct Goalie
+    name str
+    shots int
+    goals int
+    seconds int
+
+fn Goalie.save_pct(self) str
+    p := (shots - goals).to_float() / shots.to_float()
+    text := "{p:.3}"
+    text.slice(1)
+
+fn Goalie.gaa(self) float
+    (goals * 3600).to_float() / seconds.to_float()
+
+fn clock(seconds int) str
+    m := seconds / 60
+    s := seconds % 60
+    "{m}:{s:02}"
+
+fn main()
+    goalies := [Goalie(name: "Hasek", shots: 1840, goals: 151, seconds: 223560), Goalie(name: "Ivers", shots: 960, goals: 92, seconds: 121905), Goalie(name: "Juneau", shots: 412, goals: 30, seconds: 51210), Goalie(name: "Kask", shots: 1322, goals: 120, seconds: 168035)]
+    print("goalie    TOI         SA   GA   SV%   GAA")
+    for g in goalies
+        print("{g.name:<7} {clock(g.seconds):>9} {g.shots:>6} {g.goals:>4} {g.save_pct()} {g.gaa():>5.2}")
+    best := goalies.filter(|g| g.seconds >= 60000).sorted(by: |g| g.goals * 100000000 / g.shots)
+    print("best save rate with 1000 minutes: {best[0].name}")
+
+@test fn clock_pads()
+    assert_eq(clock(125), "2:05")

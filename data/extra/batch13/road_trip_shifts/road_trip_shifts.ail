@@ -1,0 +1,29 @@
+## Road trip shifts: legs are driven in order and a driver hands over at the end of a leg once the
+## next leg would take them past two hours at the wheel; the next driver with day time left takes over.
+
+struct Driver
+    name str
+    stint int
+    day int
+
+fn main()
+    legs := [("Leeds", 95), ("York", 40), ("Durham", 70), ("Newcastle", 25), ("Berwick", 75), ("Edinburgh", 60), ("Perth", 50), ("Pitlochry", 35), ("Aviemore", 55), ("Inverness", 40)]
+    mut drivers := [Driver(name: "Ana", stint: 0, day: 0), Driver(name: "Raj", stint: 0, day: 0), Driver(name: "Sue", stint: 0, day: 0)]
+    mut cur := 0
+    for leg in legs
+        place, minutes := leg
+        if drivers[cur].stint + minutes > 120
+            drivers[cur].stint = 0
+            mut next := (cur + 1) % 3
+            while drivers[next].day + minutes > 240
+                next = (next + 1) % 3
+            print("swap at the start of the leg to {place}: {drivers[cur].name} hands over to {drivers[next].name}")
+            cur = next
+        drivers[cur].stint += minutes
+        drivers[cur].day += minutes
+    for d in drivers
+        print("{d.name}: {d.day / 60} h {d.day % 60:02} min")
+
+@test fn day_total()
+    d := Driver(name: "x", stint: 30, day: 90)
+    assert_eq(d.day - d.stint, 60)

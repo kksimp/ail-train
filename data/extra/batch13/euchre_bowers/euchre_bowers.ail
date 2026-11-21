@@ -1,0 +1,54 @@
+## Euchre bowers: the jack of trumps (right bower) is the top card and the other jack of the same
+## colour (left bower) is second and counts as a trump; a trick goes to the most powerful card.
+
+enum Suit
+    Hearts
+    Diamonds
+    Clubs
+    Spades
+
+fn suit_of(c char) Suit
+    match c
+        'H' => Suit.Hearts
+        'D' => Suit.Diamonds
+        'C' => Suit.Clubs
+        _ => Suit.Spades
+
+fn same_colour(s Suit) Suit
+    match s
+        Hearts => Suit.Diamonds
+        Diamonds => Suit.Hearts
+        Clubs => Suit.Spades
+        Spades => Suit.Clubs
+
+fn rank_value(card str) int
+    "9TJQKA".find(card.slice(0, 1)) else 0
+
+fn effective(card str, trump Suit) Suit
+    s := suit_of(card.char_at(1) else 'S')
+    if card.starts_with("J") and s == same_colour(trump) then trump else s
+
+fn power(card str, trump Suit, led Suit) int
+    s := suit_of(card.char_at(1) else 'S')
+    if card.starts_with("J") and s == trump
+        return 100
+    if card.starts_with("J") and s == same_colour(trump)
+        return 99
+    eff := effective(card, trump)
+    if eff == trump then 50 + rank_value(card) elif eff == led then 10 + rank_value(card) else 0
+
+fn main()
+    trump := Suit.Hearts
+    print("trumps: {trump}")
+    tricks := [["9H", "AD", "JD", "KH"], ["AC", "KC", "9C", "TC"], ["JD", "QH", "AH", "9S"], ["QS", "AS", "TH", "JH"], ["KD", "9D", "TS", "QD"]]
+    for t in tricks
+        led := effective(t[0], trump)
+        mut best := 0
+        for i in 1..4
+            if power(t[i], trump, led) > power(t[best], trump, led)
+                best = i
+        cards := t.join(" ")
+        print("{cards}: led {led}, won by {t[best]} (power {power(t[best], trump, led)})")
+
+@test fn left_bower_is_trump()
+    assert_eq(effective("JD", Suit.Hearts), Suit.Hearts)

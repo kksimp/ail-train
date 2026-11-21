@@ -1,0 +1,46 @@
+## Nine men's morris mills: pieces are placed on the 24 points; three in one of the 16 lines form a
+## mill, and the player then removes the lowest opponent piece that is not itself in a mill.
+
+MILLS := [[0, 1, 2], [2, 3, 4], [4, 5, 6], [6, 7, 0], [8, 9, 10], [10, 11, 12], [12, 13, 14], [14, 15, 8], [16, 17, 18], [18, 19, 20], [20, 21, 22], [22, 23, 16], [1, 9, 17], [3, 11, 19], [5, 13, 21], [7, 15, 23]]
+
+fn in_mill(board List[char], p int) bool
+    for m in MILLS
+        if m.contains(p) and board[m[0]] == board[p] and board[m[1]] == board[p] and board[m[2]] == board[p]
+            return true
+    false
+
+fn main()
+    mut board := List[char]()
+    for k in 0..24
+        board.push('.')
+    moves := [0, 8, 1, 9, 2, 10, 16, 11, 17, 12, 18, 3, 4, 19]
+    for i, p in moves.enumerate()
+        me := if i % 2 == 0 then 'W' else 'B'
+        foe := if me == 'W' then 'B' else 'W'
+        if board[p] != '.'
+            print("{me} cannot place on {p}")
+            continue
+        board[p] = me
+        if in_mill(board, p)
+            mut taken := -1
+            for q in 0..24
+                if taken < 0 and board[q] == foe and not in_mill(board, q)
+                    taken = q
+            if taken >= 0
+                board[taken] = '.'
+                print("{me} places {p}, makes a mill and removes {foe} from {taken}")
+            else
+                print("{me} places {p}, makes a mill but every {foe} piece is protected")
+    whites := board.count(|c| c == 'W')
+    blacks := board.count(|c| c == 'B')
+    print("pieces left: W {whites}, B {blacks}")
+    print(board.join(""))
+
+@test fn top_row_mill()
+    mut b := List[char]()
+    for k in 0..24
+        b.push('.')
+    b[0] = 'W'
+    b[1] = 'W'
+    b[2] = 'W'
+    assert(in_mill(b, 1))

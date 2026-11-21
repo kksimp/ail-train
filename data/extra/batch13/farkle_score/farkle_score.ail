@@ -1,0 +1,45 @@
+## Farkle scoring: a straight 1-6 is 1500, three pairs 750, three alike 100 times the face (1000 for
+## ones) doubling for each extra die, and loose ones 100 and fives 50; no score is a farkle.
+
+fn score(dice List[int]) List[int]
+    mut c := [0, 0, 0, 0, 0, 0, 0]
+    for d in dice
+        c[d] += 1
+    if dice.len() == 6 and c.slice(1).all(|n| n == 1)
+        return [1500, 6]
+    if dice.len() == 6 and c.count(|n| n == 2) == 3
+        return [750, 6]
+    mut points := 0
+    mut used := 0
+    for face in 1..7
+        mut n := c[face]
+        if n >= 3
+            mut part := if face == 1 then 1000 else face * 100
+            for _ in 3..n
+                part *= 2
+            points += part
+            used += n
+            n = 0
+        if face == 1
+            points += n * 100
+            used += n
+        if face == 5
+            points += n * 50
+            used += n
+    [points, used]
+
+fn main()
+    throws := [[1, 5, 2, 3, 4, 6], [2, 2, 3, 3, 6, 6], [1, 1, 1, 5, 2, 4], [4, 4, 4, 4, 2, 3], [2, 3, 4, 6, 6, 3], [5, 5, 5, 5, 5, 1], [3, 4, 6, 2], [1, 5, 5]]
+    mut farkles := 0
+    for t in throws
+        s := score(t)
+        shown := t.join(" ")
+        if s[0] == 0
+            farkles += 1
+            print("{shown:<11} farkle")
+        else
+            print("{shown:<11} {s[0]:>5} using {s[1]} dice")
+    print("farkles: {farkles} of {throws.len()}")
+
+@test fn four_fours()
+    assert_eq(score([4, 4, 4, 4]), [800, 4])

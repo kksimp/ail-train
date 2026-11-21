@@ -1,0 +1,37 @@
+## Transpose chords: moves each chord symbol's root (and any slash bass note) by a number of semitones,
+## keeping the quality suffix, and spells with flats when the new key is a flat key.
+
+SHARPS := ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
+FLATS := ["C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B"]
+
+fn split_root(sym str) List[str]
+    n := if sym.len() > 1 and (sym.slice(1, 2) == "#" or sym.slice(1, 2) == "b") then 2 else 1
+    [sym.slice(0, n), sym.slice(n)]
+
+fn move_note(note str, by int, flat bool) str
+    i := SHARPS.index_of(note) else (FLATS.index_of(note) else 0)
+    j := ((i + by) % 12 + 12) % 12
+    if flat then FLATS[j] else SHARPS[j]
+
+fn transpose(chord str, by int, flat bool) str
+    halves := chord.split("/")
+    parts := split_root(halves[0])
+    top := "{move_note(parts[0], by, flat)}{parts[1]}"
+    if halves.len() == 2
+        return "{top}/{move_note(halves[1], by, flat)}"
+    top
+
+fn main()
+    song := ["C", "Am7", "F", "G7", "Bb", "D/F#", "Gsus4", "C"]
+    flat_keys := ["F", "Bb", "Eb", "Ab", "Db"]
+    original := song.join(" ")
+    print("in C: {original}")
+    for by in [2, -2, 5, 3, -5]
+        key := move_note("C", by, true)
+        flat := flat_keys.contains(key)
+        shown := song.map(|c| transpose(c, by, flat)).join(" ")
+        new_key := move_note("C", by, flat)
+        print("in {new_key:<2} ({by:>2}): {shown}")
+
+@test fn slash_bass_moves()
+    assert_eq(transpose("D/F#", 2, false), "E/G#")

@@ -1,0 +1,30 @@
+## Colour harmony: from a base hue on the 360-degree wheel, complementary, triadic, analogous and
+## split-complementary schemes add fixed angles; each hue is named by its 30-degree slice of a 12-colour wheel.
+
+enum Scheme
+    Complementary
+    Triadic
+    Analogous
+    SplitComplementary
+
+fn offsets(s Scheme) List[int]
+    match s
+        Complementary => [0, 180]
+        Triadic => [0, 120, 240]
+        Analogous => [330, 0, 30]
+        SplitComplementary => [0, 150, 210]
+
+fn hue_name(h int) str
+    names := ["red", "orange", "yellow", "chartreuse", "green", "spring green", "cyan", "azure", "blue", "violet", "magenta", "rose"]
+    names[(h + 15) % 360 / 30]
+
+fn main()
+    for base in [10, 200, 275]
+        print("base {base} ({hue_name(base)})")
+        for s in Scheme.variants()
+            hues := offsets(s).map(|o| (base + o) % 360)
+            named := hues.map(|h| "{h} {hue_name(h)}").join(", ")
+            print("  {s.name():<18} {named}")
+
+@test fn complement_of_red()
+    assert_eq(hue_name((0 + 180) % 360), "cyan")

@@ -1,0 +1,28 @@
+## Brick set parts: compares a box of loose building bricks with the part lists of several sets,
+## giving how many copies of each set can be built and which parts are short for the first copy.
+
+fn copies(have Map[str, int], need Map[str, int]) int
+    mut most := 1000000
+    for part, n in need
+        most = most.min(have.get_or(part, 0) / n)
+    most
+
+fn main()
+    have := {"2x4 red": 14, "2x2 red": 6, "1x2 grey": 22, "wheel": 4, "axle": 1, "window": 3, "2x4 blue": 9, "plate 6x8": 2}
+    sets := [("fire truck", {"2x4 red": 8, "2x2 red": 4, "wheel": 4, "axle": 2, "window": 1}), ("cottage", {"2x4 blue": 6, "1x2 grey": 10, "window": 3, "plate 6x8": 1}), ("tower", {"1x2 grey": 12, "2x2 red": 2, "plate 6x8": 1}), ("bridge", {"plate 6x8": 3, "2x4 red": 4})]
+    for s in sets
+        name, need := s
+        n := copies(have, need)
+        if n > 0
+            print("{name}: can build {n}")
+        else
+            mut short := List[str]()
+            for part, k in need
+                gap := k - have.get_or(part, 0)
+                if gap > 0
+                    short.push("{gap} x {part}")
+            missing := short.join(", ")
+            print("{name}: missing {missing}")
+
+@test fn limited_by_scarcest()
+    assert_eq(copies({"a": 9, "b": 4}, {"a": 3, "b": 2}), 2)

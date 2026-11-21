@@ -1,0 +1,45 @@
+## Dice battle odds: an attacker rolls up to three dice and a defender up to two; the highest dice are
+## compared in pairs and the defender wins ties. Every outcome is enumerated to give exact chances.
+
+fn losses(a int, d int) List[int]
+    n := a + d
+    mut combos := 1
+    for k in 0..n
+        combos *= 6
+    pairs := a.min(d)
+    mut hist := List[int]()
+    for k in 0..=pairs
+        hist.push(0)
+    for code in 0..combos
+        mut x := code
+        mut att := List[int]()
+        mut dfn := List[int]()
+        for k in 0..n
+            face := x % 6 + 1
+            x /= 6
+            if k < a
+                att.push(face)
+            else
+                dfn.push(face)
+        hi_a := att.sorted().reversed()
+        hi_d := dfn.sorted().reversed()
+        mut lost := 0
+        for k in 0..pairs
+            if hi_a[k] <= hi_d[k]
+                lost += 1
+        hist[lost] += 1
+    hist
+
+fn main()
+    for m in [[1, 1], [2, 1], [3, 1], [1, 2], [2, 2], [3, 2]]
+        hist := losses(m[0], m[1])
+        total := hist.sum()
+        mut parts := List[str]()
+        for k, c in hist.enumerate()
+            pct := c.to_float() * 100.0 / total.to_float()
+            parts.push("lose {k}: {pct:.2}%")
+        shown := parts.join(", ")
+        print("{m[0]} v {m[1]} ({total} rolls): {shown}")
+
+@test fn one_on_one()
+    assert_eq(losses(1, 1), [15, 21])

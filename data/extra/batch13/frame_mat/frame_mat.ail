@@ -1,0 +1,31 @@
+## Picture mats: the mat fills the frame opening around the artwork; side borders split the spare
+## width equally and the bottom border gets extra weight so the picture sits optically centred.
+
+struct Mat
+    side int
+    top int
+    bottom int
+
+fn mat(frame_w int, frame_h int, art_w int, art_h int, weight int) Mat ! str
+    if art_w > frame_w or art_h > frame_h
+        return "artwork larger than the frame"
+    spare_w := frame_w - art_w
+    spare_h := frame_h - art_h - weight
+    if spare_h < 0
+        return "no room for a weighted bottom"
+    if spare_w < 40 or spare_h < 40
+        return "borders under 20 mm"
+    Mat(side: spare_w / 2, top: spare_h / 2, bottom: spare_h / 2 + weight)
+
+fn main()
+    jobs := [("print A4", 400, 500, 210, 297, 15), ("postcard", 254, 203, 148, 105, 10), ("poster", 500, 700, 500, 700, 0), ("square", 300, 300, 200, 200, 20), ("panorama", 600, 300, 500, 180, 25), ("tight", 300, 400, 250, 350, 30)]
+    for j in jobs
+        name, fw, fh, aw, ah, w := j
+        if m := mat(fw, fh, aw, ah, w)
+            print("{name:<9} sides {m.side} mm, top {m.top} mm, bottom {m.bottom} mm")
+        else err
+            print("{name:<9} cannot mat: {err}")
+
+@test fn weighted_bottom()
+    m := mat(400, 500, 200, 300, 20)?
+    assert_eq(m.bottom - m.top, 20)

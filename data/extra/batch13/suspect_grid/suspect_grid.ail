@@ -1,0 +1,40 @@
+## Suspect grid: in a murder-mystery card game, a card shown to you is crossed off, and when nobody can
+## answer a suggestion, its cards not in your hand must be the solution. Remaining candidates are printed.
+
+fn remaining(cards List[str], crossed Set[str]) str
+    cards.filter(|c| not crossed.contains(c)).join(", ")
+
+fn main()
+    suspects := ["Plum", "Scarlet", "Mustard", "Green", "Peacock"]
+    weapons := ["rope", "knife", "pipe", "candlestick"]
+    rooms := ["hall", "library", "kitchen", "study"]
+    mine := ["Green", "pipe", "hall"]
+    mut crossed := Set[str]()
+    for c in mine
+        crossed.add(c)
+    events := [("Plum knife library", "knife"), ("Scarlet rope study", "Scarlet"), ("Mustard rope kitchen", "kitchen"), ("Peacock candlestick study", "study"), ("Plum rope library", "")]
+    mut solution := Set[str]()
+    for e in events
+        suggestion, shown := e
+        if shown == ""
+            for c in suggestion.split(" ")
+                if not mine.contains(c)
+                    solution.add(c)
+            print("{suggestion}: nobody can answer")
+        else
+            crossed.add(shown)
+            print("{suggestion}: shown {shown}")
+    for c in solution
+        for other in [suspects, weapons, rooms]
+            if other.contains(c)
+                for x in other
+                    if x != c
+                        crossed.add(x)
+    print("suspects left: {remaining(suspects, crossed)}")
+    print("weapons left: {remaining(weapons, crossed)}")
+    print("rooms left: {remaining(rooms, crossed)}")
+
+@test fn crosses_off()
+    mut gone := Set[str]()
+    gone.add("b")
+    assert_eq(remaining(["a", "b", "c"], gone), "a, c")

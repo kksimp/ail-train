@@ -1,0 +1,29 @@
+## Buchholz tie-break: in a Swiss chess event players level on points are split by the sum of their
+## opponents' scores (Buchholz), then by Sonneborn-Berger (beaten opponents' scores plus half the drawn ones').
+
+fn half(n int) str
+    if n % 2 == 0 then "{n / 2}" else "{n / 2}.5"
+
+fn main()
+    players := ["Anand", "Botez", "Caruana", "Ding", "Erigaisi", "Firouzja"]
+    games := [[0, 1, 2], [2, 3, 1], [4, 5, 0], [0, 2, 1], [1, 4, 2], [3, 5, 2], [0, 3, 0], [1, 5, 1], [2, 4, 2]]
+    mut score := [0, 0, 0, 0, 0, 0]
+    for g in games
+        score[g[0]] += g[2]
+        score[g[1]] += 2 - g[2]
+    mut buch := [0, 0, 0, 0, 0, 0]
+    mut sb := [0, 0, 0, 0, 0, 0]
+    for g in games
+        a := g[0]
+        b := g[1]
+        buch[a] += score[b]
+        buch[b] += score[a]
+        sb[a] += score[b] * g[2]
+        sb[b] += score[a] * (2 - g[2])
+    order := [0, 1, 2, 3, 4, 5].sorted(by: |i| (-score[i], -buch[i], -sb[i]))
+    print("player     pts  buch  SB")
+    for i in order
+        print("{players[i]:<9} {half(score[i]):>4} {half(buch[i]):>5} {half(sb[i] / 2):>4}")
+
+@test fn halves()
+    assert_eq(half(5), "2.5")

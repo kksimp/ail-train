@@ -1,0 +1,28 @@
+## Screen time: a child gets 60 minutes on school days and 120 at weekends, earns a minute for every
+## two minutes of reading (at most 30), and may carry up to 30 unused minutes into the next day.
+
+struct Day
+    name str
+    used int
+    reading int
+
+fn allowance(weekend bool) int
+    if weekend then 120 else 60
+
+fn main()
+    week := [Day(name: "Mon", used: 50, reading: 20), Day(name: "Tue", used: 75, reading: 30), Day(name: "Wed", used: 85, reading: 0), Day(name: "Thu", used: 90, reading: 70), Day(name: "Fri", used: 70, reading: 10), Day(name: "Sat", used: 190, reading: 40), Day(name: "Sun", used: 100, reading: 0)]
+    mut carry := 0
+    mut over_days := 0
+    for i, d in week.enumerate()
+        bonus := (d.reading / 2).min(30)
+        limit := allowance(i >= 5) + bonus + carry
+        left := limit - d.used
+        status := if left < 0 then "over by {-left}" else "{left} spare"
+        if left < 0
+            over_days += 1
+        carry = left.max(0).min(30)
+        print("{d.name}: limit {limit:>3} (bonus {bonus:>2}), used {d.used:>3}, {status}")
+    print("over the limit on {over_days} day(s); {carry} minutes carry into next week")
+
+@test fn reading_bonus_capped()
+    assert_eq((70 / 2).min(30), 30)

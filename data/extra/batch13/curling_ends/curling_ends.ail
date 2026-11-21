@@ -1,0 +1,47 @@
+## Curling ends: only the team with the stone nearest the button scores, one point for each of its
+## stones nearer than the opponent's nearest; the team that scores loses the hammer, a blank end keeps it.
+
+struct Stone
+    team char
+    cm int
+
+struct EndScore
+    team char
+    points int
+
+fn score_end(stones List[Stone]) EndScore
+    inside := stones.filter(|s| s.cm <= 183).sorted(by: |s| s.cm)
+    if inside.is_empty()
+        return EndScore(team: '-', points: 0)
+    lead := inside[0].team
+    mut n := 0
+    for s in inside
+        if s.team != lead
+            break
+        n += 1
+    EndScore(team: lead, points: n)
+
+fn main()
+    ends := ["R40 Y95 R120 Y150 R200", "Y30 Y60 R70 Y110 R160", "R250 Y300", "R15 R50 R80 Y90 Y175", "Y45 R46 Y100 R130", "R20 Y25 R60 R61 Y190"]
+    mut totals := {'R': 0, 'Y': 0}
+    mut hammer := 'Y'
+    for i, e in ends.enumerate()
+        mut stones := List[Stone]()
+        for word in e.split(" ")
+            cm := word.slice(1).to_int() else 999
+            stones.push(Stone(team: word.char_at(0) else '-', cm: cm))
+        result := score_end(stones)
+        team := result.team
+        pts := result.points
+        if pts == 0
+            print("end {i + 1}: blank, {hammer} keeps the hammer")
+            continue
+        totals[team] += pts
+        hammer = if team == 'R' then 'Y' else 'R'
+        red := totals.get_or('R', 0)
+        yellow := totals.get_or('Y', 0)
+        print("end {i + 1}: {team} scores {pts}, hammer to {hammer}; R {red} Y {yellow}")
+
+@test fn counts_shot_stones()
+    stones := [Stone(team: 'R', cm: 10), Stone(team: 'R', cm: 20), Stone(team: 'Y', cm: 30)]
+    assert_eq(score_end(stones).points, 2)

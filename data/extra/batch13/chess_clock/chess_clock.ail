@@ -1,0 +1,50 @@
+## Chess clocks: the same thinking times are played under three time controls, a Fischer increment
+## added after every move, a Bronstein delay that refunds up to the delay, and sudden death.
+
+enum Control
+    Fischer(inc int)
+    Bronstein(delay int)
+    Sudden
+
+fn after_move(c Control, left int, used int) int
+    rest := left - used
+    if rest < 0
+        return rest
+    match c
+        Fischer(inc) => rest + inc
+        Bronstein(delay) => rest + used.min(delay)
+        Sudden => rest
+
+fn label(c Control) str
+    match c
+        Fischer(inc) => "Fischer +{inc / 10}s"
+        Bronstein(delay) => "Bronstein delay {delay / 10}s"
+        Sudden => "sudden death"
+
+fn show(tenths int) str
+    s := tenths / 10
+    "{s / 60}:{s % 60:02}.{tenths % 10}"
+
+fn main()
+    white := [32, 95, 120, 410, 650, 233, 300, 780, 52, 75, 240, 180]
+    black := [41, 60, 380, 22, 505, 470, 120, 64, 560, 210, 55, 330]
+    for c in [Control.Fischer(inc: 20), Control.Bronstein(delay: 50), Control.Sudden]
+        mut clocks := [3000, 3000]
+        mut flag := ""
+        for m in 0..white.len()
+            clocks[0] = after_move(c, clocks[0], white[m])
+            if clocks[0] < 0
+                flag = "white flags on move {m + 1}"
+                break
+            clocks[1] = after_move(c, clocks[1], black[m])
+            if clocks[1] < 0
+                flag = "black flags on move {m + 1}"
+                break
+        name := label(c)
+        if flag == ""
+            print("{name}: white {show(clocks[0])}, black {show(clocks[1])}")
+        else
+            print("{name}: {flag}")
+
+@test fn delay_refund_capped()
+    assert_eq(after_move(Control.Bronstein(delay: 50), 1000, 80), 970)

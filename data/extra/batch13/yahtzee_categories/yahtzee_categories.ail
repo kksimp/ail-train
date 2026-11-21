@@ -1,0 +1,59 @@
+## Yahtzee categories: scores five dice in each of the thirteen boxes (upper faces, kinds, full
+## house 25, straights 30 and 40, five alike 50, chance) with `match`, and picks the best box.
+
+enum Box
+    Ones
+    Twos
+    Threes
+    Fours
+    Fives
+    Sixes
+    ThreeKind
+    FourKind
+    FullHouse
+    SmallStraight
+    LargeStraight
+    Yahtzee
+    Chance
+
+fn has_run(c List[int], n int) bool
+    faces := [f for f in 1..7 if c[f] > 0].map(|f| "{f}").join("")
+    runs := if n == 5 then ["12345", "23456"] else ["1234", "2345", "3456"]
+    runs.any(|r| faces.contains(r))
+
+fn score(b Box, dice List[int]) int
+    mut c := [0, 0, 0, 0, 0, 0, 0]
+    for d in dice
+        c[d] += 1
+    total := dice.sum()
+    most := c.max() else 0
+    match b
+        Ones => c[1]
+        Twos => c[2] * 2
+        Threes => c[3] * 3
+        Fours => c[4] * 4
+        Fives => c[5] * 5
+        Sixes => c[6] * 6
+        ThreeKind => if most >= 3 then total else 0
+        FourKind => if most >= 4 then total else 0
+        FullHouse => if c.contains(3) and c.contains(2) then 25 else 0
+        SmallStraight => if has_run(c, 4) then 30 else 0
+        LargeStraight => if has_run(c, 5) then 40 else 0
+        Yahtzee => if most == 5 then 50 else 0
+        Chance => total
+
+fn main()
+    rolls := [[3, 3, 3, 5, 5], [1, 2, 3, 4, 6], [2, 3, 4, 5, 6], [6, 6, 6, 6, 2], [4, 4, 4, 4, 4], [1, 1, 2, 5, 6], [6, 5, 6, 2, 6]]
+    for r in rolls
+        mut best := Box.Ones
+        mut top := -1
+        for b in Box.variants()
+            s := score(b, r)
+            if s > top
+                best = b
+                top = s
+        shown := r.join(" ")
+        print("{shown}: {best.name()} for {top}, chance {score(Box.Chance, r)}")
+
+@test fn full_house()
+    assert_eq(score(Box.FullHouse, [2, 5, 2, 5, 5]), 25)

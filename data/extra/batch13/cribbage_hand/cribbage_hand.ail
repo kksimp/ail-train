@@ -1,0 +1,59 @@
+## Cribbage hand: scores five cards (four held plus the starter) for fifteens, pairs and runs; each
+## subset summing to 15 scores 2 (faces count 10), each pair 2, a run its length times its ways.
+
+fn rank_of(c char) int
+    ("A23456789TJQK".chars().index_of(c) else 0) + 1
+
+fn fifteens(ranks List[int]) int
+    mut ways := 0
+    for mask in 1..32
+        mut total := 0
+        for i in 0..5
+            if ((mask >> i) & 1) == 1
+                total += ranks[i].min(10)
+        if total == 15
+            ways += 1
+    ways * 2
+
+fn pairs(ranks List[int]) int
+    mut n := 0
+    for i in 0..5
+        start := i + 1
+        for j in start..5
+            if ranks[i] == ranks[j]
+                n += 1
+    n * 2
+
+fn runs(ranks List[int]) int
+    mut counts := List[int]()
+    for k in 0..15
+        counts.push(0)
+    for x in ranks
+        counts[x] += 1
+    mut score := 0
+    mut r := 1
+    while r <= 13
+        if counts[r] == 0
+            r += 1
+            continue
+        mut length := 0
+        mut ways := 1
+        while counts[r] > 0
+            length += 1
+            ways *= counts[r]
+            r += 1
+        if length >= 3
+            score += length * ways
+    score
+
+fn main()
+    hands := ["555J5", "45566", "A2345", "789TJ", "QQKK3", "3369T", "77889"]
+    for h in hands
+        ranks := h.chars().map(|c| rank_of(c))
+        f := fifteens(ranks)
+        p := pairs(ranks)
+        r := runs(ranks)
+        print("{h}: fifteens {f:>2}, pairs {p:>2}, runs {r:>2}, total {f + p + r}")
+
+@test fn four_fives_and_a_jack()
+    assert_eq(fifteens([5, 5, 5, 11, 5]), 16)

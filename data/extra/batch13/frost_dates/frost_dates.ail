@@ -1,0 +1,33 @@
+## Frost dates: a sowing calendar counts weeks back from the last spring frost for seeds started
+## indoors and forward for direct sowing, converting day-of-year numbers to month and day.
+
+MONTHS := ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+DAYS := [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+
+fn day_of_year(month int, day int) int
+    mut n := day
+    upto := month - 1
+    for m in 0..upto
+        n += DAYS[m]
+    n
+
+fn date(n int) str
+    mut left := n
+    mut m := 0
+    while left > DAYS[m]
+        left -= DAYS[m]
+        m += 1
+    "{MONTHS[m]} {left}"
+
+fn main()
+    frost := day_of_year(4, 20)
+    print("last frost: {date(frost)} (day {frost})")
+    crops := [("tomato", -6, "indoors"), ("pepper", -8, "indoors"), ("broccoli", -5, "indoors"), ("pea", -4, "outdoors"), ("carrot", -2, "outdoors"), ("bean", 1, "outdoors"), ("squash", 2, "outdoors"), ("tomato", 2, "transplant")]
+    for c in crops
+        name, weeks, how := c
+        when := frost + weeks * 7
+        rel := if weeks < 0 then "{-weeks} weeks before" else "{weeks} weeks after"
+        print("{name:<9} {how:<10} {date(when):<7} ({rel})")
+
+@test fn round_trip()
+    assert_eq(date(day_of_year(3, 1)), "Mar 1")

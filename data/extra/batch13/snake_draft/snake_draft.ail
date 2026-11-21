@@ -1,0 +1,33 @@
+## Snake draft: managers pick in order 1 to 4, then 4 to 1, and so on; each takes the best-ranked
+## player left at a position their roster lacks (one QB, one RB, one WR).
+
+struct Pick
+    name str
+    pos str
+    rank int
+
+fn order(managers int, rounds int) List[int]
+    mut out := List[int]()
+    for r in 0..rounds
+        for i in 0..managers
+            out.push(if r % 2 == 0 then i else managers - 1 - i)
+    out
+
+fn main()
+    managers := ["Ash", "Bly", "Cruz", "Dev"]
+    mut pool := [Pick(name: "Ruiz", pos: "RB", rank: 1), Pick(name: "Wade", pos: "WR", rank: 2), Pick(name: "Rhee", pos: "RB", rank: 3), Pick(name: "Webb", pos: "WR", rank: 4), Pick(name: "Quan", pos: "QB", rank: 5), Pick(name: "Rios", pos: "RB", rank: 6), Pick(name: "Wong", pos: "WR", rank: 7), Pick(name: "Quill", pos: "QB", rank: 8), Pick(name: "Reed", pos: "RB", rank: 9), Pick(name: "Ward", pos: "WR", rank: 10), Pick(name: "Quade", pos: "QB", rank: 11), Pick(name: "Qiu", pos: "QB", rank: 12)]
+    mut rosters := managers.map(|m| List[Pick]())
+    for n, m in order(4, 3).enumerate()
+        mut chosen := -1
+        for i, p in pool.enumerate()
+            if chosen < 0 and not rosters[m].any(|q| q.pos == p.pos)
+                chosen = i
+        taken := pool[chosen]
+        pool.remove_at(chosen)
+        mut roster := rosters[m]
+        roster.push(taken)
+        rosters[m] = roster
+        print("pick {n + 1:>2}: {managers[m]:<4} takes {taken.name} ({taken.pos}, ranked {taken.rank})")
+
+@test fn snake_order()
+    assert_eq(order(3, 2), [0, 1, 2, 2, 1, 0])

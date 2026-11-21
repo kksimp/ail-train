@@ -1,0 +1,38 @@
+## Initiative order: every creature rolls a twenty-sided die plus its dexterity modifier; ties go to
+## the higher dexterity, then heroes before monsters, and the order is printed with each total.
+
+enum Side
+    Hero
+    Monster
+
+struct Creature
+    name str
+    side Side
+    dex int
+
+fn modifier(dex int) int
+    dex / 2 - 5
+
+fn side_rank(s Side) int
+    match s
+        Hero => 0
+        Monster => 1
+
+fn main()
+    party := [Creature(name: "Wren", side: Side.Hero, dex: 16), Creature(name: "Tobin", side: Side.Hero, dex: 10), Creature(name: "Goblin A", side: Side.Monster, dex: 14), Creature(name: "Goblin B", side: Side.Monster, dex: 14), Creature(name: "Ogre", side: Side.Monster, dex: 8), Creature(name: "Isolde", side: Side.Hero, dex: 12)]
+    mut seed := 1234
+    mut totals := List[int]()
+    for c in party
+        seed = (seed * 1103515245 + 12345) % 2147483648
+        roll := (seed / 65536) % 20 + 1
+        totals.push(roll + modifier(c.dex))
+    order := [0, 1, 2, 3, 4, 5].sorted(by: |i| (-totals[i], -party[i].dex, side_rank(party[i].side)))
+    for place, i in order.enumerate()
+        c := party[i]
+        print("{place + 1}. {c.name:<9} {totals[i]:>2} (dex {c.dex}, {c.side})")
+    heroes_first := party[order[0]].side == Side.Hero
+    opening := if heroes_first then "the heroes act first" else "a monster acts first"
+    print(opening)
+
+@test fn modifiers()
+    assert_eq(modifier(9), -1)

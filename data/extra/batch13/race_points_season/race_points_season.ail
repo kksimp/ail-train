@@ -1,0 +1,28 @@
+## Race points season: finishers score 25, 18, 15, 12, 10, 8, 6, 4, 2 and 1 for the top ten, plus a
+## point for the fastest lap when inside the top ten; the championship ties break on wins.
+
+fn main()
+    table := [25, 18, 15, 12, 10, 8, 6, 4, 2, 1]
+    races := [("Bahrain", ["VER", "LEC", "HAM", "NOR", "SAI", "RUS", "PIA", "ALO", "OCO", "GAS", "STR", "TSU"], "LEC"), ("Imola", ["LEC", "VER", "NOR", "HAM", "PIA", "SAI", "ALO", "RUS", "GAS", "STR", "OCO", "TSU"], "TSU"), ("Monaco", ["NOR", "LEC", "VER", "PIA", "HAM", "RUS", "SAI", "GAS", "ALO", "OCO", "TSU", "STR"], "NOR"), ("Suzuka", ["VER", "NOR", "LEC", "PIA", "SAI", "HAM", "RUS", "ALO", "TSU", "GAS", "OCO", "STR"], "HAM")]
+    mut points := Map[str, int]()
+    mut wins := Map[str, int]()
+    for race in races
+        name, order, fastest := race
+        for i, d in order.enumerate()
+            if i < 10
+                points[d] += table[i]
+            else
+                points[d] += 0
+        wins[order[0]] += 1
+        place := order.index_of(fastest) else 99
+        extra := if place < 10 then " (+1)" else " (no point)"
+        if place < 10
+            points[fastest] += 1
+        print("{name:<8} won by {order[0]}, fastest lap {fastest}{extra}")
+    ranked := points.keys().sorted(by: |d| (-points[d], -wins.get_or(d, 0)))
+    for i, d in ranked.enumerate()
+        if i < 6
+            print("{i + 1}. {d} {points[d]:>3} pts, {wins.get_or(d, 0)} wins")
+
+@test fn win_and_fastest()
+    assert_eq([25, 18][0] + 1, 26)

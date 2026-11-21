@@ -1,0 +1,32 @@
+## Itinerary days: a trip's days are shared among cities by interest weights with the largest
+## remainder method (whole shares first, spare days to the biggest fractions), and given day ranges.
+
+fn allocate(total int, weights List[int]) List[int]
+    w_sum := weights.sum()
+    mut days := weights.map(|w| total * w / w_sum)
+    rems := weights.map(|w| total * w % w_sum)
+    spare := total - days.sum()
+    order := [i for i in 0..weights.len()].sorted(by: |i| (-rems[i], i))
+    for k in 0..spare
+        days[order[k]] += 1
+    days
+
+fn main()
+    cities := ["Lisbon", "Porto", "Seville", "Granada", "Madrid"]
+    weights := [5, 3, 4, 2, 4]
+    for total in [14, 10]
+        days := allocate(total, weights)
+        mut day := 1
+        mut legs := List[str]()
+        for i, c in cities.enumerate()
+            if days[i] == 0
+                continue
+            last := day + days[i] - 1
+            legs.push("{c} {day}-{last}")
+            day = last + 1
+        plan := legs.join(", ")
+        print("{total} days: {days}")
+        print("  {plan}")
+
+@test fn exact_shares()
+    assert_eq(allocate(6, [1, 2]), [2, 4])

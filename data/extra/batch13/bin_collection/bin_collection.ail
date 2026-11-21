@@ -1,0 +1,33 @@
+## Bin collection: bins go out every Tuesday, general waste and recycling alternating weekly and garden
+## waste fortnightly from March to November; a Monday bank holiday moves that week's collection to Wednesday.
+
+MONTHS := ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+DAYS := [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+
+fn month_day(n int) List[int]
+    mut left := n
+    mut m := 0
+    while left > DAYS[m]
+        left -= DAYS[m]
+        m += 1
+    [m, left]
+
+fn main()
+    first_tuesday := 59
+    holidays := [100, 121]
+    for week in 0..10
+        tuesday := first_tuesday + week * 7
+        moved := holidays.contains(tuesday - 1)
+        day := if moved then tuesday + 1 else tuesday
+        md := month_day(day)
+        mut bins := List[str]()
+        bins.push(if week % 2 == 0 then "general" else "recycling")
+        if week % 2 == 1 and md[0] >= 2 and md[0] <= 10
+            bins.push("garden")
+        name := if moved then "Wed" else "Tue"
+        note := if moved then " (bank holiday)" else ""
+        shown := bins.join(", ")
+        print("{name} {md[1]:>2} {MONTHS[md[0]]}: {shown}{note}")
+
+@test fn day_sixty()
+    assert_eq(month_day(60), [2, 1])

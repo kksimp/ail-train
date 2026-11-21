@@ -1,0 +1,49 @@
+## Chess960 check: a back rank is a legal starting position when it has the usual eight pieces, the
+## bishops stand on squares of opposite colour and the king sits between the rooks; all 960 are counted.
+
+fn problem(rank str) str
+    cs := rank.chars()
+    for piece in ['K', 'Q', 'R', 'B', 'N']
+        want := if piece == 'K' or piece == 'Q' then 1 else 2
+        if cs.count(|c| c == piece) != want or cs.len() != 8
+            return "wrong pieces"
+    mut bishops := List[int]()
+    mut rooks := List[int]()
+    mut king := 0
+    for i, c in cs.enumerate()
+        if c == 'B'
+            bishops.push(i)
+        if c == 'R'
+            rooks.push(i)
+        if c == 'K'
+            king = i
+    if bishops[0] % 2 == bishops[1] % 2
+        return "bishops on one colour"
+    if king < rooks[0] or king > rooks[1]
+        return "king not between rooks"
+    ""
+
+fn build(prefix str, mut left Map[char, int], mut found List[str])
+    if prefix.len() == 8
+        if problem(prefix) == ""
+            found.push(prefix)
+        return
+    for p in ['B', 'K', 'N', 'Q', 'R']
+        if left[p] > 0
+            left[p] -= 1
+            build("{prefix}{p}", mut left, mut found)
+            left[p] += 1
+
+fn main()
+    for rank in ["RNBQKBNR", "BBRNKNQR", "KRNBBNRQ", "RNBQKBNN", "QNRBKRNB", "RKNQBBNR", "RNBKQNBR"]
+        why := problem(rank)
+        verdict := if why == "" then "legal" else why
+        print("{rank}: {verdict}")
+    mut left := {'B': 2, 'K': 1, 'N': 2, 'Q': 1, 'R': 2}
+    mut found := List[str]()
+    build("", mut left, mut found)
+    print("legal starting ranks: {found.len()}")
+    print("first: {found[0]}, last: {found[found.len() - 1]}")
+
+@test fn classic_is_legal()
+    assert_eq(problem("RNBQKBNR"), "")

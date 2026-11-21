@@ -1,0 +1,6 @@
+ 100 pieces: 10 x 10, 4 corners, 32 other edges, 64 inside
+ 300 pieces: 15 x 20, 4 corners, 62 other edges, 234 inside
+ 500 pieces: 20 x 25, 4 corners, 82 other edges, 414 inside
+1000 pieces: 25 x 40, 4 corners, 122 other edges, 874 inside
+1500 pieces: 30 x 50, 4 corners, 152 other edges, 1344 inside
+2000 pieces: 40 x 50, 4 corners, 172 other edges, 1824 inside

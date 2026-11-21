@@ -1,0 +1,25 @@
+## Key signatures: walking the circle of fifths, each major key up a fifth adds a sharp (F C G D A E B
+## in order) and each key down a fifth adds a flat (B E A D G C F); the relative minor is three semitones down.
+
+fn relative_minor(key str, sharp_side bool) str
+    sharps := ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
+    flats := ["C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B"]
+    names := if sharp_side then sharps else flats
+    i := names.index_of(key) else 0
+    "{names[(i + 9) % 12]}m"
+
+fn main()
+    sharp_keys := ["C", "G", "D", "A", "E", "B", "F#"]
+    flat_keys := ["F", "Bb", "Eb", "Ab", "Db", "Gb"]
+    sharp_order := ["F#", "C#", "G#", "D#", "A#", "E#", "B#"]
+    flat_order := ["Bb", "Eb", "Ab", "Db", "Gb", "Cb", "Fb"]
+    for n, k in sharp_keys.enumerate()
+        acc := if n == 0 then "no sharps or flats" else sharp_order.slice(0, n).join(" ")
+        print("{k:<3} {relative_minor(k, true):<4} {n} sharps: {acc}")
+    for i, k in flat_keys.enumerate()
+        n := i + 1
+        acc := flat_order.slice(0, n).join(" ")
+        print("{k:<3} {relative_minor(k, false):<4} {n} flats:  {acc}")
+
+@test fn a_minor()
+    assert_eq(relative_minor("C", true), "Am")

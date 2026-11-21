@@ -1,0 +1,40 @@
+## Subscription costs: weekly, monthly and yearly plans are converted to a monthly figure in cents
+## (weekly times 52 over 12, yearly over 12) with `match`; unused ones show what cancelling would save.
+
+enum Period
+    Weekly
+    Monthly
+    Yearly
+
+struct Sub
+    name str
+    cents int
+    period Period
+    days_since_use int
+
+fn Sub.monthly(self) int
+    match period
+        Weekly => cents * 52 / 12
+        Monthly => cents
+        Yearly => cents / 12
+
+fn money(c int) str
+    "{c / 100}.{c % 100:02}"
+
+fn main()
+    subs := [Sub(name: "music", cents: 1099, period: Period.Monthly, days_since_use: 1), Sub(name: "video", cents: 1549, period: Period.Monthly, days_since_use: 75), Sub(name: "cloud", cents: 9999, period: Period.Yearly, days_since_use: 3), Sub(name: "newspaper", cents: 350, period: Period.Weekly, days_since_use: 40), Sub(name: "gym", cents: 3500, period: Period.Monthly, days_since_use: 92), Sub(name: "game pass", cents: 5999, period: Period.Yearly, days_since_use: 200)]
+    mut total := 0
+    mut saving := 0
+    for s in subs
+        m := s.monthly()
+        total += m
+        idle := s.days_since_use > 60
+        if idle
+            saving += m
+        flag := if idle then "  unused for {s.days_since_use} days" else ""
+        print("{s.name:<10} {s.period.name():<7} {money(s.cents):>7} -> {money(m):>6} a month{flag}")
+    print("monthly {money(total)}, yearly {money(total * 12)}")
+    print("cancelling unused plans saves {money(saving)} a month")
+
+@test fn weekly_to_monthly()
+    assert_eq(Sub(name: "x", cents: 300, period: Period.Weekly, days_since_use: 0).monthly(), 1300)

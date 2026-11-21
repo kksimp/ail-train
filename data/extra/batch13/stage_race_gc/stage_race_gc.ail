@@ -1,0 +1,33 @@
+## Stage race general classification: riders' stage times add up, minus time bonuses of 10, 6 and 4
+## seconds for the first three on each stage; the leader and the gaps are shown after every stage.
+
+fn clock(seconds int) str
+    h := seconds / 3600
+    m := seconds / 60 % 60
+    s := seconds % 60
+    "{h}:{m:02}:{s:02}"
+
+fn gap(seconds int) str
+    "+{seconds / 60}:{seconds % 60:02}"
+
+fn main()
+    riders := ["Aru", "Bernal", "Cort", "Dumoulin"]
+    stages := [[17520, 17514, 17530, 17514], [14402, 14450, 14380, 14395], [20110, 20025, 20090, 20160], [9030, 9041, 9022, 9030]]
+    bonus := [10, 6, 4]
+    mut gc := [0, 0, 0, 0]
+    for si, st in stages.enumerate()
+        order := [0, 1, 2, 3].sorted(by: |i| (st[i], i))
+        for i in 0..4
+            gc[i] += st[i]
+        for k in 0..3
+            gc[order[k]] -= bonus[k]
+        leader := [0, 1, 2, 3].sorted(by: |i| (gc[i], i))[0]
+        print("after stage {si + 1}: {riders[order[0]]} wins, {riders[leader]} leads in {clock(gc[leader])}")
+    final_order := [0, 1, 2, 3].sorted(by: |i| (gc[i], i))
+    best := gc[final_order[0]]
+    for place, i in final_order.enumerate()
+        shown := if place == 0 then clock(gc[i]) else gap(gc[i] - best)
+        print("{place + 1}. {riders[i]:<9} {shown}")
+
+@test fn clock_format()
+    assert_eq(clock(3725), "1:02:05")

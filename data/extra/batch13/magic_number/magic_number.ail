@@ -1,0 +1,28 @@
+## Magic number: in a 162-game season the leader clinches once its wins plus a chaser's losses pass
+## 162, so the magic number is 163 minus both; it falls by one for every leader win or chaser loss.
+
+struct Team
+    name str
+    won int
+    lost int
+
+fn magic(leader Team, chaser Team) int
+    163 - leader.won - chaser.lost
+
+fn main()
+    leader := Team(name: "Rivermen", won: 92, lost: 58)
+    chasers := [Team(name: "Bisons", won: 86, lost: 64), Team(name: "Gulls", won: 84, lost: 67), Team(name: "Miners", won: 75, lost: 76), Team(name: "Comets", won: 70, lost: 80)]
+    left := 162 - leader.won - leader.lost
+    print("{leader.name} are {leader.won}-{leader.lost} with {left} games left")
+    for c in chasers
+        m := magic(leader, c)
+        best_case := c.won + (162 - c.won - c.lost)
+        status := if m <= 0 then "eliminated" elif best_case < leader.won + 1 then "eliminated" else "magic number {m}"
+        print("{c.name:<7} {c.won}-{c.lost}: {status}")
+    mut overall := 0
+    for c in chasers
+        overall = overall.max(magic(leader, c))
+    print("clinch the division with a magic number of {overall}")
+
+@test fn simple_magic()
+    assert_eq(magic(Team(name: "a", won: 100, lost: 50), Team(name: "b", won: 90, lost: 60)), 3)

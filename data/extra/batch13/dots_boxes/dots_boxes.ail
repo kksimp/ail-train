@@ -1,0 +1,42 @@
+## Dots and boxes: two players draw lines on a 3 by 3 box grid in a fixed shuffled order; closing a
+## box scores it and earns another line, otherwise the turn passes. Each box is checked by its four sides.
+
+fn sides(r int, c int) List[str]
+    ["h{r}{c}", "h{r + 1}{c}", "v{r}{c}", "v{r}{c + 1}"]
+
+fn complete(lines Set[str], r int, c int) bool
+    sides(r, c).all(|x| lines.contains(x))
+
+fn main()
+    mut all_lines := List[str]()
+    for r in 0..4
+        for c in 0..3
+            all_lines.push("h{r}{c}")
+    for r in 0..3
+        for c in 0..4
+            all_lines.push("v{r}{c}")
+    mut seed := 31
+    mut i := all_lines.len() - 1
+    while i > 0
+        seed = (seed * 1103515245 + 12345) % 2147483648
+        all_lines.swap(i, seed % (i + 1))
+        i -= 1
+    names := ["Ada", "Bo"]
+    mut drawn := Set[str]()
+    mut score := [0, 0]
+    mut p := 0
+    for line in all_lines
+        drawn.add(line)
+        mut closed := 0
+        for r in 0..3
+            for c in 0..3
+                if sides(r, c).contains(line) and complete(drawn, r, c)
+                    closed += 1
+                    print("{names[p]} draws {line} and closes box {r},{c}")
+        score[p] += closed
+        if closed == 0
+            p = 1 - p
+    print("{names[0]} {score[0]}, {names[1]} {score[1]}")
+
+@test fn four_sides()
+    assert(complete({"h00", "h10", "v00", "v01"}, 0, 0))

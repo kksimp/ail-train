@@ -1,0 +1,26 @@
+## Climbing grades: converts a climber's sends from Yosemite decimal grades to French sport grades
+## with a lookup table, then prints a grade pyramid (sends per grade, hardest first) and the hardest send.
+
+fn main()
+    yds := ["5.9", "5.10a", "5.10b", "5.10c", "5.10d", "5.11a", "5.11b", "5.11c", "5.11d", "5.12a"]
+    french := ["5c", "6a", "6a+", "6b", "6b+", "6c", "6c+", "7a", "7a+", "7b"]
+    sends := ["5.10a", "5.9", "5.10c", "5.10a", "5.11a", "5.10b", "5.9", "5.10c", "5.10a", "5.11c", "5.10b", "5.9", "5.10c", "5.13a"]
+    mut counts := Map[int, int]()
+    mut unknown := List[str]()
+    for s in sends
+        if i := yds.index_of(s)
+            counts[i] += 1
+        else
+            unknown.push(s)
+    grades := counts.keys().sorted().reversed()
+    for g in grades
+        bar := "#".repeat(counts[g])
+        print("{yds[g]:<6} {french[g]:<4} {bar}")
+    top := grades[0]
+    print("hardest send: {yds[top]} ({french[top]}), {sends.len() - unknown.len()} sends graded")
+    if not unknown.is_empty()
+        missing := unknown.join(", ")
+        print("not in the table: {missing}")
+
+@test fn table_lookup()
+    assert_eq(["5.9", "5.10a"].index_of("5.10a"), 1)

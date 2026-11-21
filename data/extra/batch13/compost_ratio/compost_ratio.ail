@@ -1,0 +1,32 @@
+## Compost ratio: a heap's carbon to nitrogen ratio is the weighted carbon over the weighted nitrogen
+## of its materials; buckets of straw (a brown) are added until the mix reaches at least 25 to 1.
+
+struct Material
+    name str
+    kg float
+    carbon float
+    nitrogen float
+
+fn ratio(heap List[Material]) float
+    mut c := 0.0
+    mut n := 0.0
+    for m in heap
+        c += m.kg * m.carbon
+        n += m.kg * m.nitrogen
+    c / n
+
+fn main()
+    mut heap := [Material(name: "grass clippings", kg: 30.0, carbon: 40.0, nitrogen: 2.4), Material(name: "kitchen scraps", kg: 20.0, carbon: 35.0, nitrogen: 2.0), Material(name: "coffee grounds", kg: 6.0, carbon: 40.0, nitrogen: 2.0), Material(name: "dry leaves", kg: 10.0, carbon: 48.0, nitrogen: 0.8)]
+    for m in heap
+        print("{m.name:<16} {m.kg:>5.1} kg  C:N {m.carbon / m.nitrogen:>5.1}")
+    print("mix C:N {ratio(heap):.1}")
+    mut buckets := 0
+    while ratio(heap) < 25.0
+        heap.push(Material(name: "straw", kg: 4.0, carbon: 46.0, nitrogen: 0.6))
+        buckets += 1
+        print("add straw bucket {buckets}: C:N {ratio(heap):.1}")
+    total := heap.map(|m| m.kg).sum()
+    print("{buckets} buckets of straw, {total:.1} kg in the heap")
+
+@test fn single_material()
+    assert_eq(ratio([Material(name: "x", kg: 2.0, carbon: 40.0, nitrogen: 2.0)]), 20.0)

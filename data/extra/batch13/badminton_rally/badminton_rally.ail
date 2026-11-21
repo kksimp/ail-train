@@ -1,0 +1,40 @@
+## Badminton rally scoring: every rally scores a point; a game goes to 21 with a two-point lead,
+## capped at 30-29, and the match is best of three games. Rallies come from a fixed-seed generator.
+
+struct Game
+    a int
+    b int
+
+fn Game.over(self) bool
+    lead := (a - b).abs()
+    a == 30 or b == 30 or ((a >= 21 or b >= 21) and lead >= 2)
+
+fn main()
+    names := ["Lin", "Mei"]
+    mut seed := 808
+    mut games := [0, 0]
+    mut number := 0
+    while games[0] < 2 and games[1] < 2
+        number += 1
+        mut g := Game(a: 0, b: 0)
+        mut longest := 0
+        mut run := 0
+        mut last := -1
+        while not g.over()
+            seed = (seed * 1103515245 + 12345) % 2147483648
+            winner := if (seed / 65536) % 100 < 52 then 0 else 1
+            if winner == 0
+                g.a += 1
+            else
+                g.b += 1
+            run = if winner == last then run + 1 else 1
+            last = winner
+            longest = longest.max(run)
+        w := if g.a > g.b then 0 else 1
+        games[w] += 1
+        print("game {number}: {g.a}-{g.b} to {names[w]}, longest run {longest}")
+    champion := if games[0] == 2 then names[0] else names[1]
+    print("{champion} wins {games[0].max(games[1])}-{games[0].min(games[1])}")
+
+@test fn capped_at_thirty()
+    assert(Game(a: 30, b: 29).over())

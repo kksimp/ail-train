@@ -1,0 +1,30 @@
+## Bowling figures: balls bowled are written in overs as completed overs dot extra balls (4.3 is 27
+## balls); economy is runs per six balls, strike rate balls per wicket and average runs per wicket.
+
+struct Spell
+    bowler str
+    balls int
+    maidens int
+    runs int
+    wickets int
+
+fn overs(balls int) str
+    "{balls / 6}.{balls % 6}"
+
+fn Spell.economy(self) float
+    runs.to_float() * 6.0 / balls.to_float()
+
+fn main()
+    spells := [Spell(bowler: "Akram", balls: 60, maidens: 2, runs: 38, wickets: 3), Spell(bowler: "Bond", balls: 57, maidens: 0, runs: 61, wickets: 1), Spell(bowler: "Cairns", balls: 42, maidens: 1, runs: 29, wickets: 0), Spell(bowler: "Dravid", balls: 27, maidens: 0, runs: 22, wickets: 2), Spell(bowler: "Elgar", balls: 54, maidens: 1, runs: 47, wickets: 4)]
+    print("bowler     O     M   R  W   econ")
+    for s in spells
+        print("{s.bowler:<7} {overs(s.balls):>5} {s.maidens:>3} {s.runs:>3} {s.wickets:>2} {s.economy():>6.2}")
+    for s in spells.filter(|x| x.wickets > 0).sorted(by: |x| x.runs * 1000 / x.wickets)
+        avg := s.runs.to_float() / s.wickets.to_float()
+        sr := s.balls.to_float() / s.wickets.to_float()
+        print("{s.bowler}: average {avg:.2}, a wicket every {sr:.1} balls")
+    total := spells.map(|x| x.balls).sum()
+    print("innings: {overs(total)} overs")
+
+@test fn overs_notation()
+    assert_eq(overs(27), "4.3")

@@ -1,0 +1,42 @@
+## Darts cricket: only 15 to 20 and the bull count; three marks close a number (a double is two marks,
+## a treble three), and further marks score its value while the opponent has not closed it.
+
+fn parse(dart str) List[int]
+    kind := dart.char_at(0) else 'S'
+    mult := match kind
+        'D' => 2
+        'T' => 3
+        _ => 1
+    n := dart.slice(1).to_int() else 0
+    [n, mult]
+
+fn main()
+    names := ["Kim", "Lee"]
+    targets := [15, 16, 17, 18, 19, 20, 25]
+    mut marks := [Map[int, int](), Map[int, int]()]
+    mut points := [0, 0]
+    turns := ["T20 S20 S19", "T20 T19 S5", "T19 S20 D18", "T18 S1 S20", "T17 D17 S16", "T16 D25 S25", "T15 T16 S17", "S15 D15 D25", "T20 D17 D16", "S25 D25 S25"]
+    for t, turn in turns.enumerate()
+        p := t % 2
+        o := 1 - p
+        for dart in turn.split(" ")
+            parsed := parse(dart)
+            n := parsed[0]
+            mult := parsed[1]
+            if not targets.contains(n)
+                continue
+            have := marks[p].get_or(n, 0)
+            closing := (3 - have).max(0).min(mult)
+            extra := mult - closing
+            marks[p][n] = have + closing
+            if extra > 0 and marks[o].get_or(n, 0) < 3
+                points[p] += extra * n
+        closed := targets.count(|x| marks[p].get_or(x, 0) == 3)
+        print("{names[p]} throws {turn}: {closed} closed, {points[p]} points")
+        if closed == 7 and points[p] >= points[o]
+            print("{names[p]} wins")
+            break
+
+@test fn treble_parse()
+    parsed := parse("T19")
+    assert_eq(parsed[0] * parsed[1], 57)

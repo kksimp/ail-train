@@ -1,0 +1,29 @@
+## Harvest log: weekly picks in grams are totalled per crop and per week; each crop's total is set
+## against its expected yield (grams per plant times plants) and the best week of the season is named.
+
+fn main()
+    picks := [(27, "beans", 450), (27, "courgette", 1200), (28, "beans", 820), (28, "tomato", 600), (28, "courgette", 2100), (29, "tomato", 1500), (29, "beans", 640), (30, "tomato", 2300), (30, "courgette", 900), (31, "tomato", 1800), (31, "beans", 200)]
+    expected := {"beans": [400, 6], "courgette": [3000, 2], "tomato": [2500, 3]}
+    mut per_crop := Map[str, int]()
+    mut per_week := Map[int, int]()
+    for p in picks
+        week, crop, grams := p
+        per_crop[crop] += grams
+        per_week[week] += grams
+    for crop, total in per_crop
+        e := expected.get(crop) else [0, 1]
+        goal := e[0] * e[1]
+        pct := total * 100 / goal
+        print("{crop:<10} {total:>5} g of {goal:>5} g expected ({pct}%)")
+    weeks := per_week.keys().sorted()
+    mut best := weeks[0]
+    for w in weeks
+        kg := per_week[w] / 1000
+        rest := per_week[w] % 1000 / 100
+        print("week {w}: {kg}.{rest} kg")
+        if per_week[w] > per_week[best]
+            best = w
+    print("best week: {best}")
+
+@test fn goal_product()
+    assert_eq(400 * 6, 2400)

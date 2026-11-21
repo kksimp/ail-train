@@ -1,0 +1,26 @@
+## Pitching lines: innings pitched are written with thirds as .1 and .2, so they are read as outs;
+## ERA is earned runs per nine innings (27 outs) and WHIP is walks plus hits per inning.
+
+fn outs(ip str) int
+    parts := ip.split(".")
+    whole := parts[0].to_int() else 0
+    thirds := if parts.len() > 1 then (parts[1].to_int() else 0) else 0
+    whole * 3 + thirds
+
+fn main()
+    lines := [("Alvarez", "6.2", 2, 5, 1), ("Brook", "7.0", 3, 8, 2), ("Chen", "5.1", 4, 6, 3), ("Doyle", "1.2", 1, 2, 1), ("Ekko", "8.1", 0, 4, 0)]
+    mut all_outs := 0
+    mut all_er := 0
+    for l in lines
+        name, ip, er, hits, walks := l
+        o := outs(ip)
+        all_outs += o
+        all_er += er
+        era := (er * 27).to_float() / o.to_float()
+        whip := ((walks + hits) * 3).to_float() / o.to_float()
+        print("{name:<8} IP {ip:>4}  outs {o:>2}  ERA {era:>5.2}  WHIP {whip:.2}")
+    staff := (all_er * 27).to_float() / all_outs.to_float()
+    print("staff: {all_outs / 3}.{all_outs % 3} innings, ERA {staff:.2}")
+
+@test fn thirds_are_outs()
+    assert_eq(outs("6.2"), 20)

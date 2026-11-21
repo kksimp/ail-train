@@ -1,0 +1,33 @@
+## Raffle draw: buyers get consecutive ticket numbers for the tickets they buy; prizes are drawn from
+## the best down with a fixed-seed generator, and a buyer who has already won is skipped for a redraw.
+
+fn main()
+    buyers := [("Abe", 5), ("Bea", 12), ("Cal", 3), ("Dee", 8), ("Eve", 1), ("Fay", 6)]
+    prizes := ["hamper", "bike", "spa voucher", "cinema tickets", "wine"]
+    mut owner := List[str]()
+    for b in buyers
+        name, count := b
+        for _ in 0..count
+            owner.push(name)
+    print("{owner.len()} tickets sold")
+    mut seed := 123
+    mut winners := Set[str]()
+    mut drawn := Set[int]()
+    for prize in prizes
+        mut done := false
+        while not done
+            seed = (seed * 1103515245 + 12345) % 2147483648
+            ticket := (seed / 65536) % owner.len() + 1
+            if not drawn.add(ticket)
+                continue
+            who := owner[ticket - 1]
+            if winners.contains(who)
+                print("  ticket {ticket} ({who}) already won, redraw")
+                continue
+            winners.add(who)
+            print("{prize}: ticket {ticket}, {who}")
+            done = true
+
+@test fn ticket_owner()
+    owner := ["a", "a", "b"]
+    assert_eq(owner[3 - 1], "b")

@@ -1,0 +1,40 @@
+## Uno turns: four players take turns in a direction; a skip jumps the next player, a reverse flips
+## the direction, and a draw two makes the next player draw two cards and lose their turn.
+
+enum Play
+    Number(n int)
+    Skip
+    Reverse
+    DrawTwo
+
+fn main()
+    names := ["Ann", "Bob", "Cy", "Dot"]
+    plays := [Play.Number(n: 5), Play.Skip, Play.Number(n: 3), Play.Reverse, Play.Number(n: 7), Play.DrawTwo, Play.Number(n: 2), Play.Reverse, Play.Skip, Play.Number(n: 9)]
+    mut cards := [7, 7, 7, 7]
+    mut p := 0
+    mut dir := 1
+    for play in plays
+        cards[p] -= 1
+        mut step := 1
+        text := match play
+            Number(n) => "plays {n}"
+            Skip => "plays skip"
+            Reverse => "plays reverse"
+            DrawTwo => "plays draw two"
+        mut note := ""
+        match play
+            Skip => step = 2
+            Reverse => dir = -dir
+            DrawTwo =>
+                victim := (p + dir + 4) % 4
+                cards[victim] += 2
+                note = ", {names[victim]} draws 2"
+                step = 2
+            _ => step = 1
+        print("{names[p]} {text}{note}")
+        p = ((p + dir * step) % 4 + 4) % 4
+    for i in 0..4
+        print("{names[i]} holds {cards[i]}")
+
+@test fn turns_backwards()
+    assert_eq(((0 + -1 * 1) % 4 + 4) % 4, 3)

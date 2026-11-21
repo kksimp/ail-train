@@ -1,0 +1,7 @@
+swim Brownlee > Jorgensen > Duffy > Gomez
+bike Duffy > Jorgensen > Brownlee > Gomez
+run  Gomez > Jorgensen > Brownlee > Duffy
+1. Brownlee   1:47:43  +  0s  transitions 73s
+2. Jorgensen  1:47:46  +  3s  transitions 96s
+3. Duffy      1:48:18  + 35s  transitions 83s
+4. Gomez      1:48:25  + 42s  transitions 65s

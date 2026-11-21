@@ -1,0 +1,42 @@
+## Shut the box: tiles 1 to 9 start open; each roll of two dice must be matched by shutting open tiles
+## that add up to it, found by a depth-first search trying the largest tiles first. Open tiles score.
+
+fn pick(tiles List[int], target int, start int) List[int]?
+    if target == 0
+        return List[int]()
+    for i in start..tiles.len()
+        t := tiles[i]
+        if t <= target
+            if rest := pick(tiles, target - t, i + 1)
+                mut out := [t]
+                out.extend(rest)
+                return out
+    none
+
+fn main()
+    mut seed := 77
+    for game in 1..=2
+        mut open := [9, 8, 7, 6, 5, 4, 3, 2, 1]
+        mut rolls := 0
+        mut trail := List[str]()
+        while open.len() > 0
+            seed = (seed * 1103515245 + 12345) % 2147483648
+            a := (seed / 65536) % 6 + 1
+            seed = (seed * 1103515245 + 12345) % 2147483648
+            b := (seed / 65536) % 6 + 1
+            rolls += 1
+            shut := pick(open, a + b, 0) else
+                trail.push("{a + b}: stuck")
+                break
+            open = open.filter(|t| not shut.contains(t))
+            joined := shut.join("+")
+            trail.push("{a + b}: {joined}")
+        steps := trail.join(", ")
+        print("game {game}: {steps}")
+        if open.is_empty()
+            print("game {game}: box shut in {rolls} rolls")
+        else
+            print("game {game}: score {open.sum()} with {open.len()} tiles open")
+
+@test fn finds_combination()
+    assert_eq(pick([9, 4, 2, 1], 7, 0), [4, 2, 1])

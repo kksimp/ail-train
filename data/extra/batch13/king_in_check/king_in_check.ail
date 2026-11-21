@@ -1,0 +1,59 @@
+## King in check: finds every black piece attacking the white king, sliding rooks and queens along
+## ranks and files, bishops and queens along diagonals until blocked, plus knights and pawns.
+
+fn square(r int, c int) str
+    col := char.from_code(97 + c) else 'a'
+    "{col}{8 - r}"
+
+fn piece_name(p char) str
+    match p
+        'q' => "queen"
+        'r' => "rook"
+        'b' => "bishop"
+        'n' => "knight"
+        'p' => "pawn"
+        _ => "piece"
+
+fn attackers(rows List[str]) List[str]
+    g := rows.map(|row| row.chars())
+    mut kr := 0
+    mut kc := 0
+    for r in 0..8
+        for c in 0..8
+            if g[r][c] == 'K'
+                kr = r
+                kc = c
+    mut out := List[str]()
+    dirs := [[0, 1], [0, -1], [1, 0], [-1, 0], [1, 1], [1, -1], [-1, 1], [-1, -1]]
+    for i, d in dirs.enumerate()
+        mut r := kr + d[0]
+        mut c := kc + d[1]
+        while r >= 0 and r < 8 and c >= 0 and c < 8 and g[r][c] == '.'
+            r += d[0]
+            c += d[1]
+        if r >= 0 and r < 8 and c >= 0 and c < 8
+            p := g[r][c]
+            straight := i < 4
+            if p == 'q' or (straight and p == 'r') or (not straight and p == 'b')
+                out.push("{piece_name(p)} on {square(r, c)}")
+    for j in [[1, 2], [2, 1], [-1, 2], [-2, 1], [1, -2], [2, -1], [-1, -2], [-2, -1]]
+        r := kr + j[0]
+        c := kc + j[1]
+        if r >= 0 and r < 8 and c >= 0 and c < 8 and g[r][c] == 'n'
+            out.push("knight on {square(r, c)}")
+    for dc in [-1, 1]
+        r := kr - 1
+        c := kc + dc
+        if r >= 0 and c >= 0 and c < 8 and g[r][c] == 'p'
+            out.push("pawn on {square(r, c)}")
+    out
+
+fn main()
+    positions := [["....r...", "........", "........", "........", "........", ".....n..", "........", "....K..."], ["........", "...b....", "........", ".....P..", "........", "...p....", "....K...", "........"], ["q.......", "........", "........", "........", "........", "........", "........", ".r.K...."], ["........", "........", "..b.....", "........", "....K...", "........", "........", "....r..."]]
+    for i, pos in positions.enumerate()
+        found := attackers(pos)
+        text := if found.is_empty() then "not in check" else found.join(", ")
+        print("position {i + 1}: {text}")
+
+@test fn blocked_rook()
+    assert(attackers(["r.......", "P.......", "........", "........", "........", "........", "........", "K......."]).is_empty())

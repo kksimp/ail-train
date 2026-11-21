@@ -1,0 +1,56 @@
+## Go area score: each player gets a point per stone on the board plus each empty region that only
+## their stones border, found by flood fill; white adds a komi of 6.5 and the larger total wins.
+
+fn main()
+    rows := [".B.BW..", "BB.BW.W", "..BWW..", "BBBW.W.", "..BW...", ".BW.WW.", ".BW...."]
+    g := rows.map(|row| row.chars())
+    n := 7
+    mut seen := Set[int]()
+    mut black := 0
+    mut white := 0
+    mut neutral := 0
+    for r in 0..n
+        for c in 0..n
+            if g[r][c] == 'B'
+                black += 1
+            elif g[r][c] == 'W'
+                white += 1
+    cells := n * n
+    for start in 0..cells
+        if g[start / n][start % n] != '.' or seen.contains(start)
+            continue
+        mut todo := [start]
+        seen.add(start)
+        mut size := 0
+        mut borders := Set[char]()
+        while cell := todo.pop()
+            size += 1
+            r := cell / n
+            c := cell % n
+            for d in [[0, 1], [0, -1], [1, 0], [-1, 0]]
+                nr := r + d[0]
+                nc := c + d[1]
+                if nr >= 0 and nr < n and nc >= 0 and nc < n
+                    v := g[nr][nc]
+                    if v == '.'
+                        if seen.add(nr * n + nc)
+                            todo.push(nr * n + nc)
+                    else
+                        borders.add(v)
+        if borders.len() == 1 and borders.contains('B')
+            black += size
+        elif borders.len() == 1 and borders.contains('W')
+            white += size
+        else
+            neutral += size
+    komi := 6.5
+    w := white.to_float() + komi
+    print("black area {black}")
+    print("white area {white} + komi {komi} = {w}")
+    print("neutral points {neutral}")
+    margin := w - black.to_float()
+    winner := if margin > 0.0 then "white" else "black"
+    print("{winner} wins by {margin.abs()}")
+
+@test fn komi_half_point()
+    assert_eq(7.0 + 6.5 - 13.0, 0.5)

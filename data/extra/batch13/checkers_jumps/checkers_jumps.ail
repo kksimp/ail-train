@@ -1,0 +1,45 @@
+## Checkers jumps: white men move up the board and must capture by jumping a diagonal black piece
+## onto an empty square; a recursive search follows every multi-jump chain and keeps the longest.
+
+fn square(r int, c int) str
+    col := char.from_code(97 + c) else 'a'
+    "{col}{8 - r}"
+
+fn chains(board List[List[char]], r int, c int, path str, mut out List[str])
+    mut extended := false
+    for dc in [-1, 1]
+        mr := r - 1
+        mc := c + dc
+        lr := r - 2
+        lc := c + dc * 2
+        if lr >= 0 and lc >= 0 and lc < 8
+            if board[mr][mc] == 'b' and board[lr][lc] == '.'
+                mut next := board
+                next[r][c] = '.'
+                next[mr][mc] = '.'
+                next[lr][lc] = 'w'
+                chains(next, lr, lc, "{path}x{square(lr, lc)}", mut out)
+                extended = true
+    if not extended and path.contains("x")
+        out.push(path)
+
+fn main()
+    rows := ["........", "..b.b...", "........", "..b.b...", "...w....", "........", ".w...b..", "w.w....."]
+    board := rows.map(|row| row.chars())
+    mut all_chains := List[str]()
+    for r in 0..8
+        for c in 0..8
+            if board[r][c] == 'w'
+                chains(board, r, c, square(r, c), mut all_chains)
+    mut longest := 0
+    for ch in all_chains
+        n := ch.count("x")
+        print("{ch} takes {n}")
+        if n > longest
+            longest = n
+    best := all_chains.filter(|ch| ch.count("x") == longest)
+    choices := best.join(", ")
+    print("must play one of: {choices}")
+
+@test fn names_squares()
+    assert_eq(square(7, 0), "a1")
