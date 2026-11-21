@@ -1,0 +1,25 @@
+## Course sets: students' chosen courses as sets; finds courses everyone takes, pairs of
+## students with the most courses in common, and who meets a prerequisite set.
+
+fn main()
+    students := [("Ali", {"maths", "physics", "art", "music"}), ("Bea", {"maths", "physics", "history"}), ("Cal", {"maths", "art", "music", "drama"}), ("Dev", {"maths", "physics", "music"})]
+    mut common := students[0].1
+    for s in students
+        common = common.intersect(s.1)
+    shown := common.to_list().sorted().join(", ")
+    print("everyone takes: {shown}")
+    mut best := ("", "", -1)
+    for i in 0..students.len()
+        for j in i + 1..students.len()
+            n := students[i].1.intersect(students[j].1).len()
+            if n > best.2
+                best = (students[i].0, students[j].0, n)
+    print("most in common: {best.0} and {best.1} ({best.2})")
+    needed := {"maths", "physics"}
+    ready := students.filter(|s| needed.is_subset(s.1)).map(|s| s.0).join(", ")
+    print("ready for engineering: {ready}")
+
+@test fn sub()
+    a := {"x"}
+    b := {"x", "y"}
+    assert(a.is_subset(b))

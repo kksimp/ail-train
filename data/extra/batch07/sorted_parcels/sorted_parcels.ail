@@ -1,0 +1,19 @@
+## Parcel sorting: parcels as structs ordered by an `impl Ord` from their fields (zone, then
+## weight, then id), so a plain `sorted()` gives the loading order.
+
+struct Parcel
+    zone int
+    grams int
+    id str
+
+impl Ord for Parcel
+
+fn main()
+    parcels := [Parcel(zone: 3, grams: 1200, id: "P7"), Parcel(zone: 1, grams: 800, id: "P2"), Parcel(zone: 2, grams: 2500, id: "P9"), Parcel(zone: 1, grams: 800, id: "P1"), Parcel(zone: 3, grams: 300, id: "P4"), Parcel(zone: 2, grams: 150, id: "P5")]
+    for p in parcels.sorted()
+        print("zone {p.zone}: {p.id} ({p.grams} g)")
+    heaviest := parcels.max(by: |p| p.grams) else parcels[0]
+    print("heaviest {heaviest.id}")
+
+@test fn order()
+    assert(Parcel(zone: 1, grams: 5, id: "a") < Parcel(zone: 2, grams: 1, id: "b"))

@@ -1,0 +1,8 @@
+ok: welcome, Asha (29)
+rejected: name is empty
+rejected: email has no @
+rejected: email cleo@site looks wrong
+rejected: age twelve is not a number
+rejected: must be 13 or over
+rejected: password shorter than 8
+rejected: password needs a digit

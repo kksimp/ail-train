@@ -1,0 +1,23 @@
+## Quiz timer: answers arrive with timestamps; correct answers score 10 points minus one per
+## full 5 seconds taken (never below 2), and a leaderboard is printed.
+
+fn points(correct bool, seconds int) int
+    if not correct
+        return 0
+    p := 10 - seconds / 5
+    if p < 2 then 2 else p
+
+fn main()
+    answers := [("Ana", 1, true, 4), ("Ben", 1, true, 12), ("Cy", 1, false, 3), ("Ana", 2, false, 20), ("Ben", 2, true, 7), ("Cy", 2, true, 2), ("Ana", 3, true, 45), ("Ben", 3, true, 31), ("Cy", 3, true, 9)]
+    mut scores := Map[str, int]()
+    for a in answers
+        who, q, ok, secs := a
+        p := points(ok, secs)
+        scores[who] += p
+        verdict := if ok then "right" else "wrong"
+        print("q{q} {who}: {verdict} in {secs}s, +{p}")
+    for name in scores.keys().sorted(by: |k| (-scores[k], k))
+        print("{name}: {scores[name]}")
+
+@test fn slow()
+    assert_eq(points(true, 60), 2)

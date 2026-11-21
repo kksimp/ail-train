@@ -1,0 +1,56 @@
+## Discount rules: a `trait` for discount policies with three structs (percentage off,
+## buy-n-get-one-free, money off over a threshold), applied to a basket to find the best.
+
+trait Discount
+    fn label(self) str
+    fn saving(self, prices List[int]) int
+
+struct PercentOff
+    pct int
+
+struct FreeItem
+    every int
+
+struct MoneyOff
+    over int
+    amount int
+
+impl Discount for PercentOff
+    fn label(self) str
+        "{pct}% off"
+    fn saving(self, prices List[int]) int
+        prices.sum() * pct / 100
+
+impl Discount for FreeItem
+    fn label(self) str
+        "buy {every - 1} get 1 free"
+    fn saving(self, prices List[int]) int
+        sorted_prices := prices.sorted()
+        free := prices.len() / every
+        sorted_prices.take(free).sum()
+
+impl Discount for MoneyOff
+    fn label(self) str
+        "{amount / 100} off over {over / 100}"
+    fn saving(self, prices List[int]) int
+        if prices.sum() >= over then amount else 0
+
+fn main()
+    mut offers := List[any Discount]()
+    offers.push(PercentOff(pct: 15))
+    offers.push(FreeItem(every: 3))
+    offers.push(MoneyOff(over: 5000, amount: 800))
+    baskets := [[1299, 899, 450, 2100], [599, 599, 599], [4500, 300, 250, 180, 999, 120]]
+    for b in baskets
+        total := b.sum()
+        mut best := ""
+        mut best_saving := -1
+        for o in offers
+            s := o.saving(b)
+            if s > best_saving
+                best_saving = s
+                best = o.label()
+        print("basket {total / 100}.{total % 100:02}: best is {best}, saving {best_saving / 100}.{best_saving % 100:02}")
+
+@test fn pct()
+    assert_eq(PercentOff(pct: 10).saving([1000]), 100)
