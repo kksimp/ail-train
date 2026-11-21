@@ -1,0 +1,20 @@
+## Recipe steps: steps with durations and "needs" lists; computes the earliest finish time
+## of each step when independent steps can run at once, and the total cooking time.
+
+fn main()
+    steps := [("boil water", 10, List[str]()), ("chop veg", 15, List[str]()), ("cook pasta", 12, ["boil water"]), ("make sauce", 20, ["chop veg"]), ("combine", 3, ["cook pasta", "make sauce"]), ("grate cheese", 5, List[str]()), ("serve", 2, ["combine", "grate cheese"])]
+    mut finish := Map[str, int]()
+    for s in steps
+        name, minutes, needs := s
+        mut start := 0
+        for n in needs
+            start = start.max(finish[n])
+        finish[name] = start + minutes
+        print("{name:<13} starts {start:>2}, ends {start + minutes:>2}")
+    total := finish.values().max() else 0
+    print("ready after {total} minutes")
+    serial := steps.map(|s| s.1).sum()
+    print("one step at a time it would take {serial}")
+
+@test fn chained()
+    assert_eq(0.max(10) + 12, 22)

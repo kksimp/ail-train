@@ -1,0 +1,35 @@
+## Event counter: a struct that counts events per kind and remembers the order kinds first
+## appeared, with methods for recording, querying and a summary sorted by count.
+
+struct Counter
+    counts Map[str, int]
+    order List[str]
+
+fn Counter.fresh() Counter
+    Counter(counts: Map[str, int](), order: List[str]())
+
+fn Counter.record(mut self, kind str)
+    if not self.counts.contains(kind)
+        self.order.push(kind)
+    self.counts[kind] += 1
+
+fn Counter.count(self, kind str) int
+    counts.get(kind) else 0
+
+fn Counter.summary(self) List[str]
+    ranked := order.sorted(by: |k| -counts[k])
+    ranked.map(|k| "{k}={counts[k]}")
+
+fn main()
+    mut c := Counter.fresh()
+    for e in "click view click scroll view click buy view click scroll".split(" ")
+        c.record(e)
+    print("first seen order: {c.order}")
+    print("clicks {c.count("click")}, refunds {c.count("refund")}")
+    print(c.summary().join(" "))
+
+@test fn records()
+    mut c := Counter.fresh()
+    c.record("a")
+    c.record("a")
+    assert_eq(c.count("a"), 2)

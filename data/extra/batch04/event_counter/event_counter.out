@@ -1,0 +1,3 @@
+first seen order: ["click", "view", "scroll", "buy"]
+clicks 4, refunds 0
+click=4 view=3 scroll=2 buy=1

@@ -1,0 +1,9 @@
+boil water    starts  0, ends 10
+chop veg      starts  0, ends 15
+cook pasta    starts 10, ends 22
+make sauce    starts 15, ends 35
+combine       starts 35, ends 38
+grate cheese  starts  0, ends  5
+serve         starts 38, ends 40
+ready after 40 minutes
+one step at a time it would take 67
