@@ -1,0 +1,25 @@
+## Nernst equation: a cell's voltage shifts with concentration as E = E0 - (R T / n F) ln Q; for a Daniell
+## cell Q = [Zn2+] / [Cu2+], the free energy is -n F E, and log10 K = n F E0 / (R T ln 10).
+
+R := 8.314
+F := 96485.0
+
+fn cell(e0 float, n int, q float, t float) float
+    e0 - R * t / (n.to_float() * F) * q.ln()
+
+fn main()
+    t := 298.15
+    e0 := 1.10
+    mixes := [(1.0, 1.0), (0.01, 1.0), (1.0, 0.01), (0.1, 0.001), (2.0, 0.0001)]
+    for m in mixes
+        zn, cu := m
+        e := cell(e0, 2, zn / cu, t)
+        dg := -2.0 * F * e / 1000.0
+        print("[Zn2+] {zn}, [Cu2+] {cu}: E {e:.4} V, dG {dg:.1} kJ/mol")
+    logk := 2.0 * F * e0 / (R * t * 2.302585092994046)
+    print("equilibrium constant K = 10^{logk:.1}")
+    conc := cell(0.0, 2, 0.001 / 1.0, t)
+    print("copper concentration cell, 0.001 against 1 mol/L: {conc * 1000.0:.1} mV")
+
+@test fn standard()
+    assert_eq(cell(1.1, 2, 1.0, 298.15), 1.1)

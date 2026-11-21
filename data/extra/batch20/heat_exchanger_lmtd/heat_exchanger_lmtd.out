@@ -1,0 +1,6 @@
+oil cooler: duty 252.0 kW
+  counterflow LMTD 79.58 K, area 10.56 m2
+  parallel LMTD 68.20 K, area 12.32 m2
+tight approach: duty 157.5 kW
+  counterflow LMTD 31.91 K, area 16.45 m2
+  parallel: temperature cross: the cold side would leave hotter than the hot side

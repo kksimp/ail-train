@@ -1,0 +1,10 @@
+450 mV:     0.0551 mA
+500 mV:     0.1673 mA
+550 mV:     0.5081 mA
+600 mV:     1.5436 mA
+650 mV:     4.6890 mA
+700 mV:    14.2440 mA
+5.0 V through 1000 ohm: diode at 0.6467 V, 4.353 mA
+12.0 V through 1000 ohm: diode at 0.6896 V, 11.310 mA
+5.0 V through 220 ohm: diode at 0.7141 V, 19.481 mA
+3.3 V through 10000 ohm: diode at 0.5228 V, 0.278 mA

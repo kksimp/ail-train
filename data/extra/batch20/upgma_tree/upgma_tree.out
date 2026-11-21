@@ -1,0 +1,5 @@
+join human and chimp at height 0.750
+join gorilla and (human,chimp) at height 0.975
+join orangutan and (gorilla,(human,chimp)) at height 1.667
+join gibbon and (orangutan,(gorilla,(human,chimp))) at height 2.325
+tree: (gibbon,(orangutan,(gorilla,(human,chimp))));

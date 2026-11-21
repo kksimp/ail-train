@@ -1,0 +1,33 @@
+## Cable sag: a cable of weight w per metre over span L sagging s at midspan pulls sideways with
+## H = w L^2 / (8 s), most at the towers sqrt(H^2 + (w L / 2)^2), and is about L + 8 s^2 / (3 L) long.
+
+struct Span
+    length float
+    weight float
+
+fn Span.pull(self, sag float) float
+    self.weight * self.length * self.length / (8.0 * sag)
+
+fn Span.peak(self, sag float) float
+    h := self.pull(sag)
+    v := self.weight * self.length / 2.0
+    (h * h + v * v).sqrt()
+
+fn Span.cable(self, sag float) float
+    self.length + 8.0 * sag * sag / (3.0 * self.length)
+
+fn Span.sag_for(self, cable_len float) float
+    (3.0 * self.length * (cable_len - self.length) / 8.0).sqrt()
+
+fn main()
+    line := Span(length: 200.0, weight: 15.0)
+    for sag in [1.0, 2.0, 4.0, 8.0, 16.0]
+        print("sag {sag:>4.0} m: pull {line.pull(sag) / 1000.0:>6.2} kN, at the towers {line.peak(sag) / 1000.0:>6.2} kN, cable {line.cable(sag):.3} m")
+    cold := line.cable(4.0)
+    for warm in [10.0, 30.0, 50.0]
+        stretched := cold * (1.0 + 0.000023 * warm)
+        print("{warm:.0} C warmer: cable grows to {stretched:.3} m and sags {line.sag_for(stretched):.2} m")
+
+@test fn length_round_trip()
+    s := Span(length: 100.0, weight: 1.0)
+    assert((s.sag_for(s.cable(5.0)) - 5.0).abs() < 0.000001)

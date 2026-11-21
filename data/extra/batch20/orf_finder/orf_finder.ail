@@ -1,0 +1,43 @@
+## Open reading frames: in each of the six reading frames (three on the strand, three on its reverse
+## complement) an ORF runs from ATG to the first in-frame stop codon; lists those of at least five codons.
+
+fn pair(c char) char
+    match c
+        'A' => 'T'
+        'T' => 'A'
+        'G' => 'C'
+        _ => 'G'
+
+fn complement(s str) str
+    s.chars().reversed().map(|c| pair(c)).join("")
+
+fn is_stop(codon str) bool
+    codon == "TAA" or codon == "TAG" or codon == "TGA"
+
+fn orfs(s str, min_codons int) List[List[int]]
+    mut found := List[List[int]]()
+    for frame in 0..3
+        mut i := frame
+        while i + 3 <= s.len()
+            if s.slice(i, i + 3) == "ATG"
+                mut j := i
+                while j + 3 <= s.len() and not is_stop(s.slice(j, j + 3))
+                    j += 3
+                if j + 3 <= s.len() and (j - i) / 3 >= min_codons
+                    found.push([frame, i, j + 3, (j - i) / 3])
+                i = j
+            i += 3
+    found
+
+fn main()
+    dna := "CCATGGCTTCAGGTAAGCATGAAACCCTGGTTTAGCTAATGCCCATTAGGTCATTTACCATGGGTAAACCCGGGCATTGA"
+    print("{dna.len()} bases")
+    for strand in ["+", "-"]
+        s := if strand == "+" then dna else complement(dna)
+        for o in orfs(s, 5)
+            protein_len := o[3]
+            print("strand {strand} frame {o[0] + 1}: bases {o[1] + 1}-{o[2]}, {protein_len} codons, starts {s.slice(o[1], o[1] + 12)}")
+
+@test fn simple_orf()
+    assert_eq(orfs("ATGAAATTTGGGCCCTAA", 5), [[0, 0, 18, 5]])
+    assert_eq(complement("AACG"), "CGTT")

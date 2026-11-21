@@ -1,0 +1,24 @@
+## Dalton's law: each gas in a mixture pushes with its mole fraction times the total pressure; gas
+## collected over water shares the flask with water vapour, so its own pressure is P minus the vapour pressure.
+
+R := 8.314
+
+fn main()
+    vapour := {15: 1.71, 20: 2.34, 25: 3.17, 30: 4.25, 35: 5.63}
+    total := 101.3
+    collected := [(20, 245.0), (25, 250.0), (35, 262.0)]
+    for c in collected
+        temp, ml := c
+        pw := vapour.get_or(temp, 0.0)
+        pgas := total - pw
+        moles := pgas * 1000.0 * ml / 1000000.0 / (R * (temp.to_float() + 273.15))
+        print("{ml} mL of hydrogen at {temp} C: water {pw} kPa, hydrogen {pgas:.2} kPa, {moles * 1000.0:.3} mmol")
+    air := [("N2", 0.7808), ("O2", 0.2095), ("Ar", 0.0093), ("CO2", 0.0004)]
+    for place in [("sea level", 101.3), ("Everest summit", 33.7)]
+        where, p := place
+        parts := air.map(|g| "{g.0} {g.1 * p:.2}").join(", ")
+        print("{where} ({p} kPa): {parts} kPa")
+
+@test fn fractions_sum()
+    total := 0.7808 + 0.2095 + 0.0093 + 0.0004
+    assert((total - 1.0).abs() < 0.000001)

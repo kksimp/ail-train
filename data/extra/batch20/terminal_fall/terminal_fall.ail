@@ -1,0 +1,32 @@
+## Terminal velocity: a skydiver's drag is c v^2 with c = rho Cd A / 2, so speed creeps up to
+## sqrt(m g / c); Euler steps of 0.1 s show how long each body position takes to reach 95% of that.
+
+fn terminal(m float, c float) float
+    (m * 9.81 / c).sqrt()
+
+fn steps_to(m float, c float, frac float) List[float]
+    vt := terminal(m, c)
+    dt := 0.1
+    mut v := 0.0
+    mut x := 0.0
+    mut n := 0
+    while v < frac * vt
+        acc := 9.81 - c * v * v / m
+        x += v * dt
+        v += acc * dt
+        n += 1
+    [n.to_float() * dt, x]
+
+fn main()
+    m := 80.0
+    poses := [("belly to earth", 0.7), ("head down", 0.18), ("canopy open", 25.0)]
+    for p in poses
+        name, area := p
+        c := 0.5 * 1.225 * 1.0 * area
+        vt := terminal(m, c)
+        kmh := vt * 3.6
+        r := steps_to(m, c, 0.95)
+        print("{name:<15} terminal {vt:>6.1} m/s ({kmh:>5.0} km/h), 95% after {r[0]:.1} s and {r[1]:.0} m")
+
+@test fn limit()
+    assert_eq(terminal(4.0, 9.81), 2.0)

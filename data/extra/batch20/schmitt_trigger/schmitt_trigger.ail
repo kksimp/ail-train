@@ -1,0 +1,48 @@
+## Schmitt trigger: a slow noisy ramp crossing 2500 mV makes a plain comparator chatter, while separate
+## thresholds (rise above 2800, fall below 2200) switch once per crossing; noise comes from a seeded LCG.
+
+fn noise(mut seed List[int]) int
+    seed[0] = (seed[0] * 1103515245 + 12345) % 2147483648
+    seed[0] % 601 - 300
+
+fn signal(mut seed List[int]) List[int]
+    mut out := List[int]()
+    for t in 0..160
+        phase := t % 80
+        base := if phase < 40 then 1000 + phase * 75 else 1000 + (80 - phase) * 75
+        out.push(base + noise(mut seed))
+    out
+
+fn plain(xs List[int]) int
+    mut high := false
+    mut flips := 0
+    for x in xs
+        now := x > 2500
+        if now != high
+            flips += 1
+            high = now
+    flips
+
+fn schmitt(xs List[int]) int
+    mut high := false
+    mut flips := 0
+    for x in xs
+        if not high and x > 2800
+            high = true
+            flips += 1
+        elif high and x < 2200
+            high = false
+            flips += 1
+    flips
+
+fn main()
+    mut seed := [2024]
+    xs := signal(mut seed)
+    print("first samples (mV): {xs.slice(0, 8)}")
+    print("plain comparator switches {plain(xs)} times")
+    print("Schmitt trigger switches {schmitt(xs)} times")
+    print("the ramp itself crosses 2500 mV 4 times")
+
+@test fn clean_ramp()
+    assert_eq(schmitt([1000, 3000, 3000, 2000, 1000]), 2)
+    assert_eq(plain([2400, 2600, 2400, 2600]), 3)

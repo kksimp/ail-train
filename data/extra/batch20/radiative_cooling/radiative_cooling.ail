@@ -1,0 +1,33 @@
+## Radiative cooling: a hot steel ball in a vacuum chamber loses heat only by radiation,
+## dT/dt = -e sigma A (T^4 - Ts^4) / (m c); a dark surface (e 0.95) cools far faster than a polished one (e 0.1).
+
+PI := 3.141592653589793
+SIGMA := 0.0000000567
+
+fn cool(emiss float, minutes int) List[float]
+    r := 0.05
+    area := 4.0 * PI * r * r
+    mass := 7850.0 * 4.0 / 3.0 * PI * r * r * r
+    c := 490.0
+    walls := 300.0
+    mut t := 1000.0
+    mut out := [t]
+    for tick in 0..minutes * 6
+        t4 := t * t * t * t
+        w4 := walls * walls * walls * walls
+        t -= emiss * SIGMA * area * (t4 - w4) / (mass * c) * 10.0
+        if tick % 6 == 5
+            out.push(t)
+    out
+
+fn main()
+    dark := cool(0.95, 60)
+    shiny := cool(0.1, 60)
+    for m in [0, 5, 10, 20, 40, 60]
+        print("{m:>2} min: dark {dark[m]:>6.1} K, polished {shiny[m]:>6.1} K")
+    below := [i for i in 0..dark.len() if dark[i] < 600.0]
+    first := below.first() else -1
+    print("the dark ball falls below 600 K after {first} minutes")
+
+@test fn at_room()
+    assert_eq(cool(0.5, 0), [1000.0])

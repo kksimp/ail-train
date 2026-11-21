@@ -1,0 +1,27 @@
+## Parallel plate capacitor: C = e0 er A / d, and the dielectric breaks down above its field strength,
+## so the plates hold at most Emax d volts and store C V^2 / 2; high permittivity and strength both pay.
+
+E0 := 0.000000000008854
+
+struct Dielectric
+    name str
+    er float
+    mv_per_m float
+
+fn main()
+    area := 0.1 * 0.1
+    gap := 0.0001
+    stuff := [Dielectric(name: "air", er: 1.0006, mv_per_m: 3.0), Dielectric(name: "paper", er: 3.7, mv_per_m: 16.0), Dielectric(name: "mica", er: 6.0, mv_per_m: 118.0), Dielectric(name: "polyester", er: 3.3, mv_per_m: 60.0), Dielectric(name: "barium titanate", er: 1200.0, mv_per_m: 4.0)]
+    mut energies := Map[str, float]()
+    for d in stuff
+        c := E0 * d.er * area / gap
+        vmax := d.mv_per_m * 1000000.0 * gap
+        joules := 0.5 * c * vmax * vmax
+        energies[d.name] = joules
+        print("{d.name:<16} C {c * 1000000000000.0:>9.1} pF, up to {vmax:>6.0} V, stores {joules * 1000.0:>8.3} mJ")
+    ranked := energies.keys().sorted(by: |k| -energies[k])
+    print("best store: {ranked[0]}, worst: {ranked[ranked.len() - 1]}")
+
+@test fn vacuum()
+    c := E0 * 1.0 * 1.0 / 1.0
+    assert_eq(c, E0)

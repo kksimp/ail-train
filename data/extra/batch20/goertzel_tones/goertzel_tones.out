@@ -1,0 +1,6 @@
+770 + 1336 Hz: row powers 0.1 10.5 0.0 0.0 (thousands) -> 5
+852 + 1477 Hz: row powers 0.0 0.0 10.5 0.1 (thousands) -> 9
+941 + 1209 Hz: row powers 0.0 0.1 0.2 10.0 (thousands) -> *
+697 + 1477 Hz: row powers 10.5 0.0 0.0 0.0 (thousands) -> 3
+941 + 1336 Hz: row powers 0.0 0.1 0.2 10.5 (thousands) -> 0
+decoded: 59*30

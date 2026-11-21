@@ -1,0 +1,32 @@
+## RL circuits: switching a voltage onto a coil, the current climbs as (V / R)(1 - exp(-t / tau)) with
+## tau = L / R; breaking the circuit in a microsecond makes the coil kick back about L I / dt volts.
+
+struct Coil
+    name str
+    henry float
+    ohm float
+    volts float
+
+fn Coil.tau(self) float
+    self.henry / self.ohm
+
+fn Coil.current(self, t float) float
+    self.volts / self.ohm * (1.0 - (-t / self.tau()).exp())
+
+fn main()
+    coils := [Coil(name: "relay coil", henry: 0.5, ohm: 100.0, volts: 12.0), Coil(name: "motor winding", henry: 0.02, ohm: 2.0, volts: 24.0), Coil(name: "ignition coil", henry: 0.008, ohm: 0.5, volts: 12.0)]
+    for c in coils
+        final := c.volts / c.ohm
+        print("{c.name}: tau {c.tau() * 1000.0:.1} ms, final {final:.3} A, stores {0.5 * c.henry * final * final * 1000.0:.1} mJ")
+        mut parts := List[str]()
+        for k in 1..=4
+            pct := c.current(k.to_float() * c.tau()) / final * 100.0
+            parts.push("{k} tau {pct:.1}%")
+        shown := parts.join(", ")
+        print("  {shown}")
+        kick := c.henry * final / 0.000001
+        print("  cut in 1 us: about {kick / 1000.0:.0} kV across the contacts")
+
+@test fn starts_at_zero()
+    c := Coil(name: "x", henry: 1.0, ohm: 1.0, volts: 1.0)
+    assert_eq(c.current(0.0), 0.0)

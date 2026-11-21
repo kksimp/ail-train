@@ -1,0 +1,33 @@
+## Optical fibre: a core of index n1 in cladding n2 guides light entering within the numerical aperture
+## NA = sqrt(n1^2 - n2^2); steep and shallow rays travel different paths, spreading a pulse by L n1 (n1 - n2) / (c n2).
+
+PI := 3.141592653589793
+C_KM_NS := 0.299792458
+
+struct Fibre
+    name str
+    core float
+    clad float
+
+fn Fibre.na(self) float
+    (self.core * self.core - self.clad * self.clad).sqrt()
+
+fn Fibre.half_angle(self) float
+    a := self.na()
+    (a / (1.0 - a * a).sqrt()).atan() * 180.0 / PI
+
+fn Fibre.spread_ns_per_km(self) float
+    1000.0 * self.core * (self.core - self.clad) / (C_KM_NS * self.clad)
+
+fn main()
+    fibres := [Fibre(name: "plastic", core: 1.49, clad: 1.41), Fibre(name: "glass multimode", core: 1.48, clad: 1.46), Fibre(name: "glass narrow step", core: 1.4475, clad: 1.444)]
+    for f in fibres
+        dt := f.spread_ns_per_km()
+        rate := 1000.0 / (2.0 * dt)
+        print("{f.name:<17} NA {f.na():.3}, accepts {f.half_angle():.1} degrees, spread {dt:.1} ns/km, about {rate:.1} Mbit/s over 1 km")
+    long := fibres[1].spread_ns_per_km() * 5.0
+    print("5 km of glass multimode smears a pulse by {long:.0} ns")
+
+@test fn no_step()
+    f := Fibre(name: "x", core: 1.5, clad: 1.5)
+    assert_eq(f.na(), 0.0)

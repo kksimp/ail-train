@@ -1,0 +1,26 @@
+## American wire gauge: diameter is 0.127 mm x 92^((36 - n) / 39), so every 6 gauges halve the diameter
+## and every 3 halve the area; copper resistance per km is 17.2 / area in mm2 ohms.
+
+PI := 3.141592653589793
+
+fn diameter_mm(gauge int) float
+    base := 92.0
+    0.127 * base.pow((36 - gauge).to_float() / 39.0)
+
+fn area_mm2(gauge int) float
+    d := diameter_mm(gauge)
+    PI * d * d / 4.0
+
+fn main()
+    for g in [0, 4, 10, 12, 14, 18, 22, 26, 30]
+        d := diameter_mm(g)
+        a := area_mm2(g)
+        ohm := 17.2 / a
+        print("AWG {g:>2}: {d:>6.3} mm, {a:>7.3} mm2, {ohm:>8.2} ohm/km")
+    ratio := area_mm2(12) / area_mm2(15)
+    print("3 gauges thinner: area ratio {ratio:.3}")
+    drop := 15.0 * 2.0 * 20.0 * 17.2 / area_mm2(14) / 1000.0
+    print("15 A over a 20 m run of AWG 14 (both ways) drops {drop:.2} V")
+
+@test fn gauge_36()
+    assert_eq(diameter_mm(36), 0.127)

@@ -1,0 +1,58 @@
+## Resistor colour bands: digit bands, then a power-of-ten multiplier, then tolerance; reads 4 and 5 band
+## codes (an unknown colour is an error) and turns values back into bands for the common 4-band form.
+
+fn digit_of(colour str) int ! str
+    names := ["black", "brown", "red", "orange", "yellow", "green", "blue", "violet", "grey", "white"]
+    i := names.index_of(colour) else return "unknown colour {colour}"
+    i
+
+fn tolerance(colour str) str
+    match colour
+        "brown" => "1%"
+        "red" => "2%"
+        "gold" => "5%"
+        "silver" => "10%"
+        _ => "20%"
+
+fn ohms_text(v int) str
+    if v >= 1000000
+        "{v.to_float() / 1000000.0} Mohm"
+    elif v >= 1000
+        "{v.to_float() / 1000.0} kohm"
+    else
+        "{v} ohm"
+
+fn decode(bands List[str]) str ! Fail
+    n := bands.len()
+    mut value := 0
+    for b in bands.slice(0, n - 2)
+        d := digit_of(b)?
+        value = value * 10 + d
+    m := digit_of(bands[n - 2])?
+    for _ in 0..m
+        value *= 10
+    ohms_text(value)
+
+fn encode(v int) List[str]
+    names := ["black", "brown", "red", "orange", "yellow", "green", "blue", "violet", "grey", "white"]
+    mut m := 0
+    mut x := v
+    while x >= 100
+        x /= 10
+        m += 1
+    [names[x / 10], names[x % 10], names[m], "gold"]
+
+fn main()
+    codes := [["yellow", "violet", "red", "gold"], ["brown", "black", "orange", "silver"], ["orange", "orange", "brown", "gold"], ["brown", "green", "black", "red", "brown"], ["red", "pink", "red", "gold"]]
+    for c in codes
+        shown := c.join("-")
+        if v := decode(c)
+            print("{shown}: {v} {tolerance(c[c.len() - 1])}")
+        else err
+            print("{shown}: {err.msg}")
+    for v in [220, 4700, 100000, 1500000]
+        bands := encode(v).join("-")
+        print("{ohms_text(v)} is {bands}")
+
+@test fn round_trip()
+    assert_eq(encode(4700), ["yellow", "violet", "red", "gold"])

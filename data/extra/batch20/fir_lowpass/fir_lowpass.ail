@@ -1,0 +1,38 @@
+## FIR low-pass filter: each output is a weighted sum of the last five inputs with taps 1 2 3 2 1 over 9;
+## a step comes through smoothed, while a signal flipping every sample is cut to a ninth (gain at Nyquist 1/9).
+
+fn filter(xs List[int], taps List[int]) List[int]
+    mut out := List[int]()
+    for n in 0..xs.len()
+        mut acc := 0
+        for k in 0..taps.len()
+            if n - k >= 0
+                acc += taps[k] * xs[n - k]
+        out.push(acc)
+    out
+
+fn show(ys List[int], scale int) str
+    ys.map(|y| "{y.to_float() / scale.to_float():.2}").join(" ")
+
+fn alternate(i int, t int) int
+    if i % 2 == 0 then t else -t
+
+fn main()
+    taps := [1, 2, 3, 2, 1]
+    total := taps.fold(0, |a, t| a + t)
+    impulse := [9, 0, 0, 0, 0, 0, 0, 0]
+    print("impulse response: {show(filter(impulse, taps), 9 * total)}")
+    step := [0, 0, 9, 9, 9, 9, 9, 9, 9, 9]
+    print("step in:  {show(step, 9)}")
+    print("step out: {show(filter(step, taps), 9 * total)}")
+    mut buzz := List[int]()
+    for i in 0..12
+        buzz.push(if i % 2 == 0 then 9 else -9)
+    print("buzz in:  {show(buzz, 9)}")
+    print("buzz out: {show(filter(buzz, taps), 9 * total)}")
+    nyquist := taps.enumerate().fold(0, |acc, p| acc + alternate(p.0, p.1))
+    print("gain at DC {total}/{total}, at Nyquist {nyquist}/{total}")
+
+@test fn passes_constant()
+    out := filter([1, 1, 1, 1, 1, 1], [1, 2, 3, 2, 1])
+    assert_eq(out[5], 9)

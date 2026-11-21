@@ -1,0 +1,35 @@
+## De Broglie wavelength: anything with momentum p has wavelength h / p; electrons sped up through a few
+## hundred volts match the spacing of atoms in a crystal, while a thrown ball's wavelength is absurdly small.
+
+H := 0.000000000000000000000000000000000662607
+ME := 0.000000000000000000000000000000910938
+QE := 0.0000000000000000001602177
+
+fn sci(x float) str
+    mut e := 0
+    mut m := x
+    while m < 1.0
+        m *= 10.0
+        e -= 1
+    while m >= 10.0
+        m /= 10.0
+        e += 1
+    "{m:.2} x 10^{e} m"
+
+fn electron_nm(volts float) float
+    p := (2.0 * ME * QE * volts).sqrt()
+    H / p * 1000000000.0
+
+fn main()
+    for v in [50.0, 150.0, 1000.0, 30000.0]
+        print("electron through {v:.0} V: {electron_nm(v):.4} nm")
+    neutron := 0.00000000000000000000000000167493
+    thermal := (2.0 * neutron * 0.025 * QE).sqrt()
+    print("thermal neutron (0.025 eV): {H / thermal * 1000000000.0:.4} nm")
+    things := [("baseball at 40 m/s", 0.145, 40.0), ("dust grain at 1 mm/s", 0.000000001, 0.001), ("walker at 1.4 m/s", 70.0, 1.4)]
+    for t in things
+        name, mass, speed := t
+        print("{name}: {sci(H / (mass * speed))}")
+
+@test fn sci_text()
+    assert_eq(sci(0.025), "2.50 x 10^-2 m")

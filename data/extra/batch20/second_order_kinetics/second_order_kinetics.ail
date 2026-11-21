@@ -1,0 +1,31 @@
+## Second-order kinetics: for rate = k [A]^2 the plot of 1 / [A] against time is straight,
+## 1 / [A] = 1 / [A]0 + k t, so each half-life 1 / (k [A]) is twice the one before, unlike first order.
+
+fn conc2(a0 float, k float, t float) float
+    1.0 / (1.0 / a0 + k * t)
+
+fn conc1(a0 float, k1 float, t float) float
+    a0 * (-k1 * t).exp()
+
+fn main()
+    k := 0.54
+    a0 := 0.1
+    first_half := 1.0 / (k * a0)
+    two := 2.0
+    k1 := two.ln() / first_half
+    print("2 NO2 -> 2 NO + O2, k {k} L/(mol s), [NO2]0 {a0} mol/L")
+    print("first half-life {first_half:.2} s; first-order rival with the same half-life has k1 {k1:.5} /s")
+    for t in [0.0, 10.0, 18.52, 50.0, 100.0, 300.0, 1000.0]
+        c2 := conc2(a0, k, t)
+        c1 := conc1(a0, k1, t)
+        print("t {t:>7.2} s: second order {c2:.5} mol/L, first order {c1:.5} mol/L")
+    mut a := a0
+    mut halves := List[str]()
+    for _ in 0..4
+        halves.push("{1.0 / (k * a):.1}")
+        a = a / 2.0
+    shown := halves.join(", ")
+    print("successive half-lives (s): {shown}")
+
+@test fn straight_inverse()
+    assert_eq(conc2(0.5, 1.0, 2.0), 0.25)

@@ -1,0 +1,35 @@
+## Fishery yield: a fish population grows logistically, r N (1 - N / K) a year, and a fixed catch quota is taken;
+## any quota up to the maximum sustainable yield r K / 4 settles, while a larger one drives it to collapse.
+
+struct Fishery
+    tonnes float
+    r float
+    k float
+
+fn Fishery.year(mut self, quota float) float
+    growth := self.r * self.tonnes * (1.0 - self.tonnes / self.k)
+    available := self.tonnes + growth
+    caught := if quota < available then quota else available
+    self.tonnes = self.tonnes + growth - caught
+    caught
+
+fn main()
+    r := 0.4
+    k := 10000.0
+    msy := r * k / 4.0
+    print("maximum sustainable yield {msy:.0} t a year at a biomass of {k / 2.0:.0} t")
+    for quota in [600.0, 900.0, 1000.0, 1100.0, 1400.0]
+        mut s := Fishery(tonnes: 6000.0, r: r, k: k)
+        mut landed := 0.0
+        mut collapsed := -1
+        for y in 1..=40
+            landed += s.year(quota)
+            if s.tonnes < 1.0 and collapsed < 0
+                collapsed = y
+        status := if collapsed > 0 then "collapsed in year {collapsed}" else "biomass {s.tonnes:.0} t after 40 years"
+        print("quota {quota:>6.0} t: {status}, landed {landed:.0} t in all")
+
+@test fn no_fishing_grows()
+    mut s := Fishery(tonnes: 1000.0, r: 0.5, k: 2000.0)
+    _ := s.year(0.0)
+    assert_eq(s.tonnes, 1250.0)

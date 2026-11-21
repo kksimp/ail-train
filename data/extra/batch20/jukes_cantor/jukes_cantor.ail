@@ -1,0 +1,37 @@
+## Jukes-Cantor distance: the share p of differing sites underestimates evolution because sites can change
+## twice; d = -3/4 ln(1 - 4p / 3) corrects for that and has no finite value once p reaches 3/4.
+
+fn p_distance(a str, b str) float
+    xs := a.chars()
+    ys := b.chars()
+    mut diff := 0
+    for i in 0..xs.len()
+        if xs[i] != ys[i]
+            diff += 1
+    diff.to_float() / xs.len().to_float()
+
+fn jc(p float) float?
+    if p >= 0.75
+        return none
+    -0.75 * (1.0 - 4.0 * p / 3.0).ln()
+
+fn main()
+    seqs := [("frog", "ATGGCTAGCTTACGGATCCAGTTAGCATGC"), ("toad", "ATGGCTAGTTTACGGATCCGGTTAGCATGC"), ("newt", "ATGACTGGCTTGCGAATCCAGTTGGCTTAC"), ("fish", "TTGACCGGATTGCTAACGCAGTCGGATTAA")]
+    for i in 0..seqs.len()
+        for j in i + 1..seqs.len()
+            na, sa := seqs[i]
+            nb, sb := seqs[j]
+            p := p_distance(sa, sb)
+            mut shown := "saturated"
+            if d := jc(p)
+                shown = "{d:.4}"
+            print("{na}-{nb}: p {p:.4}, Jukes-Cantor {shown}")
+    for p in [0.1, 0.3, 0.5, 0.7, 0.75]
+        mut text := "infinite"
+        if dist := jc(p)
+            text = "{dist:.3}"
+        print("p {p}: d {text}")
+
+@test fn identical()
+    assert_eq(p_distance("ACGT", "ACGT"), 0.0)
+    assert(jc(0.8) == none)

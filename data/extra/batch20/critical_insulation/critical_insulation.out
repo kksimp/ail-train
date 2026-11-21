@@ -1,0 +1,11 @@
+PVC lagging, calm air: critical radius 17 mm
+wire lagged to    1 mm: 2.51 W/m
+wire lagged to    3 mm: 6.32 W/m
+wire lagged to    6 mm: 9.24 W/m
+wire lagged to   10 mm: 10.67 W/m
+wire lagged to   17 mm: 11.15 W/m
+wire lagged to   25 mm: 10.96 W/m
+wire lagged to   40 mm: 10.39 W/m
+wire lagged to   60 mm: 9.76 W/m
+most heat escapes at 17 mm of radius
+a 50 mm pipe is past the critical radius: 314 W/m bare, 157 W/m lagged

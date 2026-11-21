@@ -1,0 +1,29 @@
+## Heat exchanger sizing: duty Q = m c dT, and the log-mean temperature difference (dT1 - dT2) / ln(dT1 / dT2)
+## sets the area Q / (U LMTD); counterflow beats parallel flow, which fails once the outlets would cross.
+
+fn lmtd(d1 float, d2 float) float ! str
+    if d1 <= 0.0 or d2 <= 0.0
+        return "temperature cross: the cold side would leave hotter than the hot side"
+    if (d1 - d2).abs() < 0.001
+        return d1
+    (d1 - d2) / (d1 / d2).ln()
+
+fn main()
+    u := 300.0
+    duties := [("oil cooler", 150.0, 90.0, 20.0, 60.0, 2.0), ("tight approach", 120.0, 70.0, 30.0, 95.0, 1.5)]
+    for d in duties
+        name, hot_in, hot_out, cold_in, cold_out, flow := d
+        q := flow * 2100.0 * (hot_in - hot_out)
+        print("{name}: duty {q / 1000.0:.1} kW")
+        if cf := lmtd(hot_in - cold_out, hot_out - cold_in)
+            print("  counterflow LMTD {cf:.2} K, area {q / (u * cf):.2} m2")
+        else why
+            print("  counterflow: {why}")
+        if pf := lmtd(hot_in - cold_in, hot_out - cold_out)
+            print("  parallel LMTD {pf:.2} K, area {q / (u * pf):.2} m2")
+        else reason
+            print("  parallel: {reason}")
+
+@test fn equal_ends()
+    v := lmtd(40.0, 40.0) else 0.0
+    assert_eq(v, 40.0)

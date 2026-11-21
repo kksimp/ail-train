@@ -1,0 +1,40 @@
+## Beam diagrams: a simply supported beam with point loads has reactions from moments about each support;
+## the shear steps down at every load and the bending moment, the running sum of shear, peaks where shear changes sign.
+
+struct PointLoad
+    at float
+    kn float
+
+fn reactions(span float, loads List[PointLoad]) List[float]
+    total := loads.fold(0.0, |acc, l| acc + l.kn)
+    rb := loads.fold(0.0, |acc, l| acc + l.kn * l.at) / span
+    [total - rb, rb]
+
+fn shear(x float, ra float, loads List[PointLoad]) float
+    ra - loads.filter(|l| l.at <= x).fold(0.0, |acc, l| acc + l.kn)
+
+fn moment(x float, ra float, loads List[PointLoad]) float
+    ra * x - loads.filter(|l| l.at < x).fold(0.0, |acc, l| acc + l.kn * (x - l.at))
+
+fn main()
+    span := 6.0
+    loads := [PointLoad(at: 1.5, kn: 10.0), PointLoad(at: 4.0, kn: 6.0)]
+    r := reactions(span, loads)
+    print("reactions: A {r[0]:.2} kN, B {r[1]:.2} kN")
+    mut best := 0.0
+    mut best_x := 0.0
+    for i in 0..=12
+        x := i.to_float() * 0.5
+        v := shear(x, r[0], loads)
+        m := moment(x, r[0], loads)
+        if m > best
+            best = m
+            best_x = x
+        bar := "#".repeat((m / 2.0).round().to_int())
+        print("x {x:.1} m: V {v:>6.2} kN, M {m:>6.2} kN m |{bar}")
+    print("largest moment {best:.2} kN m at {best_x} m")
+
+@test fn central_load()
+    l := [PointLoad(at: 2.0, kn: 8.0)]
+    r := reactions(4.0, l)
+    assert_eq(moment(2.0, r[0], l), 8.0)

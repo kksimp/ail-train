@@ -1,0 +1,5 @@
+102 bp linear DNA
+EcoRI   GAATTC: cuts at [5, 48], fragments [54, 43, 5]
+BamHI   GGATCC: cuts at [17, 82], fragments [65, 20, 17]
+HindIII AAGCTT: cuts at [33, 69], fragments [36, 33, 33]
+all three together: [21, 20, 16, 15, 13, 12, 5]

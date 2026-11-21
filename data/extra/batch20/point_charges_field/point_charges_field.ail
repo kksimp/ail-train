@@ -1,0 +1,42 @@
+## Electric field of point charges: each charge q adds k q / r^2 pointing away from it (towards it if
+## negative) and k q / r to the potential; superposition gives the field's size and direction at test points.
+
+PI := 3.141592653589793
+K := 8987551792.0
+
+struct Charge
+    x float
+    y float
+    q float
+
+fn field(charges List[Charge], px float, py float) List[float]
+    mut ex := 0.0
+    mut ey := 0.0
+    mut v := 0.0
+    for c in charges
+        dx := px - c.x
+        dy := py - c.y
+        r2 := dx * dx + dy * dy
+        r := r2.sqrt()
+        e := K * c.q / r2
+        ex += e * dx / r
+        ey += e * dy / r
+        v += K * c.q / r
+    [ex, ey, v]
+
+fn main()
+    micro := 0.000001
+    dipole := [Charge(x: -0.1, y: 0.0, q: 2.0 * micro), Charge(x: 0.1, y: 0.0, q: -2.0 * micro)]
+    points := [(0.0, 0.05), (0.05, 0.1), (-0.2, 0.1), (0.3, -0.2), (0.0, 0.4)]
+    for p in points
+        px, py := p
+        f := field(dipole, px, py)
+        mag := (f[0] * f[0] + f[1] * f[1]).sqrt() / 1000.0
+        angle := f[1].atan2(f[0]) * 180.0 / PI
+        volts := f[2] / 1000.0
+        print("({px:>5.2}, {py:>5.2}) m: E {mag:>8.1} kN/C at {angle:>6.1} deg, V {volts:>7.2} kV")
+
+@test fn single_charge()
+    f := field([Charge(x: 0.0, y: 0.0, q: 1.0)], 2.0, 0.0)
+    assert_eq(f[1], 0.0)
+    assert((f[0] - K / 4.0).abs() < 0.001)

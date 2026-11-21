@@ -1,0 +1,6 @@
+N2 1.0, H2 1.0, NH3 0.1 mol/L: Q 0.0100, Shift.Forward, makes more ammonia
+N2 0.5, H2 1.0, NH3 0.5 mol/L: Q 0.5000, Shift.Balanced, is at equilibrium
+N2 0.2, H2 0.3, NH3 0.4 mol/L: Q 29.6296, Shift.Backward, breaks ammonia down
+N2 2.0, H2 3.0, NH3 4.0 mol/L: Q 0.2963, Shift.Forward, makes more ammonia
+N2 0.05, H2 0.1, NH3 0.0 mol/L: Q 0.0000, Shift.Forward, makes more ammonia
+at 673 K, dn = -2 so Kp = 163.937 x 10^-6 per atm^2

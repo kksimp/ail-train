@@ -1,0 +1,26 @@
+## Quantisation noise: rounding a full-scale sine to n bits leaves an error of up to half a step,
+## so the signal-to-noise ratio grows about 6.02 n + 1.76 dB; measured here on 1000 samples per word size.
+
+PI := 3.141592653589793
+
+fn snr_db(bits int, n int) float
+    two := 2.0
+    levels := two.pow((bits - 1).to_float()) - 1.0
+    mut sig := 0.0
+    mut noise := 0.0
+    for i in 0..n
+        x := (2.0 * PI * 37.3 * i.to_float() / n.to_float()).sin()
+        q := (x * levels + 0.5).floor() / levels
+        sig += x * x
+        noise += (x - q) * (x - q)
+    10.0 * (sig / noise).log10()
+
+fn main()
+    for bits in [4, 6, 8, 10, 12, 16]
+        measured := snr_db(bits, 1000)
+        theory := 6.02 * bits.to_float() + 1.76
+        print("{bits:>2} bits: measured {measured:.1} dB, rule of thumb {theory:.1} dB")
+    print("CD audio (16 bits) gives about {6.02 * 16.0 + 1.76:.0} dB of range")
+
+@test fn more_bits_cleaner()
+    assert(snr_db(8, 500) > snr_db(4, 500))

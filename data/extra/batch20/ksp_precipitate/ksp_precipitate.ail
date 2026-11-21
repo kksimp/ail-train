@@ -1,0 +1,26 @@
+## Solubility product: a salt AxBy dissolves until [A]^x [B]^y = Ksp, so a 1:1 salt dissolves sqrt(Ksp) mol/L
+## and a 1:2 salt cbrt(Ksp / 4); mixing ions precipitates when the ion product Q exceeds Ksp.
+
+struct Salt
+    name str
+    ksp float
+    ratio int
+
+fn Salt.solubility(self) float
+    if self.ratio == 1 then self.ksp.sqrt() else (self.ksp / 4.0).cbrt()
+
+fn main()
+    salts := [Salt(name: "silver chloride", ksp: 0.00000000018, ratio: 1), Salt(name: "barium sulfate", ksp: 0.0000000011, ratio: 1), Salt(name: "lead iodide", ksp: 0.0000000071, ratio: 2), Salt(name: "fluorite CaF2", ksp: 0.000000000039, ratio: 2), Salt(name: "silver chromate", ksp: 0.0000000000011, ratio: 2)]
+    for s in salts
+        print("{s.name:<16} dissolves {s.solubility() * 1000000.0:>8.2} umol/L")
+    agcl := salts[0]
+    for c in [0.00001, 0.0001, 0.001]
+        q := (c / 2.0) * (c / 2.0)
+        verdict := if q > agcl.ksp then "precipitate forms" else "stays clear"
+        print("equal volumes of {c * 1000.0} mM silver nitrate and salt: Q {q / agcl.ksp:.3} x Ksp, {verdict}")
+    common := agcl.ksp / 0.1
+    print("in 0.1 M salt water silver chloride dissolves only {common * 1000000000.0:.1} nmol/L")
+
+@test fn one_to_one()
+    s := Salt(name: "x", ksp: 0.0001, ratio: 1)
+    assert((s.solubility() - 0.01).abs() < 0.000001)

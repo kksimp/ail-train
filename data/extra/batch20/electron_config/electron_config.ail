@@ -1,0 +1,46 @@
+## Electron configurations: electrons fill subshells in Madelung order (lowest n + l first, then lowest n),
+## s holds 2, p 6, d 10, f 14; Hund's rule leaves electrons unpaired until each orbital of a subshell has one.
+
+fn order() List[str]
+    ["1s", "2s", "2p", "3s", "3p", "4s", "3d", "4p", "5s", "4d", "5p", "6s", "4f", "5d", "6p", "7s"]
+
+fn capacity(sub str) int
+    match sub.slice(1)
+        "s" => 2
+        "p" => 6
+        "d" => 10
+        _ => 14
+
+struct Filled
+    sub str
+    count int
+
+fn configure(z int) List[Filled]
+    mut left := z
+    mut out := List[Filled]()
+    for sub in order()
+        if left == 0
+            break
+        n := left.min(capacity(sub))
+        out.push(Filled(sub: sub, count: n))
+        left -= n
+    out
+
+fn unpaired(cfg List[Filled]) int
+    mut total := 0
+    for c in cfg
+        orbitals := capacity(c.sub) / 2
+        total += if c.count <= orbitals then c.count else 2 * orbitals - c.count
+    total
+
+fn main()
+    elements := [("H", 1), ("C", 6), ("O", 8), ("Na", 11), ("P", 15), ("Fe", 26), ("Br", 35), ("Kr", 36), ("Sn", 50), ("Nd", 60)]
+    for el in elements
+        sym, z := el
+        cfg := configure(z)
+        text := cfg.map(|c| "{c.sub}{c.count}").join(" ")
+        print("{sym:<2} ({z:>2}): {text}  unpaired {unpaired(cfg)}")
+
+@test fn neon_full()
+    assert_eq(unpaired(configure(10)), 0)
+    assert_eq(unpaired(configure(7)), 3)

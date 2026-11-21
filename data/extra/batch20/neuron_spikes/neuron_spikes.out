@@ -1,0 +1,5 @@
+1.5 nA:   0 spikes in 500 ms (0 Hz), silent, theory 0.0 Hz
+2.5 nA:  36 spikes in 500 ms (72 Hz), first at 16.1 ms, theory 72.1 Hz
+3.0 nA:  54 spikes in 500 ms (108 Hz), first at 11.0 ms, theory 109.1 Hz
+4.0 nA:  89 spikes in 500 ms (178 Hz), first at 6.9 ms, theory 178.7 Hz
+6.0 nA: 155 spikes in 500 ms (310 Hz), first at 4.1 ms, theory 314.0 Hz

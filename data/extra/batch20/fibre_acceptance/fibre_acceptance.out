@@ -1,0 +1,4 @@
+plastic           NA 0.482, accepts 28.8 degrees, spread 282.0 ns/km, about 1.8 Mbit/s over 1 km
+glass multimode   NA 0.242, accepts 14.0 degrees, spread 67.6 ns/km, about 7.4 Mbit/s over 1 km
+glass narrow step NA 0.101, accepts 5.8 degrees, spread 11.7 ns/km, about 42.7 Mbit/s over 1 km
+5 km of glass multimode smears a pulse by 338 ns

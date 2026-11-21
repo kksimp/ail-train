@@ -1,0 +1,8 @@
+soda can        hoop  198.0 MPa, lengthwise   99.0 MPa (thin-wall formula fits)
+propane bottle  hoop  108.0 MPa, lengthwise   54.0 MPa (thin-wall formula fits)
+boiler drum     hoop   60.0 MPa, lengthwise   30.0 MPa (thin-wall formula fits)
+hydraulic hose  hoop   40.0 MPa, lengthwise   20.0 MPa (wall too thick for the formula)
+a 1.2 m drum at 1.0 MPa needs a 5.0 mm wall
+a 1.2 m drum at 2.5 MPa needs a 12.6 mm wall
+a 1.2 m drum at 6.0 MPa needs a 30.3 mm wall
+a sphere of the same radius at 4.0 MPa needs only 10.1 mm

@@ -1,0 +1,28 @@
+## Depth of field: a lens of focal length f at f-number N has hyperfocal distance H = f^2 / (N c) + f;
+## focused at s, sharp runs from s (H - f) / (H + s - 2f) to s (H - f) / (H - s), or to infinity once s >= H.
+
+fn hyperfocal(f float, n float, coc float) float
+    f * f / (n * coc) + f
+
+fn near(s float, h float, f float) float
+    s * (h - f) / (h + s - 2.0 * f)
+
+fn far(s float, h float, f float) float?
+    if s >= h
+        return none
+    s * (h - f) / (h - s)
+
+fn main()
+    coc := 0.03
+    subject := 3000.0
+    for f in [24.0, 50.0, 85.0]
+        for n in [2.8, 8.0]
+            h := hyperfocal(f, n, coc)
+            nr := near(subject, h, f) / 1000.0
+            mut far_text := "infinity"
+            if v := far(subject, h, f)
+                far_text = "{v / 1000.0:.2} m"
+            print("{f:.0} mm f/{n}: hyperfocal {h / 1000.0:.2} m, sharp from {nr:.2} m to {far_text}")
+
+@test fn sharp_to_infinity()
+    assert(far(5000.0, 4000.0, 50.0) == none)

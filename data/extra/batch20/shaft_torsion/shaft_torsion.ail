@@ -1,0 +1,29 @@
+## Shaft torsion: a shaft carrying torque T has surface shear stress T r / J (J = pi d^4 / 32 for a solid
+## shaft) and twists T L / (G J); a hollow shaft of the same strength saves much of the steel.
+
+PI := 3.141592653589793
+
+fn polar(outer float, inner float) float
+    PI * (outer * outer * outer * outer - inner * inner * inner * inner) / 32.0
+
+fn main()
+    g := 80000.0
+    allowed := 40.0
+    for p in [(5.5, 1450.0), (22.0, 960.0), (90.0, 300.0)]
+        kw, rpm := p
+        torque := kw * 1000.0 / (2.0 * PI * rpm / 60.0) * 1000.0
+        d := (16.0 * torque / (PI * allowed)).cbrt()
+        j := polar(d, 0.0)
+        twist := torque * 1000.0 / (g * j) * 180.0 / PI
+        print("{kw} kW at {rpm:.0} rpm: torque {torque / 1000.0:.1} N m, solid shaft {d:.1} mm, twist {twist:.2} deg per metre")
+    torque := 500000.0
+    solid := (16.0 * torque / (PI * allowed)).cbrt()
+    outer := solid * 1.1
+    mut inner := 0.0
+    while polar(outer, inner + 0.1) / (outer / 2.0) >= polar(solid, 0.0) / (solid / 2.0)
+        inner += 0.1
+    saving := 1.0 - (outer * outer - inner * inner) / (solid * solid)
+    print("500 N m: solid {solid:.1} mm or hollow {outer:.1} / {inner:.1} mm, which uses {saving * 100.0:.0}% less steel")
+
+@test fn solid_polar()
+    assert((polar(2.0, 0.0) - PI / 2.0).abs() < 0.000001)

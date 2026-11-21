@@ -1,0 +1,30 @@
+## Particle in a box: an electron confined to length L has levels E_n = n^2 h^2 / (8 m L^2); the pi electrons
+## of a conjugated molecule fill levels in pairs, and the jump from the top full level to the next sets its colour.
+
+H := 0.000000000000000000000000000000000662607
+ME := 0.000000000000000000000000000000910938
+EV := 0.0000000000000000001602177
+C := 299792458.0
+
+fn level_ev(n int, l_nm float) float
+    l := l_nm / 1000000000.0
+    (n * n).to_float() * H * H / (8.0 * ME * l * l) / EV
+
+fn absorb_nm(electrons int, l_nm float) float
+    homo := electrons / 2
+    gap := level_ev(homo + 1, l_nm) - level_ev(homo, l_nm)
+    H * C / (gap * EV) * 1000000000.0
+
+fn main()
+    for n in 1..=4
+        print("1 nm box, level {n}: {level_ev(n, 1.0):.3} eV")
+    molecules := [("butadiene", 4, 0.578), ("hexatriene", 6, 0.867), ("octatetraene", 8, 1.156), ("beta-carotene", 22, 1.77)]
+    for m in molecules
+        name, e, l := m
+        nm := absorb_nm(e, l)
+        seen := if nm < 380.0 then "ultraviolet, so colourless" elif nm <= 750.0 then "visible, so coloured" else "infrared"
+        print("{name:<13} {e:>2} pi electrons over {l} nm: absorbs {nm:.0} nm, {seen}")
+
+@test fn levels_grow_as_squares()
+    r := level_ev(3, 1.0) / level_ev(1, 1.0)
+    assert((r - 9.0).abs() < 0.000001)

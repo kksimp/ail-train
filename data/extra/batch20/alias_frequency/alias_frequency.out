@@ -1,0 +1,12 @@
+ 100 Hz sampled at 1000 Hz: passes as is
+ 400 Hz sampled at 1000 Hz: passes as is
+ 600 Hz sampled at 1000 Hz: folds to 400 Hz
+ 900 Hz sampled at 1000 Hz: folds to 100 Hz
+1100 Hz sampled at 1000 Hz: folds to 100 Hz
+1900 Hz sampled at 1000 Hz: folds to 100 Hz
+2350 Hz sampled at 1000 Hz: folds to 350 Hz
+wheel at  60 rpm: spokes pass at 12.00 Hz, film shows forwards
+wheel at 100 rpm: spokes pass at 20.00 Hz, film shows backwards
+wheel at 115 rpm: spokes pass at 23.00 Hz, film shows backwards
+wheel at 125 rpm: spokes pass at 25.00 Hz, film shows forwards
+wheel at 240 rpm: spokes pass at 48.00 Hz, film shows frozen in place

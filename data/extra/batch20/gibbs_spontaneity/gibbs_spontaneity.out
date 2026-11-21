@@ -1,0 +1,10 @@
+ice melting: dG 0.5 at 250 K, -0.5 at 298 K, -27.0 at 1500 K kJ
+  runs above 273 K
+ammonia synthesis: dG -42.5 at 250 K, -33.0 at 298 K, 205.9 at 1500 K kJ
+  runs below 464 K
+limestone to lime: dG 138.2 at 250 K, 130.5 at 298 K, -62.4 at 1500 K kJ
+  runs above 1111 K
+hydrogen peroxide splitting: dG -227.4 at 250 K, -233.5 at 298 K, -384.7 at 1500 K kJ
+  runs at every temperature
+ozone from oxygen: dG 319.8 at 250 K, 326.4 at 298 K, 491.8 at 1500 K kJ
+  never runs on its own

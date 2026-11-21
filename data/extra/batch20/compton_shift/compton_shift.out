@@ -1,0 +1,9 @@
+molybdenum X-rays 0.0709 nm, 17.49 keV
+    0 deg: 0.07090 nm, electron gets 0.000 keV (0.00%)
+   30 deg: 0.07123 nm, electron gets 0.080 keV (0.46%)
+   60 deg: 0.07211 nm, electron gets 0.294 keV (1.68%)
+   90 deg: 0.07333 nm, electron gets 0.579 keV (3.31%)
+  120 deg: 0.07454 nm, electron gets 0.854 keV (4.88%)
+  150 deg: 0.07543 nm, electron gets 1.050 keV (6.00%)
+  180 deg: 0.07575 nm, electron gets 1.120 keV (6.41%)
+a 660 keV gamma ray backscattered keeps 27.9% of its energy

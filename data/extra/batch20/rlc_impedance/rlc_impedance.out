@@ -1,0 +1,8 @@
+resonance 1591.5 Hz, Q 10.00, bandwidth 159.2 Hz
+    200 Hz: |Z|   783.27 ohm, phase  -89.3 deg,   6.38 mA at 5 V, capacitive
+    800 Hz: |Z|   149.01 ohm, phase  -86.2 deg,  33.55 mA at 5 V, capacitive
+   1400 Hz: |Z|    27.59 ohm, phase  -68.8 deg, 181.20 mA at 5 V, capacitive
+   1550 Hz: |Z|    11.31 ohm, phase  -27.9 deg, 441.95 mA at 5 V, capacitive
+   1700 Hz: |Z|    16.56 ohm, phase   52.8 deg, 302.02 mA at 5 V, inductive
+   3000 Hz: |Z|   135.81 ohm, phase   85.8 deg,  36.82 mA at 5 V, inductive
+  10000 Hz: |Z|   612.48 ohm, phase   89.1 deg,   8.16 mA at 5 V, inductive

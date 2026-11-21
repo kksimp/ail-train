@@ -1,0 +1,6 @@
+A: r 0.8, K 1000; B: r 0.6, K 800; start 50 and 40
+weak rivalry   a12 0.5 a21 0.4: A  750.0, B  500.0, they coexist
+A pushes hard  a12 0.6 a21 1.5: A 1000.0, B    0.0, species A wins
+B pushes hard  a12 1.6 a21 0.5: A    0.0, B  800.0, species B wins
+equal rivals   a12 1.0 a21 1.0: A 1000.0, B    0.0, species A wins
+weak rivalry equilibrium by hand: A 750.0, B 500.0

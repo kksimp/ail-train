@@ -1,0 +1,11 @@
+AWG  0:  8.251 mm,  53.475 mm2,     0.32 ohm/km
+AWG  4:  5.189 mm,  21.151 mm2,     0.81 ohm/km
+AWG 10:  2.588 mm,   5.261 mm2,     3.27 ohm/km
+AWG 12:  2.053 mm,   3.309 mm2,     5.20 ohm/km
+AWG 14:  1.628 mm,   2.081 mm2,     8.27 ohm/km
+AWG 18:  1.024 mm,   0.823 mm2,    20.90 ohm/km
+AWG 22:  0.644 mm,   0.326 mm2,    52.84 ohm/km
+AWG 26:  0.405 mm,   0.129 mm2,   133.59 ohm/km
+AWG 30:  0.255 mm,   0.051 mm2,   337.74 ohm/km
+3 gauges thinner: area ratio 2.005
+15 A over a 20 m run of AWG 14 (both ways) drops 4.96 V

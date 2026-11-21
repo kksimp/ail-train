@@ -1,0 +1,33 @@
+## 555 astable timer: the capacitor charges through R1 + R2 for 0.693 (R1 + R2) C and discharges through
+## R2 for 0.693 R2 C, so f = 1.44 / ((R1 + 2 R2) C) and the duty cycle is always above 50%.
+
+struct Astable
+    r1 float
+    r2 float
+    c float
+
+fn Astable.high(self) float
+    0.693 * (self.r1 + self.r2) * self.c
+
+fn Astable.low(self) float
+    0.693 * self.r2 * self.c
+
+fn Astable.hz(self) float
+    1.44 / ((self.r1 + 2.0 * self.r2) * self.c)
+
+fn r2_for(hz float, r1 float, c float) float
+    (1.44 / (hz * c) - r1) / 2.0
+
+fn main()
+    builds := [Astable(r1: 1000.0, r2: 68000.0, c: 0.00001), Astable(r1: 10000.0, r2: 10000.0, c: 0.0000001), Astable(r1: 1000.0, r2: 1000.0, c: 0.00000001), Astable(r1: 47000.0, r2: 1000.0, c: 0.000001)]
+    for b in builds
+        duty := b.high() / (b.high() + b.low()) * 100.0
+        print("R1 {b.r1 / 1000.0}k R2 {b.r2 / 1000.0}k C {b.c * 1000000.0:.2} uF: {b.hz():.2} Hz, high {b.high() * 1000.0:.3} ms, low {b.low() * 1000.0:.3} ms, duty {duty:.1}%")
+    for target in [1.0, 2.0, 440.0]
+        c := if target > 100.0 then 0.0000001 else 0.00001
+        r2 := r2_for(target, 1000.0, c)
+        print("for {target} Hz with R1 1k and C {c * 1000000.0:.2} uF use R2 {r2 / 1000.0:.2}k")
+
+@test fn symmetric_limit()
+    a := Astable(r1: 0.0, r2: 1000.0, c: 0.001)
+    assert_eq(a.high(), a.low())

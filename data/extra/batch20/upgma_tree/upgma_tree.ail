@@ -1,0 +1,51 @@
+## UPGMA tree: repeatedly join the two closest clusters, place their parent at half that distance, and
+## give the new cluster the size-weighted mean distance to the rest; the joins build a Newick tree.
+
+struct Cluster
+    label str
+    size int
+    height float
+
+fn main()
+    names := ["human", "chimp", "gorilla", "orangutan", "gibbon"]
+    mut d := [[0.0, 1.5, 1.9, 3.3, 4.6], [1.5, 0.0, 2.0, 3.3, 4.7], [1.9, 2.0, 0.0, 3.4, 4.5], [3.3, 3.3, 3.4, 0.0, 4.8], [4.6, 4.7, 4.5, 4.8, 0.0]]
+    mut cl := names.map(|n| Cluster(label: n, size: 1, height: 0.0))
+    while cl.len() > 1
+        mut bi := 0
+        mut bj := 1
+        for i in 0..cl.len()
+            for j in i + 1..cl.len()
+                if d[i][j] < d[bi][bj]
+                    bi = i
+                    bj = j
+        h := d[bi][bj] / 2.0
+        a := cl[bi]
+        b := cl[bj]
+        print("join {a.label} and {b.label} at height {h:.3}")
+        joined := Cluster(label: "({a.label},{b.label})", size: a.size + b.size, height: h)
+        mut row := List[float]()
+        for k in 0..cl.len()
+            if k != bi and k != bj
+                row.push((d[bi][k] * a.size.to_float() + d[bj][k] * b.size.to_float()) / (a.size + b.size).to_float())
+        mut nd := List[List[float]]()
+        mut ncl := List[Cluster]()
+        mut r := 0
+        for k in 0..cl.len()
+            if k != bi and k != bj
+                mut line := List[float]()
+                for l in 0..cl.len()
+                    if l != bi and l != bj
+                        line.push(d[k][l])
+                line.push(row[r])
+                nd.push(line)
+                ncl.push(cl[k])
+                r += 1
+        row.push(0.0)
+        nd.push(row)
+        ncl.push(joined)
+        d = nd
+        cl = ncl
+    print("tree: {cl[0].label};")
+
+@test fn weighted_mean()
+    assert_eq((3.0 * 2.0 + 6.0 * 1.0) / 3.0, 4.0)

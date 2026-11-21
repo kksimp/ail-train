@@ -1,0 +1,50 @@
+## Transistor bias: a divider R1-R2 sets the base through its Thevenin equivalent, Ib = (Vbb - 0.7) /
+## (Rbb + (beta + 1) Re), Ic = beta Ib and Vce = Vcc - Ic Rc - Ie Re; the emitter resistor keeps Ic steady as beta varies.
+
+enum Region
+    Cutoff
+    Active
+    Saturated
+
+struct Design
+    name str
+    r1 float
+    r2 float
+    rc float
+    re float
+
+fn Design.bias(self, beta float) List[float]
+    vcc := 12.0
+    vbb := vcc * self.r2 / (self.r1 + self.r2)
+    rbb := self.r1 * self.r2 / (self.r1 + self.r2)
+    ib := (vbb - 0.7) / (rbb + (beta + 1.0) * self.re)
+    ic := beta * ib
+    vce := vcc - ic * self.rc - (ib + ic) * self.re
+    [ic, vce]
+
+fn region(ic float, vce float) Region
+    if ic <= 0.0
+        Cutoff
+    elif vce < 0.2
+        Saturated
+    else
+        Active
+
+fn main()
+    designs := [Design(name: "stiff divider", r1: 47000.0, r2: 10000.0, rc: 2200.0, re: 1000.0), Design(name: "no emitter R", r1: 470000.0, r2: 47000.0, rc: 2200.0, re: 1.0), Design(name: "too much base", r1: 10000.0, r2: 10000.0, rc: 4700.0, re: 470.0)]
+    for d in designs
+        print("{d.name}:")
+        for beta in [50.0, 150.0, 300.0]
+            b := d.bias(beta)
+            ic := b[0]
+            vce := b[1]
+            reg := region(ic, vce)
+            match reg
+                Saturated =>
+                    sat := (12.0 - 0.2) / (d.rc + d.re) * 1000.0
+                    print("  beta {beta:.0}: {reg}, Vce pinned near 0.2 V, Ic held at {sat:.3} mA")
+                _ => print("  beta {beta:.0}: Ic {ic * 1000.0:.3} mA, Vce {vce:.2} V, {reg}")
+
+@test fn regions()
+    assert_eq(region(0.001, 5.0), Region.Active)
+    assert_eq(region(0.004, 0.1), Region.Saturated)

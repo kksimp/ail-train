@@ -1,0 +1,7 @@
+ 4 bits: measured 25.1 dB, rule of thumb 25.8 dB
+ 6 bits: measured 37.8 dB, rule of thumb 37.9 dB
+ 8 bits: measured 49.9 dB, rule of thumb 49.9 dB
+10 bits: measured 62.1 dB, rule of thumb 62.0 dB
+12 bits: measured 74.1 dB, rule of thumb 74.0 dB
+16 bits: measured 98.0 dB, rule of thumb 98.1 dB
+CD audio (16 bits) gives about 98 dB of range

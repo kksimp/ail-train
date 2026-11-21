@@ -1,0 +1,54 @@
+## JK flip-flops: on each clock Q becomes J (not Q) or (not K) Q, so J = K = 1 toggles; a synchronous
+## decade counter wires J and K from the other outputs so it counts 0 to 9 and rolls over to 0.
+
+struct Jk
+    q bool
+
+fn Jk.clock(mut self, j bool, k bool)
+    self.q = (j and not self.q) or (not k and self.q)
+
+fn value(f List[Jk]) int
+    mut v := 0
+    for i in 0..4
+        if f[i].q
+            v += (1 << i)
+    v
+
+fn show(f List[Jk]) str
+    mut s := List[str]()
+    for i in [3, 2, 1, 0]
+        s.push(if f[i].q then "1" else "0")
+    s.join("")
+
+fn after(ff Jk, j bool, k bool) Jk
+    mut x := ff
+    x.clock(j, k)
+    x
+
+fn tick(mut f List[Jk])
+    q0 := f[0].q
+    q1 := f[1].q
+    q2 := f[2].q
+    q3 := f[3].q
+    f[0] = after(f[0], true, true)
+    f[1] = after(f[1], q0 and not q3, q0 and not q3)
+    f[2] = after(f[2], q0 and q1, q0 and q1)
+    f[3] = after(f[3], q0 and q1 and q2, q0)
+
+fn main()
+    mut f := [Jk(q: false), Jk(q: false), Jk(q: false), Jk(q: false)]
+    mut seen := List[int]()
+    for n in 0..12
+        print("clock {n:>2}: {show(f)} = {value(f)}")
+        seen.push(value(f))
+        tick(mut f)
+    print("states visited before repeating: {seen.slice(0, 10)}")
+
+@test fn toggles()
+    mut ff := Jk(q: false)
+    ff.clock(true, true)
+    assert(ff.q)
+    ff.clock(false, false)
+    assert(ff.q)
+    ff.clock(false, true)
+    assert(not ff.q)

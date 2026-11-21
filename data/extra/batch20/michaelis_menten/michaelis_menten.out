@@ -1,0 +1,8 @@
+[S]   0.5 mM: v 1.98 umol/min (model 2.00)
+[S]   1.0 mM: v 3.36 umol/min (model 3.33)
+[S]   2.0 mM: v 4.95 umol/min (model 5.00)
+[S]   4.0 mM: v 6.71 umol/min (model 6.67)
+[S]   8.0 mM: v 7.94 umol/min (model 8.00)
+[S]  16.0 mM: v 8.92 umol/min (model 8.89)
+Lineweaver-Burk: Vmax 10.07 umol/min, Km 2.03 mM
+a competitive inhibitor tripling Km cuts v at 2 mM from 4.99 to 2.48

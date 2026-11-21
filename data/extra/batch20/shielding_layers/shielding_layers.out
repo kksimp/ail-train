@@ -1,0 +1,6 @@
+cobalt-60 gamma rays; 1% needs 6.64 half-value layers
+lead      HVL 1.2 cm: through 1, 5, 10 cm 56.1% / 5.6% / 0.3%; 1% at 8.0 cm
+steel     HVL 2.1 cm: through 1, 5, 10 cm 71.9% / 19.2% / 3.7%; 1% at 14.0 cm
+concrete  HVL 6.2 cm: through 1, 5, 10 cm 89.4% / 57.2% / 32.7%; 1% at 41.2 cm
+water     HVL 18.0 cm: through 1, 5, 10 cm 96.2% / 82.5% / 68.0%; 1% at 119.6 cm
+5 cm lead plus 30 cm concrete passes 0.195%

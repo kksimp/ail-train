@@ -1,0 +1,39 @@
+## Loop the loop: a cart rolling without friction from height h enters a loop of radius R; at the top
+## its speed squared is 2 g (h - 2R) and it keeps contact only if v^2 >= g R, so h must reach 2.5 R.
+
+enum Outcome
+    NoTop
+    Falls
+    Loops
+
+fn top_speed_sq(h float, r float) float
+    2.0 * 9.81 * (h - 2.0 * r)
+
+fn outcome(h float, r float) Outcome
+    v2 := top_speed_sq(h, r)
+    if v2 < 0.0
+        NoTop
+    elif v2 < 9.81 * r
+        Falls
+    else
+        Loops
+
+fn main()
+    r := 4.0
+    m := 500.0
+    print("loop radius {r} m, lowest start height {2.5 * r} m")
+    for h in [7.0, 9.0, 10.5, 12.0, 16.0]
+        o := outcome(h, r)
+        msg := match o
+            NoTop => "cannot reach the top"
+            Falls => "reaches the top too slowly and falls"
+            Loops => "loops"
+        print("from {h} m: {msg}")
+        if o == Loops
+            v2 := top_speed_sq(h, r)
+            n := m * (v2 / r - 9.81)
+            print("  top speed {v2.sqrt():.2} m/s, track pushes {n:.0} N")
+
+@test fn tall_start()
+    assert_eq(outcome(20.0, 4.0), Outcome.Loops)
+    assert_eq(outcome(5.0, 4.0), Outcome.NoTop)

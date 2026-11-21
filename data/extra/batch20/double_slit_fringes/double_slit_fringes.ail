@@ -1,0 +1,26 @@
+## Double slit: bright fringes sit y = m lambda L / d apart, and the intensity across the screen is
+## cos^2(pi d y / (lambda L)); a measured fringe spacing gives the wavelength back as lambda = spacing d / L.
+
+PI := 3.141592653589793
+
+fn intensity(y float, lam float, l float, d float) float
+    c := (PI * d * y / (lam * l)).cos()
+    c * c
+
+fn main()
+    lam := 0.000000633
+    l := 2.0
+    d := 0.00025
+    spacing := lam * l / d
+    print("He-Ne laser, slits 0.25 mm apart, screen 2 m away: fringes every {spacing * 1000.0:.2} mm")
+    for step in 0..9
+        y := step.to_float() * 0.0007
+        i := intensity(y, lam, l, d)
+        bar := "#".repeat((i * 30.0).round().to_int())
+        print("{y * 1000.0:>4.1} mm {i:.3} {bar}")
+    measured := 0.00432
+    guess := measured * d / l * 1000000000.0
+    print("a fringe spacing of 4.32 mm means {guess:.0} nm light")
+
+@test fn centre_bright()
+    assert_eq(intensity(0.0, 0.0000005, 1.0, 0.001), 1.0)

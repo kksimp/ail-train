@@ -1,0 +1,32 @@
+## Decay chain: a parent decaying into a shorter-lived daughter (Mo-99, 66 h, into Tc-99m, 6 h) builds the
+## daughter up as N0 la / (lb - la) (exp(-la t) - exp(-lb t)), peaking at t = ln(lb / la) / (lb - la).
+
+fn rate(half float) float
+    two := 2.0
+    two.ln() / half
+
+fn daughter(n0 float, la float, lb float, t float) float
+    n0 * la / (lb - la) * ((-la * t).exp() - (-lb * t).exp())
+
+fn main()
+    la := rate(66.0)
+    lb := rate(6.01)
+    n0 := 1000000.0
+    for t in [0.0, 6.0, 12.0, 23.0, 48.0, 96.0, 168.0]
+        parent := n0 * (-la * t).exp()
+        d := daughter(n0, la, lb, t)
+        act_ratio := lb * d / (la * parent)
+        print("t {t:>5.0} h: Mo-99 {parent:>8.0}, Tc-99m {d:>7.0}, activity ratio {act_ratio:.3}")
+    peak := (lb / la).ln() / (lb - la)
+    print("Tc-99m peaks after {peak:.1} h; the generator is milked about daily")
+    mut b := 0.0
+    mut a := n0
+    dt := 0.01
+    for _ in 0..2300
+        da := -la * a * dt
+        b += (la * a - lb * b) * dt
+        a += da
+    print("small-step check at 23 h: {b:.0} against {daughter(n0, la, lb, 23.0):.0}")
+
+@test fn starts_empty()
+    assert_eq(daughter(100.0, 0.1, 0.2, 0.0), 0.0)

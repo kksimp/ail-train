@@ -1,0 +1,15 @@
+reactions: A 9.50 kN, B 6.50 kN
+x 0.0 m: V   9.50 kN, M   0.00 kN m |
+x 0.5 m: V   9.50 kN, M   4.75 kN m |##
+x 1.0 m: V   9.50 kN, M   9.50 kN m |#####
+x 1.5 m: V  -0.50 kN, M  14.25 kN m |#######
+x 2.0 m: V  -0.50 kN, M  14.00 kN m |#######
+x 2.5 m: V  -0.50 kN, M  13.75 kN m |#######
+x 3.0 m: V  -0.50 kN, M  13.50 kN m |#######
+x 3.5 m: V  -0.50 kN, M  13.25 kN m |#######
+x 4.0 m: V  -6.50 kN, M  13.00 kN m |######
+x 4.5 m: V  -6.50 kN, M   9.75 kN m |#####
+x 5.0 m: V  -6.50 kN, M   6.50 kN m |###
+x 5.5 m: V  -6.50 kN, M   3.25 kN m |##
+x 6.0 m: V  -6.50 kN, M   0.00 kN m |
+largest moment 14.25 kN m at 1.5 m

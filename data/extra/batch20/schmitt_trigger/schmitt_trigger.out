@@ -1,0 +1,4 @@
+first samples (mV): [1181, 1352, 915, 1341, 1068, 1587, 1168, 1440]
+plain comparator switches 14 times
+Schmitt trigger switches 4 times
+the ramp itself crosses 2500 mV 4 times

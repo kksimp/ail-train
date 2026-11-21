@@ -1,0 +1,32 @@
+## Skin effect: alternating current crowds into a surface layer delta = sqrt(rho / (pi f mu0 mur)) deep,
+## so a thick wire's AC resistance grows by about r / (2 delta) once delta is much smaller than its radius.
+
+PI := 3.141592653589793
+MU0 := 0.0000012566370614
+
+struct Metal
+    name str
+    rho float
+    mur float
+
+fn depth_mm(m Metal, hz float) float
+    (m.rho / (PI * hz * MU0 * m.mur)).sqrt() * 1000.0
+
+fn ac_factor(radius_mm float, delta float) float
+    if delta >= radius_mm then 1.0 else radius_mm / (2.0 * delta)
+
+fn main()
+    metals := [Metal(name: "copper", rho: 0.0000000168, mur: 1.0), Metal(name: "aluminium", rho: 0.0000000265, mur: 1.0), Metal(name: "mild steel", rho: 0.00000015, mur: 100.0)]
+    freqs := [50.0, 1000.0, 100000.0, 10000000.0]
+    for m in metals
+        cells := freqs.map(|f| "{depth_mm(m, f):.3}")
+        shown := cells.join(" / ")
+        print("{m.name:<10} depth mm at 50 Hz, 1 kHz, 100 kHz, 10 MHz: {shown}")
+    radius := 1.0
+    copper := metals[0]
+    for f in freqs
+        d := depth_mm(copper, f)
+        print("2 mm copper wire at {f:>10.0} Hz: AC resistance x {ac_factor(radius, d):.2}")
+
+@test fn thin_wire()
+    assert_eq(ac_factor(0.1, 5.0), 1.0)

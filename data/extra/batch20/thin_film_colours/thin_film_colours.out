@@ -1,0 +1,6 @@
+film 100 nm thick: 532 nm green
+film 150 nm thick: none visible
+film 250 nm thick: 443 nm violet
+film 400 nm thick: 709 nm red, 426 nm violet
+film 600 nm thick: 638 nm red, 456 nm blue
+a film far thinner than the light looks black: 0 bright bands at 20 nm

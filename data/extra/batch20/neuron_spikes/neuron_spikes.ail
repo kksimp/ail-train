@@ -1,0 +1,36 @@
+## Leaky integrate-and-fire neuron: the membrane voltage relaxes towards rest plus R I with time constant
+## tau, fires when it crosses -50 mV and resets to -65 mV; stronger input current means faster firing.
+
+struct Neuron
+    v float
+    spikes List[float]
+
+fn Neuron.step(mut self, current_na float, t float, dt float)
+    tau := 10.0
+    rest := -70.0
+    resist := 10.0
+    self.v += (-(self.v - rest) + resist * current_na) / tau * dt
+    if self.v >= -50.0
+        self.spikes.push(t)
+        self.v = -65.0
+
+fn predicted_hz(current_na float) float
+    drive := 10.0 * current_na
+    if drive <= 20.0
+        return 0.0
+    period := 10.0 * ((drive - 5.0) / (drive - 20.0)).ln()
+    1000.0 / period
+
+fn main()
+    for amps in [1.5, 2.5, 3.0, 4.0, 6.0]
+        mut n := Neuron(v: -70.0, spikes: [])
+        mut step_no := 0
+        while step_no < 5000
+            step_no += 1
+            n.step(amps, step_no.to_float() * 0.1, 0.1)
+        count := n.spikes.len()
+        first := if count > 0 then "first at {n.spikes[0]:.1} ms" else "silent"
+        print("{amps} nA: {count:>3} spikes in 500 ms ({count * 2} Hz), {first}, theory {predicted_hz(amps):.1} Hz")
+
+@test fn below_threshold()
+    assert_eq(predicted_hz(1.5), 0.0)

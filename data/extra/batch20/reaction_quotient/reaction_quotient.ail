@@ -1,0 +1,39 @@
+## Reaction quotient: for N2 + 3 H2 <-> 2 NH3, Q = [NH3]^2 / ([N2] [H2]^3) from the current mixture; Q below K
+## means the reaction runs forward, above K backward, and Kp = Kc (RT)^dn converts to pressures.
+
+enum Shift
+    Forward
+    Backward
+    Balanced
+
+fn quotient(n2 float, h2 float, nh3 float) float
+    nh3 * nh3 / (n2 * h2 * h2 * h2)
+
+fn shift(q float, k float) Shift
+    r := q / k
+    if (r - 1.0).abs() < 0.01
+        Balanced
+    elif r < 1.0
+        Forward
+    else
+        Backward
+
+fn main()
+    kc := 0.5
+    mixes := [(1.0, 1.0, 0.1), (0.5, 1.0, 0.5), (0.2, 0.3, 0.4), (2.0, 3.0, 4.0), (0.05, 0.1, 0.0)]
+    for m in mixes
+        n2, h2, nh3 := m
+        q := quotient(n2, h2, nh3)
+        s := shift(q, kc)
+        what := match s
+            Forward => "makes more ammonia"
+            Backward => "breaks ammonia down"
+            Balanced => "is at equilibrium"
+        print("N2 {n2}, H2 {h2}, NH3 {nh3} mol/L: Q {q:.4}, {s}, {what}")
+    rt := 0.08206 * 673.0
+    kp := kc / (rt * rt)
+    print("at 673 K, dn = -2 so Kp = {kp * 1000000.0:.3} x 10^-6 per atm^2")
+
+@test fn directions()
+    assert_eq(shift(0.1, 0.5), Shift.Forward)
+    assert_eq(shift(0.5, 0.5), Shift.Balanced)

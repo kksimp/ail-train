@@ -1,0 +1,43 @@
+## X-ray diffraction: Bragg's law n lambda = 2 d sin(theta) with plane spacing d = a / sqrt(h^2 + k^2 + l^2)
+## in a cubic crystal; face-centred cells reflect only all-odd or all-even hkl, body-centred only even h + k + l.
+
+PI := 3.141592653589793
+
+enum Lattice
+    Fcc
+    Bcc
+
+fn allowed(l Lattice, h int, k int, m int) bool
+    match l
+        Fcc => (h % 2 == k % 2) and (k % 2 == m % 2)
+        Bcc => (h + k + m) % 2 == 0
+
+fn two_theta(lam float, a float, s int) float
+    d := a / s.to_float().sqrt()
+    x := lam / (2.0 * d)
+    2.0 * (x / (1.0 - x * x).sqrt()).atan() * 180.0 / PI
+
+fn peaks(l Lattice, a float, lam float, count int) List[str]
+    mut seen := Set[int]()
+    mut out := List[List[int]]()
+    for h in 0..5
+        for k in 0..=h
+            for m in 0..=k
+                s := h * h + k * k + m * m
+                if s > 0 and allowed(l, h, k, m) and seen.add(s)
+                    out.push([s, h, k, m])
+    out.sorted(by: |p| p[0]).take(count).map(|p| "({p[1]}{p[2]}{p[3]}) {two_theta(lam, a, p[0]):.2}")
+
+fn main()
+    lam := 0.15406
+    samples := [("aluminium", Lattice.Fcc, 0.4050), ("copper", Lattice.Fcc, 0.3615), ("iron", Lattice.Bcc, 0.2866), ("tungsten", Lattice.Bcc, 0.3165)]
+    print("Cu K-alpha X-rays, {lam} nm; peaks as 2-theta in degrees")
+    for smp in samples
+        name, lat, a := smp
+        shown := peaks(lat, a, lam, 5).join(", ")
+        print("{name} ({lat}, a {a} nm): {shown}")
+
+@test fn rules()
+    assert(allowed(Lattice.Fcc, 1, 1, 1))
+    assert(not allowed(Lattice.Fcc, 1, 0, 0))
+    assert(allowed(Lattice.Bcc, 1, 1, 0))

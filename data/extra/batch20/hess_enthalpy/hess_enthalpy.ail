@@ -1,0 +1,40 @@
+## Hess's law: enthalpy is a state function, so known reactions scaled and added give an unknown one;
+## species are kept as signed coefficients in a map, and what cancels out must leave just the target equation.
+
+struct Reaction
+    name str
+    terms Map[str, float]
+    dh float
+
+fn combine(parts List[Reaction], factors List[float]) Reaction
+    mut terms := Map[str, float]()
+    mut dh := 0.0
+    for i in 0..parts.len()
+        for sp, c in parts[i].terms
+            terms[sp] = terms.get_or(sp, 0.0) + c * factors[i]
+        dh += parts[i].dh * factors[i]
+    left := terms.keys().filter(|k| terms[k] != 0.0)
+    kept := {k: terms[k] for k in left}
+    Reaction(name: "sum", terms: kept, dh: dh)
+
+fn show(r Reaction) str
+    lhs := r.terms.keys().filter(|k| r.terms[k] < 0.0).sorted().map(|k| "{-r.terms[k]} {k}").join(" + ")
+    rhs := r.terms.keys().filter(|k| r.terms[k] > 0.0).sorted().map(|k| "{r.terms[k]} {k}").join(" + ")
+    "{lhs} -> {rhs}"
+
+fn main()
+    burn_c := Reaction(name: "C burns", terms: {"C": -1.0, "O2": -1.0, "CO2": 1.0}, dh: -393.5)
+    burn_h2 := Reaction(name: "H2 burns", terms: {"H2": -1.0, "O2": -0.5, "H2O": 1.0}, dh: -285.8)
+    burn_ch4 := Reaction(name: "CH4 burns", terms: {"CH4": -1.0, "O2": -2.0, "CO2": 1.0, "H2O": 2.0}, dh: -890.3)
+    burn_co := Reaction(name: "CO burns", terms: {"CO": -1.0, "O2": -0.5, "CO2": 1.0}, dh: -283.0)
+    methane := combine([burn_c, burn_h2, burn_ch4], [1.0, 2.0, -1.0])
+    print("methane from its elements: {show(methane)}")
+    print("  dH = {methane.dh:.1} kJ/mol")
+    monoxide := combine([burn_c, burn_co], [1.0, -1.0])
+    print("carbon monoxide from carbon: {show(monoxide)}")
+    print("  dH = {monoxide.dh:.1} kJ/mol")
+
+@test fn cancels()
+    a := Reaction(name: "a", terms: {"X": -1.0, "Y": 1.0}, dh: 10.0)
+    r := combine([a, a], [1.0, -1.0])
+    assert_eq(r.terms.len(), 0)

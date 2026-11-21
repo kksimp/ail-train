@@ -1,0 +1,33 @@
+## Clausius-Clapeyron: ln(P2 / P1) = -(dH / R)(1 / T2 - 1 / T1) links vapour pressure to temperature;
+## from one known boiling point it predicts vapour pressures and the boiling point at any outside pressure.
+
+R := 8.314
+
+struct Liquid
+    name str
+    dh float
+    boil_k float
+
+fn Liquid.vapour_kpa(self, t float) float
+    101.325 * (-self.dh / R * (1.0 / t - 1.0 / self.boil_k)).exp()
+
+fn Liquid.boils_at(self, kpa float) float
+    1.0 / (1.0 / self.boil_k - R * (kpa / 101.325).ln() / self.dh)
+
+fn main()
+    water := Liquid(name: "water", dh: 40660.0, boil_k: 373.15)
+    ethanol := Liquid(name: "ethanol", dh: 38560.0, boil_k: 351.4)
+    for liq in [water, ethanol]
+        mut parts := List[str]()
+        for c in [20.0, 50.0, 80.0]
+            parts.push("{c:.0} C {liq.vapour_kpa(c + 273.15):.1} kPa")
+        shown := parts.join(", ")
+        print("{liq.name}: {shown}")
+    places := [("Everest summit", 33.7), ("La Paz", 66.0), ("Denver", 83.4), ("pressure cooker", 200.0)]
+    for pl in places
+        name, kpa := pl
+        print("{name:<16} {kpa:>6.1} kPa: water boils at {water.boils_at(kpa) - 273.15:.1} C")
+
+@test fn normal_boil()
+    w := Liquid(name: "w", dh: 40660.0, boil_k: 373.15)
+    assert((w.boils_at(101.325) - 373.15).abs() < 0.000001)

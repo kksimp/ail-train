@@ -1,0 +1,29 @@
+## Energy pyramid: only a fraction of the energy at one feeding level reaches the next (about 10%,
+## varying by level), so a meadow feeds far more plant eaters than predators, and a diet lower down feeds more people.
+
+struct Level
+    name str
+    efficiency float
+    need_kcal float
+
+fn feeds(energy float, need float) int
+    (energy / need).floor().to_int()
+
+fn main()
+    sunlight_crop := 20000.0
+    area := 10000.0
+    levels := [Level(name: "grasshoppers", efficiency: 0.1, need_kcal: 200.0), Level(name: "shrews", efficiency: 0.12, need_kcal: 5000.0), Level(name: "owls", efficiency: 0.05, need_kcal: 40000.0)]
+    mut energy := sunlight_crop * area
+    print("plants fix {sunlight_crop:.0} kcal per m2 a year over {area:.0} m2: {energy / 1000000.0:.1} Mkcal")
+    for lv in levels
+        energy = energy * lv.efficiency
+        animals := feeds(energy, lv.need_kcal)
+        print("{lv.name:<12} take in {energy:>12.0} kcal a year, enough for {animals} animals")
+    person := 900000.0
+    grain := 3000.0 * 10000.0
+    as_grain := feeds(grain * 0.9, person)
+    as_beef := feeds(grain * 0.1 * 0.9, person)
+    print("a hectare of grain feeds {as_grain} people directly, {as_beef} through cattle")
+
+@test fn whole_animals()
+    assert_eq(feeds(1000.0, 300.0), 3)

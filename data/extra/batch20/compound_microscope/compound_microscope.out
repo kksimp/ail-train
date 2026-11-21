@@ -1,0 +1,12 @@
+objective f 40.0 mm, NA 0.1: resolves 3.35 um
+  eyepiece 25.0 mm: 40x useful
+  eyepiece 10.0 mm: 100x useful
+objective f 16.0 mm, NA 0.25: resolves 1.34 um
+  eyepiece 25.0 mm: 100x useful
+  eyepiece 10.0 mm: 250x useful
+objective f 4.0 mm, NA 0.65: resolves 0.52 um
+  eyepiece 25.0 mm: 400x useful
+  eyepiece 10.0 mm: 1000x empty magnification
+objective f 1.6 mm, NA 1.25: resolves 0.27 um
+  eyepiece 25.0 mm: 1000x useful
+  eyepiece 10.0 mm: 2500x empty magnification

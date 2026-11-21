@@ -1,0 +1,9 @@
+AGCTTGCATGCCTGCAGG   18 nt, Tm 52.6 C, GC 61%
+GACGGCCAGTGAATTCGA   18 nt, Tm 50.3 C, no 3' clamp
+  pair Tm gap 2.3 C: matched
+ATTTTAGCATCG         12 nt, Tm 32.0 C, GC 33%, run of 4
+GCGCGGCCGC           10 nt, Tm 40.0 C, GC 100%
+  pair Tm gap 8.0 C: mismatched
+TGACCTGAAGCTTGAGTC   18 nt, Tm 48.0 C, ok
+CAGTTTCGAGCAAAATTA   18 nt, Tm 41.2 C, GC 33%, no 3' clamp, run of 4
+  pair Tm gap 6.8 C: mismatched

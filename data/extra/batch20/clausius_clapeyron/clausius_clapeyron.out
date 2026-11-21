@@ -1,0 +1,6 @@
+water: 20 C 2.8 kPa, 50 C 13.3 kPa, 80 C 48.2 kPa
+ethanol: 20 C 7.4 kPa, 50 C 32.0 kPa, 80 C 108.2 kPa
+Everest summit     33.7 kPa: water boils at 71.1 C
+La Paz             66.0 kPa: water boils at 88.2 C
+Denver             83.4 kPa: water boils at 94.5 C
+pressure cooker   200.0 kPa: water boils at 120.4 C

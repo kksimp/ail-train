@@ -1,0 +1,30 @@
+## Thin-walled pressure vessels: a cylinder's wall carries hoop stress p r / t, twice its lengthwise
+## stress p r / (2t), so cylinders split along their length; the thinnest safe wall is p r / (allowed x joint factor).
+
+struct Vessel
+    name str
+    mpa float
+    radius_mm float
+    wall_mm float
+
+fn Vessel.hoop(self) float
+    self.mpa * self.radius_mm / self.wall_mm
+
+fn main()
+    vessels := [Vessel(name: "soda can", mpa: 0.6, radius_mm: 33.0, wall_mm: 0.1), Vessel(name: "propane bottle", mpa: 1.8, radius_mm: 150.0, wall_mm: 2.5), Vessel(name: "boiler drum", mpa: 4.0, radius_mm: 600.0, wall_mm: 40.0), Vessel(name: "hydraulic hose", mpa: 20.0, radius_mm: 6.0, wall_mm: 3.0)]
+    for v in vessels
+        h := v.hoop()
+        thin := v.radius_mm / v.wall_mm >= 10.0
+        note := if thin then "thin-wall formula fits" else "wall too thick for the formula"
+        print("{v.name:<15} hoop {h:>6.1} MPa, lengthwise {h / 2.0:>6.1} MPa ({note})")
+    allowed := 140.0
+    joint := 0.85
+    for p in [1.0, 2.5, 6.0]
+        t := p * 600.0 / (allowed * joint)
+        print("a 1.2 m drum at {p} MPa needs a {t:.1} mm wall")
+    sphere := 4.0 * 600.0 / (2.0 * allowed * joint)
+    print("a sphere of the same radius at 4.0 MPa needs only {sphere:.1} mm")
+
+@test fn hoop_formula()
+    v := Vessel(name: "x", mpa: 2.0, radius_mm: 100.0, wall_mm: 4.0)
+    assert_eq(v.hoop(), 50.0)

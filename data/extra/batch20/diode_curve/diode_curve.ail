@@ -1,0 +1,31 @@
+## Diode operating point: the Shockley equation I = Is (exp(V / (n Vt)) - 1) is steep, so the voltage
+## across a diode fed through a resistor barely moves; bisection on Vs - V - R I(V) = 0 finds where it sits.
+
+IS := 0.0000000025
+NVT := 0.045
+
+fn current(v float) float
+    IS * ((v / NVT).exp() - 1.0)
+
+fn operating(vs float, r float) float
+    mut lo := 0.0
+    mut hi := vs
+    for _ in 0..60
+        mid := (lo + hi) / 2.0
+        if vs - mid - r * current(mid) > 0.0
+            lo = mid
+        else
+            hi = mid
+    (lo + hi) / 2.0
+
+fn main()
+    for mv in [450, 500, 550, 600, 650, 700]
+        v := mv.to_float() / 1000.0
+        print("{mv} mV: {current(v) * 1000.0:>10.4} mA")
+    for c in [(5.0, 1000.0), (12.0, 1000.0), (5.0, 220.0), (3.3, 10000.0)]
+        vs, r := c
+        vd := operating(vs, r)
+        print("{vs} V through {r:.0} ohm: diode at {vd:.4} V, {current(vd) * 1000.0:.3} mA")
+
+@test fn zero_bias()
+    assert_eq(current(0.0), 0.0)

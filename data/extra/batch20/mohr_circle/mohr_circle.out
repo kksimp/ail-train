@@ -1,0 +1,8 @@
+shaft surface: s1 50.0 MPa, s2 -50.0 MPa, max shear 50.0 MPa, principal plane 45.0 deg
+  normal stress on the 30 deg plane 43.3 MPa
+bolt in tension: s1 120.0 MPa, s2 0.0 MPa, max shear 60.0 MPa, principal plane 0.0 deg
+  normal stress on the 30 deg plane 90.0 MPa
+bracket weld: s1 87.1 MPa, s2 -47.1 MPa, max shear 67.1 MPa, principal plane 13.3 deg
+  normal stress on the 30 deg plane 76.0 MPa
+plate corner: s1 -8.0 MPa, s2 -72.0 MPa, max shear 32.0 MPa, principal plane -64.3 deg
+  normal stress on the 30 deg plane -71.7 MPa

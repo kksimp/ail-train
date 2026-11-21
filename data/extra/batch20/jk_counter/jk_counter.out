@@ -1,0 +1,13 @@
+clock  0: 0000 = 0
+clock  1: 0001 = 1
+clock  2: 0010 = 2
+clock  3: 0011 = 3
+clock  4: 0100 = 4
+clock  5: 0101 = 5
+clock  6: 0110 = 6
+clock  7: 0111 = 7
+clock  8: 1000 = 8
+clock  9: 1001 = 9
+clock 10: 0000 = 0
+clock 11: 0001 = 1
+states visited before repeating: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]

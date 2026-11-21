@@ -1,0 +1,43 @@
+## Crystal packing: simple cubic, body-centred and face-centred cells hold 1, 2 and 4 atoms with edge 2r,
+## 4r / sqrt 3 and 2 sqrt 2 r, filling 52%, 68% and 74% of space; density is n M / (NA a^3).
+
+PI := 3.141592653589793
+NA := 602214076000000000000000.0
+
+enum Cell
+    Simple
+    BodyCentred
+    FaceCentred
+
+fn atoms(c Cell) int
+    match c
+        Simple => 1
+        BodyCentred => 2
+        FaceCentred => 4
+
+fn root(x float) float
+    x.sqrt()
+
+fn edge(c Cell, r float) float
+    match c
+        Simple => 2.0 * r
+        BodyCentred => 4.0 * r / root(3.0)
+        FaceCentred => 2.0 * root(2.0) * r
+
+fn fill(c Cell) float
+    a := edge(c, 1.0)
+    atoms(c).to_float() * 4.0 / 3.0 * PI / (a * a * a)
+
+fn main()
+    for c in [Cell.Simple, Cell.BodyCentred, Cell.FaceCentred]
+        print("{c}: {atoms(c)} atoms per cell, packing {fill(c) * 100.0:.1}%")
+    metals := [("polonium", Cell.Simple, 0.167, 209.0, 9.2), ("iron", Cell.BodyCentred, 0.1241, 55.85, 7.87), ("tungsten", Cell.BodyCentred, 0.1371, 183.84, 19.3), ("copper", Cell.FaceCentred, 0.1278, 63.55, 8.96), ("aluminium", Cell.FaceCentred, 0.1432, 26.98, 2.70)]
+    for m in metals
+        name, c, r, molar, known := m
+        a_cm := edge(c, r) / 10000000.0
+        rho := atoms(c).to_float() * molar / (NA * a_cm * a_cm * a_cm)
+        print("{name:<9} a {edge(c, r):.4} nm, density {rho:.2} g/cm3 (measured {known})")
+
+@test fn fcc_four()
+    assert_eq(atoms(Cell.FaceCentred), 4)
+    assert((fill(Cell.Simple) - PI / 6.0).abs() < 0.000001)

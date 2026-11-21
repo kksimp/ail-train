@@ -1,0 +1,40 @@
+## Truss by the method of joints: a triangle A-B-C with a pin at A and a roller at B carries loads at C;
+## moments give the support reactions, then force balance at A and at C gives each member's tension or compression.
+
+struct Load
+    fx float
+    fy float
+
+fn describe(f float) str
+    if f.abs() < 0.0005 then "unloaded" elif f > 0.0 then "tension {f:.2} kN" else "compression {-f:.2} kN"
+
+fn solve(span float, cx float, cy float, p Load) List[float]
+    rb := (p.fx * cy - p.fy * cx) / span
+    ray := 0.0 - p.fy - rb
+    rax := 0.0 - p.fx
+    la := (cx * cx + cy * cy).sqrt()
+    lb := ((span - cx) * (span - cx) + cy * cy).sqrt()
+    # joint C: f_ac pulls towards A, f_bc towards B
+    ux1 := -cx / la
+    uy1 := -cy / la
+    ux2 := (span - cx) / lb
+    uy2 := -cy / lb
+    det := ux1 * uy2 - ux2 * uy1
+    f_ac := (-p.fx * uy2 + p.fy * ux2) / det
+    f_bc := (-ux1 * p.fy + uy1 * p.fx) / det
+    # joint A: f_ab along x
+    f_ab := -rax - f_ac * cx / la
+    [rax, ray, rb, f_ac, f_bc, f_ab]
+
+fn main()
+    cases := [("snow on the apex", Load(fx: 0.0, fy: -12.0)), ("wind from the left", Load(fx: 4.0, fy: 0.0)), ("snow and wind", Load(fx: 4.0, fy: -12.0))]
+    for c in cases
+        name, load := c
+        r := solve(6.0, 2.0, 3.0, load)
+        print("{name}: reactions A ({r[0]:.2}, {r[1]:.2}) kN, B {r[2]:.2} kN")
+        print("  AC {describe(r[3])}, BC {describe(r[4])}, AB {describe(r[5])}")
+
+@test fn symmetric_apex()
+    r := solve(4.0, 2.0, 2.0, Load(fx: 0.0, fy: -10.0))
+    assert((r[1] - 5.0).abs() < 0.000001)
+    assert((r[2] - 5.0).abs() < 0.000001)

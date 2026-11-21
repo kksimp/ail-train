@@ -1,0 +1,10 @@
+at 300 K (m/s): most likely, mean, rms
+  hydrogen         1573  1775  1927
+  helium           1116  1260  1367
+  water             526   594   644
+  nitrogen          422   476   517
+  oxygen            395   446   484
+  carbon dioxide    337   380   412
+Earth (escape 11200 m/s, 1000 K upper air) keeps: water, nitrogen, oxygen, carbon dioxide
+Mars (escape 5030 m/s, 1000 K upper air) keeps: carbon dioxide
+Moon (escape 2380 m/s, 1000 K upper air) keeps: nothing

@@ -1,0 +1,35 @@
+## Gyroscope precession: a tilted spinning top precesses at W = m g r / (I w), so it wanders slower the
+## faster it spins; as friction bleeds the spin the precession speeds up until the top topples.
+
+PI := 3.141592653589793
+
+struct Top
+    mass float
+    disc_r float
+    arm float
+
+fn Top.inertia(self) float
+    0.5 * self.mass * self.disc_r * self.disc_r
+
+fn Top.precession(self, w float) float
+    self.mass * 9.81 * self.arm / (self.inertia() * w)
+
+fn main()
+    top := Top(mass: 0.1, disc_r: 0.03, arm: 0.04)
+    print("spin inertia {top.inertia() * 10000000.0:.0} g cm2")
+    mut w := 200.0
+    mut sec := 0
+    while true
+        p := top.precession(w)
+        if p > w / 10.0
+            print("at {sec} s the spin {w:.1} rad/s is too slow: precession {p:.2} rad/s, the top topples")
+            break
+        if sec % 5 == 0
+            period := 2.0 * PI / p
+            print("t {sec:>2} s: spin {w:>6.1} rad/s, precession {p:.2} rad/s, one turn every {period:.2} s")
+        w = w * 0.97
+        sec += 1
+
+@test fn faster_is_slower()
+    top := Top(mass: 0.1, disc_r: 0.03, arm: 0.04)
+    assert(top.precession(300.0) < top.precession(100.0))

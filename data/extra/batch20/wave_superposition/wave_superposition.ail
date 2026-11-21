@@ -1,0 +1,25 @@
+## Beats: two tones of 440 and 444 Hz added together swell and fade 4 times a second, inside the
+## envelope 2 |cos(pi (f2 - f1) t)|; samples at 8 kHz give each 25 ms window's peak against that envelope.
+
+PI := 3.141592653589793
+
+fn sample(t float) float
+    (2.0 * PI * 440.0 * t).sin() + (2.0 * PI * 444.0 * t).sin()
+
+fn main()
+    rate := 8000
+    print("beat frequency {444 - 440} Hz, one swell every {1000 / (444 - 440)} ms")
+    for w in 0..11
+        mut peak := 0.0
+        for i in 0..200
+            t := (w * 200 + i).to_float() / rate.to_float()
+            v := sample(t).abs()
+            if v > peak
+                peak = v
+        mid := (w.to_float() * 0.025 + 0.0125)
+        env := 2.0 * (PI * 4.0 * mid).cos().abs()
+        bar := "*".repeat((peak * 10.0).round().to_int())
+        print("{w * 25:>3} ms peak {peak:.2} envelope {env:.2} {bar}")
+
+@test fn silent_start()
+    assert_eq(sample(0.0), 0.0)
