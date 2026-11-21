@@ -1,3 +1,5 @@
+import math
+
 def reactions(span, loads):
     total = 0.0
     for at, kn in loads:
@@ -35,6 +37,6 @@ for i in range(13):
     if m > best:
         best = m
         best_x = x
-    bar = "#" * int(round(m / 2.0))
+    bar = "#" * math.floor(m / 2.0 + 0.5)
     print(f"x {x:.1f} m: V {v:>6.2f} kN, M {m:>6.2f} kN m |{bar}")
 print(f"largest moment {best:.2f} kN m at {best_x} m")

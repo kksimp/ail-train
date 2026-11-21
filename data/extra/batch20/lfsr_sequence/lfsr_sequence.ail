@@ -36,5 +36,5 @@ fn main()
         print("width {w} taps {taps}: period {p} of {full} ({kind})")
 
 @test fn one_step()
-    assert_eq(next_state(1, [4, 3], 4), 0)
-    assert_eq(next_state(8, [4, 3], 4), 12)
+    assert_eq(next_state(1, [4, 3], 4), 8)
+    assert_eq(next_state(8, [4, 3], 4), 4)

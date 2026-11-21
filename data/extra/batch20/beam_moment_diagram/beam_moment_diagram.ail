@@ -30,7 +30,7 @@ fn main()
         if m > best
             best = m
             best_x = x
-        bar := "#".repeat((m / 2.0).round().to_int())
+        bar := "#".repeat((m / 2.0 + 0.5).floor().to_int())
         print("x {x:.1} m: V {v:>6.2} kN, M {m:>6.2} kN m |{bar}")
     print("largest moment {best:.2} kN m at {best_x} m")
 
