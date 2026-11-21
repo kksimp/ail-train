@@ -1,0 +1,6 @@
+object at 50.0 cm: image at   12.5 cm, x0.25 (real, upside down)
+object at 30.0 cm: image at   15.0 cm, x0.50 (real, upside down)
+object at 20.0 cm: image at   20.0 cm, x1.00 (real, upside down)
+object at 15.0 cm: image at   30.0 cm, x2.00 (real, upside down)
+object at 10.0 cm: no image, rays leave parallel
+object at  5.0 cm: image at  -10.0 cm, x2.00 (virtual, upright)

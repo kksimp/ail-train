@@ -1,0 +1,16 @@
+## Escape velocity: the speed needed to leave a body's gravity for good, sqrt(2GM / r), compared
+## with the speed of a low circular orbit, sqrt(GM / r), for planets and moons.
+
+fn main()
+    g := 0.000000000066743
+    bodies := [("Earth", 5972000000000000000000000.0, 6371.0), ("Moon", 73420000000000000000000.0, 1737.0), ("Mars", 641700000000000000000000.0, 3390.0), ("Jupiter", 1898000000000000000000000000.0, 69911.0), ("Ceres", 939300000000000000000.0, 470.0)]
+    for b in bodies
+        name, mass, km := b
+        r := km * 1000.0
+        escape := (2.0 * g * mass / r).sqrt() / 1000.0
+        orbit := (g * mass / r).sqrt() / 1000.0
+        print("{name:<8} escape {escape:>6.2} km/s, low orbit {orbit:>6.2} km/s")
+
+@test fn ratio()
+    sixteen := 16.0
+    assert_eq(sixteen.sqrt(), 4.0)
