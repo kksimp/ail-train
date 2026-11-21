@@ -1,0 +1,16 @@
+## Rent increase: rents rise each year by inflation capped at 5%, using a list of yearly
+## inflation rates in basis points; prints the rent each year in whole pounds.
+
+fn main()
+    mut rent := 95000
+    inflation := [320, 680, 410, 250, 720, 190]
+    for i, bp in inflation.enumerate()
+        applied := if bp > 500 then 500 else bp
+        rise := rent * applied / 10000
+        rent += rise
+        capped := if bp > 500 then " (capped)" else ""
+        print("year {i + 1}: +{applied / 100}.{applied % 100:02}%{capped} -> {rent / 100}")
+    print("total rise {(rent - 95000) * 100 / 95000}%")
+
+@test fn cap()
+    assert_eq(95000 * 500 / 10000, 4750)

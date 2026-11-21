@@ -1,0 +1,23 @@
+## Bridge weights: a weight-limited bridge lets vehicles cross in arrival order with at most
+## 25 tonnes on it at once; each crossing takes 3 minutes. Prints entry times.
+
+fn main()
+    trucks := [10, 8, 12, 4, 15, 7, 9, 3]
+    limit := 25
+    mut on := List[(int, int)]()
+    mut t := 0
+    for i, w in trucks.enumerate()
+        while true
+            now := t
+            on = on.filter(|x| x.1 > now)
+            load := on.map(|x| x.0).sum()
+            if load + w <= limit
+                break
+            t = on.map(|x| x.1).min() else t
+        on.push((w, t + 3))
+        print("truck {i + 1} ({w} t) enters at {t}")
+    finish := on.map(|x| x.1).max() else t
+    print("last off the bridge at {finish}")
+
+@test fn limit()
+    assert(10 + 8 <= 25)

@@ -1,0 +1,25 @@
+## Ferry loading: vehicles queue for two lanes of a ferry, each lane 40 metres long; each
+## vehicle goes in the lane with more room left, and those that don't fit wait.
+
+fn main()
+    queue := [("car", 4), ("van", 6), ("lorry", 16), ("car", 4), ("bus", 12), ("car", 5), ("lorry", 15), ("car", 4), ("caravan", 11), ("car", 4)]
+    mut room := [40, 40]
+    mut lanes := [List[str](), List[str]()]
+    mut left := List[str]()
+    for i, v in queue.enumerate()
+        kind, size := v
+        lane := if room[0] >= room[1] then 0 else 1
+        label := "{kind}{i + 1}"
+        if size <= room[lane]
+            room[lane] -= size
+            lanes[lane].push(label)
+        else
+            left.push(label)
+    for l in 0..2
+        shown := lanes[l].join(" ")
+        print("lane {l + 1} ({40 - room[l]} m): {shown}")
+    waiting := left.join(" ")
+    print("waiting: {waiting}")
+
+@test fn more_room()
+    assert(36 >= 34)

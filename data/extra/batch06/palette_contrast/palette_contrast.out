@@ -1,0 +1,6 @@
+#000000 on #ffffff: 21.00:1 pass
+#777777 on #ffffff: 4.48:1 fail
+#1a5fb4 on #ffffff: 6.29:1 pass
+#ffcc00 on #ffffff: 1.51:1 fail
+#ffcc00 on #222222: 10.52:1 pass
+#2e7d32 on #e8f5e9: 4.56:1 pass

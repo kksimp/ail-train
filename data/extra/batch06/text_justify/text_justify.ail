@@ -1,0 +1,40 @@
+## Justify text: fills lines greedily to a width, then spreads extra spaces between words
+## from the left so every line except the last is exactly the width.
+
+fn justify(words List[str], width int) List[str]
+    mut lines := List[List[str]]()
+    mut cur := List[str]()
+    mut used := 0
+    for w in words
+        if not cur.is_empty() and used + 1 + w.len() > width
+            lines.push(cur)
+            cur = List[str]()
+            used = 0
+        step := if cur.is_empty() then w.len() else 1 + w.len()
+        used += step
+        cur.push(w)
+    mut out := List[str]()
+    for i, l in lines.enumerate()
+        letters := l.map(|w| w.len()).sum()
+        gaps := l.len() - 1
+        if gaps == 0
+            out.push(l[0])
+            continue
+        spaces := width - letters
+        mut text := l[0]
+        for g in 0..gaps
+            extra := if g < spaces % gaps then 1 else 0
+            n := spaces / gaps + extra
+            pad := " ".repeat(n)
+            text = "{text}{pad}{l[g + 1]}"
+        out.push(text)
+    out.push(cur.join(" "))
+    out
+
+fn main()
+    text := "This is an example of text justification where every line but the last is padded to the same width."
+    for line in justify(text.split(" "), 24)
+        print("|{line:<24}|")
+
+@test fn one_line()
+    assert_eq(justify(["a", "b"], 10), ["a b"])

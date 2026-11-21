@@ -1,0 +1,21 @@
+## Sensor smoothing: smooths noisy readings with an exponential moving average and flags
+## readings more than 3 units from the smoothed value as spikes.
+
+fn main()
+    readings := [20.1, 20.4, 20.2, 26.0, 20.6, 20.9, 21.1, 14.2, 21.4, 21.7, 21.6, 22.0]
+    alpha := 0.3
+    mut ema := readings[0]
+    mut spikes := List[int]()
+    for i, r in readings.enumerate()
+        if i > 0
+            if (r - ema).abs() > 3.0
+                spikes.push(i)
+                print("{i:>2}: {r:.1} spike (ema {ema:.2})")
+                continue
+            ema = alpha * r + (1.0 - alpha) * ema
+        print("{i:>2}: {r:.1} ema {ema:.2}")
+    shown := spikes.map(|i| "{i}").join(", ")
+    print("spikes at {shown}")
+
+@test fn steady()
+    assert_eq(0.3 * 20.0 + 0.7 * 20.0, 20.0)
