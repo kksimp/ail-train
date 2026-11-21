@@ -1,0 +1,31 @@
+## Split tickets: the cheapest way to buy a rail journey through intermediate stations, using
+## dynamic programming over all through-fares between any two stops along the line.
+
+fn main()
+    stops := ["York", "Leeds", "Wakefield", "Sheffield", "Derby", "Leicester"]
+    mut f := Map[str, int]()
+    pairs := [("York", "Leeds", 1290), ("York", "Wakefield", 2150), ("York", "Sheffield", 3460), ("York", "Leicester", 7900), ("Leeds", "Sheffield", 1720), ("Leeds", "Derby", 3800), ("Wakefield", "Derby", 2400), ("Sheffield", "Derby", 1530), ("Sheffield", "Leicester", 3100), ("Derby", "Leicester", 1180), ("Leeds", "Wakefield", 690), ("Wakefield", "Sheffield", 1100)]
+    for p in pairs
+        f["{p.0}-{p.1}"] = p.2
+    n := stops.len()
+    mut best := [0 for k in 0..n]
+    mut from := [0 for q in 0..n]
+    for j in 1..n
+        best[j] = 1000000
+        for i in 0..j
+            if fare := f.get("{stops[i]}-{stops[j]}")
+                if best[i] + fare < best[j]
+                    best[j] = best[i] + fare
+                    from[j] = i
+    mut legs := List[str]()
+    mut at := n - 1
+    while at > 0
+        legs.push("{stops[from[at]]}-{stops[at]}")
+        at = from[at]
+    shown := legs.reversed().join(", ")
+    through := f.get("York-Leicester") else 0
+    print("tickets: {shown}")
+    print("split cost {best[n - 1] / 100}.{best[n - 1] % 100:02} vs through {through / 100}.{through % 100:02}")
+
+@test fn pick()
+    assert(690 + 1100 < 2150)

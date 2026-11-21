@@ -1,0 +1,21 @@
+## Rice doubling: one grain on the first chessboard square, doubling on each square after;
+## prints selected squares, the running total, and when the total passes a tonne of rice.
+
+fn main()
+    grams_per_grain := 0.025
+    mut on_square := 1
+    mut total := 0
+    mut passed := 0
+    for sq in 1..=40
+        total += on_square
+        if passed == 0 and total.to_float() * grams_per_grain >= 1000000.0
+            passed = sq
+        if sq <= 4 or sq % 8 == 0
+            print("square {sq:>2}: {on_square} grains, total {total}")
+        on_square *= 2
+    print("total passes one tonne at square {passed}")
+    kg := total.to_float() * grams_per_grain / 1000.0
+    print("after 40 squares: {kg:.0} kg")
+
+@test fn sum_rule()
+    assert_eq(1 + 2 + 4 + 8, 16 - 1)

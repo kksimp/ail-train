@@ -1,0 +1,25 @@
+## Heat seeding: swimmers are seeded into heats of six by entry time, slowest heat first,
+## with the fastest in each heat in lane 3, then 4, 2, 5, 1, 6.
+
+fn mmss(t int) str
+    "{t / 6000}:{t / 100 % 60:02}.{t % 100:02}"
+
+fn main()
+    swimmers := [("Ada", 6312), ("Bo", 5987), ("Cy", 6420), ("Di", 6105), ("Ed", 5899), ("Flo", 6255), ("Gus", 6033), ("Hal", 6688), ("Ivy", 6140), ("Jo", 6501), ("Kai", 5950), ("Lu", 6377)]
+    lanes := [3, 4, 2, 5, 1, 6]
+    fastest_first := swimmers.sorted(by: |s| (s.1, s.0))
+    heats := (fastest_first.len() + 5) / 6
+    for h in 0..heats
+        start := h * 6
+        stop := if start + 6 < fastest_first.len() then start + 6 else fastest_first.len()
+        group := fastest_first[start..stop]
+        heat_no := heats - h
+        print("heat {heat_no}:")
+        mut rows := List[(int, str)]()
+        for i, s in group.enumerate()
+            rows.push((lanes[i], "{s.0} {mmss(s.1)}"))
+        for r in rows.sorted(by: |r| (r.0, r.1))
+            print("  lane {r.0}: {r.1}")
+
+@test fn time()
+    assert_eq(mmss(6312), "1:03.12")

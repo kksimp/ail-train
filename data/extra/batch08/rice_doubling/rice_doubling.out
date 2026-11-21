@@ -1,0 +1,11 @@
+square  1: 1 grains, total 1
+square  2: 2 grains, total 3
+square  3: 4 grains, total 7
+square  4: 8 grains, total 15
+square  8: 128 grains, total 255
+square 16: 32768 grains, total 65535
+square 24: 8388608 grains, total 16777215
+square 32: 2147483648 grains, total 4294967295
+square 40: 549755813888 grains, total 1099511627775
+total passes one tonne at square 26
+after 40 squares: 27487791 kg

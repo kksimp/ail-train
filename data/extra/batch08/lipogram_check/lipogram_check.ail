@@ -1,0 +1,21 @@
+## Lipograms: checks sentences for a banned letter (here 'e', then 'a'), reporting the
+## offending words and the share of words that pass.
+
+fn offenders(text str, banned char) List[str]
+    text.split(" ").filter(|w| w.to_lower().chars().contains(banned))
+
+fn main()
+    lines := ["A man and his dog ran up a hill", "This is a story without that symbol", "Every letter here is tested", "Big cats sit on warm rugs"]
+    for banned in ['e', 'a']
+        print("banned '{banned}':")
+        for l in lines
+            bad := offenders(l, banned)
+            total := l.split(" ").len()
+            if bad.is_empty()
+                print("  ok: {l}")
+            else
+                shown := bad.join(", ")
+                print("  {total - bad.len()}/{total} clean, fails on {shown}")
+
+@test fn clean()
+    assert(offenders("big cat", 'e').is_empty())

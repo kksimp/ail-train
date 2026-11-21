@@ -1,0 +1,10 @@
+banned 'e':
+  ok: A man and his dog ran up a hill
+  ok: This is a story without that symbol
+  1/5 clean, fails on Every, letter, here, tested
+  ok: Big cats sit on warm rugs
+banned 'a':
+  4/9 clean, fails on A, man, and, ran, a
+  5/7 clean, fails on a, that
+  ok: Every letter here is tested
+  4/6 clean, fails on cats, warm

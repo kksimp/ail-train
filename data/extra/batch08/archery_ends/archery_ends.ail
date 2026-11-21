@@ -1,0 +1,28 @@
+## Archery ends: arrows land at (x, y) centimetres from the centre of a 122 cm target with ten
+## rings 6.1 cm wide; each end of three arrows is scored and the total kept.
+
+fn ring_score(x float, y float) int
+    d := (x * x + y * y).sqrt()
+    ring := (d / 6.1).floor().to_int()
+    if ring >= 10 then 0 else 10 - ring
+
+fn label(s int) str
+    if s == 0 then "M" else "{s}"
+
+fn main()
+    ends := [
+        [(1.2, -2.0), (5.5, 3.1), (-8.0, 4.4)],
+        [(0.4, 0.9), (-12.5, 7.0), (20.0, -15.0)],
+        [(2.2, 2.2), (-3.0, -4.5), (61.5, 0.0)],
+        [(6.0, 0.5), (0.0, -6.2), (-0.8, 1.1)],
+    ]
+    mut total := 0
+    for i, e in ends.enumerate()
+        scores := e.map(|a| ring_score(a.0, a.1)).sorted().reversed()
+        end_total := scores.sum()
+        total += end_total
+        shown := scores.map(label).join(" ")
+        print("end {i + 1}: {shown} = {end_total}, running {total}")
+
+@test fn bull()
+    assert_eq(ring_score(0.0, 0.0), 10)
