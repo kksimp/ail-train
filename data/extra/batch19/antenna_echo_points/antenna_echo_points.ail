@@ -1,0 +1,44 @@
+## Antenna echo points: two beacons on the same channel (same letter) echo at points in line with them;
+## part 1 counts points twice as far from one as the other, part 2 every grid point exactly on their line (gcd steps).
+
+fn gcd(a int, b int) int
+    if b == 0 then a.abs() else gcd(b, a % b)
+
+fn main()
+    rows := ["..........", "...a......", "......B...", ".....a....", "..........", "....B.....", "........a.", "..........", "..B.......", ".........."]
+    h := rows.len()
+    w := rows[0].len()
+    mut by_freq := Map[char, List[List[int]]]()
+    for r, row in rows.enumerate()
+        for c, ch in row.chars().enumerate()
+            if ch != '.'
+                by_freq.push(ch, [r, c])
+    mut near := Set[int]()
+    mut line := Set[int]()
+    for f, pts in by_freq
+        print("channel {f}: {pts.len()} beacons")
+        for i in 0..pts.len()
+            for j in 0..pts.len()
+                if i == j
+                    continue
+                a := pts[i]
+                b := pts[j]
+                er := 2 * b[0] - a[0]
+                ec := 2 * b[1] - a[1]
+                if er >= 0 and er < h and ec >= 0 and ec < w
+                    near.add(er * 100 + ec)
+                g := gcd(b[0] - a[0], b[1] - a[1])
+                sr := (b[0] - a[0]) / g
+                sc := (b[1] - a[1]) / g
+                mut r := a[0]
+                mut c := a[1]
+                while r >= 0 and r < h and c >= 0 and c < w
+                    line.add(r * 100 + c)
+                    r += sr
+                    c += sc
+    print("part 1: {near.len()} echo points")
+    print("part 2: {line.len()} points in line with a pair")
+
+@test fn gcds()
+    assert_eq(gcd(-4, 6), 2)
+    assert_eq(gcd(3, 0), 3)

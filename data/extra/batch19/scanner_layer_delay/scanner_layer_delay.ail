@@ -1,0 +1,26 @@
+## Scanner layer delay: a packet crosses firewall layers one per picosecond while each layer's scanner sweeps its
+## range back and forth (period 2(range-1)); part 1 sums depth x range of layers that catch it, part 2 finds the least safe delay.
+
+fn caught(depth int, size int, delay int) bool
+    (delay + depth) % (2 * (size - 1)) == 0
+
+fn main()
+    lines := ["0: 6", "2: 5", "4: 4", "5: 2", "6: 4", "8: 3"]
+    mut layers := List[List[int]]()
+    for l in lines
+        kv := l.split(": ")
+        layers.push([(kv[0].to_int() else 0), (kv[1].to_int() else 0)])
+    mut severity := 0
+    for l in layers
+        if caught(l[0], l[1], 0)
+            print("caught at layer {l[0]} (range {l[1]})")
+            severity += l[0] * l[1]
+    print("part 1: severity {severity}")
+    mut delay := 0
+    while layers.any(|l| caught(l[0], l[1], delay))
+        delay += 1
+    print("part 2: wait {delay} picoseconds to pass unseen")
+
+@test fn sweep()
+    assert(caught(0, 3, 4))
+    assert(not caught(1, 3, 0))

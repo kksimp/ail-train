@@ -1,0 +1,43 @@
+## Race shortcut cheats: a single racetrack winds through walls; a racer may once pass through walls for up to
+## k moves, and a cheat saves dist(b) - dist(a) - |a-b| steps; counts cheats saving at least 6 for k = 2 and k = 4.
+
+fn cheats(cells List[List[int]], dist Map[int, int], k int, least int) int
+    mut n := 0
+    for a in cells
+        for b in cells
+            jump := (a[0] - b[0]).abs() + (a[1] - b[1]).abs()
+            if jump <= k
+                saved := dist[b[0] * 100 + b[1]] - dist[a[0] * 100 + a[1]] - jump
+                if saved >= least
+                    n += 1
+    n
+
+fn main()
+    rows := ["#########", "#S..#...#", "###.#.#.#", "#...#.#.#", "#.###.#.#", "#...#.#.#", "###.#.#E#", "#...#.###", "#.....###", "#########"]
+    mut start := [0, 0]
+    for r, row in rows.enumerate()
+        if c := row.find("S")
+            start = [r, c]
+    mut dist := Map[int, int]()
+    dist[start[0] * 100 + start[1]] = 0
+    mut cells := [start]
+    mut i := 0
+    while i < cells.len()
+        p := cells[i]
+        i += 1
+        for d in [[1, 0], [-1, 0], [0, 1], [0, -1]]
+            nr := p[0] + d[0]
+            nc := p[1] + d[1]
+            ch := rows[nr].char_at(nc) else '#'
+            if ch != '#' and not dist.contains(nr * 100 + nc)
+                dist[nr * 100 + nc] = dist[p[0] * 100 + p[1]] + 1
+                cells.push([nr, nc])
+    print("the track is {cells.len()} tiles, {dist.values().max() else 0} steps end to end")
+    print("part 1: {cheats(cells, dist, 2, 6)} two-move cheats save at least 6")
+    print("part 2: {cheats(cells, dist, 4, 6)} four-move cheats save at least 6")
+
+@test fn no_cheat_on_line()
+    mut d := Map[int, int]()
+    d[0] = 0
+    d[1] = 1
+    assert_eq(cheats([[0, 0], [0, 1]], d, 2, 1), 0)

@@ -1,0 +1,48 @@
+## Spring record counts: a row of springs (# broken, . working, ? unknown) with the sizes of its broken runs;
+## a memoised recursion over (position, run index) counts the possible layouts, then again for rows unfolded three times.
+
+fn ways(s List[char], runs List[int], i int, j int, mut memo Map[int, int]) int
+    if i >= s.len()
+        return if j == runs.len() then 1 else 0
+    key := i * 100 + j
+    if memo.contains(key)
+        return memo[key]
+    mut total := 0
+    if s[i] != '#'
+        total += ways(s, runs, i + 1, j, mut memo)
+    if s[i] != '.' and j < runs.len()
+        g := runs[j]
+        fits := i + g <= s.len() and not s.slice(i, i + g).contains('.')
+        if fits and (i + g == s.len() or s[i + g] != '#')
+            total += ways(s, runs, i + g + 1, j + 1, mut memo)
+    memo[key] = total
+    total
+
+fn count(row str, copies int) int
+    halves := row.split(" ")
+    mut texts := List[str]()
+    mut nums := List[str]()
+    for _ in 0..copies
+        texts.push(halves[0])
+        nums.push(halves[1])
+    s := texts.join("?").chars()
+    runs := nums.join(",").split(",").map(|t| (t.to_int() else 0))
+    mut memo := Map[int, int]()
+    ways(s, runs, 0, 0, mut memo)
+
+fn main()
+    rows := ["#.??.### 1,1,3", "?#?#?#?#? 1,3,1", "??..??...?##. 1,1,3", ".??..#??.## 1,2,2", "?###???????? 3,2,1", "??.?#?.?? 1,2"]
+    mut p1 := 0
+    mut p2 := 0
+    for r in rows
+        a := count(r, 1)
+        b := count(r, 3)
+        print("{r:<22} {a:>3} {b:>7}")
+        p1 += a
+        p2 += b
+    print("part 1: {p1} layouts")
+    print("part 2: {p2} layouts when unfolded")
+
+@test fn fixed_row()
+    assert_eq(count("#.# 1,1", 1), 1)
+    assert_eq(count("??? 1", 1), 3)

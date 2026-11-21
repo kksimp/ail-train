@@ -1,0 +1,23 @@
+## Dial drift repeat: a radio dial drifts by a repeating list of signed changes; part 1 gives the setting after
+## one pass, part 2 loops the list until some running setting is reached a second time.
+
+fn main()
+    changes := "+9,-4,+6,-13,+5".split(",").map(|s| (s.replace("+", "").to_int() else 0))
+    print("changes: {changes}")
+    print("part 1: after one pass the dial reads {changes.sum()}")
+    mut seen := Set[int]()
+    mut at := 0
+    seen.add(0)
+    mut steps := 0
+    mut found := false
+    while not found
+        for c in changes
+            at += c
+            steps += 1
+            if not seen.add(at)
+                found = true
+                break
+    print("part 2: {at} is reached twice, after {steps} changes ({seen.len()} settings seen)")
+
+@test fn sums()
+    assert_eq([7, -3].sum(), 4)

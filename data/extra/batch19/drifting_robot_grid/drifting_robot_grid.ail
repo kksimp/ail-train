@@ -1,0 +1,44 @@
+## Drifting robot grid: cleaning robots in an 11 by 7 hall move at fixed velocities and reappear on the
+## opposite side at the walls; part 1 multiplies quadrant counts after 100 seconds, part 2 finds the first second with no shared tile.
+
+struct Bot
+    px int
+    py int
+    vx int
+    vy int
+
+fn Bot.at(self, t int) List[int]
+    [((px + t * vx) % 11 + 11) % 11, ((py + t * vy) % 7 + 7) % 7]
+
+fn parse(line str) Bot
+    halves := line.split(" ")
+    p := halves[0].slice(2).split(",")
+    v := halves[1].slice(2).split(",")
+    Bot(px: p[0].to_int() else 0, py: p[1].to_int() else 0, vx: v[0].to_int() else 0, vy: v[1].to_int() else 0)
+
+fn main()
+    lines := ["p=1,2 v=3,-2", "p=8,0 v=-1,4", "p=5,5 v=2,2", "p=0,6 v=-3,-1", "p=10,3 v=1,1", "p=4,1 v=-2,3", "p=7,4 v=4,-3", "p=2,0 v=1,5", "p=6,6 v=-4,2", "p=9,1 v=2,-1"]
+    bots := lines.map(|l| parse(l))
+    mut quads := [0, 0, 0, 0]
+    for b in bots
+        q := b.at(100)
+        if q[0] != 5 and q[1] != 3
+            idx := (if q[0] < 5 then 0 else 1) + (if q[1] < 3 then 0 else 2)
+            quads[idx] += 1
+    print("quadrants after 100 s: {quads}")
+    print("part 1: safety factor {quads[0] * quads[1] * quads[2] * quads[3]}")
+    mut t := 1
+    mut tile := -1
+    while tile < 0 and t < 77
+        mut seen := Set[int]()
+        for b in bots
+            q := b.at(t)
+            if not seen.add(q[0] * 10 + q[1])
+                tile = q[0] * 10 + q[1]
+                break
+        t += 1
+    print("part 2: two robots first meet after {t - 1} seconds at {tile / 10},{tile % 10}")
+
+@test fn reappears()
+    b := Bot(px: 0, py: 0, vx: -1, vy: -1)
+    assert_eq(b.at(1), [10, 6])

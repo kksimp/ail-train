@@ -1,0 +1,51 @@
+## Terminal dir sizes: replays a shell session of cd and ls output to rebuild directory sizes (each file counts
+## toward every enclosing folder); sums folders of at most 5000, then finds the smallest folder to delete for an update.
+
+fn main()
+    log := """
+        $ cd /
+        $ ls
+        dir docs
+        dir games
+        1200 boot.cfg
+        $ cd docs
+        $ ls
+        dir old
+        2300 plan.txt
+        800 todo_notes.txt
+        $ cd old
+        $ ls
+        4100 draft.txt
+        $ cd ..
+        $ cd ..
+        $ cd games
+        $ ls
+        9800 chess.bin
+        3100 go.bin
+        """
+    mut trail := List[str]()
+    mut sizes := Map[str, int]()
+    for line in log.lines()
+        w := line.split(" ")
+        if line == "$ cd /"
+            trail = ["root"]
+        elif line == "$ cd .."
+            _ := trail.pop()
+        elif w[0] == "$" and w[1] == "cd"
+            trail.push(w[2])
+        elif w[0] != "$" and w[0] != "dir"
+            n := w[0].to_int() else 0
+            for i in 1..=trail.len()
+                key := trail.slice(0, i).join("/")
+                sizes[key] += n
+    for k, v in sizes
+        print("{k:<16} {v:>6}")
+    small := sizes.values().filter(|v| v <= 5000).fold(0, |a, v| a + v)
+    print("part 1: folders of at most 5000 sum to {small}")
+    need := 15000 - (30000 - sizes["root"])
+    pick := sizes.values().filter(|v| v >= need).min() else 0
+    print("part 2: need {need} more free, delete a folder of {pick}")
+
+@test fn nested_path()
+    trail := ["root", "docs", "old"]
+    assert_eq(trail.slice(0, 2).join("/"), "root/docs")

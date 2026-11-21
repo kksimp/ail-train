@@ -1,0 +1,37 @@
+## Cargo bin priorities: each cargo bin's list splits into two equal compartments; the item type in both
+## scores a-z 1-26 and A-Z 27-52 (part 1), and part 2 scores the one type shared by each crew of three bins.
+
+fn priority(c char) int
+    if c.is_lower() then c.code() - 96 else c.code() - 38
+
+fn as_set(cs List[char]) Set[char]
+    mut s := Set[char]()
+    for c in cs
+        s.add(c)
+    s
+
+fn best(s Set[char]) int
+    s.to_list().map(|c| priority(c)).max() else 0
+
+fn main()
+    bins := ["Kabcdaefgh", "LmnKopqrLs", "tuvwxyzKxB", "QJMtuMoxev", "PvrPzEvGQH", "iFmZiSXFQq"]
+    mut part1 := 0
+    for b in bins
+        cs := b.chars()
+        half := cs.len() / 2
+        common := as_set(cs.slice(0, half)).intersect(as_set(cs.slice(half)))
+        p := best(common)
+        print("{b}: shared priority {p}")
+        part1 += p
+    print("part 1: {part1}")
+    mut part2 := 0
+    for g in 0..bins.len() / 3
+        a := as_set(bins[g * 3].chars())
+        b := as_set(bins[g * 3 + 1].chars())
+        c := as_set(bins[g * 3 + 2].chars())
+        part2 += best(a.intersect(b).intersect(c))
+    print("part 2: {part2}")
+
+@test fn scores()
+    assert_eq(priority('a'), 1)
+    assert_eq(priority('Z'), 52)

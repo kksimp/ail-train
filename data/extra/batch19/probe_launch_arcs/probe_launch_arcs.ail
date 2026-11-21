@@ -1,0 +1,39 @@
+## Probe launch arcs: a probe launched with velocity (vx, vy) slows by one in x each step (down to 0) and
+## falls one faster in y; part 1 finds the highest arc that ends inside the target zone, part 2 counts all launch velocities that hit.
+
+fn flight(vx0 int, vy0 int, zone List[int]) int
+    mut x := 0
+    mut y := 0
+    mut vx := vx0
+    mut vy := vy0
+    mut top := 0
+    while x <= zone[1] and y >= zone[2]
+        x += vx
+        y += vy
+        if vx > 0
+            vx -= 1
+        vy -= 1
+        top = top.max(y)
+        if x >= zone[0] and x <= zone[1] and y >= zone[2] and y <= zone[3]
+            return top
+    -1
+
+fn main()
+    zone := [15, 22, -9, -4]
+    print("target zone x {zone[0]}..{zone[1]}, y {zone[2]}..{zone[3]}")
+    mut best := -1
+    mut best_v := ""
+    mut hits := 0
+    for vx in 0..=zone[1]
+        for vy in zone[2]..=-zone[2]
+            h := flight(vx, vy, zone)
+            if h >= 0
+                hits += 1
+                if h > best
+                    best = h
+                    best_v = "{vx},{vy}"
+    print("part 1: highest arc {best} with velocity {best_v}")
+    print("part 2: {hits} launch velocities hit the zone")
+
+@test fn straight_shot()
+    assert(flight(15, -4, [15, 22, -9, -4]) >= 0)

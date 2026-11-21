@@ -1,0 +1,40 @@
+## Mirror fold lines: each pattern of ash (.) and rock (#) has one line, between rows or columns, where it
+## mirrors; part 1 needs a perfect mirror, part 2 a line with exactly one smudged cell; scores columns left + 100 x rows above.
+
+fn row_line(p List[str], smudges int) int
+    for r in 1..p.len()
+        mut diff := 0
+        mut k := 0
+        while r - 1 - k >= 0 and r + k < p.len()
+            a := p[r - 1 - k].chars()
+            b := p[r + k].chars()
+            diff += [i for i in 0..a.len() if a[i] != b[i]].len()
+            k += 1
+        if diff == smudges
+            return r
+    0
+
+fn transpose(p List[str]) List[str]
+    mut out := List[str]()
+    for c in 0..p[0].len()
+        out.push(p.map(|row| (row.char_at(c) else '?')).join(""))
+    out
+
+fn score(p List[str], smudges int) int
+    100 * row_line(p, smudges) + row_line(transpose(p), smudges)
+
+fn main()
+    patterns := [[".......", "#.##...", "...##..", "..#....", "......."], ["......", "#..#..", "....#.", "####.#", "######"], [".####..#", "..##..##", ".......#", "#######.", "..##...."]]
+    mut p1 := 0
+    mut p2 := 0
+    for i, p in patterns.enumerate()
+        a := score(p, 0)
+        b := score(p, 1)
+        print("pattern {i + 1}: clean {a}, smudged {b}")
+        p1 += a
+        p2 += b
+    print("part 1: {p1}")
+    print("part 2: {p2}")
+
+@test fn flip()
+    assert_eq(transpose(["ab", "cd"]), ["ac", "bd"])

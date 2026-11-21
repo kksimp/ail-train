@@ -1,0 +1,59 @@
+## Disk block compact: a dense disk map alternates file lengths and gaps; part 1 moves single blocks from the end
+## into the leftmost gaps, part 2 moves whole files (highest id first) into the leftmost gap that fits; checksum = sum of position x id.
+
+fn expand(map_text str) List[int]
+    mut disk := List[int]()
+    for i, ch in map_text.chars().enumerate()
+        n := ch.to_digit(10) else 0
+        id := if i % 2 == 0 then i / 2 else -1
+        disk.extend([id for _ in 0..n])
+    disk
+
+fn checksum(disk List[int]) int
+    [i * id for i, id in disk.enumerate() if id >= 0].sum()
+
+fn by_blocks(mut disk List[int])
+    mut lo := 0
+    mut hi := disk.len() - 1
+    while lo < hi
+        if disk[lo] >= 0
+            lo += 1
+        elif disk[hi] < 0
+            hi -= 1
+        else
+            disk.swap(lo, hi)
+
+fn by_files(mut disk List[int])
+    mut id := disk.max() else 0
+    while id >= 0
+        start := disk.index_of(id) else 0
+        size := disk.count(|x| x == id)
+        mut run := 0
+        for i in 0..start
+            run = if disk[i] < 0 then run + 1 else 0
+            if run == size
+                for k in 0..size
+                    disk[i - size + 1 + k] = id
+                    disk[start + k] = -1
+                break
+        id -= 1
+
+fn show(disk List[int]) str
+    disk.map(|id| "{id}".replace("-1", ".")).join("")
+
+fn main()
+    dense := "1423521131442"
+    mut a := expand(dense)
+    print("layout:  {show(a)}")
+    mut b := a
+    by_blocks(mut a)
+    print("blocks:  {show(a)}")
+    print("part 1: checksum {checksum(a)}")
+    by_files(mut b)
+    print("files:   {show(b)}")
+    print("part 2: checksum {checksum(b)}")
+
+@test fn tiny()
+    mut d := expand("12101")
+    by_blocks(mut d)
+    assert_eq(checksum(d), 4)

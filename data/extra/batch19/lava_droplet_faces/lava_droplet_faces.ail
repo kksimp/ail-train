@@ -1,0 +1,46 @@
+## Lava droplet faces: unit cubes of a cooled droplet are listed as x,y,z; part 1 counts faces not touching
+## another cube, part 2 flood-fills the air from outside so faces facing a sealed pocket are left out.
+
+fn key(x int, y int, z int) int
+    (x + 1) * 10000 + (y + 1) * 100 + z + 1
+
+fn main()
+    text := "1,2,2 3,2,2 2,1,2 2,3,2 2,2,1 2,2,3 3,3,2 4,2,2 1,1,1 5,5,5 4,3,2"
+    mut cubes := Set[int]()
+    mut pts := List[List[int]]()
+    for t in text.split(" ")
+        mut p := List[int]()
+        for part in t.split(",")
+            p.push(part.to_int() else 0)
+        pts.push(p)
+        cubes.add(key(p[0], p[1], p[2]))
+    dirs := [[1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], [0, 0, 1], [0, 0, -1]]
+    mut open := 0
+    for p in pts
+        for d in dirs
+            if not cubes.contains(key(p[0] + d[0], p[1] + d[1], p[2] + d[2]))
+                open += 1
+    print("{pts.len()} cubes")
+    print("part 1: {open} faces touch air")
+    mut outside := Set[int]()
+    outside.add(key(-1, -1, -1))
+    mut queue := [[-1, -1, -1]]
+    while q := queue.pop()
+        for d in dirs
+            nx := q[0] + d[0]
+            ny := q[1] + d[1]
+            nz := q[2] + d[2]
+            inside := nx >= -1 and nx <= 7 and ny >= -1 and ny <= 7 and nz >= -1 and nz <= 7
+            k := key(nx, ny, nz)
+            if inside and not cubes.contains(k) and outside.add(k)
+                queue.push([nx, ny, nz])
+    mut outer := 0
+    for p in pts
+        for d in dirs
+            if outside.contains(key(p[0] + d[0], p[1] + d[1], p[2] + d[2]))
+                outer += 1
+    print("part 2: {outer} faces touch outside air")
+    print("{open - outer} faces look into sealed pockets")
+
+@test fn keys_differ()
+    assert(key(1, 2, 3) != key(3, 2, 1))

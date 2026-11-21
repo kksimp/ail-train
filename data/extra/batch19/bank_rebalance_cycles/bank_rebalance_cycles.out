@@ -1,0 +1,7 @@
+start: [3, 0, 7, 2, 5, 1]
+round 1: [4, 1, 1, 4, 6, 2]
+round 2: [5, 2, 2, 5, 1, 3]
+round 3: [0, 3, 3, 6, 2, 4]
+repeated layout: [4, 1, 1, 4, 6, 2]
+part 1: a layout repeats after 7 rounds
+part 2: the loop is 6 rounds long

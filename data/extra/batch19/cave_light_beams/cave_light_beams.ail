@@ -1,0 +1,47 @@
+## Cave light beams: a lamp beam crosses a cave of mirrors (/ and \) and prisms (| and -) that split it;
+## a search over (cell, direction) states counts lit cells from the top-left, then tries every edge entry for the most.
+
+fn lit(cave List[List[char]], r0 int, c0 int, d0 int) int
+    dr := [0, 1, 0, -1]
+    dc := [1, 0, -1, 0]
+    rows := cave.len()
+    cols := cave[0].len()
+    mut seen := Set[int]()
+    mut cells := Set[int]()
+    mut todo_list := [[r0, c0, d0]]
+    while b := todo_list.pop()
+        r := b[0]
+        c := b[1]
+        if r < 0 or r >= rows or c < 0 or c >= cols or not seen.add(r * 1000 + c * 10 + b[2])
+            continue
+        cells.add(r * 100 + c)
+        mut outs := List[int]()
+        match cave[r][c]
+            '/' => outs.push([3, 2, 1, 0][b[2]])
+            '\\' => outs.push([1, 0, 3, 2][b[2]])
+            '|' if b[2] == 0 or b[2] == 2 => outs.extend([1, 3])
+            '-' if b[2] == 1 or b[2] == 3 => outs.extend([0, 2])
+            _ => outs.push(b[2])
+        for d in outs
+            todo_list.push([r + dr[d], c + dc[d], d])
+    cells.len()
+
+fn main()
+    lines := [r".|..\.", r"..-...", r"/..|\.", r"......", r"\.-../", r"..|..."]
+    cave := [l.chars() for l in lines]
+    for l in lines
+        print(l)
+    print("part 1, lamp at top-left facing right: {lit(cave, 0, 0, 0)} cells lit")
+    n := cave.len()
+    mut best := 0
+    mut entry := ""
+    for i in 0..n
+        for e in [[i, 0, 0], [i, n - 1, 2], [0, i, 1], [n - 1, i, 3]]
+            v := lit(cave, e[0], e[1], e[2])
+            if v > best
+                best = v
+                entry = "row {e[0]} col {e[1]} heading {e[2]}"
+    print("part 2: best edge entry lights {best} cells ({entry})")
+
+@test fn empty_row()
+    assert_eq(lit(["....".chars()], 0, 0, 0), 4)

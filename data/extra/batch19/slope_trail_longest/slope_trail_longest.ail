@@ -1,0 +1,38 @@
+## Slope trail longest: a hiking map of trails (.), forest (#) and icy slopes (> v < ^) that can only be walked
+## downhill; a depth-first search finds the longest walk that never repeats a tile, then again treating slopes as dry trail.
+
+fn walk(g List[List[char]], r int, c int, dry bool, mut seen Set[int]) int
+    if r == g.len() - 1
+        return 0
+    mut best := -1
+    for d in [[0, 1], [1, 0], [0, -1], [-1, 0]]
+        ch := g[r][c]
+        mut allowed := dry or ch == '.'
+        if not allowed
+            allowed = (ch == '>' and d[1] == 1) or (ch == 'v' and d[0] == 1) or (ch == '<' and d[1] == -1) or (ch == '^' and d[0] == -1)
+        nr := r + d[0]
+        nc := c + d[1]
+        if allowed and nr >= 0 and nc >= 0 and nc < g[0].len() and g[nr][nc] != '#' and seen.add(nr * 100 + nc)
+            sub := walk(g, nr, nc, dry, mut seen)
+            if sub >= 0 and sub + 1 > best
+                best = sub + 1
+            seen.remove(nr * 100 + nc)
+    best
+
+fn main()
+    rows := ["#.#####", "#...>.#", "#.#v#.#", "#.>.>.#", "###v#.#", "#...<.#", "#.###v#", "#.....#", "#####.#"]
+    g := rows.map(|r| r.chars())
+    for r in rows
+        print(r)
+    mut seen := Set[int]()
+    seen.add(1)
+    print("part 1: longest downhill walk {walk(g, 0, 1, false, mut seen)} steps")
+    mut seen2 := Set[int]()
+    seen2.add(1)
+    print("part 2: longest walk on dry slopes {walk(g, 0, 1, true, mut seen2)} steps")
+
+@test fn straight_down()
+    g := [".".chars(), ".".chars(), ".".chars()]
+    mut s := Set[int]()
+    s.add(0)
+    assert_eq(walk(g, 0, 0, false, mut s), 2)

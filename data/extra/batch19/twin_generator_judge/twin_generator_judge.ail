@@ -1,0 +1,34 @@
+## Twin generator judge: two generators step by x -> x * 16807 and x -> x * 48271 mod 2147483647; a judge
+## counts pairs whose low 16 bits match, first over 200000 pairs, then keeping only multiples of 4 and of 8 over 50000 pairs.
+
+struct Gen
+    value int
+    factor int
+    picky int
+
+fn Gen.next(mut self) int
+    self.value = self.value * self.factor % 2147483647
+    while self.value % self.picky != 0
+        self.value = self.value * self.factor % 2147483647
+    self.value
+
+fn judge(seed_a int, seed_b int, pairs int, picky bool) int
+    mut a := Gen(value: seed_a, factor: 16807, picky: if picky then 4 else 1)
+    mut b := Gen(value: seed_b, factor: 48271, picky: if picky then 8 else 1)
+    mut hits := 0
+    for _ in 0..pairs
+        if (a.next() & 65535) == (b.next() & 65535)
+            hits += 1
+    hits
+
+fn main()
+    mut a := Gen(value: 618, factor: 16807, picky: 1)
+    mut b := Gen(value: 883, factor: 48271, picky: 1)
+    for i in 1..=3
+        print("pair {i}: {a.next():>10} {b.next():>10}")
+    print("part 1: {judge(618, 883, 200000, false)} matches in 200000 pairs")
+    print("part 2: {judge(618, 883, 50000, true)} matches in 50000 picky pairs")
+
+@test fn first_value()
+    mut g := Gen(value: 1, factor: 16807, picky: 1)
+    assert_eq(g.next(), 16807)

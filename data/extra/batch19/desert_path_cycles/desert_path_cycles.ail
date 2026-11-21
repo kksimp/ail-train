@@ -1,0 +1,33 @@
+## Desert path cycles: signposts give left and right turns to other posts, followed by a repeating L/R route;
+## part 1 counts steps from AAA to ZZZ, part 2 moves every post ending in A at once until all stand on posts ending in Z.
+
+fn step(m Map[str, List[str]], at str, turn char) str
+    if turn == 'L' then m[at][0] else m[at][1]
+
+fn main()
+    route := "RRL".chars()
+    lines := ["AAA = BBB, CCC", "BBB = DDD, AAA", "CCC = ZZZ, DDD", "DDD = CCC, ZZZ", "ZZZ = BBB, CCC", "MPA = MQB, MQB", "MQB = MRB, MRB", "MRB = MSB, MSB", "MSB = MTZ, MTZ", "MTZ = MQB, MQB"]
+    mut m := Map[str, List[str]]()
+    for l in lines
+        kv := l.split(" = ")
+        m[kv[0]] = kv[1].split(", ")
+    mut at := "AAA"
+    mut n := 0
+    while at != "ZZZ"
+        at = step(m, at, route[n % route.len()])
+        n += 1
+    print("part 1: AAA reaches ZZZ in {n} steps")
+    mut walkers := m.keys().filter(|k| k.ends_with("A"))
+    names := walkers.join(", ")
+    print("walkers start at {names}")
+    mut t := 0
+    while not walkers.all(|w| w.ends_with("Z"))
+        turn := route[t % route.len()]
+        walkers = walkers.map(|w| step(m, w, turn))
+        t += 1
+    print("part 2: all walkers stand on Z posts after {t} steps")
+
+@test fn one_step()
+    mut m := Map[str, List[str]]()
+    m["A"] = ["B", "C"]
+    assert_eq(step(m, "A", 'R'), "C")

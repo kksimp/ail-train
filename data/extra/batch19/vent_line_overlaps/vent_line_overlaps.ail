@@ -1,0 +1,28 @@
+## Vent line overlaps: hot vents lie along straight lines "x1,y1 -> x2,y2"; part 1 counts points covered by two
+## or more horizontal or vertical lines, part 2 also lays the 45-degree diagonal lines.
+
+fn sign(v int) int
+    if v > 0 then 1 elif v < 0 then -1 else 0
+
+fn overlaps(lines List[List[int]], diagonals bool) int
+    mut hits := Map[int, int]()
+    for l in lines
+        dx := sign(l[2] - l[0])
+        dy := sign(l[3] - l[1])
+        if dx != 0 and dy != 0 and not diagonals
+            continue
+        steps := (l[2] - l[0]).abs().max((l[3] - l[1]).abs())
+        for i in 0..=steps
+            hits[(l[0] + i * dx) * 100 + l[1] + i * dy] += 1
+    hits.values().count(|n| n >= 2)
+
+fn main()
+    text := ["1,1 -> 1,7", "0,4 -> 6,4", "2,2 -> 7,7", "7,1 -> 2,6", "5,0 -> 5,8", "3,8 -> 8,8", "0,7 -> 4,3", "6,6 -> 6,2"]
+    lines := text.map(|t| t.replace(" -> ", ",").split(",").map(|v| (v.to_int() else 0)))
+    straight := lines.count(|l| l[0] == l[2] or l[1] == l[3])
+    print("{lines.len()} vent lines, {straight} straight")
+    print("part 1: {overlaps(lines, false)} points where straight lines overlap")
+    print("part 2: {overlaps(lines, true)} points with diagonals too")
+
+@test fn cross()
+    assert_eq(overlaps([[0, 1, 2, 1], [1, 0, 1, 2]], false), 1)

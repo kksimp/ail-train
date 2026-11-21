@@ -1,0 +1,27 @@
+## Sled tree hits: a hillside map repeats endlessly to the right; a sled going right r and down d each step
+## counts the trees (#) it hits from the top-left; part 1 uses right 3 down 1, part 2 multiplies the hits of five slopes.
+
+fn hits(hill List[str], right int, down int) int
+    mut r := 0
+    mut c := 0
+    mut n := 0
+    while r < hill.len()
+        w := hill[r].len()
+        if (hill[r].char_at(c % w) else '.') == '#'
+            n += 1
+        r += down
+        c += right
+    n
+
+fn main()
+    hill := ["..#....#...", "#...#......", ".#.....#..#", "...#.#....#", ".#...##..#.", "..#.#......", ".#....#.#.#", "#.......#..", "...##....#.", "#..#...#..#"]
+    print("part 1: right 3, down 1 hits {hits(hill, 3, 1)} trees")
+    mut product := 1
+    for s in [[1, 1], [3, 1], [5, 1], [7, 1], [1, 2]]
+        n := hits(hill, s[0], s[1])
+        print("  right {s[0]}, down {s[1]}: {n}")
+        product *= n
+    print("part 2: product {product}")
+
+@test fn first_cell()
+    assert_eq(hits(["#"], 1, 1), 1)

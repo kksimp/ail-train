@@ -1,0 +1,44 @@
+## Sensor report safety: a level report is safe when it only rises or only falls, by 1 to 3 each step;
+## part 1 counts safe reports, part 2 also accepts a report that becomes safe after dropping any single reading.
+
+fn safe(xs List[int]) bool
+    if xs.len() < 2
+        return true
+    rising := xs[1] > xs[0]
+    for i in 1..xs.len()
+        d := if rising then xs[i] - xs[i - 1] else xs[i - 1] - xs[i]
+        if d < 1 or d > 3
+            return false
+    true
+
+fn dampened(xs List[int]) bool
+    if safe(xs)
+        return true
+    for i in 0..xs.len()
+        mut ys := xs
+        ys.remove_at(i)
+        if safe(ys)
+            return true
+    false
+
+fn main()
+    reports := ["3 5 6 9 11", "20 18 17 13 12", "4 6 5 7 8", "9 7 6 4 1", "1 1 2 3 4", "15 12 10 9 9 6", "2 5 8 7 10", "30 31 29 28 25"]
+    mut p1 := 0
+    mut p2 := 0
+    for r in reports
+        xs := r.split(" ").map(|w| (w.to_int() else 0))
+        a := safe(xs)
+        b := dampened(xs)
+        verdict := if a then "safe" elif b then "safe with one dropped" else "unsafe"
+        print("{r:<16} {verdict}")
+        if a
+            p1 += 1
+        if b
+            p2 += 1
+    print("part 1: {p1} safe reports")
+    print("part 2: {p2} safe with the dampener")
+
+@test fn steps()
+    assert(safe([1, 2, 4, 7]))
+    assert(not safe([1, 5]))
+    assert(dampened([1, 5, 2]))

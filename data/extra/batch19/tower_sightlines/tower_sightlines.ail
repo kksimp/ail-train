@@ -1,0 +1,43 @@
+## Tower sightlines: a grid of watchtower heights; part 1 counts towers visible from outside along a row or
+## column (all towers between are shorter), part 2 scores each tower by the product of its four viewing distances.
+
+fn look(g List[List[int]], r int, c int, dr int, dc int) List[int]
+    mut dist := 0
+    mut y := r + dr
+    mut x := c + dc
+    while y >= 0 and y < g.len() and x >= 0 and x < g[0].len()
+        dist += 1
+        if g[y][x] >= g[r][c]
+            return [dist, 0]
+        y += dr
+        x += dc
+    [dist, 1]
+
+fn main()
+    rows := ["41528", "26341", "73912", "15664", "38257", "92413"]
+    g := rows.map(|row| row.chars().map(|ch| (ch.to_digit(10) else 0)))
+    dirs := [[-1, 0], [1, 0], [0, -1], [0, 1]]
+    mut seen := 0
+    mut best := 0
+    mut best_at := ""
+    for r in 0..g.len()
+        for c in 0..g[0].len()
+            mut visible := false
+            mut scenic := 1
+            for d in dirs
+                v := look(g, r, c, d[0], d[1])
+                scenic *= v[0]
+                if v[1] == 1
+                    visible = true
+            if visible
+                seen += 1
+            if scenic > best
+                best = scenic
+                best_at = "row {r} col {c}"
+    print("{g.len()} by {g[0].len()} towers")
+    print("part 1: {seen} towers are visible from outside")
+    print("part 2: best view score {best} at {best_at}")
+
+@test fn edge_sees_out()
+    g := [[1, 2], [3, 4]]
+    assert_eq(look(g, 0, 0, -1, 0), [0, 1])

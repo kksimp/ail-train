@@ -1,0 +1,54 @@
+## Falling slab supports: stone slabs given as x,y,z~x,y,z settle downward in height order on a height map;
+## part 1 counts slabs that can be pulled out with nothing falling, part 2 sums how many others fall for each slab.
+
+struct Slab
+    cells List[int]
+    z1 int
+    z2 int
+
+fn falls(sup List[Set[int]], removed int) int
+    mut gone := Set[int]()
+    gone.add(removed)
+    for i in removed + 1..sup.len()
+        if not sup[i].is_empty() and sup[i].is_subset(gone)
+            gone.add(i)
+    gone.len() - 1
+
+fn main()
+    text := ["1,0,1~1,2,1", "0,0,2~2,0,2", "0,2,3~2,2,3", "0,0,4~0,2,4", "2,0,5~2,2,5", "0,1,6~2,1,6", "1,1,8~1,1,9", "0,0,11~0,0,11"]
+    mut slabs := List[Slab]()
+    for t in text
+        ends := t.split("~").map(|e| e.split(",").map(|v| (v.to_int() else 0)))
+        a := ends[0]
+        b := ends[1]
+        mut cells := List[int]()
+        for x in a[0]..=b[0]
+            for y in a[1]..=b[1]
+                cells.push(x * 10 + y)
+        slabs.push(Slab(cells: cells, z1: a[2], z2: b[2]))
+    slabs = slabs.sorted(by: |s| s.z1)
+    mut top := Map[int, int]()
+    mut owner := Map[int, int]()
+    mut sup := List[Set[int]]()
+    for i, s in slabs.enumerate()
+        floor := s.cells.map(|c| top.get_or(c, 0)).max() else 0
+        mut below := Set[int]()
+        for c in s.cells
+            if floor > 0 and top.get_or(c, 0) == floor
+                below.add(owner[c])
+        height := s.z2 - s.z1
+        for c in s.cells
+            top[c] = floor + 1 + height
+            owner[c] = i
+        sup.push(below)
+    for i, s in sup.enumerate()
+        print("slab {i} rests on {s.len()} slab(s)")
+    safe := [i for i in 0..sup.len() if falls(sup, i) == 0].len()
+    print("part 1: {safe} slabs can be removed safely")
+    chain := [falls(sup, i) for i in 0..sup.len()].sum()
+    print("part 2: {chain} slabs fall in total")
+
+@test fn lone()
+    mut a := Set[int]()
+    a.add(0)
+    assert_eq(falls([Set[int](), a], 0), 1)

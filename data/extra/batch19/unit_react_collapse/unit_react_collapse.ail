@@ -1,0 +1,31 @@
+## Unit react collapse: in a chain of units, a letter next to the same letter in the other case cancels out,
+## repeatedly; a kept-list scan gives the collapsed length (part 1), then the shortest length after removing one unit type.
+
+fn collapse(cs List[char]) int
+    mut kept := List[char]()
+    for c in cs
+        top := kept.last() else ' '
+        if top != c and top.to_upper() == c.to_upper()
+            _ := kept.pop()
+        else
+            kept.push(c)
+    kept.len()
+
+fn main()
+    chain := "gKkMmTxXtBpPbHqQRrhaAgGjJyYcdDCgNqRsLmSsl".chars()
+    print("{chain.len()} units, {collapse(chain)} after reacting")
+    print("part 1: {collapse(chain)}")
+    mut best := chain.len()
+    mut drop := ' '
+    for code in 65..91
+        up := char.from_code(code) else 'A'
+        n := collapse(chain.filter(|c| c.to_upper() != up))
+        if n < best
+            best = n
+            drop = up
+    print("part 2: removing {drop} leaves {best}")
+
+@test fn pairs()
+    assert_eq(collapse("aAbB".chars()), 0)
+    assert_eq(collapse("aBbA".chars()), 0)
+    assert_eq(collapse("aa".chars()), 2)

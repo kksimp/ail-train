@@ -1,0 +1,33 @@
+## Pin lock fit: lock drawings (top row filled) and key drawings (bottom row filled) become column heights;
+## part 1 counts lock and key pairs whose heights never overlap (sum at most 5), part 2 those that fill every column exactly.
+
+fn heights(drawing str) List[int]
+    rows := drawing.split("/")
+    mut h := [0, 0, 0, 0, 0]
+    for r in 1..rows.len() - 1
+        for c, ch in rows[r].chars().enumerate()
+            if ch == '#'
+                h[c] += 1
+    h
+
+fn main()
+    locks := ["#####/.####/.####/.####/.#.#./.#.../.....", "#####/##.##/.#.##/...##/...#./...#./.....", "#####/####./#.##./#..#./#..../...../....."]
+    keys := ["...../#..../#..../#...#/#.#.#/#.###/#####", "...../..#../#.#../###../###.#/###.#/#####", "...../...../...../#..../#.#../#.#.#/#####", "...../....#/.#..#/.##.#/.####/#####/#####", "...../...../...../...../##..#/#####/#####"]
+    lh := locks.map(|d| heights(d))
+    kh := keys.map(|d| heights(d))
+    print("lock heights: {lh}")
+    print("key heights: {kh}")
+    mut fits := 0
+    mut exact := 0
+    for l in lh
+        for k in kh
+            sums := [0, 1, 2, 3, 4].map(|i| l[i] + k[i])
+            if sums.all(|s| s <= 5)
+                fits += 1
+            if sums.all(|s| s == 5)
+                exact += 1
+    print("part 1: {fits} lock and key pairs fit")
+    print("part 2: {exact} pairs fit exactly")
+
+@test fn flat()
+    assert_eq(heights("#####/...../...../...../...../...../....."), [0, 0, 0, 0, 0])

@@ -1,0 +1,37 @@
+## Bank rebalance cycles: the fullest memory bank (first on ties) is emptied and its blocks dealt one at a
+## time to the following banks round the ring; counts rounds until a layout repeats and the length of that loop.
+
+fn rebalance(mut banks List[int])
+    n := banks.len()
+    mut top := 0
+    for i in 1..n
+        if banks[i] > banks[top]
+            top = i
+    mut blocks := banks[top]
+    banks[top] = 0
+    mut i := top
+    while blocks > 0
+        i = (i + 1) % n
+        banks[i] += 1
+        blocks -= 1
+
+fn main()
+    mut banks := [3, 0, 7, 2, 5, 1]
+    print("start: {banks}")
+    mut seen := Map[str, int]()
+    mut rounds := 0
+    while not seen.contains(banks.join(","))
+        seen[banks.join(",")] = rounds
+        rebalance(mut banks)
+        rounds += 1
+        if rounds <= 3
+            print("round {rounds}: {banks}")
+    first := seen[banks.join(",")]
+    print("repeated layout: {banks}")
+    print("part 1: a layout repeats after {rounds} rounds")
+    print("part 2: the loop is {rounds - first} rounds long")
+
+@test fn deal()
+    mut b := [0, 2, 7, 0]
+    rebalance(mut b)
+    assert_eq(b, [2, 4, 1, 2])

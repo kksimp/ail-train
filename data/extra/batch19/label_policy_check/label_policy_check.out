@@ -1,0 +1,8 @@
+kkbqk   k 2-4: count true, place true
+amzmm   m 1-3: count true, place false
+ttxtq   t 3-5: count true, place false
+ppp     p 2-2: count false, place false
+arrrrr  r 1-6: count true, place true
+qqqzq   z 4-5: count false, place true
+part 1: 4 labels pass the count policy
+part 2: 3 labels pass the place policy

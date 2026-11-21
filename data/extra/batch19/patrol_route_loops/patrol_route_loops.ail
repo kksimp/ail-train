@@ -1,0 +1,47 @@
+## Patrol route loops: a night watchman walks straight and turns right at every crate (#) until leaving the
+## yard; part 1 counts the tiles he covers, part 2 counts tiles where one extra crate would trap him in a loop.
+
+fn patrol(g List[List[char]], sr int, sc int, extra int) int
+    dr := [-1, 0, 1, 0]
+    dc := [0, 1, 0, -1]
+    mut r := sr
+    mut c := sc
+    mut d := 0
+    mut states := Set[int]()
+    mut tiles := Set[int]()
+    while states.add((r * 100 + c) * 4 + d)
+        tiles.add(r * 100 + c)
+        nr := r + dr[d]
+        nc := c + dc[d]
+        if nr < 0 or nr >= g.len() or nc < 0 or nc >= g[0].len()
+            return tiles.len()
+        if g[nr][nc] == '#' or nr * 100 + nc == extra
+            d = (d + 1) % 4
+        else
+            r = nr
+            c = nc
+    -1
+
+fn main()
+    rows := [".#.#.#..", "...#..#.", "......##", ".#......", "......#.", "...^..#.", ".#......", "..#.##.."]
+    g := rows.map(|r| r.chars())
+    mut sr := 0
+    mut sc := 0
+    for r in 0..g.len()
+        for c in 0..g[0].len()
+            if g[r][c] == '^'
+                sr = r
+                sc = c
+    covered := patrol(g, sr, sc, -1)
+    print("part 1: the watchman covers {covered} tiles")
+    mut traps := List[str]()
+    for r in 0..g.len()
+        for c in 0..g[0].len()
+            if g[r][c] == '.' and patrol(g, sr, sc, r * 100 + c) < 0
+                traps.push("({r},{c})")
+    shown := traps.join(" ")
+    print("trap spots: {shown}")
+    print("part 2: {traps.len()} spots would trap him")
+
+@test fn walks_out()
+    assert_eq(patrol([['.'], ['^']], 1, 0, -1), 2)

@@ -1,0 +1,42 @@
+## Dancer line moves: eight dancers a-h in a line follow spin (sN: last N to the front), exchange (xA/B by place)
+## and partner (pA/B by name) moves; part 1 dances once, part 2 a million times by spotting when the line repeats.
+
+fn dance(line List[char], moves List[str]) List[char]
+    mut d := line
+    for m in moves
+        body := m.slice(1)
+        match m.slice(0, 1)
+            "s" =>
+                n := body.to_int() else 0
+                mut moved := d.slice(d.len() - n)
+                moved.extend(d.slice(0, d.len() - n))
+                d = moved
+            "x" =>
+                ab := body.split("/")
+                d.swap(ab[0].to_int() else 0, ab[1].to_int() else 0)
+            _ =>
+                a := body.char_at(0) else 'a'
+                b := body.char_at(2) else 'a'
+                d.swap(d.index_of(a) else 0, d.index_of(b) else 0)
+    d
+
+fn main()
+    moves := "s2,x3/6,pa/e,x0/7,s5,pc/h,x2/4,pb/g".split(",")
+    start := "abcdefgh".chars()
+    once := dance(start, moves).join("")
+    print("part 1: after one dance {once}")
+    mut seen := Map[str, int]()
+    mut order := List[str]()
+    mut d := start
+    while not seen.contains(d.join(""))
+        seen[d.join("")] = order.len()
+        order.push(d.join(""))
+        d = dance(d, moves)
+    first := seen[d.join("")]
+    period := order.len() - first
+    print("the line repeats every {period} dances (from dance {first})")
+    total := 1000000
+    print("part 2: after {total} dances {order[first + (total - first) % period]}")
+
+@test fn spin()
+    assert_eq(dance("abcde".chars(), ["s1"]).join(""), "eabcd")

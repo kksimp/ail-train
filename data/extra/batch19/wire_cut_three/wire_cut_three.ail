@@ -1,0 +1,45 @@
+## Wire cut three: a control panel's wiring graph falls into two groups when exactly three wires are cut;
+## tries every triple of wires, counts the cuts that split it, and multiplies the two group sizes.
+
+fn group_size(n int, edges List[List[int]], cut List[int]) int
+    mut adj := List[List[int]]()
+    for i in 0..n
+        adj.push(List[int]())
+    for i, e in edges.enumerate()
+        if not cut.contains(i)
+            adj[e[0]].push(e[1])
+            adj[e[1]].push(e[0])
+    mut seen := Set[int]()
+    seen.add(0)
+    mut queue := [0]
+    while v := queue.pop()
+        for w in adj[v]
+            if seen.add(w)
+                queue.push(w)
+    seen.len()
+
+fn main()
+    names := ["ab", "cd", "ef", "gh", "ij", "kl", "mn", "op"]
+    links := ["ab-cd", "ab-ef", "cd-ef", "cd-gh", "ef-gh", "ab-gh", "ij-kl", "ij-mn", "kl-mn", "kl-op", "mn-op", "ij-op", "ab-ij", "cd-kl", "gh-op"]
+    mut index := Map[str, int]()
+    for i, n in names.enumerate()
+        index[n] = i
+    edges := links.map(|l| l.split("-").map(|n| index[n]))
+    n := names.len()
+    mut splits := 0
+    mut answer := 0
+    for a in 0..edges.len()
+        for b in a + 1..edges.len()
+            for c in b + 1..edges.len()
+                size := group_size(n, edges, [a, b, c])
+                if size < n
+                    splits += 1
+                    if size * (n - size) > answer
+                        answer = size * (n - size)
+                        print("cutting {links[a]}, {links[b]}, {links[c]} leaves groups of {size} and {n - size}")
+    print("part 1: group size product {answer}")
+    print("part 2: {splits} of the triples split the panel")
+
+@test fn whole()
+    assert_eq(group_size(3, [[0, 1], [1, 2]], []), 3)
+    assert_eq(group_size(3, [[0, 1], [1, 2]], [1]), 2)

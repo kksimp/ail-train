@@ -1,0 +1,44 @@
+## Towline knots: a towline's lead knot follows R/L/U/D moves and every later knot steps diagonally or
+## straight toward the one ahead whenever they stop touching; counts the cells the last knot visits for 2 and 6 knots.
+
+fn sign(v int) int
+    if v > 0 then 1 elif v < 0 then -1 else 0
+
+fn trail(moves List[str], knots int) int
+    mut xs := List[int]()
+    mut ys := List[int]()
+    for _ in 0..knots
+        xs.push(0)
+        ys.push(0)
+    mut seen := Set[int]()
+    seen.add(500500)
+    for line in moves
+        parts := line.split(" ")
+        dir := parts[0]
+        steps := parts[1].to_int() else 0
+        for s in 0..steps
+            match dir
+                "R" => xs[0] += 1
+                "L" => xs[0] -= 1
+                "U" => ys[0] += 1
+                _ => ys[0] -= 1
+            for k in 1..knots
+                dx := xs[k - 1] - xs[k]
+                dy := ys[k - 1] - ys[k]
+                if dx.abs() > 1 or dy.abs() > 1
+                    xs[k] += sign(dx)
+                    ys[k] += sign(dy)
+            seen.add((xs[knots - 1] + 500) * 1000 + ys[knots - 1] + 500)
+    seen.len()
+
+fn main()
+    moves := ["R 5", "U 3", "L 7", "D 2", "R 9", "U 6", "L 2", "D 8", "R 4", "U 1"]
+    total := moves.fold(0, |acc, m| acc + (m.split(" ")[1].to_int() else 0))
+    print("{moves.len()} pulls, {total} steps for the lead knot")
+    print("part 1, two knots: tail visits {trail(moves, 2)} cells")
+    print("part 2, six knots: tail visits {trail(moves, 6)} cells")
+    for k in [3, 4, 5]
+        print("  with {k} knots: {trail(moves, k)} cells")
+
+@test fn short_pull()
+    assert_eq(trail(["R 3"], 2), 3)

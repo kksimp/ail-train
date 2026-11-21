@@ -1,0 +1,6 @@
+10 pulls, 47 steps for the lead knot
+part 1, two knots: tail visits 35 cells
+part 2, six knots: tail visits 8 cells
+  with 3 knots: 27 cells
+  with 4 knots: 19 cells
+  with 5 knots: 11 cells

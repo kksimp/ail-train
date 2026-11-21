@@ -1,0 +1,39 @@
+## Bit column ratings: a diagnostic report of 6-bit readings; part 1 builds gamma from each column's most common
+## bit and epsilon from the least, part 2 filters readings column by column (ties keep 1 for the high rating, 0 for the low).
+
+fn ones(xs List[str], col int) int
+    xs.count(|s| (s.char_at(col) else '0') == '1')
+
+fn to_number(s str) int
+    s.to_int(2) else 0
+
+fn rating(report List[str], high bool) int
+    mut left := report
+    mut col := 0
+    while left.len() > 1
+        n := ones(left, col)
+        more_ones := n * 2 >= left.len()
+        keep := if more_ones == high then '1' else '0'
+        left = left.filter(|s| (s.char_at(col) else '0') == keep)
+        col += 1
+    to_number(left[0])
+
+fn main()
+    report := ["101100", "011011", "110101", "100111", "001010", "111000", "010110", "101011", "110010", "000111"]
+    mut gamma := List[str]()
+    mut epsilon := List[str]()
+    for col in 0..6
+        n := ones(report, col)
+        gamma.push(if n * 2 > report.len() then "1" else "0")
+        epsilon.push(if n * 2 > report.len() then "0" else "1")
+    g := gamma.join("")
+    e := epsilon.join("")
+    print("gamma {g} = {to_number(g)}, epsilon {e} = {to_number(e)}")
+    print("part 1: power {to_number(g) * to_number(e)}")
+    hi := rating(report, true)
+    lo := rating(report, false)
+    print("high rating {hi}, low rating {lo}")
+    print("part 2: life support {hi * lo}")
+
+@test fn binary()
+    assert_eq(to_number("101100"), 44)

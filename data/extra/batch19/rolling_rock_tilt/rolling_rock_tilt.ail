@@ -1,0 +1,60 @@
+## Rolling rock tilt: round rocks (O) roll until blocked when a platform tilts, cube rocks (#) stay; part 1 tilts
+## north and weighs the load, part 2 spins north-west-south-east a million times using the first repeated layout.
+
+fn tilt_north(mut g List[List[char]])
+    for c in 0..g[0].len()
+        mut free := 0
+        for r in 0..g.len()
+            if g[r][c] == '#'
+                free = r + 1
+            elif g[r][c] == 'O'
+                g[r][c] = '.'
+                g[free][c] = 'O'
+                free += 1
+
+fn turn_cw(g List[List[char]]) List[List[char]]
+    n := g.len()
+    mut out := List[List[char]]()
+    for c in 0..g[0].len()
+        mut row := List[char]()
+        for r in 0..n
+            row.push(g[n - 1 - r][c])
+        out.push(row)
+    out
+
+fn load(g List[List[char]]) int
+    mut total := 0
+    for r in 0..g.len()
+        total += (g.len() - r) * g[r].count(|ch| ch == 'O')
+    total
+
+fn main()
+    rows := ["..OO.O", ".##...", "....#.", ".OO.#.", ".O#..O", "..O##."]
+    mut g := rows.map(|r| r.chars())
+    mut once := g
+    tilt_north(mut once)
+    print("part 1: load after tilting north {load(once)}")
+    mut seen := Map[str, int]()
+    mut loads := List[int]()
+    mut i := 0
+    total_spins := 1000000
+    while i < total_spins
+        key := g.map(|r| r.join("")).join("/")
+        if seen.contains(key)
+            start := seen[key]
+            period := i - start
+            print("layout after {i} spins repeats spin {start} (period {period})")
+            i = start + (total_spins - start) % period
+            break
+        seen[key] = i
+        loads.push(load(g))
+        for _ in 0..4
+            tilt_north(mut g)
+            g = turn_cw(g)
+        i += 1
+    print("part 2: load after {total_spins} spins {loads[i]}")
+
+@test fn rolls_up()
+    mut g := [['.'], ['O']]
+    tilt_north(mut g)
+    assert_eq(load(g), 2)

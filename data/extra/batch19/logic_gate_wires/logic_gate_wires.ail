@@ -1,0 +1,50 @@
+## Logic gate wires: AND, OR and XOR gates wired as a 3-bit adder settle once both inputs carry a value;
+## part 1 reads z for x = 5, y = 3, part 2 tries every x, y below 8 and reports the sums the miswired gate gets wrong.
+
+struct Gate
+    a str
+    op str
+    b str
+    out str
+
+fn settle(gates List[Gate], x int, y int) int
+    mut wires := Map[str, int]()
+    for i in 0..3
+        wires["x{i}"] = (x >> i) & 1
+        wires["y{i}"] = (y >> i) & 1
+    mut changed := true
+    while changed
+        changed = false
+        for g in gates
+            if wires.contains(g.a) and wires.contains(g.b) and not wires.contains(g.out)
+                p := wires[g.a]
+                q := wires[g.b]
+                v := match g.op
+                    "AND" => p & q
+                    "OR" => p | q
+                    _ => p ^ q
+                wires[g.out] = v
+                changed = true
+    mut z := 0
+    for i in 0..4
+        z += (wires.get_or("z{i}", 0) << i)
+    z
+
+fn main()
+    lines := ["x0 XOR y0 -> z0", "x0 AND y0 -> c0", "x1 XOR y1 -> s1", "s1 XOR c0 -> z1", "x1 OR y1 -> a1", "s1 AND c0 -> b1", "a1 OR b1 -> c1", "x2 XOR y2 -> s2", "s2 XOR c1 -> z2", "x2 AND y2 -> a2", "s2 AND c1 -> b2", "a2 OR b2 -> z3"]
+    gates := lines.map(|l| l.split(" ")).map(|w| Gate(a: w[0], op: w[1], b: w[2], out: w[4]))
+    print("{gates.len()} gates")
+    print("part 1: 5 + 3 gives z = {settle(gates, 5, 3)}")
+    mut wrong := List[str]()
+    for x in 0..8
+        for y in 0..8
+            z := settle(gates, x, y)
+            if z != x + y
+                wrong.push("{x}+{y}={z}")
+    print("part 2: {wrong.len()} of 64 sums are wrong")
+    shown := wrong.take(6).join(" ")
+    print("first wrong sums: {shown}")
+
+@test fn zero()
+    g := [Gate(a: "x0", op: "XOR", b: "y0", out: "z0")]
+    assert_eq(settle(g, 1, 0), 1)

@@ -1,0 +1,34 @@
+## Clock pulse screen: a tiny processor runs noop (1 cycle) and addx N (2 cycles) on register X; part 1 sums
+## cycle x X at cycles 3, 9, 15 and 21, part 2 lights a 12-wide pixel when the 3-wide sprite at X covers the beam.
+
+fn trace(prog List[str]) List[int]
+    mut xs := List[int]()
+    mut x := 1
+    for line in prog
+        parts := line.split(" ")
+        xs.push(x)
+        if parts[0] == "addx"
+            xs.push(x)
+            x += parts[1].to_int() else 0
+    xs.push(x)
+    xs
+
+fn main()
+    prog := ["addx 1", "noop", "addx 2", "addx -1", "noop", "addx 3", "addx 1", "noop", "addx 2", "addx -6", "noop", "addx 4", "addx 2", "addx 3", "noop", "addx -1"]
+    xs := trace(prog)
+    print("{prog.len()} instructions take {xs.len() - 1} cycles")
+    mut strength := 0
+    for cyc in [3, 9, 15, 21]
+        print("  cycle {cyc}: X = {xs[cyc - 1]}")
+        strength += cyc * xs[cyc - 1]
+    print("part 1: signal strength {strength}")
+    print("part 2:")
+    for row in 0..2
+        mut px := List[str]()
+        for col in 0..12
+            x := xs[row * 12 + col]
+            px.push(if (x - col).abs() <= 1 then "#" else ".")
+        print(px.join(""))
+
+@test fn addx_takes_two()
+    assert_eq(trace(["addx 3", "noop"]), [1, 1, 4, 4])

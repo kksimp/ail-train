@@ -1,0 +1,42 @@
+## Sub dive aim: a survey sub follows forward/down/up commands; part 1 treats down and up as depth changes,
+## part 2 as changes of aim, with forward moving ahead and sinking by aim x distance; reports position x depth.
+
+enum Cmd
+    Forward(n int)
+    Down(n int)
+    Up(n int)
+
+fn parse(line str) Cmd
+    w := line.split(" ")
+    n := w[1].to_int() else 0
+    match w[0]
+        "forward" => Forward(n: n)
+        "down" => Down(n: n)
+        _ => Up(n: n)
+
+fn main()
+    lines := ["forward 4", "down 6", "forward 7", "up 2", "down 9", "forward 3", "up 5", "forward 6"]
+    cmds := lines.map(|l| parse(l))
+    print("{cmds.len()} commands")
+    mut x := 0
+    mut depth := 0
+    for c in cmds
+        match c
+            Forward(n) => x += n
+            Down(n) => depth += n
+            Up(n) => depth -= n
+    print("part 1: ahead {x}, depth {depth}, product {x * depth}")
+    mut aim := 0
+    mut x2 := 0
+    mut d2 := 0
+    for c in cmds
+        match c
+            Forward(n) =>
+                x2 += n
+                d2 += aim * n
+            Down(n) => aim += n
+            Up(n) => aim -= n
+    print("part 2: ahead {x2}, depth {d2}, product {x2 * d2}")
+
+@test fn parses()
+    assert_eq(parse("up 3"), Cmd.Up(n: 3))

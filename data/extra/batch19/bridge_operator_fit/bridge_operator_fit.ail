@@ -1,0 +1,40 @@
+## Bridge operator fit: each surveyor's line "target: a b c ..." lost its operators; evaluating strictly left to
+## right, part 1 tries + and *, part 2 also tries joining digits (12 || 34 = 1234), summing the targets that can be met.
+
+fn joined(a int, b int) int
+    mut p := 10
+    while p <= b
+        p *= 10
+    a * p + b
+
+fn fits(target int, nums List[int], i int, acc int, join bool) bool
+    if acc > target
+        return false
+    if i == nums.len()
+        return acc == target
+    if fits(target, nums, i + 1, acc + nums[i], join) or fits(target, nums, i + 1, acc * nums[i], join)
+        return true
+    join and fits(target, nums, i + 1, joined(acc, nums[i]), join)
+
+fn main()
+    lines := ["150: 10 15", "47: 3 4 35", "1210: 12 10", "96: 2 6 8 2", "3312: 3 3 12", "640: 8 8 10", "7290: 6 8 6 15", "58: 5 8 1", "2410: 2 4 10"]
+    mut p1 := 0
+    mut p2 := 0
+    for l in lines
+        kv := l.split(": ")
+        target := kv[0].to_int() else 0
+        nums := kv[1].split(" ").map(|w| (w.to_int() else 0))
+        a := fits(target, nums, 1, nums[0], false)
+        b := fits(target, nums, 1, nums[0], true)
+        mark := if a then "add" elif b then "cat" else "---"
+        print("{mark} {l}")
+        if a
+            p1 += target
+        if b
+            p2 += target
+    print("part 1: {p1}")
+    print("part 2: {p2}")
+
+@test fn join_digits()
+    assert_eq(joined(12, 345), 12345)
+    assert_eq(joined(5, 10), 510)

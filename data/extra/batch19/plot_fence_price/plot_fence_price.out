@@ -1,0 +1,9 @@
+plot A: area 9, perimeter 20, sides 10
+plot B: area 4, perimeter 8, sides 4
+plot C: area 4, perimeter 8, sides 4
+plot D: area 5, perimeter 12, sides 10
+plot E: area 4, perimeter 8, sides 4
+plot A: area 3, perimeter 8, sides 6
+plot F: area 1, perimeter 4, sides 4
+part 1: fencing costs 364
+part 2: with the discount 210

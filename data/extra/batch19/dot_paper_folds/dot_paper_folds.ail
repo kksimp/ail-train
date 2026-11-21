@@ -1,0 +1,39 @@
+## Dot paper folds: a clear sheet with dots is folded along y = 5 then x = 11, each fold mirroring the far half
+## onto the near one; part 1 counts dots after the first fold, part 2 draws the code left after both folds.
+
+fn fold(dots Set[int], axis str, line int) Set[int]
+    mut out := Set[int]()
+    for d in dots
+        mut x := d / 100
+        mut y := d % 100
+        if axis == "x" and x > line
+            x = 2 * line - x
+        if axis == "y" and y > line
+            y = 2 * line - y
+        out.add(x * 100 + y)
+    out
+
+fn main()
+    text := "0,1 0,2 0,3 0,6 0,7 1,0 1,10 2,3 2,6 2,9 2,10 4,0 4,4 5,2 5,6 5,9 6,4 6,10 8,2 8,8 8,9 12,4 13,4 14,3 14,4 14,6 14,7 14,10 17,0 17,3 17,9 18,4 18,10 20,2 20,3 21,8 22,0"
+    mut dots := Set[int]()
+    for t in text.split(" ")
+        xy := t.split(",")
+        dots.add((xy[0].to_int() else 0) * 100 + (xy[1].to_int() else 0))
+    folds := ["y=5", "x=11"]
+    print("{dots.len()} dots before folding")
+    for i, f in folds.enumerate()
+        kv := f.split("=")
+        dots = fold(dots, kv[0], kv[1].to_int() else 0)
+        if i == 0
+            print("part 1: {dots.len()} dots after the first fold")
+    print("part 2: {dots.len()} dots read")
+    for y in 0..5
+        mut row := List[char]()
+        for x in 0..11
+            row.push(if dots.contains(x * 100 + y) then '#' else '.')
+        print(row.join(""))
+
+@test fn mirror()
+    mut d := Set[int]()
+    d.add(4 * 100 + 1)
+    assert(fold(d, "x", 3).contains(2 * 100 + 1))

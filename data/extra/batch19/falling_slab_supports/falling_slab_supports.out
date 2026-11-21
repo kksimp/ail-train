@@ -1,0 +1,10 @@
+slab 0 rests on 0 slab(s)
+slab 1 rests on 1 slab(s)
+slab 2 rests on 1 slab(s)
+slab 3 rests on 2 slab(s)
+slab 4 rests on 2 slab(s)
+slab 5 rests on 2 slab(s)
+slab 6 rests on 1 slab(s)
+slab 7 rests on 1 slab(s)
+part 1: 5 slabs can be removed safely
+part 2: 9 slabs fall in total

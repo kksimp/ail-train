@@ -1,0 +1,57 @@
+## Valve pressure plan: steam valves in a tunnel network release rate x minutes left once opened; a breadth-first
+## search gives travel times, a depth-first search over open-valve bit masks finds the best plan alone and with a helper.
+
+fn bfs(adj List[List[int]], from int) List[int]
+    mut d := [-1 for v in adj]
+    d[from] = 0
+    mut queue := [from]
+    mut head := 0
+    while head < queue.len()
+        u := queue[head]
+        head += 1
+        for w in adj[u]
+            if d[w] < 0
+                d[w] = d[u] + 1
+                queue.push(w)
+    d
+
+fn explore(pos int, left int, mask int, flow int, useful List[int], rates List[int], dist List[List[int]], mut best Map[int, int])
+    if flow > best.get_or(mask, 0)
+        best[mask] = flow
+    for i, v in useful.enumerate()
+        bit := 1 << i
+        if (mask & bit) == 0
+            t := left - dist[pos][v] - 1
+            if t > 0
+                explore(v, t, mask | bit, flow + t * rates[v], useful, rates, dist, mut best)
+
+fn main()
+    lines := ["Hub rate=0 -> Elm, Oak", "Elm rate=14 -> Hub, Fir", "Oak rate=5 -> Hub, Fir, Yew", "Fir rate=0 -> Elm, Oak, Ash", "Ash rate=21 -> Fir", "Yew rate=9 -> Oak, Pine", "Pine rate=17 -> Yew"]
+    mut index := Map[str, int]()
+    mut rates := List[int]()
+    mut links := List[List[str]]()
+    for i, l in lines.enumerate()
+        head := l.split(" -> ")
+        left := head[0].split(" rate=")
+        index[left[0]] = i
+        rates.push(left[1].to_int() else 0)
+        links.push(head[1].split(", "))
+    adj := [[index[n] for n in ls] for ls in links]
+    dist := [bfs(adj, i) for i in 0..lines.len()]
+    useful := [i for i in 0..lines.len() if rates[i] > 0]
+    print("{useful.len()} valves worth opening, Hub to Pine is {dist[0][6]} tunnels")
+    mut solo := Map[int, int]()
+    explore(0, 24, 0, 0, useful, rates, dist, mut solo)
+    print("part 1, alone for 24 minutes: {solo.values().max() else 0}")
+    mut duo := Map[int, int]()
+    explore(0, 18, 0, 0, useful, rates, dist, mut duo)
+    mut pair := duo.values().max() else 0
+    for a, va in duo
+        for b, vb in duo
+            if (a & b) == 0 and va + vb > pair
+                pair = va + vb
+    print("part 2, with a helper for 18 minutes: {pair}")
+    print("{duo.len()} valve sets reachable in 18 minutes")
+
+@test fn hops()
+    assert_eq(bfs([[1], [0, 2], [1]], 0), [0, 1, 2])

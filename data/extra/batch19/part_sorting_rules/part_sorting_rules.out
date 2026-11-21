@@ -1,0 +1,7 @@
+part [1200, 3500, 700, 100]: 0 way(s) to A
+part [2000, 900, 2500, 300]: 0 way(s) to A
+part [3000, 500, 2100, 2700]: 1 way(s) to A
+part [1800, 1800, 1500, 1500]: 0 way(s) to A
+part [2600, 1200, 3900, 400]: 1 way(s) to A
+part 1: accepted ratings sum to 16400
+part 2: 174795205200000 accepted combinations

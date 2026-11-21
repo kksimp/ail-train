@@ -1,0 +1,39 @@
+## Cloth claim overlap: tailors claim rectangles "#id @ left,top: WxH" on one bolt of cloth; part 1 counts square
+## inches under two or more claims, part 2 finds the only claim that overlaps no other.
+
+struct Claim
+    id int
+    x int
+    y int
+    w int
+    h int
+
+fn parse(line str) Claim
+    parts := line.split(" ")
+    at := parts[2].replace(":", "").split(",")
+    size := parts[3].split("x")
+    Claim(id: parts[0].slice(1).to_int() else 0, x: at[0].to_int() else 0, y: at[1].to_int() else 0, w: size[0].to_int() else 0, h: size[1].to_int() else 0)
+
+fn main()
+    lines := ["#1 @ 1,1: 4x3", "#2 @ 3,2: 3x4", "#3 @ 8,0: 2x2", "#4 @ 0,5: 3x2", "#5 @ 5,4: 4x3", "#6 @ 2,6: 2x2"]
+    claims := lines.map(|l| parse(l))
+    mut cover := Map[int, int]()
+    for c in claims
+        for x in c.x..c.x + c.w
+            for y in c.y..c.y + c.h
+                cover[x * 100 + y] += 1
+    print("{claims.len()} claims cover {cover.len()} square inches")
+    print("part 1: {cover.values().count(|n| n >= 2)} square inches are claimed twice or more")
+    for c in claims
+        mut alone := true
+        for x in c.x..c.x + c.w
+            for y in c.y..c.y + c.h
+                if cover[x * 100 + y] > 1
+                    alone = false
+        if alone
+            print("part 2: claim #{c.id} overlaps nothing")
+
+@test fn parses()
+    c := parse("#7 @ 3,4: 5x6")
+    assert_eq(c.id, 7)
+    assert_eq(c.h, 6)

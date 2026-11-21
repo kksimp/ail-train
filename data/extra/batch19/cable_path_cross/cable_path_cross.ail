@@ -1,0 +1,43 @@
+## Cable path cross: two cables leave the same socket following moves like R6,U4; part 1 finds the crossing
+## nearest the socket by Manhattan distance, part 2 the crossing reached in the fewest combined cable steps.
+
+fn trace(path str) Map[int, int]
+    mut seen := Map[int, int]()
+    mut x := 0
+    mut y := 0
+    mut steps := 0
+    for m in path.split(",")
+        n := m.slice(1).to_int() else 0
+        for _ in 0..n
+            match m.slice(0, 1)
+                "R" => x += 1
+                "L" => x -= 1
+                "U" => y += 1
+                _ => y -= 1
+            steps += 1
+            k := (x + 500) * 1000 + y + 500
+            if not seen.contains(k)
+                seen[k] = steps
+    seen
+
+fn main()
+    a := trace("R6,U4,L9,D2,R5,U7")
+    b := trace("U3,R8,D6,L4,U9,R2")
+    mut nearest := 1000000
+    mut quickest := 1000000
+    mut crossings := 0
+    for k, sa in a
+        if b.contains(k)
+            crossings += 1
+            x := k / 1000 - 500
+            y := k % 1000 - 500
+            print("  crossing at {x},{y} after {sa} + {b[k]} steps")
+            nearest = nearest.min(x.abs() + y.abs())
+            quickest = quickest.min(sa + b[k])
+    print("{crossings} crossings")
+    print("part 1: nearest crossing is {nearest} from the socket")
+    print("part 2: fewest combined steps {quickest}")
+
+@test fn steps()
+    t := trace("R2")
+    assert_eq(t.len(), 2)

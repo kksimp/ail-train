@@ -1,0 +1,59 @@
+## Pipe loop inside: a field of pipe bends (| - L J 7 F) holds one loop through S; part 1 walks the loop for
+## the farthest point, part 2 counts enclosed tiles by scanning each row and flipping inside at north-facing loop pieces.
+
+fn exits(ch char) List[int]
+    match ch
+        '|' => [0, 2]
+        '-' => [1, 3]
+        'L' => [0, 1]
+        'J' => [0, 3]
+        '7' => [2, 3]
+        'F' => [1, 2]
+        _ => []
+
+fn main()
+    rows := ["..........", ".S---7....", ".|...|.F7.", ".|...L-J|.", ".L-7....|.", "...|.F--J.", "...L-J...."]
+    mut g := rows.map(|r| r.chars())
+    dr := [-1, 0, 1, 0]
+    dc := [0, 1, 0, -1]
+    mut sr := 0
+    mut sc := 0
+    for r in 0..g.len()
+        for c in 0..g[0].len()
+            if g[r][c] == 'S'
+                sr = r
+                sc = c
+    mut sdirs := List[int]()
+    for d in 0..4
+        nr := sr + dr[d]
+        nc := sc + dc[d]
+        if nr >= 0 and nr < g.len() and nc >= 0 and nc < g[0].len() and exits(g[nr][nc]).contains((d + 2) % 4)
+            sdirs.push(d)
+    for ch in "|-LJ7F".chars()
+        if exits(ch) == sdirs
+            g[sr][sc] = ch
+    print("S is a {g[sr][sc]} piece")
+    mut on_loop := Set[int]()
+    mut r := sr
+    mut c := sc
+    mut d := sdirs[0]
+    while on_loop.add(r * 100 + c)
+        r += dr[d]
+        c += dc[d]
+        came := (d + 2) % 4
+        d = exits(g[r][c]).filter(|e| e != came)[0]
+    print("loop length {on_loop.len()}")
+    print("part 1: farthest point is {on_loop.len() / 2} steps away")
+    mut inside := 0
+    for y in 0..g.len()
+        mut within := false
+        for x in 0..g[0].len()
+            if on_loop.contains(y * 100 + x)
+                if exits(g[y][x]).contains(0)
+                    within = not within
+            elif within
+                inside += 1
+    print("part 2: {inside} tiles are enclosed")
+
+@test fn bend()
+    assert_eq(exits('F'), [1, 2])

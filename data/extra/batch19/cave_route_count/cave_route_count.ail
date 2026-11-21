@@ -1,0 +1,42 @@
+## Cave route count: tunnels join big caves (upper case, revisitable) and small caves (lower case); part 1 counts
+## routes from start to end visiting small caves at most once, part 2 lets one small cave be visited twice.
+
+fn routes(adj Map[str, List[str]], at str, mut path List[str], spare bool) int
+    if at == "end"
+        return 1
+    mut total := 0
+    for next in adj[at]
+        if next == "start"
+            continue
+        small := next == next.to_lower()
+        if small and path.contains(next)
+            if spare
+                path.push(next)
+                total += routes(adj, next, mut path, false)
+                path.remove_at(path.len() - 1)
+        else
+            path.push(next)
+            total += routes(adj, next, mut path, spare)
+            path.remove_at(path.len() - 1)
+    total
+
+fn main()
+    links := ["start-ka", "start-MX", "ka-MX", "ka-pt", "MX-pt", "pt-end", "ka-end", "MX-zz", "zz-end", "ka-QB", "QB-pt"]
+    mut adj := Map[str, List[str]]()
+    for l in links
+        ends := l.split("-")
+        adj.push(ends[0], ends[1])
+        adj.push(ends[1], ends[0])
+    print("{adj.len()} caves, {links.len()} tunnels")
+    mut path := ["start"]
+    once := routes(adj, "start", mut path, false)
+    print("part 1: {once} routes")
+    mut path2 := ["start"]
+    twice := routes(adj, "start", mut path2, true)
+    print("part 2: {twice} routes with one repeat")
+
+@test fn direct()
+    mut adj := Map[str, List[str]]()
+    adj.push("start", "end")
+    mut p := ["start"]
+    assert_eq(routes(adj, "start", mut p, false), 1)

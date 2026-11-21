@@ -1,0 +1,48 @@
+## Lounge seat settle: travellers fill a lounge by rules until nothing changes; an empty seat (L) fills if no
+## occupied seat is in view, a full one (#) empties at 4+ neighbours (part 1) or 5+ seats visible along the eight lines (part 2).
+
+fn seen_full(g List[List[char]], r int, c int, far bool) int
+    mut n := 0
+    for dr in -1..=1
+        for dc in -1..=1
+            if dr == 0 and dc == 0
+                continue
+            mut y := r + dr
+            mut x := c + dc
+            while y >= 0 and y < g.len() and x >= 0 and x < g[0].len()
+                if g[y][x] == '#'
+                    n += 1
+                    break
+                if g[y][x] == 'L' or not far
+                    break
+                y += dr
+                x += dc
+    n
+
+fn settle(start List[List[char]], far bool, limit int) int
+    mut g := start
+    mut changed := true
+    while changed
+        changed = false
+        mut next := g
+        for r in 0..g.len()
+            for c in 0..g[0].len()
+                n := seen_full(g, r, c, far)
+                if g[r][c] == 'L' and n == 0
+                    next[r][c] = '#'
+                    changed = true
+                elif g[r][c] == '#' and n >= limit
+                    next[r][c] = 'L'
+                    changed = true
+        g = next
+    g.fold(0, |acc, row| acc + row.count(|ch| ch == '#'))
+
+fn main()
+    rows := ["L.LL.LLL", "LLLLLL.L", "L.L.L..L", "LLLL.LLL", "L.LL.LL.", "L.LLLLLL", "..L.L...", "LLLLLLLL"]
+    g := rows.map(|r| r.chars())
+    print("{g.fold(0, |acc, row| acc + row.count(|ch| ch == 'L'))} seats in the lounge")
+    print("part 1: {settle(g, false, 4)} seats taken when it settles")
+    print("part 2: {settle(g, true, 5)} seats taken with line-of-sight rules")
+
+@test fn lone_seat()
+    assert_eq(settle([['L']], false, 4), 1)

@@ -1,0 +1,8 @@
+  crossing at 4,0 after 4 + 24 steps
+  crossing at 6,3 after 9 + 9 steps
+  crossing at 4,4 after 12 + 28 steps
+  crossing at 0,2 after 24 + 2 steps
+  crossing at 2,3 after 27 + 5 steps
+5 crossings
+part 1: nearest crossing is 2 from the socket
+part 2: fewest combined steps 18

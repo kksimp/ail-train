@@ -1,0 +1,51 @@
+## Reactor cuboid toggle: steps switch whole cuboids of reactor cells on or off; part 1 counts lit cells in the
+## -5..5 core by brute force, part 2 counts all lit cells by keeping signed cuboids and cancelling every overlap.
+
+struct Cube
+    lo List[int]
+    hi List[int]
+    sign int
+
+fn Cube.volume(self) int
+    self.sign * (self.hi[0] - self.lo[0] + 1) * (self.hi[1] - self.lo[1] + 1) * (self.hi[2] - self.lo[2] + 1)
+
+fn parse(line str) Cube
+    halves := line.split(" ")
+    mut lo := List[int]()
+    mut hi := List[int]()
+    for part in halves[1].split(",")
+        ends := part.split("=")[1].split("..")
+        lo.push(ends[0].to_int() else 0)
+        hi.push(ends[1].to_int() else 0)
+    Cube(lo: lo, hi: hi, sign: if halves[0] == "on" then 1 else -1)
+
+fn main()
+    steps := ["on x=-8..2,y=-3..6,z=-4..4", "on x=-2..9,y=0..10,z=-6..1", "off x=-4..4,y=-4..4,z=-4..4", "on x=1..12,y=-12..-2,z=3..8", "off x=6..7,y=-10..10,z=-10..10", "on x=-1..1,y=-1..1,z=-1..1"]
+    boxes := steps.map(|s| parse(s))
+    mut core := 0
+    for x in -5..=5
+        for y in -5..=5
+            for z in -5..=5
+                mut lit := false
+                for b in boxes
+                    if x >= b.lo[0] and x <= b.hi[0] and y >= b.lo[1] and y <= b.hi[1] and z >= b.lo[2] and z <= b.hi[2]
+                        lit = b.sign > 0
+                if lit
+                    core += 1
+    print("part 1: {core} cells lit in the core")
+    mut parts := List[Cube]()
+    for b in boxes
+        mut added := List[Cube]()
+        for p in parts
+            lo := [0, 1, 2].map(|i| p.lo[i].max(b.lo[i]))
+            hi := [0, 1, 2].map(|i| p.hi[i].min(b.hi[i]))
+            if lo[0] <= hi[0] and lo[1] <= hi[1] and lo[2] <= hi[2]
+                added.push(Cube(lo: lo, hi: hi, sign: -p.sign))
+        if b.sign > 0
+            added.push(b)
+        parts.extend(added)
+    print("{parts.len()} signed cuboids kept")
+    print("part 2: {parts.fold(0, |acc, p| acc + p.volume())} cells lit in all")
+
+@test fn volume()
+    assert_eq(parse("on x=0..1,y=0..2,z=5..5").volume(), 6)

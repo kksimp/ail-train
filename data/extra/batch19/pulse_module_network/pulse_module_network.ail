@@ -1,0 +1,60 @@
+## Pulse module network: a button sends a low pulse to a broadcaster; flip-flops (%) toggle on low pulses and
+## conjunctions (&) send low only when every input last sent high; counts pulses over 1000 presses and the presses until the start state returns.
+
+fn press(kinds Map[str, char], outs Map[str, List[str]], mut state Map[str, bool], mut counts List[int])
+    mut queue := ["button broadcaster 0"]
+    mut head := 0
+    while head < queue.len()
+        w := queue[head].split(" ")
+        head += 1
+        mut send := w[2] == "1"
+        counts[(w[2].to_int() else 0)] += 1
+        kind := kinds.get_or(w[1], ' ')
+        if kind == ' ' or (kind == '%' and send)
+            continue
+        if kind == '%'
+            state[w[1]] = not state[w[1]]
+            send = state[w[1]]
+        elif kind == '&'
+            state["{w[1]}<{w[0]}"] = send
+            prefix := "{w[1]}<"
+            send = state.keys().any(|k| k.starts_with(prefix) and not state[k])
+        code := if send then 1 else 0
+        for o in outs[w[1]]
+            queue.push("{w[1]} {o} {code}")
+
+fn main()
+    lines := ["broadcaster -> fa", "%fa -> fb, gate", "%fb -> fc, gate", "%fc -> gate", "&gate -> lamp"]
+    mut kinds := Map[str, char]()
+    mut outs := Map[str, List[str]]()
+    for l in lines
+        sides := l.split(" -> ")
+        name := sides[0].replace("%", "").replace("&", "")
+        kinds[name] = sides[0].char_at(0) else 'b'
+        outs[name] = sides[1].split(", ")
+    mut state := Map[str, bool]()
+    for name, targets in outs
+        for t in targets
+            if kinds.get_or(t, ' ') == '&'
+                state["{t}<{name}"] = false
+            elif kinds.get_or(t, ' ') == '%'
+                state[t] = false
+    start := state.values().map(|v| "{v}").join(",")
+    mut counts := [0, 0]
+    mut back := 0
+    for n in 1..=1000
+        press(kinds, outs, mut state, mut counts)
+        now := state.values().map(|v| "{v}").join(",")
+        if back == 0 and now == start
+            back = n
+    print("after 1000 presses: {counts[0]} low and {counts[1]} high pulses")
+    print("part 1: product {counts[0] * counts[1]}")
+    print("part 2: the network is back to its start state after {back} presses")
+
+@test fn one_press()
+    mut state := {"x": false}
+    mut counts := [0, 0]
+    kinds := {"broadcaster": 'b', "x": '%'}
+    outs := {"broadcaster": ["x"], "x": ["y"]}
+    press(kinds, outs, mut state, mut counts)
+    assert_eq(counts, [2, 1])

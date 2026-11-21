@@ -1,0 +1,57 @@
+## Hex tile flips: each line of e, w, ne, nw, se, sw steps leads from the centre to a hex tile that is flipped;
+## part 1 counts black tiles, part 2 runs 10 days of a hex life rule (black stays with 1-2 black neighbours, white turns with 2).
+
+fn key(q int, r int) int
+    (q + 100) * 1000 + r + 100
+
+fn walk(path str) int
+    cs := path.chars()
+    mut q := 0
+    mut r := 0
+    mut i := 0
+    while i < cs.len()
+        if cs[i] == 'e'
+            q += 1
+        elif cs[i] == 'w'
+            q -= 1
+        else
+            r += if cs[i] == 'n' then -1 else 1
+            i += 1
+            if cs[i - 1] == 'n' and cs[i] == 'e'
+                q += 1
+            elif cs[i - 1] == 's' and cs[i] == 'w'
+                q -= 1
+        i += 1
+    key(q, r)
+
+fn neighbours(k int) List[int]
+    q := k / 1000 - 100
+    r := k % 1000 - 100
+    [key(q + 1, r), key(q - 1, r), key(q + 1, r - 1), key(q, r - 1), key(q, r + 1), key(q - 1, r + 1)]
+
+fn main()
+    paths := ["esenee", "wnwsw", "nwwswee", "seswneswwn", "eee", "nenene", "wwsese", "esenee", "swswne", "neenw", "sesww"]
+    mut black := Set[int]()
+    for p in paths
+        k := walk(p)
+        if black.contains(k)
+            black.remove(k)
+        else
+            black.add(k)
+    print("part 1: {black.len()} black tiles")
+    for day in 1..=10
+        mut counts := Map[int, int]()
+        for b in black
+            for n in neighbours(b)
+                counts[n] += 1
+        mut next := Set[int]()
+        for k, n in counts
+            if n == 2 or (n == 1 and black.contains(k))
+                next.add(k)
+        black = next
+        if day == 1 or day == 5
+            print("day {day}: {black.len()} black tiles")
+    print("part 2: {black.len()} black tiles after 10 days")
+
+@test fn round_trip()
+    assert_eq(walk("nwwswee"), key(0, 0))

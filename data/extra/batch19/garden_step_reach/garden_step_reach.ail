@@ -1,0 +1,46 @@
+## Garden step reach: a gardener steps one plot north, south, east or west each move, never onto rocks (#);
+## breadth-first distances with parity count plots reachable in exactly 6 steps, then 20 steps on a field that repeats forever.
+
+fn reach(g List[str], steps int, endless bool) int
+    h := g.len()
+    w := g[0].len()
+    mut sr := 0
+    mut sc := 0
+    for r in 0..h
+        if c := g[r].find("S")
+            sr = r
+            sc = c
+    mut dist := Map[str, int]()
+    dist["{sr},{sc}"] = 0
+    mut queue := [[sr, sc, 0]]
+    mut head := 0
+    mut hits := 0
+    while head < queue.len()
+        q := queue[head]
+        head += 1
+        if q[2] % 2 == steps % 2
+            hits += 1
+        if q[2] == steps
+            continue
+        for d in [[1, 0], [-1, 0], [0, 1], [0, -1]]
+            nr := q[0] + d[0]
+            nc := q[1] + d[1]
+            if not endless and (nr < 0 or nr >= h or nc < 0 or nc >= w)
+                continue
+            tile := g[(nr % h + h) % h].char_at((nc % w + w) % w) else '#'
+            key := "{nr},{nc}"
+            if tile != '#' and not dist.contains(key)
+                dist[key] = q[2] + 1
+                queue.push([nr, nc, q[2] + 1])
+    hits
+
+fn main()
+    g := ["........", ".##.#..#", "...#....", ".#..S.#.", "....##..", "#.#.....", "...#..#."]
+    for row in g
+        print(row)
+    print("part 1: {reach(g, 6, false)} plots in exactly 6 steps")
+    for n in [8, 14, 20]
+        print("part 2: {reach(g, n, true)} plots in exactly {n} steps on the endless field")
+
+@test fn open_field()
+    assert_eq(reach(["...", ".S.", "..."], 1, false), 4)

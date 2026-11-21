@@ -1,0 +1,34 @@
+## Locker pair distance: two caretakers wrote locker numbers in two columns; part 1 pairs the sorted columns and
+## sums the gaps, part 2 scores each left number by how often it appears on the right (a similarity score).
+
+fn main()
+    text := """
+        41   37
+        18   41
+        25   25
+        41   12
+        9    41
+        30   18
+        """
+    mut left := List[int]()
+    mut right := List[int]()
+    for line in text.lines()
+        w := line.words()
+        left.push(w[0].to_int() else 0)
+        right.push(w[1].to_int() else 0)
+    ls := left.sorted()
+    rs := right.sorted()
+    mut gap := 0
+    for i in 0..ls.len()
+        d := (ls[i] - rs[i]).abs()
+        print("{ls[i]:>3} {rs[i]:>3}  gap {d}")
+        gap += d
+    print("part 1: total gap {gap}")
+    mut counts := Map[int, int]()
+    for r in right
+        counts[r] += 1
+    score := left.fold(0, |acc, x| acc + x * counts.get_or(x, 0))
+    print("part 2: similarity score {score}")
+
+@test fn pairs()
+    assert_eq([3, 1].sorted(), [1, 3])

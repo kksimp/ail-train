@@ -1,0 +1,40 @@
+## Drone signal range: survey drones at 3-D points each reach every point within their Manhattan radius;
+## part 1 counts drones inside the strongest drone's range, part 2 searches a grid for the spot in range of the most drones.
+
+struct Drone
+    x int
+    y int
+    z int
+    r int
+
+fn Drone.reaches(self, x int, y int, z int) bool
+    (self.x - x).abs() + (self.y - y).abs() + (self.z - z).abs() <= self.r
+
+fn parse(line str) Drone
+    parts := line.split(" r=")
+    p := parts[0].split(",").map(|v| (v.to_int() else 0))
+    Drone(x: p[0], y: p[1], z: p[2], r: parts[1].to_int() else 0)
+
+fn main()
+    lines := ["0,0,0 r=4", "1,0,0 r=1", "4,0,0 r=3", "0,2,0 r=1", "0,5,0 r=3", "0,0,3 r=1", "1,1,2 r=1", "6,6,6 r=2", "3,3,3 r=5"]
+    drones := lines.map(|l| parse(l))
+    strong := drones.max(by: |d| d.r) else drones[0]
+    inside := drones.count(|d| strong.reaches(d.x, d.y, d.z))
+    print("strongest drone at {strong.x},{strong.y},{strong.z} with radius {strong.r}")
+    print("part 1: {inside} drones are within its range")
+    mut best := -1
+    mut spot := [0, 0, 0]
+    for x in 0..=6
+        for y in 0..=6
+            for z in 0..=6
+                n := drones.count(|d| d.reaches(x, y, z))
+                closer := x + y + z < spot[0] + spot[1] + spot[2]
+                if n > best or (n == best and closer)
+                    best = n
+                    spot = [x, y, z]
+    print("part 2: {spot[0]},{spot[1]},{spot[2]} hears {best} drones, {spot[0] + spot[1] + spot[2]} from the base")
+
+@test fn reach()
+    d := parse("0,0,0 r=2")
+    assert(d.reaches(1, 1, 0))
+    assert(not d.reaches(1, 1, 1))
