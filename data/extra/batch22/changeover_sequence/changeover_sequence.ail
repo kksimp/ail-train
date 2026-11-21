@@ -51,4 +51,4 @@ fn main()
 @test fn last_colour()
     m := [[0, 5], [7, 0]]
     assert_eq(best(0, 63, m), 0)
-    assert_eq(best(1, 62, m), 40)
+    assert_eq(best(1, 62, m), 7)

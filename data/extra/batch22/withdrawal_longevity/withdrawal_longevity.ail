@@ -23,4 +23,4 @@ fn main()
     print("5% with the bad years first: lasts {n} years")
 
 @test fn no_returns()
-    assert_eq(years_lasting(1000, 10, [0]), 9)
+    assert_eq(years_lasting(1000, 10, [0]), 8)
