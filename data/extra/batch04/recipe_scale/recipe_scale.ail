@@ -1,0 +1,18 @@
+## Recipe scale: scales a recipe from 4 servings to other sizes, rounding grams to the
+## nearest 5 and counting eggs up to whole eggs.
+
+fn round5(x float) int
+    ((x / 5.0).round() * 5.0).to_int()
+
+fn main()
+    grams := [("flour", 250), ("sugar", 120), ("butter", 115), ("milk", 300)]
+    eggs := 3
+    for servings in [2, 6, 10]
+        factor := servings.to_float() / 4.0
+        parts := grams.map(|g| "{g.0} {round5(g.1.to_float() * factor)}g")
+        egg_count := (eggs.to_float() * factor).ceil().to_int()
+        shown := parts.join(", ")
+        print("{servings} servings: {shown}, {egg_count} eggs")
+
+@test fn fives()
+    assert_eq(round5(117.0), 115)

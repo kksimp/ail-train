@@ -1,0 +1,29 @@
+## Library fines: computes overdue fines from due and return day numbers, with a grace day,
+## a daily rate that doubles after a week, and a cap per item.
+
+fn fine(due int, returned int) int
+    late := returned - due - 1
+    if late <= 0
+        return 0
+    mut cents := 0
+    for d in 1..=late
+        if d <= 7
+            cents += 20
+        else
+            cents += 40
+    if cents > 500
+        return 500
+    cents
+
+fn main()
+    loans := [("Dune", 10, 10), ("Emma", 10, 12), ("Ulysses", 5, 13), ("Beloved", 3, 20), ("Walden", 1, 40)]
+    mut total := 0
+    for l in loans
+        title, due, back := l
+        f := fine(due, back)
+        total += f
+        print("{title:<8} {back - due:>3} days late: {f / 100}.{f % 100:02}")
+    print("total: {total / 100}.{total % 100:02}")
+
+@test fn grace()
+    assert_eq(fine(5, 6), 0)

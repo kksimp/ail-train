@@ -1,0 +1,31 @@
+## Bus timetable: buses leave every 12 minutes from 06:30 to 09:00; for several arrival
+## times at the stop, prints the next bus and the wait in minutes.
+
+fn hhmm(m int) str
+    "{m / 60:02}:{m % 60:02}"
+
+fn to_minutes(s str) int
+    parts := s.split(":")
+    h := parts[0].parse_int() else 0
+    m := parts[1].parse_int() else 0
+    h * 60 + m
+
+fn main()
+    first := to_minutes("06:30")
+    last := to_minutes("09:00")
+    mut buses := List[int]()
+    mut t := first
+    while t <= last
+        buses.push(t)
+        t += 12
+    print("{buses.len()} buses, last at {hhmm(buses[buses.len() - 1])}")
+    for arrive in ["06:10", "06:42", "07:15", "08:59", "09:05"]
+        a := to_minutes(arrive)
+        nxt := buses.filter(|b| b >= a)
+        if nxt.is_empty()
+            print("{arrive}: no more buses")
+        else
+            print("{arrive}: bus at {hhmm(nxt[0])}, wait {nxt[0] - a} min")
+
+@test fn parse_time()
+    assert_eq(to_minutes("01:05"), 65)

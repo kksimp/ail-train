@@ -1,0 +1,26 @@
+## Elevator trips: a lift with a capacity of four takes people from the ground floor in
+## arrival order, stopping at each requested floor in ascending order; prints each trip.
+
+fn main()
+    requests := [5, 3, 8, 3, 2, 9, 5, 1, 7, 4, 6]
+    capacity := 4
+    mut i := 0
+    mut trip := 1
+    mut floors_moved := 0
+    while i < requests.len()
+        mut group := List[int]()
+        while group.len() < capacity and i < requests.len()
+            group.push(requests[i])
+            i += 1
+        seen := {f for f in group}
+        stops := seen.sorted()
+        top := stops[stops.len() - 1]
+        floors_moved += 2 * top
+        shown := stops.map(|f| "{f}").join(", ")
+        print("trip {trip}: {group.len()} riders, stops {shown}, up to {top}")
+        trip += 1
+    print("floors travelled: {floors_moved}")
+
+@test fn dedupe()
+    seen := {x for x in [3, 1, 3]}
+    assert_eq(seen.sorted(), [1, 3])

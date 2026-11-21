@@ -1,0 +1,23 @@
+## Loan schedule: an amortising loan of 12,000 at 6% a year over 12 months; prints each
+## month's payment split into interest and principal, in cents to avoid drift.
+
+fn main()
+    mut balance := 1200000
+    months := 12
+    rate := 0.005
+    payment_f := balance.to_float() * rate / (1.0 - (1.0 + rate).pow(-months.to_float()))
+    payment := payment_f.round().to_int()
+    print("payment: {payment / 100}.{payment % 100:02}")
+    mut total_interest := 0
+    for m in 1..=months
+        interest := (balance.to_float() * rate).round().to_int()
+        mut principal := payment - interest
+        if m == months
+            principal = balance
+        balance -= principal
+        total_interest += interest
+        print("{m:>2}: interest {interest:>6} principal {principal:>7} balance {balance:>8}")
+    print("total interest: {total_interest / 100}.{total_interest % 100:02}")
+
+@test fn monthly()
+    assert(0.06 / 12.0 > 0.0049)

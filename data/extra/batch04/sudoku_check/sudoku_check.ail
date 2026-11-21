@@ -1,0 +1,34 @@
+## Sudoku check: validates 4x4 sudoku grids (rows, columns and 2x2 boxes each hold 1 to 4
+## exactly once) and names the first rule broken.
+
+fn ok_group(xs List[int]) bool
+    xs.sorted() == [1, 2, 3, 4]
+
+fn check(g List[List[int]]) str
+    for r in 0..4
+        if not ok_group(g[r])
+            return "row {r + 1} broken"
+    for c in 0..4
+        col := [g[r][c] for r in 0..4]
+        if not ok_group(col)
+            return "column {c + 1} broken"
+    for b in 0..4
+        r0 := (b / 2) * 2
+        c0 := (b % 2) * 2
+        box := [g[r0][c0], g[r0][c0 + 1], g[r0 + 1][c0], g[r0 + 1][c0 + 1]]
+        if not ok_group(box)
+            return "box {b + 1} broken"
+    "valid"
+
+fn main()
+    grids := [
+        [[1, 2, 3, 4], [3, 4, 1, 2], [2, 1, 4, 3], [4, 3, 2, 1]],
+        [[1, 2, 3, 4], [2, 1, 4, 3], [3, 4, 1, 2], [4, 3, 2, 1]],
+        [[1, 2, 3, 4], [3, 4, 1, 2], [2, 3, 4, 1], [4, 1, 2, 3]],
+        [[1, 2, 3, 3], [3, 4, 1, 2], [2, 1, 4, 3], [4, 3, 2, 1]],
+    ]
+    for i, g in grids.enumerate()
+        print("grid {i + 1}: {check(g)}")
+
+@test fn sorted_group()
+    assert(ok_group([4, 2, 1, 3]))
