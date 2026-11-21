@@ -1,0 +1,39 @@
+## Shelf restock: a shop's shelves sell items each day; when a shelf falls below its reorder
+## point it is refilled to capacity overnight, and the refill days are logged.
+
+struct Shelf
+    name str
+    level int
+    capacity int
+    reorder int
+    daily int
+
+fn smaller(a int, b int) int
+    if a < b
+        return a
+    b
+
+fn main()
+    mut shelves := [
+        Shelf(name: "milk", level: 30, capacity: 40, reorder: 12, daily: 9),
+        Shelf(name: "bread", level: 25, capacity: 25, reorder: 8, daily: 6),
+        Shelf(name: "eggs", level: 18, capacity: 36, reorder: 10, daily: 4),
+    ]
+    for day in 1..=7
+        mut refills := List[str]()
+        for i in 0..shelves.len()
+            sold := smaller(shelves[i].daily, shelves[i].level)
+            shelves[i].level -= sold
+            if shelves[i].level < shelves[i].reorder
+                added := shelves[i].capacity - shelves[i].level
+                shelves[i].level = shelves[i].capacity
+                refills.push("{shelves[i].name}+{added}")
+        if refills.is_empty()
+            print("day {day}: no refills")
+        else
+            shown := refills.join(" ")
+            print("day {day}: {shown}")
+    print(shelves.map(|s| "{s.name}={s.level}").join(" "))
+
+@test fn cap()
+    assert(40 - 3 == 37)

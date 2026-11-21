@@ -1,0 +1,36 @@
+## Hamming distance: compares equal-length DNA strands and binary words, printing the
+## number of differing positions and where they are.
+
+fn diffs(a str, b str) List[int]
+    xs := a.chars()
+    ys := b.chars()
+    mut out := List[int]()
+    for i in 0..xs.len()
+        if xs[i] != ys[i]
+            out.push(i)
+    out
+
+fn bits(n int) int
+    mut v := n
+    mut c := 0
+    while v > 0
+        c += v % 2
+        v /= 2
+    c
+
+fn main()
+    pairs := [("GAGCCTACTAACGGGAT", "CATCGTAATGACGGCCT"), ("10110110", "10011010"), ("AAAA", "AAAA")]
+    for p in pairs
+        a, b := p
+        d := diffs(a, b)
+        where := d.map(|i| "{i}").join(",")
+        print("{a} vs {b}: {d.len()} at [{where}]")
+    mut total := 0
+    for x in 0..16
+        for y in 0..16
+            total += bits(x ^ y)
+    mean := total.to_float() / 256.0
+    print("mean distance of 4-bit pairs: {mean:.2}")
+
+@test fn none_differ()
+    assert_eq(diffs("ab", "ab").len(), 0)

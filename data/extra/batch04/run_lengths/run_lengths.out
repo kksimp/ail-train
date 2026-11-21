@@ -1,0 +1,5 @@
+aaabccdddd -> 3a1b2c4d -> true
+abc -> 1a1b1c -> true
+zzzzzzzzzzzz -> 12z -> true
+hello -> 1h1e2l1o -> true
+mississippi -> 1m1i2s1i2s1i2p1i -> true

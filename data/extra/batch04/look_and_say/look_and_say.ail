@@ -1,0 +1,30 @@
+## Look and say: generates the look-and-say sequence from "1", printing the first terms and
+## the length growth ratio of later terms.
+
+fn next_term(s str) str
+    cs := s.chars()
+    mut out := ""
+    mut i := 0
+    while i < cs.len()
+        mut j := i
+        while j < cs.len() and cs[j] == cs[i]
+            j += 1
+        c := cs[i]
+        out = "{out}{j - i}{c}"
+        i = j
+    out
+
+fn main()
+    mut s := "1"
+    mut lens := List[int]()
+    for n in 1..=20
+        if n <= 8
+            print("{n}: {s}")
+        lens.push(s.len())
+        s = next_term(s)
+    for n in [10, 15, 20]
+        ratio := lens[n - 1].to_float() / lens[n - 2].to_float()
+        print("len {n}: {lens[n - 1]} (ratio {ratio:.3})")
+
+@test fn step()
+    assert_eq(next_term("1211"), "111221")
