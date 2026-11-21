@@ -1,0 +1,16 @@
+inner join:
+  101 Ada  25.00
+  102 Cyd  9.00
+  104 Ada  3.00
+  105 Bea  41.00
+left join:
+  101 Ada    25.00
+  102 Cyd    9.00
+  103 (none) 12.00
+  104 Ada    3.00
+  105 Bea    41.00
+  106 (none) 0.50
+orders with no customer: [103, 106]
+Ada: 2800
+Bea: 4100
+Cyd: 900

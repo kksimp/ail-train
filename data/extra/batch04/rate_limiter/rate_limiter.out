@@ -1,0 +1,13 @@
+t= 1 ann: ok
+t= 2 ann: ok
+t= 3 bob: ok
+t= 4 ann: ok
+t= 5 ann: refused (3 in window)
+t= 9 bob: ok
+t=11 ann: ok
+t=12 ann: ok
+t=13 ann: refused (3 in window)
+t=14 bob: ok
+t=15 ann: ok
+t=25 ann: ok
+2 refused

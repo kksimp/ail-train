@@ -1,0 +1,4 @@
+strict, no curve: A C D F B F C
+strict, +5 curve: A B C D B F C
+gentle, no curve: A B C D B F C
+gentle with curve passes 6 of 7
