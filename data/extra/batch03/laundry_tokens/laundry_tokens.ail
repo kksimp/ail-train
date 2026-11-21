@@ -1,0 +1,32 @@
+## Laundry tokens: residents buy tokens in packs and spend them on washes (2 tokens) and
+## dries (1 token); a spend that would go negative is refused and logged.
+
+fn apply(mut balance Map[str, int], who str, action str) str?
+    price := match action
+        "wash" => 2
+        "dry" => 1
+        _ => 0
+    if action == "buy"
+        balance[who] += 5
+        return none
+    have := balance.get(who) else 0
+    if have < price
+        return "{who} cannot {action} with {have}"
+    balance[who] = have - price
+    none
+
+fn main()
+    mut balance := Map[str, int]()
+    log_lines := [("ana", "buy"), ("ana", "wash"), ("ben", "dry"), ("ana", "wash"), ("ana", "dry"), ("ben", "buy"), ("ana", "wash"), ("ben", "wash")]
+    for entry in log_lines
+        who, action := entry
+        if problem := apply(mut balance, who, action)
+            print("refused: {problem}")
+    for who in balance.keys().sorted()
+        print("{who}: {balance[who]} tokens")
+
+@test fn buy_then_wash()
+    mut b := Map[str, int]()
+    assert_eq(apply(mut b, "x", "buy"), none)
+    assert_eq(apply(mut b, "x", "wash"), none)
+    assert_eq(b["x"], 3)

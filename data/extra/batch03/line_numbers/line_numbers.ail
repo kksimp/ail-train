@@ -1,0 +1,28 @@
+## Line numbers: numbers the lines of a text with a width that fits the last number, marks
+## blank lines without a number, and reports the longest line.
+
+fn number_lines(text str) List[str]
+    lines := text.split("\n")
+    count := lines.filter(|l| l.trim() != "").len()
+    width := "{count}".len()
+    mut out := List[str]()
+    mut n := 0
+    for l in lines
+        if l.trim() == ""
+            blank := "".pad_left(width, ' ')
+            out.push("{blank} |")
+        else
+            n += 1
+            label := "{n}".pad_left(width, ' ')
+            out.push("{label} | {l}")
+    out
+
+fn main()
+    text := "first line\nsecond\n\nfourth has more words\nfive\nsix\nseven\n\neight\nnine\nten is here"
+    for row in number_lines(text)
+        print(row)
+    longest := text.split("\n").max(by: |l| l.len()) else ""
+    print("longest: \"{longest}\" ({longest.len()} chars)")
+
+@test fn blank_has_no_number()
+    assert_eq(number_lines("a\n\nb"), ["1 | a", "  |", "2 | b"])

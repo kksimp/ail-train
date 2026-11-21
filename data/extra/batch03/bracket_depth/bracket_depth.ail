@@ -1,0 +1,30 @@
+## Bracket depth: scans expressions with three kinds of brackets, reporting the deepest
+## nesting, or the position and reason of the first mismatch.
+
+fn closer_of(c char) char
+    match c
+        '(' => ')'
+        '[' => ']'
+        _ => '}'
+
+fn scan(text str) str
+    mut stack := List[char]()
+    mut deepest := 0
+    for i, c in text.chars().enumerate()
+        if c == '(' or c == '[' or c == '{'
+            stack.push(closer_of(c))
+            deepest = deepest.max(stack.len())
+        elif c == ')' or c == ']' or c == '}'
+            want := stack.pop() else return "unexpected {c} at {i}"
+            if want != c
+                return "expected {want} at {i}, found {c}"
+    if not stack.is_empty()
+        return "{stack.len()} left open"
+    "ok, depth {deepest}"
+
+fn main()
+    for t in ["(a[b]\{c})", "f(x)", "((([])))", "(a]", "a)b", "[(", "", "\{[()()]}[]"]
+        print("{t:<12} {scan(t)}")
+
+@test fn mismatch()
+    assert_eq(scan("(]"), "expected ) at 1, found ]")

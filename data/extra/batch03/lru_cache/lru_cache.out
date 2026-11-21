@@ -1,0 +1,9 @@
+get a: 1
+  evict b
+get b: -1
+  evict c
+get a: 1
+get c: -1
+get d: 4
+get e: 5
+order ["a", "d", "e"], hits 4, misses 2

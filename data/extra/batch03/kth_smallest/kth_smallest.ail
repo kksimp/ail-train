@@ -1,0 +1,39 @@
+## Kth smallest: quickselect with a Lomuto partition (last element as pivot) finds the k-th
+## smallest value without fully sorting; the median and quartiles of a list come from it.
+
+fn partition(mut xs List[int], lo int, hi int) int
+    pivot := xs[hi]
+    mut store := lo
+    for i in lo..hi
+        if xs[i] < pivot
+            xs.swap(i, store)
+            store += 1
+    xs.swap(store, hi)
+    store
+
+fn kth(items List[int], k int) int
+    mut xs := items
+    mut lo := 0
+    mut hi := xs.len() - 1
+    while lo < hi
+        p := partition(mut xs, lo, hi)
+        if p == k
+            return xs[p]
+        if p < k
+            lo = p + 1
+        else
+            hi = p - 1
+    xs[lo]
+
+fn main()
+    data := [38, 12, 77, 5, 64, 23, 91, 50, 17, 42, 8]
+    n := data.len()
+    print("sorted for reference: {data.sorted()}")
+    for k in [0, 2, n / 4, n / 2, 3 * n / 4, n - 1]
+        print("k={k}: {kth(data, k)}")
+    print("original untouched: {data}")
+
+@test fn agrees_with_sort()
+    xs := [9, 3, 7, 1, 5]
+    for k in 0..5
+        assert_eq(kth(xs, k), xs.sorted()[k])

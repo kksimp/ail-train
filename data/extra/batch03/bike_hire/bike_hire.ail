@@ -1,0 +1,33 @@
+## Bike hire: docks with capacities; replays hire and return events in order, refusing a
+## hire from an empty dock and a return to a full one, then prints the final counts.
+
+enum Event
+    Hire(dock str)
+    Return(dock str)
+
+fn main()
+    capacity := {"pier": 4, "park": 3, "mill": 2}
+    mut bikes := {"pier": 2, "park": 3, "mill": 0}
+    events := [Event.Hire("pier"), Event.Return("mill"), Event.Return("park"), Event.Hire("mill"), Event.Hire("mill"), Event.Hire("pier"), Event.Hire("pier"), Event.Return("pier")]
+    mut refused := 0
+    for e in events
+        match e
+            Hire(d) =>
+                if bikes[d] == 0
+                    print("hire at {d}: empty")
+                    refused += 1
+                else
+                    bikes[d] -= 1
+            Return(d) =>
+                if bikes[d] == capacity[d]
+                    print("return at {d}: full")
+                    refused += 1
+                else
+                    bikes[d] += 1
+    for d in ["pier", "park", "mill"]
+        print("{d}: {bikes[d]}/{capacity[d]}")
+    print("refused {refused}")
+
+@test fn map_counts()
+    m := {"a": 1}
+    assert_eq(m["a"], 1)

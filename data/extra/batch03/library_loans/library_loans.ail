@@ -1,0 +1,34 @@
+## Library loans: loans with a borrow day and a return day (or none if still out); finds
+## overdue loans on a given day and the fine, 25 cents a day after a 14 day period.
+
+struct Loan
+    title str
+    borrowed int
+    returned int?
+
+fn days_out(l Loan, today int) int
+    end := l.returned else today
+    end - l.borrowed
+
+fn fine(l Loan, today int) int
+    late := days_out(l, today) - 14
+    if late > 0 then late * 25 else 0
+
+fn main()
+    loans := [
+        Loan(title: "Tides", borrowed: 1, returned: 10),
+        Loan(title: "Kites", borrowed: 3, returned: 22),
+        Loan(title: "Moths", borrowed: 5, returned: none),
+        Loan(title: "Ferns", borrowed: 20, returned: none),
+        Loan(title: "Bells", borrowed: 2, returned: 16),
+    ]
+    today := 30
+    for l in loans
+        state := if l.returned == none then "out" else "back"
+        print("{l.title:<6} {state:<4} {days_out(l, today):>2} days, fine {fine(l, today)}c")
+    total := loans.map(|l| fine(l, today)).sum()
+    still_out := loans.filter(|l| l.returned == none).len()
+    print("fines {total}c, still out {still_out}")
+
+@test fn on_time_has_no_fine()
+    assert_eq(fine(Loan(title: "A", borrowed: 1, returned: 15), 30), 0)

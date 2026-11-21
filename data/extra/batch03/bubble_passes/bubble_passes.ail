@@ -1,0 +1,28 @@
+## Bubble passes: bubble sort that stops early when a pass makes no swaps, printing the list
+## after each pass and counting swaps, for a nearly sorted and a reversed list.
+
+fn bubble(items List[int]) (List[int], int, int)
+    mut xs := items
+    mut swaps := 0
+    mut passes := 0
+    mut done := false
+    while not done
+        done = true
+        passes += 1
+        for i in 1..xs.len() - passes + 1
+            if xs[i - 1] > xs[i]
+                xs.swap(i - 1, i)
+                swaps += 1
+                done = false
+        print("  pass {passes}: {xs}")
+    (xs, swaps, passes)
+
+fn main()
+    for start in [[1, 2, 4, 3, 5, 6], [5, 4, 3, 2, 1]]
+        print("start {start}")
+        _, swaps, passes := bubble(start)
+        print("{swaps} swaps in {passes} passes")
+
+@test fn already_sorted()
+    _, swaps, passes := bubble([1, 2, 3])
+    assert_eq((swaps, passes), (0, 1))

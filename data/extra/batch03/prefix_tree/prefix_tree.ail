@@ -1,0 +1,48 @@
+## Prefix tree: a trie stored as a list of nodes, each with a map from letter to child index;
+## supports insert, exact lookup and listing every word under a prefix in sorted order.
+
+struct Node
+    next_of Map[char, int]
+    is_word bool
+
+fn insert(mut nodes List[Node], word str)
+    mut at := 0
+    for c in word.chars()
+        child := nodes[at].next_of.get(c) else -1
+        if child >= 0
+            at = child
+        else
+            nodes.push(Node(next_of: Map[char, int](), is_word: false))
+            fresh := nodes.len() - 1
+            nodes[at].next_of[c] = fresh
+            at = fresh
+    nodes[at].is_word = true
+
+fn find(nodes List[Node], text str) int?
+    mut at := 0
+    for c in text.chars()
+        at = nodes[at].next_of.get(c) else return none
+    at
+
+fn collect(nodes List[Node], at int, prefix str, mut out List[str])
+    if nodes[at].is_word
+        out.push(prefix)
+    for c in nodes[at].next_of.keys().sorted()
+        collect(nodes, nodes[at].next_of[c], "{prefix}{c}", mut out)
+
+fn main()
+    mut nodes := [Node(next_of: Map[char, int](), is_word: false)]
+    for w in ["car", "cart", "care", "cat", "dog", "dot", "do", "card"]
+        insert(mut nodes, w)
+    print("nodes: {nodes.len()}")
+    for p in ["car", "do", "ca", "x"]
+        mut out := List[str]()
+        if at := find(nodes, p)
+            collect(nodes, at, p, mut out)
+        whole := if out.contains(p) then "word" else "prefix only"
+        print("{p}: {out.len()} words {out} ({whole})")
+
+@test fn lookup()
+    mut nodes := [Node(next_of: Map[char, int](), is_word: false)]
+    insert(mut nodes, "hi")
+    assert_eq(find(nodes, "hx"), none)

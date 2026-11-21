@@ -1,0 +1,32 @@
+## Common run: the longest run of consecutive words shared by two sentences, found with a
+## dynamic programming table over word positions.
+
+fn longest_shared(a List[str], b List[str]) List[str]
+    mut table := [[0 for _ in 0..=b.len()] for i in 0..=a.len()]
+    mut best := 0
+    mut end_a := 0
+    for i in 1..=a.len()
+        for j in 1..=b.len()
+            if a[i - 1] == b[j - 1]
+                table[i][j] = table[i - 1][j - 1] + 1
+                if table[i][j] > best
+                    best = table[i][j]
+                    end_a = i
+    a.slice(end_a - best, end_a)
+
+fn main()
+    pairs := [
+        ("the quick brown fox jumps over the lazy dog", "a quick brown fox jumps high"),
+        ("we will meet at the old mill at noon", "meet me at the old mill tomorrow"),
+        ("red green blue", "cyan magenta yellow"),
+    ]
+    for p in pairs
+        first, second := p
+        run := longest_shared(first.split(" "), second.split(" "))
+        if run.is_empty()
+            print("nothing shared")
+        else
+            print("{run.len()} words: {run.join(" ")}")
+
+@test fn single_word()
+    assert_eq(longest_shared(["a", "b"], ["c", "b"]), ["b"])

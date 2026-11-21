@@ -1,0 +1,7 @@
+return at park: full
+hire at mill: empty
+hire at pier: empty
+pier: 1/4
+park: 3/3
+mill: 0/2
+refused 3

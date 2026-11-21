@@ -1,0 +1,24 @@
+## Shoe sizes: converts EU sizes to UK and US sizes with a lookup table, falling back to the
+## nearest listed size, and tallies which UK sizes a shop should stock most.
+
+fn uk_size(eu int, table List[(int, str)]) str
+    mut bestv := table[0]
+    for row in table
+        if (row.0 - eu).abs() < (bestv.0 - eu).abs()
+            bestv = row
+    bestv.1
+
+fn main()
+    table := [(36, "3.5"), (37, "4"), (38, "5"), (39, "6"), (40, "6.5"), (41, "7.5"), (42, "8"), (43, "9"), (44, "9.5"), (45, "10.5")]
+    for eu in [36, 41, 47, 30]
+        print("EU {eu} -> UK {uk_size(eu, table)}")
+    sold := [42, 41, 42, 39, 44, 42, 38, 41, 43, 42, 40, 41]
+    mut counts := Map[str, int]()
+    for eu in sold
+        counts[uk_size(eu, table)] += 1
+    for pair in counts.top(3)
+        size, n := pair
+        print("UK {size}: {n} pairs")
+
+@test fn exact_match()
+    assert_eq(uk_size(38, [(38, "5"), (39, "6")]), "5")

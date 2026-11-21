@@ -1,0 +1,24 @@
+## Plant heights: weekly heights in millimetres for several seedlings; reports each plant's
+## total growth and best week, and which plants grew every single week.
+
+fn growth(h List[int]) List[int]
+    [h[i] - h[i - 1] for i in 1..h.len()]
+
+fn main()
+    plants := [
+        ("basil", [12, 20, 31, 40, 52]),
+        ("chili", [8, 9, 9, 15, 24]),
+        ("mint", [15, 28, 35, 41, 44]),
+        ("dill", [10, 18, 17, 25, 37]),
+    ]
+    for p in plants
+        name, h := p
+        g := growth(h)
+        top := g.max() else 0
+        week := (g.index_of(top) else 0) + 1
+        print("{name:<6} +{h[h.len() - 1] - h[0]} mm, best week {week} (+{top})")
+    steady := plants.filter(|p| growth(p.1).all(|x| x > 0)).map(|p| p.0)
+    print("grew every week: {steady.join(", ")}")
+
+@test fn weekly_growth()
+    assert_eq(growth([1, 4, 4, 9]), [3, 0, 5])

@@ -1,0 +1,43 @@
+## Word ladder: breadth-first search from one word to another, changing one letter at a
+## time and only through words in a small dictionary; prints the shortest ladder.
+
+fn one_apart(a str, b str) bool
+    if a.len() != b.len()
+        return false
+    ca := a.chars()
+    cb := b.chars()
+    [i for i in 0..ca.len() if ca[i] != cb[i]].len() == 1
+
+fn ladder(start str, goal str, words List[str]) List[str]
+    mut came_from := Map[str, str]()
+    mut queue := Deque[str]()
+    queue.push_back(start)
+    came_from[start] = ""
+    while queue.len() > 0
+        w := queue.pop_front() else break
+        if w == goal
+            mut path := [w]
+            mut cur := w
+            while came_from[cur] != ""
+                cur = came_from[cur]
+                path.push(cur)
+            return path.reversed()
+        for n in words
+            if not came_from.contains(n) and one_apart(w, n)
+                came_from[n] = w
+                queue.push_back(n)
+    List[str]()
+
+fn main()
+    words := ["cold", "cord", "card", "ward", "warm", "word", "worm", "corm", "wore", "core", "bold", "bolt"]
+    for pair in [("cold", "warm"), ("cold", "bolt"), ("card", "core"), ("cold", "pear")]
+        a, b := pair
+        path := ladder(a, b, words)
+        if path.is_empty()
+            print("{a} -> {b}: no ladder")
+        else
+            print("{a} -> {b}: {path.join(" > ")} ({path.len() - 1} steps)")
+
+@test fn neighbours()
+    assert(one_apart("cold", "cord"))
+    assert(not one_apart("cold", "warm"))

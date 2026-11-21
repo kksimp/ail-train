@@ -1,0 +1,18 @@
+## Acronym maker: builds acronyms from phrases, skipping small joining words unless they
+## start the phrase, and splitting hyphenated words into parts.
+
+fn acronym(phrase str) str
+    small := ["of", "and", "the", "for", "in", "a", "on"]
+    words := phrase.replace("-", " ").split(" ").filter(|w| w != "")
+    mut out := ""
+    for i, w in words.enumerate()
+        if i == 0 or not small.contains(w.lower())
+            out += w.slice(0, 1).upper()
+    out
+
+fn main()
+    for p in ["portable network graphics", "Bank of the North", "the end of the line", "first-in first-out", "  as  soon as   possible "]
+        print("{acronym(p):<6} {p.trim()}")
+
+@test fn skips_small_words()
+    assert_eq(acronym("department of motor vehicles"), "DMV")

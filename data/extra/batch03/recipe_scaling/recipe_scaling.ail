@@ -1,0 +1,22 @@
+## Recipe scaling: scales ingredient amounts from 4 servings to other counts, keeping grams
+## whole by rounding half up, and converting large gram amounts to kilograms for display.
+
+fn scaled(grams int, from int, to int) int
+    (grams * to * 2 + from) / (from * 2)
+
+fn show(g int) str
+    if g >= 1000
+        return "{g / 1000}.{g % 1000 / 10:02} kg"
+    "{g} g"
+
+fn main()
+    recipe := [("flour", 500), ("butter", 125), ("sugar", 90), ("salt", 3), ("oats", 350)]
+    for serves in [2, 6, 12]
+        parts := recipe.map(|r| "{r.0} {show(scaled(r.1, 4, serves))}")
+        print("serves {serves}: {parts.join(", ")}")
+    total := recipe.map(|r| scaled(r.1, 4, 10)).sum()
+    print("total for 10: {show(total)}")
+
+@test fn halves_round_up()
+    assert_eq(scaled(3, 4, 2), 2)
+    assert_eq(scaled(90, 4, 6), 135)
