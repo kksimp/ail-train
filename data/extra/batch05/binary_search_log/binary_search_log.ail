@@ -1,0 +1,31 @@
+## Binary search: finds values in a sorted list, printing each probe, and reports the
+## insertion point for missing values.
+
+fn search(xs List[int], target int) (bool, int, List[int])
+    mut lo := 0
+    mut hi := xs.len()
+    mut probes := List[int]()
+    while lo < hi
+        mid := (lo + hi) / 2
+        probes.push(xs[mid])
+        if xs[mid] == target
+            return (true, mid, probes)
+        if xs[mid] < target
+            lo = mid + 1
+        else
+            hi = mid
+    (false, lo, probes)
+
+fn main()
+    xs := [3, 8, 15, 21, 34, 42, 57, 63, 71, 88, 94]
+    for t in [42, 3, 94, 50, 1, 100]
+        found, at, probes := search(xs, t)
+        path := probes.map(|p| "{p}").join(" ")
+        if found
+            print("{t}: found at {at} (probes {path})")
+        else
+            print("{t}: missing, insert at {at} (probes {path})")
+
+@test fn first()
+    f, at, _ := search([1, 2, 3], 1)
+    assert(f and at == 0)

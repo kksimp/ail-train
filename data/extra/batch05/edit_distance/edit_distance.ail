@@ -1,0 +1,26 @@
+## Edit distance: Levenshtein distance between word pairs with a full table, and the
+## closest dictionary word for a few misspellings.
+
+fn dist(a str, b str) int
+    xs := a.chars()
+    ys := b.chars()
+    mut prev := [j for j in 0..=ys.len()]
+    for i in 1..=xs.len()
+        mut cur := [i]
+        for j in 1..=ys.len()
+            cost := if xs[i - 1] == ys[j - 1] then 0 else 1
+            best := [prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + cost].min() else 0
+            cur.push(best)
+        prev = cur
+    prev[ys.len()]
+
+fn main()
+    for p in [("kitten", "sitting"), ("flaw", "lawn"), ("same", "same"), ("", "abc")]
+        print("{p.0} -> {p.1}: {dist(p.0, p.1)}")
+    words := ["receive", "separate", "definitely", "necessary", "occasion"]
+    for typo in ["recieve", "seperate", "definately", "neccesary", "ocassion"]
+        near := words.min(by: |w| (dist(typo, w), w)) else ""
+        print("{typo}: {near} ({dist(typo, near)})")
+
+@test fn kitten()
+    assert_eq(dist("kitten", "sitting"), 3)

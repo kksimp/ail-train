@@ -1,0 +1,31 @@
+## Small knapsack: picks camping items to maximise value within a weight limit using
+## dynamic programming over weights, and lists the chosen items.
+
+fn main()
+    items := [("stove", 4, 40), ("tent", 9, 90), ("lamp", 2, 15), ("rope", 3, 18), ("food", 5, 60), ("radio", 3, 22)]
+    limit := 15
+    n := items.len()
+    row := [0 for _ in 0..=limit]
+    mut best := [row for _ in 0..=n]
+    for i in 1..=n
+        w := items[i - 1].1
+        v := items[i - 1].2
+        for cap in 0..=limit
+            best[i][cap] = best[i - 1][cap]
+            if w <= cap and best[i - 1][cap - w] + v > best[i][cap]
+                best[i][cap] = best[i - 1][cap - w] + v
+    mut cap := limit
+    mut chosen := List[str]()
+    mut i := n
+    while i > 0
+        if best[i][cap] != best[i - 1][cap]
+            chosen.push(items[i - 1].0)
+            cap -= items[i - 1].1
+        i -= 1
+    chosen.reverse()
+    shown := chosen.join(", ")
+    print("value {best[n][limit]}, weight {limit - cap}: {shown}")
+
+@test fn table()
+    row := [0 for _ in 0..3]
+    assert_eq([row for _ in 0..2].len(), 2)

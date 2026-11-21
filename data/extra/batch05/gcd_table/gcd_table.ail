@@ -1,0 +1,35 @@
+## GCD and LCM: Euclid's algorithm with a step count, a small coprimality grid, and the LCM
+## of the numbers 1 to 20.
+
+fn gcd_steps(a int, b int) (int, int)
+    mut x := a
+    mut y := b
+    mut steps := 0
+    while y != 0
+        t := x % y
+        x = y
+        y = t
+        steps += 1
+    (x, steps)
+
+fn main()
+    for p in [(1071, 462), (89, 55), (100, 75), (17, 5)]
+        g, s := gcd_steps(p.0, p.1)
+        print("gcd({p.0}, {p.1}) = {g} in {s} steps")
+    print("    1 2 3 4 5 6 7 8")
+    for a in 1..=8
+        mut row := ""
+        for b in 1..=8
+            g, _ := gcd_steps(a, b)
+            mark := if g == 1 then "*" else "."
+            row = "{row} {mark}"
+        print("{a:>2} {row}")
+    mut l := 1
+    for n in 1..=20
+        g, _ := gcd_steps(l, n)
+        l = l / g * n
+    print("lcm 1..20 = {l}")
+
+@test fn euclid()
+    g, _ := gcd_steps(12, 18)
+    assert_eq(g, 6)

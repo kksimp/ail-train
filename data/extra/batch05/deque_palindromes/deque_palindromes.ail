@@ -1,0 +1,20 @@
+## Palindrome check: tests phrases for being palindromes by comparing letters from both
+## ends, ignoring case, spaces and punctuation, and reports the first mismatch.
+
+fn check(s str) str
+    cs := s.to_lower().chars().filter(|c| c.is_alnum())
+    mut i := 0
+    mut j := cs.len() - 1
+    while i < j
+        if cs[i] != cs[j]
+            return "no ({cs[i]} vs {cs[j]})"
+        i += 1
+        j -= 1
+    "yes"
+
+fn main()
+    for s in ["A man, a plan, a canal: Panama", "Was it a car or a cat I saw?", "No lemon, no melon", "Hello, world", "Step on no pets!", "Palindrome"]
+        print("{s}: {check(s)}")
+
+@test fn racecar()
+    assert_eq(check("racecar"), "yes")

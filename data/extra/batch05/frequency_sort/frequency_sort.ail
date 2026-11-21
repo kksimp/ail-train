@@ -1,0 +1,19 @@
+## Frequency sort: orders the letters of words by how often they occur (then
+## alphabetically) and prints each word rebuilt in that order.
+
+fn freq_order(w str) str
+    mut counts := Map[char, int]()
+    for c in w.chars()
+        counts[c] += 1
+    ks := counts.keys().sorted(by: |c| (-counts[c], c))
+    mut out := ""
+    for c in ks
+        out = "{out}{c.to_str().repeat(counts[c])}"
+    out
+
+fn main()
+    for w in ["tree", "banana", "mississippi", "abracadabra", "letter"]
+        print("{w} -> {freq_order(w)}")
+
+@test fn tree()
+    assert_eq(freq_order("tree"), "eert")
