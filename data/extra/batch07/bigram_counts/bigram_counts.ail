@@ -1,0 +1,31 @@
+## Bigrams: counts adjacent word pairs in a short text, prints the most common pairs, and
+## predicts the most likely next word after a few starting words.
+
+fn main()
+    text := "the cat sat on the mat the cat ate the fish the dog sat on the log the cat sat on the dog"
+    words := text.split(" ")
+    mut pairs := Map[str, int]()
+    for i in 1..words.len()
+        a := words[i - 1]
+        b := words[i]
+        pairs["{a} {b}"] += 1
+    top := pairs.keys().sorted(by: |k| (-pairs[k], k)).take(4)
+    for k in top
+        print("{k}: {pairs[k]}")
+    for w in ["the", "cat", "sat", "fish"]
+        mut nexts := Map[str, int]()
+        for k in pairs.keys()
+            parts := k.split(" ")
+            if parts[0] == w
+                nexts[parts[1]] = pairs[k]
+        if nexts.is_empty()
+            print("after {w}: no data")
+        else
+            guess := nexts.keys().sorted(by: |k| (-nexts[k], k))[0]
+            total := nexts.values().sum()
+            print("after {w}: {guess} ({nexts[guess]} of {total})")
+
+@test fn pair_key()
+    a := "x"
+    b := "y"
+    assert_eq("{a} {b}", "x y")

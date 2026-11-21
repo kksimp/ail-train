@@ -1,0 +1,28 @@
+## Glob matching: matches file names against patterns with '*' (any run of characters) and
+## '?' (one character) by dynamic programming over pattern and name.
+
+fn matches(pattern str, name str) bool
+    p := pattern.chars()
+    s := name.chars()
+    mut ok := [[false for j in 0..s.len() + 1] for i in 0..p.len() + 1]
+    ok[0][0] = true
+    for i in 1..=p.len()
+        if p[i - 1] == '*'
+            ok[i][0] = ok[i - 1][0]
+    for i in 1..=p.len()
+        for j in 1..=s.len()
+            if p[i - 1] == '*'
+                ok[i][j] = ok[i - 1][j] or ok[i][j - 1]
+            elif p[i - 1] == '?' or p[i - 1] == s[j - 1]
+                ok[i][j] = ok[i - 1][j - 1]
+    ok[p.len()][s.len()]
+
+fn main()
+    files := ["report.txt", "report.pdf", "photo1.jpg", "photo12.jpg", "notes", "data.tar.gz", "readme.md"]
+    for pat in ["*.txt", "photo?.jpg", "photo*.jpg", "*.*.*", "re*", "*", "????s"]
+        hits := files.filter(|f| matches(pat, f))
+        shown := if hits.is_empty() then "nothing" else hits.join(" ")
+        print("{pat}: {shown}")
+
+@test fn star()
+    assert(matches("a*c", "abbbc"))

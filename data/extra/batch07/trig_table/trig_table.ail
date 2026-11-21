@@ -1,0 +1,16 @@
+## Trig table: sine, cosine and tangent for common angles, printed to four places, with the
+## identity sin^2 + cos^2 = 1 checked at each angle.
+
+fn main()
+    print("deg     sin     cos      tan")
+    for deg in [0, 15, 30, 45, 60, 75, 90]
+        r := deg.to_float() * 3.141592653589793 / 180.0
+        s := r.sin()
+        c := r.cos()
+        tan_text := if deg == 90 then "inf" else "{s / c:.4}"
+        ident := (s * s + c * c - 1.0).abs() < 0.000000001
+        print("{deg:>3} {s:>7.4} {c:>7.4} {tan_text:>8} {ident}")
+
+@test fn zero()
+    z := 0.0
+    assert_eq(z.sin(), 0.0)

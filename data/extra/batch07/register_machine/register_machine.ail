@@ -1,0 +1,48 @@
+## Register machine: runs a tiny assembly language (set, add, sub, mul, jnz, out) over four
+## registers; programs compute a factorial and a sum of odd numbers.
+
+fn operand(regs Map[str, int], s str) int
+    if regs.contains(s)
+        return regs[s]
+    s.to_int() else 0
+
+fn run(code List[str]) List[int]
+    mut regs := Map[str, int]()
+    for r in ["a", "b", "c", "d"]
+        regs[r] = 0
+    mut out := List[int]()
+    mut pc := 0
+    mut steps := 0
+    while pc >= 0 and pc < code.len() and steps < 10000
+        steps += 1
+        parts := code[pc].split(" ")
+        op := parts[0]
+        x := parts[1]
+        yv := if parts.len() > 2 then operand(regs, parts[2]) else 0
+        if op == "set"
+            regs[x] = yv
+        elif op == "add"
+            regs[x] += yv
+        elif op == "sub"
+            regs[x] -= yv
+        elif op == "mul"
+            regs[x] = regs[x] * yv
+        elif op == "out"
+            out.push(regs[x])
+        elif op == "jnz"
+            xv := operand(regs, x)
+            if xv != 0
+                pc += yv
+                continue
+        pc += 1
+    out
+
+fn main()
+    factorial := ["set a 1", "set b 6", "mul a b", "sub b 1", "jnz b -2", "out a"]
+    odds := ["set a 0", "set b 1", "set c 10", "add a b", "add b 2", "out a", "sub c 1", "jnz c -4"]
+    for p in [("factorial of 6", factorial), ("sums of odd numbers", odds)]
+        shown := run(p.1).map(|v| "{v}").join(" ")
+        print("{p.0}: {shown}")
+
+@test fn simple()
+    assert_eq(run(["set a 2", "add a 3", "out a"]), [5])

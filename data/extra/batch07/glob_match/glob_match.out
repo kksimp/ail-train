@@ -1,0 +1,7 @@
+*.txt: report.txt
+photo?.jpg: photo1.jpg
+photo*.jpg: photo1.jpg photo12.jpg
+*.*.*: data.tar.gz
+re*: report.txt report.pdf readme.md
+*: report.txt report.pdf photo1.jpg photo12.jpg notes data.tar.gz readme.md
+????s: notes

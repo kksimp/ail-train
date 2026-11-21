@@ -1,0 +1,27 @@
+## Negabinary: writes integers in base -2, which needs no sign, converting both ways and
+## checking that each number comes back unchanged.
+
+fn to_negabinary(n int) str
+    if n == 0
+        return "0"
+    mut x := n
+    mut digits := List[str]()
+    while x != 0
+        r := if x % 2 == 0 then 0 else 1
+        x = (x - r) / -2
+        digits.push("{r}")
+    digits.reversed().join("")
+
+fn from_negabinary(s str) int
+    mut v := 0
+    for c in s.chars()
+        v = v * -2 + (if c == '1' then 1 else 0)
+    v
+
+fn main()
+    for n in [0, 1, 2, 3, 6, -1, -2, -5, 13, -13, 100]
+        s := to_negabinary(n)
+        print("{n:>4} = {s:>10} (back {from_negabinary(s)})")
+
+@test fn two()
+    assert_eq(to_negabinary(2), "110")

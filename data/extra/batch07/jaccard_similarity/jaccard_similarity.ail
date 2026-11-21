@@ -1,0 +1,31 @@
+## Jaccard similarity: compares short product descriptions by the overlap of their word sets
+## (shared words over all words) and pairs each with its most similar other description.
+
+fn words_of(s str) Set[str]
+    mut out := Set[str]()
+    for w in s.to_lower().split(" ")
+        out.add(w)
+    out
+
+fn jaccard(a Set[str], b Set[str]) float
+    shared := a.intersect(b).len()
+    total := a.len() + b.len() - shared
+    shared.to_float() / total.to_float()
+
+fn main()
+    items := ["red cotton summer dress", "blue cotton summer shirt", "red wool winter scarf", "wool winter hat blue", "cotton summer dress floral"]
+    sets := items.map(words_of)
+    for i in 0..items.len()
+        mut best := -1
+        mut best_score := -1.0
+        for j in 0..items.len()
+            if i == j
+                continue
+            s := jaccard(sets[i], sets[j])
+            if s > best_score
+                best_score = s
+                best = j
+        print("{items[i]} ~ {items[best]} ({best_score:.3})")
+
+@test fn same()
+    assert_eq(jaccard(words_of("a b"), words_of("b a")), 1.0)
