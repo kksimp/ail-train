@@ -1,4 +1,4 @@
-start 0.0: plain 0.7390851332 in 59 steps, Steffensen 0.7390851332 in 5 steps
+start 0.0: plain 0.7390851332 in 59 steps, Steffensen 0.7390851332 in 4 steps
 start 1.0: plain 0.7390851332 in 58 steps, Steffensen 0.7390851332 in 4 steps
 start 3.0: plain 0.7390851332 in 59 steps, Steffensen 0.7390851332 in 5 steps
 first iterates from 1: 0.54030 0.85755 0.65429 0.79348 0.70137 0.76396 0.72210 0.75042

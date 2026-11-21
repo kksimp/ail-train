@@ -8,7 +8,7 @@ fn main()
     mut h := 0.1
     mut prev_f := 0.0
     mut prev_c := 0.0
-    for _ in 0..4
+    for _ in 0..3
         fwd := ((x + h).sin() - x.sin()) / h
         ctr := ((x + h).sin() - (x - h).sin()) / (2.0 * h)
         ef := (fwd - exact).abs()

@@ -23,7 +23,7 @@ def steffensen(start):
             break
         nxt = x - (a - x) * (a - x) / den
         steps += 1
-        if abs(nxt - x) < 0.0000000001:
+        if abs(nxt - x) < 0.000001:
             x = nxt
             break
         x = nxt

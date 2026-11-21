@@ -6,7 +6,7 @@ print(f"exact derivative of sin at 1: {exact:.12f}")
 h = 0.1
 prev_f = 0.0
 prev_c = 0.0
-for _ in range(4):
+for _ in range(3):
     fwd = (math.sin(x + h) - math.sin(x)) / h
     ctr = (math.sin(x + h) - math.sin(x - h)) / (2.0 * h)
     ef = abs(fwd - exact)

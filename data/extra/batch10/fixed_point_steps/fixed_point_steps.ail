@@ -24,7 +24,7 @@ fn steffensen(start float) List[float]
             break
         next := x - (a - x) * (a - x) / den
         steps += 1
-        if (next - x).abs() < 0.0000000001
+        if (next - x).abs() < 0.000001
             x = next
             break
         x = next
