@@ -15,7 +15,7 @@ fn spell(code str) str
         if c.is_upper()
             out.push(ws[c.code() - 65])
         elif c.is_digit()
-            out.push(ds[c.to_digit(10) else 0])
+            out.push(ds[(c.to_digit(10) else 0)])
         elif c == '-'
             out.push("(dash)")
     out.join(" ")
