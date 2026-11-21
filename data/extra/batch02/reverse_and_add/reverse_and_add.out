@@ -1,0 +1,8 @@
+56: 1 steps -> 121
+57: 2 steps -> 363
+59: 3 steps -> 1111
+89: 24 steps -> 8813200023188
+10: 1 steps -> 11
+196: no palindrome in 60 steps
+295: no palindrome in 60 steps
+candidates below 300: 196 295

@@ -1,0 +1,39 @@
+## Spiral diagonals: numbers written in a square spiral outward from 1; the corners of each
+## ring follow from the ring's side length, giving diagonal sums and the share of primes.
+
+fn is_prime(n int) bool
+    if n < 2
+        return false
+    mut d := 2
+    while d * d <= n
+        if n % d == 0
+            return false
+        d += 1
+    true
+
+fn corners(side int) List[int]
+    top := side * side
+    [top - 3 * (side - 1), top - 2 * (side - 1), top - (side - 1), top]
+
+fn main()
+    print("ring corners for sides 3, 5, 7: {corners(3)} {corners(5)} {corners(7)}")
+    for size in [5, 101, 1001]
+        mut total := 1
+        mut side := 3
+        while side <= size
+            total += corners(side).sum()
+            side += 2
+        print("diagonal sum for {size}x{size}: {total}")
+    mut primes := 0
+    mut count := 1
+    mut side := 3
+    while true
+        primes += corners(side).filter(is_prime).len()
+        count += 4
+        if primes * 100 < count * 15
+            break
+        side += 2
+    print("primes on the diagonals first fall below 15% at side {side} ({primes} of {count})")
+
+@test fn first_ring()
+    assert_eq(corners(3), [3, 5, 7, 9])

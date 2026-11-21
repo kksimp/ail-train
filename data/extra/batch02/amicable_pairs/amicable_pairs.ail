@@ -1,0 +1,32 @@
+## Amicable pairs: two numbers where each is the sum of the other's proper divisors; sums
+## are sieved for all numbers below a limit, then pairs and perfect numbers are listed.
+
+fn divisor_sums(limit int) List[int]
+    mut s := [0 for _ in 0..limit]
+    for i in 1..limit
+        mut m := i * 2
+        while m < limit
+            s[m] += i
+            m += i
+    s
+
+fn main()
+    limit := 20000
+    s := divisor_sums(limit)
+    mut pairs := List[str]()
+    mut perfect := List[int]()
+    for a in 2..limit
+        b := s[a]
+        if b == a
+            perfect.push(a)
+        elif b > a and b < limit and s[b] == a
+            pairs.push("({a}, {b})")
+    print("amicable below {limit}: {pairs.join(" ")}")
+    perfect_text := perfect.map(|p| "{p}").join(" ")
+    print("perfect: {perfect_text}")
+    abundant := [n for n in 1..100 if s[n] > n]
+    first_five := abundant.take(5).map(|x| "{x}").join(" ")
+    print("abundant below 100: {abundant.len()}, first {first_five}")
+
+@test fn sum_of_220()
+    assert_eq(divisor_sums(300)[220], 284)

@@ -1,0 +1,26 @@
+## Ordinal words: adds the right English suffix (st, nd, rd, th) to numbers, handling 11 to
+## 13 specially, and ranks race finishers with their ordinal place.
+
+fn suffix(n int) str
+    last_two := n % 100
+    if last_two >= 11 and last_two <= 13
+        return "th"
+    match n % 10
+        1 => "st"
+        2 => "nd"
+        3 => "rd"
+        _ => "th"
+
+fn ordinal(n int) str
+    "{n}{suffix(n)}"
+
+fn main()
+    nums := [1, 2, 3, 4, 11, 12, 13, 21, 22, 23, 101, 111, 112, 1003]
+    print(nums.map(ordinal).join(" "))
+    times := [("Rui", 1312), ("Sam", 1288), ("Tia", 1401), ("Uli", 1295), ("Vee", 1350)]
+    for i, r in times.sorted(by: |r| r.1).enumerate()
+        print("{ordinal(i + 1):>4} {r.0} {r.1 / 60}:{r.1 % 60:02}")
+
+@test fn teens_use_th()
+    assert_eq(ordinal(112), "112th")
+    assert_eq(ordinal(22), "22nd")

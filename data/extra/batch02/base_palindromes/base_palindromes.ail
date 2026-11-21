@@ -1,0 +1,28 @@
+## Base palindromes: numbers that read the same in base 10 and in base 2, found by
+## converting to digit lists in any base, with the binary form shown beside each.
+
+fn digits_in(n int, base int) List[int]
+    if n == 0
+        return [0]
+    mut out := List[int]()
+    mut v := n
+    while v > 0
+        out.push(v % base)
+        v = v / base
+    out.reversed()
+
+fn is_palindrome(ds List[int]) bool
+    ds == ds.reversed()
+
+fn main()
+    both := [n for n in 1..1000 if is_palindrome(digits_in(n, 10)) and is_palindrome(digits_in(n, 2))]
+    for n in both
+        bits := digits_in(n, 2).map(|b| "{b}").join("")
+        print("{n:>4} = {bits}")
+    print("sum: {both.sum()}")
+    for base in [3, 8, 16]
+        count := [n for n in 1..1000 if is_palindrome(digits_in(n, base))].len()
+        print("base {base} palindromes below 1000: {count}")
+
+@test fn five_in_binary()
+    assert_eq(digits_in(5, 2), [1, 0, 1])

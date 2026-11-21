@@ -1,0 +1,30 @@
+## Attendance runs: a register of `P` (present) and `A` (absent) per pupil; reports the
+## attendance percentage, the longest present run and pupils below 80 percent.
+
+fn longest_run(marks str, want char) int
+    mut best := 0
+    mut cur := 0
+    for c in marks.chars()
+        cur = if c == want then cur + 1 else 0
+        best = best.max(cur)
+    best
+
+fn main()
+    register := {
+        "Ade": "PPPPAPPPPPPPPPP",
+        "Bel": "PAPAPPAPPPAPPAP",
+        "Cyd": "PPPPPPPPPPPPPPP",
+        "Dee": "AAPPPPAPPPPPPAA",
+    }
+    mut low := List[str]()
+    for name, marks in register
+        present := marks.count("P")
+        pct := present * 100 / marks.len()
+        print("{name}: {pct:>3}% present, best run {longest_run(marks, 'P')}, longest absence {longest_run(marks, 'A')}")
+        if pct < 80
+            low.push(name)
+    print("below 80%: {low.join(", ")}")
+
+@test fn runs()
+    assert_eq(longest_run("PPAPPP", 'P'), 3)
+    assert_eq(longest_run("", 'P'), 0)

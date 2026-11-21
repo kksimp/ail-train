@@ -1,0 +1,36 @@
+## Modular powers: fast exponentiation by squaring under a modulus, used for the last
+## digits of huge powers and a base-2 Fermat test, which pseudoprimes like 341 and 561 fool.
+
+fn pow_mod(base int, exp int, m int) int
+    mut result := 1 % m
+    mut b := base % m
+    mut e := exp
+    while e > 0
+        if (e & 1) == 1
+            result = result * b % m
+        b = b * b % m
+        e = e >> 1
+    result
+
+fn fermat_says_prime(n int) bool
+    n == 2 or pow_mod(2, n - 1, n) == 1
+
+fn is_prime(n int) bool
+    if n < 2
+        return false
+    mut d := 2
+    while d * d <= n
+        if n % d == 0
+            return false
+        d += 1
+    true
+
+fn main()
+    print("last 4 digits of 7^1000: {pow_mod(7, 1000, 10000):04}")
+    print("2^100 mod 1000007: {pow_mod(2, 100, 1000007)}")
+    print("3^0 mod 5: {pow_mod(3, 0, 5)}")
+    for n in [97, 561, 1105, 1009, 341, 91]
+        print("{n}: fermat {fermat_says_prime(n)}, really {is_prime(n)}")
+
+@test fn small_power()
+    assert_eq(pow_mod(3, 4, 100), 81)

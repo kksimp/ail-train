@@ -1,0 +1,5 @@
+ring corners for sides 3, 5, 7: [3, 5, 7, 9] [13, 17, 21, 25] [31, 37, 43, 49]
+diagonal sum for 5x5: 101
+diagonal sum for 101x101: 692101
+diagonal sum for 1001x1001: 669171001
+primes on the diagonals first fall below 15% at side 981 (294 of 1961)

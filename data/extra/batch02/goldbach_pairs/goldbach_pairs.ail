@@ -1,0 +1,30 @@
+## Goldbach pairs: writes even numbers as the sum of two primes using a sieve, shows the
+## pair with the smallest prime, and counts the ways for each number.
+
+fn sieve(n int) List[bool]
+    mut is_p := [true for _ in 0..=n]
+    is_p[0] = false
+    is_p[1] = false
+    mut i := 2
+    while i * i <= n
+        if is_p[i]
+            mut m := i * i
+            while m <= n
+                is_p[m] = false
+                m += i
+        i += 1
+    is_p
+
+fn main()
+    limit := 200
+    p := sieve(limit)
+    for n in [4, 28, 100, 128, 196]
+        ways := [a for a in 2..=n / 2 if p[a] and p[n - a]]
+        first := ways.first() else 0
+        print("{n} = {first} + {n - first} ({ways.len()} ways)")
+    most := [n for n in 4..=limit if n % 2 == 0].max(by: |n| [a for a in 2..=n / 2 if p[a] and p[n - a]].len()) else 0
+    print("most ways up to {limit}: {most}")
+
+@test fn sieve_small()
+    s := sieve(10)
+    assert_eq([i for i in 0..=10 if s[i]], [2, 3, 5, 7])

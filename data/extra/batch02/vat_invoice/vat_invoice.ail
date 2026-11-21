@@ -1,0 +1,37 @@
+## VAT invoice: invoice lines with different VAT rates in basis points; computes net, VAT
+## per rate (rounded half up per rate) and the gross total, printed as a table.
+
+struct Line
+    text str
+    qty int
+    unit int
+    rate_bp int
+
+fn eur(c int) str
+    "{c / 100}.{c % 100:02}"
+
+fn main()
+    lines := [
+        Line(text: "Laptop", qty: 1, unit: 89900, rate_bp: 2100),
+        Line(text: "Book", qty: 3, unit: 1595, rate_bp: 900),
+        Line(text: "Cable", qty: 2, unit: 799, rate_bp: 2100),
+        Line(text: "Bread", qty: 4, unit: 249, rate_bp: 900),
+        Line(text: "Postage", qty: 1, unit: 495, rate_bp: 0),
+    ]
+    mut net_by_rate := Map[int, int]()
+    for l in lines
+        net := l.qty * l.unit
+        net_by_rate[l.rate_bp] += net
+        print("{l.text:<8}{l.qty:>3} x {eur(l.unit):>7} = {eur(net):>8}  {l.rate_bp / 100}%")
+    mut net_total := 0
+    mut vat_total := 0
+    for rate in net_by_rate.keys().sorted()
+        net := net_by_rate[rate]
+        vat := (net * rate + 5000) / 10000
+        net_total += net
+        vat_total += vat
+        print("VAT {rate / 100:>2}% on {eur(net):>8}: {eur(vat):>7}")
+    print("net {eur(net_total)}, VAT {eur(vat_total)}, total {eur(net_total + vat_total)}")
+
+@test fn half_up()
+    assert_eq((50 * 1000 + 5000) / 10000, 5)

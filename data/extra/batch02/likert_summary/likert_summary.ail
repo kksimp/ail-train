@@ -1,0 +1,23 @@
+## Likert summary: survey answers from 1 (strongly disagree) to 5 (strongly agree) per
+## question; prints the distribution as counts, the mean and the share who agree.
+
+LABELS := ["SD", "D", "N", "A", "SA"]
+
+fn main()
+    answers := {
+        "The app is easy to use": [5, 4, 4, 3, 5, 2, 4, 5],
+        "Support was helpful": [2, 3, 1, 2, 4, 3, 2, 2],
+        "I would recommend it": [4, 4, 5, 5, 3, 4, 4, 1],
+    }
+    for q, xs in answers
+        counts := xs.counts()
+        dist := [1, 2, 3, 4, 5].map(|k| "{LABELS[k - 1]}:{counts.get_or(k, 0)}").join(" ")
+        mean := xs.sum().to_float() / xs.len().to_float()
+        agree := xs.count(|x| x >= 4) * 100 / xs.len()
+        print(q)
+        print("  {dist} | mean {mean:.2} | agree {agree}%")
+    best := answers.keys().max(by: |q| answers[q].sum()) else ""
+    print("highest rated: {best}")
+
+@test fn labels_line_up()
+    assert_eq(LABELS[4], "SA")

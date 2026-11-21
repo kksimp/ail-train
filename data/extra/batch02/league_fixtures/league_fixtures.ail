@@ -1,0 +1,42 @@
+## League fixtures: a round-robin schedule by the circle method, where one team stays put
+## and the others rotate; an odd number of teams gets a bye each round.
+
+fn rounds(teams List[str]) List[List[(str, str)]]
+    mut ts := teams
+    if ts.len() % 2 == 1
+        ts.push("bye")
+    n := ts.len()
+    mut out := List[List[(str, str)]]()
+    for _ in 0..n - 1
+        mut games := List[(str, str)]()
+        for i in 0..n / 2
+            games.push((ts[i], ts[n - 1 - i]))
+        out.push(games)
+        last := ts.pop() else ""
+        ts.insert(1, last)
+    out
+
+fn describe(g (str, str)) str
+    if g.1 == "bye"
+        "{g.0} rests"
+    elif g.0 == "bye"
+        "{g.1} rests"
+    else
+        "{g.0}-{g.1}"
+
+fn pair_key(g (str, str)) str
+    if g.0 < g.1 then "{g.0}{g.1}" else "{g.1}{g.0}"
+
+fn main()
+    for teams in [["Ajax", "Bari", "Celta", "Derby"], ["Elche", "Fulham", "Genk"]]
+        print("{teams.len()} teams:")
+        for r, games in rounds(teams).enumerate()
+            shown := games.map(describe)
+            print("  round {r + 1}: {shown.join(", ")}")
+    every := rounds(["a", "b", "c", "d", "e", "f"]).flatten()
+    pairs := {pair_key(g) for g in every}
+    print("6 teams: {every.len()} games, {pairs.len()} distinct pairs")
+
+@test fn everyone_meets_once()
+    games := rounds(["a", "b", "c", "d"]).flatten()
+    assert_eq(games.len(), 6)

@@ -1,0 +1,30 @@
+## Loyalty points: earns a point per whole euro spent, doubled on Tuesdays, plus a bonus
+## for the fifth visit; redeems points in blocks of 100 for a discount.
+
+struct Visit
+    day str
+    cents int
+
+fn earned(v Visit, visit_no int) int
+    base := v.cents / 100
+    doubled := if v.day == "Tue" then base * 2 else base
+    bonus := if visit_no % 5 == 0 then 50 else 0
+    doubled + bonus
+
+fn main()
+    visits := [
+        Visit(day: "Mon", cents: 2399), Visit(day: "Tue", cents: 1850),
+        Visit(day: "Sat", cents: 7420), Visit(day: "Tue", cents: 999),
+        Visit(day: "Fri", cents: 3110), Visit(day: "Sun", cents: 4500),
+    ]
+    mut points := 0
+    for i, v in visits.enumerate()
+        e := earned(v, i + 1)
+        points += e
+        print("visit {i + 1} ({v.day}): +{e} -> {points}")
+    blocks := points / 100
+    print("redeem {blocks} x 100 points for {blocks * 5} euro off, {points % 100} points kept")
+
+@test fn tuesday_doubles()
+    assert_eq(earned(Visit(day: "Tue", cents: 1000), 1), 20)
+    assert_eq(earned(Visit(day: "Mon", cents: 1000), 5), 60)

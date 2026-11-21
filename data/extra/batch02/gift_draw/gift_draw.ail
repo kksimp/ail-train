@@ -1,0 +1,41 @@
+## Gift draw: assigns secret gift givers so nobody draws themselves or their partner,
+## shuffling with a seeded generator and retrying until the draw is valid.
+
+fn next_rand(state int) int
+    (state * 48271) % 2147483647
+
+fn shuffled(xs List[str], seed int) List[str]
+    mut out := xs
+    mut s := seed
+    mut i := out.len() - 1
+    while i > 0
+        s = next_rand(s)
+        j := s % (i + 1)
+        out.swap(i, j)
+        i -= 1
+    out
+
+fn valid(givers List[str], takers List[str], partner Map[str, str]) bool
+    for g, t in zip(givers, takers)
+        if g == t or partner.get_or(g, "") == t
+            return false
+    true
+
+fn main()
+    people := ["Ana", "Ben", "Cat", "Dan", "Eva", "Fin"]
+    partner := {"Ana": "Ben", "Ben": "Ana", "Cat": "Dan", "Dan": "Cat"}
+    mut seed := 7
+    mut tries := 0
+    mut takers := people
+    while true
+        tries += 1
+        seed = next_rand(seed)
+        takers = shuffled(people, seed)
+        if valid(people, takers, partner)
+            break
+    print("valid draw after {tries} tries:")
+    for g, t in zip(people, takers)
+        print("  {g} -> {t}")
+
+@test fn self_draw_is_invalid()
+    assert(not valid(["a", "b"], ["a", "b"], Map[str, str]()))

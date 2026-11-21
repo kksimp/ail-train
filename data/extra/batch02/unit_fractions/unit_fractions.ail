@@ -1,0 +1,31 @@
+## Unit fractions: writes a fraction below 1 as a sum of distinct unit fractions with the
+## greedy (Fibonacci-Sylvester) method, taking the largest 1/d that still fits each time.
+
+fn greedy(num int, den int) List[int]
+    requires num > 0 and num < den
+    mut out := List[int]()
+    mut a := num
+    mut b := den
+    while a > 0
+        d := (b + a - 1) / a
+        out.push(d)
+        a = a * d - b
+        b = b * d
+        if a > 0
+            g := gcd(a, b)
+            a = a / g
+            b = b / g
+    out
+
+fn gcd(a int, b int) int
+    if b == 0 then a else gcd(b, a % b)
+
+fn main()
+    for f in [(2, 3), (3, 4), (4, 13), (5, 6), (7, 15), (4, 17)]
+        parts := greedy(f.0, f.1).map(|d| "1/{d}").join(" + ")
+        print("{f.0}/{f.1} = {parts}")
+    longest := [n for n in 1..20].max(by: |n| (greedy(n, 20).len(), -n)) else 0
+    print("most parts for n/20: {longest}/20 with {greedy(longest, 20).len()}")
+
+@test fn three_quarters()
+    assert_eq(greedy(3, 4), [2, 4])

@@ -1,0 +1,30 @@
+## Divisor counts: counts divisors of every number up to a limit with a sieve-like double
+## loop, and lists the record setters (numbers with more divisors than any smaller one).
+
+fn divisor_table(limit int) List[int]
+    mut d := [0 for _ in 0..=limit]
+    for i in 1..=limit
+        mut m := i
+        while m <= limit
+            d[m] += 1
+            m += i
+    d
+
+fn main()
+    limit := 1000
+    d := divisor_table(limit)
+    first := [d[n] for n in 1..=12].map(|x| "{x}").join(" ")
+    print("1..12: {first}")
+    mut best := 0
+    mut records := List[str]()
+    for n in 1..=limit
+        if d[n] > best
+            best = d[n]
+            records.push("{n}({d[n]})")
+    print("records: {records.join(" ")}")
+    primes := [n for n in 2..=limit if d[n] == 2].len()
+    squares := [n for n in 1..=limit if d[n] % 2 == 1].len()
+    print("primes: {primes}, odd divisor counts (squares): {squares}")
+
+@test fn twelve_has_six()
+    assert_eq(divisor_table(12)[12], 6)

@@ -1,0 +1,29 @@
+## Repeating decimals: long division of a fraction, remembering each remainder's position
+## in a `Map` so the repeating part can be put in brackets, e.g. 1/7 = 0.(142857).
+
+fn decimal(num int, den int) str
+    whole := num / den
+    mut rem := num % den
+    if rem == 0
+        return "{whole}"
+    mut digits := List[str]()
+    mut seen := Map[int, int]()
+    while rem != 0
+        if at := seen.get(rem)
+            head := digits.slice(0, at).join("")
+            cycle := digits.slice(at).join("")
+            return "{whole}.{head}({cycle})"
+        seen[rem] = digits.len()
+        rem *= 10
+        digits.push("{rem / den}")
+        rem = rem % den
+    "{whole}.{digits.join("")}"
+
+fn main()
+    for f in [(1, 2), (1, 3), (1, 7), (22, 7), (1, 6), (5, 4), (1, 81), (3, 1)]
+        print("{f.0}/{f.1} = {decimal(f.0, f.1)}")
+    longest := [d for d in 2..50].max(by: |d| decimal(1, d).len()) else 0
+    print("longest under 50: 1/{longest} = {decimal(1, longest)}")
+
+@test fn sixth()
+    assert_eq(decimal(1, 6), "0.1(6)")

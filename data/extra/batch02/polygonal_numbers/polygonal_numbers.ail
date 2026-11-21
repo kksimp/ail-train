@@ -1,0 +1,36 @@
+## Polygonal numbers: triangular, square, pentagonal and hexagonal numbers from one formula,
+## and the numbers below a limit that are triangular, pentagonal and hexagonal at once.
+
+fn polygonal(sides int, n int) int
+    ((sides - 2) * n * n - (sides - 4) * n) / 2
+
+fn upto(sides int, limit int) List[int]
+    mut out := List[int]()
+    mut n := 1
+    while polygonal(sides, n) < limit
+        out.push(polygonal(sides, n))
+        n += 1
+    out
+
+fn as_set(xs List[int]) Set[int]
+    mut out := Set[int]()
+    for x in xs
+        out.add(x)
+    out
+
+fn main()
+    names := [(3, "triangular"), (4, "square"), (5, "pentagonal"), (6, "hexagonal")]
+    for entry in names
+        sides, label := entry
+        row := [polygonal(sides, n) for n in 1..=8].map(|x| "{x}").join(" ")
+        print("{label:<11} {row}")
+    limit := 100000000
+    tri := as_set(upto(3, limit))
+    pent := as_set(upto(5, limit))
+    shared := [h for h in upto(6, limit) if tri.contains(h) and pent.contains(h)]
+    print("triangular, pentagonal and hexagonal below {limit}: {shared}")
+    sq_tri := [s for s in upto(4, 100000) if tri.contains(s)]
+    print("square and triangular below 100000: {sq_tri}")
+
+@test fn sixth_hexagonal()
+    assert_eq(polygonal(6, 6), 66)
