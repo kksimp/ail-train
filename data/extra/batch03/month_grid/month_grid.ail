@@ -1,0 +1,37 @@
+## Month grid: prints a calendar month as a Monday-first grid given the weekday of the 1st
+## and the month length, with leap-year February handled.
+
+fn is_leap(y int) bool
+    (y % 4 == 0 and y % 100 != 0) or y % 400 == 0
+
+fn days_in(y int, m int) int
+    if m == 2
+        return if is_leap(y) then 29 else 28
+    if [4, 6, 9, 11].contains(m) then 30 else 31
+
+fn grid(first_weekday int, days int) List[str]
+    mut lines := ["Mo Tu We Th Fr Sa Su"]
+    mut row := List[str]()
+    for _ in 0..first_weekday
+        row.push("  ")
+    for d in 1..=days
+        row.push("{d:>2}")
+        if row.len() == 7
+            lines.push(row.join(" "))
+            row = List[str]()
+    if not row.is_empty()
+        lines.push(row.join(" "))
+    lines
+
+fn main()
+    print("February 2028 (starts Tuesday):")
+    for l in grid(1, days_in(2028, 2))
+        print(l)
+    print("September 2026 (starts Tuesday):")
+    for l in grid(1, days_in(2026, 9))
+        print(l)
+    flags := [1900, 2000, 2024, 2026, 2100].map(|y| "{y}={is_leap(y)}").join(" ")
+    print("leap: {flags}")
+
+@test fn february()
+    assert_eq(days_in(2023, 2), 28)

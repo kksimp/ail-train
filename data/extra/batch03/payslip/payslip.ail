@@ -1,0 +1,25 @@
+## Payslip: monthly gross pay to net pay with a tax-free allowance, two tax bands and a flat
+## pension contribution, all in cents with tax rounded down, for several salaries.
+
+fn tax(taxable int) int
+    band_top := 375000
+    if taxable <= 0
+        return 0
+    if taxable <= band_top
+        return taxable * 20 / 100
+    band_top * 20 / 100 + (taxable - band_top) * 40 / 100
+
+fn money(c int) str
+    "{c / 100:,}.{c % 100:02}"
+
+fn main()
+    allowance := 104750
+    for yearly in [1500000, 3000000, 6000000, 9000000]
+        gross := yearly / 12
+        pension := gross * 5 / 100
+        t := tax(gross - pension - allowance)
+        net := gross - pension - t
+        print("salary {money(yearly)}: gross {money(gross)}, pension {money(pension)}, tax {money(t)}, net {money(net)}")
+
+@test fn below_allowance()
+    assert_eq(tax(-500), 0)

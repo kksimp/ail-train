@@ -1,0 +1,24 @@
+## Speed cameras: two cameras a known distance apart record each plate's passing time; the
+## average speed between them is computed and plates over the limit are fined by band.
+
+fn main()
+    distance_m := 2400
+    limit := 80
+    first := {"KX12 ABC": 100, "LM65 DEF": 130, "PQ19 GHI": 145, "RS70 JKL": 160, "TU22 MNO": 175}
+    second := {"KX12 ABC": 208, "LM65 DEF": 226, "PQ19 GHI": 280, "TU22 MNO": 250}
+    for plate in first.keys().sorted()
+        t1 := first[plate]
+        t2 := second.get(plate) else
+            print("{plate}: did not reach the second camera")
+            continue
+        secs := t2 - t1
+        kmh := distance_m * 36 / (secs * 10)
+        mut verdict := "fine"
+        if kmh <= limit
+            verdict = "ok"
+        elif kmh <= limit + 10
+            verdict = "warning"
+        print("{plate}: {secs}s, {kmh} km/h, {verdict}")
+
+@test fn speed_formula()
+    assert_eq(2400 * 36 / (108 * 10), 80)
