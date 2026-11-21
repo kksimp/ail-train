@@ -1,0 +1,59 @@
+## Notifications: a `trait Channel` with email, SMS and push structs; each formats an alert
+## differently and has its own length limit, and alerts go out on every channel.
+
+trait Channel
+    fn name(self) str
+    fn limit(self) int
+    fn render(self, title str, body str) str
+
+struct Email
+    address str
+
+struct Sms
+    number str
+
+struct Push
+    device str
+
+impl Channel for Email
+    fn name(self) str
+        "email to {address}"
+    fn limit(self) int
+        200
+    fn render(self, title str, body str) str
+        "Subject: {title} | {body}"
+
+impl Channel for Sms
+    fn name(self) str
+        "sms to {number}"
+    fn limit(self) int
+        40
+    fn render(self, title str, body str) str
+        "{title}: {body}"
+
+impl Channel for Push
+    fn name(self) str
+        "push to {device}"
+    fn limit(self) int
+        30
+    fn render(self, title str, body str) str
+        title
+
+fn fit(text str, limit int) str
+    if text.len() <= limit
+        return text
+    cut := text.slice(0, limit - 3)
+    "{cut}..."
+
+fn main()
+    mut channels := List[any Channel]()
+    channels.push(Email(address: "kim@home.net"))
+    channels.push(Sms(number: "07700 900123"))
+    channels.push(Push(device: "phone"))
+    alerts := [("Delivery today", "Your parcel arrives between 10:00 and 12:00."), ("Payment due", "Card ending 4242 will be charged on the 3rd.")]
+    for a in alerts
+        for c in channels
+            print("{c.name()}: {fit(c.render(a.0, a.1), c.limit())}")
+
+@test fn cut()
+    assert_eq(fit("abcdefgh", 6), "abc...")

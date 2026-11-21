@@ -1,0 +1,14 @@
+## Doubling time: compares the rule of 72 with the exact doubling time ln 2 / ln(1 + r) for
+## several yearly growth rates, and the rule's error.
+
+fn main()
+    two := 2.0
+    for pct in [1.0, 2.0, 4.0, 6.0, 8.0, 12.0, 20.0]
+        rule := 72.0 / pct
+        growth := 1.0 + pct / 100.0
+        exact := two.ln() / growth.ln()
+        err := (rule - exact) / exact * 100.0
+        print("{pct:>4.0}%: rule {rule:.2} years, exact {exact:.2}, error {err:.2}%")
+
+@test fn rule()
+    assert_eq(72.0 / 8.0, 9.0)

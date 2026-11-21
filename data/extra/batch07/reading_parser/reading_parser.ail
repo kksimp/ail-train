@@ -1,0 +1,32 @@
+## Reading parser: parses temperature readings like "21.5C" or "70F" into Celsius, failing
+## with a message for a missing unit, a bad number or an impossible value.
+
+fn parse(text str) float ! Fail
+    t := text.trim()
+    if t.len() < 2
+        return Fail(msg: "'{t}' is too short")
+    unit := t.char_at(t.len() - 1) else ' '
+    number := t.slice(0, t.len() - 1)
+    value := number.to_float() else return Fail(msg: "'{number}' is not a number")
+    celsius := if unit == 'C' then value elif unit == 'F' then (value - 32.0) * 5.0 / 9.0 elif unit == 'K' then value - 273.15 else -1000.0
+    if celsius == -1000.0
+        return Fail(msg: "unknown unit {unit}")
+    if celsius < -273.15
+        return Fail(msg: "{text} is below absolute zero")
+    celsius
+
+fn main()
+    readings := ["21.5C", "70F", "300K", "abcC", "12X", "-500F", "7", " 98.6F "]
+    mut good := List[float]()
+    for r in readings
+        if c := parse(r)
+            good.push(c)
+            print("{r.trim()} = {c:.2} C")
+        else err
+            print("{r.trim()}: {err.msg}")
+    mean := good.sum() / good.len().to_float()
+    print("{good.len()} good readings, mean {mean:.2} C")
+
+@test fn freezing()
+    v := parse("32F") else 99.0
+    assert_eq(v, 0.0)

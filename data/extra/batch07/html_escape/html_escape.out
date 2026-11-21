@@ -1,0 +1,6 @@
+Fish &amp; Chips | round trip true
+&lt;b&gt;bold&lt;/b&gt; | round trip true
+say &quot;hi&quot; | round trip true
+it&#39;s 5 &gt; 3 &amp; 2 &lt; 4 | round trip true
+plain text | round trip true
+&amp;amp; already | round trip true

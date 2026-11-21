@@ -1,0 +1,18 @@
+## Dilution: how much stock solution and water make a target volume and concentration, by
+## C1 x V1 = C2 x V2, and which requests can't be made from the stock.
+
+fn main()
+    stocks := {"ethanol": 96.0, "bleach": 5.0, "acid": 37.0}
+    requests := [("ethanol", 70.0, 500.0), ("bleach", 0.5, 2000.0), ("acid", 10.0, 250.0), ("bleach", 8.0, 100.0), ("ethanol", 40.0, 1000.0)]
+    for r in requests
+        name, want, volume := r
+        have := stocks[name]
+        if want > have
+            print("{name} {want:.1}%: stock is only {have:.1}%")
+            continue
+        stock_ml := want * volume / have
+        water := volume - stock_ml
+        print("{name} {want:.1}% x {volume:.0} ml: {stock_ml:.1} ml stock + {water:.1} ml water")
+
+@test fn half()
+    assert_eq(50.0 * 100.0 / 100.0, 50.0)

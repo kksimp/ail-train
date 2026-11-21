@@ -1,0 +1,34 @@
+## Fuel stops: a car with a 400 km range drives a route with fuel stations at given
+## kilometres; it stops only when it can't reach the next station, fewest stops overall.
+
+fn plan(stations List[int], finish int, reach int) List[int]?
+    mut stops := List[int]()
+    mut tank_from := 0
+    mut points := stations
+    points.push(finish)
+    for i, p in points.enumerate()
+        if p - tank_from > reach
+            if i == 0
+                return none
+            last := points[i - 1]
+            if p - last > reach or last == tank_from
+                return none
+            stops.push(last)
+            tank_from = last
+    stops
+
+fn main()
+    trips := [([120, 290, 410, 560, 700, 880], 1000), ([150, 380, 790], 1100), ([90, 200, 330], 380), ([300, 450], 1000)]
+    for t in trips
+        stations, finish := t
+        if s := plan(stations, finish, 400)
+            if s.is_empty()
+                print("{finish} km: no stops needed")
+            else
+                shown := s.map(|k| "{k}").join(", ")
+                print("{finish} km: {s.len()} stop(s) at {shown}")
+        else
+            print("{finish} km: can't be done")
+
+@test fn short()
+    assert_eq((plan([100], 300, 400) else [9]).len(), 0)

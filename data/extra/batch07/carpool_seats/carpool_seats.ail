@@ -1,0 +1,30 @@
+## Carpool seats: drivers with free seats and riders with pickup towns along one road; each
+## rider joins the first driver passing their town with a seat left, in rider order.
+
+fn main()
+    road := ["Ash", "Birch", "Cedar", "Dale", "Elm"]
+    drivers := [("Kit", "Ash", 2), ("Lee", "Birch", 3), ("Max", "Dale", 1)]
+    riders := [("Ola", "Cedar"), ("Pip", "Ash"), ("Quin", "Elm"), ("Ray", "Birch"), ("Sol", "Cedar"), ("Tam", "Ash"), ("Uma", "Dale")]
+    mut seats := drivers.map(|d| d.2)
+    mut cars := [List[str](), List[str](), List[str]()]
+    mut stranded := List[str]()
+    for r in riders
+        stop := road.index_of(r.1) else 0
+        mut placed := false
+        for i, d in drivers.enumerate()
+            start := road.index_of(d.1) else 0
+            if start <= stop and seats[i] > 0
+                seats[i] -= 1
+                cars[i].push(r.0)
+                placed = true
+                break
+        if not placed
+            stranded.push(r.0)
+    for i, d in drivers.enumerate()
+        shown := if cars[i].is_empty() then "empty" else cars[i].join(", ")
+        print("{d.0} from {d.1}: {shown}")
+    left := if stranded.is_empty() then "none" else stranded.join(", ")
+    print("no seat: {left}")
+
+@test fn order()
+    assert_eq(["a", "b"].index_of("b") else -1, 1)

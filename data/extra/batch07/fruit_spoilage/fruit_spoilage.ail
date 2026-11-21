@@ -1,0 +1,36 @@
+## Spoilage: in a crate grid, rotten fruit (R) spoils fresh neighbours (F) each hour; a
+## multi-source breadth-first search gives the hours until all spoil, or -1 if some never do.
+
+fn hours(grid List[str]) int
+    mut cells := grid.map(|r| r.chars())
+    mut frontier := List[(int, int)]()
+    mut fresh := 0
+    for r in 0..cells.len()
+        for c in 0..cells[r].len()
+            if cells[r][c] == 'R'
+                frontier.push((r, c))
+            elif cells[r][c] == 'F'
+                fresh += 1
+    mut t := 0
+    while fresh > 0 and not frontier.is_empty()
+        mut next := List[(int, int)]()
+        for p in frontier
+            for d in [(0, 1), (1, 0), (0, -1), (-1, 0)]
+                nr := p.0 + d.0
+                nc := p.1 + d.1
+                if nr >= 0 and nr < cells.len() and nc >= 0 and nc < cells[nr].len() and cells[nr][nc] == 'F'
+                    cells[nr][nc] = 'R'
+                    fresh -= 1
+                    next.push((nr, nc))
+        frontier = next
+        t += 1
+    if fresh > 0 then -1 else t
+
+fn main()
+    crates := [["RFF", "FF.", ".FF"], ["RFF", ".FF", "F.F"], ["..", ".."], ["F.R", "FFF", "R.F"]]
+    for c in crates
+        shown := c.join("/")
+        print("{shown}: {hours(c)}")
+
+@test fn empty()
+    assert_eq(hours([".."]), 0)

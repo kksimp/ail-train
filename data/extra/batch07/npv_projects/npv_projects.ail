@@ -1,0 +1,22 @@
+## Net present value: discounts each project's yearly cash flows at 8% and ranks the
+## projects, saying which are worth doing (positive NPV).
+
+fn npv(rate float, flows List[float]) float
+    mut total := 0.0
+    mut factor := 1.0
+    for f in flows
+        total += f / factor
+        factor *= 1.0 + rate
+    total
+
+fn main()
+    projects := [("solar roof", [-24000.0, 3100.0, 3100.0, 3100.0, 3100.0, 3100.0, 3100.0, 3100.0, 3100.0, 3100.0, 3100.0]), ("new oven", [-8000.0, 2500.0, 2500.0, 2500.0, 2500.0]), ("van", [-30000.0, 9000.0, 9000.0, 8000.0, 7000.0, 6000.0]), ("website", [-5000.0, 800.0, 1200.0, 1500.0, 1500.0])]
+    mut results := List[(str, float)]()
+    for p in projects
+        results.push((p.0, npv(0.08, p.1)))
+    for r in results.sorted(by: |r| -r.1)
+        verdict := if r.1 > 0.0 then "worth it" else "not worth it"
+        print("{r.0:<10} NPV {r.1:>10.2} {verdict}")
+
+@test fn no_rate()
+    assert_eq(npv(0.0, [-10.0, 4.0, 6.0]), 0.0)

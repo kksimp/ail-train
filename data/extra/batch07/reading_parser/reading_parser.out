@@ -1,0 +1,9 @@
+21.5C = 21.50 C
+70F = 21.11 C
+300K = 26.85 C
+abcC: 'abc' is not a number
+12X: unknown unit X
+-500F: -500F is below absolute zero
+7: '7' is too short
+98.6F = 37.00 C
+4 good readings, mean 26.62 C

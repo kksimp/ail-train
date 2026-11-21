@@ -1,0 +1,25 @@
+## Deli tickets: a ticket roll numbered 1 to 99 wraps back to 1; customers take tickets and
+## the counter serves in order, showing how many are waiting at each call.
+
+fn next_number(n int) int
+    if n == 99 then 1 else n + 1
+
+fn main()
+    mut issued := 95
+    mut serving := 94
+    events := ["take", "take", "serve", "take", "take", "take", "serve", "serve", "take", "serve", "serve", "serve", "serve"]
+    mut queue := List[int]()
+    for e in events
+        if e == "take"
+            issued = next_number(issued)
+            queue.push(issued)
+            print("ticket {issued} taken, {queue.len()} waiting")
+        elif queue.is_empty()
+            print("no one waiting")
+        else
+            serving = queue[0]
+            queue.remove_at(0)
+            print("now serving {serving}, {queue.len()} waiting")
+
+@test fn wraps()
+    assert_eq(next_number(99), 1)

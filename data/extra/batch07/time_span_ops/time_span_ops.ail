@@ -1,0 +1,40 @@
+## Time spans: a `Span` struct of hours and minutes with `impl Add` and `impl Sub` that keep
+## minutes under 60, and `impl Ord` for sorting a list of spans.
+
+struct Span
+    hours int
+    mins int
+
+fn span(total int) Span
+    Span(hours: total / 60, mins: total % 60)
+
+fn total_of(s Span) int
+    s.hours * 60 + s.mins
+
+impl Add for Span
+    fn add(self, o Span) Span
+        span(hours * 60 + mins + o.hours * 60 + o.mins)
+
+impl Sub for Span
+    fn sub(self, o Span) Span
+        span(hours * 60 + mins - o.hours * 60 - o.mins)
+
+impl Ord for Span
+
+fn show(s Span) str
+    "{s.hours}h{s.mins:02}"
+
+fn main()
+    legs := [span(95), span(40), span(130), span(25)]
+    mut trip := span(0)
+    for l in legs
+        trip = trip + l
+    parts := legs.map(show).join(" + ")
+    print("legs: {parts} = {show(trip)}")
+    budget := span(300)
+    print("left of {show(budget)}: {show(budget - trip)}")
+    ordered := legs.sorted().map(show).join(" ")
+    print("shortest to longest: {ordered}")
+
+@test fn carry()
+    assert_eq(total_of(span(50) + span(20)), 70)

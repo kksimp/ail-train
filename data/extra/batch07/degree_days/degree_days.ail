@@ -1,0 +1,24 @@
+## Degree days: heating degree days below a 15.5 base from daily mean temperatures, summed per
+## week, with the coldest week and the estimated heating energy at 2.1 kWh per degree day.
+
+fn main()
+    temps := [8.2, 6.9, 7.4, 10.1, 11.3, 9.0, 5.6, 3.2, 2.8, 4.1, 6.0, 7.7, 9.9, 12.4, 13.8, 14.9, 16.2, 15.1, 11.0, 9.3, 8.8]
+    base := 15.5
+    mut weeks := List[float]()
+    mut sum_week := 0.0
+    for i, t in temps.enumerate()
+        if t < base
+            sum_week += base - t
+        if i % 7 == 6
+            weeks.push(sum_week)
+            sum_week = 0.0
+    mut coldest := 0
+    for i, w in weeks.enumerate()
+        print("week {i + 1}: {w:.1} degree days, {w * 2.1:.0} kWh")
+        if w > weeks[coldest]
+            coldest = i
+    total := weeks.sum()
+    print("total {total:.1} degree days; coldest week {coldest + 1}")
+
+@test fn warm()
+    assert_eq(if 16.0 < 15.5 then 1 else 0, 0)

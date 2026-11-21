@@ -1,0 +1,28 @@
+## Borda count: ranked ballots give n-1 points for a first choice down to 0 for last; prints
+## the scores, the Borda winner, and the plurality winner for comparison.
+
+fn main()
+    options := ["Park", "Pool", "Library", "Gym"]
+    ballots := [
+        (8, ["Park", "Library", "Gym", "Pool"]),
+        (6, ["Pool", "Library", "Park", "Gym"]),
+        (5, ["Gym", "Library", "Pool", "Park"]),
+        (3, ["Library", "Park", "Pool", "Gym"]),
+    ]
+    mut points := Map[str, int]()
+    mut firsts := Map[str, int]()
+    for o in options
+        firsts[o] = 0
+    for b in ballots
+        count, order := b
+        for i, o in order.enumerate()
+            points[o] += count * (order.len() - 1 - i)
+        firsts[order[0]] += count
+    for o in options.sorted(by: |o| (-points[o], o))
+        print("{o:<8} {points[o]:>3} points, {firsts[o]} first choices")
+    borda := options.max(by: |o| (points[o], o)) else ""
+    plural := options.max(by: |o| (firsts[o], o)) else ""
+    print("Borda winner {borda}; most first choices {plural}")
+
+@test fn pts()
+    assert_eq(8 * 3, 24)

@@ -1,0 +1,19 @@
+## Wall paint: paint needed for rooms from wall sizes minus doors and windows, two coats at
+## 10 square metres per litre, bought in 2.5 litre tins.
+
+fn main()
+    rooms := [("kitchen", 3.2, 4.1, 2.4, 1, 1), ("bedroom", 3.8, 3.6, 2.5, 1, 2), ("hall", 1.2, 5.6, 2.4, 3, 0), ("lounge", 5.1, 4.4, 2.6, 2, 3)]
+    mut tins := 0
+    for r in rooms
+        name, w, l, h, doors, windows := r
+        wall := 2.0 * (w + l) * h
+        holes := doors.to_float() * 1.9 + windows.to_float() * 1.4
+        area := wall - holes
+        litres := area * 2.0 / 10.0
+        need := (litres / 2.5).ceil().to_int()
+        tins += need
+        print("{name:<8} {area:>6.2} m2, {litres:>5.2} l, {need} tin(s)")
+    print("{tins} tins in all")
+
+@test fn tin_round()
+    assert_eq((5.1 / 2.5).ceil().to_int(), 3)

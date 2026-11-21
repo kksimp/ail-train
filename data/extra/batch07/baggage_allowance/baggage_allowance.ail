@@ -1,0 +1,27 @@
+## Baggage: checks passengers' bags against a cabin limit of 7 kg and a hold allowance by
+## fare (0, 1 or 2 bags of 23 kg), charging for extra bags and overweight ones.
+
+fn main()
+    passengers := [("Ito", "basic", [6.5], [19.0]), ("Kerr", "standard", [7.8], [22.0]), ("Lam", "flex", [5.0], [24.5, 18.0]), ("Moya", "standard", [6.9], [21.0, 15.0]), ("Ng", "flex", [4.0], [23.0, 23.1, 10.0])]
+    included := {"basic": 0, "standard": 1, "flex": 2}
+    for p in passengers
+        name, fare, cabin, hold := p
+        mut fees := 0
+        mut notes := List[str]()
+        for c in cabin
+            if c > 7.0
+                fees += 40
+                notes.push("cabin bag {c:.1} kg to hold")
+        free := included[fare]
+        for i, h in hold.enumerate()
+            if i >= free
+                fees += 50
+                notes.push("extra bag")
+            if h > 23.0
+                fees += 75
+                notes.push("{h:.1} kg overweight")
+        shown := if notes.is_empty() then "all fine" else notes.join(", ")
+        print("{name} ({fare}): {shown}, fees {fees}")
+
+@test fn limit()
+    assert(7.8 > 7.0)

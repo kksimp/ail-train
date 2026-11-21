@@ -1,0 +1,23 @@
+## Bean machine: expected counts of 1024 beans landing in each bin of a 10-row peg board,
+## from binomial coefficients, drawn as a sideways histogram.
+
+fn main()
+    rows := 10
+    beans := 1024
+    mut c := [1]
+    for r in 1..=rows
+        mut next := [1]
+        for i in 1..r
+            next.push(c[i - 1] + c[i])
+        next.push(1)
+        c = next
+    mut total := 0
+    for i, k in c.enumerate()
+        count := k * beans / 1024
+        total += count
+        bar := "#".repeat(count / 6)
+        print("bin {i:>2}: {count:>3} |{bar}")
+    print("{total} beans in {c.len()} bins")
+
+@test fn row()
+    assert_eq(252 * 1024 / 1024, 252)

@@ -1,0 +1,30 @@
+## Relative times: describes how long ago events happened in friendly words ("just now",
+## "5 minutes ago", "yesterday", "3 weeks ago") from a count of seconds.
+
+fn plural(n int, unit str) str
+    if n == 1 then "1 {unit} ago" else "{n} {unit}s ago"
+
+fn ago(s int) str
+    if s < 45
+        return "just now"
+    if s < 3600
+        return plural((s + 30) / 60, "minute")
+    if s < 86400
+        return plural(s / 3600, "hour")
+    days := s / 86400
+    if days == 1
+        return "yesterday"
+    if days < 14
+        return "{days} days ago"
+    if days < 60
+        return plural(days / 7, "week")
+    if days < 365
+        return plural(days / 30, "month")
+    plural(days / 365, "year")
+
+fn main()
+    for s in [10, 50, 125, 3599, 3600, 7300, 86399, 90000, 400000, 1500000, 4000000, 40000000, 80000000]
+        print("{s:>8} s: {ago(s)}")
+
+@test fn yesterday()
+    assert_eq(ago(100000), "yesterday")

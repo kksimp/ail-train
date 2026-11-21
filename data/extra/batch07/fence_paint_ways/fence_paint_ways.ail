@@ -1,0 +1,23 @@
+## Fence painting: counts the ways to paint n posts with k colours so that no more than two
+## neighbouring posts share a colour, by tracking same and different endings.
+
+fn ways(n int, k int) int
+    if n == 0
+        return 0
+    if n == 1
+        return k
+    mut same := k
+    mut diff := k * (k - 1)
+    for i in 3..=n
+        next_diff := (same + diff) * (k - 1)
+        same = diff
+        diff = next_diff
+    same + diff
+
+fn main()
+    for k in [2, 3, 4]
+        row := [ways(n, k) for n in 1..=8].map(|w| "{w}").join(" ")
+        print("{k} colours, 1-8 posts: {row}")
+
+@test fn three_posts()
+    assert_eq(ways(3, 2), 6)

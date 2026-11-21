@@ -1,0 +1,5 @@
+[2 4 1 3 5]: 3 inversions of 10 pairs, brute force agrees true
+[5 4 3 2 1]: 10 inversions of 10 pairs, brute force agrees true
+[1 2 3 4 5]: 0 inversions of 10 pairs, brute force agrees true
+[3 1 2 5 4 8 6 7]: 5 inversions of 28 pairs, brute force agrees true
+[9 1 8 2 7 3 6 4 5]: 20 inversions of 36 pairs, brute force agrees true

@@ -1,0 +1,12 @@
+q1 Ana: right in 4s, +10
+q1 Ben: right in 12s, +8
+q1 Cy: wrong in 3s, +0
+q2 Ana: wrong in 20s, +0
+q2 Ben: right in 7s, +9
+q2 Cy: right in 2s, +10
+q3 Ana: right in 45s, +2
+q3 Ben: right in 31s, +4
+q3 Cy: right in 9s, +9
+Ben: 21
+Cy: 19
+Ana: 12

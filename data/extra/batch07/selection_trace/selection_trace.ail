@@ -1,0 +1,24 @@
+## Selection sort trace: sorts a list by repeatedly selecting the smallest remaining item,
+## printing the list after each swap and counting comparisons and swaps.
+
+fn main()
+    mut xs := [29, 10, 14, 37, 13, 5, 41, 22]
+    mut comparisons := 0
+    mut swaps := 0
+    for i in 0..xs.len() - 1
+        mut low := i
+        for j in i + 1..xs.len()
+            comparisons += 1
+            if xs[j] < xs[low]
+                low = j
+        if low != i
+            xs.swap(i, low)
+            swaps += 1
+            shown := xs.map(|x| "{x}").join(" ")
+            print("pass {i + 1}: {shown}")
+    print("{comparisons} comparisons, {swaps} swaps")
+
+@test fn sw()
+    mut v := [2, 1]
+    v.swap(0, 1)
+    assert_eq(v, [1, 2])

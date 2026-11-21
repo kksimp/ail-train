@@ -1,0 +1,21 @@
+AB12: home 10, stored at 10 after 1 probe(s)
+CD34: home 7, stored at 7 after 1 probe(s)
+BA21: home 10, stored at 0 after 2 probe(s)
+EF56: home 4, stored at 4 after 1 probe(s)
+GH78: home 1, stored at 1 after 1 probe(s)
+DC43: home 7, stored at 8 after 2 probe(s)
+XY99: home 5, stored at 5 after 1 probe(s)
+ZZ01: home 2, stored at 2 after 1 probe(s)
+   0 BA21
+   1 GH78
+   2 ZZ01
+   3 -
+   4 EF56
+   5 XY99
+   6 -
+   7 CD34
+   8 DC43
+   9 -
+  10 AB12
+lookup DC43: found at 8 in 2 step(s)
+lookup QQ00: absent in 2 step(s)

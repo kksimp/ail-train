@@ -1,0 +1,30 @@
+## Sliding puzzle: decides whether 4x4 sliding-tile positions can be solved, from the number
+## of inversions and the blank's row counted from the bottom.
+
+fn solvable(tiles List[int]) (bool, int, int)
+    nums := tiles.filter(|t| t != 0)
+    mut inv := 0
+    for i in 0..nums.len()
+        for j in i + 1..nums.len()
+            if nums[i] > nums[j]
+                inv += 1
+    blank := tiles.index_of(0) else 0
+    row_from_bottom := 4 - blank / 4
+    ok := if row_from_bottom % 2 == 0 then inv % 2 == 1 else inv % 2 == 0
+    (ok, inv, row_from_bottom)
+
+fn main()
+    puzzles := [
+        [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 0],
+        [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 15, 14, 0],
+        [12, 1, 10, 2, 7, 11, 4, 14, 5, 0, 9, 15, 8, 13, 6, 3],
+        [6, 13, 7, 10, 8, 9, 11, 0, 15, 2, 12, 5, 14, 3, 1, 4],
+        [3, 9, 1, 15, 14, 11, 4, 6, 13, 0, 10, 12, 2, 7, 8, 5],
+    ]
+    for p in puzzles
+        r := solvable(p)
+        verdict := if r.0 then "solvable" else "not solvable"
+        print("{r.1} inversions, blank on row {r.2} from bottom: {verdict}")
+
+@test fn solved()
+    assert(solvable([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 0]).0)

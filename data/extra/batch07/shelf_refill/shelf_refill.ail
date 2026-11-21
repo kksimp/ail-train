@@ -1,0 +1,30 @@
+## Shelf refill: products as structs with a method-style function that returns how many to
+## order; a refill list is printed by aisle, skipping full shelves.
+
+struct Product
+    name str
+    aisle int
+    on_shelf int
+    capacity int
+    case_size int
+
+fn Product.to_order(self) int
+    gap := self.capacity - self.on_shelf
+    if gap < self.case_size
+        return 0
+    gap / self.case_size * self.case_size
+
+fn main()
+    products := [Product(name: "beans", aisle: 4, on_shelf: 6, capacity: 48, case_size: 12), Product(name: "rice", aisle: 2, on_shelf: 30, capacity: 36, case_size: 10), Product(name: "pasta", aisle: 2, on_shelf: 3, capacity: 40, case_size: 8), Product(name: "soup", aisle: 4, on_shelf: 20, capacity: 24, case_size: 6), Product(name: "oats", aisle: 1, on_shelf: 0, capacity: 20, case_size: 5)]
+    mut cases := 0
+    for p in products.sorted(by: |p| (p.aisle, p.name))
+        n := p.to_order()
+        if n == 0
+            continue
+        cases += n / p.case_size
+        print("aisle {p.aisle}: {p.name} +{n} ({n / p.case_size} cases)")
+    print("{cases} cases to fetch")
+
+@test fn none_needed()
+    p := Product(name: "x", aisle: 1, on_shelf: 9, capacity: 10, case_size: 5)
+    assert_eq(p.to_order(), 0)

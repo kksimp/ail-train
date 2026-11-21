@@ -1,0 +1,24 @@
+## Three doors: enumerates every car position and first pick in the three-door game show,
+## with the host opening the lowest goat door, and counts wins for sticking and switching.
+
+fn main()
+    mut stick := 0
+    mut switch_wins := 0
+    mut games := 0
+    for car in 0..3
+        for pick in 0..3
+            mut opened := -1
+            for d in 0..3
+                if d != car and d != pick and opened < 0
+                    opened = d
+            other := 3 - pick - opened
+            games += 1
+            if pick == car
+                stick += 1
+            if other == car
+                switch_wins += 1
+            print("car {car + 1}, pick {pick + 1}, host opens {opened + 1}, switch to {other + 1}")
+    print("stick wins {stick}/{games}, switch wins {switch_wins}/{games}")
+
+@test fn other_door()
+    assert_eq(3 - 0 - 2, 1)

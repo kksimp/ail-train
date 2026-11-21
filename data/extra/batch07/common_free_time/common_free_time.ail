@@ -1,0 +1,36 @@
+## Free time: merges three people's busy times for one day (minutes from 09:00 to 17:00) and
+## lists the gaps of at least 30 minutes when all three are free.
+
+fn hm(m int) str
+    "{m / 60:02}:{m % 60:02}"
+
+fn main()
+    busy := [
+        [(540, 600), (720, 780), (900, 960)],
+        [(570, 630), (660, 690), (960, 1020)],
+        [(600, 615), (750, 840), (990, 1000)],
+    ]
+    mut all_busy := List[(int, int)]()
+    for person in busy
+        all_busy.extend(person)
+    all_busy = all_busy.sorted(by: |b| (b.0, b.1))
+    mut merged := List[(int, int)]()
+    for b in all_busy
+        if not merged.is_empty() and b.0 <= merged[merged.len() - 1].1
+            last := merged[merged.len() - 1]
+            end := if b.1 > last.1 then b.1 else last.1
+            merged[merged.len() - 1] = (last.0, end)
+        else
+            merged.push(b)
+    mut t := 540
+    for m in merged
+        if m.0 - t >= 30
+            print("free {hm(t)}-{hm(m.0)} ({m.0 - t} min)")
+        if m.1 > t
+            t = m.1
+    if 1020 - t >= 30
+        print("free {hm(t)}-{hm(1020)} ({1020 - t} min)")
+    print("{merged.len()} busy blocks after merging")
+
+@test fn clock()
+    assert_eq(hm(615), "10:15")

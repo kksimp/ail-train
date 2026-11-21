@@ -1,0 +1,5 @@
+[1 8 6 2 5 4 8 3 7]: 49 between walls 2 and 9
+[1 1]: 1 between walls 1 and 2
+[4 3 2 1 4]: 16 between walls 1 and 5
+[1 2 1]: 2 between walls 1 and 3
+[2 3 10 5 7 8 9]: 36 between walls 3 and 7

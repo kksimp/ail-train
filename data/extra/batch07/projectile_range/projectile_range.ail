@@ -1,0 +1,21 @@
+## Projectile range: flight time, peak height and range of a ball launched at 20 m/s at
+## several angles on level ground, ignoring air, and the best angle among them.
+
+fn main()
+    v := 20.0
+    g := 9.81
+    mut best := (0.0, 0.0)
+    for deg in [15.0, 30.0, 40.0, 45.0, 50.0, 60.0, 75.0]
+        a := deg * 3.141592653589793 / 180.0
+        vx := v * a.cos()
+        vy := v * a.sin()
+        t := 2.0 * vy / g
+        peak := vy * vy / (2.0 * g)
+        reach := vx * t
+        if reach > best.1 + 0.000001
+            best = (deg, reach)
+        print("{deg:>4.0} deg: time {t:.2} s, peak {peak:.2} m, range {reach:.2} m")
+    print("longest at {best.0:.0} deg")
+
+@test fn straight_up()
+    assert(20.0 * 0.0 == 0.0)

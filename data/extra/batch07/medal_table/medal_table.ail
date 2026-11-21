@@ -1,0 +1,26 @@
+## Medal table: medals won per event are tallied by country into a struct, then the table is
+## ordered by golds, then silvers, then bronzes, then name.
+
+struct Medals
+    gold int
+    silver int
+    bronze int
+
+fn main()
+    results := [("100m", "KEN", "USA", "JAM"), ("long jump", "USA", "GER", "KEN"), ("400m", "JAM", "USA", "GBR"), ("high jump", "GER", "GBR", "USA"), ("1500m", "KEN", "KEN", "GBR"), ("relay", "USA", "JAM", "GER"), ("javelin", "GER", "FIN", "KEN")]
+    mut table := Map[str, Medals]()
+    for r in results
+        for code in [r.1, r.2, r.3]
+            if not table.contains(code)
+                table[code] = Medals(gold: 0, silver: 0, bronze: 0)
+        table[r.1].gold += 1
+        table[r.2].silver += 1
+        table[r.3].bronze += 1
+    order := table.keys().sorted(by: |c| (-table[c].gold, -table[c].silver, -table[c].bronze, c))
+    for i, c in order.enumerate()
+        m := table[c]
+        print("{i + 1}. {c} {m.gold} {m.silver} {m.bronze} (total {m.gold + m.silver + m.bronze})")
+
+@test fn medal_sum()
+    m := Medals(gold: 1, silver: 2, bronze: 3)
+    assert_eq(m.gold + m.silver + m.bronze, 6)

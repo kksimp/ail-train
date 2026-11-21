@@ -1,0 +1,28 @@
+## Fare capping: each tap is charged its fare until the day's total reaches the daily cap
+## for the zones used; later taps are free. Prints each charge and the day's total.
+
+fn main()
+    caps := {1: 820, 2: 1050, 3: 1320}
+    days := [
+        ("Mon", [(1, 290), (1, 290), (1, 290), (1, 290)]),
+        ("Tue", [(2, 350), (1, 290), (2, 350), (2, 350)]),
+        ("Wed", [(1, 190)]),
+        ("Thu", [(3, 480), (3, 480), (1, 290), (2, 350)]),
+    ]
+    for d in days
+        name, taps := d
+        top := taps.map(|t| t.0).max() else 1
+        cap := caps[top]
+        mut spent := 0
+        mut charges := List[str]()
+        for t in taps
+            mut fare := t.1
+            if spent + fare > cap
+                fare = cap - spent
+            spent += fare
+            charges.push("{fare}")
+        shown := charges.join(" + ")
+        print("{name} (zones 1-{top}, cap {cap}): {shown} = {spent}")
+
+@test fn capped()
+    assert_eq(if 870 + 290 > 1050 then 1050 - 870 else 290, 180)

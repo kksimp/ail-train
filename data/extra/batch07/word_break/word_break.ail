@@ -1,0 +1,37 @@
+## Word break: splits run-together text into dictionary words by dynamic programming,
+## preferring the split with the fewest words, or reports that no split exists.
+
+fn split_words(s str, dict Set[str]) List[str]?
+    cs := s.chars()
+    n := cs.len()
+    mut best := [-1 for k in 0..n + 1]
+    mut from := [0 for q in 0..n + 1]
+    best[0] = 0
+    for i in 1..=n
+        for j in 0..i
+            if best[j] < 0
+                continue
+            piece := cs[j..i].map(|c| "{c}").join("")
+            if dict.contains(piece) and (best[i] < 0 or best[j] + 1 < best[i])
+                best[i] = best[j] + 1
+                from[i] = j
+    if best[n] < 0
+        return none
+    mut words := List[str]()
+    mut at := n
+    while at > 0
+        words.push(cs[from[at]..at].map(|c| "{c}").join(""))
+        at = from[at]
+    words.reversed()
+
+fn main()
+    dict := {"apple", "pen", "applepen", "pine", "pineapple", "cats", "cat", "and", "sand", "dog", "sea", "seashell", "shell", "sells"}
+    for s in ["pineapplepenapple", "catsanddog", "seashellsells", "catsandog", "applepenapple"]
+        if w := split_words(s, dict)
+            shown := w.join(" ")
+            print("{s}: {shown}")
+        else
+            print("{s}: no split")
+
+@test fn none_case()
+    assert(split_words("xyz", {"x", "y"}) == none)

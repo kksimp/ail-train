@@ -1,0 +1,44 @@
+## Binary strings: adds and multiplies numbers written as binary strings digit by digit with
+## carries, checked against ordinary integer arithmetic.
+
+fn add_bin(a str, b str) str
+    xs := a.chars().reversed()
+    ys := b.chars().reversed()
+    mut out := List[str]()
+    mut carry := 0
+    n := if xs.len() > ys.len() then xs.len() else ys.len()
+    for i in 0..n
+        da := if i < xs.len() and xs[i] == '1' then 1 else 0
+        db := if i < ys.len() and ys[i] == '1' then 1 else 0
+        s := da + db + carry
+        out.push("{s % 2}")
+        carry = s / 2
+    if carry > 0
+        out.push("1")
+    out.reversed().join("")
+
+fn mul_bin(a str, b str) str
+    mut total := "0"
+    mut shift := ""
+    for c in b.chars().reversed()
+        if c == '1'
+            total = add_bin(total, "{a}{shift}")
+        shift = "{shift}0"
+    total
+
+fn value(s str) int
+    mut v := 0
+    for c in s.chars()
+        v = v * 2 + (if c == '1' then 1 else 0)
+    v
+
+fn main()
+    for p in [("1011", "110"), ("1111", "1"), ("100000", "11111"), ("101", "101"), ("0", "1101")]
+        a, b := p
+        s := add_bin(a, b)
+        m := mul_bin(a, b)
+        ok := value(s) == value(a) + value(b) and value(m) == value(a) * value(b)
+        print("{a} + {b} = {s}, {a} x {b} = {m}, checked {ok}")
+
+@test fn carry()
+    assert_eq(add_bin("1", "1"), "10")

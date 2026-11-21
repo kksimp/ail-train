@@ -1,0 +1,31 @@
+## Resistor networks: evaluates series and parallel combinations written as nested groups,
+## "s(...)" for series and "p(...)" for parallel, and the current at 12 volts.
+
+fn parse(cs List[char], pos int) (float, int)
+    if cs[pos] == 's' or cs[pos] == 'p'
+        kind := cs[pos]
+        mut i := pos + 2
+        mut parts := List[float]()
+        while cs[i] != ')'
+            value, next := parse(cs, i)
+            parts.push(value)
+            i = next
+            if cs[i] == ','
+                i += 1
+        total := if kind == 's' then parts.sum() else 1.0 / parts.map(|r| 1.0 / r).sum()
+        return (total, i + 1)
+    mut j := pos
+    mut n := 0
+    while j < cs.len() and cs[j].is_digit()
+        n = n * 10 + (cs[j].to_digit(10) else 0)
+        j += 1
+    (n.to_float(), j)
+
+fn main()
+    for net in ["s(100,220)", "p(100,100)", "s(47,p(100,150),33)", "p(s(100,200),300)", "p(1000,1000,1000,1000)"]
+        ohms := parse(net.chars(), 0).0
+        amps := 12.0 / ohms
+        print("{net}: {ohms:.2} ohm, {amps * 1000.0:.2} mA at 12 V")
+
+@test fn series()
+    assert_eq(parse("s(1,2)".chars(), 0).0, 3.0)

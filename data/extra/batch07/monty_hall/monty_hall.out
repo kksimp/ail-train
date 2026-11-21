@@ -1,0 +1,10 @@
+car 1, pick 1, host opens 2, switch to 3
+car 1, pick 2, host opens 3, switch to 1
+car 1, pick 3, host opens 2, switch to 1
+car 2, pick 1, host opens 3, switch to 2
+car 2, pick 2, host opens 1, switch to 3
+car 2, pick 3, host opens 1, switch to 2
+car 3, pick 1, host opens 2, switch to 3
+car 3, pick 2, host opens 1, switch to 3
+car 3, pick 3, host opens 1, switch to 2
+stick wins 3/9, switch wins 6/9

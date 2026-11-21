@@ -1,0 +1,31 @@
+## Sleep log: bed and wake times over a week give hours slept; sleep debt against an 8-hour
+## goal builds up, and the latest bedtime and shortest night are reported.
+
+fn minutes(t str) int
+    p := t.split(":")
+    (p[0].to_int() else 0) * 60 + (p[1].to_int() else 0)
+
+fn main()
+    nights := [("Mon", "23:10", "06:45"), ("Tue", "22:40", "06:50"), ("Wed", "00:30", "07:00"), ("Thu", "23:55", "06:30"), ("Fri", "01:15", "09:20"), ("Sat", "23:30", "08:10"), ("Sun", "22:20", "06:40")]
+    mut debt := 0
+    mut shortest := ("", 10000)
+    mut latest := ("", -1)
+    for n in nights
+        day, bed, wake := n
+        b := minutes(bed)
+        mut bed_score := b
+        if b < 720
+            bed_score = b + 1440
+        mut slept := minutes(wake) - b
+        if slept < 0
+            slept += 1440
+        debt += 480 - slept
+        if slept < shortest.1
+            shortest = (day, slept)
+        if bed_score > latest.1
+            latest = (day, bed_score)
+        print("{day}: {slept / 60}h{slept % 60:02}, debt {debt} min")
+    print("shortest night {shortest.0}; latest to bed {latest.0}")
+
+@test fn past_midnight()
+    assert_eq(minutes("06:45") + 1440 - minutes("23:10"), 455)

@@ -1,0 +1,21 @@
+## Progress bars: renders download progress as 20-character bars with a percentage and an
+## estimated time left from the average speed so far.
+
+fn bar(done int, total int) str
+    width := 20
+    filled := done * width / total
+    full := "=".repeat(filled)
+    rest := " ".repeat(width - filled)
+    "[{full}{rest}]"
+
+fn main()
+    total := 48000
+    samples := [(0, 0), (2, 3100), (5, 9800), (9, 17900), (14, 30500), (18, 41200), (21, 48000)]
+    for s in samples
+        secs, done := s
+        pct := done * 100 / total
+        eta := if done == 0 then "unknown" elif done == total then "done" else "{(total - done) * secs / done} s left"
+        print("{bar(done, total)} {pct:>3}% {eta}")
+
+@test fn half()
+    assert_eq(bar(5, 10), "[==========          ]")

@@ -1,0 +1,25 @@
+## Reward stickers: children in a line each get at least one sticker, and a child with a
+## higher score than a neighbour gets more than that neighbour; fewest stickers in total.
+
+fn stickers(scores List[int]) List[int]
+    n := scores.len()
+    mut s := [1 for k in 0..n]
+    for i in 1..n
+        if scores[i] > scores[i - 1]
+            s[i] = s[i - 1] + 1
+    mut i := n - 1
+    while i > 0
+        i -= 1
+        if scores[i] > scores[i + 1] and s[i] <= s[i + 1]
+            s[i] = s[i + 1] + 1
+    s
+
+fn main()
+    for line in [[1, 0, 2], [1, 2, 2], [5, 4, 3, 2, 1], [1, 3, 4, 5, 2], [2, 2, 2, 2], [1, 6, 10, 8, 7, 3, 2]]
+        s := stickers(line)
+        a := line.map(|x| "{x}").join(" ")
+        b := s.map(|x| "{x}").join(" ")
+        print("scores {a} -> stickers {b} (total {s.sum()})")
+
+@test fn valley()
+    assert_eq(stickers([1, 0, 2]), [2, 1, 2])

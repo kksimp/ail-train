@@ -1,0 +1,20 @@
+## Kitchen timers: several timers started at different moments ring in order of their end
+## time; prints the ring order with clock times and the longest idle gap between rings.
+
+fn clock(s int) str
+    "{s / 60}:{s % 60:02}"
+
+fn main()
+    timers := [("pasta", 30, 600), ("sauce", 0, 1500), ("bread", 120, 1080), ("eggs", 400, 420), ("tea", 900, 240)]
+    ends := timers.map(|t| (t.1 + t.2, t.0)).sorted(by: |e| (e.0, e.1))
+    mut prev := 0
+    mut gap := (0, "")
+    for e in ends
+        print("{clock(e.0)} {e.1}")
+        if e.0 - prev > gap.0
+            gap = (e.0 - prev, e.1)
+        prev = e.0
+    print("longest quiet spell: {clock(gap.0)} before {gap.1}")
+
+@test fn fmt()
+    assert_eq(clock(125), "2:05")

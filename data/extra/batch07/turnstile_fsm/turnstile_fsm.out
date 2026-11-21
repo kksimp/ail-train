@@ -1,0 +1,13 @@
+push   Gate.Locked -> Gate.Locked
+coin   Gate.Locked -> Gate.Unlocked
+push   Gate.Unlocked -> Gate.Locked
+coin   Gate.Locked -> Gate.Unlocked
+coin   Gate.Unlocked -> Gate.Unlocked
+push   Gate.Unlocked -> Gate.Locked
+push   Gate.Locked -> Gate.Locked
+fault  Gate.Locked -> Gate.Broken
+coin   Gate.Broken -> Gate.Broken
+repair Gate.Broken -> Gate.Locked
+coin   Gate.Locked -> Gate.Unlocked
+push   Gate.Unlocked -> Gate.Locked
+3 through, 2 blocked pushes, 4 coins kept

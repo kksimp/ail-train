@@ -1,0 +1,30 @@
+## Form validation: checks sign-up forms field by field, returning the first problem as a
+## `Fail` from a `str ! Fail` function, or a welcome line when every field is fine.
+
+fn check(name str, email str, age_text str, password str) str ! Fail
+    if name.trim().is_empty()
+        return Fail(msg: "name is empty")
+    at := email.find("@") else return Fail(msg: "email has no @")
+    if at == 0 or not email.slice(at).contains(".")
+        return Fail(msg: "email {email} looks wrong")
+    age := age_text.to_int() else return Fail(msg: "age {age_text} is not a number")
+    if age < 13
+        return Fail(msg: "must be 13 or over")
+    if password.len() < 8
+        return Fail(msg: "password shorter than 8")
+    if not password.chars().any(|c| c.is_digit())
+        return Fail(msg: "password needs a digit")
+    "welcome, {name.trim()} ({age})"
+
+fn main()
+    forms := [("Asha", "asha@example.org", "29", "tulips2024"), ("", "x@y.z", "20", "abcdefgh1"), ("Ben", "ben.example.org", "31", "password9"), ("Cleo", "cleo@site", "40", "longpass1"), ("Dan", "dan@mail.net", "twelve", "secret123"), ("Eve", "eve@mail.net", "11", "letmein22"), ("Fay", "fay@mail.net", "35", "short1"), ("Gus", "gus@mail.net", "50", "nodigitshere")]
+    for f in forms
+        name, email, age, password := f
+        if msg := check(name, email, age, password)
+            print("ok: {msg}")
+        else err
+            print("rejected: {err.msg}")
+
+@test fn good()
+    r := check("A", "a@b.c", "20", "abcdefg1") else ""
+    assert_eq(r, "welcome, A (20)")

@@ -1,0 +1,37 @@
+## Turnstile: a coin-operated gate as a state machine (locked, unlocked, broken) driven by
+## events; pushes while locked are counted as attempts and a repair resets it.
+
+enum Gate
+    Locked
+    Unlocked
+    Broken
+
+fn step(g Gate, event str) Gate
+    if event == "fault"
+        return Gate.Broken
+    out := match g
+        Broken => if event == "repair" then Gate.Locked else Gate.Broken
+        Locked => if event == "coin" then Gate.Unlocked else Gate.Locked
+        Unlocked => if event == "push" then Gate.Locked else Gate.Unlocked
+    out
+
+fn main()
+    events := ["push", "coin", "push", "coin", "coin", "push", "push", "fault", "coin", "repair", "coin", "push"]
+    mut g := Gate.Locked
+    mut passed := 0
+    mut blocked := 0
+    mut takings := 0
+    for e in events
+        before := g
+        g = step(g, e)
+        if e == "coin" and before != Gate.Broken
+            takings += 1
+        if e == "push" and before == Gate.Unlocked
+            passed += 1
+        if e == "push" and before == Gate.Locked
+            blocked += 1
+        print("{e:<6} {before} -> {g}")
+    print("{passed} through, {blocked} blocked pushes, {takings} coins kept")
+
+@test fn coin()
+    assert(step(Gate.Locked, "coin") == Gate.Unlocked)

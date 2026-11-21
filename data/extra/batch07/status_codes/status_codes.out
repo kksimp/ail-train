@@ -1,0 +1,6 @@
+2xx: 4
+3xx: 2
+4xx: 2
+5xx: 2
+server errors: /api/search (500), /api/report (503)
+22020 bytes sent in 10 requests

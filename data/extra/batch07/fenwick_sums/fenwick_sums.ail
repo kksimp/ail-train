@@ -1,0 +1,35 @@
+## Fenwick tree: keeps running totals of daily sales so that a day can be updated and any
+## range of days summed in logarithmic time; checked against plain sums.
+
+fn add(mut tree List[int], i int, delta int)
+    mut k := i + 1
+    while k < tree.len()
+        tree[k] += delta
+        k += k & (-k)
+
+fn prefix(tree List[int], i int) int
+    mut s := 0
+    mut k := i + 1
+    while k > 0
+        s += tree[k]
+        k -= k & (-k)
+    s
+
+fn main()
+    mut sales := [12, 7, 19, 4, 25, 8, 16, 3, 21, 10]
+    mut tree := [0 for k in 0..sales.len() + 1]
+    for i, v in sales.enumerate()
+        add(mut tree, i, v)
+    for q in [(0, 4), (3, 7), (5, 9), (2, 2)]
+        a, b := q
+        fast := prefix(tree, b) - (if a == 0 then 0 else prefix(tree, a - 1))
+        plain := sales[a..b + 1].sum()
+        print("days {a + 1}-{b + 1}: {fast} (plain {plain})")
+    add(mut tree, 4, -10)
+    sales[4] -= 10
+    print("after refund on day 5: days 1-10 = {prefix(tree, 9)} (plain {sales.sum()})")
+
+@test fn one()
+    mut t := [0, 0, 0]
+    add(mut t, 0, 5)
+    assert_eq(prefix(t, 1), 5)

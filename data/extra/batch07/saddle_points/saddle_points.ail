@@ -1,0 +1,22 @@
+## Saddle points: cells that are the largest in their row and the smallest in their column,
+## as when picking a site that is highest along its street but lowest across.
+
+fn saddles(m List[List[int]]) List[(int, int)]
+    mut out := List[(int, int)]()
+    for r in 0..m.len()
+        row_max := m[r].max() else 0
+        for c in 0..m[r].len()
+            col_min := m.map(|row| row[c]).min() else 0
+            if m[r][c] == row_max and m[r][c] == col_min
+                out.push((r + 1, c + 1))
+    out
+
+fn main()
+    grids := [[[9, 8, 7], [5, 3, 2], [6, 6, 7]], [[1, 2, 3], [3, 1, 2], [2, 3, 1]], [[4, 5, 4], [3, 5, 5], [1, 5, 4]], [[2]]]
+    for g in grids
+        s := saddles(g)
+        shown := if s.is_empty() then "none" else s.map(|p| "({p.0}, {p.1})").join(" ")
+        print("{g.len()}x{g[0].len()} grid: {shown}")
+
+@test fn single()
+    assert_eq(saddles([[2]]), [(1, 1)])

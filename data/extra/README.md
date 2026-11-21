@@ -37,10 +37,15 @@ everyday forms with less common built-ins. Each batch is checked on the Mac befo
   The 5 failures were `_` bound twice in one function (2), `+` on strings, `move` as a name (a keyword) and a
   mean on a rounding edge. The same PR replaced 19 programs in batch04 and batch05 that repeated earlier topics.
   All 100 pass.
+- `batch07/`: 100 programs, checked in steps of 20, 40, 50, 60, 80 and 100: finance and science formulas, sorting
+  and data-structure traces (radix, shell, Fenwick, open addressing), traits, `impl Ord`, `match` and `Fail`
+  results. The 6 failures were `char.from_code` without `else`, `else` inside an index (needs parentheses), a
+  Python `:+` sign in a twin, an `impl` block without a trait (struct methods are `fn T.name`) and a local named
+  `bytes` (a type). All 100 pass.
 
 ## Status
 
-**Checked: 640 of 640 pass** (40 drills, 100 each in batch01 to batch06) with ail 3d0c5c913 (0.2.0 release candidate) on 2026-11-21 (`RESULTS.txt`). On the drills' first
+**Checked: 740 of 740 pass** (40 drills, 100 each in batch01 to batch07) with ail 3d0c5c913 (0.2.0 release candidate) on 2026-11-21 (`RESULTS.txt`). On the drills' first
 run 34 passed; 6 were fixed (four AIL forms guessed wrong: `str ! str`, calling a `fn` field as a method,
 `Grid.to_list().sum()` on rows, an `if :=` on a failing result with no `else`; two Python twins were wrong).
 These were written in a cloud session, where AIL builds are not allowed.

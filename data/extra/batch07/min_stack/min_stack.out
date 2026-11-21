@@ -1,0 +1,13 @@
+push 5
+push 3
+push 7
+min -> 3
+push 2
+min -> 2
+pop -> 2
+min -> 3
+pop -> 7
+pop -> 3
+min -> 5
+pop -> 5
+min -> empty

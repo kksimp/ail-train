@@ -1,0 +1,35 @@
+## Moon phase: estimates the moon's age in days from a known new moon and the 29.53-day
+## cycle, naming the phase for several dates given as days since 2000-01-01.
+
+fn phase_name(age float) str
+    if age < 1.85
+        return "new moon"
+    if age < 5.54
+        return "waxing crescent"
+    if age < 9.23
+        return "first quarter"
+    if age < 12.92
+        return "waxing gibbous"
+    if age < 16.61
+        return "full moon"
+    if age < 20.30
+        return "waning gibbous"
+    if age < 23.99
+        return "last quarter"
+    if age < 27.68
+        return "waning crescent"
+    "new moon"
+
+fn main()
+    cycle := 29.530588
+    known_new := 5.763
+    dates := [("2000-01-06", 5), ("2000-01-21", 20), ("2024-04-08", 8864), ("2026-11-21", 9821), ("2027-01-01", 9862)]
+    for d in dates
+        label, day := d
+        x := day.to_float() - known_new
+        age := x - (x / cycle).floor() * cycle
+        lit := (1.0 - (age / cycle * 2.0 * 3.141592653589793).cos()) / 2.0
+        print("{label}: age {age:.1} days, {phase_name(age)}, {lit * 100.0:.0}% lit")
+
+@test fn full()
+    assert_eq(phase_name(15.0), "full moon")
