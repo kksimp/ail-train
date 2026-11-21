@@ -1,0 +1,35 @@
+## Run lengths: run-length encodes strings as count-then-character pairs and decodes them
+## back, checking that every round trip returns the original text.
+
+fn encode(s str) str
+    cs := s.chars()
+    mut out := ""
+    mut i := 0
+    while i < cs.len()
+        mut j := i
+        while j < cs.len() and cs[j] == cs[i]
+            j += 1
+        c := cs[i]
+        out = "{out}{j - i}{c}"
+        i = j
+    out
+
+fn decode(s str) str
+    mut out := ""
+    mut n := 0
+    for c in s.chars()
+        if c.is_digit()
+            n = n * 10 + (c.to_digit(10) else 0)
+        else
+            for _ in 0..n
+                out = "{out}{c}"
+            n = 0
+    out
+
+fn main()
+    for s in ["aaabccdddd", "abc", "zzzzzzzzzzzz", "hello", "mississippi"]
+        e := encode(s)
+        print("{s} -> {e} -> {decode(e) == s}")
+
+@test fn round_trip()
+    assert_eq(decode(encode("xxyyyz")), "xxyyyz")

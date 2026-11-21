@@ -1,0 +1,35 @@
+## Split bill: friends pay for different things on a trip; works out each balance and a
+## short list of payments that settles everyone, largest debts first.
+
+fn main()
+    paid := [("Ola", "fuel", 9000), ("Pim", "cabin", 36000), ("Quy", "food", 12600), ("Ola", "ferry", 4800), ("Rex", "food", 3600)]
+    people := ["Ola", "Pim", "Quy", "Rex"]
+    mut spent := Map[str, int]()
+    for p in people
+        spent[p] = 0
+    for p in paid
+        spent[p.0] += p.2
+    total := paid.map(|p| p.2).sum()
+    share := total / people.len()
+    print("total {total / 100}, share {share / 100} each")
+    mut owes := people.filter(|p| spent[p] < share).map(|p| (p, share - spent[p])).sorted(by: |x| (-x.1, x.0))
+    mut gets := people.filter(|p| spent[p] > share).map(|p| (p, spent[p] - share)).sorted(by: |x| (-x.1, x.0))
+    mut i := 0
+    mut j := 0
+    while i < owes.len() and j < gets.len()
+        amount := smaller(owes[i].1, gets[j].1)
+        print("{owes[i].0} pays {gets[j].0} {amount / 100}.{amount % 100:02}")
+        owes[i] = (owes[i].0, owes[i].1 - amount)
+        gets[j] = (gets[j].0, gets[j].1 - amount)
+        if owes[i].1 == 0
+            i += 1
+        if gets[j].1 == 0
+            j += 1
+
+fn smaller(a int, b int) int
+    if a < b
+        return a
+    b
+
+@test fn least()
+    assert_eq(smaller(3, 2), 2)

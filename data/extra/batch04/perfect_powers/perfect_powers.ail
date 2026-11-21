@@ -1,0 +1,25 @@
+## Perfect powers: numbers below a limit that are a^b with b >= 2, found by walking each
+## base's powers into a set, then listed in order with one way to write each.
+
+fn main()
+    limit := 1000
+    mut how := Map[int, str]()
+    mut base := 2
+    while base * base < limit
+        mut v := base * base
+        mut e := 2
+        while v < limit
+            if not how.contains(v)
+                how[v] = "{base}^{e}"
+            v *= base
+            e += 1
+        base += 1
+    ordered := how.keys().sorted()
+    print("{ordered.len()} perfect powers below {limit}")
+    print(ordered.take(15).map(|v| "{v}={how[v]}").join(" "))
+    both := ordered.filter(|v| how[v].ends_with("^2") and ordered.contains(v))
+    sixth := [v for v in ordered if v == 64 or v == 729]
+    print("squares listed: {both.len()}, sixth powers: {sixth}")
+
+@test fn power_text()
+    assert_eq("{2}^{10}", "2^10")

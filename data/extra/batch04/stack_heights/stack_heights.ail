@@ -1,0 +1,31 @@
+## Stack heights: for each building height, the index of the next taller building to the
+## right using a monotonic stack, and how many buildings each one can see to its right.
+
+fn next_taller_index(h List[int]) List[int]
+    mut out := [-1 for _ in 0..h.len()]
+    mut stack := List[int]()
+    for i in 0..h.len()
+        while not stack.is_empty() and h[stack[stack.len() - 1]] < h[i]
+            j := stack.pop() else break
+            out[j] = i
+        stack.push(i)
+    out
+
+fn visible_right(h List[int], i int) int
+    mut tallest := 0
+    mut seen := 0
+    for j in i + 1..h.len()
+        if h[j] > tallest
+            seen += 1
+            tallest = h[j]
+    seen
+
+fn main()
+    h := [4, 2, 7, 3, 3, 8, 1, 5, 6, 2]
+    nt := next_taller_index(h)
+    for i in 0..h.len()
+        target := if nt[i] < 0 then "none" else "{nt[i]} ({h[nt[i]]})"
+        print("{i}: height {h[i]}, next taller {target}, sees {visible_right(h, i)}")
+
+@test fn increasing()
+    assert_eq(next_taller_index([1, 2, 3]), [1, 2, -1])

@@ -1,0 +1,28 @@
+## Memo paths: counts monotone lattice paths through a grid with blocked cells, using
+## recursion with a `Map` cache so each cell is solved once; reports cache size too.
+
+fn paths(r int, c int, blocked Set[(int, int)], mut memo Map[(int, int), int]) int
+    if r < 0 or c < 0 or blocked.contains((r, c))
+        return 0
+    if r == 0 and c == 0
+        return 1
+    if v := memo.get((r, c))
+        return v
+    total := paths(r - 1, c, blocked, mut memo) + paths(r, c - 1, blocked, mut memo)
+    memo[(r, c)] = total
+    total
+
+fn main()
+    mut blocked := Set[(int, int)]()
+    for b in [(1, 1), (2, 3), (4, 2)]
+        blocked.add(b)
+    for size in [3, 5, 8]
+        mut memo := Map[(int, int), int]()
+        n := paths(size - 1, size - 1, blocked, mut memo)
+        print("{size}x{size}: {n} paths, {memo.len()} cells cached")
+    mut open := Map[(int, int), int]()
+    print("16x16 with no blocks: {paths(15, 15, Set[(int, int)](), mut open)}")
+
+@test fn tiny()
+    mut m := Map[(int, int), int]()
+    assert_eq(paths(1, 1, Set[(int, int)](), mut m), 2)

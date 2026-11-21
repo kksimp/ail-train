@@ -1,0 +1,44 @@
+## Generic stack: a `Stack[T]` struct with push, pop and peek, used once with ints to reverse
+## a list and once with strings to undo a series of edits.
+
+struct Stack[T]
+    items List[T]
+
+fn Stack.new() Self
+    Stack(items: List[T]())
+
+fn Stack.push(mut self, x T)
+    self.items.push(x)
+
+fn Stack.pop(mut self) T?
+    self.items.pop()
+
+fn Stack.peek(self) T?
+    self.items.last()
+
+fn Stack.size(self) int
+    self.items.len()
+
+fn main()
+    mut nums := Stack[int].new()
+    for n in [1, 2, 3, 4, 5]
+        nums.push(n)
+    mut reversed := List[int]()
+    while true
+        n := nums.pop() else break
+        reversed.push(n)
+    print("reversed: {reversed}")
+    mut edits := Stack[str].new()
+    mut text := ""
+    for word in ["the", "quick", "brown", "fox"]
+        edits.push(text)
+        text = if text == "" then word else "{text} {word}"
+    print("text: {text} ({edits.size()} undo steps)")
+    for _ in 0..2
+        text = edits.pop() else text
+    top := edits.peek() else "?"
+    print("after two undos: {text}; next undo gives \"{top}\"")
+
+@test fn empty_pop()
+    mut s := Stack[int].new()
+    assert_eq(s.pop(), none)

@@ -1,0 +1,39 @@
+## Money type: a struct for amounts in cents with `Add` and `Sub` so totals read naturally,
+## a `ToStr` that prints with two decimals, and an `Ord` comparison for the biggest item.
+
+struct Money
+    cents int
+
+impl Add for Money
+    fn add(self, o Money) Money
+        Money(cents: cents + o.cents)
+
+impl Sub for Money
+    fn sub(self, o Money) Money
+        Money(cents: cents - o.cents)
+
+impl ToStr for Money
+    fn to_str(self) str
+        sign := if cents < 0 then "-" else ""
+        a := cents.abs()
+        "{sign}{a / 100}.{a % 100:02}"
+
+impl Ord for Money
+
+fn main()
+    items := [("bread", Money(cents: 245)), ("cheese", Money(cents: 615)), ("apples", Money(cents: 320)), ("tea", Money(cents: 399))]
+    mut total := Money(cents: 0)
+    for it in items
+        total += it.1
+        print("{it.0:<7} {it.1}")
+    print("total   {total}")
+    paid := Money(cents: 2000)
+    change := paid - total
+    short := Money(cents: 1000) - total
+    print("change  {change}")
+    print("short   {short}")
+    dearest := items.max(by: |it| it.1) else ("", Money(cents: 0))
+    print("dearest {dearest.0}")
+
+@test fn adds()
+    assert_eq((Money(cents: 150) + Money(cents: 75)).cents, 225)

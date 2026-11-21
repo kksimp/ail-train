@@ -1,0 +1,29 @@
+## Car wash: a single bay serves cars in arrival order; each wash type takes a fixed time,
+## and the program prints the schedule, idle time and the longest queue wait.
+
+fn minutes_for(kind str) int
+    match kind
+        "basic" => 6
+        "deluxe" => 11
+        "full" => 18
+        _ => 8
+
+fn main()
+    cars := [(0, "basic"), (2, "full"), (5, "basic"), (9, "deluxe"), (100, "basic"), (101, "full"), (103, "deluxe"), (110, "polish")]
+    mut clock := 0
+    mut idle := 0
+    mut worst := 0
+    for c in cars
+        arrive, kind := c
+        if arrive > clock
+            idle += arrive - clock
+            clock = arrive
+        wait := clock - arrive
+        worst = worst.max(wait)
+        finish := clock + minutes_for(kind)
+        print("{kind:<7} arrives {arrive:>2}, starts {clock:>2}, done {finish:>2}, waited {wait}")
+        clock = finish
+    print("bay idle {idle} min, longest wait {worst} min, last car done at {clock}")
+
+@test fn unknown_kind()
+    assert_eq(minutes_for("wax"), 8)

@@ -1,0 +1,10 @@
+0: height 4, next taller 2 (7), sees 3
+1: height 2, next taller 2 (7), sees 2
+2: height 7, next taller 5 (8), sees 2
+3: height 3, next taller 5 (8), sees 2
+4: height 3, next taller 5 (8), sees 1
+5: height 8, next taller none, sees 3
+6: height 1, next taller 7 (5), sees 2
+7: height 5, next taller 8 (6), sees 1
+8: height 6, next taller none, sees 1
+9: height 2, next taller none, sees 0

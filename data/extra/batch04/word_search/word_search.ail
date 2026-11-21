@@ -1,0 +1,29 @@
+## Word search: finds words hidden in a letter grid in any of eight directions, reporting
+## the start cell and direction of each word, or that it is absent.
+
+fn find_word(g List[List[char]], word List[char]) str?
+    dirs := [(0, 1, "E"), (1, 0, "S"), (1, 1, "SE"), (-1, 1, "NE"), (0, -1, "W"), (-1, 0, "N"), (-1, -1, "NW"), (1, -1, "SW")]
+    for r in 0..g.len()
+        for c in 0..g[0].len()
+            for d in dirs
+                dr, dc, name := d
+                mut ok := true
+                for i in 0..word.len()
+                    rr := r + dr * i
+                    cc := c + dc * i
+                    if rr < 0 or rr >= g.len() or cc < 0 or cc >= g[0].len() or g[rr][cc] != word[i]
+                        ok = false
+                        break
+                if ok
+                    return "({r}, {c}) going {name}"
+    none
+
+fn main()
+    rows := ["CATSX", "OWLNE", "DOGAT", "EMUTN", "BEARS"]
+    g := rows.map(|r| r.chars())
+    for w in ["CAT", "OWL", "DOG", "BEAR", "TAG", "CODE", "NET", "EMU", "LION"]
+        where_found := find_word(g, w.chars()) else "not found"
+        print("{w:<5} {where_found}")
+
+@test fn horizontal()
+    assert_eq(find_word([['a', 'b']], ['a', 'b']) else "", "(0, 0) going E")

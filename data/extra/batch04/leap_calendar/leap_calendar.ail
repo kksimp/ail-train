@@ -1,0 +1,27 @@
+## Leap calendar: Gregorian leap-year rules, days in each month, and the weekday of the
+## first of January for several years by Zeller's congruence.
+
+fn is_leap(y int) bool
+    (y % 4 == 0 and y % 100 != 0) or y % 400 == 0
+
+fn weekday(y int, m int, d int) str
+    mut yy := y
+    mut mm := m
+    if mm < 3
+        mm += 12
+        yy -= 1
+    k := yy % 100
+    j := yy / 100
+    h := (d + 13 * (mm + 1) / 5 + k + k / 4 + j / 4 + 5 * j) % 7
+    names := ["Sat", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri"]
+    names[h]
+
+fn main()
+    for y in [1900, 2000, 2024, 2026, 2100]
+        days := if is_leap(y) then 366 else 365
+        print("{y}: {days} days, starts {weekday(y, 1, 1)}")
+    for y in [2023, 2024]
+        print("feb 29 in {y}: {is_leap(y)}")
+
+@test fn century()
+    assert(not is_leap(1900))

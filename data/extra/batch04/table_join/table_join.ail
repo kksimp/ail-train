@@ -1,0 +1,27 @@
+## Table join: joins an orders table to a customers table on customer id (an inner join and
+## a left join), reporting orders whose customer is missing.
+
+fn main()
+    customers := {1: "Ada", 2: "Bea", 3: "Cyd"}
+    orders := [(101, 1, 2500), (102, 3, 900), (103, 4, 1200), (104, 1, 300), (105, 2, 4100), (106, 5, 50)]
+    print("inner join:")
+    for o in orders
+        id, cust, cents := o
+        if name := customers.get(cust)
+            print("  {id} {name:<4} {cents / 100}.{cents % 100:02}")
+    print("left join:")
+    for o in orders
+        id, cust, cents := o
+        name := customers.get(cust) else "(none)"
+        print("  {id} {name:<6} {cents / 100}.{cents % 100:02}")
+    missing := orders.filter(|o| not customers.contains(o.1)).map(|o| o.0)
+    print("orders with no customer: {missing}")
+    mut spend := Map[str, int]()
+    for o in orders
+        if name := customers.get(o.1)
+            spend[name] += o.2
+    for n in spend.keys().sorted()
+        print("{n}: {spend[n]}")
+
+@test fn lookup()
+    assert_eq({1: "x"}.get(2), none)

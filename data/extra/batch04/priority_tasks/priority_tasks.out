@@ -1,0 +1,5 @@
+do patch server (2h, Priority.Urgent)
+do fix login (3h, Priority.Urgent)
+do review PR (1h, Priority.High)
+do plan sprint (2h, Priority.Normal)
+spare 0h, deferred: tidy backlog, team lunch, write docs

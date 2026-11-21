@@ -1,0 +1,33 @@
+## Majority vote: the Boyer-Moore voting algorithm finds a candidate in one pass with one
+## counter, and a second pass confirms whether it really holds more than half the votes.
+
+fn majority(votes List[str]) str?
+    mut candidate := ""
+    mut count := 0
+    for v in votes
+        if count == 0
+            candidate = v
+            count = 1
+        elif v == candidate
+            count += 1
+        else
+            count -= 1
+    real := votes.filter(|v| v == candidate).len()
+    if real * 2 > votes.len()
+        return candidate
+    none
+
+fn main()
+    polls := [
+        ["red", "blue", "red", "red", "green", "red", "blue"],
+        ["a", "b", "a", "b", "c"],
+        ["yes"],
+        ["x", "y", "x", "y", "x", "y"],
+        ["oak", "oak", "elm", "oak", "elm", "oak", "elm"],
+    ]
+    for p in polls
+        result := majority(p) else "none"
+        print("{p.len()} votes: majority {result}")
+
+@test fn single()
+    assert_eq(majority(["q"]) else "", "q")

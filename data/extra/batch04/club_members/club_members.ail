@@ -1,0 +1,35 @@
+## Club members: three clubs as sets of names; prints who is in all three, in exactly one,
+## in chess but not drama, and how many people there are in total.
+
+fn to_set(names List[str]) Set[str]
+    mut s := Set[str]()
+    for n in names
+        s.add(n)
+    s
+
+fn clubs_holding(clubs List[Set[str]], p str) int
+    clubs.filter(|c| c.contains(p)).len()
+
+fn main()
+    chess := to_set(["ana", "ben", "cai", "dev", "eli"])
+    drama := to_set(["ben", "dev", "fay", "gus"])
+    choir := to_set(["ana", "ben", "dev", "fay", "hal"])
+    mut everyone := Set[str]()
+    for club in [chess, drama, choir]
+        for n in club
+            everyone.add(n)
+    mut names := List[str]()
+    for n in everyone
+        names.push(n)
+    people := names.sorted()
+    in_all := people.filter(|p| chess.contains(p) and drama.contains(p) and choir.contains(p))
+    print("in all three: {in_all}")
+    clubs := [chess, drama, choir]
+    only_one := people.filter(|p| clubs_holding(clubs, p) == 1)
+    print("in exactly one: {only_one}")
+    chess_only := people.filter(|p| chess.contains(p) and not drama.contains(p))
+    print("chess not drama: {chess_only}")
+    print("{people.len()} people in total")
+
+@test fn set_add_once()
+    assert_eq(to_set(["a", "a", "b"]).len(), 2)

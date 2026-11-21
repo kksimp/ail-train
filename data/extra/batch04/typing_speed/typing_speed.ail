@@ -1,0 +1,23 @@
+## Typing speed: compares typed text with the target word by word, counting correct words
+## and computing words per minute and accuracy for several attempts.
+
+fn main()
+    target := "pack my box with five dozen liquor jugs and then rest".split(" ")
+    attempts := [
+        ("Ann", "pack my box with five dozen liquor jugs and then rest", 21),
+        ("Ben", "pack my bix with fiev dozen liquor jugs and than rest", 15),
+        ("Cy", "pack my box with five dozen", 9),
+    ]
+    for a in attempts
+        who, typed, seconds := a
+        words := typed.split(" ")
+        mut right := 0
+        for i, w in words.enumerate()
+            if i < target.len() and w == target[i]
+                right += 1
+        wpm := words.len().to_float() * 60.0 / seconds.to_float()
+        acc := right.to_float() * 100.0 / words.len().to_float()
+        print("{who}: {right}/{words.len()} right, {wpm:.1} wpm, {acc:.0}% accurate")
+
+@test fn split_words()
+    assert_eq("a b".split(" ").len(), 2)

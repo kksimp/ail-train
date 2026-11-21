@@ -1,0 +1,4 @@
+[1, 2, 3, 4, 5, 2]: cycle starts at 2, length 4
+[1, 2, 3, -1]: no cycle
+[3, 0, 1, 1]: cycle starts at 0, length 3
+[0]: cycle starts at 0, length 1

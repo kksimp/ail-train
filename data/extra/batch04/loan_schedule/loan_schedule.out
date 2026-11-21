@@ -1,0 +1,14 @@
+payment: 1032.80
+ 1: interest   6000 principal   97280 balance  1102720
+ 2: interest   5514 principal   97766 balance  1004954
+ 3: interest   5025 principal   98255 balance   906699
+ 4: interest   4533 principal   98747 balance   807952
+ 5: interest   4040 principal   99240 balance   708712
+ 6: interest   3544 principal   99736 balance   608976
+ 7: interest   3045 principal  100235 balance   508741
+ 8: interest   2544 principal  100736 balance   408005
+ 9: interest   2040 principal  101240 balance   306765
+10: interest   1534 principal  101746 balance   205019
+11: interest   1025 principal  102255 balance   102764
+12: interest    514 principal  102764 balance        0
+total interest: 393.58

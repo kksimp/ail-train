@@ -1,0 +1,8 @@
+ana -> bo 200: done, 300 left
+bo -> cy 400: failed, bo is short by 80
+cy -> dee 10: failed, no account dee
+bo -> cy 300: done, 20 left
+eve -> ana 5: failed, no account eve
+ana: 300
+bo: 20
+cy: 300

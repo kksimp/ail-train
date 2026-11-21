@@ -1,0 +1,30 @@
+## Quiz shuffle: questions with answer options get their options rotated by a per-question
+## offset so the right answer moves, and the answer key is rebuilt to match.
+
+fn rotate(xs List[str], k int) List[str]
+    n := xs.len()
+    [xs[(i + k) % n] for i in 0..n]
+
+fn main()
+    questions := [
+        ("Capital of Peru?", ["Lima", "Quito", "Bogota", "La Paz"], 0),
+        ("Largest planet?", ["Mars", "Jupiter", "Venus", "Saturn"], 1),
+        ("2 to the 10th?", ["1000", "1024", "512", "2048"], 1),
+        ("Fastest land animal?", ["Lion", "Horse", "Cheetah", "Hare"], 2),
+    ]
+    letters := ["A", "B", "C", "D"]
+    mut key := List[str]()
+    for qi, q in questions.enumerate()
+        text, options, right := q
+        k := (qi * 3 + 1) % options.len()
+        shown := rotate(options, k)
+        new_right := (right - k + options.len()) % options.len()
+        print("{qi + 1}. {text}")
+        for i, o in shown.enumerate()
+            print("   {letters[i]}) {o}")
+        key.push("{qi + 1}{letters[new_right]}")
+        assert_eq(shown[new_right], options[right])
+    print("key: {key.join(" ")}")
+
+@test fn rotate_one()
+    assert_eq(rotate(["a", "b", "c"], 1), ["b", "c", "a"])

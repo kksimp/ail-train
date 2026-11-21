@@ -1,0 +1,36 @@
+## Vector ops: a 2D vector struct with `Add`, `Sub` and `Neg`, used to move a robot along
+## waypoints and report the distance travelled and its final position.
+
+struct V2
+    x int
+    y int
+
+impl Add for V2
+    fn add(self, o V2) V2
+        V2(x: x + o.x, y: y + o.y)
+
+impl Sub for V2
+    fn sub(self, o V2) V2
+        V2(x: x - o.x, y: y - o.y)
+
+impl Neg for V2
+    fn neg(self) V2
+        V2(x: -x, y: -y)
+
+fn manhattan(v V2) int
+    v.x.abs() + v.y.abs()
+
+fn main()
+    waypoints := [V2(x: 3, y: 4), V2(x: -2, y: 7), V2(x: 5, y: -1), V2(x: 0, y: 0)]
+    mut pos := V2(x: 0, y: 0)
+    mut travelled := 0
+    for w in waypoints
+        step := w - pos
+        travelled += manhattan(step)
+        pos = pos + step
+        print("to ({w.x}, {w.y}): step ({step.x}, {step.y})")
+    back := -V2(x: 3, y: -4)
+    print("travelled {travelled}, final ({pos.x}, {pos.y}), negated ({back.x}, {back.y})")
+
+@test fn add_sub()
+    assert_eq(V2(x: 1, y: 2) + V2(x: 3, y: 4) - V2(x: 1, y: 1), V2(x: 3, y: 5))

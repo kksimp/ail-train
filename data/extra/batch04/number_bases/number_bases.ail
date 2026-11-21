@@ -1,0 +1,41 @@
+## Number bases: converts integers to any base from 2 to 36 with digits 0-9 then a-z, and
+## back again by parsing, checking the round trip and a few known values.
+
+fn to_base(n int, b int) str
+    digits := "0123456789abcdefghijklmnopqrstuvwxyz".chars()
+    if n == 0
+        return "0"
+    mut v := n.abs()
+    mut out := List[char]()
+    while v > 0
+        out.push(digits[v % b])
+        v = v / b
+    sign := if n < 0 then "-" else ""
+    body := out.reversed().join("")
+    "{sign}{body}"
+
+fn from_base(s str, b int) int?
+    mut v := 0
+    mut neg := false
+    for i, c in s.chars().enumerate()
+        if i == 0 and c == '-'
+            neg = true
+            continue
+        d := c.to_digit(36)?
+        if d >= b
+            return none
+        v = v * b + d
+    if neg then -v else v
+
+fn main()
+    for pair in [(255, 2), (255, 16), (255, 36), (-42, 3), (0, 7), (1000000, 36)]
+        n, b := pair
+        s := to_base(n, b)
+        back := from_base(s, b) else -1
+        print("{n} in base {b}: {s} (back {back})")
+    ff := from_base("ff", 16) else -1
+    nine := from_base("9", 8) else -1
+    print("ff in base 16 is {ff}, 9 in base 8 is {nine}")
+
+@test fn binary()
+    assert_eq(to_base(5, 2), "101")

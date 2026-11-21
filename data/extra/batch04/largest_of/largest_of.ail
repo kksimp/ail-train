@@ -1,0 +1,34 @@
+## Largest of: one generic function finds the largest item of any ordered type, used on
+## ints, strings and a struct that compares by its fields in order.
+
+struct Score
+    points int
+    name str
+
+impl Ord for Score
+
+fn largest[T Ord](items List[T]) T
+    mut best := items[0]
+    for x in items
+        if x > best
+            best = x
+    best
+
+fn smallest[T Ord](items List[T]) T
+    mut best := items[0]
+    for x in items
+        if x < best
+            best = x
+    best
+
+fn main()
+    print(largest([3, 41, 7, 19]))
+    print(smallest([3, 41, 7, 19]))
+    print(largest(["pear", "apple", "zucchini", "fig"]))
+    scores := [Score(points: 70, name: "Ari"), Score(points: 92, name: "Bo"), Score(points: 92, name: "Ada"), Score(points: 55, name: "Cy")]
+    top := largest(scores)
+    low := smallest(scores)
+    print("top: {top.name} {top.points}, lowest: {low.name} {low.points}")
+
+@test fn single()
+    assert_eq(largest([5]), 5)

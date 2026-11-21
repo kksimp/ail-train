@@ -1,0 +1,33 @@
+## Bracket depth: checks strings of mixed brackets for balance with a stack, reporting the
+## maximum nesting depth when balanced or the position of the first error.
+
+fn closer(c char) char
+    match c
+        '(' => ')'
+        '[' => ']'
+        _ => '}'
+
+fn check(s str) str
+    mut stack := List[char]()
+    mut deepest := 0
+    for i, c in s.chars().enumerate()
+        if c == '(' or c == '[' or c == '{'
+            stack.push(closer(c))
+            if stack.len() > deepest
+                deepest = stack.len()
+        elif c == ')' or c == ']' or c == '}'
+            if stack.is_empty()
+                return "unexpected {c} at {i}"
+            want := stack.pop() else ' '
+            if want != c
+                return "expected {want} at {i}, found {c}"
+    if not stack.is_empty()
+        return "{stack.len()} left open"
+    "balanced, depth {deepest}"
+
+fn main()
+    for s in ["(a[b]\{c})", "((()))", "([)]", "\{[}", "a)b", "[[\{}]", "x"]
+        print("{s}: {check(s)}")
+
+@test fn simple()
+    assert_eq(check("()"), "balanced, depth 1")

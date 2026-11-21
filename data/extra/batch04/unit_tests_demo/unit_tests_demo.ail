@@ -1,0 +1,32 @@
+## Unit tests demo: a small text utility (word counts and capitalisation) with several
+## `@test` functions covering normal input, empty input and odd spacing.
+
+fn word_count(s str) int
+    s.split(" ").filter(|w| w != "").len()
+
+fn capitalise(s str) str
+    mut words := List[str]()
+    for w in s.split(" ")
+        if w == ""
+            continue
+        head := w.slice(0, 1).to_upper()
+        tail := w.slice(1).to_lower()
+        words.push("{head}{tail}")
+    words.join(" ")
+
+fn main()
+    for s in ["hello world", "  spaced   out  text ", "", "ALL CAPS HERE", "o"]
+        print("\"{s}\": {word_count(s)} words, \"{capitalise(s)}\"")
+
+@test fn counts_words()
+    assert_eq(word_count("a b c"), 3)
+
+@test fn ignores_extra_spaces()
+    assert_eq(word_count("  a   b "), 2)
+
+@test fn empty_text()
+    assert_eq(word_count(""), 0)
+    assert_eq(capitalise(""), "")
+
+@test fn mixed_case()
+    assert_eq(capitalise("hELLO wORLD"), "Hello World")

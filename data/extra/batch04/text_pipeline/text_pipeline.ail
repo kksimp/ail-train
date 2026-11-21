@@ -1,0 +1,29 @@
+## Text pipeline: a list of named steps, each a function from text to text, applied in order
+## to some input; prints the text after every step.
+
+struct Step
+    name str
+    run fn(str) str
+
+fn squeeze_spaces(s str) str
+    s.split(" ").filter(|w| w != "").join(" ")
+
+fn shorten(s str) str
+    if s.len() > 20 then s.slice(0, 20) else s
+
+fn main()
+    steps := [
+        Step(name: "trim", run: |s| s.trim()),
+        Step(name: "squeeze", run: squeeze_spaces),
+        Step(name: "lower", run: |s| s.to_lower()),
+        Step(name: "dashes", run: |s| s.replace(" ", "-")),
+        Step(name: "shorten", run: shorten),
+    ]
+    mut text := "   The  Quick   Brown Fox Jumps Over   "
+    print("start:   \"{text}\"")
+    for st in steps
+        text = (st.run)(text)
+        print("{st.name:<8} \"{text}\"")
+
+@test fn squeeze()
+    assert_eq(squeeze_spaces("a   b"), "a b")

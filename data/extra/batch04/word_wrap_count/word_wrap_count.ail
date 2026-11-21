@@ -1,0 +1,30 @@
+## Line counter: greedily fills lines of a given width with words and reports how many lines
+## each width needs and the longest line produced, for several widths.
+
+fn lines_for(words List[str], width int) List[str]
+    mut lines := List[str]()
+    mut cur := ""
+    for w in words
+        if cur == ""
+            cur = w
+        elif cur.len() + 1 + w.len() <= width
+            cur = "{cur} {w}"
+        else
+            lines.push(cur)
+            cur = w
+    if cur != ""
+        lines.push(cur)
+    lines
+
+fn main()
+    text := "a journey of a thousand miles begins with a single step and the step after that"
+    words := text.split(" ")
+    for width in [12, 20, 30, 50]
+        ls := lines_for(words, width)
+        longest := ls.map(|l| l.len()).max() else 0
+        print("width {width}: {ls.len()} lines, longest {longest}")
+    for l in lines_for(words, 20)
+        print("|{l:<20}|")
+
+@test fn one_line()
+    assert_eq(lines_for(["a", "b"], 10), ["a b"])

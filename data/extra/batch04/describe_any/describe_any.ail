@@ -1,0 +1,47 @@
+## Describe any: a `Sound` trait implemented by three animal structs, kept together in a
+## list of `any Sound`, with a default method that repeats the sound.
+
+trait Sound
+    fn noise(self) str
+    fn times(self) int
+        1
+    fn speak(self) str
+        [noise() for _ in 0..times()].join(" ")
+
+struct Dog
+    name str
+
+struct Cat
+    name str
+
+struct Owl
+    hoots int
+
+impl Sound for Dog
+    fn noise(self) str
+        "woof"
+    fn times(self) int
+        2
+
+impl Sound for Cat
+    fn noise(self) str
+        "meow"
+
+impl Sound for Owl
+    fn noise(self) str
+        "hoo"
+    fn times(self) int
+        hoots
+
+fn main()
+    mut zoo := List[any Sound]()
+    zoo.push(Dog(name: "Rex"))
+    zoo.push(Cat(name: "Tib"))
+    zoo.push(Owl(hoots: 3))
+    for a in zoo
+        print(a.speak())
+    total := zoo.map(|a| a.times()).sum()
+    print("{total} sounds in all")
+
+@test fn owl()
+    assert_eq(Owl(hoots: 2).speak(), "hoo hoo")

@@ -1,0 +1,39 @@
+## Snake moves: a snake on a 6x6 board follows a list of moves, growing when it eats food at
+## fixed cells, and stops if it hits a wall or itself.
+
+fn main()
+    mut body := [(2, 2), (2, 1), (2, 0)]
+    mut food := [(2, 4), (4, 4), (4, 1)]
+    moves := "RRDDLLLUUR"
+    mut steps := 0
+    mut status := "finished"
+    for m in moves.chars()
+        head := body[0]
+        mut nr := head.0
+        mut nc := head.1
+        if m == 'R'
+            nc += 1
+        elif m == 'L'
+            nc -= 1
+        elif m == 'U'
+            nr -= 1
+        else
+            nr += 1
+        cell := (nr, nc)
+        if nr < 0 or nr > 5 or nc < 0 or nc > 5
+            status = "hit wall at step {steps + 1}"
+            break
+        if body.contains(cell)
+            status = "hit itself at step {steps + 1}"
+            break
+        body.insert(0, cell)
+        if food.contains(cell)
+            food = food.filter(|f| f != cell)
+            print("ate at {nr},{nc}, length {body.len()}")
+        else
+            _ := body.pop()
+        steps += 1
+    print("{status} after {steps} steps, head at {body[0].0},{body[0].1}")
+
+@test fn contains_cell()
+    assert([(1, 2)].contains((1, 2)))

@@ -1,0 +1,36 @@
+## Knight distance: breadth-first search over an 8x8 board for the fewest knight moves
+## between squares written in chess notation.
+
+fn square(s str) (int, int)
+    cs := s.chars()
+    file := cs[0].code() - 97
+    rank := cs[1].code() - 49
+    (file, rank)
+
+fn moves_between(a str, b str) int
+    start := square(a)
+    goal := square(b)
+    jumps := [(1, 2), (2, 1), (2, -1), (1, -2), (-1, -2), (-2, -1), (-2, 1), (-1, 2)]
+    mut dist := Map[(int, int), int]()
+    dist[start] = 0
+    mut queue := [start]
+    mut head := 0
+    while head < queue.len()
+        cur := queue[head]
+        head += 1
+        if cur == goal
+            return dist[cur]
+        for j in jumps
+            nx := (cur.0 + j.0, cur.1 + j.1)
+            if nx.0 >= 0 and nx.0 < 8 and nx.1 >= 0 and nx.1 < 8 and not dist.contains(nx)
+                dist[nx] = dist[cur] + 1
+                queue.push(nx)
+    -1
+
+fn main()
+    for p in [("a1", "b3"), ("a1", "h8"), ("d4", "d5"), ("a1", "b2"), ("g7", "g7"), ("b1", "g1")]
+        a, b := p
+        print("{a} -> {b}: {moves_between(a, b)}")
+
+@test fn one_jump()
+    assert_eq(moves_between("a1", "c2"), 1)

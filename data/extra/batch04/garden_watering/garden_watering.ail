@@ -1,0 +1,15 @@
+## Garden watering: each plant needs water every few days; simulates two weeks, waters
+## what is due each day, and prints the daily list and the busiest day.
+
+fn main()
+    plants := [("fern", 2), ("cactus", 7), ("basil", 1), ("orchid", 4), ("ivy", 3)]
+    mut busiest := (0, 0)
+    for day in 1..=14
+        due := plants.filter(|p| day % p.1 == 0).map(|p| p.0)
+        if due.len() > busiest.1
+            busiest = (day, due.len())
+        print("day {day:>2}: {due.join(", ")}")
+    print("busiest: day {busiest.0} with {busiest.1} plants")
+
+@test fn every_day()
+    assert_eq(5 % 1, 0)

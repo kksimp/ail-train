@@ -1,0 +1,49 @@
+## Shopping basket: a basket struct with methods to add and remove items and to total the
+## price with a "3 for 2" offer on selected products, printed as a receipt.
+
+struct Basket
+    counts Map[str, int]
+
+fn Basket.empty() Basket
+    Basket(counts: Map[str, int]())
+
+fn Basket.add(mut self, item str, n int)
+    self.counts[item] += n
+
+fn Basket.remove(mut self, item str)
+    have := self.counts.get(item) else 0
+    if have > 1
+        self.counts[item] = have - 1
+    elif have == 1
+        _ := self.counts.remove(item)
+
+fn Basket.total(self, prices Map[str, int], offers List[str]) int
+    mut total := 0
+    for item in counts.keys()
+        n := counts[item]
+        paid := if offers.contains(item) then n - n / 3 else n
+        total += paid * prices[item]
+    total
+
+fn main()
+    prices := {"apple": 40, "milk": 115, "bread": 180, "jam": 250}
+    offers := ["apple", "jam"]
+    mut b := Basket.empty()
+    b.add("apple", 7)
+    b.add("milk", 2)
+    b.add("jam", 3)
+    b.add("bread", 1)
+    b.remove("milk")
+    b.remove("bread")
+    for item in b.counts.keys().sorted()
+        n := b.counts[item]
+        line := n * prices[item]
+        print("{item:<6} x{n} {line / 100}.{line % 100:02}")
+    full := b.counts.keys().map(|k| b.counts[k] * prices[k]).sum()
+    t := b.total(prices, offers)
+    print("subtotal {full / 100}.{full % 100:02}, offers -{(full - t) / 100}.{(full - t) % 100:02}, total {t / 100}.{t % 100:02}")
+
+@test fn three_for_two()
+    mut b := Basket.empty()
+    b.add("x", 3)
+    assert_eq(b.total({"x": 10}, ["x"]), 20)

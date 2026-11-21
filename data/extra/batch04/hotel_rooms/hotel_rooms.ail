@@ -1,0 +1,32 @@
+## Hotel rooms: bookings with check-in and check-out nights; assigns each booking the
+## lowest numbered room free for all its nights, and reports occupancy per night.
+
+fn main()
+    bookings := [("Amis", 1, 4), ("Bauer", 2, 3), ("Chen", 3, 6), ("Diaz", 4, 5), ("Endo", 1, 2), ("Faro", 5, 7), ("Gale", 2, 6)]
+    rooms := 3
+    nights := 7
+    mut taken := [[false for _ in 0..nights + 1] for r in 0..rooms]
+    for b in bookings
+        name, arrive, leave := b
+        mut placed := -1
+        for r in 0..rooms
+            mut free := true
+            for n in arrive..leave
+                if taken[r][n]
+                    free = false
+            if free
+                placed = r
+                break
+        if placed < 0
+            print("{name}: no room for nights {arrive}-{leave - 1}")
+            continue
+        for n in arrive..leave
+            taken[placed][n] = true
+        print("{name}: room {placed + 101}")
+    mut busy := List[int]()
+    for n in 1..nights
+        busy.push([r for r in 0..rooms if taken[r][n]].len())
+    print("rooms used per night: {busy}")
+
+@test fn ranges_exclude_checkout()
+    assert_eq([n for n in 2..4], [2, 3])

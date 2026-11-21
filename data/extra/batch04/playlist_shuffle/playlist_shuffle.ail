@@ -1,0 +1,30 @@
+## Playlist shuffle: a seeded generator (a struct with a `mut self` method) drives a
+## Fisher-Yates shuffle, so the same seed gives the same order; also checks no song is lost.
+
+struct Rng
+    state int
+
+fn Rng.next_below(mut self, n int) int
+    self.state = (self.state * 1103515245 + 12345) % 2147483648
+    self.state / 65536 % n
+
+fn shuffle(songs List[str], seed int) List[str]
+    mut r := Rng(state: seed)
+    mut xs := songs
+    mut i := xs.len() - 1
+    while i > 0
+        j := r.next_below(i + 1)
+        xs.swap(i, j)
+        i -= 1
+    xs
+
+fn main()
+    songs := ["Aria", "Blues", "Coda", "Dirge", "Elegy", "Fugue", "Gigue"]
+    for seed in [1, 2, 1]
+        order := shuffle(songs, seed).join(", ")
+        print("seed {seed}: {order}")
+    kept := shuffle(songs, 9).sorted() == songs.sorted()
+    print("nothing lost: {kept}")
+
+@test fn same_seed()
+    assert_eq(shuffle(["a", "b", "c"], 5), shuffle(["a", "b", "c"], 5))

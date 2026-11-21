@@ -1,0 +1,44 @@
+## Priority tasks: tasks with a priority enum and an estimate; sorts by priority then by
+## estimate, and fills a working day of 8 hours greedily, deferring what does not fit.
+
+enum Priority
+    Urgent
+    High
+    Normal
+    Low
+
+fn rank(p Priority) int
+    match p
+        Urgent => 0
+        High => 1
+        Normal => 2
+        Low => 3
+
+struct Job
+    name str
+    priority Priority
+    hours int
+
+fn main()
+    tasks := [
+        Job(name: "fix login", priority: Priority.Urgent, hours: 3),
+        Job(name: "write docs", priority: Priority.Low, hours: 2),
+        Job(name: "review PR", priority: Priority.High, hours: 1),
+        Job(name: "plan sprint", priority: Priority.Normal, hours: 2),
+        Job(name: "patch server", priority: Priority.Urgent, hours: 2),
+        Job(name: "tidy backlog", priority: Priority.Normal, hours: 3),
+        Job(name: "team lunch", priority: Priority.Low, hours: 1),
+    ]
+    ordered := tasks.sorted(by: |t| (rank(t.priority), t.hours, t.name))
+    mut left := 8
+    mut deferred := List[str]()
+    for t in ordered
+        if t.hours <= left
+            left -= t.hours
+            print("do {t.name} ({t.hours}h, {t.priority})")
+        else
+            deferred.push(t.name)
+    print("spare {left}h, deferred: {deferred.join(", ")}")
+
+@test fn urgent_first()
+    assert(rank(Priority.Urgent) < rank(Priority.Low))

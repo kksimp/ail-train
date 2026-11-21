@@ -1,0 +1,31 @@
+## Price history: daily closing prices; prints the best single buy-then-sell profit, the
+## longest run of rising days, and a three-day moving average.
+
+fn main()
+    prices := [41, 38, 39, 45, 44, 47, 52, 50, 49, 55, 58, 54]
+    mut low := prices[0]
+    mut low_day := 0
+    mut best := (0, 0, 0)
+    for i, p in prices.enumerate()
+        if p - low > best.0
+            best = (p - low, low_day, i)
+        if p < low
+            low = p
+            low_day = i
+    print("buy day {best.1 + 1}, sell day {best.2 + 1}, profit {best.0}")
+    mut run := 1
+    mut longest := 1
+    for i in 1..prices.len()
+        if prices[i] > prices[i - 1]
+            run += 1
+            if run > longest
+                longest = run
+        else
+            run = 1
+    print("longest rise: {longest} days")
+    avgs := prices.windows(3).map(|w| w.sum().to_float() / 3.0)
+    shown := avgs.map(|a| "{a:.1}").join(" ")
+    print("moving average: {shown}")
+
+@test fn windows()
+    assert_eq([1, 2, 3, 4].windows(3).len(), 2)

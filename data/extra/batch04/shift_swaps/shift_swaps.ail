@@ -1,0 +1,24 @@
+## Shift swaps: a weekly rota as a map from day to worker; swap requests are applied only if
+## both workers agree and neither ends up with more than three shifts.
+
+fn count(rota Map[str, str], who str) int
+    rota.values().filter(|w| w == who).len()
+
+fn main()
+    days := ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
+    mut rota := {"mon": "Ida", "tue": "Jon", "wed": "Ida", "thu": "Kit", "fri": "Jon", "sat": "Kit", "sun": "Ida"}
+    requests := [("tue", "Ida", true), ("thu", "Jon", true), ("sat", "Ida", false), ("mon", "Kit", true)]
+    for r in requests
+        day, taker, agreed := r
+        giver := rota[day]
+        if not agreed
+            print("{day}: {taker} did not agree")
+        elif count(rota, taker) >= 3
+            print("{day}: {taker} already has {count(rota, taker)} shifts")
+        else
+            rota[day] = taker
+            print("{day}: {giver} -> {taker}")
+    print(days.map(|d| "{d}={rota[d]}").join(" "))
+
+@test fn counts()
+    assert_eq(count({"a": "x", "b": "x"}, "x"), 2)

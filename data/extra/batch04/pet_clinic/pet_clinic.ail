@@ -1,0 +1,36 @@
+## Pet clinic: appointments with a species and a reason; groups visits by species, finds the
+## most common reason overall, and lists pets seen more than once.
+
+struct Visit
+    pet str
+    species str
+    reason str
+
+fn main()
+    visits := [
+        Visit(pet: "Rex", species: "dog", reason: "vaccine"),
+        Visit(pet: "Tom", species: "cat", reason: "check-up"),
+        Visit(pet: "Bun", species: "rabbit", reason: "teeth"),
+        Visit(pet: "Rex", species: "dog", reason: "limp"),
+        Visit(pet: "Ivy", species: "cat", reason: "vaccine"),
+        Visit(pet: "Max", species: "dog", reason: "vaccine"),
+        Visit(pet: "Tom", species: "cat", reason: "vaccine"),
+    ]
+    mut by_species := Map[str, List[str]]()
+    for v in visits
+        mut pets := by_species.get(v.species) else List[str]()
+        if not pets.contains(v.pet)
+            pets.push(v.pet)
+        by_species[v.species] = pets
+    for s in by_species.keys().sorted()
+        print("{s}: {by_species[s].join(", ")}")
+    reasons := visits.map(|v| v.reason).counts()
+    top := reasons.top(1)
+    print("most common reason: {top[0]} ({reasons[top[0]]})")
+    repeat := visits.map(|v| v.pet).counts()
+    again := repeat.keys().sorted().filter(|p| repeat[p] > 1)
+    print("seen more than once: {again}")
+
+@test fn struct_fields()
+    v := Visit(pet: "A", species: "b", reason: "c")
+    assert_eq(v.species, "b")

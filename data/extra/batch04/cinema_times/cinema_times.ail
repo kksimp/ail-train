@@ -1,0 +1,27 @@
+## Cinema times: films with running times are scheduled back to back on one screen from
+## 12:00 with a 20-minute clean between shows, until the last show would end after 23:30.
+
+fn clock(m int) str
+    "{m / 60:02}:{m % 60:02}"
+
+fn main()
+    films := [("Tidewater", 112), ("Paper Moons", 95), ("The Long Field", 141)]
+    mut t := 12 * 60
+    closing := 23 * 60 + 30
+    mut i := 0
+    mut shows := Map[str, int]()
+    for f in films
+        shows[f.0] = 0
+    while true
+        name, length := films[i % films.len()]
+        if t + length > closing
+            break
+        print("{clock(t)}-{clock(t + length)} {name}")
+        shows[name] += 1
+        t += length + 20
+        i += 1
+    for f in films
+        print("{f.0}: {shows[f.0]} shows")
+
+@test fn fmt()
+    assert_eq(clock(605), "10:05")

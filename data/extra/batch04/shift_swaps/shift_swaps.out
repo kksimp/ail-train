@@ -1,0 +1,5 @@
+tue: Ida already has 3 shifts
+thu: Kit -> Jon
+sat: Ida did not agree
+mon: Ida -> Kit
+mon=Kit tue=Jon wed=Ida thu=Jon fri=Jon sat=Kit sun=Ida

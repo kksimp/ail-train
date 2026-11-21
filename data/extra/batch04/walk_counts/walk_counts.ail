@@ -1,0 +1,27 @@
+## Walk counts: the number of walks of each length between towns on a small road map,
+## found by raising the adjacency matrix to a power with repeated multiplication.
+
+fn mul(a List[List[int]], b List[List[int]]) List[List[int]]
+    n := a.len()
+    mut out := [[0 for _ in 0..n] for r in 0..n]
+    for i in 0..n
+        for j in 0..n
+            mut s := 0
+            for k in 0..n
+                s += a[i][k] * b[k][j]
+            out[i][j] = s
+    out
+
+fn main()
+    names := ["A", "B", "C", "D"]
+    adj := [[0, 1, 1, 0], [1, 0, 1, 1], [1, 1, 0, 1], [0, 1, 1, 0]]
+    mut power := adj
+    for steps in 1..=4
+        total := power.map(|r| r.sum()).sum()
+        print("length {steps}: A->D {power[0][3]}, B->B {power[1][1]}, total {total}")
+        power = mul(power, adj)
+    print("towns: {names.join(" ")}")
+
+@test fn identity()
+    i2 := [[1, 0], [0, 1]]
+    assert_eq(mul(i2, [[2, 3], [4, 5]]), [[2, 3], [4, 5]])

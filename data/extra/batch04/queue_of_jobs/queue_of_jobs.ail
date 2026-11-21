@@ -1,0 +1,41 @@
+## Queue of jobs: a generic `Queue[T]` built from two lists (in and out), so both ends are
+## cheap; used to run print jobs in order and report how many reversals happened.
+
+struct Queue[T]
+    inbox List[T]
+    outbox List[T]
+    flips int
+
+fn Queue.new() Self
+    Queue(inbox: List[T](), outbox: List[T](), flips: 0)
+
+fn Queue.put(mut self, x T)
+    self.inbox.push(x)
+
+fn Queue.take(mut self) T?
+    if self.outbox.is_empty()
+        if self.inbox.is_empty()
+            return none
+        self.flips += 1
+        while true
+            x := self.inbox.pop() else break
+            self.outbox.push(x)
+    self.outbox.pop()
+
+fn main()
+    mut q := Queue[str].new()
+    for job in ["report.pdf", "photo.png", "notes.txt"]
+        q.put(job)
+    first := q.take() else "?"
+    print("printing {first}")
+    q.put("map.svg")
+    while true
+        job := q.take() else break
+        print("printing {job}")
+    print("queue reversed {q.flips} times")
+
+@test fn order()
+    mut q := Queue[int].new()
+    q.put(1)
+    q.put(2)
+    assert_eq(q.take() else 0, 1)

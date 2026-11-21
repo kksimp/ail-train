@@ -1,0 +1,4 @@
+GAGCCTACTAACGGGAT vs CATCGTAATGACGGCCT: 7 at [0,2,4,7,9,14,15]
+10110110 vs 10011010: 3 at [2,4,5]
+AAAA vs AAAA: 0 at []
+mean distance of 4-bit pairs: 2.00

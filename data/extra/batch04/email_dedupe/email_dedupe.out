@@ -1,0 +1,4 @@
+duplicate: josmith+news@mail.test (same as Jo.Smith@mail.test)
+duplicate: JOSMITH@MAIL.TEST (same as Jo.Smith@mail.test)
+duplicate: ann@Other.test (same as Ann@other.test)
+5 unique: Jo.Smith@mail.test, jo.smith@other.test, Ann@other.test, a.n.n@mail.test, bad-address

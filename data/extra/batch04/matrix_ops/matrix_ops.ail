@@ -1,0 +1,58 @@
+## Matrix ops: a small integer matrix struct with `Add` and `Mul` implemented as traits,
+## a transpose method, an identity constructor, and a printer that aligns columns.
+
+struct Mat
+    rows List[List[int]]
+
+impl Add for Mat
+    fn add(self, o Mat) Mat
+        n := rows.len()
+        m := rows[0].len()
+        Mat(rows: [[rows[i][j] + o.rows[i][j] for j in 0..m] for i in 0..n])
+
+impl Mul for Mat
+    fn mul(self, o Mat) Mat
+        n := rows.len()
+        m := o.rows[0].len()
+        k := o.rows.len()
+        mut out := List[List[int]]()
+        for i in 0..n
+            mut row := List[int]()
+            for j in 0..m
+                mut s := 0
+                for t in 0..k
+                    s += rows[i][t] * o.rows[t][j]
+                row.push(s)
+            out.push(row)
+        Mat(rows: out)
+
+fn unit(i int, j int) int
+    if i == j then 1 else 0
+
+fn Mat.identity(n int) Mat
+    Mat(rows: [[unit(i, j) for j in 0..n] for i in 0..n])
+
+fn Mat.transpose(self) Mat
+    Mat(rows: [[rows[i][j] for i in 0..rows.len()] for j in 0..rows[0].len()])
+
+fn Mat.show(self)
+    for r in rows
+        print(r.map(|x| "{x:>4}").join(""))
+
+fn main()
+    a := Mat(rows: [[1, 2, 3], [4, 5, 6]])
+    b := Mat(rows: [[7, 8], [9, 10], [11, 12]])
+    print("a x b:")
+    (a * b).show()
+    print("b x a:")
+    (b * a).show()
+    print("a + a:")
+    (a + a).show()
+    print("a transposed:")
+    a.transpose().show()
+    same := a * Mat.identity(3) == a
+    print("a x I == a: {same}")
+
+@test fn identity_square()
+    i := Mat.identity(2)
+    assert_eq((i * i).rows, [[1, 0], [0, 1]])

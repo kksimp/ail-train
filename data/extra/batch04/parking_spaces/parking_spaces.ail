@@ -1,0 +1,39 @@
+## Parking spaces: a car park with numbered bays; cars arrive and leave by plate, each
+## arriving car takes the lowest free bay, and the final map of bays is printed.
+
+fn main()
+    bays := 6
+    mut used := Map[int, str]()
+    events := ["in AB12", "in CD34", "in EF56", "out CD34", "in GH78", "in IJ90", "in KL11", "in MN22", "in OP33", "out AB12", "in QR44"]
+    for e in events
+        parts := e.split(" ")
+        action := parts[0]
+        plate := parts[1]
+        if action == "in"
+            mut bay := -1
+            for b in 1..=bays
+                if not used.contains(b)
+                    bay = b
+                    break
+            if bay < 0
+                print("{plate}: full, turned away")
+            else
+                used[bay] = plate
+                print("{plate}: bay {bay}")
+        else
+            mut found := -1
+            for b in used.keys()
+                if used[b] == plate
+                    found = b
+            if found > 0
+                _ := used.remove(found)
+                print("{plate}: left bay {found}")
+    mut cells := List[str]()
+    for b in 1..=bays
+        who := used.get(b) else "-"
+        cells.push("{b}:{who}")
+    print(cells.join(" "))
+
+@test fn lowest_bay()
+    m := {2: "x"}
+    assert(not m.contains(1))

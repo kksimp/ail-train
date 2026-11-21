@@ -1,0 +1,34 @@
+## Interval merge: merges overlapping booking intervals into blocks, then lists the gaps
+## between blocks inside the working day of 9 to 18.
+
+fn larger(a int, b int) int
+    if a > b
+        return a
+    b
+
+fn main()
+    raw := [(13, 14), (9, 10), (15, 17), (9, 11), (16, 18), (10, 12)]
+    ordered := raw.sorted(by: |p| (p.0, p.1))
+    mut merged := List[(int, int)]()
+    for p in ordered
+        if merged.is_empty()
+            merged.push(p)
+        else
+            last := merged[merged.len() - 1]
+            if p.0 <= last.1
+                end := larger(p.1, last.1)
+                merged[merged.len() - 1] = (last.0, end)
+            else
+                merged.push(p)
+    busy := merged.map(|p| "{p.0}-{p.1}").join(", ")
+    print("busy: {busy}")
+    mut t := 9
+    for p in merged
+        if p.0 > t
+            print("free {t}-{p.0}")
+        t = p.1
+    if t < 18
+        print("free {t}-18")
+
+@test fn order()
+    assert_eq([(2, 1), (1, 5)].sorted(by: |p| (p.0, p.1))[0], (1, 5))

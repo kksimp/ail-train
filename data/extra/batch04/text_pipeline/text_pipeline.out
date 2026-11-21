@@ -1,0 +1,6 @@
+start:   "   The  Quick   Brown Fox Jumps Over   "
+trim     "The  Quick   Brown Fox Jumps Over"
+squeeze  "The Quick Brown Fox Jumps Over"
+lower    "the quick brown fox jumps over"
+dashes   "the-quick-brown-fox-jumps-over"
+shorten  "the-quick-brown-fox-"

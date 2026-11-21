@@ -1,0 +1,48 @@
+## Grid path: breadth-first search for the shortest path across a grid with walls (#) from
+## S to E, then marks the path with stars on the grid.
+
+fn find(g List[List[char]], target char) (int, int)
+    for r in 0..g.len()
+        for c in 0..g[r].len()
+            if g[r][c] == target
+                return (r, c)
+    (-1, -1)
+
+fn main()
+    rows := ["S..#......", ".#.#.####.", ".#...#....", ".####.#.#.", "......#.#E"]
+    mut g := rows.map(|r| r.chars())
+    start := find(g, 'S')
+    goal := find(g, 'E')
+    h := g.len()
+    w := g[0].len()
+    mut prev := Map[(int, int), (int, int)]()
+    mut queue := Deque[(int, int)]()
+    queue.push_back(start)
+    prev[start] = start
+    while queue.len() > 0
+        cur := queue.pop_front() else break
+        if cur == goal
+            break
+        r, c := cur
+        for d in [(0, 1), (1, 0), (0, -1), (-1, 0)]
+            nr := r + d.0
+            nc := c + d.1
+            if nr >= 0 and nr < h and nc >= 0 and nc < w and g[nr][nc] != '#' and not prev.contains((nr, nc))
+                prev[(nr, nc)] = cur
+                queue.push_back((nr, nc))
+    if not prev.contains(goal)
+        print("no path")
+        return
+    mut steps := 0
+    mut at := prev[goal]
+    while at != start
+        ar, ac := at
+        g[ar][ac] = '*'
+        at = prev[at]
+        steps += 1
+    for row in g
+        print(row.join(""))
+    print("path length {steps + 1}")
+
+@test fn finds_start()
+    assert_eq(find([['a', 'S']], 'S'), (0, 1))

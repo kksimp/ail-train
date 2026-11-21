@@ -1,0 +1,17 @@
+## Wind chill: the North American wind chill formula for temperatures in Celsius and wind
+## in km/h, printed as a table to whole degrees (rounding half away from zero).
+
+fn chill(t float, v float) float
+    p := v.pow(0.16)
+    13.12 + 0.6215 * t - 11.37 * p + 0.3965 * t * p
+
+fn main()
+    winds := [10.0, 20.0, 40.0, 60.0]
+    header := winds.map(|w| "{w.to_int():>5}").join("")
+    print("temp {header}")
+    for t in [5.0, 0.0, -10.0, -20.0, -30.0]
+        cells := winds.map(|w| "{chill(t, w).round().to_int():>5}").join("")
+        print("{t.to_int():>4} {cells}")
+
+@test fn mild()
+    assert(chill(0.0, 10.0) < 0.0)

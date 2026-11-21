@@ -1,0 +1,30 @@
+## Happy tickets: six-digit tickets are "lucky" when the first three digits add up to the
+## last three; counts them by tallying three-digit sums instead of checking a million.
+
+fn digit_sum(n int) int
+    mut s := 0
+    mut v := n
+    while v > 0
+        s += v % 10
+        v = v / 10
+    s
+
+fn is_lucky(t int) bool
+    digit_sum(t / 1000) == digit_sum(t % 1000)
+
+fn main()
+    mut ways := [0 for _ in 0..28]
+    for half in 0..1000
+        ways[digit_sum(half)] += 1
+    lucky := ways.map(|w| w * w).sum()
+    print("lucky tickets from 000000 to 999999: {lucky}")
+    top := ways.max() else 0
+    top_sum := ways.index_of(top) else 0
+    print("most common half sum: {top_sum} ({top} ways)")
+    for t in [123321, 100001, 555555, 123456, 902560]
+        print("{t:06}: {is_lucky(t)}")
+    next_lucky := [t for t in 123457..124000 if is_lucky(t)].first() else -1
+    print("first lucky ticket after 123456: {next_lucky}")
+
+@test fn zeros()
+    assert(is_lucky(0))

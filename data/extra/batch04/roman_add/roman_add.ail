@@ -1,0 +1,43 @@
+## Roman sums: parses Roman numerals (with subtractive pairs), adds pairs of them, and
+## prints each sum back as a Roman numeral.
+
+fn value(c char) int
+    match c
+        'I' => 1
+        'V' => 5
+        'X' => 10
+        'L' => 50
+        'C' => 100
+        'D' => 500
+        _ => 1000
+
+fn parse(s str) int
+    cs := s.chars()
+    mut total := 0
+    for i in 0..cs.len()
+        v := value(cs[i])
+        if i + 1 < cs.len() and v < value(cs[i + 1])
+            total -= v
+        else
+            total += v
+    total
+
+fn render(n int) str
+    table := [(1000, "M"), (900, "CM"), (500, "D"), (400, "CD"), (100, "C"), (90, "XC"), (50, "L"), (40, "XL"), (10, "X"), (9, "IX"), (5, "V"), (4, "IV"), (1, "I")]
+    mut left := n
+    mut out := ""
+    for t in table
+        while left >= t.0
+            sym := t.1
+            out = "{out}{sym}"
+            left -= t.0
+    out
+
+fn main()
+    for p in [("XIV", "XXVIII"), ("MCMXC", "XXXIV"), ("CDXLIV", "DLVI"), ("IX", "IX")]
+        a, b := p
+        total := parse(a) + parse(b)
+        print("{a} + {b} = {render(total)} ({total})")
+
+@test fn nine()
+    assert_eq(parse("IX"), 9)

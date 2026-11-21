@@ -1,0 +1,26 @@
+## Retry backoff: simulates calling a flaky service with exponential backoff (doubling waits
+## capped at 30 seconds) and a fixed outcome script, giving up after six tries.
+
+fn attempt(script List[bool], n int) bool
+    if n < script.len() then script[n] else false
+
+fn main()
+    scripts := [[false, false, true], [true], [false, false, false, false, false, false, false], [false, false, false, false, false, true]]
+    for s in scripts
+        mut wait := 1
+        mut waited := 0
+        mut tries := 0
+        mut ok := false
+        while tries < 6
+            tries += 1
+            if attempt(s, tries - 1)
+                ok = true
+                break
+            if tries < 6
+                waited += wait
+                wait = (wait * 2).min(30)
+        outcome := if ok then "succeeded" else "gave up"
+        print("{outcome} after {tries} tries, waited {waited}s")
+
+@test fn past_script_fails()
+    assert(not attempt([true], 3))

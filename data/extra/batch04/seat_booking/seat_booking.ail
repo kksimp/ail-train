@@ -1,0 +1,49 @@
+## Seat booking: a theatre with rows of seats; finds the best block of n adjacent free seats
+## (closest to the centre row, then the centre seat) and books it, refusing when none fit.
+
+fn find_block(free List[List[bool]], n int) (int, int)?
+    rows := free.len()
+    seats := free[0].len()
+    mut best := (-1, -1)
+    mut best_score := 1000000
+    for r in 0..rows
+        for s in 0..seats - n + 1
+            mut ok := true
+            for k in s..s + n
+                if not free[r][k]
+                    ok = false
+            if ok
+                mid2 := 2 * s + n - 1
+                score := (2 * r - (rows - 1)).abs() * 100 + (mid2 - (seats - 1)).abs()
+                if score < best_score
+                    best_score = score
+                    best = (r, s)
+    if best.0 < 0
+        return none
+    best
+
+fn mark(f bool) str
+    if f
+        return "."
+    "x"
+
+fn main()
+    mut free := [[true for _ in 0..8] for r in 0..5]
+    for taken in [(2, 3), (2, 4), (1, 0), (3, 5)]
+        r, s := taken
+        free[r][s] = false
+    for n in [2, 4, 3, 8, 6]
+        if spot := find_block(free, n)
+            r, s := spot
+            for k in s..s + n
+                free[r][k] = false
+            row := "ABCDE".chars()[r]
+            print("{n} seats: row {row}, seats {s + 1}-{s + n}")
+        else
+            print("{n} seats: no block free")
+    for r in 0..5
+        print(free[r].map(mark).join(""))
+
+@test fn whole_row()
+    free := [[true, true, true]]
+    assert_eq(find_block(free, 3) else (-1, -1), (0, 0))

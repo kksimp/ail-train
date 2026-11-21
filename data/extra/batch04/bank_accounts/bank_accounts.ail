@@ -1,0 +1,33 @@
+## Bank accounts: accounts with an owner and a balance; transfers fail with an error enum
+## for unknown accounts or too little money, and every outcome is printed.
+
+error enum TransferError
+    NoAccount(id str) "no account {id}"
+    TooLittle(id str, short int) "{id} is short by {short}"
+
+fn transfer(mut balances Map[str, int], from str, to str, amount int) int ! TransferError
+    have := balances.get(from) else return NoAccount(id: from)
+    if not balances.contains(to)
+        return NoAccount(id: to)
+    if have < amount
+        return TooLittle(id: from, short: amount - have)
+    balances[from] = have - amount
+    balances[to] += amount
+    have - amount
+
+fn main()
+    mut balances := {"ana": 500, "bo": 120, "cy": 0}
+    moves := [("ana", "bo", 200), ("bo", "cy", 400), ("cy", "dee", 10), ("bo", "cy", 300), ("eve", "ana", 5)]
+    for m in moves
+        from, to, amount := m
+        if left := transfer(mut balances, from, to, amount)
+            print("{from} -> {to} {amount}: done, {left} left")
+        else err
+            print("{from} -> {to} {amount}: failed, {err}")
+    for k in balances.keys().sorted()
+        print("{k}: {balances[k]}")
+
+@test fn too_little()
+    mut b := {"a": 1, "b": 0}
+    assert_eq(transfer(mut b, "a", "b", 5) else -1, -1)
+    assert_eq(transfer(mut b, "a", "b", 1) else -1, 0)

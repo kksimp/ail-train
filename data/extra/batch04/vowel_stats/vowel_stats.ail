@@ -1,0 +1,30 @@
+## Vowel stats: counts vowels and consonants in each line of a short poem, finds the line
+## with the highest vowel share, and lists letters that never appear.
+
+fn main()
+    poem := "the fog comes\non little cat feet\nit sits looking\nover harbor and city\non silent haunches\nand then moves on"
+    vowels := "aeiou"
+    mut seen := Set[char]()
+    mut best := ""
+    mut best_share := 0.0
+    for line in poem.lines()
+        letters := line.chars().filter(|c| c.is_alpha())
+        v := letters.filter(|c| vowels.contains(c)).len()
+        share := v.to_float() / letters.len().to_float()
+        print("{line:<22} vowels {v:>2}, consonants {letters.len() - v:>2}")
+        if share > best_share
+            best_share = share
+            best = line
+        for c in letters
+            seen.add(c)
+    print("most vowel-heavy: {best} ({best_share:.2})")
+    mut missing := List[char]()
+    for code in 97..123
+        c := char.from_code(code) else 'a'
+        if not seen.contains(c)
+            missing.push(c)
+    unused := missing.join("")
+    print("unused: {unused}")
+
+@test fn vowel()
+    assert("aeiou".contains('e'))

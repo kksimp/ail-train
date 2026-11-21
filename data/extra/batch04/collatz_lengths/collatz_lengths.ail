@@ -1,0 +1,39 @@
+## Collatz lengths: the number of steps for n to reach 1 under the 3n+1 rule, cached in a
+## list for values below the limit, and the start below 100,000 with the longest chain.
+
+fn steps(n int, mut cache List[int]) int
+    mut v := n
+    mut count := 0
+    mut path := List[int]()
+    while v != 1
+        if v < cache.len() and cache[v] >= 0
+            break
+        path.push(v)
+        v = if v % 2 == 0 then v / 2 else 3 * v + 1
+        count += 1
+    base := if v == 1 then 0 else cache[v]
+    total := count + base
+    for i, p in path.enumerate()
+        if p < cache.len()
+            cache[p] = total - i
+    total
+
+fn main()
+    limit := 100000
+    mut cache := [-1 for _ in 0..limit]
+    cache[1] = 0
+    for n in [1, 6, 7, 27, 97]
+        s := steps(n, mut cache)
+        print("{n}: {s} steps")
+    mut best := 1
+    mut best_len := 0
+    for n in 1..limit
+        s := steps(n, mut cache)
+        if s > best_len
+            best = n
+            best_len = s
+    print("longest below {limit}: {best} with {best_len} steps")
+
+@test fn six()
+    mut c := [-1 for _ in 0..10]
+    assert_eq(steps(6, mut c), 8)

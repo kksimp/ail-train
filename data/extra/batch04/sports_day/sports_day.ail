@@ -1,0 +1,21 @@
+## Sports day: places in each event give house points (5, 3, 1); totals the houses, prints
+## a ranked table, and finds which event each house scored best in.
+
+fn main()
+    events := [("sprint", ["red", "blue", "green"]), ("relay", ["blue", "green", "red"]), ("long jump", ["green", "red", "yellow"]), ("high jump", ["blue", "yellow", "green"]), ("egg race", ["yellow", "blue", "red"])]
+    award := [5, 3, 1]
+    mut totals := Map[str, int]()
+    mut best_event := Map[str, (str, int)]()
+    for e in events
+        name, places := e
+        for i, house in places.enumerate()
+            totals[house] += award[i]
+            current := best_event.get(house) else ("", 0)
+            if award[i] > current.1
+                best_event[house] = (name, award[i])
+    ranked := totals.keys().sorted(by: |h| (-totals[h], h))
+    for i, h in ranked.enumerate()
+        print("{i + 1}. {h:<7} {totals[h]:>2}  best: {best_event[h].0}")
+
+@test fn award_table()
+    assert_eq([5, 3, 1].sum(), 9)

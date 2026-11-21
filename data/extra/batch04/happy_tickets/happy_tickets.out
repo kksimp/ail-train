@@ -1,0 +1,8 @@
+lucky tickets from 000000 to 999999: 55252
+most common half sum: 13 (75 ways)
+123321: true
+100001: true
+555555: true
+123456: false
+902560: true
+first lucky ticket after 123456: 123501

@@ -1,0 +1,38 @@
+## Prime window: a segmented sieve finds the primes in a window far above zero (here from
+## 1,000,000,000 to 1,000,000,200) using only the small primes up to the window's root.
+
+fn small_primes(limit int) List[int]
+    mut is_p := [true for _ in 0..=limit]
+    mut out := List[int]()
+    for i in 2..=limit
+        if is_p[i]
+            out.push(i)
+            mut m := i * i
+            while m <= limit
+                is_p[m] = false
+                m += i
+    out
+
+fn window_primes(lo int, hi int) List[int]
+    mut root := 1
+    while (root + 1) * (root + 1) <= hi
+        root += 1
+    mut ok := [true for _ in lo..=hi]
+    for p in small_primes(root)
+        mut m := ((lo + p - 1) / p * p).max(p * p)
+        while m <= hi
+            ok[m - lo] = false
+            m += p
+    [lo + i for i in 0..ok.len() if ok[i] and lo + i > 1]
+
+fn main()
+    ps := window_primes(1000000000, 1000000200)
+    print("{ps.len()} primes between 1,000,000,000 and 1,000,000,200")
+    print("first {ps.take(4)}")
+    gaps := [ps[i] - ps[i - 1] for i in 1..ps.len()]
+    widest := gaps.max() else 0
+    print("widest gap {widest}")
+    print("small check: {window_primes(1, 30)}")
+
+@test fn small_window()
+    assert_eq(window_primes(10, 20), [11, 13, 17, 19])

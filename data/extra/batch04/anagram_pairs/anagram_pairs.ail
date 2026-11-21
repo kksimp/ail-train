@@ -1,0 +1,19 @@
+## Anagram pairs: groups words by their sorted letters and prints every group with more
+## than one word, largest group first, then alphabetically by key.
+
+fn key_of(w str) str
+    w.chars().sorted().join("")
+
+fn main()
+    words := ["listen", "silent", "enlist", "google", "gooegl", "cat", "act", "tac", "dog", "god", "bird", "inlets"]
+    mut groups := Map[str, List[str]]()
+    for w in words
+        groups.push(key_of(w), w)
+    keys := groups.keys().filter(|k| groups[k].len() > 1).sorted(by: |k| (-groups[k].len(), k))
+    for k in keys
+        members := groups[k].join(" ")
+        print("{k}: {members}")
+    print("{keys.len()} groups")
+
+@test fn sorted_key()
+    assert_eq(key_of("cab"), "abc")

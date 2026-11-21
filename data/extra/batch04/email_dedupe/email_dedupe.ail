@@ -1,0 +1,28 @@
+## Email dedupe: normalises addresses (lower case, dots and +tags removed from the local
+## part for one provider) to find duplicates, keeping the first spelling seen.
+
+fn normalise(email str) str
+    at := email.find("@") else return email.to_lower()
+    mut local := email.slice(0, at).to_lower()
+    domain := email.slice(at + 1).to_lower()
+    if domain == "mail.test"
+        plus := local.find("+") else local.len()
+        local = local.slice(0, plus).replace(".", "")
+    "{local}@{domain}"
+
+fn main()
+    emails := ["Jo.Smith@mail.test", "josmith+news@mail.test", "jo.smith@other.test", "JOSMITH@MAIL.TEST", "Ann@other.test", "ann@Other.test", "a.n.n@mail.test", "bad-address"]
+    mut first := Map[str, str]()
+    mut order := List[str]()
+    for e in emails
+        key := normalise(e)
+        if first.contains(key)
+            print("duplicate: {e} (same as {first[key]})")
+        else
+            first[key] = e
+            order.push(key)
+    kept := order.map(|k| first[k]).join(", ")
+    print("{order.len()} unique: {kept}")
+
+@test fn tags_dropped()
+    assert_eq(normalise("a.b+x@mail.test"), "ab@mail.test")

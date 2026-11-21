@@ -1,0 +1,34 @@
+## Caesar crack: shifts a message by a secret key, then recovers the key by trying all 26
+## shifts and scoring each by how many common English letters it produces.
+
+fn shift(s str, k int) str
+    mut out := ""
+    for c in s.chars()
+        if c.is_lower()
+            code := (c.code() - 97 + k) % 26 + 97
+            d := char.from_code(code) else c
+            out = "{out}{d}"
+        else
+            out = "{out}{c}"
+    out
+
+fn score(s str) int
+    common := "etaoinshr"
+    s.chars().filter(|c| common.contains(c)).len()
+
+fn main()
+    plain := "the quick brown fox jumps over the lazy dog near the riverbank"
+    secret := shift(plain, 11)
+    print("cipher: {secret}")
+    mut best := 0
+    mut best_score := -1
+    for k in 0..26
+        sc := score(shift(secret, k))
+        if sc > best_score
+            best_score = sc
+            best = k
+    print("key: {(26 - best) % 26}")
+    print("plain: {shift(secret, best)}")
+
+@test fn wraps()
+    assert_eq(shift("xyz", 3), "abc")

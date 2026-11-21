@@ -1,0 +1,30 @@
+## Sum of squares: which numbers are a sum of two squares, with their representations, and
+## the smallest number with at least three different ways of writing it so.
+
+fn ways(n int) List[(int, int)]
+    mut out := List[(int, int)]()
+    mut a := 0
+    while 2 * a * a <= n
+        rest := n - a * a
+        mut b := a
+        while b * b < rest
+            b += 1
+        if b * b == rest
+            out.push((a, b))
+        a += 1
+    out
+
+fn main()
+    for n in [5, 25, 50, 65, 21, 325]
+        ws := ways(n).map(|w| "{w.0}^2+{w.1}^2")
+        shown := if ws.is_empty() then "none" else ws.join(", ")
+        print("{n}: {shown}")
+    mut n := 1
+    while ways(n).len() < 3
+        n += 1
+    print("smallest with three ways: {n}")
+    count := [k for k in 1..=100 if ways(k).len() > 0].len()
+    print("{count} of 1..100 are sums of two squares")
+
+@test fn twenty_five()
+    assert_eq(ways(25), [(0, 5), (3, 4)])

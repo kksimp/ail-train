@@ -1,0 +1,28 @@
+## Book club: members rate books from 1 to 5; prints each book's average to two places,
+## the member who rates most generously, and books every member has rated.
+
+fn member_avg(ratings List[(str, str, int)], m str) int
+    rs := ratings.filter(|r| r.0 == m).map(|r| r.2)
+    rs.sum() * 100 / rs.len()
+
+fn rated_by(ratings List[(str, str, int)], b str) int
+    ratings.filter(|r| r.1 == b).len()
+
+fn main()
+    ratings := [("Una", "Dune", 5), ("Vic", "Dune", 4), ("Wes", "Dune", 3), ("Una", "Emma", 2), ("Wes", "Emma", 4), ("Vic", "Kim", 5), ("Una", "Kim", 4), ("Wes", "Kim", 5), ("Vic", "Ulysses", 1)]
+    members := ["Una", "Vic", "Wes"]
+    mut books := List[str]()
+    for r in ratings
+        if not books.contains(r.1)
+            books.push(r.1)
+    for b in books
+        rs := ratings.filter(|r| r.1 == b).map(|r| r.2)
+        avg := rs.sum() * 100 / rs.len()
+        print("{b:<8} {avg / 100}.{avg % 100:02} from {rs.len()}")
+    generous := members.max(by: |m| member_avg(ratings, m)) else ""
+    print("most generous: {generous}")
+    everyone := books.filter(|b| rated_by(ratings, b) == members.len())
+    print("rated by all: {everyone.join(", ")}")
+
+@test fn average_cents()
+    assert_eq(12 * 100 / 3, 400)

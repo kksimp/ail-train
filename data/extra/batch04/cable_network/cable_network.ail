@@ -1,0 +1,30 @@
+## Cable network: connects every village with the least total cable using Kruskal's
+## algorithm (cheapest links first, skipping links that would close a loop).
+
+fn root(parent List[int], x int) int
+    mut r := x
+    while parent[r] != r
+        r = parent[r]
+    r
+
+fn main()
+    villages := ["Ash", "Bly", "Cor", "Dun", "Elm", "Fen"]
+    links := [(0, 1, 7), (0, 2, 9), (0, 5, 14), (1, 2, 10), (1, 3, 15), (2, 3, 11), (2, 5, 2), (3, 4, 6), (4, 5, 9)]
+    mut parent := [i for i in 0..villages.len()]
+    mut total := 0
+    mut used := 0
+    for l in links.sorted(by: |l| (l.2, l.0, l.1))
+        a, b, cost := l
+        ra := root(parent, a)
+        rb := root(parent, b)
+        if ra == rb
+            print("skip {villages[a]}-{villages[b]} ({cost})")
+            continue
+        parent[ra] = rb
+        total += cost
+        used += 1
+        print("lay  {villages[a]}-{villages[b]} ({cost})")
+    print("{used} cables, total length {total}")
+
+@test fn separate_roots()
+    assert(root([0, 1], 0) != root([0, 1], 1))

@@ -1,0 +1,37 @@
+## Temperature log: readings arrive as text that may be malformed; a parser returns a
+## result with an error enum, bad lines are counted by kind, and good ones are summarised.
+
+error enum ReadError
+    Empty "empty line"
+    NoValue(text str) "no value in {text}"
+    OutOfRange(value int) "{value} is out of range"
+
+fn read(line str) int ! ReadError
+    t := line.trim()
+    if t == ""
+        return Empty
+    parts := t.split("=")
+    if parts.len() != 2
+        return NoValue(text: t)
+    v := parts[1].trim().to_int() else return NoValue(text: t)
+    if v < -60 or v > 60
+        return OutOfRange(value: v)
+    v
+
+fn main()
+    lines := ["t=12", "t=15", "", "t=hot", "t=99", "t=-4", "temp 7", "t= 9"]
+    mut good := List[int]()
+    mut bad := 0
+    for l in lines
+        if v := read(l)
+            good.push(v)
+        else err
+            bad += 1
+            print("skipped: {err}")
+    low := good.min() else 0
+    high := good.max() else 0
+    print("{good.len()} good readings: {good}, low {low}, high {high}")
+    print("{bad} bad lines")
+
+@test fn range_check()
+    assert_eq(read("t=5") else 0, 5)
