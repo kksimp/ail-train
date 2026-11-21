@@ -1,0 +1,36 @@
+## Benford's law: in many natural data sets a leading digit d turns up with chance log10(1 + 1/d);
+## compares the leading digits of powers of two and Fibonacci numbers with that rule.
+
+fn leading(x int) int
+    mut v := x
+    while v >= 10
+        v = v / 10
+    v
+
+fn main()
+    mut values := List[int]()
+    mut p := 1
+    for k in 0..63
+        values.push(p)
+        p *= 2
+    mut a := 1
+    mut b := 1
+    for k in 0..90
+        values.push(a)
+        c := a + b
+        a = b
+        b = c
+    mut counts := [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    for v in values
+        counts[leading(v)] += 1
+    total := values.len().to_float()
+    print("{values.len()} numbers")
+    for d in 1..10
+        seen := counts[d].to_float() / total * 100.0
+        ratio := 1.0 + 1.0 / d.to_float()
+        expect := ratio.log10() * 100.0
+        bar := "#".repeat(counts[d] / 2)
+        print("{d}: {seen:>5.1}% (Benford {expect:>4.1}%) {bar}")
+
+@test fn lead()
+    assert_eq(leading(4096), 4)

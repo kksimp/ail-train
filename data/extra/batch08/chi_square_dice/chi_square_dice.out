@@ -1,0 +1,4 @@
+red   22 17 21 19 23 18: chi-square  1.40, consistent with fair
+blue  12 15 18 20 24 31: chi-square 11.50, looks loaded
+green 20 20 20 20 20 20: chi-square  0.00, consistent with fair
+white 27 14 16 25 13 25: chi-square 10.00, consistent with fair

@@ -1,0 +1,48 @@
+## Range maximum: a segment tree over hourly museum visitor counts answers "busiest hour between
+## these times" in logarithmic time, and stays correct as counts are corrected.
+
+fn bigger(a int, b int) int
+    if a > b then a else b
+
+fn update(mut tree List[int], n int, i int, value int)
+    mut p := i + n
+    tree[p] = value
+    while p > 1
+        p = p / 2
+        tree[p] = bigger(tree[2 * p], tree[2 * p + 1])
+
+fn query(tree List[int], n int, lo int, hi int) int
+    mut best := 0
+    mut l := lo + n
+    mut r := hi + n
+    while l < r
+        if l % 2 == 1
+            best = bigger(best, tree[l])
+            l += 1
+        if r % 2 == 1
+            r -= 1
+            best = bigger(best, tree[r])
+        l = l / 2
+        r = r / 2
+    best
+
+fn main()
+    visits := [42, 87, 130, 155, 98, 120, 176, 140, 95, 60]
+    n := visits.len()
+    mut tree := List[int]()
+    for i in 0..2 * n
+        tree.push(0)
+    for i in 0..n
+        update(mut tree, n, i, visits[i])
+    for q in [(0, 4), (4, 8), (0, 10), (7, 10)]
+        lo, hi := q
+        print("{9 + lo}:00 to {9 + hi}:00 busiest {query(tree, n, lo, hi)}")
+    update(mut tree, n, 6, 112)
+    update(mut tree, n, 8, 190)
+    print("after corrections:")
+    for q in [(4, 8), (0, 10)]
+        lo, hi := q
+        print("{9 + lo}:00 to {9 + hi}:00 busiest {query(tree, n, lo, hi)}")
+
+@test fn larger()
+    assert_eq(bigger(3, 8), 8)

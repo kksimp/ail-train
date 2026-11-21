@@ -1,0 +1,49 @@
+## Maximum flow: water pipes from a reservoir to a town, each with a capacity in litres a second;
+## Edmonds-Karp keeps finding the shortest path with spare capacity and pushes its bottleneck.
+
+fn main()
+    names := ["reservoir", "A", "B", "C", "D", "town"]
+    mut cap := [[0, 16, 13, 0, 0, 0], [0, 0, 10, 12, 0, 0], [0, 4, 0, 0, 14, 0], [0, 0, 9, 0, 0, 20], [0, 0, 0, 7, 0, 4], [0, 0, 0, 0, 0, 0]]
+    n := names.len()
+    source := 0
+    sink := n - 1
+    mut total := 0
+    while true
+        mut parent := List[int]()
+        for i in 0..n
+            parent.push(-1)
+        parent[source] = source
+        mut queue := [source]
+        mut head := 0
+        while head < queue.len() and parent[sink] == -1
+            u := queue[head]
+            head += 1
+            for v in 0..n
+                if parent[v] == -1 and cap[u][v] > 0
+                    parent[v] = u
+                    queue.push(v)
+        if parent[sink] == -1
+            break
+        mut push := 1000000
+        mut v := sink
+        mut route := List[str]()
+        while v != source
+            u := parent[v]
+            if cap[u][v] < push
+                push = cap[u][v]
+            route.insert(0, names[v])
+            v = u
+        route.insert(0, names[source])
+        v = sink
+        while v != source
+            u := parent[v]
+            cap[u][v] -= push
+            cap[v][u] += push
+            v = u
+        total += push
+        shown := route.join(" > ")
+        print("push {push:>2}: {shown}")
+    print("maximum flow {total} litres a second")
+
+@test fn small()
+    assert_eq([16, 13].sum() - 6, 23)

@@ -1,0 +1,4 @@
+push 12: reservoir > A > C > town
+push  4: reservoir > B > D > town
+push  7: reservoir > B > D > C > town
+maximum flow 23 litres a second

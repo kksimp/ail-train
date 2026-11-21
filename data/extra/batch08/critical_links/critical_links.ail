@@ -1,0 +1,40 @@
+## Critical links: a link in an office network is critical when cutting it splits the network;
+## a depth-first search compares each office's discovery time with the lowest time it can reach.
+
+fn dfs(v int, from int, adj List[List[int]], names List[str], mut disc List[int], mut low List[int], mut clock List[int], mut out List[str])
+    clock[0] += 1
+    disc[v] = clock[0]
+    low[v] = clock[0]
+    for w in adj[v]
+        if disc[w] == 0
+            dfs(w, v, adj, names, mut disc, mut low, mut clock, mut out)
+            if low[w] < low[v]
+                low[v] = low[w]
+            if low[w] > disc[v]
+                out.push("{names[v]}-{names[w]}")
+        elif w != from
+            if disc[w] < low[v]
+                low[v] = disc[w]
+
+fn main()
+    names := ["Hub", "North", "South", "Depot", "Lab", "Store", "Annex"]
+    links := [[0, 1], [1, 2], [2, 0], [1, 3], [3, 4], [4, 5], [5, 3], [4, 6]]
+    mut adj := List[List[int]]()
+    mut disc := List[int]()
+    mut low := List[int]()
+    for i in 0..names.len()
+        adj.push(List[int]())
+        disc.push(0)
+        low.push(0)
+    for l in links
+        adj[l[0]].push(l[1])
+        adj[l[1]].push(l[0])
+    mut clock := [0]
+    mut out := List[str]()
+    dfs(0, -1, adj, names, mut disc, mut low, mut clock, mut out)
+    shown := out.join(", ")
+    print("critical links: {shown}")
+    print("{out.len()} of {links.len()} links are critical")
+
+@test fn single()
+    assert_eq([0].len(), 1)

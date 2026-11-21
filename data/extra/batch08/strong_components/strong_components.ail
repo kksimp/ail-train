@@ -1,0 +1,50 @@
+## Strongly connected parts: one-way streets between squares; Kosaraju's method orders squares by
+## finishing time, then walks the reversed streets to find groups that can all reach each other.
+
+fn order_dfs(v int, adj List[List[int]], mut seen List[bool], mut order List[int])
+    seen[v] = true
+    for w in adj[v]
+        if not seen[w]
+            order_dfs(w, adj, mut seen, mut order)
+    order.push(v)
+
+fn collect(v int, radj List[List[int]], mut seen List[bool], mut group List[int])
+    seen[v] = true
+    group.push(v)
+    for w in radj[v]
+        if not seen[w]
+            collect(w, radj, mut seen, mut group)
+
+fn main()
+    names := ["Abbey", "Bridge", "Castle", "Dock", "Exchange", "Fountain", "Gate", "Harbour"]
+    streets := [[0, 1], [1, 2], [2, 0], [2, 3], [3, 4], [4, 5], [5, 3], [6, 5], [6, 7], [7, 6]]
+    n := names.len()
+    mut adj := List[List[int]]()
+    mut radj := List[List[int]]()
+    mut seen := List[bool]()
+    for i in 0..n
+        adj.push(List[int]())
+        radj.push(List[int]())
+        seen.push(false)
+    for s in streets
+        adj[s[0]].push(s[1])
+        radj[s[1]].push(s[0])
+    mut order := List[int]()
+    for v in 0..n
+        if not seen[v]
+            order_dfs(v, adj, mut seen, mut order)
+    mut again := List[bool]()
+    for i in 0..n
+        again.push(false)
+    mut count := 0
+    for k in 0..n
+        v := order[n - 1 - k]
+        if not again[v]
+            mut group := List[int]()
+            collect(v, radj, mut again, mut group)
+            count += 1
+            shown := group.sorted().map(|g| names[g]).join(", ")
+            print("group {count}: {shown}")
+
+@test fn empty()
+    assert_eq(List[int]().len(), 0)

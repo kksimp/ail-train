@@ -1,0 +1,69 @@
+## A* search: finds a shortest route across a grid with walls, always expanding the open cell with
+## the lowest steps-so-far plus Manhattan distance to the goal, and draws the route with stars.
+
+fn main()
+    grid := ["S...#....", ".##.#.##.", "...#...#.", ".#...#.#.", ".#.#.#...", "...#...#G"]
+    rows := grid.len()
+    cols := grid[0].len()
+    mut cells := List[List[char]]()
+    for line in grid
+        cells.push(line.chars())
+    mut start := 0
+    mut goal := 0
+    for r in 0..rows
+        for c in 0..cols
+            if cells[r][c] == 'S'
+                start = r * cols + c
+            if cells[r][c] == 'G'
+                goal = r * cols + c
+    gr := goal / cols
+    gc := goal % cols
+    mut cost := List[int]()
+    mut parent := List[int]()
+    mut closed := List[bool]()
+    for i in 0..rows * cols
+        cost.push(-1)
+        parent.push(-1)
+        closed.push(false)
+    cost[start] = 0
+    mut open := [start]
+    mut expanded := 0
+    steps := [[-1, 0], [1, 0], [0, -1], [0, 1]]
+    while open.len() > 0
+        mut pick := 0
+        for i in 0..open.len()
+            a := open[i]
+            b := open[pick]
+            ha := (a / cols - gr).abs() + (a % cols - gc).abs()
+            hb := (b / cols - gr).abs() + (b % cols - gc).abs()
+            if cost[a] + ha < cost[b] + hb or (cost[a] + ha == cost[b] + hb and ha < hb)
+                pick = i
+        cur := open[pick]
+        open.remove_at(pick)
+        if closed[cur]
+            continue
+        closed[cur] = true
+        expanded += 1
+        if cur == goal
+            break
+        r := cur / cols
+        c := cur % cols
+        for s in steps
+            nr := r + s[0]
+            nc := c + s[1]
+            if nr >= 0 and nr < rows and nc >= 0 and nc < cols and cells[nr][nc] != '#'
+                n := nr * cols + nc
+                if not closed[n] and (cost[n] == -1 or cost[cur] + 1 < cost[n])
+                    cost[n] = cost[cur] + 1
+                    parent[n] = cur
+                    open.push(n)
+    mut k := parent[goal]
+    while k != start and k >= 0
+        cells[k / cols][k % cols] = '*'
+        k = parent[k]
+    for row in cells
+        print(row.join(""))
+    print("route {cost[goal]} steps, {expanded} cells expanded")
+
+@test fn manhattan()
+    assert_eq((0 - 3).abs() + (1 - 5).abs(), 7)

@@ -1,0 +1,12 @@
+t  0.0: hares  10.0, lynxes   5.0
+t  2.0: hares   0.9, lynxes   4.8
+t  4.0: hares   0.5, lynxes   2.4
+t  6.0: hares   1.1, lynxes   1.3
+t  8.0: hares   4.4, lynxes   0.9
+t 10.0: hares  13.8, lynxes   2.5
+t 12.0: hares   2.2, lynxes   6.0
+t 14.0: hares   0.5, lynxes   3.3
+t 16.0: hares   0.7, lynxes   1.6
+t 18.0: hares   2.3, lynxes   0.9
+t 20.0: hares   9.7, lynxes   1.2
+hares peak 13.9 at t 10.11, lynxes peak 6.3 at t 11.57
