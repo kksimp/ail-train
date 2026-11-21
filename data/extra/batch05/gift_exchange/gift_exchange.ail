@@ -1,0 +1,35 @@
+## Gift exchange: a seeded derangement assigns each person someone else to buy for,
+## avoiding partners, retrying with the next seed until the draw is valid.
+
+fn draw(people List[str], seed int) List[int]
+    mut idx := [i for i in 0..people.len()]
+    mut state := seed
+    mut i := idx.len() - 1
+    while i > 0
+        state = (state * 1103515245 + 12345) % 2147483648
+        j := (state / 65536) % (i + 1)
+        idx.swap(i, j)
+        i -= 1
+    idx
+
+fn main()
+    people := ["Ani", "Bo", "Cleo", "Dev", "Eun", "Fox"]
+    partners := [("Ani", "Bo"), ("Cleo", "Dev")]
+    mut seed := 1
+    while true
+        d := draw(people, seed)
+        mut ok := true
+        for k in 0..people.len()
+            giver := people[k]
+            taker := people[d[k]]
+            if giver == taker or partners.contains((giver, taker)) or partners.contains((taker, giver))
+                ok = false
+        if ok
+            print("seed {seed} works")
+            for k in 0..people.len()
+                print("{people[k]} -> {people[d[k]]}")
+            break
+        seed += 1
+
+@test fn perm()
+    assert_eq(draw(["a", "b", "c"], 5).sorted(), [0, 1, 2])

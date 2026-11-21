@@ -1,0 +1,33 @@
+## Habit tracker: daily yes/no marks for several habits over two weeks; prints a grid with
+## ticks, each habit's completion rate, and the best current streak.
+
+fn current_streak(marks List[bool]) int
+    mut n := 0
+    mut i := marks.len() - 1
+    while i >= 0 and marks[i]
+        n += 1
+        i -= 1
+    n
+
+fn tick(m bool) str
+    if m
+        return "x"
+    "."
+
+fn main()
+    habits := [("read", "11011111101111"), ("run", "10101010101010"), ("water", "11111111111111"), ("journal", "00011101110111")]
+    mut best := ("", -1)
+    for h in habits
+        name, raw := h
+        marks := raw.chars().map(|c| c == '1')
+        grid := marks.map(tick).join("")
+        done := marks.filter(|m| m).len()
+        pct := done * 100 / marks.len()
+        streak := current_streak(marks)
+        print("{name:<8} {grid} {pct:>3}% streak {streak}")
+        if streak > best.1
+            best = (name, streak)
+    print("best streak: {best.0} ({best.1} days)")
+
+@test fn streak()
+    assert_eq(current_streak([true, false, true, true]), 2)

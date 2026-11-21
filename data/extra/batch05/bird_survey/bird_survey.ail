@@ -1,0 +1,31 @@
+## Bird survey: sightings from several observers are merged into species counts; prints
+## species seen by everyone, species seen by one observer only, and the top three.
+
+fn main()
+    obs := [
+        ("Ash", ["robin", "wren", "robin", "blackbird", "jay"]),
+        ("Bay", ["robin", "jay", "heron", "wren", "wren"]),
+        ("Cam", ["robin", "wren", "kite", "jay", "robin", "robin"]),
+    ]
+    mut counts := Map[str, int]()
+    mut pairs := Set[str]()
+    for o in obs
+        who, birds := o
+        for b in birds
+            counts[b] += 1
+            pairs.add("{b}|{who}")
+    mut observers := Map[str, int]()
+    for s in counts.keys()
+        observers[s] = obs.filter(|o| pairs.contains("{s}|{o.0}")).len()
+    species := counts.keys().sorted()
+    everyone := species.filter(|s| observers[s] == obs.len())
+    single := species.filter(|s| observers[s] == 1)
+    a := everyone.join(", ")
+    b := single.join(", ")
+    print("seen by all: {a}")
+    print("seen by one: {b}")
+    for s in species.sorted(by: |s| (-counts[s], s)).take(3)
+        print("{s}: {counts[s]}")
+
+@test fn count()
+    assert_eq(["a", "b"].take(1), ["a"])

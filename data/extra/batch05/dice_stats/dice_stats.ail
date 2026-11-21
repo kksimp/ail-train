@@ -1,0 +1,24 @@
+## Dice stats: exact distribution of the sum of three six-sided dice by enumeration; prints
+## a bar chart, the mean, and the chance of rolling at least 15.
+
+fn main()
+    mut ways := Map[int, int]()
+    for a in 1..=6
+        for b in 1..=6
+            for c in 1..=6
+                ways[a + b + c] += 1
+    for s in 3..=18
+        bar := "#".repeat(ways[s])
+        print("{s:>2} {ways[s]:>2} {bar}")
+    mut total := 0
+    for s in 3..=18
+        total += s * ways[s]
+    mean := total.to_float() / 216.0
+    mut high := 0
+    for s in 15..=18
+        high += ways[s]
+    chance := high.to_float() * 100.0 / 216.0
+    print("mean {mean:.2}, P(sum >= 15) = {high}/216 = {chance:.2}%")
+
+@test fn corners()
+    assert_eq(6 * 6 * 6, 216)

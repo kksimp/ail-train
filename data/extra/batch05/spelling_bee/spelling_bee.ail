@@ -1,0 +1,25 @@
+## Spelling bee: finds words that use only seven given letters and always the centre
+## letter, scoring 1 for four-letter words, the length otherwise, plus 7 for pangrams.
+
+fn score(w str, letters Set[char]) int
+    base := if w.len() == 4 then 1 else w.len()
+    cs := {c for c in w.chars()}
+    bonus := if letters.is_subset(cs) then 7 else 0
+    base + bonus
+
+fn main()
+    letters := {'a', 'c', 'e', 'l', 'n', 'r', 't'}
+    centre := 'e'
+    words := ["central", "rental", "learn", "cat", "nectar", "trace", "clean", "plant", "eel", "react", "lance", "cantle", "tea", "teal"]
+    mut total := 0
+    for w in words
+        cs := w.chars()
+        if cs.len() < 4 or not cs.contains(centre) or not cs.all(|c| letters.contains(c))
+            continue
+        s := score(w, letters)
+        total += s
+        print("{w}: {s}")
+    print("total {total}")
+
+@test fn four()
+    assert_eq(score("teal", {'a', 'c', 'e', 'l', 'n', 'r', 't'}), 1)

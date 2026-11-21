@@ -1,0 +1,17 @@
+## Loyalty points: purchases earn a point per whole pound, doubled on Tuesdays, and every
+## 100 points converts into a 5-pound voucher; prints each customer's statement.
+
+fn main()
+    purchases := [("Ros", "Mon", 2350), ("Sam", "Tue", 4100), ("Ros", "Tue", 1875), ("Tia", "Fri", 12990), ("Sam", "Sat", 6720), ("Ros", "Thu", 5600), ("Tia", "Tue", 3300)]
+    mut points := Map[str, int]()
+    for p in purchases
+        who, day, pence := p
+        earned := if day == "Tue" then pence / 100 * 2 else pence / 100
+        points[who] += earned
+    for who in points.keys().sorted()
+        pts := points[who]
+        vouchers := pts / 100
+        print("{who}: {pts} points, {vouchers} voucher(s) worth {vouchers * 5}, {pts % 100} carried")
+
+@test fn tuesday()
+    assert_eq(1875 / 100 * 2, 36)
