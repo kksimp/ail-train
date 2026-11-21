@@ -8,12 +8,12 @@ fn main()
     width := 31
     for rule in [30, 90, 110]
         print("rule {rule}:")
-        mut row := [false for _ in 0..width]
+        mut row := [false for k in 0..width]
         row[width / 2] = true
         for _ in 0..12
             line := row.map(cell).join("")
             print(line)
-            mut next := [false for _ in 0..width]
+            mut next := [false for q in 0..width]
             for i in 1..width - 1
                 l := if row[i - 1] then 4 else 0
                 c := if row[i] then 2 else 0

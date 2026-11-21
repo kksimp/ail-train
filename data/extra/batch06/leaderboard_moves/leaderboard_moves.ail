@@ -6,8 +6,8 @@ fn main()
     now := ["Lou", "Kim", "Pia", "Qi", "Max", "Ned"]
     for i, p in now.enumerate()
         if old := last.index_of(p)
-            move := old - i
-            arrow := if move > 0 then "up {move}" elif move < 0 then "down {-move}" else "same"
+            change := old - i
+            arrow := if change > 0 then "up {change}" elif change < 0 then "down {-change}" else "same"
             print("{i + 1}. {p:<4} {arrow}")
         else
             print("{i + 1}. {p:<4} new")

@@ -15,11 +15,13 @@ fn main()
         a := groups[0]
         b := groups[1]
         for ch in a.1.chars()
-            codes["{ch}"] = "0" + codes["{ch}"]
+            old := codes["{ch}"]
+            codes["{ch}"] = "0{old}"
         for ch in b.1.chars()
-            codes["{ch}"] = "1" + codes["{ch}"]
+            prev := codes["{ch}"]
+            codes["{ch}"] = "1{prev}"
         groups = groups[2..]
-        groups.push((a.0 + b.0, a.1 + b.1))
+        groups.push((a.0 + b.0, "{a.1}{b.1}"))
     mut bits := 0
     for k in counts.keys().sorted(by: |k| (-counts[k], k))
         bits += counts[k] * codes[k].len()

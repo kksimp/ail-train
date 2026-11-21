@@ -4,7 +4,7 @@
 fn lcs(a str, b str) str
     xs := a.chars()
     ys := b.chars()
-    mut t := [[0 for _ in 0..ys.len() + 1] for _ in 0..xs.len() + 1]
+    mut t := [[0 for col in 0..ys.len() + 1] for row in 0..xs.len() + 1]
     for i in 1..=xs.len()
         for j in 1..=ys.len()
             if xs[i - 1] == ys[j - 1]
