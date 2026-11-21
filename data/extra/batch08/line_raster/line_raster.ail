@@ -1,0 +1,45 @@
+## Line raster: Bresenham's algorithm picks the pixels of a straight line using only integer
+## steps and a running error term; draws a few lines on a small character canvas.
+
+fn line(x0 int, y0 int, x1 int, y1 int) List[List[int]]
+    dx := (x1 - x0).abs()
+    dy := 0 - (y1 - y0).abs()
+    sx := if x0 < x1 then 1 else -1
+    sy := if y0 < y1 then 1 else -1
+    mut err := dx + dy
+    mut x := x0
+    mut y := y0
+    mut out := List[List[int]]()
+    while true
+        out.push([x, y])
+        if x == x1 and y == y1
+            break
+        e2 := 2 * err
+        if e2 >= dy
+            err += dy
+            x += sx
+        if e2 <= dx
+            err += dx
+            y += sy
+    out
+
+fn main()
+    width := 24
+    height := 10
+    mut canvas := List[List[char]]()
+    for r in 0..height
+        mut row := List[char]()
+        for c in 0..width
+            row.push('.')
+        canvas.push(row)
+    lines := [[0, 0, 23, 9], [0, 9, 23, 0], [2, 4, 21, 4], [12, 0, 12, 9], [0, 2, 6, 9]]
+    for l in lines
+        pts := line(l[0], l[1], l[2], l[3])
+        for p in pts
+            canvas[p[1]][p[0]] = '#'
+        print("({l[0]}, {l[1]}) to ({l[2]}, {l[3]}): {pts.len()} pixels")
+    for row in canvas
+        print(row.join(""))
+
+@test fn flat()
+    assert_eq(line(0, 0, 4, 0).len(), 5)

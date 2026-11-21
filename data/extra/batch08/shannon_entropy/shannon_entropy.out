@@ -1,0 +1,6 @@
+aaaaaaaa             0.000 bits per char, at least 0.0 bits
+abababab             1.000 bits per char, at least 8.0 bits
+abcdabcd             2.000 bits per char, at least 16.0 bits
+mississippi          1.823 bits per char, at least 20.1 bits
+the quick brown fox  3.892 bits per char, at least 74.0 bits
+0110100110010110     1.000 bits per char, at least 16.0 bits

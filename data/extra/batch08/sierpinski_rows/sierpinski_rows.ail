@@ -1,0 +1,21 @@
+## Sierpinski triangle: binomial coefficient C(r, c) is odd exactly when c's bits are a subset of
+## r's, (r & c) == c; marking the odd entries of 16 rows draws the triangle.
+
+fn main()
+    size := 16
+    mut stars := 0
+    for r in 0..size
+        mut cells := List[str]()
+        for c in 0..=r
+            if (r & c) == c
+                cells.push("*")
+                stars += 1
+            else
+                cells.push(" ")
+        pad := " ".repeat(size - 1 - r)
+        body := cells.join(" ")
+        print("{pad}{body}")
+    print("{stars} odd entries in {size} rows")
+
+@test fn row_three()
+    assert((3 & 2) == 2)

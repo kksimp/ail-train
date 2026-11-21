@@ -1,0 +1,24 @@
+## Bond pricing: a bond's price is its yearly coupons and final face value discounted at the
+## market yield; it trades at par when the yield equals the coupon rate, below par when higher.
+
+fn price(face float, coupon_rate float, years int, yld float) float
+    coupon := face * coupon_rate
+    base := 1.0 + yld
+    mut total := 0.0
+    for t in 1..=years
+        total += coupon / base.pow(t.to_float())
+    total + face / base.pow(years.to_float())
+
+fn main()
+    for yld in [0.03, 0.04, 0.05, 0.06, 0.08]
+        p := price(1000.0, 0.05, 10, yld)
+        label := if p > 1000.001 then "premium" elif p < 999.999 then "discount" else "at par"
+        current := 50.0 / p * 100.0
+        pct := yld * 100.0
+        print("yield {pct:.1}%: price {p:>8.2} ({label}), current yield {current:.2}%")
+    short := price(1000.0, 0.05, 2, 0.08)
+    long := price(1000.0, 0.05, 30, 0.08)
+    print("at 8%: 2-year {short:.2}, 30-year {long:.2}")
+
+@test fn zero_coupon()
+    assert_eq(price(1000.0, 0.0, 1, 0.25), 800.0)

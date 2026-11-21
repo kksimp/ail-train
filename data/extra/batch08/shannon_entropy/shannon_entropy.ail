@@ -1,0 +1,24 @@
+## Shannon entropy: the average information per character, -sum p log2 p over character
+## frequencies, is a lower bound on bits per character for any lossless code.
+
+fn entropy(text str) float
+    mut counts := Map[char, int]()
+    for c in text.chars()
+        counts[c] += 1
+    n := text.len().to_float()
+    two := 2.0
+    mut h := 0.0
+    for c in counts.keys()
+        p := counts[c].to_float() / n
+        h -= p * p.ln() / two.ln()
+    h
+
+fn main()
+    samples := ["aaaaaaaa", "abababab", "abcdabcd", "mississippi", "the quick brown fox", "0110100110010110"]
+    for s in samples
+        h := entropy(s)
+        bits := h * s.len().to_float()
+        print("{s:<20} {h:.3} bits per char, at least {bits:.1} bits")
+
+@test fn single()
+    assert_eq(entropy("zzz"), 0.0)

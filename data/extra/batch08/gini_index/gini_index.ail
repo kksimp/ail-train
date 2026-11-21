@@ -1,0 +1,23 @@
+## Gini coefficient: half the average absolute difference between every pair of incomes,
+## divided by the mean; 0 is perfect equality and values near 1 mean one person has it all.
+
+fn gini(xs List[float]) float
+    n := xs.len().to_float()
+    mean := xs.sum() / n
+    mut diffs := 0.0
+    for a in xs
+        for b in xs
+            diffs += (a - b).abs()
+    diffs / (2.0 * n * n * mean)
+
+fn main()
+    towns := [("Equalton", [30.0, 30.0, 30.0, 30.0, 30.0]), ("Midvale", [18.0, 25.0, 30.0, 38.0, 52.0]), ("Topford", [12.0, 15.0, 18.0, 22.0, 180.0]), ("Splitby", [10.0, 10.0, 10.0, 90.0, 90.0])]
+    for t in towns
+        name, incomes := t
+        g := gini(incomes)
+        top := incomes.sorted()[incomes.len() - 1]
+        share := top / incomes.sum() * 100.0
+        print("{name:<9} Gini {g:.3}, top earner holds {share:.1}%")
+
+@test fn equal()
+    assert_eq(gini([5.0, 5.0]), 0.0)

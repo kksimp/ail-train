@@ -1,0 +1,40 @@
+## Perceptron: a single neuron with integer weights learns logic gates by nudging its weights
+## after each wrong answer; it masters AND, OR and NAND but never XOR, which is not linear.
+
+struct Model
+    w1 int
+    w2 int
+    bias int
+    epochs int
+    learned bool
+
+fn train(targets List[int]) Model
+    inputs := [[0, 0], [0, 1], [1, 0], [1, 1]]
+    mut w1 := 0
+    mut w2 := 0
+    mut bias := 0
+    for epoch in 1..=20
+        mut errors := 0
+        for i in 0..4
+            x := inputs[i]
+            out := if w1 * x[0] + w2 * x[1] + bias > 0 then 1 else 0
+            err := targets[i] - out
+            if err != 0
+                w1 += err * x[0]
+                w2 += err * x[1]
+                bias += err
+                errors += 1
+        if errors == 0
+            return Model(w1: w1, w2: w2, bias: bias, epochs: epoch, learned: true)
+    Model(w1: w1, w2: w2, bias: bias, epochs: 20, learned: false)
+
+fn main()
+    gates := [("AND", [0, 0, 0, 1]), ("OR", [0, 1, 1, 1]), ("NAND", [1, 1, 1, 0]), ("XOR", [0, 1, 1, 0])]
+    for g in gates
+        name, targets := g
+        m := train(targets)
+        status := if m.learned then "learned in {m.epochs} epochs" else "not learned after {m.epochs} epochs"
+        print("{name:<4} weights {m.w1}, {m.w2}, bias {m.bias}: {status}")
+
+@test fn and_gate()
+    assert(train([0, 0, 0, 1]).learned)

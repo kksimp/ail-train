@@ -1,0 +1,4 @@
+AND  weights 2, 1, bias -2: learned in 6 epochs
+OR   weights 1, 1, bias 0: learned in 4 epochs
+NAND weights -2, -1, bias 3: learned in 6 epochs
+XOR  weights -1, 0, bias 1: not learned after 20 epochs
