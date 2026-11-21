@@ -5,18 +5,17 @@ struct MinStack
     items List[int]
     mins List[int]
 
-impl MinStack
-    fn push(mut self, x int)
-        self.items.push(x)
-        low := if self.mins.is_empty() then x else (if x < self.mins[self.mins.len() - 1] then x else self.mins[self.mins.len() - 1])
-        self.mins.push(low)
+fn MinStack.push(mut self, x int)
+    self.items.push(x)
+    low := if self.mins.is_empty() then x else (if x < self.mins[self.mins.len() - 1] then x else self.mins[self.mins.len() - 1])
+    self.mins.push(low)
 
-    fn pop(mut self) int?
-        _ := self.mins.pop()
-        self.items.pop()
+fn MinStack.pop(mut self) int?
+    _ := self.mins.pop()
+    self.items.pop()
 
-    fn min(self) int?
-        self.mins.last()
+fn MinStack.min(self) int?
+    self.mins.last()
 
 fn main()
     mut s := MinStack(items: [], mins: [])
