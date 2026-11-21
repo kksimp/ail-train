@@ -1,0 +1,33 @@
+## Price elasticity: the midpoint formula divides the percentage change in quantity by the
+## percentage change in price, each against the average; |E| > 1 means a price rise cuts revenue.
+
+struct Change
+    product str
+    p1 float
+    p2 float
+    q1 float
+    q2 float
+
+fn Change.elasticity(self) float
+    dq := (self.q2 - self.q1) / ((self.q1 + self.q2) / 2.0)
+    dp := (self.p2 - self.p1) / ((self.p1 + self.p2) / 2.0)
+    dq / dp
+
+fn kind(e float) str
+    m := e.abs()
+    if m > 1.0 then "elastic" elif m < 1.0 then "inelastic" else "unit elastic"
+
+fn main()
+    changes := [Change(product: "petrol", p1: 1.5, p2: 1.65, q1: 1000.0, q2: 970.0), Change(product: "cinema ticket", p1: 10.0, p2: 12.0, q1: 500.0, q2: 380.0), Change(product: "bread", p1: 1.2, p2: 1.4, q1: 300.0, q2: 285.0), Change(product: "coffee to go", p1: 3.0, p2: 3.3, q1: 200.0, q2: 170.0)]
+    for c in changes
+        e := c.elasticity()
+        before := c.p1 * c.q1
+        after := c.p2 * c.q2
+        print("{c.product:<13} E {e:>6.2} ({kind(e)}), revenue {before:.2} -> {after:.2}")
+    paid := changes.filter(|ch| ch.p2 * ch.q2 > ch.p1 * ch.q1).map(|ch| ch.product)
+    joined := paid.join(", ")
+    print("price rises that raised revenue: {joined}")
+
+@test fn unit()
+    c := Change(product: "x", p1: 1.0, p2: 3.0, q1: 3.0, q2: 1.0)
+    assert_eq(kind(c.elasticity()), "unit elastic")

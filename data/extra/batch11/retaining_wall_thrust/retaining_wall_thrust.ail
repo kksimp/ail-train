@@ -1,0 +1,26 @@
+## Retaining wall: Rankine's active pressure coefficient Ka = (1 - sin phi) / (1 + sin phi) gives
+## the soil thrust 1/2 Ka gamma H^2 per metre of wall, acting at H / 3 to tip the wall over.
+
+PI := 3.141592653589793
+
+struct Soil
+    name str
+    phi_deg float
+    gamma float
+
+fn Soil.ka(self) float
+    s := (self.phi_deg * PI / 180.0).sin()
+    (1.0 - s) / (1.0 + s)
+
+fn main()
+    soils := [Soil(name: "loose sand", phi_deg: 28.0, gamma: 17.0), Soil(name: "dense gravel", phi_deg: 38.0, gamma: 20.0), Soil(name: "stiff clay", phi_deg: 22.0, gamma: 19.0)]
+    for s in soils
+        print("{s.name}: Ka {s.ka():.3}")
+        for h in [1.0, 2.0, 3.0]
+            thrust := 0.5 * s.ka() * s.gamma * h * h
+            moment := thrust * h / 3.0
+            print("  {h} m wall: thrust {thrust:>6.2} kN/m, overturning {moment:>6.2} kNm/m")
+
+@test fn thirty_degrees()
+    s := Soil(name: "t", phi_deg: 30.0, gamma: 18.0)
+    assert((s.ka() - 1.0 / 3.0).abs() < 0.000001)

@@ -1,0 +1,28 @@
+## Storm runoff: the rational method gives peak flow Q = C i A / 360 (m3/s, with i in mm/h and A
+## in hectares); a mixed catchment uses the area-weighted runoff coefficient C.
+
+struct Surface
+    name str
+    hectares float
+    coeff float
+
+fn weighted_c(parts List[Surface]) float
+    area := parts.fold(0.0, |acc, p| acc + p.hectares)
+    parts.fold(0.0, |acc, p| acc + p.hectares * p.coeff) / area
+
+fn main()
+    parts := [Surface(name: "roofs", hectares: 1.2, coeff: 0.9), Surface(name: "roads", hectares: 0.8, coeff: 0.85), Surface(name: "lawns", hectares: 2.5, coeff: 0.2), Surface(name: "woodland", hectares: 1.5, coeff: 0.1)]
+    area := parts.fold(0.0, |acc, p| acc + p.hectares)
+    c := weighted_c(parts)
+    print("catchment {area:.1} ha, weighted C {c:.3}")
+    pipe := 0.5
+    for intensity in [10.0, 25.0, 50.0, 100.0]
+        q := c * intensity * area / 360.0
+        note := if q > pipe then "over the pipe" else "fits the pipe"
+        print("{intensity:>5.1} mm/h storm: peak {q:.3} m3/s, {note}")
+    paved := [Surface(name: "car park", hectares: 6.0, coeff: 0.9)]
+    q2 := weighted_c(paved) * 50.0 * 6.0 / 360.0
+    print("if it were all car park, a 50 mm/h storm gives {q2:.3} m3/s")
+
+@test fn single_surface()
+    assert_eq(weighted_c([Surface(name: "x", hectares: 2.0, coeff: 0.5)]), 0.5)

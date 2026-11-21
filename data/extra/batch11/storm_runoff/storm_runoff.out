@@ -1,0 +1,6 @@
+catchment 6.0 ha, weighted C 0.402
+ 10.0 mm/h storm: peak 0.067 m3/s, fits the pipe
+ 25.0 mm/h storm: peak 0.167 m3/s, fits the pipe
+ 50.0 mm/h storm: peak 0.335 m3/s, fits the pipe
+100.0 mm/h storm: peak 0.669 m3/s, over the pipe
+if it were all car park, a 50 mm/h storm gives 0.750 m3/s

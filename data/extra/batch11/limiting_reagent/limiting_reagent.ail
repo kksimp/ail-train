@@ -1,0 +1,39 @@
+## Limiting reagent: divide each reactant's moles (grams / molar mass) by its coefficient; the
+## smallest share runs out first, sets the product's mass and leaves the others in excess.
+
+struct Reactant
+    name str
+    grams float
+    molar float
+    coeff float
+
+struct Reaction
+    title str
+    inputs List[Reactant]
+    product str
+    product_molar float
+    product_coeff float
+
+fn Reaction.report(self)
+    mut best := self.inputs[0]
+    for r in self.inputs
+        if r.grams / r.molar / r.coeff < best.grams / best.molar / best.coeff
+            best = r
+    extent := best.grams / best.molar / best.coeff
+    made := extent * self.product_coeff * self.product_molar
+    print("{self.title}: {best.name} runs out, makes {made:.2} g {self.product}")
+    for r in self.inputs
+        left := r.grams - extent * r.coeff * r.molar
+        if left > 0.0001
+            print("  {r.name} left over: {left:.2} g")
+
+fn main()
+    water := Reaction(title: "2 H2 + O2 -> 2 H2O", inputs: [Reactant(name: "H2", grams: 10.0, molar: 2.016, coeff: 2.0), Reactant(name: "O2", grams: 64.0, molar: 32.0, coeff: 1.0)], product: "H2O", product_molar: 18.015, product_coeff: 2.0)
+    ammonia := Reaction(title: "N2 + 3 H2 -> 2 NH3", inputs: [Reactant(name: "N2", grams: 28.0, molar: 28.014, coeff: 1.0), Reactant(name: "H2", grams: 4.0, molar: 2.016, coeff: 3.0)], product: "NH3", product_molar: 17.031, product_coeff: 2.0)
+    rust := Reaction(title: "4 Fe + 3 O2 -> 2 Fe2O3", inputs: [Reactant(name: "Fe", grams: 100.0, molar: 55.845, coeff: 4.0), Reactant(name: "O2", grams: 50.0, molar: 32.0, coeff: 3.0)], product: "Fe2O3", product_molar: 159.69, product_coeff: 2.0)
+    for rx in [water, ammonia, rust]
+        rx.report()
+
+@test fn moles()
+    r := Reactant(name: "O2", grams: 64.0, molar: 32.0, coeff: 1.0)
+    assert_eq(r.grams / r.molar, 2.0)

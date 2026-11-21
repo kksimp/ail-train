@@ -1,0 +1,26 @@
+## Floating: a floating object sinks until it displaces its own weight, so the submerged share is
+## its density over the liquid's; denser objects sink, and a raft carries volume * (water - wood) kg.
+
+fn submerged(obj float, liquid float) float?
+    if obj >= liquid
+        return none
+    obj / liquid
+
+fn main()
+    things := [("ice", 917.0), ("oak", 750.0), ("pine", 500.0), ("cork", 240.0), ("aluminium", 2700.0), ("candle wax", 900.0)]
+    for liquid in [("fresh water", 1000.0), ("sea water", 1025.0)]
+        lname, rho := liquid
+        print("{lname}:")
+        for th in things
+            name, dens := th
+            if share := submerged(dens, rho)
+                above := (1.0 - share) * 100.0
+                print("  {name:<10} floats, {share * 100.0:.1}% under, {above:.1}% above")
+            else
+                print("  {name:<10} sinks")
+    raft := 8.0 * 0.2 * 0.2 * 3.0
+    load := raft * (1000.0 - 500.0)
+    print("a raft of 8 pine logs (0.2 x 0.2 x 3 m) carries up to {load:.1} kg")
+
+@test fn half_under()
+    assert_eq(submerged(500.0, 1000.0) else 0.0, 0.5)

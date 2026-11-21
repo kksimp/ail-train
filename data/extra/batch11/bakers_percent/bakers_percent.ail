@@ -1,0 +1,31 @@
+## Baker's percentages: every ingredient is a percentage of the flour, so for a target dough weight
+## the flour is total / (sum of percentages / 100); hydration is water over flour.
+
+struct Part
+    item str
+    pct float
+
+struct Formula
+    name str
+    parts List[Part]
+
+fn pt(item str, pct float) Part
+    Part(item: item, pct: pct)
+
+fn main()
+    breads := [Formula(name: "baguette", parts: [pt("flour", 100.0), pt("water", 68.0), pt("salt", 2.0), pt("yeast", 1.0)]), Formula(name: "pizza", parts: [pt("flour", 100.0), pt("water", 62.0), pt("salt", 2.5), pt("yeast", 0.5), pt("olive oil", 3.0)]), Formula(name: "brioche", parts: [pt("flour", 100.0), pt("milk", 30.0), pt("egg", 40.0), pt("butter", 50.0), pt("sugar", 12.0), pt("salt", 2.0), pt("yeast", 2.0)])]
+    total := 1500.0
+    for b in breads
+        pct := b.parts.fold(0.0, |acc, x| acc + x.pct)
+        flour := total / (pct / 100.0)
+        mut pieces := List[str]()
+        for p in b.parts
+            grams := flour * p.pct / 100.0
+            pieces.push("{p.item} {grams:.1} g")
+        line := pieces.join(", ")
+        print("{b.name} ({pct}% in all): {line}")
+    water := 68.0
+    print("baguette hydration {water}%: {1500.0 / 1.71 * water / 100.0:.1} g water to {1500.0 / 1.71:.1} g flour")
+
+@test fn flour_share()
+    assert_eq(1500.0 / (150.0 / 100.0), 1000.0)

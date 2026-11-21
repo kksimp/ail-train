@@ -1,0 +1,27 @@
+## RC low-pass filter: the cutoff frequency is fc = 1 / (2 pi R C), and the gain at frequency f
+## is 1 / sqrt(1 + (f / fc)^2), shown as a ratio and in decibels (20 log10 of the ratio).
+
+PI := 3.141592653589793
+
+fn cutoff(r float, c float) float
+    1.0 / (2.0 * PI * r * c)
+
+fn gain(f float, fc float) float
+    ratio := f / fc
+    1.0 / (1.0 + ratio * ratio).sqrt()
+
+fn main()
+    fc := cutoff(1000.0, 0.0000001)
+    print("R 1 kOhm, C 100 nF: cutoff {fc:.1} Hz")
+    for f in [100.0, 500.0, 1000.0, 1600.0, 5000.0, 20000.0]
+        g := gain(f, fc)
+        db := 20.0 * g.log10()
+        print("{f:>8.1} Hz: gain {g:.3}, {db:>7.2} dB")
+    target := 3000.0
+    c := 1.0 / (2.0 * PI * 1000.0 * target)
+    nano := c * 1000000000.0
+    print("for a 3000 Hz cutoff with 1 kOhm use {nano:.1} nF")
+
+@test fn half_power_at_cutoff()
+    g := gain(50.0, 50.0)
+    assert((g * g - 0.5).abs() < 0.000001)

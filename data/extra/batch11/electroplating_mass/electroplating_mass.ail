@@ -1,0 +1,25 @@
+## Electroplating: Faraday's law deposits m = I t M / (n F) grams (F = 96485 C/mol); the time for a
+## coating of thickness d on area A comes from the mass density * A * d that it needs.
+
+struct Metal
+    name str
+    molar float
+    charge int
+    density float
+
+fn grams(m Metal, amps float, seconds float) float
+    amps * seconds * m.molar / (m.charge.to_float() * 96485.0)
+
+fn main()
+    metals := [Metal(name: "copper", molar: 63.55, charge: 2, density: 8.96), Metal(name: "silver", molar: 107.87, charge: 1, density: 10.49), Metal(name: "nickel", molar: 58.69, charge: 2, density: 8.91), Metal(name: "zinc", molar: 65.38, charge: 2, density: 7.14), Metal(name: "gold", molar: 196.97, charge: 3, density: 19.3)]
+    area := 50.0
+    microns := 10.0
+    for m in metals
+        hourly := grams(m, 2.0, 3600.0)
+        need := m.density * area * microns / 10000.0
+        minutes := need / grams(m, 2.0, 60.0)
+        print("{m.name:<7} {hourly:>5.2} g per hour at 2 A; {microns} um on {area} cm2 needs {need:.4} g, {minutes:>5.1} min")
+
+@test fn one_mole_of_silver()
+    s := Metal(name: "silver", molar: 107.87, charge: 1, density: 10.49)
+    assert((grams(s, 1.0, 96485.0) - 107.87).abs() < 0.000001)

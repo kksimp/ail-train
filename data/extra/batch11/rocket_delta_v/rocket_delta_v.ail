@@ -1,0 +1,33 @@
+## Rocket equation: a stage changes speed by dv = Isp * g0 * ln(m_full / m_empty); stacking
+## stages adds their dv, each carrying the stages above it, against about 9.4 km/s to reach orbit.
+
+struct Stage
+    name str
+    fuel_t float
+    dry_t float
+    isp float
+
+fn delta_v(full float, empty float, isp float) float
+    isp * 9.80665 * (full / empty).ln()
+
+fn main()
+    stages := [Stage(name: "first", fuel_t: 400.0, dry_t: 25.0, isp: 300.0), Stage(name: "second", fuel_t: 90.0, dry_t: 6.0, isp: 345.0), Stage(name: "third", fuel_t: 12.0, dry_t: 1.5, isp: 450.0)]
+    payload := 5.0
+    mut total := 0.0
+    for i, s in stages.enumerate()
+        mut above := payload
+        for j in (i + 1)..stages.len()
+            above += stages[j].fuel_t + stages[j].dry_t
+        full := s.fuel_t + s.dry_t + above
+        empty := s.dry_t + above
+        dv := delta_v(full, empty, s.isp)
+        total += dv
+        print("{s.name:<6} stage: {full:>6.1} t -> {empty:>6.1} t, dv {dv:>7.1} m/s")
+    verdict := if total >= 9400.0 then "reaches orbit" else "falls short of orbit"
+    print("total {total:.1} m/s: {verdict}")
+    single := delta_v(400.0 + 90.0 + 12.0 + 25.0 + 6.0 + 1.5 + payload, 25.0 + 6.0 + 1.5 + payload, 300.0)
+    print("one big stage with the same masses: {single:.1} m/s")
+
+@test fn e_ratio()
+    e := 1.0
+    assert((delta_v(e.exp(), 1.0, 100.0) - 980.665).abs() < 0.000001)

@@ -1,0 +1,20 @@
+## Hubble's law: galaxies recede at v = H0 * d (H0 = 70 km/s per megaparsec); a small redshift
+## is z = v / c, so a measured z gives the distance c z / H0, and 977.8 / H0 is the Hubble time in Gyr.
+
+fn main()
+    h0 := 70.0
+    c := 299792.458
+    galaxies := [("Virgo cluster", 16.5), ("Coma cluster", 99.0), ("Hercules cluster", 150.0), ("distant group", 400.0)]
+    for gx in galaxies
+        name, mpc := gx
+        v := h0 * mpc
+        z := v / c
+        print("{name:<16} {mpc:>6.1} Mpc: {v:>8.1} km/s, z {z:.4}")
+    for z in [0.01, 0.023, 0.05]
+        d := c * z / h0
+        light_years := d * 3.262
+        print("z {z}: about {d:.1} Mpc ({light_years:.1} million light years)")
+    print("Hubble time {977.8 / h0:.2} billion years")
+
+@test fn nearby_is_slow()
+    assert(70.0 * 1.0 / 299792.458 < 0.001)

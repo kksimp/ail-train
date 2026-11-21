@@ -1,0 +1,27 @@
+## Barometric altitude: in the standard atmosphere h = 44330 (1 - (p / p0)^(1 / 5.255)) metres, and
+## the other way p = p0 (1 - h / 44330)^5.255; turns a hiker's pressure log into heights and climb.
+
+fn altitude(p float, p0 float) float
+    44330.0 * (1.0 - (p / p0).pow(1.0 / 5.255))
+
+fn pressure(h float, p0 float) float
+    p0 * (1.0 - h / 44330.0).pow(5.255)
+
+fn main()
+    p0 := 1013.25
+    readings := [("08:00 car park", 978.4), ("09:30 hut", 921.7), ("11:00 col", 862.0), ("12:15 summit", 821.3), ("14:00 lake", 889.5)]
+    mut last := 0.0
+    mut climb := 0.0
+    for i, entry in readings.enumerate()
+        label, p := entry
+        h := altitude(p, p0)
+        if i > 0 and h > last
+            climb += h - last
+        last = h
+        print("{label:<15} {p:>6.1} hPa -> {h:>6.1} m")
+    print("total climb {climb:.1} m")
+    for h in [0.0, 1500.0, 4808.0, 8849.0]
+        print("at {h:>6.1} m the air pressure is {pressure(h, p0):>7.2} hPa")
+
+@test fn sea_level()
+    assert_eq(altitude(1013.25, 1013.25), 0.0)

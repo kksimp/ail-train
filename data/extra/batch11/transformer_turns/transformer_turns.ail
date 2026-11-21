@@ -1,0 +1,29 @@
+## Transformer: an ideal transformer scales voltage by the turns ratio, Vs = Vp * Ns / Np, and
+## current the other way, so power in equals power out; checks the primary against a 0.5 A fuse.
+
+struct Winding
+    name str
+    turns int
+    load_ohms float
+
+fn Winding.volts(self, vp float, np int) float
+    vp * self.turns.to_float() / np.to_float()
+
+fn main()
+    vp := 230.0
+    np := 2300
+    windings := [Winding(name: "doorbell", turns: 92, load_ohms: 4.0), Winding(name: "lamp", turns: 120, load_ohms: 6.0), Winding(name: "charger", turns: 500, load_ohms: 25.0)]
+    mut primary := 0.0
+    for w in windings
+        vs := w.volts(vp, np)
+        amps := vs / w.load_ohms
+        watts := vs * amps
+        ip := watts / vp
+        primary += ip
+        print("{w.name:<9} {w.turns:>4} turns: {vs:>5.1} V, {amps:.2} A, {watts:>6.2} W, primary {ip:.3} A")
+    verdict := if primary <= 0.5 then "fuse holds" else "fuse blows"
+    print("primary total {primary:.3} A: {verdict}")
+
+@test fn ten_to_one()
+    w := Winding(name: "x", turns: 10, load_ohms: 1.0)
+    assert_eq(w.volts(230.0, 100), 23.0)

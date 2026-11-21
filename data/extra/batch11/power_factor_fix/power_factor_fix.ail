@@ -1,0 +1,24 @@
+## Power factor correction: a load of P kW at power factor pf draws reactive power P * tan(phi);
+## the capacitor bank Q = P (tan phi1 - tan phi2) lifts it to 0.95, cutting the apparent power.
+
+PI := 3.141592653589793
+
+fn tan_phi(pf float) float
+    (1.0 - pf * pf).sqrt() / pf
+
+fn main()
+    loads := [("bakery", 40.0, 0.72), ("print shop", 26.0, 0.8), ("cold store", 60.0, 0.68), ("office", 15.0, 0.96)]
+    target := 0.95
+    for ld in loads
+        name, kw, pf := ld
+        if pf >= target
+            print("{name:<11} pf {pf:.2}: no correction needed")
+            continue
+        kvar := kw * (tan_phi(pf) - tan_phi(target))
+        before := kw / pf
+        after := kw / target
+        micro := kvar * 1000.0 / (2.0 * PI * 50.0 * 400.0 * 400.0) * 1000000.0
+        print("{name:<11} pf {pf:.2}: add {kvar:>5.1} kvar ({micro:.1} uF at 400 V), {before:.1} -> {after:.1} kVA")
+
+@test fn unity_has_no_reactive()
+    assert_eq(tan_phi(1.0), 0.0)

@@ -1,0 +1,4 @@
+garden shed  16.0 A over 25.0 m: 2.5 mm2, drop 5.50 V, loss 88.1 W
+garage       20.0 A over 40.0 m: 4.0 mm2, drop 6.88 V, loss 137.6 W
+workshop     32.0 A over 60.0 m: 10.0 mm2, drop 6.60 V, loss 211.4 W
+pump house   25.0 A over 150.0 m: needs more than 16 mm2

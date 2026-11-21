@@ -1,0 +1,7 @@
+duty   0%: register   0, on     0 ns, average  0.00 V,     0 rpm
+duty  10%: register  25, on  5000 ns, average  1.20 V,     0 rpm
+duty  25%: register  63, on 12500 ns, average  3.00 V,  1529 rpm
+duty  50%: register 127, on 25000 ns, average  6.00 V,  4080 rpm
+duty  75%: register 191, on 37500 ns, average  9.00 V,  6630 rpm
+duty 100%: register 255, on 50000 ns, average 12.00 V,  9180 rpm
+the motor starts turning above 10.0% duty

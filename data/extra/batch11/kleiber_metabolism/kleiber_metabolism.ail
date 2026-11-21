@@ -1,0 +1,19 @@
+## Kleiber's law: resting metabolic rate grows as mass to the 3/4 power, about 70 M^0.75 kcal a day,
+## so per kilogram a mouse burns far more than an elephant (70 M^-0.25 kcal per kg).
+
+fn daily_kcal(kg float) float
+    70.0 * kg.pow(0.75)
+
+fn main()
+    animals := [("mouse", 0.02), ("rat", 0.3), ("cat", 4.0), ("human", 70.0), ("horse", 500.0), ("elephant", 5000.0)]
+    for an in animals
+        name, kg := an
+        day := daily_kcal(kg)
+        per_kg := day / kg
+        print("{name:<8} {kg:>7.2} kg: {day:>9.1} kcal a day, {per_kg:>6.1} per kg")
+    ratio := daily_kcal(5000.0) / daily_kcal(0.02)
+    mass_ratio := 5000.0 / 0.02
+    print("an elephant weighs {mass_ratio:.1} times a mouse but burns only {ratio:.1} times as much")
+
+@test fn sixteen_fold_mass()
+    assert((daily_kcal(16.0) / daily_kcal(1.0) - 8.0).abs() < 0.000001)

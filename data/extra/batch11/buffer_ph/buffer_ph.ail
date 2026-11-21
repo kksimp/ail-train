@@ -1,0 +1,24 @@
+## Buffer pH: the Henderson-Hasselbalch equation pH = pKa + log10([base] / [acid]); adding strong
+## acid turns base into acid mole for mole, so the pH moves only a little until the base runs out.
+
+fn ph(pka float, base_mol float, acid_mol float) float
+    ratio := base_mol / acid_mol
+    pka + ratio.log10()
+
+fn main()
+    pka := 4.76
+    for pair in [(0.1, 0.1), (0.2, 0.1), (0.1, 0.2), (0.05, 0.5)]
+        b, a := pair
+        print("acetate {b} mol, acetic acid {a} mol: pH {ph(pka, b, a):.2}")
+    mut base_mol := 0.1
+    mut acid_mol := 0.1
+    for step in 1..=4
+        base_mol -= 0.02
+        acid_mol += 0.02
+        added := 0.02 * step.to_float()
+        print("after {added:.2} mol HCl: pH {ph(pka, base_mol, acid_mol):.2}")
+    water_ph := 0.0 - (0.08 / 1.0).log10()
+    print("the same 0.08 mol in 1 L of plain water: pH {water_ph:.2}")
+
+@test fn equal_parts()
+    assert_eq(ph(4.76, 0.3, 0.3), 4.76)

@@ -1,0 +1,5 @@
+conveyor  motor   9.95 Nm at 1440.0 rpm ->   179.6 Nm at   72.0 rpm
+mixer     motor  39.79 Nm at  960.0 rpm ->   113.4 Nm at  320.0 rpm
+winch     motor  14.80 Nm at 1420.0 rpm ->   761.1 Nm at   23.7 rpm
+fan       motor   2.51 Nm at 2850.0 rpm ->     2.5 Nm at 2850.0 rpm
+conveyor drum 0.2 m: pull 897.8 N, belt 1.51 m/s

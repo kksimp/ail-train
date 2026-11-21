@@ -1,0 +1,36 @@
+## Batting line: average H / AB, on-base (H + BB + HBP) / (AB + BB + HBP + SF), slugging
+## total bases / AB with bases 1, 2, 3, 4 per hit type, and OPS = on-base + slugging.
+
+struct Batter
+    name str
+    ab int
+    singles int
+    doubles int
+    triples int
+    homers int
+    walks int
+    hbp int
+    sf int
+
+fn Batter.hits(self) int
+    self.singles + self.doubles + self.triples + self.homers
+
+fn Batter.bases(self) int
+    self.singles + 2 * self.doubles + 3 * self.triples + 4 * self.homers
+
+fn rate(n int, d int) float
+    n.to_float() / d.to_float()
+
+fn main()
+    batters := [Batter(name: "Ortega", ab: 540, singles: 110, doubles: 35, triples: 3, homers: 28, walks: 70, hbp: 6, sf: 5), Batter(name: "Kim", ab: 600, singles: 150, doubles: 30, triples: 8, homers: 6, walks: 45, hbp: 2, sf: 4), Batter(name: "Walsh", ab: 410, singles: 60, doubles: 22, triples: 0, homers: 31, walks: 88, hbp: 9, sf: 3)]
+    for b in batters
+        avg := rate(b.hits(), b.ab)
+        obp := rate(b.hits() + b.walks + b.hbp, b.ab + b.walks + b.hbp + b.sf)
+        slg := rate(b.bases(), b.ab)
+        print("{b.name:<7} {b.hits():>3} H: AVG {avg:.3}, OBP {obp:.3}, SLG {slg:.3}, OPS {obp + slg:.3}")
+    power := batters.max(by: |x| x.bases()) else batters[0]
+    print("most total bases: {power.name} ({power.bases()})")
+
+@test fn bases()
+    b := Batter(name: "t", ab: 4, singles: 1, doubles: 1, triples: 0, homers: 1, walks: 0, hbp: 0, sf: 0)
+    assert_eq(b.bases(), 7)

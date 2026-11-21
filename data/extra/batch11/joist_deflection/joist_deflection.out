@@ -1,0 +1,9 @@
+47.0x150.0 over 3.0 m: sag   8.7 mm, limit 8.3 mm, too bouncy
+47.0x150.0 over 4.0 m: sag  27.5 mm, limit 11.1 mm, too bouncy
+47.0x150.0 over 5.0 m: sag  67.2 mm, limit 13.9 mm, too bouncy
+47.0x200.0 over 3.0 m: sag   3.7 mm, limit 8.3 mm, ok
+47.0x200.0 over 4.0 m: sag  11.6 mm, limit 11.1 mm, too bouncy
+47.0x200.0 over 5.0 m: sag  28.3 mm, limit 13.9 mm, too bouncy
+75.0x225.0 over 3.0 m: sag   1.6 mm, limit 8.3 mm, ok
+75.0x225.0 over 4.0 m: sag   5.1 mm, limit 11.1 mm, ok
+75.0x225.0 over 5.0 m: sag  12.5 mm, limit 13.9 mm, ok

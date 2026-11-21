@@ -1,0 +1,4 @@
+bakery      pf 0.72: add  25.4 kvar (505.5 uF at 400 V), 55.6 -> 42.1 kVA
+print shop  pf 0.80: add  11.0 kvar (217.9 uF at 400 V), 32.5 -> 27.4 kVA
+cold store  pf 0.68: add  45.0 kvar (894.7 uF at 400 V), 88.2 -> 63.2 kVA
+office      pf 0.96: no correction needed

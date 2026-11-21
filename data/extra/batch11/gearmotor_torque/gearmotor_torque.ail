@@ -1,0 +1,37 @@
+## Gearmotor torque: shaft torque is T = 9550 * kW / rpm (newton metres); each gear stage divides
+## the speed by its ratio and multiplies the torque by it, losing 5% per stage.
+
+struct Drive
+    name str
+    kw float
+    rpm float
+    ratios List[float]
+
+fn Drive.output(self) List[float]
+    mut torque := 9550.0 * self.kw / self.rpm
+    mut speed := self.rpm
+    for r in self.ratios
+        torque = torque * r * 0.95
+        speed = speed / r
+    [torque, speed]
+
+fn main()
+    drives := [Drive(name: "conveyor", kw: 1.5, rpm: 1440.0, ratios: [5.0, 4.0]), Drive(name: "mixer", kw: 4.0, rpm: 960.0, ratios: [3.0]), Drive(name: "winch", kw: 2.2, rpm: 1420.0, ratios: [6.0, 5.0, 2.0]), Drive(name: "fan", kw: 0.75, rpm: 2850.0, ratios: [])]
+    for d in drives
+        motor := 9550.0 * d.kw / d.rpm
+        res := d.output()
+        torque := res[0]
+        speed := res[1]
+        print("{d.name:<9} motor {motor:>6.2} Nm at {d.rpm:>6.1} rpm -> {torque:>7.1} Nm at {speed:>6.1} rpm")
+    drum := 0.2
+    conv := drives[0].output()
+    t := conv[0]
+    s := conv[1]
+    pull := t / drum
+    belt := s * 2.0 * 3.141592653589793 * drum / 60.0
+    print("conveyor drum 0.2 m: pull {pull:.1} N, belt {belt:.2} m/s")
+
+@test fn no_stages()
+    d := Drive(name: "x", kw: 1.0, rpm: 955.0, ratios: [])
+    res := d.output()
+    assert_eq(res, [10.0, 955.0])

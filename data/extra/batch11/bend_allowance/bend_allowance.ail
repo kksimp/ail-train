@@ -1,0 +1,29 @@
+## Sheet metal bends: the flat blank for a bent part is the straight legs plus a bend allowance
+## BA = angle (radians) * (R + K * T), with the neutral-axis factor K = 0.33 for tight bends, else 0.42.
+
+PI := 3.141592653589793
+
+fn k_factor(radius float, thick float) float
+    if radius < thick then 0.33 else 0.42
+
+fn allowance(angle_deg float, radius float, thick float) float
+    angle_deg * PI / 180.0 * (radius + k_factor(radius, thick) * thick)
+
+struct Job
+    name str
+    legs List[float]
+    angle float
+    radius float
+    thick float
+
+fn main()
+    jobs := [Job(name: "shelf bracket", legs: [40.0, 60.0], angle: 90.0, radius: 2.0, thick: 1.5), Job(name: "drip edge", legs: [25.0, 15.0], angle: 135.0, radius: 1.0, thick: 0.7), Job(name: "box lid", legs: [20.0, 300.0, 20.0], angle: 90.0, radius: 0.5, thick: 1.2), Job(name: "vent louvre", legs: [30.0, 30.0], angle: 45.0, radius: 3.0, thick: 2.0)]
+    for jb in jobs
+        bends := jb.legs.len() - 1
+        ba := allowance(jb.angle, jb.radius, jb.thick)
+        straight := jb.legs.fold(0.0, |acc, x| acc + x)
+        flat := straight + ba * bends.to_float()
+        print("{jb.name:<13} {bends} x {jb.angle} deg, R {jb.radius} T {jb.thick}: BA {ba:.3} mm, blank {flat:.2} mm")
+
+@test fn zero_angle()
+    assert_eq(allowance(0.0, 2.0, 1.0), 0.0)

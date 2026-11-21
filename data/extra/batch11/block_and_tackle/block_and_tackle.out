@@ -1,0 +1,8 @@
+load 1900.0 N, lifted 3.0 m
+1 falls: ideal 1900.0 N, real 1979.2 N, efficiency 96.0%, pull  3.0 m of rope
+2 falls: ideal  950.0 N, real 1030.8 N, efficiency 92.2%, pull  6.0 m of rope
+3 falls: ideal  633.3 N, real  715.8 N, efficiency 88.5%, pull  9.0 m of rope
+4 falls: ideal  475.0 N, real  559.3 N, efficiency 84.9%, pull 12.0 m of rope
+5 falls: ideal  380.0 N, real  466.0 N, efficiency 81.5%, pull 15.0 m of rope
+6 falls: ideal  316.7 N, real  404.6 N, efficiency 78.3%, pull 18.0 m of rope
+least effort with 24 falls

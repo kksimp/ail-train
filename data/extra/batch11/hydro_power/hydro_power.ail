@@ -1,0 +1,26 @@
+## Hydro power: falling water gives P = efficiency * rho * g * Q * h watts; the yearly energy is
+## that times 8760 hours times a capacity factor, compared with homes using 3500 kWh a year.
+
+struct Plant
+    name str
+    flow float
+    head float
+    eff float
+    factor float
+
+fn Plant.megawatts(self) float
+    self.eff * 1000.0 * 9.81 * self.flow * self.head / 1000000.0
+
+fn main()
+    plants := [Plant(name: "mill stream", flow: 0.5, head: 4.0, eff: 0.6, factor: 0.5), Plant(name: "hill scheme", flow: 2.0, head: 120.0, eff: 0.85, factor: 0.4), Plant(name: "river dam", flow: 300.0, head: 35.0, eff: 0.88, factor: 0.45), Plant(name: "gorge dam", flow: 900.0, head: 150.0, eff: 0.92, factor: 0.5)]
+    for p in plants
+        mw := p.megawatts()
+        gwh := mw * 8760.0 * p.factor / 1000.0
+        homes := (gwh * 1000000.0 / 3500.0).to_int()
+        print("{p.name:<12} {p.flow:>6.1} m3/s x {p.head:>5.1} m: {mw:>9.3} MW, {gwh:>8.2} GWh a year, {homes:>7} homes")
+    total := plants.fold(0.0, |acc, pl| acc + pl.megawatts())
+    print("all plants: {total:.1} MW")
+
+@test fn one_cubic_metre()
+    p := Plant(name: "t", flow: 1.0, head: 100.0, eff: 1.0, factor: 1.0)
+    assert((p.megawatts() - 0.981).abs() < 0.000001)

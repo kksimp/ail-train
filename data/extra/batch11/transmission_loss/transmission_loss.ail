@@ -1,0 +1,26 @@
+## Transmission loss: sending P watts at voltage V takes current I = P / V, and the line wastes
+## I^2 R; raising the voltage tenfold cuts the loss a hundredfold, which is why grids step up.
+
+fn loss_watts(power float, volts float, ohms float) float
+    amps := power / volts
+    amps * amps * ohms
+
+fn main()
+    power := 10000000.0
+    ohms := 0.1 * 50.0
+    print("sending 10 MW over 50 km of line ({ohms} ohm)")
+    for kv in [11, 33, 132, 400]
+        volts := kv.to_float() * 1000.0
+        amps := power / volts
+        loss := loss_watts(power, volts, ohms)
+        pct := loss / power * 100.0
+        kw := loss / 1000.0
+        print("{kv:>4} kV: {amps:>7.1} A, loss {kw:>9.1} kW ({pct:.3}%)")
+    ratio := loss_watts(power, 11000.0, ohms) / loss_watts(power, 110000.0, ohms)
+    print("ten times the voltage: {ratio:.1} times less loss")
+
+@test fn quarter_at_double()
+    a := loss_watts(1000.0, 100.0, 1.0)
+    b := loss_watts(1000.0, 200.0, 1.0)
+    assert_eq(a, 100.0)
+    assert_eq(b, 25.0)

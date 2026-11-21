@@ -1,0 +1,25 @@
+## Block and tackle: n rope falls share a load so the ideal effort is W / n, but each sheave keeps
+## only 96% of the pull, so the real effort is W / (n * 0.96^n) and the rope moves n times as far.
+
+fn effort(load_n float, falls int) float
+    keep := 0.96
+    load_n / (falls.to_float() * keep.pow(falls.to_float()))
+
+fn main()
+    load_n := 1900.0
+    lift := 3.0
+    print("load {load_n} N, lifted {lift} m")
+    for falls in 1..=6
+        ideal := load_n / falls.to_float()
+        real := effort(load_n, falls)
+        rope := lift * falls.to_float()
+        eff := ideal / real * 100.0
+        print("{falls} falls: ideal {ideal:>6.1} N, real {real:>6.1} N, efficiency {eff:>4.1}%, pull {rope:>4.1} m of rope")
+    mut best := 1
+    for falls in 2..=40
+        if effort(load_n, falls) < effort(load_n, best)
+            best = falls
+    print("least effort with {best} falls")
+
+@test fn one_fall()
+    assert((effort(96.0, 1) - 100.0).abs() < 0.000001)

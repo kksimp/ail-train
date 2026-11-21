@@ -1,0 +1,15 @@
+fresh water:
+  ice        floats, 91.7% under, 8.3% above
+  oak        floats, 75.0% under, 25.0% above
+  pine       floats, 50.0% under, 50.0% above
+  cork       floats, 24.0% under, 76.0% above
+  aluminium  sinks
+  candle wax floats, 90.0% under, 10.0% above
+sea water:
+  ice        floats, 89.5% under, 10.5% above
+  oak        floats, 73.2% under, 26.8% above
+  pine       floats, 48.8% under, 51.2% above
+  cork       floats, 23.4% under, 76.6% above
+  aluminium  sinks
+  candle wax floats, 87.8% under, 12.2% above
+a raft of 8 pine logs (0.2 x 0.2 x 3 m) carries up to 480.0 kg

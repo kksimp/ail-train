@@ -1,0 +1,29 @@
+## EV charging: a 64 kWh battery charges at the lesser of the charger's and the car's power, which
+## tapers linearly above 80% to a tenth at 100%; steps one percent at a time and adds 10% grid losses.
+
+fn power_at(soc int, charger float, car_max float) float
+    base := if charger < car_max then charger else car_max
+    if soc < 80
+        return base
+    base * (1.0 - 0.9 * (soc - 80).to_float() / 20.0)
+
+fn minutes(from int, upto int, charger float) float
+    step := 64.0 / 100.0
+    mut total := 0.0
+    for soc in from..upto
+        total += step / power_at(soc, charger, 100.0) * 60.0
+    total
+
+fn main()
+    chargers := [("home 7 kW", 7.0), ("wallbox 11 kW", 11.0), ("rapid 50 kW", 50.0), ("ultra 150 kW", 150.0)]
+    for ch in chargers
+        name, kw := ch
+        to80 := minutes(10, 80, kw)
+        to100 := minutes(10, 100, kw)
+        print("{name:<14} 10-80%: {to80:>6.1} min, 10-100%: {to100:>6.1} min")
+    grid := 64.0 * 0.7 / 0.9
+    print("10-80% draws {grid:.2} kWh from the grid, {grid * 0.3:.2} at 0.30 per kWh")
+
+@test fn flat_below_eighty()
+    assert_eq(power_at(50, 7.0, 100.0), 7.0)
+    assert((power_at(100, 150.0, 100.0) - 10.0).abs() < 0.000001)

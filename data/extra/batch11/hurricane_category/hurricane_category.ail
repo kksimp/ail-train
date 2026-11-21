@@ -1,0 +1,29 @@
+## Storm categories: sustained wind in knots times 1.852 gives km/h, placed on the Saffir-Simpson
+## scale (category 1 from 119 km/h to category 5 from 252 km/h) with a `match` on integer ranges.
+
+fn category(kmh int) str
+    match kmh
+        0..=62 => "tropical depression"
+        63..=118 => "tropical storm"
+        119..=153 => "category 1"
+        154..=177 => "category 2"
+        178..=208 => "category 3"
+        209..=251 => "category 4"
+        _ => "category 5"
+
+fn main()
+    track := [("Mon 00h", 30), ("Mon 12h", 55), ("Tue 00h", 70), ("Tue 12h", 95), ("Wed 00h", 125), ("Wed 12h", 140), ("Thu 00h", 110), ("Thu 12h", 60)]
+    mut peak := 0
+    mut peak_at := ""
+    for reading in track
+        when, knots := reading
+        kmh := (knots.to_float() * 1.852).to_int()
+        if kmh > peak
+            peak = kmh
+            peak_at = when
+        print("{when}: {knots:>3} kt = {kmh:>3} km/h, {category(kmh)}")
+    print("peak {peak} km/h on {peak_at}: {category(peak)}")
+
+@test fn edges()
+    assert_eq(category(119), "category 1")
+    assert_eq(category(252), "category 5")

@@ -1,0 +1,20 @@
+## Stair design: risers = ceil(height / 190 mm), riser = height / risers, and the going follows the
+## comfort rule 2 x riser + going = 630 mm; checks the riser and going limits and the total run.
+
+fn plan(height int) str
+    n := (height + 189) / 190
+    riser := height.to_float() / n.to_float()
+    going := 630.0 - 2.0 * riser
+    run := going * (n - 1).to_float()
+    ok := riser >= 150.0 and riser <= 220.0 and going >= 220.0 and going <= 300.0
+    verdict := if ok then "within limits" else "outside limits"
+    "{n} risers of {riser:.1} mm, going {going:.1} mm, run {run / 1000.0:.2} m, {verdict}"
+
+fn main()
+    floors := [("cottage", 2400), ("house", 2650), ("office", 3200), ("loft", 2150), ("deck", 600)]
+    for fl in floors
+        name, h := fl
+        print("{name:<8} {h} mm: {plan(h)}")
+
+@test fn steps_needed()
+    assert(plan(1900).starts_with("10 risers"))

@@ -1,0 +1,35 @@
+## Lathe speeds: spindle rpm = cutting speed (m/min) * 1000 / (pi * diameter mm), capped at the
+## machine's 2500 rpm; a cut of L mm at feed f mm per turn takes L / (f * rpm) minutes.
+
+PI := 3.141592653589793
+
+enum Metal
+    Aluminium
+    Brass
+    MildSteel
+    Stainless
+
+fn cutting_speed(m Metal) float
+    match m
+        Aluminium => 250.0
+        Brass => 90.0
+        MildSteel => 30.0
+        Stainless => 18.0
+
+fn spindle(m Metal, dia float) int
+    rpm := (cutting_speed(m) * 1000.0 / (PI * dia)).to_int()
+    rpm.min(2500)
+
+fn main()
+    for m in Metal.variants()
+        mut parts := List[str]()
+        for dia in [10.0, 25.0, 60.0]
+            parts.push("{spindle(m, dia):>4}")
+        row := parts.join(" ")
+        print("{m.name():<10} rpm at 10/25/60 mm: {row}")
+    rpm := spindle(Metal.MildSteel, 40.0)
+    minutes := 120.0 / (0.15 * rpm.to_float())
+    print("120 mm cut on 40 mm mild steel at 0.15 mm/rev: {rpm} rpm, {minutes:.2} min")
+
+@test fn capped()
+    assert_eq(spindle(Metal.Aluminium, 5.0), 2500)

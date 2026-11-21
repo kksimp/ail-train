@@ -1,0 +1,5 @@
+child      110.0 cm 19.0 kg: Mosteller 0.762 m2, Du Bois 0.758 m2, dose 57.1 mg
+teen       160.0 cm 52.0 kg: Mosteller 1.520 m2, Du Bois 1.526 m2, dose 114.0 mg
+adult      178.0 cm 80.0 kg: Mosteller 1.989 m2, Du Bois 1.980 m2, dose 149.2 mg
+tall adult 195.0 cm 102.0 kg: Mosteller 2.351 m2, Du Bois 2.346 m2, dose 176.3 mg
+largest surface: tall adult

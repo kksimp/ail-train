@@ -1,0 +1,28 @@
+## Payback period: the years until cumulative cash flow covers the outlay, with the last year
+## counted as a fraction; the discounted payback does the same with flows discounted at 8%.
+
+fn payback(outlay float, flows List[float], rate float) float?
+    mut left := outlay
+    for i, f in flows.enumerate()
+        base := 1.0 + rate
+        value := f / base.pow((i + 1).to_float())
+        if value >= left
+            return i.to_float() + left / value
+        left -= value
+    none
+
+fn show(x float?) str
+    if v := x
+        return "{v:.2} years"
+    "never"
+
+fn main()
+    projects := [("solar roof", 12000.0, [1500.0, 1500.0, 1600.0, 1600.0, 1700.0, 1700.0, 1800.0, 1800.0, 1900.0, 1900.0]), ("new oven", 8000.0, [3000.0, 3000.0, 2500.0, 2000.0]), ("delivery van", 30000.0, [9000.0, 9000.0, 8000.0, 4000.0]), ("led lighting", 2000.0, [900.0, 900.0, 900.0])]
+    for pj in projects
+        name, outlay, flows := pj
+        simple := show(payback(outlay, flows, 0.0))
+        disc := show(payback(outlay, flows, 0.08))
+        print("{name:<13} outlay {outlay}: payback {simple}, discounted {disc}")
+
+@test fn halfway()
+    assert_eq(payback(150.0, [100.0, 100.0], 0.0) else 0.0, 1.5)

@@ -1,0 +1,33 @@
+## Battery packs: 3.6 V, 3000 mAh cells in series raise the voltage and in parallel raise the
+## capacity; a pack needs ceil(V / 3.6) in series and ceil(Ah / 3) in parallel, 48 g a cell.
+
+struct Pack
+    name str
+    tenths_volts int
+    tenths_ah int
+
+fn ceil_div(a int, b int) int
+    (a + b - 1) / b
+
+fn Pack.series(self) int
+    ceil_div(self.tenths_volts, 36)
+
+fn Pack.parallel(self) int
+    ceil_div(self.tenths_ah, 30)
+
+fn main()
+    packs := [Pack(name: "e-bike", tenths_volts: 360, tenths_ah: 150), Pack(name: "drill", tenths_volts: 180, tenths_ah: 60), Pack(name: "scooter", tenths_volts: 480, tenths_ah: 100), Pack(name: "power bank", tenths_volts: 36, tenths_ah: 200)]
+    for p in packs
+        s := p.series()
+        strings := p.parallel()
+        cells := s * strings
+        nominal := s.to_float() * 3.6
+        full := s.to_float() * 4.2
+        ah := strings.to_float() * 3.0
+        wh := nominal * ah
+        kg := (cells * 48).to_float() / 1000.0
+        print("{p.name:<10} {s}s{strings}p: {cells:>3} cells, {nominal:.1} V ({full:.1} V full), {ah:.1} Ah, {wh.to_int()} Wh, {kg:.2} kg")
+
+@test fn rounding_up()
+    assert_eq(ceil_div(360, 36), 10)
+    assert_eq(ceil_div(361, 36), 11)

@@ -1,0 +1,30 @@
+## Joist deflection: a simply supported beam under a uniform load w sags 5 w L^4 / (384 E I) at
+## midspan, with I = b h^3 / 12; timber floor joists pass when the sag stays under span / 360.
+
+struct Joist
+    breadth_mm float
+    depth_mm float
+
+fn Joist.second_moment(self) float
+    b := self.breadth_mm / 1000.0
+    h := self.depth_mm / 1000.0
+    b * h * h * h / 12.0
+
+fn sag_mm(w float, span float, e float, i float) float
+    5.0 * w * span * span * span * span / (384.0 * e * i) * 1000.0
+
+fn main()
+    e := 11000000000.0
+    load := 1200.0
+    joists := [Joist(breadth_mm: 47.0, depth_mm: 150.0), Joist(breadth_mm: 47.0, depth_mm: 200.0), Joist(breadth_mm: 75.0, depth_mm: 225.0)]
+    for j in joists
+        for span in [3.0, 4.0, 5.0]
+            sag := sag_mm(load, span, e, j.second_moment())
+            limit := span * 1000.0 / 360.0
+            verdict := if sag <= limit then "ok" else "too bouncy"
+            print("{j.breadth_mm}x{j.depth_mm} over {span} m: sag {sag:>5.1} mm, limit {limit:.1} mm, {verdict}")
+
+@test fn deeper_is_stiffer()
+    a := Joist(breadth_mm: 50.0, depth_mm: 100.0)
+    b := Joist(breadth_mm: 50.0, depth_mm: 200.0)
+    assert((b.second_moment() / a.second_moment() - 8.0).abs() < 0.000001)

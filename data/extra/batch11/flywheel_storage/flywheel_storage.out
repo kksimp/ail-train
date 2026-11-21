@@ -1,0 +1,6 @@
+100 kg, 0.5 m radius: disc I 12.5 kg m2, rim I 25.0 kg m2
+ 1000.0 rpm: disc    68.5 kJ, rim   137.1 kJ (38.1 Wh)
+ 3000.0 rpm: disc   616.9 kJ, rim  1233.7 kJ (342.7 Wh)
+ 6000.0 rpm: disc  2467.4 kJ, rim  4934.8 kJ (1370.8 Wh)
+10000.0 rpm: disc  6853.9 kJ, rim 13707.8 kJ (3807.7 Wh)
+spinning the disc from 3000 to 6000 rpm with 5 kW takes 370.1 s

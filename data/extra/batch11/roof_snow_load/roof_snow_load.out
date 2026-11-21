@@ -1,0 +1,4 @@
+flat garage  2.0 deg, mu 0.800: lowland 7.2, hills 14.4, mountain 36.0 kN
+house       35.0 deg, mu 0.667: lowland 26.7, hills 53.3, mountain 133.3 kN
+chalet      50.0 deg, mu 0.267: lowland 16.0, hills 32.0, mountain 80.0 kN
+spire       65.0 deg, mu 0.000: lowland 0.0, hills 0.0, mountain 0.0 kN

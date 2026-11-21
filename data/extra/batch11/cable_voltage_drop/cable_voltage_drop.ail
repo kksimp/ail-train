@@ -1,0 +1,27 @@
+## Cable sizing: copper resistance is rho L / A (rho 0.0172 ohm mm2 per m) over both conductors;
+## picks the smallest standard cross-section that keeps the voltage drop under 3% of 230 V.
+
+fn drop_volts(amps float, metres float, mm2 float) float
+    resistance := 0.0172 * 2.0 * metres / mm2
+    amps * resistance
+
+fn pick(sizes List[float], amps float, metres float, volts float) float?
+    for s in sizes
+        if drop_volts(amps, metres, s) / volts * 100.0 < 3.0
+            return s
+    none
+
+fn main()
+    sizes := [1.5, 2.5, 4.0, 6.0, 10.0, 16.0]
+    runs := [("garden shed", 16.0, 25.0), ("garage", 20.0, 40.0), ("workshop", 32.0, 60.0), ("pump house", 25.0, 150.0)]
+    for r in runs
+        name, amps, metres := r
+        if s := pick(sizes, amps, metres, 230.0)
+            d := drop_volts(amps, metres, s)
+            loss := d * amps
+            print("{name:<12} {amps} A over {metres} m: {s} mm2, drop {d:.2} V, loss {loss:.1} W")
+        else
+            print("{name:<12} {amps} A over {metres} m: needs more than 16 mm2")
+
+@test fn longer_drops_more()
+    assert(drop_volts(10.0, 50.0, 2.5) > drop_volts(10.0, 20.0, 2.5))

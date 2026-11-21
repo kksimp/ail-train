@@ -1,0 +1,31 @@
+## LC tuning: a radio's tuned circuit resonates at f = 1 / (2 pi sqrt(L C)); prints the frequency
+## for each capacitor setting and the capacitance needed to tune the coil to given stations.
+
+PI := 3.141592653589793
+
+struct Station
+    name str
+    khz int
+
+fn resonance(l float, c float) float
+    1.0 / (2.0 * PI * (l * c).sqrt())
+
+fn needed_c(l float, f float) float
+    w := 2.0 * PI * f
+    1.0 / (w * w * l)
+
+fn main()
+    coil := 0.00024
+    for pf in [50, 100, 200, 365]
+        c := pf.to_float() / 1000000000000.0
+        khz := resonance(coil, c) / 1000.0
+        print("{pf:>4} pF -> {khz:>7.1} kHz")
+    stations := [Station(name: "North AM", khz: 540), Station(name: "City Talk", khz: 1010), Station(name: "Coast", khz: 1700)]
+    for s in stations
+        need := needed_c(coil, s.khz.to_float() * 1000.0) * 1000000000000.0
+        fits := if need <= 365.0 and need >= 50.0 then "in range" else "out of range"
+        print("{s.name:<10} {s.khz:>5} kHz needs {need:>6.1} pF ({fits})")
+
+@test fn round_trip()
+    c := needed_c(0.001, 10000.0)
+    assert((resonance(0.001, c) - 10000.0).abs() < 0.001)

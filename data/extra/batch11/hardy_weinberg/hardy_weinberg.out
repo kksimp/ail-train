@@ -1,0 +1,5 @@
+condition 1 in 2500: carriers 3.92% (1 in 25)
+condition 1 in 10000: carriers 1.98% (1 in 50)
+condition 1 in 400: carriers 9.50% (1 in 10)
+observed [380, 440, 180], p 0.600, expected 360.0 480.0 160.0
+chi-square 6.944: departs from equilibrium

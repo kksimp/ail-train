@@ -1,0 +1,9 @@
+acetate 0.1 mol, acetic acid 0.1 mol: pH 4.76
+acetate 0.2 mol, acetic acid 0.1 mol: pH 5.06
+acetate 0.1 mol, acetic acid 0.2 mol: pH 4.46
+acetate 0.05 mol, acetic acid 0.5 mol: pH 3.76
+after 0.02 mol HCl: pH 4.58
+after 0.04 mol HCl: pH 4.39
+after 0.06 mol HCl: pH 4.16
+after 0.08 mol HCl: pH 3.81
+the same 0.08 mol in 1 L of plain water: pH 1.10

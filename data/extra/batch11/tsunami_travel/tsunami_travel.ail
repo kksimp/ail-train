@@ -1,0 +1,28 @@
+## Tsunami travel: a long wave moves at v = sqrt(g * depth), so it crosses deep ocean at jet speed
+## and slows near shore, where Green's law raises its height by (deep / shallow)^(1/4).
+
+struct Leg
+    name str
+    km float
+    depth float
+
+fn speed_ms(depth float) float
+    (9.81 * depth).sqrt()
+
+fn main()
+    legs := [Leg(name: "abyssal plain", km: 1800.0, depth: 5000.0), Leg(name: "ocean ridge", km: 600.0, depth: 2500.0), Leg(name: "continental slope", km: 120.0, depth: 400.0), Leg(name: "shelf", km: 60.0, depth: 50.0), Leg(name: "bay", km: 8.0, depth: 10.0)]
+    mut hours := 0.0
+    for lg in legs
+        v := speed_ms(lg.depth)
+        t := lg.km * 1000.0 / v / 3600.0
+        hours += t
+        print("{lg.name:<17} {lg.depth:>6.1} m deep: {v * 3.6:>5.1} km/h, {t:.2} h")
+    whole := hours.to_int()
+    minutes := ((hours - whole.to_float()) * 60.0).to_int()
+    print("arrives after {whole} h {minutes} min")
+    height := 0.5 * (5000.0 / 10.0).pow(0.25)
+    print("a 0.5 m wave in deep water stands about {height:.2} m high in the bay")
+
+@test fn shallow_speed()
+    want := 98.1
+    assert((speed_ms(10.0) - want.sqrt()).abs() < 0.000001)

@@ -1,0 +1,39 @@
+## Bond duration: Macaulay duration is the present-value-weighted average time of a bond's cash
+## flows; modified duration D / (1 + y) estimates the price fall for a 1% rise in yield.
+
+fn flows(face float, coupon float, years int) List[float]
+    mut out := List[float]()
+    for t in 1..=years
+        extra := if t == years then face else 0.0
+        out.push(face * coupon + extra)
+    out
+
+fn price(cfs List[float], y float) float
+    mut total := 0.0
+    for i, cf in cfs.enumerate()
+        base := 1.0 + y
+        total += cf / base.pow((i + 1).to_float())
+    total
+
+fn macaulay(cfs List[float], y float) float
+    mut weighted := 0.0
+    for i, cf in cfs.enumerate()
+        base := 1.0 + y
+        weighted += (i + 1).to_float() * cf / base.pow((i + 1).to_float())
+    weighted / price(cfs, y)
+
+fn main()
+    y := 0.05
+    for bond in [(0.05, 2), (0.05, 10), (0.0, 10), (0.08, 30)]
+        coupon, years := bond
+        cfs := flows(100.0, coupon, years)
+        p := price(cfs, y)
+        d := macaulay(cfs, y)
+        modified := d / (1.0 + y)
+        guess := 0.0 - modified
+        real := (price(cfs, y + 0.01) - p) / p * 100.0
+        print("{coupon * 100.0:.1}% {years:>2}y: price {p:>6.2}, duration {d:>5.2}, estimate {guess:.2}%, actual {real:.2}%")
+
+@test fn zero_coupon_duration()
+    cfs := flows(100.0, 0.0, 7)
+    assert((macaulay(cfs, 0.05) - 7.0).abs() < 0.000001)

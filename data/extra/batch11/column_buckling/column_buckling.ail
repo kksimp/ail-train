@@ -1,0 +1,38 @@
+## Column buckling: Euler's load P = pi^2 E I / (K L)^2 for a solid steel bar (I = pi d^4 / 64);
+## the end fixings set K, from 2.0 for a flagpole free at the top to 0.5 with both ends fixed.
+
+PI := 3.141592653589793
+
+enum Ends
+    FixedFree
+    PinnedPinned
+    FixedPinned
+    FixedFixed
+
+fn k_factor(e Ends) float
+    match e
+        FixedFree => 2.0
+        PinnedPinned => 1.0
+        FixedPinned => 0.7
+        FixedFixed => 0.5
+
+fn euler_kn(dia_mm float, length float, ends Ends) float
+    d := dia_mm / 1000.0
+    i := PI * d * d * d * d / 64.0
+    kl := k_factor(ends) * length
+    PI * PI * 200000000000.0 * i / (kl * kl) / 1000.0
+
+fn main()
+    for ends in Ends.variants()
+        a := euler_kn(40.0, 3.0, ends)
+        b := euler_kn(60.0, 3.0, ends)
+        print("{ends.name():<13} K {k_factor(ends)}: 40 mm bar {a:>7.1} kN, 60 mm bar {b:>7.1} kN")
+    need := 50.0
+    mut dia := 20.0
+    while euler_kn(dia, 3.0, Ends.PinnedPinned) < need
+        dia += 2.0
+    print("pinned 3 m strut for {need} kN needs {dia} mm")
+
+@test fn half_length_four_times()
+    ratio := euler_kn(40.0, 1.5, Ends.PinnedPinned) / euler_kn(40.0, 3.0, Ends.PinnedPinned)
+    assert((ratio - 4.0).abs() < 0.000001)

@@ -1,0 +1,27 @@
+## Wind triangle: flying a course at true airspeed TAS in a wind, the crosswind V sin(a) needs a
+## heading correction asin(V sin a / TAS) and the headwind V cos a slows the ground speed.
+
+PI := 3.141592653589793
+
+fn rad(deg float) float
+    deg * PI / 180.0
+
+fn main()
+    course := 90.0
+    tas := 120.0
+    leg := 300.0
+    winds := [(45.0, 20.0), (135.0, 25.0), (200.0, 15.0), (300.0, 30.0), (10.0, 40.0)]
+    for wd in winds
+        from_deg, speed := wd
+        a := rad(from_deg - course)
+        cross := speed * a.sin()
+        head := speed * a.cos()
+        x := cross / tas
+        wca := x.atan2((1.0 - x * x).sqrt())
+        ground := tas * wca.cos() - head
+        heading := course + wca * 180.0 / PI
+        minutes := leg / ground * 60.0
+        print("wind {from_deg:>5.1}/{speed}: heading {heading:>5.1}, ground speed {ground:>5.1} kt, {minutes:>5.1} min for {leg} nm")
+
+@test fn radians()
+    assert((rad(180.0) - PI).abs() < 0.000001)

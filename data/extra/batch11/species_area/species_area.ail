@@ -1,0 +1,23 @@
+## Species-area rule: islands hold about S = c A^z species (z near 0.25); z is fitted from two
+## surveys as ln(S2 / S1) / ln(A2 / A1), and losing 90% of a habitat keeps 0.1^z of its species.
+
+fn species(c float, z float, area float) float
+    c * area.pow(z)
+
+fn main()
+    s1 := 18.0
+    a1 := 10.0
+    s2 := 58.0
+    a2 := 1000.0
+    z := (s2 / s1).ln() / (a2 / a1).ln()
+    c := s1 / a1.pow(z)
+    print("fitted z {z:.3}, c {c:.2}")
+    for area in [1.0, 50.0, 500.0, 5000.0, 20000.0]
+        print("island of {area:>7.1} km2: about {species(c, z, area):.1} species")
+    for lost in [50, 90, 99]
+        left := (100 - lost).to_float() / 100.0
+        kept := left.pow(z) * 100.0
+        print("lose {lost}% of the habitat, keep {kept:.1}% of the species")
+
+@test fn same_area()
+    assert_eq(species(20.0, 0.25, 1.0), 20.0)

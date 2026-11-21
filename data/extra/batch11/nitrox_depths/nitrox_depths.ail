@@ -1,0 +1,23 @@
+## Nitrox diving: pressure at depth d is 1 + d / 10 bar and oxygen's partial pressure is fO2 times
+## that; the limit 1.4 bar gives the maximum depth, and EAD = (d + 10)(1 - fO2) / 0.79 - 10.
+
+fn max_depth(fo2 float, limit float) float
+    (limit / fo2 - 1.0) * 10.0
+
+fn ead(depth float, fo2 float) float
+    (depth + 10.0) * (1.0 - fo2) / 0.79 - 10.0
+
+fn main()
+    for pct in [21, 28, 32, 36, 40, 50]
+        fo2 := pct.to_float() / 100.0
+        work := max_depth(fo2, 1.4)
+        limit := max_depth(fo2, 1.6)
+        print("EAN{pct}: max {work:>5.2} m (contingency {limit:>5.2} m)")
+    for pct in [32, 36]
+        fo2 := pct.to_float() / 100.0
+        at := 25.0
+        if at <= max_depth(fo2, 1.4)
+            print("EAN{pct} at {at} m feels like air at {ead(at, fo2):.1} m, ppO2 {fo2 * (1.0 + at / 10.0):.2} bar")
+
+@test fn air_is_air()
+    assert((ead(30.0, 0.21) - 30.0).abs() < 0.000001)

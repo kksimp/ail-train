@@ -1,0 +1,6 @@
+sending 10 MW over 50 km of line (5.0 ohm)
+  11 kV:   909.1 A, loss    4132.2 kW (41.322%)
+  33 kV:   303.0 A, loss     459.1 kW (4.591%)
+ 132 kV:    75.8 A, loss      28.7 kW (0.287%)
+ 400 kV:    25.0 A, loss       3.1 kW (0.031%)
+ten times the voltage: 100.0 times less loss

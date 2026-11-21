@@ -1,0 +1,26 @@
+## Freezing point depression: dissolved particles lower water's freezing point by i * Kf * m
+## (Kf = 1.86 C kg/mol, m in mol per kg water, i particles per unit) and raise boiling by i * 0.512 * m.
+
+struct Solute
+    name str
+    molar float
+    particles int
+
+fn Solute.depression(self, grams float) float
+    molality := grams / self.molar
+    self.particles.to_float() * 1.86 * molality
+
+fn main()
+    solutes := [Solute(name: "table salt", molar: 58.44, particles: 2), Solute(name: "magnesium chloride", molar: 95.21, particles: 3), Solute(name: "sugar", molar: 342.3, particles: 1), Solute(name: "ethylene glycol", molar: 62.07, particles: 1)]
+    for s in solutes
+        dt := s.depression(100.0)
+        rise := dt / 1.86 * 0.512
+        print("100 g {s.name} in 1 kg water: freezes at {0.0 - dt:.2} C, boils at {100.0 + rise:.2} C")
+    target := 10.0
+    for s in solutes
+        need := target / (s.particles.to_float() * 1.86) * s.molar
+        print("to reach -10 C: {need:>6.1} g of {s.name} per kg")
+
+@test fn one_molal_sugar()
+    s := Solute(name: "x", molar: 100.0, particles: 1)
+    assert((s.depression(100.0) - 1.86).abs() < 0.000001)

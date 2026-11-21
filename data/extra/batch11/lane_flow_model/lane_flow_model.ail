@@ -1,0 +1,25 @@
+## Traffic flow: Greenshields' model has speed fall in a straight line with density,
+## v = vf (1 - k / kj), so flow q = k v peaks at kj / 2 and the same flow occurs twice.
+
+fn speed(k float, vf float, kj float) float
+    vf * (1.0 - k / kj)
+
+fn main()
+    vf := 100.0
+    kj := 120.0
+    for k in [0, 20, 40, 60, 80, 100, 120]
+        kf := k.to_float()
+        v := speed(kf, vf, kj)
+        q := kf * v
+        state := if kf < kj / 2.0 then "free" elif kf == kj / 2.0 then "capacity" else "congested"
+        print("{k:>3} veh/km: {v:>5.1} km/h, {q:>6.1} veh/h ({state})")
+    capacity := vf * kj / 4.0
+    print("lane capacity {capacity} veh/h at {kj / 2.0} veh/km")
+    target := 2000.0
+    disc := (kj * kj / 4.0 - target * kj / vf).sqrt()
+    k1 := kj / 2.0 - disc
+    k2 := kj / 2.0 + disc
+    print("{target} veh/h happens at {k1:.1} veh/km ({speed(k1, vf, kj):.1} km/h) and {k2:.1} veh/km ({speed(k2, vf, kj):.1} km/h)")
+
+@test fn jammed()
+    assert_eq(speed(120.0, 100.0, 120.0), 0.0)

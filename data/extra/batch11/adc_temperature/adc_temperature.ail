@@ -1,0 +1,27 @@
+## ADC readings: a 10-bit converter maps 0 to 3.3 V onto codes 0 to 1023 (one step is 3.3 / 1024 V);
+## turns codes from a TMP36 sensor back into volts and then degrees, T = (V - 0.5) * 100.
+
+fn to_code(volts float, vref float) int
+    code := (volts / vref * 1024.0).to_int()
+    if code > 1023 then 1023 elif code < 0 then 0 else code
+
+fn to_volts(code int, vref float) float
+    code.to_float() * vref / 1024.0
+
+fn main()
+    vref := 3.3
+    step := vref / 1024.0 * 1000.0
+    print("one step is {step:.3} mV")
+    for v in [0.0, 0.75, 1.65, 3.3, 3.5]
+        c := to_code(v, vref)
+        back := to_volts(c, vref)
+        print("{v:.2} V -> code {c:>4} -> {back:.4} V")
+    readings := [217, 232, 248, 261]
+    for code in readings
+        volts := to_volts(code, vref)
+        temp := (volts - 0.5) * 100.0
+        print("sensor code {code}: {temp:.1} C")
+
+@test fn clamps()
+    assert_eq(to_code(5.0, 3.3), 1023)
+    assert_eq(to_code(1.65, 3.3), 512)

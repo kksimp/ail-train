@@ -1,0 +1,24 @@
+## Beer-Lambert law: absorbance A = e l c is proportional to concentration; a calibration line
+## through the origin (slope = sum cA / sum c^2) turns unknown samples' absorbance into mg/L.
+
+fn transmit(a float) float
+    ten := 10.0
+    100.0 * ten.pow(0.0 - a)
+
+fn main()
+    conc := [2.0, 4.0, 6.0, 8.0, 10.0]
+    absorb := [0.105, 0.212, 0.318, 0.42, 0.528]
+    mut top := 0.0
+    mut bottom := 0.0
+    for c, a in zip(conc, absorb)
+        top += c * a
+        bottom += c * c
+    slope := top / bottom
+    print("calibration slope {slope:.5} per mg/L")
+    for reading in [0.05, 0.25, 0.475, 0.615]
+        found := reading / slope
+        note := if found > 10.0 then " (above the standards, dilute and repeat)" else ""
+        print("A {reading:.3}: {found:.2} mg/L, {transmit(reading):.1}% light through{note}")
+
+@test fn no_absorbance()
+    assert_eq(transmit(0.0), 100.0)

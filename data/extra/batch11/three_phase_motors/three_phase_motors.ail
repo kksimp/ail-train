@@ -1,0 +1,29 @@
+## Three-phase current: a motor drawing P watts of shaft power takes I = P / (sqrt 3 * V * pf * eff)
+## per line at 400 V; sums the line current of a workshop's motors against a 63 A supply.
+
+struct Motor
+    name str
+    kw float
+    pf float
+    eff float
+
+fn Motor.line_amps(self, volts float) float
+    three := 3.0
+    self.kw * 1000.0 / (three.sqrt() * volts * self.pf * self.eff)
+
+fn main()
+    motors := [Motor(name: "saw", kw: 5.5, pf: 0.85, eff: 0.88), Motor(name: "compressor", kw: 11.0, pf: 0.86, eff: 0.9), Motor(name: "extractor", kw: 3.0, pf: 0.8, eff: 0.85), Motor(name: "lathe", kw: 7.5, pf: 0.84, eff: 0.89)]
+    mut total := 0.0
+    for m in motors
+        amps := m.line_amps(400.0)
+        single := m.kw * 1000.0 / (230.0 * m.pf * m.eff)
+        total += amps
+        print("{m.name:<10} {m.kw:>5.1} kW: {amps:>5.1} A per line (single phase would be {single:.1} A)")
+    spare := 63.0 - total
+    print("total {total:.1} A, spare {spare:.1} A")
+    biggest := motors.max(by: |m| m.line_amps(400.0).to_int()) else motors[0]
+    print("largest load: {biggest.name}")
+
+@test fn unity()
+    m := Motor(name: "t", kw: 1.0, pf: 1.0, eff: 1.0)
+    assert(m.line_amps(400.0) > 1.44 and m.line_amps(400.0) < 1.45)

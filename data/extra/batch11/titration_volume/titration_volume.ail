@@ -1,0 +1,27 @@
+## Titration: an acid giving p protons per molecule needs moles(acid) * p of sodium hydroxide, so
+## the titre is that over the base's molarity; a measured titre gives an unknown acid's molarity.
+
+struct Acid
+    name str
+    protons int
+    molar float
+    ml float
+
+fn titre_ml(a Acid, base_molar float) float
+    a.molar * a.ml * a.protons.to_float() / base_molar
+
+fn main()
+    base := 0.1
+    acids := [Acid(name: "hydrochloric", protons: 1, molar: 0.1, ml: 25.0), Acid(name: "sulfuric", protons: 2, molar: 0.05, ml: 20.0), Acid(name: "citric", protons: 3, molar: 0.02, ml: 25.0), Acid(name: "acetic", protons: 1, molar: 0.85, ml: 10.0)]
+    for a in acids
+        v := titre_ml(a, base)
+        burette := if v > 50.0 then " (refill the 50 mL burette)" else ""
+        print("{a.ml} mL of {a.molar} M {a.name}: {v:.2} mL of 0.1 M base{burette}")
+    titres := [22.4, 22.6, 22.5]
+    mean := titres.fold(0.0, |acc, t| acc + t) / titres.len().to_float()
+    unknown := base * mean / (2.0 * 25.0)
+    print("unknown sulfuric acid, 25 mL, mean titre {mean:.2} mL: {unknown:.4} M")
+
+@test fn equal_strength()
+    a := Acid(name: "x", protons: 1, molar: 0.1, ml: 25.0)
+    assert((titre_ml(a, 0.1) - 25.0).abs() < 0.000001)

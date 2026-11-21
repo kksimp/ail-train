@@ -1,0 +1,9 @@
+  0 veh/km: 100.0 km/h,    0.0 veh/h (free)
+ 20 veh/km:  83.3 km/h, 1666.7 veh/h (free)
+ 40 veh/km:  66.7 km/h, 2666.7 veh/h (free)
+ 60 veh/km:  50.0 km/h, 3000.0 veh/h (capacity)
+ 80 veh/km:  33.3 km/h, 2666.7 veh/h (congested)
+100 veh/km:  16.7 km/h, 1666.7 veh/h (congested)
+120 veh/km:   0.0 km/h,    0.0 veh/h (congested)
+lane capacity 3000.0 veh/h at 60.0 veh/km
+2000.0 veh/h happens at 25.4 veh/km (78.9 km/h) and 94.6 veh/km (21.1 km/h)

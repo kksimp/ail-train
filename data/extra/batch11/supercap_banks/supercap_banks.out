@@ -1,0 +1,5 @@
+1 cells: series 100.00 F at  2.7 V =  364.5 J, parallel 100.0 F at 2.7 V =  364.5 J
+2 cells: series  50.00 F at  5.4 V =  729.0 J, parallel 200.0 F at 2.7 V =  729.0 J
+4 cells: series  25.00 F at 10.8 V = 1458.0 J, parallel 400.0 F at 2.7 V = 1458.0 J
+6 cells: series  16.67 F at 16.2 V = 2187.0 J, parallel 600.0 F at 2.7 V = 2187.0 J
+3 pairs in series: 66.67 F at 8.1 V holds 2187.0 J = 0.6075 Wh

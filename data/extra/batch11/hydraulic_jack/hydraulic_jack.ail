@@ -1,0 +1,24 @@
+## Hydraulic jack: pressure is the same on both pistons, so force grows by the area ratio (D / d)^2
+## while the big piston moves that many times less; a handle lever multiplies the push again.
+
+fn area_ratio(big_mm float, small_mm float) float
+    r := big_mm / small_mm
+    r * r
+
+fn main()
+    lever := 8.0
+    push := 150.0
+    jacks := [("trolley jack", 50.0, 12.0), ("bottle jack", 40.0, 10.0), ("workshop press", 100.0, 16.0)]
+    for jk in jacks
+        name, big, small := jk
+        ratio := area_ratio(big, small)
+        lift_n := push * lever * ratio
+        tonnes := lift_n / 9.81 / 1000.0
+        rise := 25.0 / ratio
+        strokes := (150.0 / rise).ceil().to_int()
+        print("{name:<14} ratio {ratio:>5.1}: lifts {tonnes:.2} t, {rise:.2} mm per stroke, {strokes} strokes for 150 mm")
+    pressure := push * lever / (3.141592653589793 * 6.0 * 6.0)
+    print("trolley jack oil pressure: {pressure:.2} N/mm2 = {pressure * 10.0:.1} bar")
+
+@test fn ratio_squares()
+    assert_eq(area_ratio(30.0, 10.0), 9.0)

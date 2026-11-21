@@ -1,0 +1,22 @@
+## Road curves: a banked curve holds a car when v^2 / (127 R) <= e + f (v in km/h, R in m), with
+## banking e = 0.06 and side friction f that falls with speed; gives minimum radii and safe speeds.
+
+fn friction(kmh float) float
+    if kmh <= 50.0 then 0.16 elif kmh <= 80.0 then 0.14 elif kmh <= 100.0 then 0.12 else 0.1
+
+fn min_radius(kmh float, e float) float
+    kmh * kmh / (127.0 * (e + friction(kmh)))
+
+fn main()
+    e := 0.06
+    for v in [50.0, 70.0, 90.0, 110.0, 130.0]
+        r := min_radius(v, e)
+        print("{v:>5.1} km/h: f {friction(v)}, minimum radius {r:>6.1} m")
+    for radius in [80.0, 250.0, 600.0]
+        mut speed := 30.0
+        while speed + 10.0 <= 150.0 and min_radius(speed + 10.0, e) <= radius
+            speed += 10.0
+        print("a {radius} m curve is safe up to {speed} km/h")
+
+@test fn faster_needs_wider()
+    assert(min_radius(100.0, 0.06) > min_radius(60.0, 0.06))

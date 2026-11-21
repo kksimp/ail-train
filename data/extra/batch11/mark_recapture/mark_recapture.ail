@@ -1,0 +1,31 @@
+## Mark and recapture: mark M animals, later catch C of which R carry marks; the Lincoln-Petersen
+## estimate is N = M C / R, and Chapman's (M + 1)(C + 1) / (R + 1) - 1 corrects its upward bias.
+
+struct Survey
+    site str
+    marked int
+    caught int
+    recaptured int
+
+fn Survey.lincoln(self) int
+    self.marked * self.caught / self.recaptured
+
+fn Survey.chapman(self) int
+    (self.marked + 1) * (self.caught + 1) / (self.recaptured + 1) - 1
+
+fn main()
+    surveys := [Survey(site: "mill pond", marked: 40, caught: 35, recaptured: 7), Survey(site: "reed bed", marked: 120, caught: 100, recaptured: 30), Survey(site: "stream", marked: 25, caught: 30, recaptured: 2), Survey(site: "meadow", marked: 60, caught: 50, recaptured: 0)]
+    for s in surveys
+        if s.recaptured == 0
+            print("{s.site:<10} no marked animals caught again: population too large to estimate")
+            continue
+        share := s.recaptured.to_float() / s.caught.to_float() * 100.0
+        print("{s.site:<10} {share:>5.1}% marked in second catch: Lincoln {s.lincoln():>4}, Chapman {s.chapman():>4}")
+    sized := surveys.filter(|sv| sv.recaptured > 0)
+    biggest := sized.max(by: |sv| sv.chapman()) else surveys[0]
+    print("largest population: {biggest.site}")
+
+@test fn estimates()
+    s := Survey(site: "t", marked: 10, caught: 10, recaptured: 5)
+    assert_eq(s.lincoln(), 20)
+    assert_eq(s.chapman(), 19)

@@ -1,0 +1,12 @@
+loose sand: Ka 0.361
+  1.0 m wall: thrust   3.07 kN/m, overturning   1.02 kNm/m
+  2.0 m wall: thrust  12.28 kN/m, overturning   8.18 kNm/m
+  3.0 m wall: thrust  27.62 kN/m, overturning  27.62 kNm/m
+dense gravel: Ka 0.238
+  1.0 m wall: thrust   2.38 kN/m, overturning   0.79 kNm/m
+  2.0 m wall: thrust   9.52 kN/m, overturning   6.34 kNm/m
+  3.0 m wall: thrust  21.41 kN/m, overturning  21.41 kNm/m
+stiff clay: Ka 0.455
+  1.0 m wall: thrust   4.32 kN/m, overturning   1.44 kNm/m
+  2.0 m wall: thrust  17.29 kN/m, overturning  11.53 kNm/m
+  3.0 m wall: thrust  38.90 kN/m, overturning  38.90 kNm/m
