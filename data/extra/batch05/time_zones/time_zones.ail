@@ -1,0 +1,24 @@
+## Meeting planner: offices in fixed UTC offsets; for a meeting at each UTC hour, counts
+## how many offices are inside 9 to 17 local time and prints the best hours.
+
+fn main()
+    offices := [("London", 0), ("Lagos", 1), ("Dubai", 4), ("Delhi", 5), ("Tokyo", 9), ("New York", -5)]
+    mut best := 0
+    mut by_hour := List[int]()
+    for h in 0..24
+        mut ok := 0
+        for o in offices
+            local := (h + o.1 + 24) % 24
+            if local >= 9 and local < 17
+                ok += 1
+        by_hour.push(ok)
+        if ok > best
+            best = ok
+    hours := [h for h in 0..24 if by_hour[h] == best].map(|h| "{h:02}:00").join(", ")
+    print("best: {best} of {offices.len()} offices at {hours}")
+    for o in offices
+        local := (13 + o.1 + 24) % 24
+        print("13:00 UTC is {local:02}:00 in {o.0}")
+
+@test fn wrap()
+    assert_eq((2 - 5 + 24) % 24, 21)

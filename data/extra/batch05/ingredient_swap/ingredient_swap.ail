@@ -1,0 +1,28 @@
+## Ingredient swap: a recipe's ingredients are checked against a substitution table for a
+## vegan diet, printing the converted recipe and anything with no substitute.
+
+fn main()
+    recipe := ["flour", "butter", "sugar", "egg", "milk", "honey", "vanilla", "gelatine"]
+    swaps := {"butter": "olive oil", "egg": "flax egg", "milk": "oat milk", "honey": "maple syrup"}
+    banned := {"butter", "egg", "milk", "honey", "gelatine"}
+    mut out := List[str]()
+    mut missing := List[str]()
+    for item in recipe
+        if banned.contains(item)
+            if alt := swaps.get(item)
+                out.push("{alt} (for {item})")
+            else
+                missing.push(item)
+        else
+            out.push(item)
+    for line in out
+        print("- {line}")
+    if missing.is_empty()
+        print("fully vegan")
+    else
+        shown := missing.join(", ")
+        print("no swap for: {shown}")
+
+@test fn lookup()
+    m := {"a": "b"}
+    assert_eq(m.get("a") else "", "b")

@@ -1,0 +1,22 @@
+## Recycling sort: items are routed to bins by material using a lookup map, unknown
+## materials go to landfill, and the weight per bin is totalled.
+
+fn main()
+    bins := {"paper": "blue", "card": "blue", "glass": "green", "plastic": "yellow", "metal": "yellow", "food": "brown"}
+    items := [("newspaper", "paper", 300), ("jar", "glass", 250), ("crisp packet", "foil-plastic", 10), ("tin", "metal", 60), ("peel", "food", 120), ("box", "card", 180), ("bottle", "plastic", 40), ("nappy", "mixed", 400)]
+    mut weight := Map[str, int]()
+    for it in items
+        name, material, grams := it
+        bin := bins.get(material) else "landfill"
+        weight[bin] += grams
+        print("{name:<13} -> {bin}")
+    for b in weight.keys().sorted()
+        print("{b}: {weight[b]} g")
+    total := weight.values().sum()
+    landfill := weight.get("landfill") else 0
+    rate := (total - landfill) * 100 / total
+    print("recycled {rate}%")
+
+@test fn unknown()
+    m := {"a": "x"}
+    assert_eq(m.get("z") else "landfill", "landfill")

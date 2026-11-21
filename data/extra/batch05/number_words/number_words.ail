@@ -1,0 +1,40 @@
+## Number words: spells integers from 0 to 999,999 in English words with "and" after
+## hundreds, for a list of test values.
+
+fn under_thousand(n int) str
+    ones := ["", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen"]
+    tens := ["", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"]
+    mut parts := List[str]()
+    if n >= 100
+        parts.push("{ones[n / 100]} hundred")
+    rest := n % 100
+    if rest > 0
+        if n >= 100
+            parts.push("and")
+        if rest < 20
+            parts.push(ones[rest])
+        elif rest % 10 == 0
+            parts.push(tens[rest / 10])
+        else
+            parts.push("{tens[rest / 10]}-{ones[rest % 10]}")
+    parts.join(" ")
+
+fn words(n int) str
+    if n == 0
+        return "zero"
+    if n >= 1000
+        head := under_thousand(n / 1000)
+        tail := n % 1000
+        if tail == 0
+            return "{head} thousand"
+        sep := if tail < 100 then " and " else " "
+        body := under_thousand(tail)
+        return "{head} thousand{sep}{body}"
+    under_thousand(n)
+
+fn main()
+    for n in [0, 7, 13, 40, 99, 100, 115, 342, 1000, 1005, 2019, 12345, 700000, 999999]
+        print("{n}: {words(n)}")
+
+@test fn teen()
+    assert_eq(words(15), "fifteen")
