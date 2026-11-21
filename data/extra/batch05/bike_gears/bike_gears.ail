@@ -1,0 +1,23 @@
+## Bike gears: computes gear inches for every chainring and sprocket pair, lists them from
+## lowest to highest, and flags near-duplicate gears within 2%.
+
+fn main()
+    rings := [34, 50]
+    cogs := [11, 13, 15, 17, 19, 21, 23, 28]
+    wheel := 27.0
+    mut gears := List[(float, str)]()
+    for r in rings
+        for c in cogs
+            gi := r.to_float() / c.to_float() * wheel
+            gears.push((gi, "{r}x{c}"))
+    ordered := gears.sorted(by: |g| g.0)
+    mut prev := 0.0
+    for g in ordered
+        close := prev > 0.0 and (g.0 - prev) / prev < 0.02
+        mark := if close then " (close to previous)" else ""
+        print("{g.1:<6} {g.0:>6.1}{mark}")
+        prev = g.0
+    print("range {ordered[0].0:.1} to {ordered[ordered.len() - 1].0:.1}")
+
+@test fn ratio()
+    assert(50.0 / 11.0 * 27.0 > 120.0)

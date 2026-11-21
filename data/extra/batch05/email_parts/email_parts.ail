@@ -1,0 +1,25 @@
+## Email parts: splits addresses into user, tag and domain, normalises them (lower case,
+## tags dropped) and reports invalid addresses.
+
+fn normalise(addr str) str?
+    parts := addr.trim().to_lower().split("@")
+    if parts.len() != 2 or parts[0].is_empty() or not parts[1].contains(".")
+        return none
+    user := parts[0].split("+")[0]
+    "{user}@{parts[1]}"
+
+fn main()
+    raw := ["Ann+news@Example.com", " bob@mail.org ", "carl@localhost", "dee@@x.io", "ann@example.com", "@nouser.net", "Eve+a+b@Shop.co.uk"]
+    mut seen := Set[str]()
+    for a in raw
+        if n := normalise(a)
+            fresh := not seen.contains(n)
+            seen.add(n)
+            note := if fresh then "" else " (duplicate)"
+            print("{a.trim()} -> {n}{note}")
+        else
+            print("{a.trim()} -> invalid")
+    print("{seen.len()} unique")
+
+@test fn tag()
+    assert_eq(normalise("x+y@a.b") else "", "x@a.b")

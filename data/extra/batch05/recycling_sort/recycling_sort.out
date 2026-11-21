@@ -1,0 +1,14 @@
+newspaper     -> blue
+jar           -> green
+crisp packet  -> landfill
+tin           -> yellow
+peel          -> brown
+box           -> blue
+bottle        -> yellow
+nappy         -> landfill
+blue: 480 g
+brown: 120 g
+green: 250 g
+landfill: 410 g
+yellow: 100 g
+recycled 69%

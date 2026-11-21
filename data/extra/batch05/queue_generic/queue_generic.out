@@ -1,0 +1,9 @@
+after 12: 12
+after 15: 12 15
+after 11: 12 15 11
+after 18: 12 15 11 18
+after 20: 12 15 11 18 20
+after 17: 15 11 18 20 17
+after 14: 11 18 20 17 14
+after 19: 18 20 17 14 19
+disk ok | user login | backup

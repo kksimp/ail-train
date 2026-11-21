@@ -1,0 +1,26 @@
+## Solar output: panels with a rated power and a daily sun-hours table by month; prints the
+## monthly energy, the best and worst months, and the yearly total in kWh.
+
+fn main()
+    panels := 12
+    watts := 400
+    efficiency := 0.82
+    months := ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+    sun := [1.6, 2.4, 3.3, 4.6, 5.5, 5.9, 5.8, 5.0, 3.9, 2.7, 1.8, 1.3]
+    days := [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+    mut kwh := List[float]()
+    for i in 0..12
+        e := (panels * watts).to_float() * sun[i] * days[i].to_float() * efficiency / 1000.0
+        kwh.push(e)
+        print("{months[i]} {e:>7.1} kWh")
+    mut best := 0
+    mut worst := 0
+    for i in 1..12
+        if kwh[i] > kwh[best]
+            best = i
+        if kwh[i] < kwh[worst]
+            worst = i
+    print("best {months[best]}, worst {months[worst]}, year {kwh.sum():.0} kWh")
+
+@test fn scale()
+    assert((12 * 400).to_float() == 4800.0)

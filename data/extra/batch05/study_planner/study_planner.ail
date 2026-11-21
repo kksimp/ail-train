@@ -1,0 +1,21 @@
+## Study planner: subjects with hours needed and exam days; each day gives two hours to the
+## subject with the nearest exam that still needs time, and the plan is printed.
+
+fn main()
+    mut need := {"maths": 6, "history": 4, "biology": 5}
+    exams := {"maths": 5, "history": 3, "biology": 6}
+    for day in 1..=6
+        open := need.keys().filter(|s| need[s] > 0 and exams[s] > day - 1)
+        if open.is_empty()
+            print("day {day}: rest")
+            continue
+        pick := open.min(by: |s| (exams[s], s)) else ""
+        hours := if need[pick] < 2 then need[pick] else 2
+        need[pick] -= hours
+        print("day {day}: {pick} {hours}h (left {need[pick]})")
+    for s in ["maths", "history", "biology"]
+        state := if need[s] == 0 then "ready" else "short"
+        print("{s}: {state}")
+
+@test fn min_by()
+    assert_eq([3, 1, 2].min(by: |x| x) else 0, 1)

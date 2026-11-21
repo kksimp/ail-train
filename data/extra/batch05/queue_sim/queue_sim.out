@@ -1,0 +1,9 @@
+customer 1: arrives 0, starts 0, waits 0
+customer 2: arrives 1, starts 4, waits 3
+customer 3: arrives 2, starts 7, waits 5
+customer 4: arrives 8, starts 13, waits 5
+customer 5: arrives 9, starts 15, waits 6
+customer 6: arrives 10, starts 20, waits 10
+customer 7: arrives 18, starts 21, waits 3
+customer 8: arrives 20, starts 24, waits 4
+average wait 4.50, longest 10, till free at 26

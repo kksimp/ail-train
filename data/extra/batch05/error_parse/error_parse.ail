@@ -1,0 +1,53 @@
+## Config parse: reads key=value lines into typed settings, failing with a line-numbered
+## error message on the first bad line, for one good and two bad configs.
+
+struct Settings
+    port int
+    host str
+    debug bool
+
+fn parse_bool(v str) bool ! str
+    if v == "true"
+        return true
+    if v == "false"
+        return false
+    return "not a bool: {v}"
+
+fn load(text str) Settings ! str
+    mut s := Settings(port: 80, host: "localhost", debug: false)
+    for i, raw in text.lines().enumerate()
+        line := raw.trim()
+        if line.is_empty() or line.starts_with("#")
+            continue
+        parts := line.split("=")
+        if parts.len() != 2
+            return "line {i + 1}: expected key=value"
+        key := parts[0].trim()
+        val := parts[1].trim()
+        if key == "port"
+            s.port = val.to_int() else return "line {i + 1}: bad port {val}"
+        elif key == "host"
+            s.host = val
+        elif key == "debug"
+            flag := parse_bool(val) else err
+                return "line {i + 1}: {err}"
+            s.debug = flag
+        else
+            return "line {i + 1}: unknown key {key}"
+    s
+
+fn main()
+    configs := [
+        "# web\nport = 8080\nhost = example.org\ndebug = true",
+        "port = 90\nhost = a.b\ndebug = yes",
+        "port = 1\ncolour = red",
+    ]
+    for c in configs
+        if s := load(c)
+            print("ok: {s.host}:{s.port} debug={s.debug}")
+        else err
+            print("error: {err}")
+
+@test fn defaults()
+    s := load("") else Settings(port: 0, host: "", debug: true)
+    assert_eq(s.port, 80)

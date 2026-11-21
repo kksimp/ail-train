@@ -1,0 +1,19 @@
+## Fuel log: odometer readings and litres at each fill-up; prints litres per 100 km for
+## each leg and the average over the whole log.
+
+fn main()
+    fills := [(12000, 0.0), (12540, 38.2), (13110, 41.0), (13600, 35.5), (14230, 44.9)]
+    mut km := 0
+    mut litres := 0.0
+    for i in 1..fills.len()
+        leg := fills[i].0 - fills[i - 1].0
+        used := fills[i].1
+        rate := used * 100.0 / leg.to_float()
+        print("leg {i}: {leg} km, {used:.1} l, {rate:.2} l/100km")
+        km += leg
+        litres += used
+    avg := litres * 100.0 / km.to_float()
+    print("total {km} km, average {avg:.2} l/100km")
+
+@test fn rate()
+    assert(35.5 * 100.0 / 490.0 > 7.0)

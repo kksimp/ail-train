@@ -1,0 +1,24 @@
+## Mirror words: finds words in a list whose reverse is also in the list (semordnilaps)
+## and words that are their own reverse, each pair listed once.
+
+fn rev(w str) str
+    w.chars().reversed().join("")
+
+fn main()
+    words := ["stressed", "level", "desserts", "drawer", "reward", "noon", "parts", "strap", "tops", "stop", "spot", "racecar", "live", "evil"]
+    pool := {w for w in words}
+    mut pairs := List[str]()
+    mut selfs := List[str]()
+    for w in words
+        r := rev(w)
+        if r == w
+            selfs.push(w)
+        elif pool.contains(r) and w < r
+            pairs.push("{w}/{r}")
+    a := pairs.join(", ")
+    b := selfs.join(", ")
+    print("pairs: {a}")
+    print("palindromes: {b}")
+
+@test fn back()
+    assert_eq(rev("abc"), "cba")

@@ -1,0 +1,28 @@
+## Ordered people: a Person struct gets Ord from its fields in order (surname, first name,
+## age), so a list sorts with plain sorted(), and the min and max are printed.
+
+struct Person
+    last str
+    first str
+    age int
+
+impl Ord for Person
+
+fn main()
+    people := [
+        Person(first: "Ana", last: "Silva", age: 41),
+        Person(first: "Ben", last: "Okoro", age: 29),
+        Person(first: "Ana", last: "Silva", age: 23),
+        Person(first: "Cy", last: "Adams", age: 35),
+        Person(first: "Bea", last: "Okoro", age: 52),
+    ]
+    for p in people.sorted()
+        print("{p.last}, {p.first} ({p.age})")
+    lo := people.min() else people[0]
+    hi := people.max() else people[0]
+    print("first: {lo.first} {lo.last}; last: {hi.first} {hi.last} {hi.age}")
+
+@test fn by_age()
+    a := Person(first: "x", last: "y", age: 1)
+    b := Person(first: "x", last: "y", age: 2)
+    assert(a < b)

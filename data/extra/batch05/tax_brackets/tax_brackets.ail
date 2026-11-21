@@ -1,0 +1,30 @@
+## Tax brackets: income tax with a personal allowance that tapers away above 100,000 and
+## three bands, computed for several salaries with the effective rate.
+
+fn allowance(income int) int
+    base := 12570
+    if income <= 100000
+        return base
+    cut := (income - 100000) / 2
+    if cut >= base then 0 else base - cut
+
+fn tax(income int) int
+    taxable := income - allowance(income)
+    bands := [(37700, 20), (87440, 40), (1000000000, 45)]
+    mut left := if taxable > 0 then taxable else 0
+    mut due := 0
+    for b in bands
+        width, rate := b
+        part := if left < width then left else width
+        due += part * rate / 100
+        left -= part
+    due
+
+fn main()
+    for income in [10000, 30000, 50270, 80000, 110000, 150000]
+        t := tax(income)
+        eff := t.to_float() * 100.0 / income.to_float()
+        print("{income:>7,}: allowance {allowance(income):>6,}, tax {t:>6,} ({eff:.1}%)")
+
+@test fn none_due()
+    assert_eq(tax(12000), 0)

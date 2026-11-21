@@ -1,0 +1,49 @@
+## Card hands: deals a fixed shuffled deck into four hands of five and names each hand
+## (pair, two pair, three of a kind, straight, flush or high card).
+
+fn kind(hand List[(int, str)]) str
+    mut counts := Map[int, int]()
+    for c in hand
+        counts[c.0] += 1
+    sizes := counts.values().sorted().reversed()
+    ranks := hand.map(|c| c.0).sorted()
+    suit := hand[0].1
+    flush := hand.all(|c| c.1 == suit)
+    straight := sizes.len() == 5 and ranks[4] - ranks[0] == 4
+    if straight and flush
+        return "straight flush"
+    if sizes[0] == 4
+        return "four of a kind"
+    if sizes[0] == 3 and sizes[1] == 2
+        return "full house"
+    if flush
+        return "flush"
+    if straight
+        return "straight"
+    if sizes[0] == 3
+        return "three of a kind"
+    if sizes[0] == 2 and sizes[1] == 2
+        return "two pair"
+    if sizes[0] == 2
+        return "pair"
+    "high card"
+
+fn label(c (int, str)) str
+    names := ["", "", "2", "3", "4", "5", "6", "7", "8", "9", "T", "J", "Q", "K", "A"]
+    face := names[c.0]
+    "{face}{c.1}"
+
+fn main()
+    hands := [
+        [(9, "h"), (9, "s"), (4, "d"), (4, "c"), (12, "h")],
+        [(5, "c"), (6, "d"), (7, "c"), (8, "s"), (9, "h")],
+        [(2, "s"), (8, "s"), (11, "s"), (13, "s"), (5, "s")],
+        [(14, "d"), (14, "h"), (14, "c"), (3, "s"), (3, "d")],
+        [(10, "h"), (2, "c"), (7, "d"), (12, "s"), (6, "h")],
+    ]
+    for h in hands
+        shown := h.map(label).join(" ")
+        print("{shown}: {kind(h)}")
+
+@test fn pair()
+    assert_eq(kind([(3, "h"), (3, "s"), (5, "d"), (9, "c"), (11, "h")]), "pair")

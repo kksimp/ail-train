@@ -1,0 +1,26 @@
+## Bakery orders: customer orders are summed into a bake list per product, rounded up to
+## whole trays, and the flour needed is totalled.
+
+fn main()
+    orders := [
+        ("Mira", [("loaf", 2), ("bun", 6)]),
+        ("Noor", [("bun", 12), ("pie", 1)]),
+        ("Olu", [("loaf", 1), ("pie", 2), ("bun", 4)]),
+        ("Pia", [("loaf", 3)]),
+    ]
+    per_tray := {"loaf": 4, "bun": 12, "pie": 2}
+    flour := {"loaf": 500, "bun": 60, "pie": 250}
+    mut want := Map[str, int]()
+    for o in orders
+        for line in o.1
+            want[line.0] += line.1
+    mut grams := 0
+    for p in ["loaf", "bun", "pie"]
+        trays := (want[p] + per_tray[p] - 1) / per_tray[p]
+        made := trays * per_tray[p]
+        grams += made * flour[p]
+        print("{p}: ordered {want[p]}, {trays} trays, {made - want[p]} spare")
+    print("flour: {grams / 1000}.{grams % 1000:03} kg")
+
+@test fn ceil_div()
+    assert_eq((13 + 11) / 12, 2)

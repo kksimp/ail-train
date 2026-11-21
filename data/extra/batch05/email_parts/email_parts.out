@@ -1,0 +1,8 @@
+Ann+news@Example.com -> ann@example.com
+bob@mail.org -> bob@mail.org
+carl@localhost -> invalid
+dee@@x.io -> invalid
+ann@example.com -> ann@example.com (duplicate)
+@nouser.net -> invalid
+Eve+a+b@Shop.co.uk -> eve@shop.co.uk
+3 unique

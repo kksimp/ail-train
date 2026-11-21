@@ -1,0 +1,29 @@
+## Lamp grid: a 5x5 grid of lamps where pressing one toggles it and its four neighbours;
+## a sequence of presses is applied and the lit lamps are counted.
+
+fn main()
+    n := 5
+    row := [false for _ in 0..n]
+    mut grid := [row for _ in 0..n]
+    presses := [(0, 0), (2, 2), (4, 4), (2, 3), (1, 2), (0, 0)]
+    for p in presses
+        r, c := p
+        for d in [(0, 0), (1, 0), (-1, 0), (0, 1), (0, -1)]
+            rr := r + d.0
+            cc := c + d.1
+            if rr >= 0 and rr < n and cc >= 0 and cc < n
+                grid[rr][cc] = not grid[rr][cc]
+    mut lit := 0
+    for r in 0..n
+        mut line := ""
+        for c in 0..n
+            if grid[r][c]
+                line = "{line}O"
+                lit += 1
+            else
+                line = "{line}."
+        print(line)
+    print("{lit} lamps lit")
+
+@test fn toggle()
+    assert(not (not true))

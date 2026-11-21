@@ -1,0 +1,24 @@
+## Allergy menu: dishes list their allergens as sets; for each guest the safe dishes are
+## found by set intersection, and guests with no safe main are flagged.
+
+fn main()
+    dishes := [
+        ("pad thai", {"peanut", "egg", "soy"}, true),
+        ("risotto", {"dairy"}, true),
+        ("bean chilli", Set[str](), true),
+        ("fish pie", {"fish", "dairy", "gluten"}, true),
+        ("fruit salad", Set[str](), false),
+        ("cheesecake", {"dairy", "gluten", "egg"}, false),
+    ]
+    guests := [("Ike", {"peanut"}), ("Jo", {"dairy", "gluten"}), ("Kai", {"egg", "soy", "dairy"}), ("Lu", Set[str]())]
+    for g in guests
+        who, avoid := g
+        safe := dishes.filter(|d| d.1.intersect(avoid).is_empty())
+        names := safe.map(|d| d.0).join(", ")
+        mains := safe.filter(|d| d.2).len()
+        print("{who}: {names}")
+        if mains < 2
+            print("  only {mains} main for {who}")
+
+@test fn disjoint()
+    assert({"a"}.intersect({"b"}).is_empty())

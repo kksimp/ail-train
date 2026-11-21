@@ -1,0 +1,22 @@
+## Hiking pace: Naismith's rule (5 km per hour plus an hour per 600 m of climb) estimates
+## each leg of a walk, and the finish time is printed from an 08:15 start.
+
+fn clock(m int) str
+    "{m / 60:02}:{m % 60:02}"
+
+fn main()
+    legs := [("car park to bridge", 3.2, 120), ("bridge to ridge", 4.5, 540), ("ridge to summit", 2.1, 310), ("summit to tarn", 3.8, 0), ("tarn to car park", 5.4, 60)]
+    mut t := 8 * 60 + 15
+    mut total_km := 0.0
+    mut total_up := 0
+    for leg in legs
+        name, km, up := leg
+        mins := (km / 5.0 * 60.0 + up.to_float() / 600.0 * 60.0).round().to_int()
+        t += mins
+        total_km += km
+        total_up += up
+        print("{name:<20} {km:>4.1} km {up:>4} m  {mins:>3} min, at {clock(t)}")
+    print("total {total_km:.1} km, {total_up} m climb, finish {clock(t)}")
+
+@test fn flat()
+    assert_eq((5.0 / 5.0 * 60.0).round().to_int(), 60)

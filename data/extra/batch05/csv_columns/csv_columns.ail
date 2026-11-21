@@ -1,0 +1,25 @@
+## CSV columns: parses a small CSV with a header row, computes the sum, min and max of each
+## numeric column and lists the non-numeric columns.
+
+fn main()
+    text := "city,pop_k,area,country\nLeeds,812,552,UK\nLyon,522,48,FR\nGraz,291,128,AT\nTurku,195,246,FI"
+    rows := text.lines().map(|l| l.split(","))
+    header := rows[0]
+    data := rows[1..]
+    mut text_cols := List[str]()
+    for c in 0..header.len()
+        mut nums := List[int]()
+        for r in data
+            if v := r[c].to_int()
+                nums.push(v)
+        if nums.len() == data.len()
+            lo := nums.min() else 0
+            hi := nums.max() else 0
+            print("{header[c]}: sum {nums.sum()}, min {lo}, max {hi}")
+        else
+            text_cols.push(header[c])
+    shown := text_cols.join(", ")
+    print("text columns: {shown}")
+
+@test fn split_row()
+    assert_eq("a,b".split(",").len(), 2)

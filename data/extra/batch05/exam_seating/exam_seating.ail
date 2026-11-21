@@ -1,0 +1,29 @@
+## Exam seating: students are seated in a grid so no two from the same class sit side by
+## side, by dealing classes round-robin, and the plan is checked.
+
+fn main()
+    classes := [("A", 7), ("B", 6), ("C", 5), ("D", 2)]
+    mut queue := List[str]()
+    mut left := classes.map(|c| c.1)
+    mut more := true
+    while more
+        more = false
+        for i, c in classes.enumerate()
+            if left[i] > 0
+                left[i] -= 1
+                queue.push("{c.0}{c.1 - left[i]}")
+                more = true
+    cols := 5
+    mut clash := 0
+    mut row := List[str]()
+    for i, s in queue.enumerate()
+        row.push("{s:<3}")
+        if i % cols > 0 and queue[i - 1].slice(0, 1) == s.slice(0, 1)
+            clash += 1
+        if i % cols == cols - 1 or i == queue.len() - 1
+            print(row.join(" ").trim_end())
+            row.clear()
+    print("{queue.len()} seated, {clash} side-by-side clashes")
+
+@test fn first_letter()
+    assert_eq("B3".slice(0, 1), "B")

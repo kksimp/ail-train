@@ -1,0 +1,37 @@
+## Seat reservations: a train coach's seats are reserved over route segments; a request
+## gets the lowest seat free for every segment it covers, or none.
+
+fn block(t bool) str
+    if t
+        return "#"
+    "-"
+
+fn main()
+    stops := ["York", "Leeds", "Wakefield", "Sheffield", "Derby"]
+    seats := 4
+    row := [false for _ in 0..4]
+    mut taken := [row for _ in 0..seats]
+    requests := [("Ana", 0, 4), ("Ben", 0, 2), ("Cat", 1, 3), ("Dan", 2, 4), ("Eli", 0, 1), ("Fin", 1, 4), ("Gil", 3, 4), ("Hao", 0, 3)]
+    for r in requests
+        who, a, b := r
+        mut got := -1
+        for s in 0..seats
+            mut ok := true
+            for seg in a..b
+                if taken[s][seg]
+                    ok = false
+            if ok
+                got = s
+                break
+        if got < 0
+            print("{who} {stops[a]}-{stops[b]}: no seat")
+        else
+            for seg in a..b
+                taken[got][seg] = true
+            print("{who} {stops[a]}-{stops[b]}: seat {got + 1}")
+    for s in 0..seats
+        line := taken[s].map(block).join("")
+        print("seat {s + 1}: {line}")
+
+@test fn segs()
+    assert_eq([i for i in 1..3].len(), 2)

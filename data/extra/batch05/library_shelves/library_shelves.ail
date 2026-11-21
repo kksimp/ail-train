@@ -1,0 +1,38 @@
+## Library shelves: books are shelved by call number into shelves of fixed width in
+## centimetres, starting a new shelf when the next book does not fit.
+
+struct Book
+    call str
+    title str
+    width int
+
+fn main()
+    books := [
+        Book(call: "823.9", title: "Hard Times", width: 4),
+        Book(call: "510.2", title: "Number Sense", width: 3),
+        Book(call: "940.5", title: "The Blitz", width: 6),
+        Book(call: "823.1", title: "Emma", width: 5),
+        Book(call: "599.9", title: "Primates", width: 7),
+        Book(call: "510.9", title: "Geometry Now", width: 2),
+        Book(call: "641.5", title: "Bread", width: 3),
+        Book(call: "823.9", title: "Bleak House", width: 8),
+    ]
+    width := 14
+    ordered := books.sorted(by: |b| (b.call, b.title))
+    mut shelf := 1
+    mut used := 0
+    mut names := List[str]()
+    for b in ordered
+        if used + b.width > width
+            shown := names.join(" | ")
+            print("shelf {shelf} ({used} cm): {shown}")
+            shelf += 1
+            used = 0
+            names.clear()
+        used += b.width
+        names.push("{b.call} {b.title}")
+    shown := names.join(" | ")
+    print("shelf {shelf} ({used} cm): {shown}")
+
+@test fn order()
+    assert("510.2" < "510.9")

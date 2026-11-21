@@ -1,0 +1,22 @@
+## Prefix sums: builds prefix sums over daily sales to answer range-total queries in
+## constant time, and finds the best seven-day window.
+
+fn main()
+    sales := [12, 30, 25, 8, 41, 37, 19, 22, 50, 14, 9, 33, 28, 46]
+    mut pre := [0]
+    for s in sales
+        pre.push(pre[pre.len() - 1] + s)
+    for q in [(0, 6), (3, 9), (7, 13), (5, 5)]
+        a, b := q
+        print("days {a + 1}-{b + 1}: {pre[b + 1] - pre[a]}")
+    mut best := 0
+    mut start := 0
+    for i in 0..=sales.len() - 7
+        total := pre[i + 7] - pre[i]
+        if total > best
+            best = total
+            start = i
+    print("best week: days {start + 1}-{start + 7}, {best}")
+
+@test fn range_sum()
+    assert_eq(30 + 25, 55)

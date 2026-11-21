@@ -1,0 +1,23 @@
+## Cafe tables: parties arrive and are seated at the smallest free table that fits; when
+## none fits they wait, and waiting parties are seated as tables free up.
+
+fn main()
+    tables := [2, 2, 4, 4, 6]
+    mut free_at := [0, 0, 0, 0, 0]
+    parties := [(0, 2, 30), (5, 4, 45), (10, 5, 50), (12, 2, 25), (15, 3, 40), (20, 6, 60), (25, 2, 20), (40, 4, 30)]
+    for p in parties
+        arrive, size, stay := p
+        mut pick := -1
+        mut start := 1000000
+        for i in 0..tables.len()
+            if tables[i] >= size
+                ready := if free_at[i] > arrive then free_at[i] else arrive
+                if ready < start or (ready == start and tables[i] < tables[pick])
+                    start = ready
+                    pick = i
+        free_at[pick] = start + stay
+        wait := start - arrive
+        print("party of {size} at {arrive}: table {pick + 1} (seats {tables[pick]}) at {start}, waited {wait}")
+
+@test fn fits()
+    assert(4 >= 3)

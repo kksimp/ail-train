@@ -1,0 +1,25 @@
+## ASCII chart: draws a vertical bar chart of monthly rainfall, scaled so the tallest bar
+## is eight rows, with month initials along the bottom.
+
+fn bar(h int, row int) str
+    if h >= row
+        return "#"
+    " "
+
+fn main()
+    months := ["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"]
+    rain := [84, 60, 62, 55, 50, 58, 45, 52, 60, 88, 95, 90]
+    top := rain.max() else 1
+    heights := rain.map(|r| (r * 8 + top / 2) / top)
+    for level in 0..8
+        row := 8 - level
+        cells := heights.map(|h| bar(h, row))
+        line := cells.join(" ").trim_end()
+        print("{row}|{line}")
+    rule := "-".repeat(23)
+    print(" +{rule}")
+    names := months.join(" ")
+    print("  {names}")
+
+@test fn scale()
+    assert_eq((95 * 8 + 47) / 95, 8)

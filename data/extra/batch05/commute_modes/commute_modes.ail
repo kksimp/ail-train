@@ -1,0 +1,28 @@
+## Commute modes: compares bike, bus and car for a month of commutes by cost, minutes and
+## CO2, and picks the best mode for each priority.
+
+struct Mode
+    name str
+    cost_per_trip int
+    minutes int
+    co2_g int
+
+fn main()
+    trips := 44
+    modes := [
+        Mode(name: "bike", cost_per_trip: 15, minutes: 28, co2_g: 0),
+        Mode(name: "bus", cost_per_trip: 240, minutes: 35, co2_g: 820),
+        Mode(name: "car", cost_per_trip: 410, minutes: 19, co2_g: 2300),
+    ]
+    for m in modes
+        cost := m.cost_per_trip * trips
+        hours := (m.minutes * trips).to_float() / 60.0
+        co2 := (m.co2_g * trips).to_float() / 1000.0
+        print("{m.name:<5} {cost / 100:>3}.{cost % 100:02} {hours:>5.1} h {co2:>6.1} kg")
+    cheapest := modes.min(by: |m| m.cost_per_trip) else modes[0]
+    fastest := modes.min(by: |m| m.minutes) else modes[0]
+    greenest := modes.min(by: |m| m.co2_g) else modes[0]
+    print("cheapest {cheapest.name}, fastest {fastest.name}, greenest {greenest.name}")
+
+@test fn month()
+    assert_eq(15 * 44, 660)

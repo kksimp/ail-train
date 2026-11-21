@@ -1,0 +1,23 @@
+## Warehouse picks: orders name shelf locations like B3; the picker visits aisles in a
+## snake pattern (odd aisles up, even aisles down) and the pick route is printed.
+
+fn route_key(loc str) (int, int)
+    cs := loc.chars()
+    aisle := cs[0].code() - 64
+    slot := loc.slice(1).to_int() else 0
+    if aisle % 2 == 1
+        return (aisle, slot)
+    (aisle, -slot)
+
+fn main()
+    picks := ["C4", "A2", "B7", "A9", "C1", "B2", "D5", "A5", "D8"]
+    route := picks.sorted(by: |p| route_key(p)).join(" > ")
+    print("route: {route}")
+    mut aisles := Map[str, int]()
+    for p in picks
+        aisles[p.slice(0, 1)] += 1
+    for a in aisles.keys().sorted()
+        print("aisle {a}: {aisles[a]} picks")
+
+@test fn snake()
+    assert(route_key("B7") < route_key("B2"))

@@ -1,0 +1,5 @@
+2 3 add print => 5
+4 dup mul print 1 sub print => 16 15
+1 2 swap sub print => 1
+5 add => error: add needs two values
+3 4 pow => error: unknown word pow

@@ -1,0 +1,29 @@
+## Matrix rotate: rotates a square grid of letters 90 degrees clockwise, 180 and 270, and
+## checks that four rotations give back the original.
+
+fn rotate(g List[List[char]]) List[List[char]]
+    n := g.len()
+    mut out := List[List[char]]()
+    for r in 0..n
+        mut row := List[char]()
+        for c in 0..n
+            row.push(g[n - 1 - c][r])
+        out.push(row)
+    out
+
+fn show(g List[List[char]])
+    for row in g
+        print(row.join(""))
+
+fn main()
+    start := ["abc", "def", "ghi"].map(|s| s.chars())
+    mut g := start
+    for turn in 1..=4
+        g = rotate(g)
+        if turn < 4
+            print("after {turn * 90}:")
+            show(g)
+    print("back to start: {g == start}")
+
+@test fn one()
+    assert_eq(rotate([['a', 'b'], ['c', 'd']]), [['c', 'a'], ['d', 'b']])

@@ -1,0 +1,10 @@
+food -12500: ok, 27500 left
+fun -4500: ok, 3500 left
+transport -6000: ok, 6000 left
+fun -5200: short 1700, buffer now 8300
+food -30100: short 2600, buffer now 5700
+transport -7000: short 1000, buffer now 4700
+food: 0.00
+transport: 0.00
+fun: 0.00
+buffer: 47.00

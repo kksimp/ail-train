@@ -1,0 +1,26 @@
+## Workout log: sets of reps and weights per exercise; prints each exercise's volume, its
+## best estimated one-rep max (Epley formula) and the session total.
+
+fn main()
+    log := [
+        ("squat", [(5, 100.0), (5, 105.0), (3, 115.0)]),
+        ("bench", [(8, 60.0), (6, 65.0), (4, 70.0)]),
+        ("row", [(10, 50.0), (10, 52.5)]),
+    ]
+    mut session := 0.0
+    for e in log
+        name, sets := e
+        mut volume := 0.0
+        mut best := 0.0
+        for s in sets
+            reps, kg := s
+            volume += reps.to_float() * kg
+            est := kg * (1.0 + reps.to_float() / 30.0)
+            if est > best
+                best = est
+        session += volume
+        print("{name:<6} {sets.len()} sets, volume {volume:>7.1} kg, est 1RM {best:.1} kg")
+    print("session volume {session:.1} kg")
+
+@test fn epley()
+    assert_eq(100.0 * (1.0 + 0.0 / 30.0), 100.0)

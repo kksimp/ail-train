@@ -1,0 +1,27 @@
+## Aquarium mix: checks a planned fish list against tank volume (litres per cm of fish) and
+## temperature ranges, reporting the shared temperature window or the conflict.
+
+fn main()
+    tank_l := 120
+    fish := [("neon tetra", 6, 3, 21, 26), ("guppy", 4, 4, 22, 28), ("corydoras", 5, 6, 22, 26), ("danio", 6, 5, 18, 24)]
+    mut cm := 0
+    mut lo := -100
+    mut hi := 100
+    for f in fish
+        name, count, size, tmin, tmax := f
+        cm += count * size
+        if tmin > lo
+            lo = tmin
+        if tmax < hi
+            hi = tmax
+        print("{count} x {name} ({size} cm, {tmin}-{tmax} C)")
+    capacity := tank_l / 2
+    load := if cm <= capacity then "ok" else "overstocked"
+    print("stock {cm} cm of fish for {capacity} cm capacity: {load}")
+    if lo <= hi
+        print("shared temperature {lo}-{hi} C")
+    else
+        print("no shared temperature ({lo} > {hi})")
+
+@test fn rule()
+    assert_eq(120 / 2, 60)

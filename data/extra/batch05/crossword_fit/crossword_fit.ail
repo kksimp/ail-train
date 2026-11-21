@@ -1,0 +1,22 @@
+## Crossword fit: matches words against patterns with known letters and dots for blanks,
+## listing every dictionary word that fits each pattern.
+
+fn fits(pattern str, w str) bool
+    ps := pattern.chars()
+    ws := w.chars()
+    if ps.len() != ws.len()
+        return false
+    for i in 0..ps.len()
+        if ps[i] != '.' and ps[i] != ws[i]
+            return false
+    true
+
+fn main()
+    words := ["cat", "cot", "cut", "cart", "coat", "colt", "dolt", "melt", "mint", "most", "cast", "cost"]
+    for p in ["c.t", "co.t", "..lt", "c.st", "m..t", "x.."]
+        hits := words.filter(|w| fits(p, w))
+        shown := if hits.is_empty() then "-" else hits.join(" ")
+        print("{p}: {shown}")
+
+@test fn blank()
+    assert(fits("a.c", "abc"))

@@ -1,0 +1,24 @@
+## Pet ages: converts dog and cat ages to human years with species-specific rules and
+## prints a table sorted by human age, then by name.
+
+fn human_years(kind str, age int) int
+    if age == 0
+        return 0
+    if age == 1
+        return 15
+    if age == 2
+        return 24
+    if kind == "dog"
+        return 24 + (age - 2) * 5
+    24 + (age - 2) * 4
+
+fn main()
+    pets := [("Rex", "dog", 7), ("Mog", "cat", 12), ("Bea", "dog", 2), ("Tib", "cat", 4), ("Odie", "dog", 11), ("Zaz", "cat", 1)]
+    table := pets.map(|p| (p.0, p.1, p.2, human_years(p.1, p.2))).sorted(by: |p| (-p.3, p.0))
+    for p in table
+        print("{p.0:<5} {p.1:<4} {p.2:>2} -> {p.3:>3}")
+    oldest := table[0]
+    print("oldest in human years: {oldest.0}")
+
+@test fn puppy()
+    assert_eq(human_years("dog", 1), 15)

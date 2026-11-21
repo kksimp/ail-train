@@ -1,0 +1,36 @@
+## Order status: an enum of order states with allowed transitions; a list of events is
+## applied to orders and illegal moves are reported.
+
+enum State
+    Placed
+    Paid
+    Shipped
+    Delivered
+    Cancelled
+
+fn step(s State, ev str) State?
+    if s == State.Placed and ev == "pay"
+        return State.Paid
+    if (s == State.Placed or s == State.Paid) and ev == "cancel"
+        return State.Cancelled
+    if s == State.Paid and ev == "ship"
+        return State.Shipped
+    if s == State.Shipped and ev == "deliver"
+        return State.Delivered
+    none
+
+fn main()
+    mut orders := {"A100": State.Placed, "A101": State.Placed, "A102": State.Placed}
+    events := [("A100", "pay"), ("A101", "ship"), ("A100", "ship"), ("A102", "cancel"), ("A101", "pay"), ("A102", "pay"), ("A100", "deliver"), ("A101", "cancel")]
+    for e in events
+        id, ev := e
+        if next_state := step(orders[id], ev)
+            orders[id] = next_state
+            print("{id} {ev}: now {next_state}")
+        else
+            print("{id} {ev}: not allowed from {orders[id]}")
+    for id in ["A100", "A101", "A102"]
+        print("{id}: {orders[id]}")
+
+@test fn cancel_paid()
+    assert_eq(step(State.Paid, "cancel") else State.Placed, State.Cancelled)

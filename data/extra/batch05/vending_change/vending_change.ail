@@ -1,0 +1,31 @@
+## Vending change: a machine with a limited coin stock gives change greedily from the
+## largest coin, refusing a sale when exact change is impossible.
+
+fn main()
+    coins := [200, 100, 50, 20, 10, 5]
+    mut stock := {200: 1, 100: 2, 50: 1, 20: 3, 10: 2, 5: 4}
+    sales := [(150, 500), (85, 100), (65, 200), (120, 200), (35, 100), (45, 50)]
+    for s in sales
+        price, paid := s
+        mut due := paid - price
+        mut given := List[(int, int)]()
+        mut trial := stock
+        for c in coins
+            mut n := 0
+            while due >= c and trial[c] > 0
+                due -= c
+                trial[c] -= 1
+                n += 1
+            if n > 0
+                given.push((c, n))
+        if due == 0
+            stock = trial
+            shown := given.map(|g| "{g.1}x{g.0}").join(" ")
+            print("price {price} paid {paid}: change {paid - price} = {shown}")
+        else
+            print("price {price} paid {paid}: no exact change, refused")
+    left := coins.map(|c| "{c}:{stock[c]}").join(" ")
+    print("stock {left}")
+
+@test fn greedy()
+    assert_eq(350 / 200, 1)

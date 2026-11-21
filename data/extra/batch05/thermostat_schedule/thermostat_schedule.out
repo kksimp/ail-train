@@ -1,0 +1,9 @@
+00:00 target 15.0 heat off room 14.5
+03:00 target 15.0 heat off room 15.0
+06:00 target 20.0 heat on  room 17.5
+09:00 target 16.0 heat off room 20.0
+12:00 target 16.0 heat off room 18.5
+15:00 target 16.0 heat off room 17.0
+18:00 target 21.0 heat on  room 19.5
+21:00 target 21.0 heat on  room 22.0
+heating ran 9 hours

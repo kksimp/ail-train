@@ -1,0 +1,24 @@
+## Tide table: models the tide height as a cosine with a 12.42-hour period, prints the height
+## every two hours over a day, and finds when the water is above 2.5 metres.
+
+fn height(hour float) float
+    mean := 2.0
+    swing := 1.6
+    period := 12.42
+    mean + swing * (2.0 * 3.141592653589793 * hour / period).cos()
+
+fn main()
+    for h in 0..13
+        hour := (h * 2).to_float()
+        ht := height(hour)
+        bars := (ht * 5.0).round().to_int()
+        bar := "#".repeat(bars)
+        print("{h * 2:>2}:00 {ht:.2} m {bar}")
+    mut above := 0
+    for m in 0..(24 * 60)
+        if height(m.to_float() / 60.0) > 2.5
+            above += 1
+    print("above 2.5 m for {above / 60}h {above % 60}m")
+
+@test fn high_at_zero()
+    assert(height(0.0) > 3.5)

@@ -1,0 +1,20 @@
+## Checkout queue: customers arrive at given minutes with given service times at a single
+## till; prints each customer's wait and the average and longest wait.
+
+fn main()
+    customers := [(0, 4), (1, 3), (2, 6), (8, 2), (9, 5), (10, 1), (18, 3), (20, 2)]
+    mut free_at := 0
+    mut waits := List[int]()
+    for i, c in customers.enumerate()
+        arrive, service := c
+        start := if arrive > free_at then arrive else free_at
+        wait := start - arrive
+        waits.push(wait)
+        free_at = start + service
+        print("customer {i + 1}: arrives {arrive}, starts {start}, waits {wait}")
+    mean := waits.sum().to_float() / waits.len().to_float()
+    longest := waits.max() else 0
+    print("average wait {mean:.2}, longest {longest}, till free at {free_at}")
+
+@test fn no_wait()
+    assert_eq([0, 0].sum(), 0)

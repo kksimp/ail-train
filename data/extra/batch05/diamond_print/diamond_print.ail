@@ -1,0 +1,28 @@
+## Diamond print: draws letter diamonds from A up to a given letter, with the right inner
+## and outer spacing, for C and E.
+
+fn diamond(top char) List[str]
+    n := top.code() - 65
+    mut rows := List[str]()
+    for i in 0..=n
+        c := char.from_code(65 + i) else 'A'
+        outer := " ".repeat(n - i)
+        if i == 0
+            rows.push("{outer}{c}{outer}")
+        else
+            inner := " ".repeat(2 * i - 1)
+            rows.push("{outer}{c}{inner}{c}{outer}")
+    mut i := n - 1
+    while i >= 0
+        rows.push(rows[i])
+        i -= 1
+    rows
+
+fn main()
+    for top in ['C', 'E']
+        for r in diamond(top)
+            print("|{r}|")
+        print("")
+
+@test fn single()
+    assert_eq(diamond('A'), ["A"])

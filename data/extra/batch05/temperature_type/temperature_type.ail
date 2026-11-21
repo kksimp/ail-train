@@ -1,0 +1,32 @@
+## Temperature type: Celsius and Fahrenheit as distinct structs with conversions and an
+## Add impl for Celsius, used to average a week of readings.
+
+struct Celsius
+    deg float
+
+struct Fahrenheit
+    deg float
+
+impl Add for Celsius
+    fn add(self, o Celsius) Celsius
+        Celsius(deg: self.deg + o.deg)
+
+fn to_f(c Celsius) Fahrenheit
+    Fahrenheit(deg: c.deg * 9.0 / 5.0 + 32.0)
+
+fn to_c(f Fahrenheit) Celsius
+    Celsius(deg: (f.deg - 32.0) * 5.0 / 9.0)
+
+fn main()
+    week := [Celsius(deg: 12.5), Celsius(deg: 14.0), Celsius(deg: 9.5), to_c(Fahrenheit(deg: 59.0)), Celsius(deg: 17.0), to_c(Fahrenheit(deg: 50.0)), Celsius(deg: 11.0)]
+    mut sum := Celsius(deg: 0.0)
+    for c in week
+        sum = sum + c
+        f := to_f(c)
+        print("{c.deg:>5.1}C = {f.deg:>5.1}F")
+    mean := sum.deg / week.len().to_float()
+    mf := to_f(Celsius(deg: mean)).deg
+    print("mean {mean:.2}C ({mf:.2}F)")
+
+@test fn freezing()
+    assert_eq(to_f(Celsius(deg: 0.0)).deg, 32.0)

@@ -1,0 +1,35 @@
+## Course order: courses with prerequisites are ordered with Kahn's algorithm, always taking
+## the alphabetically first ready course, and a cycle is detected in a second catalogue.
+
+fn order(prereqs List[(str, str)], courses List[str]) List[str]?
+    mut indeg := Map[str, int]()
+    for c in courses
+        indeg[c] = 0
+    for p in prereqs
+        indeg[p.1] += 1
+    mut done := List[str]()
+    while done.len() < courses.len()
+        ready := courses.filter(|c| indeg[c] == 0 and not done.contains(c)).sorted()
+        if ready.is_empty()
+            return none
+        pick := ready[0]
+        done.push(pick)
+        for p in prereqs
+            if p.0 == pick
+                indeg[p.1] -= 1
+    done
+
+fn main()
+    courses := ["algebra", "calculus", "physics", "stats", "mechanics", "intro"]
+    reqs := [("intro", "algebra"), ("algebra", "calculus"), ("calculus", "mechanics"), ("physics", "mechanics"), ("algebra", "stats"), ("intro", "physics")]
+    if o := order(reqs, courses)
+        print(o.join(" -> "))
+    loop_reqs := [("a", "b"), ("b", "c"), ("c", "a")]
+    if o := order(loop_reqs, ["a", "b", "c", "d"])
+        print(o.join(" -> "))
+    else
+        print("cycle: no valid order")
+
+@test fn simple()
+    o := order([("x", "y")], ["y", "x"]) else []
+    assert_eq(o, ["x", "y"])

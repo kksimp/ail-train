@@ -1,0 +1,29 @@
+## Thermostat schedule: a weekday heating schedule of (hour, target) changes; simulates a
+## room that warms 1.5 degrees an hour when heating and cools 0.5 otherwise.
+
+fn target_at(schedule List[(int, float)], hour int) float
+    mut t := schedule[0].1
+    for s in schedule
+        if hour >= s.0
+            t = s.1
+    t
+
+fn main()
+    schedule := [(0, 15.0), (6, 20.0), (9, 16.0), (17, 21.0), (22, 15.0)]
+    mut temp := 15.0
+    mut heating_hours := 0
+    for h in 0..24
+        target := target_at(schedule, h)
+        heating := temp < target
+        if heating
+            temp += 1.5
+            heating_hours += 1
+        else
+            temp -= 0.5
+        if h % 3 == 0
+            state := if heating then "on" else "off"
+            print("{h:02}:00 target {target:.1} heat {state:<3} room {temp:.1}")
+    print("heating ran {heating_hours} hours")
+
+@test fn early()
+    assert_eq(target_at([(0, 15.0), (6, 20.0)], 5), 15.0)

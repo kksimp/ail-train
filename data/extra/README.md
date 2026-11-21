@@ -29,10 +29,13 @@ everyday forms with less common built-ins. Each batch is checked on the Mac befo
   struct methods. The 4 failures were a struct named `Task` (a prelude type), an enum interpolated as its bare
   variant (AIL prints `Priority.Urgent`), a literal `{` in a string (write `\{`) and `parse_int` (it is `to_int`).
   All 100 pass.
+- `batch05/`: 100 programs, checked in steps of 20, 40, 60, 80 and 100: traits, generic structs, `Ord` from
+  fields, sets, error results and everyday simulations. The 1 failure was a `str ! str` function (AIL can't tell
+  the result from the error; use `str ! Fail`). All 100 pass.
 
 ## Status
 
-**Checked: 440 of 440 pass** (40 drills, 100 each in batch01 to batch04) with ail 3d0c5c913 (0.2.0 release candidate) on 2026-11-21 (`RESULTS.txt`). On the drills' first
+**Checked: 540 of 540 pass** (40 drills, 100 each in batch01 to batch05) with ail 3d0c5c913 (0.2.0 release candidate) on 2026-11-21 (`RESULTS.txt`). On the drills' first
 run 34 passed; 6 were fixed (four AIL forms guessed wrong: `str ! str`, calling a `fn` field as a method,
 `Grid.to_list().sum()` on rows, an `if :=` on a failing result with no `else`; two Python twins were wrong).
 These were written in a cloud session, where AIL builds are not allowed.

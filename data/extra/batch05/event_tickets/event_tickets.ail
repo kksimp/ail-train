@@ -1,0 +1,33 @@
+## Event tickets: ticket tiers sell out in order (early bird, standard, late); each order
+## takes from the cheapest tier with stock and may span tiers.
+
+fn main()
+    mut tiers := [("early", 2500, 5), ("standard", 3500, 8), ("late", 4500, 6)]
+    orders := [("Ola", 3), ("Pat", 4), ("Quin", 2), ("Raj", 6), ("Sue", 5), ("Tom", 2)]
+    mut revenue := 0
+    for o in orders
+        who, want := o
+        mut need := want
+        mut parts := List[str]()
+        mut cost := 0
+        for i in 0..tiers.len()
+            name, price, left := tiers[i]
+            if need == 0 or left == 0
+                continue
+            take := if need < left then need else left
+            tiers[i] = (name, price, left - take)
+            need -= take
+            cost += take * price
+            parts.push("{take} {name}")
+        revenue += cost
+        shown := parts.join(" + ")
+        if parts.is_empty()
+            print("{who}: sold out")
+        elif need > 0
+            print("{who}: {shown}, {need} short, pays {cost / 100}")
+        else
+            print("{who}: {shown}, pays {cost / 100}")
+    print("revenue {revenue / 100}")
+
+@test fn take()
+    assert_eq(3 * 2500, 7500)

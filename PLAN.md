@@ -79,7 +79,7 @@ expected output must reproduce it. The builder drops failures and reports counts
 | Doc snippets | `ail` blocks in kksimp/ail `docs/` (checked by `tools/check-doc-snippets.py`) | hundreds | `complete` |
 | Explain texts | `ail explain RULE` for every rule ID | a few hundred | `explain` (diagnostic -> cause and fix) |
 | Drill programs with Python twins | this repo `data/extra/drills/NAME/{NAME.ail,NAME.py,NAME.out}` | 40 programs, ~56 KB AIL | `write`, `port`, `complete`; each targets built-in methods the corpus uses under five times and the top draft mistakes (see `data/extra/README.md`) |
-| D11 batches with Python twins | this repo `data/extra/batchNN/NAME/{NAME.ail,NAME.py,NAME.out}` | 400 programs so far (batch01 to batch04), growing to ~2,570 | `write`, `port`, `complete` |
+| D11 batches with Python twins | this repo `data/extra/batchNN/NAME/{NAME.ail,NAME.py,NAME.out}` | 500 programs so far (batch01 to batch05), growing to ~2,570 | `write`, `port`, `complete` |
 | Future public corpus | planned after 0.2 in kksimp/ail | - | same families; retrain when it lands |
 
 The agent programs are agent-written and correct by the benchmark's hidden cases, so they teach the shape of real
