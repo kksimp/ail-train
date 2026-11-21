@@ -1,0 +1,9 @@
+x = 0.0: f = 0.0000, f' by duals 2.0000, by the quotient rule 2.0000
+x = 1.0: f = 1.5000, f' by duals 1.7500, by the quotient rule 1.7500
+x = 2.5: f = 5.8929, f' by duals 4.2449, by the quotient rule 4.2449
+x = -3.0: f = 16.5000, f' by duals -6.2500, by the quotient rule -6.2500
+Newton step 1 on x^3 - 2x - 5: x = 2.1000000000
+Newton step 2 on x^3 - 2x - 5: x = 2.0945681211
+Newton step 3 on x^3 - 2x - 5: x = 2.0945514817
+Newton step 4 on x^3 - 2x - 5: x = 2.0945514815
+Newton step 5 on x^3 - 2x - 5: x = 2.0945514815

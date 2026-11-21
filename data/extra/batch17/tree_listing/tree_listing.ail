@@ -1,0 +1,37 @@
+## Tree listing: draws file paths as a directory tree like the tree command, with branch and corner
+## connectors and a vertical bar carried down for folders that have more entries below; ends with the counts.
+
+fn children(paths List[str], dir str) List[str]
+    mut seen := Set[str]()
+    for p in paths
+        if rest := p.strip_prefix(dir)
+            seen.add(rest.split("/")[0])
+    seen.sorted()
+
+fn is_dir(paths List[str], full str) bool
+    paths.any(|p| p.starts_with("{full}/"))
+
+fn draw(paths List[str], dir str, indent str, mut counts List[int])
+    kids := children(paths, dir)
+    for i, k in kids.enumerate()
+        last := i == kids.len() - 1
+        joint := if last then "└── " else "├── "
+        full := "{dir}{k}"
+        if is_dir(paths, full)
+            counts[0] += 1
+            print("{indent}{joint}{k}/")
+            more := if last then "    " else "│   "
+            draw(paths, "{full}/", "{indent}{more}", mut counts)
+        else
+            counts[1] += 1
+            print("{indent}{joint}{k}")
+
+fn main()
+    paths := ["src/main.ail", "src/parse/lexer.ail", "src/parse/tokens.ail", "README.md", "docs/guide.md", "src/util.ail", "tests/lexer_test.ail", "docs/img/logo.png"]
+    mut counts := [0, 0]
+    print(".")
+    draw(paths, "", "", mut counts)
+    print("{counts[0]} directories, {counts[1]} files")
+
+@test fn top_level()
+    assert_eq(children(["a/x", "b", "a/y"], ""), ["a", "b"])

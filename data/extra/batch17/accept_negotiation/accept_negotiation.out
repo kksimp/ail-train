@@ -1,0 +1,6 @@
+text/html;q=0.9, application/json, */*;q=0.1   -> application/json (q=1000)
+text/*;q=0.5, text/csv;q=0.8                   -> text/csv (q=800)
+image/png, image/*;q=0.5                       -> 406 Not Acceptable
+*/*                                            -> application/json (q=1000)
+application/xml, text/html;q=0                 -> 406 Not Acceptable
+text/*, text/html;q=0                          -> text/csv (q=1000)

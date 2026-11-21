@@ -1,0 +1,26 @@
+## Title sort keys: library catalogues file titles without their leading article (The, A, Le, La, Les,
+## Der, Die, Das, El, and L' joined to the word), lower-cased and stripped of punctuation, so "The Hobbit" files under h.
+
+fn sort_key(title str) str
+    articles := ["the ", "a ", "an ", "le ", "la ", "les ", "der ", "die ", "das ", "el "]
+    mut t := title.to_lower()
+    for a in articles
+        if rest := t.strip_prefix(a)
+            t = rest
+            break
+    if rest := t.strip_prefix("l'")
+        t = rest
+    kept := t.chars().filter(|c| not "\"'.,:;!?".contains(c))
+    kept.join("").trim()
+
+fn main()
+    titles := ["The Hobbit", "A Tale of Two Cities", "Le Petit Prince", "L'Avare", "Die Verwandlung", "Anna Karenina", "\"Ulysses\"", "El Aleph", "Les Miserables", "Animal Farm", "Das Kapital", "1984"]
+    ordered := titles.sorted(by: |t| sort_key(t))
+    for t in ordered
+        print("{sort_key(t):<22} {t}")
+    moved := titles.count(|t| not t.to_lower().starts_with(sort_key(t).slice(0, 3)))
+    print("{moved} titles have a key that differs from how they start")
+
+@test fn articles()
+    assert_eq(sort_key("The Hobbit"), "hobbit")
+    assert_eq(sort_key("Anna Karenina"), "anna karenina")

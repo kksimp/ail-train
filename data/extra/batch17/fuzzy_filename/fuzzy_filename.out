@@ -1,0 +1,5 @@
+main  src/main.ail (13), tests/main_test.ail (13), src/lexer/main_loop.ail (13)
+mk    Makefile (5), scripts/make_release.sh (5)
+pmod  src/parser/mod.ail (14)
+tst   tests/main_test.ail (8)
+zz    no match

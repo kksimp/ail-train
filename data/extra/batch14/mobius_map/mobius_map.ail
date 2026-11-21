@@ -1,0 +1,65 @@
+## Mobius transformations: z -> (az + b) / (cz + d) as 2x2 complex matrices, so composing maps is a
+## matrix product; the Cayley map (z - i) / (z + i) folds the upper half plane into the unit disc.
+
+struct Cx
+    re float
+    im float
+
+fn mul(a Cx, b Cx) Cx
+    Cx(re: a.re * b.re - a.im * b.im, im: a.re * b.im + a.im * b.re)
+
+fn add(a Cx, b Cx) Cx
+    Cx(re: a.re + b.re, im: a.im + b.im)
+
+fn sub(a Cx, b Cx) Cx
+    Cx(re: a.re - b.re, im: a.im - b.im)
+
+fn div(a Cx, b Cx) Cx
+    d := b.re * b.re + b.im * b.im
+    Cx(re: (a.re * b.re + a.im * b.im) / d, im: (a.im * b.re - a.re * b.im) / d)
+
+fn apply(m List[Cx], z Cx) Cx
+    div(add(mul(m[0], z), m[1]), add(mul(m[2], z), m[3]))
+
+fn compose(f List[Cx], g List[Cx]) List[Cx]
+    [add(mul(f[0], g[0]), mul(f[1], g[2])), add(mul(f[0], g[1]), mul(f[1], g[3])), add(mul(f[2], g[0]), mul(f[3], g[2])), add(mul(f[2], g[1]), mul(f[3], g[3]))]
+
+fn tidy(v float) float
+    if v.abs() < 0.00005 then 0.0 else v
+
+fn text(z Cx) str
+    r := tidy(z.re)
+    i := tidy(z.im)
+    if i < 0.0
+        mag := -i
+        return "{r:.4} - {mag:.4}i"
+    "{r:.4} + {i:.4}i"
+
+fn cross(a Cx, b Cx, c Cx, d Cx) Cx
+    div(mul(sub(a, c), sub(b, d)), mul(sub(a, d), sub(b, c)))
+
+fn main()
+    one := Cx(re: 1.0, im: 0.0)
+    zero := Cx(re: 0.0, im: 0.0)
+    i := Cx(re: 0.0, im: 1.0)
+    cayley := [one, Cx(re: 0.0, im: -1.0), one, i]
+    pts := [i, zero, one, Cx(re: 0.0, im: 2.0), Cx(re: -3.0, im: 0.5)]
+    for z in pts
+        w := apply(cayley, z)
+        size := (w.re * w.re + w.im * w.im).sqrt()
+        print("{text(z)} -> {text(w)}, distance from centre {size:.4}")
+    shift := [one, Cx(re: 2.0, im: 0.0), zero, one]
+    both := compose(cayley, shift)
+    z := Cx(re: 1.0, im: 1.0)
+    print("Cayley after shift by 2, as one matrix: {text(apply(both, z))}, step by step: {text(apply(cayley, apply(shift, z)))}")
+    a := Cx(re: 2.0, im: 1.0)
+    b := Cx(re: -1.0, im: 3.0)
+    c := Cx(re: 0.5, im: 0.5)
+    d := Cx(re: 4.0, im: 2.0)
+    before := cross(a, b, c, d)
+    after := cross(apply(cayley, a), apply(cayley, b), apply(cayley, c), apply(cayley, d))
+    print("cross ratio before {text(before)}, after {text(after)}")
+
+@test fn fixes_zero()
+    m := [Cx(re: 2.0, im: 0.0), Cx(re: 0.0, im: 0.0), Cx(re: 0.0, im: 0.0), Cx(re: 1.0, im: 0.0)]
+    assert_eq(apply(m, Cx(re: 0.0, im: 0.0)).re, 0.0)

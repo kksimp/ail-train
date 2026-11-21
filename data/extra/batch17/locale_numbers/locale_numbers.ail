@@ -1,0 +1,45 @@
+## Locale numbers: formats money given in cents the way each locale writes it: the group separator
+## (comma, dot, space, apostrophe), the decimal mark, the number of decimals and where the currency symbol goes.
+
+struct Locale
+    tag str
+    group str
+    decimal str
+    places int
+    symbol str
+    before bool
+
+fn grouped(n int, sep str) str
+    digits := "{n}"
+    mut parts := List[str]()
+    mut end := digits.len()
+    while end > 3
+        parts.insert(0, digits.slice(end - 3, end))
+        end -= 3
+    parts.insert(0, digits.slice(0, end))
+    parts.join(sep)
+
+fn money(cents int, loc Locale) str
+    neg := cents < 0
+    a := cents.abs()
+    mut body := ""
+    if loc.places == 0
+        body = grouped((a + 50) / 100, loc.group)
+    else
+        body = "{grouped(a / 100, loc.group)}{loc.decimal}{a % 100:02}"
+    sign := if neg then "-" else ""
+    if loc.before
+        return "{sign}{loc.symbol}{body}"
+    "{sign}{body} {loc.symbol}"
+
+fn main()
+    locales := [Locale(tag: "en-US", group: ",", decimal: ".", places: 2, symbol: "$", before: true), Locale(tag: "de-DE", group: ".", decimal: ",", places: 2, symbol: "€", before: false), Locale(tag: "fr-FR", group: " ", decimal: ",", places: 2, symbol: "€", before: false), Locale(tag: "de-CH", group: "'", decimal: ".", places: 2, symbol: "CHF ", before: true), Locale(tag: "ja-JP", group: ",", decimal: ".", places: 0, symbol: "¥", before: true)]
+    amounts := [123456789, 99, -450075, 100000]
+    for loc in locales
+        cells := amounts.map(|c| money(c, loc))
+        shown := cells.map(|c| c.pad_left(17, ' ')).join("")
+        print("{loc.tag}{shown}")
+
+@test fn groups_of_three()
+    assert_eq(grouped(1234567, ","), "1,234,567")
+    assert_eq(grouped(999, ","), "999")

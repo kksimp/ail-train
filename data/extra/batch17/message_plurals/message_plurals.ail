@@ -1,0 +1,47 @@
+## Plural messages: languages pick a plural form by different rules (English one/other, French counts 0
+## as one, Russian and Polish use one/few/many from the last one or two digits), so "N files" needs a rule per language.
+
+enum Form
+    One
+    Few
+    Many
+    Other
+
+fn form_of(lang str, n int) Form
+    last := n % 10
+    last2 := n % 100
+    few := last >= 2 and last <= 4 and (last2 < 12 or last2 > 14)
+    match lang
+        "en" => if n == 1 then Form.One else Form.Other
+        "fr" => if n <= 1 then Form.One else Form.Other
+        "ru" => if last == 1 and last2 != 11 then Form.One elif few then Form.Few else Form.Many
+        "pl" => if n == 1 then Form.One elif few then Form.Few else Form.Many
+        _ => Form.Other
+
+fn word(lang str, f Form) str
+    words := match lang
+        "en" => ["file", "files", "files"]
+        "fr" => ["fichier", "fichiers", "fichiers"]
+        "ru" => ["файл", "файла", "файлов"]
+        _ => ["plik", "pliki", "plików"]
+    match f
+        One => words[0]
+        Few => words[1]
+        Many => words[2]
+        Other => words[1]
+
+fn main()
+    for n in [0, 1, 2, 5, 11, 21, 22, 112]
+        mut parts := List[str]()
+        for lang in ["en", "fr", "ru", "pl"]
+            w := word(lang, form_of(lang, n))
+            cell := "{n} {w}"
+            parts.push(cell.pad_right(14, ' '))
+        print(parts.join("").trim_end())
+    ru := form_of("ru", 21)
+    pl := form_of("pl", 21)
+    print("ru 21 is {ru.name()}, pl 21 is {pl.name()}")
+
+@test fn russian_teens()
+    assert_eq(form_of("ru", 12), Form.Many)
+    assert_eq(form_of("ru", 23), Form.Few)

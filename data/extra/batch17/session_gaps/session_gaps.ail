@@ -1,0 +1,35 @@
+## Session gaps: click events are grouped per user into sessions, starting a new session whenever
+## more than 30 minutes pass since that user's previous event; prints each session's span and the averages.
+
+fn split_sessions(ts List[int], gap int) List[List[int]]
+    mut out := List[List[int]]()
+    mut start := ts[0]
+    mut prev := ts[0]
+    for t in ts.slice(1)
+        if t - prev > gap
+            out.push([start, prev])
+            start = t
+        prev = t
+    out.push([start, prev])
+    out
+
+fn main()
+    events := [("ana", 0), ("ben", 3), ("ana", 5), ("ana", 12), ("ben", 20), ("cy", 22), ("ana", 50), ("ben", 51), ("ben", 70), ("ana", 95), ("cy", 100), ("ana", 110), ("ana", 130), ("cy", 131), ("ben", 200)]
+    mut times := Map[str, List[int]]()
+    for ev in events
+        who, t := ev
+        times.push(who, t)
+    mut total := 0
+    mut minutes := 0
+    for who, ts in times
+        sessions := split_sessions(ts, 30)
+        spans := sessions.map(|s| "{s[0]}-{s[1]}").join(", ")
+        print("{who:<4} {sessions.len()} sessions: {spans}")
+        total += sessions.len()
+        for s in sessions
+            minutes += s[1] - s[0]
+    avg := minutes.to_float() / total.to_float()
+    print("{total} sessions, average length {avg:.1} minutes")
+
+@test fn gap_splits()
+    assert_eq(split_sessions([0, 10, 41, 50], 30).len(), 2)

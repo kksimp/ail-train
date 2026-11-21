@@ -1,0 +1,37 @@
+## Postcode formats: each code is upper-cased and stripped of spaces and dashes, reduced to a shape of
+## A (letter) and 9 (digit), checked against the shapes allowed in its country, and printed in that country's layout.
+
+fn shape_char(c char) char
+    if c.is_digit() then '9' elif c.is_alpha() then 'A' else '?'
+
+fn shape(s str) str
+    s.chars().map(|c| shape_char(c)).join("")
+
+fn format_code(country str, raw str) str
+    s := raw.to_upper().replace(" ", "").replace("-", "")
+    sh := shape(s)
+    match country
+        "UK" =>
+            ok := ["A99AA", "A999AA", "AA99AA", "AA999AA", "A9A9AA", "AA9A9AA"].contains(sh)
+            if ok then "{s.slice(0, s.len() - 3)} {s.slice(s.len() - 3)}" else "invalid"
+        "US" =>
+            if sh == "99999" then s elif sh == "999999999" then "{s.slice(0, 5)}-{s.slice(5)}" else "invalid"
+        "CA" =>
+            if sh == "A9A9A9" then "{s.slice(0, 3)} {s.slice(3)}" else "invalid"
+        "NL" =>
+            if sh == "9999AA" and not s.starts_with("0") then "{s.slice(0, 4)} {s.slice(4)}" else "invalid"
+        _ => "unknown country"
+
+fn main()
+    codes := [("UK", "sw1a1aa"), ("UK", "M1 1AE"), ("UK", "EC1A 1BB"), ("UK", "12345"), ("US", "90210"), ("US", "10001-0001"), ("US", "9021"), ("CA", "k1a0b1"), ("CA", "K1A-0B"), ("NL", "1012ab"), ("NL", "0123 AB"), ("FR", "75001")]
+    mut good := 0
+    for c in codes
+        country, raw := c
+        out := format_code(country, raw)
+        if out != "invalid" and out != "unknown country"
+            good += 1
+        print("{country} {raw:<11} -> {out}")
+    print("{good} of {codes.len()} valid")
+
+@test fn shapes()
+    assert_eq(shape("SW1A1AA"), "AA9A9AA")

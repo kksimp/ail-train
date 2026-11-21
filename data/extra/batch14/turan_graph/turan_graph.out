@@ -1,0 +1,12 @@
+  n  no triangle  no K4  no K5
+  3            2      3      3
+  4            4      5      6
+  5            6      8      9
+  6            9     12     13
+  7           12     16     18
+  8           16     21     24
+  9           20     27     30
+ 10           25     33     37
+brute force n = 4: 4 edges, Mantel n*n/4 = 4
+brute force n = 5: 6 edges, Mantel n*n/4 = 6
+brute force n = 6: 9 edges, Mantel n*n/4 = 9

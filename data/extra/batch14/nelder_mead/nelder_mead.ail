@@ -1,0 +1,40 @@
+## Nelder-Mead: a triangle of guesses crawls downhill on Rosenbrock's banana valley by reflecting its
+## worst corner through the others, stretching, shrinking or contracting; no derivatives are needed.
+
+fn rosen(p List[float]) float
+    a := 1.0 - p[0]
+    b := p[1] - p[0] * p[0]
+    a * a + 100.0 * b * b
+
+fn towards(a List[float], b List[float], t float) List[float]
+    [a[0] + t * (b[0] - a[0]), a[1] + t * (b[1] - a[1])]
+
+fn main()
+    mut s := [[-1.2, 1.0], [-1.0, 1.0], [-1.2, 1.2]]
+    for it in 1..=160
+        for i in 0..2
+            for j in 0..2 - i
+                if rosen(s[j + 1]) < rosen(s[j])
+                    s.swap(j, j + 1)
+        c := [(s[0][0] + s[1][0]) / 2.0, (s[0][1] + s[1][1]) / 2.0]
+        w := s[2]
+        r := towards(c, w, -1.0)
+        fr := rosen(r)
+        if fr < rosen(s[0])
+            e := towards(c, w, -2.0)
+            s[2] = if rosen(e) < fr then e else r
+        elif fr < rosen(s[1])
+            s[2] = r
+        else
+            k := towards(c, w, 0.5)
+            if rosen(k) < rosen(w)
+                s[2] = k
+            else
+                s[1] = towards(s[0], s[1], 0.5)
+                s[2] = towards(s[0], s[2], 0.5)
+        if it % 20 == 0
+            print("step {it:>3}: best ({s[0][0]:.4}, {s[0][1]:.4}), f = {rosen(s[0]):.5}")
+    print("the true minimum is f(1, 1) = 0")
+
+@test fn minimum()
+    assert_eq(rosen([1.0, 1.0]), 0.0)

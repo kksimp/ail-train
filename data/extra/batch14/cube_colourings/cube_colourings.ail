@@ -1,0 +1,57 @@
+## Cube colourings: the 24 rotations of a cube are generated from two quarter turns by closure; by
+## Burnside's lemma the distinct face colourings are (k^6 + 3k^4 + 12k^3 + 8k^2) / 24, and a brute force agrees.
+
+fn compose(a List[int], b List[int]) List[int]
+    [a[b[i]] for i in 0..6]
+
+fn rotations() List[List[int]]
+    turn := [0, 1, 5, 4, 2, 3]
+    roll := [5, 4, 2, 3, 0, 1]
+    mut group := [[0, 1, 2, 3, 4, 5]]
+    mut seen := Set[str]()
+    seen.add("{group[0]}")
+    mut i := 0
+    while i < group.len()
+        for g in [turn, roll]
+            c := compose(g, group[i])
+            if seen.add("{c}")
+                group.push(c)
+        i += 1
+    group
+
+fn brute(k int, group List[List[int]]) int
+    mut total := 1
+    for i in 0..6
+        total *= k
+    mut canon := Set[int]()
+    for code in 0..total
+        mut cols := List[int]()
+        mut rest := code
+        for i in 0..6
+            cols.push(rest % k)
+            rest /= k
+        mut best := total
+        for g in group
+            mut moved := [0, 0, 0, 0, 0, 0]
+            for f in 0..6
+                moved[g[f]] = cols[f]
+            mut c := 0
+            for f in 0..6
+                c = c * k + moved[5 - f]
+            best = best.min(c)
+        canon.add(best)
+    canon.len()
+
+fn burnside(k int) int
+    (k * k * k * k * k * k + 3 * k * k * k * k + 12 * k * k * k + 8 * k * k) / 24
+
+fn main()
+    group := rotations()
+    print("rotation group of the cube has {group.len()} elements")
+    for k in 1..=5
+        print("{k} colours: {burnside(k)} distinct cubes")
+    for k in 2..=3
+        print("brute force with {k} colours: {brute(k, group)}")
+
+@test fn two_colours()
+    assert_eq(burnside(2), 10)

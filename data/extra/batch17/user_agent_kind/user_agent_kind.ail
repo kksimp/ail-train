@@ -1,0 +1,41 @@
+## User agent sorting: classifies browser User-Agent strings by ordered substring rules (bots first,
+## Edge before Chrome, Chrome before Safari, since each claims the later ones) and by operating system, then counts.
+
+fn browser(ua str) str
+    low := ua.to_lower()
+    if low.contains("bot") or low.contains("spider") or low.contains("crawl")
+        return "bot"
+    rules := [("Edg/", "Edge"), ("OPR/", "Opera"), ("Firefox/", "Firefox"), ("Chrome/", "Chrome"), ("Safari/", "Safari"), ("curl/", "curl")]
+    for r in rules
+        key, name := r
+        if ua.contains(key)
+            return name
+    "other"
+
+fn system(ua str) str
+    if ua.contains("Android")
+        return "Android"
+    if ua.contains("iPhone") or ua.contains("iPad")
+        return "iOS"
+    if ua.contains("Windows")
+        return "Windows"
+    if ua.contains("Mac OS X")
+        return "macOS"
+    if ua.contains("Linux")
+        return "Linux"
+    "-"
+
+fn main()
+    agents := ["Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36 Edg/120.0", "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_2) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Safari/605.1.15", "Mozilla/5.0 (X11; Linux x86_64; rv:121.0) Gecko/20100101 Firefox/121.0", "Mozilla/5.0 (iPhone; CPU iPhone OS 17_2 like Mac OS X) AppleWebKit/605.1.15 Version/17.2 Mobile Safari/604.1", "Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 Chrome/120.0 Mobile Safari/537.36", "Googlebot/2.1 (+http://www.google.com/bot.html)", "curl/8.4.0"]
+    mut counts := Map[str, int]()
+    for ua in agents
+        b := browser(ua)
+        counts[b] += 1
+        cut := ua.len().min(40)
+        head := ua.slice(0, cut).trim_end()
+        print("{b:<8} {system(ua):<8} {head}")
+    for k in counts.keys().sorted()
+        print("{k}: {counts[k]}")
+
+@test fn edge_first()
+    assert_eq(browser("Chrome/1 Safari/2 Edg/3"), "Edge")

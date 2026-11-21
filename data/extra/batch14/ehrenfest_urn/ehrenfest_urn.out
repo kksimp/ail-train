@@ -1,0 +1,7 @@
+after  5 steps: P(5 in A) = 0.0095, distance from binomial 0.7399
+after 10 steps: P(5 in A) = 0.1286, distance from binomial 0.4429
+after 20 steps: P(5 in A) = 0.2320, distance from binomial 0.1553
+after 40 steps: P(5 in A) = 0.2459, distance from binomial 0.0183
+after 80 steps: P(5 in A) = 0.2461, distance from binomial 0.0003
+binomial P(5 in A) = 0.2461
+Kac: mean time to return to all-in-A is 1 / 0.0009765625 = 1024 steps (lazy chain: twice that)

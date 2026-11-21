@@ -1,0 +1,33 @@
+## Code size bounds: a binary code of length n correcting t errors has at most 2^n / V(n, t) words
+## (Hamming's sphere-packing bound, V the ball size), and at least 2^n / V(n, 2t) exist (Gilbert-Varshamov).
+
+fn binom(n int, k int) int
+    mut r := 1
+    for i in 0..k
+        r = r * (n - i) / (i + 1)
+    r
+
+fn ball(n int, r int) int
+    mut s := 0
+    for i in 0..=r
+        s += binom(n, i)
+    s
+
+fn log2_floor(x int) int
+    mut k := 0
+    while (1 << (k + 1)) <= x
+        k += 1
+    k
+
+fn main()
+    print("  n  t  ball  upper words  lower words  data bits between")
+    for t in [1, 2, 3]
+        for n in [7, 15, 23]
+            up := (1 << n) / ball(n, t)
+            lo := ((1 << n) + ball(n, 2 * t) - 1) / ball(n, 2 * t)
+            perfect := if (1 << n) % ball(n, t) == 0 then "  perfect" else ""
+            print("{n:>3} {t:>2} {ball(n, t):>5} {up:>12} {lo:>12}  {log2_floor(lo)} to {log2_floor(up)}{perfect}")
+    print("perfect codes: Hamming (7,4) and (15,11) with t = 1, Golay (23,12) with t = 3")
+
+@test fn hamming_ball()
+    assert_eq(ball(7, 1), 8)

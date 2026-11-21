@@ -1,0 +1,69 @@
+## Chromatic polynomial: deletion-contraction, P(G) = P(G - e) - P(G / e), down to edgeless graphs
+## (x^n); evaluating P at k counts proper k-colourings, and the first k with P(k) > 0 is the chromatic number.
+
+fn relabel(v int, a int, b int) int
+    w := if v == b then a else v
+    if w > b then w - 1 else w
+
+fn chrom(n int, edges List[List[int]]) List[int]
+    if edges.is_empty()
+        mut p := [0 for i in 0..n]
+        p.push(1)
+        return p
+    a := edges[0][0]
+    b := edges[0][1]
+    rest := edges.slice(1)
+    del := chrom(n, rest)
+    mut seen := Set[int]()
+    mut con := List[List[int]]()
+    for f in rest
+        x := relabel(f[0], a, b)
+        y := relabel(f[1], a, b)
+        lo := x.min(y)
+        hi := x.max(y)
+        if lo != hi and seen.add(lo * 100 + hi)
+            con.push([lo, hi])
+    c := chrom(n - 1, con)
+    mut out := List[int]()
+    for i in 0..=n
+        extra := if i < n then c[i] else 0
+        out.push(del[i] - extra)
+    out
+
+fn show(p List[int]) str
+    mut parts := List[str]()
+    mut i := p.len() - 1
+    while i >= 0
+        c := p[i]
+        if c != 0
+            mag := c.abs()
+            pw := if i == 0 then "" elif i == 1 then "x" else "x^{i}"
+            num := if mag == 1 and i > 0 then "" else "{mag}"
+            mut sign := if c < 0 then " - " else " + "
+            if parts.is_empty()
+                sign = if c < 0 then "-" else ""
+            parts.push("{sign}{num}{pw}")
+        i -= 1
+    parts.join("")
+
+fn at(p List[int], k int) int
+    mut total := 0
+    mut i := p.len() - 1
+    while i >= 0
+        total = total * k + p[i]
+        i -= 1
+    total
+
+fn main()
+    graphs := [("triangle", 3, [[0, 1], [1, 2], [0, 2]]), ("square", 4, [[0, 1], [1, 2], [2, 3], [3, 0]]), ("house", 5, [[0, 1], [1, 2], [2, 3], [3, 0], [2, 4], [3, 4]]), ("wheel", 5, [[0, 1], [0, 2], [0, 3], [0, 4], [1, 2], [2, 3], [3, 4], [4, 1]])]
+    for g in graphs
+        name, n, edges := g
+        p := chrom(n, edges)
+        mut k := 1
+        while at(p, k) == 0
+            k += 1
+        print("{name}: P(x) = {show(p)}")
+        print("    3 colours: {at(p, 3)} ways, 4 colours: {at(p, 4)} ways, chromatic number {k}")
+
+@test fn triangle_three()
+    assert_eq(at(chrom(3, [[0, 1], [1, 2], [0, 2]]), 3), 6)

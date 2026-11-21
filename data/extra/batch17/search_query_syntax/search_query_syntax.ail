@@ -1,0 +1,52 @@
+## Search query syntax: splits a search box query into "quoted phrases", -excluded words, tag:value
+## filters and plain words, then keeps documents that hold every word and phrase, carry the tags, and avoid exclusions.
+
+struct Query
+    words List[str]
+    phrases List[str]
+    excluded List[str]
+    tags List[str]
+
+fn parse(q str) Query
+    mut words := List[str]()
+    mut phrases := List[str]()
+    mut excluded := List[str]()
+    mut tags := List[str]()
+    pieces := q.split("\"")
+    for i, piece in pieces.enumerate()
+        if i % 2 == 1
+            phrases.push(piece.to_lower())
+            continue
+        for w in piece.words()
+            low := w.to_lower()
+            if rest := low.strip_prefix("-")
+                excluded.push(rest)
+            elif low.starts_with("tag:")
+                tags.push(low.slice(4))
+            else
+                words.push(low)
+    Query(words: words, phrases: phrases, excluded: excluded, tags: tags)
+
+fn matches(q Query, text str, doc_tags List[str]) bool
+    low := text.to_lower()
+    ws := low.words()
+    q.words.all(|w| ws.contains(w)) and q.phrases.all(|p| low.contains(p)) and q.excluded.all(|x| not ws.contains(x)) and q.tags.all(|t| doc_tags.contains(t))
+
+fn main()
+    docs := [("Install guide for the command line tool", ["docs", "cli"]), ("Command line flags reference", ["docs", "cli"]), ("Release notes for the line editor", ["news"]), ("Guide to the web dashboard", ["docs", "web"]), ("Old command line tool guide", ["docs", "archive"])]
+    queries := ["\"command line\" guide", "guide -old", "line tag:news", "\"line tool\" tag:docs -archive", "guide tag:web tag:docs"]
+    for qs in queries
+        q := parse(qs)
+        print("query: {qs}")
+        wj := q.words.join(", ")
+        print("  words [{wj}] phrases {q.phrases.len()} excluded {q.excluded.len()} tags {q.tags.len()}")
+        for d in docs
+            text, tags := d
+            if matches(q, text, tags)
+                print("  -> {text}")
+
+@test fn parses_parts()
+    q := parse("a \"b c\" -d tag:e")
+    assert_eq(q.phrases, ["b c"])
+    assert_eq(q.excluded, ["d"])
+    assert_eq(q.tags, ["e"])

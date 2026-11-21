@@ -1,0 +1,7 @@
+public, max-age=600        age   30+200  fresh for 370 more s
+max-age=600, s-maxage=60   age    0+90   stale by 30 s
+no-store                   age    0+0    not stored
+no-cache, max-age=3600     age   10+5    stored, revalidate every time
+private, max-age=300       age  280+30   stale by 10 s
+MAX-AGE=86400              age 3600+7200 fresh for 75600 more s
+(none)                     age    0+10   stale by 10 s

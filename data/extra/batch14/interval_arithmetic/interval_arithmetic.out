@@ -1,0 +1,6 @@
+R1 = [95.00, 105.00] ohm, R2 = [209.00, 231.00] ohm
+in series: [304.00, 336.00]
+parallel as R1 R2 / (R1 + R2): [59.09, 79.79]  (too wide)
+parallel as 1 / (1/R1 + 1/R2): [65.31, 72.19]  (exact range)
+current through R1 at [11.50, 12.50] volt: [0.11, 0.13] amp
+x = [1.00, 2.00]: x - x = [-1.00, 1.00], x * x = [1.00, 4.00]

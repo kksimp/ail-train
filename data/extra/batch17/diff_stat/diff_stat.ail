@@ -1,0 +1,30 @@
+## Diff stat: summarises a change set like git's --stat: one line per file with its total changed lines
+## and a bar of + and - scaled so the busiest file fits in 20 columns (any change gets at least one mark).
+
+fn scaled(n int, biggest int, width int) int
+    if biggest <= width or n == 0
+        return n
+    (n * width / biggest).max(1)
+
+fn main()
+    files := [("src/parser.ail", 42, 17), ("src/lexer.ail", 3, 1), ("docs/guide.md", 0, 12), ("tests/parse_test.ail", 25, 0), ("README.md", 1, 1)]
+    biggest := files.map(|f| f.1 + f.2).max() else 0
+    name_w := files.map(|f| f.0.len()).max() else 0
+    mut adds := 0
+    mut dels := 0
+    for f in files
+        name, a, d := f
+        total := a + d
+        plus := scaled(a, biggest, 20)
+        minus := scaled(d, biggest, 20)
+        pluses := "+".repeat(plus)
+        minuses := "-".repeat(minus)
+        padded := name.pad_right(name_w, ' ')
+        print(" {padded} | {total:>3} {pluses}{minuses}")
+        adds += a
+        dels += d
+    print(" {files.len()} files changed, {adds} insertions(+), {dels} deletions(-)")
+
+@test fn scale()
+    assert_eq(scaled(42, 59, 20), 14)
+    assert_eq(scaled(1, 59, 20), 1)

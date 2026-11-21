@@ -1,0 +1,29 @@
+## File extensions: splits file names into stem and extension, treating .tar.gz style pairs as one
+## extension, leading-dot files and names ending in a dot as having none, and lower-casing; then counts each kind.
+
+fn split_ext(name str) List[str]
+    doubles := [".tar.gz", ".tar.bz2", ".tar.xz"]
+    low := name.to_lower()
+    for d in doubles
+        if low.ends_with(d) and low.len() > d.len()
+            cut := name.len() - d.len()
+            return [name.slice(0, cut), d.slice(1)]
+    dot := name.rfind(".") else -1
+    if dot <= 0 or dot == name.len() - 1
+        return [name, ""]
+    [name.slice(0, dot), name.slice(dot + 1).to_lower()]
+
+fn main()
+    names := ["report.final.pdf", "archive.tar.gz", ".bashrc", "Makefile", "photo.JPG", "notes.", "backup.TAR.BZ2", "README.md", "scan.pdf", "img.jpg", ".config.json"]
+    mut kinds := Map[str, int]()
+    for n in names
+        parts := split_ext(n)
+        ext := if parts[1] == "" then "(none)" else parts[1]
+        kinds[ext] += 1
+        print("{n:<17} stem {parts[0]:<14} ext {ext}")
+    for k in kinds.keys().sorted()
+        print("{k:<8} {kinds[k]}")
+
+@test fn double_ext()
+    assert_eq(split_ext("a.tar.gz"), ["a", "tar.gz"])
+    assert_eq(split_ext(".profile"), [".profile", ""])

@@ -1,0 +1,13 @@
+Phi1 = x - 1
+Phi2 = x + 1
+Phi3 = x^2 + x + 1
+Phi4 = x^2 + 1
+Phi5 = x^4 + x^3 + x^2 + x + 1
+Phi6 = x^2 - x + 1
+Phi7 = x^6 + x^5 + x^4 + x^3 + x^2 + x + 1
+Phi8 = x^4 + 1
+Phi9 = x^6 + x^3 + 1
+Phi10 = x^4 - x^3 + x^2 - x + 1
+Phi11 = x^10 + x^9 + x^8 + x^7 + x^6 + x^5 + x^4 + x^3 + x^2 + x + 1
+Phi12 = x^4 - x^2 + 1
+Phi105 has degree 48 and coefficient -2 at x^k for k in [41, 7]

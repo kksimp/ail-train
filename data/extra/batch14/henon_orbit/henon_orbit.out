@@ -1,0 +1,7 @@
+step 1: (1.0000, 0.0000)
+step 2: (-0.4000, 0.3000)
+step 3: (1.0760, -0.1200)
+step 4: (-0.7409, 0.3228)
+step 5: (0.5543, -0.2223)
+after 5000 more steps the orbit stayed in x -1.28..1.27, y -0.39..0.38
+starts 0.5 and 0.500000001 differ by more than 0.5 after 44 steps

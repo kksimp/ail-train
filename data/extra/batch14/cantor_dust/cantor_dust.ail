@@ -1,0 +1,57 @@
+## Cantor set: removing open middle thirds leaves 2^n intervals of total length (2/3)^n; a fraction
+## stays in the set for ever exactly when its base-3 expansion can avoid the digit 1, like 1/4 = 0.0202..._3.
+
+fn intervals(n int) List[List[int]]
+    mut ivs := [[0, 1]]
+    mut den := 1
+    for step in 0..n
+        mut next := List[List[int]]()
+        for iv in ivs
+            a := iv[0] * 3
+            b := iv[1] * 3
+            third := (b - a) / 3
+            next.push([a, a + third])
+            next.push([b - third, b])
+        ivs = next
+        den *= 3
+    ivs
+
+fn ternary(p int, q int) str
+    mut digits := List[str]()
+    mut r := p
+    for i in 0..8
+        r *= 3
+        digits.push("{r / q}")
+        r %= q
+    joined := digits.join("")
+    "0.{joined}..."
+
+fn in_cantor(p int, q int) bool
+    mut r := p
+    for i in 0..40
+        r *= 3
+        d := r / q
+        r %= q
+        if d == 1
+            return r == 0
+    true
+
+fn main()
+    for n in 1..=3
+        ivs := intervals(n)
+        mut den := 1
+        for i in 0..n
+            den *= 3
+        shown := ivs.map(|iv| "[{iv[0]}/{den}, {iv[1]}/{den}]").join(" ")
+        if n < 3
+            print("step {n}: {shown}")
+        mut len2 := 1
+        for i in 0..n
+            len2 *= 2
+        print("step {n}: {ivs.len()} pieces, length {len2}/{den}")
+    for f in [[1, 4], [3, 4], [1, 3], [1, 2], [2, 3], [7, 10], [1, 10]]
+        verdict := if in_cantor(f[0], f[1]) then "stays" else "removed"
+        print("{f[0]}/{f[1]} = {ternary(f[0], f[1])} in base 3: {verdict}")
+
+@test fn quarter()
+    assert(in_cantor(1, 4))

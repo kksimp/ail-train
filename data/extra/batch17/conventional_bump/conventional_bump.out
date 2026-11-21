@@ -1,0 +1,12 @@
+1 commit(s) not in the convention
+## Features
+- **api:** add search endpoint
+- export orders as CSV
+## Bug fixes
+- crash on empty cart
+- **ui:** button overlaps footer
+## Documentation
+- explain config file
+## Breaking changes
+- drop the v1 payment flow
+version 1.4.2 -> 2.0.0

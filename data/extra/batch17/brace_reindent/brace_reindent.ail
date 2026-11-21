@@ -1,0 +1,34 @@
+## Brace re-indenting: rewrites badly indented C-like code with four spaces per level, where the depth
+## is the count of open braces so far (braces inside string literals are ignored) and a line starting with } steps back first.
+
+fn brace_delta(line str) int
+    mut d := 0
+    mut in_str := false
+    for c in line.chars()
+        if c == '"'
+            in_str = not in_str
+        elif not in_str and c == '{'
+            d += 1
+        elif not in_str and c == '}'
+            d -= 1
+    d
+
+fn main()
+    src := ["int main() \{", "int x = 0;", "      if (x > 1) \{", "printf(\"\{ not a brace\");", "  while (x < 9) \{ x++; }", "}", "        else \{", "  x = 2;", "    }", "  return x;", "}"]
+    mut depth := 0
+    mut max_depth := 0
+    mut changed := 0
+    for raw in src
+        line := raw.trim()
+        level := if line.starts_with("}") then depth - 1 else depth
+        pad := " ".repeat(level * 4)
+        out := "{pad}{line}"
+        if out != raw
+            changed += 1
+        print(out)
+        depth += brace_delta(line)
+        max_depth = max_depth.max(depth)
+    print("-- {changed} of {src.len()} lines re-indented, deepest level {max_depth}, final depth {depth}")
+
+@test fn ignores_strings()
+    assert_eq(brace_delta("puts(\"\{\{\"); \{"), 1)

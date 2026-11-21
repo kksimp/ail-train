@@ -1,0 +1,39 @@
+## Multi-line log records: a line that starts with a date opens a record and indented or "Caused by"
+## lines continue it, so stack traces stay with their error; prints each record with its frame count and root cause.
+
+fn starts_record(line str) bool
+    (line.char_at(0) else ' ').is_digit()
+
+fn show(n int, head str, extra List[str])
+    frames := extra.filter(|l| l.trim().starts_with("at ")).len()
+    print("#{n} {head.slice(11)} ({frames} frames)")
+    for l in extra
+        if cause := l.strip_prefix("Caused by: ")
+            print("   root cause: {cause}")
+
+fn main()
+    lines := ["2025-03-12 10:00:01 INFO server started", "2025-03-12 10:00:05 ERROR request failed", "    at handler.run(handler.py:42)", "    at server.loop(server.py:10)", "Caused by: timeout after 30s", "    at net.read(net.py:7)", "2025-03-12 10:00:09 WARN slow query 1200ms", "2025-03-12 10:00:12 ERROR cannot open file", "    at store.load(store.py:88)", "2025-03-12 10:00:15 INFO shutdown"]
+    mut head := ""
+    mut extra := List[str]()
+    mut n := 0
+    mut with_trace := 0
+    for line in lines
+        if starts_record(line)
+            if head != ""
+                n += 1
+                show(n, head, extra)
+                if extra.len() > 0
+                    with_trace += 1
+            head = line
+            extra.clear()
+        else
+            extra.push(line)
+    n += 1
+    show(n, head, extra)
+    if extra.len() > 0
+        with_trace += 1
+    print("{n} records from {lines.len()} lines, {with_trace} with traces")
+
+@test fn record_start()
+    assert(starts_record("2025-01-01 x"))
+    assert(not starts_record("    at f()"))

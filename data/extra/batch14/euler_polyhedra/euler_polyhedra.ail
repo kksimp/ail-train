@@ -1,0 +1,41 @@
+## Euler's polyhedron formula: from the Schlafli symbol {p, q} (p-gon faces, q meeting at a corner)
+## E = 2pq / (4 - (p-2)(q-2)), V = 2E/q, F = 2E/p; only five pairs work, and V - E + F is 2 for each.
+
+struct Solid
+    name str
+    v int
+    e int
+    f int
+
+fn Solid.chi(self) int
+    self.v - self.e + self.f
+
+fn platonic(p int, q int) Solid?
+    den := 4 - (p - 2) * (q - 2)
+    if den <= 0
+        return none
+    e := 2 * p * q / den
+    names := {"3,3": "tetrahedron", "4,3": "cube", "3,4": "octahedron", "5,3": "dodecahedron", "3,5": "icosahedron"}
+    key := "{p},{q}"
+    Solid(name: names.get_or(key, "?"), v: 2 * e / q, e: e, f: 2 * e / p)
+
+fn prism(n int) Solid
+    Solid(name: "{n}-gon prism", v: 2 * n, e: 3 * n, f: n + 2)
+
+fn torus(a int, b int) Solid
+    Solid(name: "{a}x{b} torus mesh", v: a * b, e: 2 * a * b, f: a * b)
+
+fn main()
+    mut found := 0
+    for p in 3..=6
+        for q in 3..=6
+            if s := platonic(p, q)
+                found += 1
+                print("\{{p},{q}} {s.name:<12} V {s.v:>2} E {s.e:>2} F {s.f:>2} V-E+F {s.chi()}")
+    print("{found} regular solids")
+    for s in [prism(5), prism(8), torus(4, 6)]
+        print("{s.name:<16} V {s.v:>2} E {s.e:>2} F {s.f:>2} V-E+F {s.chi()}")
+
+@test fn cube_count()
+    c := platonic(4, 3) else Solid(name: "", v: 0, e: 0, f: 0)
+    assert_eq(c.e, 12)

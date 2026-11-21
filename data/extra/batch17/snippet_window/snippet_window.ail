@@ -1,0 +1,39 @@
+## Search snippets: slides a window of eight words over a document, keeps the window holding the most
+## distinct query words (earliest on ties), marks the matches in brackets and adds ellipses where text was cut.
+
+fn clean(w str) str
+    w.to_lower().chars().filter(|c| c.is_alpha()).join("")
+
+fn snippet(text str, query List[str], size int) str
+    words := text.words()
+    mut best := 0
+    mut best_score := -1
+    for start in 0..(words.len() - size + 1).max(1)
+        end := (start + size).min(words.len())
+        mut found := Set[str]()
+        for w in words.slice(start, end)
+            cw := clean(w)
+            if query.contains(cw)
+                found.add(cw)
+        if found.len() > best_score
+            best_score = found.len()
+            best = start
+    end := (best + size).min(words.len())
+    shown := words.slice(best, end).map(|w| mark(w, query))
+    pre := if best > 0 then "... " else ""
+    post := if end < words.len() then " ..." else ""
+    middle := shown.join(" ")
+    "{pre}{middle}{post}"
+
+fn mark(w str, query List[str]) str
+    if query.contains(clean(w)) then "[{w}]" else w
+
+fn main()
+    doc := "The library opens at nine. Members can borrow up to ten books, and the reading room stays quiet until noon. Late books cost a small fee per day, but children's books are free to renew online at any time."
+    for q in [["books", "renew"], ["reading", "quiet", "noon"], ["fee"], ["parking"]]
+        shown := q.join(" ")
+        print("{shown}:")
+        print("  {snippet(doc, q, 8)}")
+
+@test fn whole_short_text()
+    assert_eq(snippet("a b c", ["b"], 8), "a [b] c")

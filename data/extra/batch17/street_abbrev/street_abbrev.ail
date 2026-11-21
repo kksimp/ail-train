@@ -1,0 +1,26 @@
+## Street address normalising: upper-cases, drops dots and commas, and replaces street types, compass
+## directions and unit words by their standard postal abbreviations, so differently typed addresses compare equal.
+
+fn short_forms() Map[str, str]
+    {"STREET": "ST", "AVENUE": "AVE", "ROAD": "RD", "BOULEVARD": "BLVD", "DRIVE": "DR", "LANE": "LN", "NORTH": "N", "SOUTH": "S", "EAST": "E", "WEST": "W", "NORTHEAST": "NE", "APARTMENT": "APT", "SUITE": "STE", "FLOOR": "FL"}
+
+fn normalise(addr str, table Map[str, str]) str
+    cleaned := addr.to_upper().replace(".", "").replace(",", " ")
+    words := cleaned.words().map(|w| table.get_or(w, w))
+    words.join(" ")
+
+fn main()
+    table := short_forms()
+    addrs := ["123 North Main Street, Apt. 4", "123 N. Main St Apt 4", "45 Ocean Boulevard Suite 200", "45 ocean blvd., ste 200", "9 West Lane", "9 W Ln Floor 2", "77 Northeast Park Drive"]
+    mut groups := Map[str, List[int]]()
+    for i, a in addrs.enumerate()
+        n := normalise(a, table)
+        print("{i + 1}. {n}")
+        groups.push(n, i + 1)
+    for n, ids in groups
+        if ids.len() > 1
+            print("same address: {ids}")
+    print("{addrs.len()} entries, {groups.len()} distinct")
+
+@test fn abbreviates()
+    assert_eq(normalise("1 south road", short_forms()), "1 S RD")

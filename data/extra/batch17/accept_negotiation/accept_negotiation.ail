@@ -1,0 +1,51 @@
+## Content negotiation: an Accept header lists media types with q weights and wildcards; for each type a
+## server can send, the most specific matching entry gives its weight, and the best weight above zero wins, else 406.
+
+struct Want
+    kind str
+    q int
+
+fn parse_accept(h str) List[Want]
+    mut out := List[Want]()
+    for part in h.split(",")
+        bits := part.trim().split(";")
+        mut q := 1000
+        for b in bits.slice(1)
+            if v := b.trim().strip_prefix("q=")
+                f := v.to_float() else 1.0
+                q = (f * 1000.0).round().to_int()
+        out.push(Want(kind: bits[0].trim(), q: q))
+    out
+
+fn weight(wants List[Want], offer str) int
+    major := offer.split("/")[0]
+    mut best_spec := -1
+    mut q := 0
+    for w in wants
+        spec := if w.kind == offer then 2 elif w.kind == "{major}/*" then 1 elif w.kind == "*/*" then 0 else -1
+        if spec > best_spec
+            best_spec = spec
+            q = w.q
+    if best_spec < 0 then 0 else q
+
+fn choose(header str, offers List[str]) str
+    wants := parse_accept(header)
+    mut best := ""
+    mut best_q := 0
+    for o in offers
+        q := weight(wants, o)
+        if q > best_q
+            best = o
+            best_q = q
+    if best == "" then "406 Not Acceptable" else "{best} (q={best_q})"
+
+fn main()
+    offers := ["application/json", "text/html", "text/csv"]
+    headers := ["text/html;q=0.9, application/json, */*;q=0.1", "text/*;q=0.5, text/csv;q=0.8", "image/png, image/*;q=0.5", "*/*", "application/xml, text/html;q=0", "text/*, text/html;q=0"]
+    for h in headers
+        print("{h:<46} -> {choose(h, offers)}")
+
+@test fn specific_beats_wildcard()
+    wants := parse_accept("text/*;q=0.5, text/csv;q=0.8")
+    assert_eq(weight(wants, "text/csv"), 800)
+    assert_eq(weight(wants, "text/html"), 500)

@@ -1,0 +1,55 @@
+## Robots rules: a robots.txt file is read into groups per user agent; a crawler uses its own group or
+## else the "*" group, and among the Allow and Disallow rules the longest matching path prefix decides (Allow wins ties).
+
+struct Rule
+    agent str
+    allow bool
+    prefix str
+
+fn parse(text str) List[Rule]
+    mut rules := List[Rule]()
+    mut agents := List[str]()
+    mut in_rules := false
+    for raw in text.lines()
+        line := raw.split("#")[0].trim()
+        colon := line.find(":") else continue
+        key := line.slice(0, colon).trim().to_lower()
+        val := line.slice(colon + 1).trim()
+        if key == "user-agent"
+            if in_rules
+                agents.clear()
+                in_rules = false
+            agents.push(val.to_lower())
+        elif key == "allow" or key == "disallow"
+            in_rules = true
+            for a in agents
+                rules.push(Rule(agent: a, allow: key == "allow", prefix: val))
+    rules
+
+fn allowed(rules List[Rule], bot str, path str) bool
+    mine := rules.filter(|r| r.agent == bot)
+    group := if mine.is_empty() then rules.filter(|r| r.agent == "*") else mine
+    mut best := -1
+    mut verdict := true
+    for r in group
+        if r.prefix == "" or not path.starts_with(r.prefix)
+            continue
+        if r.prefix.len() > best or (r.prefix.len() == best and r.allow)
+            best = r.prefix.len()
+            verdict = r.allow
+    verdict
+
+fn main()
+    text := "User-agent: *\nDisallow: /private/\nAllow: /private/press/\nDisallow: /tmp\n\n# news crawler\nUser-agent: newsbot\nDisallow: /\nAllow: /news/\n\nUser-agent: archiver\nUser-agent: oldbot\nDisallow:"
+    rules := parse(text)
+    print("{rules.len()} rules")
+    checks := [("crawler", "/index.html"), ("crawler", "/private/plans.pdf"), ("crawler", "/private/press/launch.html"), ("crawler", "/tmp2/x"), ("newsbot", "/news/today"), ("newsbot", "/about"), ("archiver", "/private/plans.pdf")]
+    for c in checks
+        bot, path := c
+        word := if allowed(rules, bot, path) then "allow" else "block"
+        print("{bot:<9} {path:<28} {word}")
+
+@test fn longest_wins()
+    rules := [Rule(agent: "*", allow: false, prefix: "/a"), Rule(agent: "*", allow: true, prefix: "/a/b")]
+    assert(allowed(rules, "x", "/a/b/c"))
+    assert(not allowed(rules, "x", "/a/c"))

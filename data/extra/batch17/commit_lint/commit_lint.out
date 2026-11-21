@@ -1,0 +1,13 @@
+#1 ok: Add retry to the upload client
+#2 3 problem(s): fixed the login bug.
+    subject should start with a capital
+    subject ends with a full stop
+    use the imperative: 'fixed'
+#3 2 problem(s): Adding a much longer subject line that keeps going past fifty
+    subject is 61 chars (max 50)
+    use the imperative: 'adding'
+#4 1 problem(s): Update parser
+    line 2 must be blank
+#5 1 problem(s): Remove dead code
+    body line 3 is 102 chars (max 72)
+1 of 5 messages pass

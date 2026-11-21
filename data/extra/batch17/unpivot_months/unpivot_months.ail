@@ -1,0 +1,37 @@
+## Unpivot and pivot: a wide sales sheet with one column per month becomes long (region, month, value)
+## rows, skipping blank cells, and the long rows are pivoted back into month totals and a regional ranking.
+
+struct Cell
+    region str
+    month str
+    value int
+
+fn melt(header List[str], rows List[List[str]]) List[Cell]
+    mut out := List[Cell]()
+    for r in rows
+        for j in 1..header.len()
+            if v := r[j].to_int()
+                out.push(Cell(region: r[0], month: header[j], value: v))
+    out
+
+fn main()
+    header := ["region", "jan", "feb", "mar", "apr"]
+    rows := [["north", "120", "135", "", "150"], ["south", "90", "", "110", "95"], ["east", "200", "180", "210", ""], ["west", "", "60", "75", "80"]]
+    long := melt(header, rows)
+    print("{long.len()} long rows from {rows.len()} wide rows")
+    for c in long.take(4)
+        print("  {c.region},{c.month},{c.value}")
+    mut by_month := Map[str, int]()
+    mut by_region := Map[str, int]()
+    for c in long
+        by_month[c.month] += c.value
+        by_region[c.region] += c.value
+    for m, v in by_month
+        print("{m} total {v:>4}")
+    ranked := by_region.keys().sorted(by: |k| -by_region[k])
+    shown := ranked.map(|k| "{k} {by_region[k]}").join(", ")
+    print("regions: {shown}")
+
+@test fn skips_blanks()
+    cells := melt(["r", "a", "b"], [["x", "1", ""]])
+    assert_eq(cells.len(), 1)

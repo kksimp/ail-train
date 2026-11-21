@@ -1,0 +1,43 @@
+## RKM codes: resistor markings like 4K7, R47 and 2M2 put the multiplier letter (R ones, K thousands,
+## M millions) where the decimal point goes; values are kept in milliohms as integers and printed with a unit.
+
+fn milliohms(code str) int ! str
+    mults := {'R': 1000, 'K': 1000000, 'M': 1000000000}
+    cs := code.to_upper().chars()
+    mut at := -1
+    for i, c in cs.enumerate()
+        if mults.contains(c)
+            if at >= 0
+                return "two multiplier letters in {code}"
+            at = i
+        elif not c.is_digit()
+            return "bad character in {code}"
+    if at < 0
+        return "no multiplier letter in {code}"
+    whole := cs.slice(0, at).join("").to_int() else 0
+    frac_text := cs.slice(at + 1).join("")
+    mult := mults[cs[at]]
+    mut value := whole * mult
+    mut scale := mult / 10
+    for c in frac_text.chars()
+        value += (c.to_digit(10) else 0) * scale
+        scale = scale / 10
+    value
+
+fn show(m int) str
+    if m >= 1000000000
+        return "{m / 1000000000}.{m % 1000000000 / 10000000:02} MΩ"
+    if m >= 1000000
+        return "{m / 1000000}.{m % 1000000 / 10000:02} kΩ"
+    "{m / 1000}.{m % 1000 / 10:02} Ω"
+
+fn main()
+    for code in ["4K7", "R47", "2M2", "100R", "1K0", "68K", "0R1", "4K7K", "12", "5X1"]
+        if v := milliohms(code)
+            print("{code:<5} {show(v)}")
+        else err
+            print("{code:<5} error: {err}")
+
+@test fn values()
+    assert_eq(milliohms("4K7") else 0, 4700000)
+    assert_eq(milliohms("R47") else 0, 470)

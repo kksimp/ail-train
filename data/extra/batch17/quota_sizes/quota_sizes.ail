@@ -1,0 +1,56 @@
+## Quota sizes: reads sizes written as "1.5GB", "512 MiB" or "750k" into exact byte counts, using powers
+## of 1000 for kB, MB, GB, TB and powers of 1024 for KiB, MiB, GiB, TiB, then checks usage against a quota.
+
+fn unit_bytes(u str) int
+    match u.to_lower()
+        "" => 1
+        "b" => 1
+        "k" | "kb" => 1000
+        "m" | "mb" => 1000000
+        "g" | "gb" => 1000000000
+        "t" | "tb" => 1000000000000
+        "kib" => 1024
+        "mib" => 1048576
+        "gib" => 1073741824
+        "tib" => 1099511627776
+        _ => -1
+
+fn parse_size(s str) int ! str
+    t := s.replace(" ", "")
+    mut i := 0
+    cs := t.chars()
+    while i < cs.len() and (cs[i].is_digit() or cs[i] == '.')
+        i += 1
+    number := t.slice(0, i)
+    mult := unit_bytes(t.slice(i))
+    if mult < 0 or number == ""
+        return "cannot read '{s}'"
+    parts := number.split(".")
+    whole := parts[0].to_int() else 0
+    mut bytes_total := whole * mult
+    if parts.len() > 1
+        frac := parts[1]
+        mut den := 1
+        for _ in 0..frac.len()
+            den *= 10
+        bytes_total += (frac.to_int() else 0) * mult / den
+    bytes_total
+
+fn main()
+    quota := 1099511627776
+    uses := [("photos", "1.5GB"), ("mail", "512 MiB"), ("notes", "750k"), ("backups", "0.25TiB"), ("music", "3.2 GiB"), ("odd", "12 parsecs")]
+    mut used := 0
+    for u in uses
+        name, text := u
+        if b := parse_size(text)
+            used += b
+            print("{name:<8} {text:>10} = {b:>15,} bytes")
+        else err
+            print("{name:<8} {text:>10}   {err}")
+    left := quota - used
+    verdict := if left >= 0 then "within" else "over"
+    print("used {used:,} of {quota:,} bytes: {verdict} quota by {left.abs():,}")
+
+@test fn binary_vs_decimal()
+    assert_eq(parse_size("1KiB") else 0, 1024)
+    assert_eq(parse_size("1.5kB") else 0, 1500)

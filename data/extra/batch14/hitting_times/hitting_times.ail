@@ -1,0 +1,46 @@
+## Hitting times: a mouse wanders a 3 x 3 block of rooms, moving to a random neighbouring room each minute;
+## the expected minutes h to reach the cheese corner solve h(v) = 1 + average of h over neighbours, by elimination.
+
+fn main()
+    n := 9
+    target := 8
+    mut a := List[List[float]]()
+    for v in 0..n
+        mut row := [0.0 for k in 0..=n]
+        row[v] = 1.0
+        if v != target
+            r := v / 3
+            c := v % 3
+            mut nbrs := List[int]()
+            if r > 0
+                nbrs.push(v - 3)
+            if r < 2
+                nbrs.push(v + 3)
+            if c > 0
+                nbrs.push(v - 1)
+            if c < 2
+                nbrs.push(v + 1)
+            share := 1.0 / nbrs.len().to_float()
+            for w in nbrs
+                row[w] -= share
+            row[n] = 1.0
+        a.push(row)
+    for col in 0..n
+        mut piv := col
+        for r in col + 1..n
+            if a[r][col].abs() > a[piv][col].abs()
+                piv = r
+        a.swap(col, piv)
+        for r in 0..n
+            if r != col
+                f := a[r][col] / a[col][col]
+                for k in col..=n
+                    a[r][k] -= f * a[col][k]
+    for r in 0..3
+        cells := [a[r * 3 + c][n] / a[r * 3 + c][r * 3 + c] for c in 0..3]
+        line := cells.map(|h| "{h:>7.2}").join("")
+        print(line)
+    print("cheese in the bottom-right room; from the far corner it takes about {a[0][n] / a[0][0]:.1} minutes")
+
+@test fn one_step()
+    assert_eq(1.0 / 2.0, 0.5)

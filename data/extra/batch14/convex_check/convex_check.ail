@@ -1,0 +1,67 @@
+## Second-derivative test: for f = 1/2 x'Hx + g'x the stationary point solves H x = -g; Sylvester's
+## criterion on H's leading minors says minimum (all positive), maximum (signs alternate from -) or saddle.
+
+fn det(m List[List[int]]) int
+    n := m.len()
+    if n == 1
+        return m[0][0]
+    mut total := 0
+    for c in 0..n
+        mut minor := List[List[int]]()
+        for r in 1..n
+            mut row := List[int]()
+            for k in 0..n
+                if k != c
+                    row.push(m[r][k])
+            minor.push(row)
+        sign := if c % 2 == 0 then 1 else -1
+        total += sign * m[0][c] * det(minor)
+    total
+
+fn gcd(a int, b int) int
+    if b == 0 then a.abs() else gcd(b, a % b)
+
+fn frac(n int, d int) str
+    g := gcd(n, d)
+    s := if d < 0 then -1 else 1
+    if s * d / g == 1 then "{s * n / g}" else "{s * n / g}/{s * d / g}"
+
+fn main()
+    cases := [("bowl", [[2, 1], [1, 4]], [-3, 2]), ("pass", [[2, 3], [3, 2]], [1, 1]), ("hill", [[-4, 1], [1, -2]], [2, 0]), ("3-D bowl", [[4, 1, 0], [1, 3, 1], [0, 1, 2]], [-1, 0, 2]), ("trough", [[1, 2], [2, 4]], [0, 1])]
+    for t in cases
+        name, h, g := t
+        n := h.len()
+        mut minors := List[int]()
+        for k in 1..=n
+            mut top := List[List[int]]()
+            for i in 0..k
+                top.push(h[i].slice(0, k))
+            minors.push(det(top))
+        mut verdict := "saddle point"
+        if minors[n - 1] == 0
+            verdict = "test fails (singular)"
+        elif minors.all(|m| m > 0)
+            verdict = "minimum"
+        else
+            mut alt := true
+            for k in 0..n
+                want_pos := k % 2 == 1
+                if (minors[k] > 0) != want_pos
+                    alt = false
+            if alt
+                verdict = "maximum"
+        mut place := ""
+        d := minors[n - 1]
+        if d != 0
+            mut coords := List[str]()
+            for c in 0..n
+                mut m := h
+                for r in 0..n
+                    m[r][c] = -g[r]
+                coords.push(frac(det(m), d))
+            joined := coords.join(", ")
+            place = " at ({joined})"
+        print("{name:<9} minors {minors}: {verdict}{place}")
+
+@test fn three()
+    assert_eq(det([[4, 1, 0], [1, 3, 1], [0, 1, 2]]), 18)

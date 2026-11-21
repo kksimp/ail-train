@@ -1,0 +1,43 @@
+## Unused imports: collects the names a Python-style file binds with import, import-as and from-import
+## lines, splits the remaining code into identifier tokens, and reports every imported name never used.
+
+fn tokens(line str) List[str]
+    mut out := List[str]()
+    mut cur := List[char]()
+    for c in line.chars()
+        if c.is_alnum() or c == '_'
+            cur.push(c)
+        else
+            if cur.len() > 0
+                out.push(cur.join(""))
+                cur.clear()
+    if cur.len() > 0
+        out.push(cur.join(""))
+    out
+
+fn main()
+    src := ["import os", "import sys", "import numpy as np", "from json import loads, dumps", "from pathlib import Path", "from typing import List, Dict", "", "def load(p: Path) -> List[str]:", "    data = loads(open(p).read())", "    return [os.path.join(x) for x in data]", "", "print(np.zeros(3))"]
+    mut bound := List[str]()
+    mut line_of := Map[str, int]()
+    mut used := Set[str]()
+    for i, line in src.enumerate()
+        if rest := line.strip_prefix("from ")
+            for n in rest.split(" import ")[1].split(",")
+                bound.push(n.trim())
+                line_of[n.trim()] = i + 1
+        elif rest2 := line.strip_prefix("import ")
+            name := if rest2.contains(" as ") then rest2.split(" as ")[1] else rest2.split(".")[0]
+            bound.push(name)
+            line_of[name] = i + 1
+        else
+            for t in tokens(line)
+                used.add(t)
+    mut unused := 0
+    for b in bound
+        if not used.contains(b)
+            unused += 1
+            print("line {line_of[b]}: '{b}' imported but unused")
+    print("{bound.len()} names imported, {unused} unused")
+
+@test fn split_tokens()
+    assert_eq(tokens("np.zeros(3)"), ["np", "zeros", "3"])

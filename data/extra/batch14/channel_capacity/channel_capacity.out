@@ -1,0 +1,9 @@
+symmetric, flip 0.00: capacity 1.0000 bits
+symmetric, flip 0.01: capacity 0.9192 bits
+symmetric, flip 0.05: capacity 0.7136 bits
+symmetric, flip 0.11: capacity 0.5001 bits
+symmetric, flip 0.25: capacity 0.1887 bits
+symmetric, flip 0.50: capacity 0.0000 bits
+erasure, lost 0.1: capacity 0.9000 bits
+erasure, lost 0.3: capacity 0.7000 bits
+Z channel, a sent 1 reads as 0 with chance 0.3: capacity 0.5037 bits with 1s sent 42.1% of the time

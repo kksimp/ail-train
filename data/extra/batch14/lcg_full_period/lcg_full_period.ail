@@ -1,0 +1,45 @@
+## Full-period generators: x -> (a x + c) mod m visits all m values exactly when c and m are coprime,
+## a - 1 is divisible by every prime factor of m, and by 4 if 4 divides m (Hull-Dobell); measured cycles agree.
+
+fn gcd(a int, b int) int
+    if b == 0 then a else gcd(b, a % b)
+
+fn period(a int, c int, m int) int
+    mut first := Map[int, int]()
+    mut x := 0
+    mut step := 0
+    while not first.contains(x)
+        first[x] = step
+        x = (a * x + c) % m
+        step += 1
+    step - first[x]
+
+fn hull_dobell(a int, c int, m int) bool
+    if gcd(c, m) != 1
+        return false
+    mut rest := m
+    mut f := 2
+    while f <= rest
+        if rest % f == 0
+            if (a - 1) % f != 0
+                return false
+            while rest % f == 0
+                rest /= f
+        f += 1
+    if m % 4 == 0 and (a - 1) % 4 != 0
+        return false
+    true
+
+fn main()
+    cases := [[5, 3, 16], [5, 4, 16], [3, 1, 16], [21, 7, 100], [11, 7, 100], [10, 1, 81], [13, 1, 64], [31, 7, 60], [7, 0, 101]]
+    for t in cases
+        a := t[0]
+        c := t[1]
+        m := t[2]
+        per := period(a, c, m)
+        full := hull_dobell(a, c, m)
+        agree := if full == (per == m) then "agrees" else "DISAGREES"
+        print("a {a:>2} c {c} m {m:>3}: cycle {per:>3}, theorem says full {full}: {agree}")
+
+@test fn classic()
+    assert(hull_dobell(5, 3, 16))

@@ -1,0 +1,4 @@
+api     96.67% up, 1 outages, longest 2 min  BELOW 99%
+db     100.00% up, 0 outages, longest 0 min  ok
+cache   91.67% up, 3 outages, longest 3 min  BELOW 99%
+mail    83.33% up, 2 outages, longest 6 min  BELOW 99%

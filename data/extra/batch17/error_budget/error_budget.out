@@ -1,0 +1,10 @@
+95000 requests allow 475 errors
+Mon  12000 req   20 err  burn 0.33  used   4.2%
+Tue  15000 req   45 err  burn 0.60  used  13.7%
+Wed  11000 req   30 err  burn 0.55  used  20.0%
+Thu  18000 req  250 err  burn 2.78  used  72.6%
+Fri  16000 req   72 err  burn 0.90  used  87.8%
+Sat   9000 req   12 err  burn 0.27  used  90.3%
+Sun  14000 req   40 err  burn 0.57  used  98.7%
+remaining budget: 6 errors
+days burning over 2x: Thu

@@ -1,0 +1,3 @@
+message ABACABAD: interval [5020672/16777216, 5021696/16777216)
+code 01001100100111: 14 bits; entropy bound 14.00 bits, plain 2-bit code 16 bits
+decoded back: ABACABAD

@@ -1,0 +1,6 @@
+public: p = 2147483647, g = 7
+Alice sends 503853974, Bob sends 1499189976
+Alice's key 361695901, Bob's key 361695901, equal: true
+toy exchange mod 23: A = 8, B = 19
+eavesdropper tries exponents: 5^6 = 8, so the key is 2
+real key 2: a 23-element search is no protection

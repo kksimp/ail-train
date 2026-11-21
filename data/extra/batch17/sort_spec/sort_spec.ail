@@ -1,0 +1,48 @@
+## Sort spec: a text spec like "-size,name" lists sort keys in priority order, a minus meaning
+## descending; records are compared key by key with a comparator and ordered by insertion sort.
+
+struct Entry
+    name str
+    ext str
+    size int
+
+fn cmp_int(a int, b int) int
+    if a < b then -1 elif a > b then 1 else 0
+
+fn cmp_text(a str, b str) int
+    if a < b then -1 elif a > b then 1 else 0
+
+fn compare_key(a Entry, b Entry, key str) int
+    match key
+        "size" => cmp_int(a.size, b.size)
+        "ext" => cmp_text(a.ext, b.ext)
+        _ => cmp_text(a.name, b.name)
+
+fn compare(a Entry, b Entry, spec str) int
+    for part in spec.split(",")
+        desc := part.starts_with("-")
+        key := if desc then part.slice(1) else part
+        c := compare_key(a, b, key)
+        if c != 0
+            return if desc then -c else c
+    0
+
+fn sort_by_spec(mut xs List[Entry], spec str)
+    for i in 1..xs.len()
+        mut j := i
+        while j > 0 and compare(xs[j - 1], xs[j], spec) > 0
+            xs.swap(j - 1, j)
+            j -= 1
+
+fn main()
+    files := [Entry(name: "notes", ext: "txt", size: 12), Entry(name: "photo", ext: "jpg", size: 2048), Entry(name: "app", ext: "js", size: 300), Entry(name: "data", ext: "csv", size: 2048), Entry(name: "readme", ext: "txt", size: 4), Entry(name: "logo", ext: "png", size: 300)]
+    for spec in ["-size,name", "-ext,size", "name"]
+        mut xs := files
+        sort_by_spec(mut xs, spec)
+        shown := xs.map(|e| "{e.name}.{e.ext}({e.size})").join(" ")
+        print("{spec:<11} {shown}")
+
+@test fn descending_size()
+    a := Entry(name: "a", ext: "x", size: 1)
+    b := Entry(name: "b", ext: "x", size: 2)
+    assert_eq(compare(a, b, "-size"), 1)

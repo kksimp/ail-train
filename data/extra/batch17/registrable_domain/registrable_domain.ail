@@ -1,0 +1,29 @@
+## Registrable domain: with a small public suffix list (com, co.uk, github.io ...), the longest suffix
+## that ends a host name is found and one more label gives the site; two hosts with the same site are same-site.
+
+fn site_of(host str, suffixes List[str]) str
+    labels := host.to_lower().split(".")
+    for i in 0..labels.len()
+        tail := labels.slice(i).join(".")
+        if suffixes.contains(tail)
+            if i == 0
+                return ""
+            return labels.slice(i - 1).join(".")
+    ""
+
+fn main()
+    suffixes := ["com", "org", "uk", "co.uk", "io", "github.io", "au", "com.au", "jp", "co.jp"]
+    hosts := ["www.example.com", "a.b.example.co.uk", "ana.github.io", "github.io", "shop.example.com.au", "localhost", "News.BBC.co.uk", "mail.yahoo.co.jp"]
+    for h in hosts
+        s := site_of(h, suffixes)
+        shown := if s == "" then "(no registrable domain)" else s
+        print("{h:<20} {shown}")
+    pairs := [("ana.github.io", "ben.github.io"), ("www.example.com", "api.example.com"), ("example.co.uk", "other.co.uk")]
+    for p in pairs
+        a, b := p
+        same := site_of(a, suffixes) == site_of(b, suffixes)
+        word := if same then "same site" else "cross site"
+        print("{a} vs {b}: {word}")
+
+@test fn longest_suffix()
+    assert_eq(site_of("x.y.co.uk", ["uk", "co.uk"]), "y.co.uk")

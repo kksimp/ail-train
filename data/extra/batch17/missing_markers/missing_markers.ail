@@ -1,0 +1,38 @@
+## Missing markers: a column typed by hand mixes blanks, NA, n/a and dashes with numbers written with
+## thousands commas and stray spaces; cleaning unifies the missing markers, parses the rest and fills gaps with the median.
+
+fn is_marker(low str) bool
+    ["", "na", "n/a", "-", "?"].contains(low)
+
+fn clean(raw str) int?
+    s := raw.trim()
+    if is_marker(s.to_lower())
+        return none
+    s.replace(",", "").to_int()
+
+fn main()
+    column := ["1,234", " 56 ", "NA", "n/a", "-", "", "789", "1,000", "?", "12", "4x", " 2,500"]
+    mut present := List[int]()
+    mut missing := 0
+    mut bad := List[str]()
+    for raw in column
+        low := raw.trim().to_lower()
+        if v := clean(raw)
+            present.push(v)
+        elif is_marker(low)
+            missing += 1
+        else
+            bad.push(raw)
+    sorted_vals := present.sorted()
+    median := sorted_vals[sorted_vals.len() / 2]
+    bad_text := bad.join(", ")
+    print("parsed {present.len()}, missing {missing}, unreadable {bad.len()}: [{bad_text}]")
+    print("sorted: {sorted_vals}")
+    print("median used for gaps: {median}")
+    filled := column.map(|r| clean(r) else median)
+    print("filled: {filled}")
+    print("sum after filling: {filled.sum()}")
+
+@test fn strips_commas()
+    assert_eq(clean(" 2,500") else 0, 2500)
+    assert(clean("n/a") == none)

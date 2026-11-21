@@ -1,0 +1,33 @@
+## Chaos game: start anywhere, then jump halfway towards a randomly chosen corner of a triangle again and
+## again (seeded LCG); the points settle on the Sierpinski triangle and never land in its middle hole.
+
+fn mark(b bool) str
+    if b then "#" else "."
+
+fn main()
+    corners := [[0, 0], [1024, 0], [512, 1024]]
+    mut seed := 2026
+    mut x := 300
+    mut y := 700
+    mut grid := List[List[bool]]()
+    for r in 0..13
+        grid.push([false for c in 0..32])
+    mut in_hole := 0
+    for step in 0..6000
+        seed = (seed * 1103515245 + 12345) % 2147483648
+        k := (seed >> 16) % 3
+        x = (x + corners[k][0]) / 2
+        y = (y + corners[k][1]) / 2
+        if step >= 20
+            grid[12 - y * 13 / 1025][x * 32 / 1025] = true
+            if y > 16 and y < 496 and (2 * x - 1024).abs() < y - 16
+                in_hole += 1
+    mut lit := 0
+    for r in 0..13
+        line := grid[r].map(|b| mark(b)).join("")
+        lit += grid[r].filter(|b| b).len()
+        print(line)
+    print("{lit} of 416 cells lit, {in_hole} points inside the central hole")
+
+@test fn halfway()
+    assert_eq((300 + 1024) / 2, 662)

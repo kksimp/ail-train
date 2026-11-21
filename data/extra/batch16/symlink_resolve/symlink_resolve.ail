@@ -3,11 +3,11 @@
 
 fn resolve(fs Map[str, str], path str) str ! Fail
     mut cur := List[str]()
-    mut todo := path.split("/").filter(|p| p != "")
+    mut pending := path.split("/").filter(|p| p != "")
     mut hops := 0
-    while not todo.is_empty()
-        comp := todo[0]
-        todo = todo.slice(1)
+    while not pending.is_empty()
+        comp := pending[0]
+        pending = pending.slice(1)
         if comp == "."
             continue
         if comp == ".."
@@ -26,9 +26,9 @@ fn resolve(fs Map[str, str], path str) str ! Fail
             if target.starts_with("/")
                 cur = List[str]()
             mut spliced := target.split("/").filter(|p| p != "")
-            spliced.extend(todo)
-            todo = spliced
-        elif kind == "file" and not todo.is_empty()
+            spliced.extend(pending)
+            pending = spliced
+        elif kind == "file" and not pending.is_empty()
             return Fail(msg: "{here} is a file, not a folder")
         else
             cur.push(comp)

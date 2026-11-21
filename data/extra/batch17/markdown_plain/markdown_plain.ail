@@ -1,0 +1,55 @@
+## Markdown to plain text: headings become underlined lines (= for level one, - for level two), bold,
+## italic and code marks are dropped, links show their address in angle brackets, and bullets and quotes get plain markers.
+
+fn inline(s str) str
+    cs := s.chars()
+    mut out := List[str]()
+    mut i := 0
+    while i < cs.len()
+        c := cs[i]
+        if c == '*' or c == '_' or c == '`'
+            i += 1
+        elif c == '['
+            rest := s.slice(i)
+            mid := rest.find("](") else -1
+            endp := rest.find(")") else -1
+            if mid > 0 and endp > mid
+                out.push(rest.slice(1, mid))
+                out.push(" <")
+                out.push(rest.slice(mid + 2, endp))
+                out.push(">")
+                i += endp + 1
+            else
+                out.push("[")
+                i += 1
+        else
+            out.push("{c}")
+            i += 1
+    out.join("")
+
+fn convert(line str) List[str]
+    if h := line.strip_prefix("## ")
+        text := inline(h)
+        return [text, "-".repeat(text.len())]
+    if h := line.strip_prefix("# ")
+        text := inline(h).to_upper()
+        return [text, "=".repeat(text.len())]
+    if item := line.strip_prefix("- ")
+        return ["  * {inline(item)}"]
+    if q := line.strip_prefix("> ")
+        return ["  | {inline(q)}"]
+    if line == "---"
+        return ["~".repeat(20)]
+    [inline(line)]
+
+fn main()
+    doc := ["# Release notes", "Version **2.1** is *out* now.", "## Fixes", "- crash on [empty files](https://ex.com/1)", "- slow `grep` on big logs", "1. update the app", "2. restart it", "> back up your settings first", "---", "Thanks to __everyone__ who reported bugs."]
+    mut count := 0
+    for line in doc
+        for out in convert(line)
+            print(out)
+            count += 1
+    print("{doc.len()} markdown lines -> {count} text lines")
+
+@test fn link_text()
+    assert_eq(inline("see [docs](d.html) now"), "see docs <d.html> now")

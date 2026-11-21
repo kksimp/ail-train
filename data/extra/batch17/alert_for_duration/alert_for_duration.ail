@@ -1,0 +1,39 @@
+## Alert with a hold time: a CPU rule only fires after the reading stays above the limit for three
+## samples in a row; before that it is pending, and one good sample resolves it. Only state changes print.
+
+enum State
+    Ok
+    Pending
+    Firing
+
+fn decide(breach bool, run int, hold int) State
+    if not breach
+        return State.Ok
+    if run >= hold
+        return State.Firing
+    State.Pending
+
+fn main()
+    samples := [55, 82, 85, 79, 83, 88, 91, 95, 70, 65, 81, 84, 86, 87, 60]
+    limit := 80
+    hold := 3
+    mut state := State.Ok
+    mut run := 0
+    mut firing_minutes := 0
+    mut episodes := 0
+    for i, v in samples.enumerate()
+        breach := v > limit
+        run = if breach then run + 1 else 0
+        next := decide(breach, run, hold)
+        if next != state
+            print("t={i:>2} cpu {v:>3}: {state.name()} -> {next.name()}")
+            if next == State.Firing
+                episodes += 1
+            state = next
+        if state == State.Firing
+            firing_minutes += 1
+    print("fired {episodes} times, {firing_minutes} minutes in total")
+
+@test fn needs_three()
+    assert_eq(decide(true, 2, 3), State.Pending)
+    assert_eq(decide(true, 3, 3), State.Firing)

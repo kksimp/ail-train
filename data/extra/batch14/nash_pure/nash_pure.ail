@@ -1,0 +1,36 @@
+## Pure Nash equilibria: in a two-player payoff table a cell is an equilibrium when the row player's
+## payoff is a best reply in its column and the column player's is a best reply in its row; some games have none.
+
+struct Game
+    name str
+    rows List[str]
+    cols List[str]
+    a List[List[int]]
+    b List[List[int]]
+
+fn Game.equilibria(self) List[str]
+    mut out := List[str]()
+    for i in 0..self.rows.len()
+        for j in 0..self.cols.len()
+            mut row_best := true
+            for k in 0..self.rows.len()
+                if self.a[k][j] > self.a[i][j]
+                    row_best = false
+            mut col_best := true
+            for k in 0..self.cols.len()
+                if self.b[i][k] > self.b[i][j]
+                    col_best = false
+            if row_best and col_best
+                out.push("({self.rows[i]}, {self.cols[j]}) pays {self.a[i][j]}/{self.b[i][j]}")
+    out
+
+fn main()
+    games := [Game(name: "prisoners' dilemma", rows: ["quiet", "confess"], cols: ["quiet", "confess"], a: [[3, 0], [5, 1]], b: [[3, 5], [0, 1]]), Game(name: "stag hunt", rows: ["stag", "hare"], cols: ["stag", "hare"], a: [[4, 0], [3, 3]], b: [[4, 3], [0, 3]]), Game(name: "matching pennies", rows: ["heads", "tails"], cols: ["heads", "tails"], a: [[1, -1], [-1, 1]], b: [[-1, 1], [1, -1]]), Game(name: "concert or match", rows: ["concert", "match"], cols: ["concert", "match"], a: [[2, 0], [0, 1]], b: [[1, 0], [0, 2]]), Game(name: "price war", rows: ["high", "mid", "low"], cols: ["high", "mid", "low"], a: [[6, 2, 1], [7, 4, 2], [5, 3, 3]], b: [[6, 7, 5], [2, 4, 3], [1, 2, 3]])]
+    for g in games
+        eq := g.equilibria()
+        text := if eq.is_empty() then "none in pure strategies" else eq.join(", ")
+        print("{g.name}: {text}")
+
+@test fn dilemma()
+    g := Game(name: "pd", rows: ["c", "d"], cols: ["c", "d"], a: [[3, 0], [5, 1]], b: [[3, 5], [0, 1]])
+    assert_eq(g.equilibria().len(), 1)

@@ -1,0 +1,66 @@
+## Cookie jar: Set-Cookie headers are stored with their domain, path and Secure flag (Max-Age=0 deletes);
+## each request then sends the cookies whose domain matches the host, whose path is a prefix, and that HTTPS allows.
+
+struct Cookie
+    name str
+    value str
+    domain str
+    path str
+    secure bool
+    host_only bool
+
+fn store(mut jar List[Cookie], host str, header str)
+    parts := header.split(";").map(|p| p.trim())
+    eq := parts[0].find("=") else 0
+    mut c := Cookie(name: parts[0].slice(0, eq), value: parts[0].slice(eq + 1), domain: host, path: "/", secure: false, host_only: true)
+    mut remove := false
+    for attr in parts.slice(1)
+        kv := attr.split("=")
+        key := kv[0].to_lower()
+        if key == "path"
+            c.path = kv[1]
+        elif key == "domain"
+            c.domain = kv[1]
+            c.host_only = false
+        elif key == "secure"
+            c.secure = true
+        elif key == "max-age" and kv[1] == "0"
+            remove = true
+    jar = jar.filter(|o| not (o.name == c.name and o.domain == c.domain and o.path == c.path))
+    if not remove
+        jar.push(c)
+
+fn domain_ok(c Cookie, host str) bool
+    if c.host_only
+        return host == c.domain
+    host == c.domain or host.ends_with(".{c.domain}")
+
+fn header_for(jar List[Cookie], url str) str
+    scheme_end := url.find("://") else 0
+    https := url.slice(0, scheme_end) == "https"
+    rest := url.slice(scheme_end + 3)
+    slash := rest.find("/") else rest.len()
+    host := rest.slice(0, slash)
+    path := if slash < rest.len() then rest.slice(slash) else "/"
+    sent := jar.filter(|c| domain_ok(c, host) and path.starts_with(c.path) and (https or not c.secure))
+    sent.map(|c| "{c.name}={c.value}").join("; ")
+
+fn main()
+    mut jar := List[Cookie]()
+    store(mut jar, "shop.example.com", "sid=abc123; Path=/; HttpOnly")
+    store(mut jar, "shop.example.com", "cart=3; Path=/cart; Max-Age=3600")
+    store(mut jar, "shop.example.com", "lang=en; Domain=example.com; Path=/")
+    store(mut jar, "shop.example.com", "token=xyz; Path=/; Secure")
+    store(mut jar, "shop.example.com", "cart=4; Path=/cart")
+    print("jar holds {jar.len()} cookies")
+    for url in ["https://shop.example.com/cart/view", "http://shop.example.com/", "http://blog.example.com/post", "https://other.org/"]
+        h := header_for(jar, url)
+        shown := if h == "" then "(none)" else h
+        print("{url:<35} Cookie: {shown}")
+    store(mut jar, "shop.example.com", "cart=0; Path=/cart; Max-Age=0")
+    last := header_for(jar, "https://shop.example.com/cart/")
+    print("after delete: {last}")
+
+@test fn host_only()
+    c := Cookie(name: "a", value: "1", domain: "x.com", path: "/", secure: false, host_only: true)
+    assert(not domain_ok(c, "sub.x.com"))

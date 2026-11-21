@@ -1,0 +1,18 @@
+report.final.pdf  stem report.final   ext pdf
+archive.tar.gz    stem archive        ext tar.gz
+.bashrc           stem .bashrc        ext (none)
+Makefile          stem Makefile       ext (none)
+photo.JPG         stem photo          ext jpg
+notes.            stem notes.         ext (none)
+backup.TAR.BZ2    stem backup         ext tar.bz2
+README.md         stem README         ext md
+scan.pdf          stem scan           ext pdf
+img.jpg           stem img            ext jpg
+.config.json      stem .config        ext json
+(none)   3
+jpg      2
+json     1
+md       1
+pdf      2
+tar.bz2  1
+tar.gz   1

@@ -1,0 +1,40 @@
+## Diffie-Hellman key exchange: both sides publish g^secret mod p for the prime p = 2^31 - 1 and
+## raise the other's number to their own secret, reaching one shared key; a tiny prime falls to a search.
+
+fn pow_mod(base int, e int, m int) int
+    mut result := 1
+    mut b := base % m
+    mut k := e
+    while k > 0
+        if k % 2 == 1
+            result = result * b % m
+        b = b * b % m
+        k /= 2
+    result
+
+fn main()
+    p := 2147483647
+    g := 7
+    alice := 1234567
+    bob := 7654321
+    big_a := pow_mod(g, alice, p)
+    big_b := pow_mod(g, bob, p)
+    print("public: p = {p}, g = {g}")
+    print("Alice sends {big_a}, Bob sends {big_b}")
+    k1 := pow_mod(big_b, alice, p)
+    k2 := pow_mod(big_a, bob, p)
+    print("Alice's key {k1}, Bob's key {k2}, equal: {k1 == k2}")
+    sp := 23
+    sg := 5
+    sa := pow_mod(sg, 6, sp)
+    sb := pow_mod(sg, 15, sp)
+    print("toy exchange mod 23: A = {sa}, B = {sb}")
+    mut found := -1
+    for x in 1..sp
+        if found < 0 and pow_mod(sg, x, sp) == sa
+            found = x
+    print("eavesdropper tries exponents: 5^{found} = {sa}, so the key is {pow_mod(sb, found, sp)}")
+    print("real key {pow_mod(sb, 6, sp)}: a 23-element search is no protection")
+
+@test fn small_power()
+    assert_eq(pow_mod(3, 4, 7), 4)

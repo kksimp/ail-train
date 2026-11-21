@@ -1,0 +1,52 @@
+## Roots of unity: the n complex solutions of z^n = 1 sit evenly on the unit circle at angles 2 pi k / n;
+## they sum to 0, multiply to (-1)^(n+1), and phi(n) of them are primitive (k coprime to n).
+
+fn gcd(a int, b int) int
+    if b == 0 then a else gcd(b, a % b)
+
+fn tidy(v float) float
+    if v.abs() < 0.0005 then 0.0 else v
+
+fn text(re float, im float) str
+    r := tidy(re)
+    i := tidy(im)
+    if i < 0.0
+        mag := -i
+        return "{r:.3} - {mag:.3}i"
+    "{r:.3} + {i:.3}i"
+
+fn root(k int, n int) List[float]
+    a := 2.0 * 3.141592653589793 * k.to_float() / n.to_float()
+    [a.cos(), a.sin()]
+
+fn main()
+    n := 6
+    mut sre := 0.0
+    mut sim := 0.0
+    for k in 0..n
+        z := root(k, n)
+        kind := if gcd(k, n) == 1 then "primitive" else "not primitive"
+        print("k = {k}: {text(z[0], z[1])} ({kind})")
+        sre += z[0]
+        sim += z[1]
+    print("sum of the 6 roots: {text(sre, sim)}")
+    for m in [5, 8]
+        mut pre := 1.0
+        mut pim := 0.0
+        for k in 0..m
+            z := root(k, m)
+            nre := pre * z[0] - pim * z[1]
+            pim = pre * z[1] + pim * z[0]
+            pre = nre
+        print("product of the {m} roots: {text(pre, pim)}")
+    mut counts := List[int]()
+    for m in 1..=12
+        mut c := 0
+        for k in 1..=m
+            if gcd(k, m) == 1
+                c += 1
+        counts.push(c)
+    print("primitive roots for n = 1..12: {counts}")
+
+@test fn coprime()
+    assert_eq(gcd(4, 6), 2)

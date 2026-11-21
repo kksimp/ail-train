@@ -1,0 +1,54 @@
+## Arithmetic coding: each symbol narrows an interval in proportion to its probability (exact integer
+## fractions); the shortest binary fraction inside the final interval is the code, close to n times the entropy.
+
+fn main()
+    symbols := ['A', 'B', 'C', 'D']
+    counts := [4, 2, 1, 1]
+    total := 8
+    mut cum := [0]
+    for c in counts
+        cum.push(cum[cum.len() - 1] + c)
+    msg := "ABACABAD"
+    mut low := 0
+    mut width := 1
+    mut den := 1
+    for ch in msg.chars()
+        k := symbols.index_of(ch) else 0
+        low = low * total + width * cum[k]
+        width = width * counts[k]
+        den = den * total
+    print("message {msg}: interval [{low}/{den}, {low + width}/{den})")
+    mut bits := 1
+    mut m := 0
+    while true
+        scale := 1 << bits
+        m = (low * scale + den - 1) / den
+        if m * den < (low + width) * scale
+            break
+        bits += 1
+    mut code := List[str]()
+    for i in 0..bits
+        code.push("{(m >> (bits - 1 - i)) & 1}")
+    joined := code.join("")
+    two := 2.0
+    mut ent := 0.0
+    for c in counts
+        p := c.to_float() / total.to_float()
+        ent -= p * p.ln() / two.ln()
+    bound := ent * msg.len().to_float()
+    print("code {joined}: {bits} bits; entropy bound {bound:.2} bits, plain 2-bit code {2 * msg.len()} bits")
+    mut point_n := m
+    mut point_d := 1 << bits
+    mut out := List[char]()
+    for i in 0..msg.len()
+        mut k := 0
+        while (cum[k + 1] * point_d) <= point_n * total
+            k += 1
+        out.push(symbols[k])
+        point_n = point_n * total - cum[k] * point_d
+        point_d = point_d * counts[k]
+    decoded := out.join("")
+    print("decoded back: {decoded}")
+
+@test fn cumulative()
+    assert_eq(4 + 2 + 1 + 1, 8)

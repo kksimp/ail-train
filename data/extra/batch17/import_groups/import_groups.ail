@@ -1,0 +1,46 @@
+## Import groups: sorts a file's import lines into standard library, third-party and local groups,
+## alphabetises each group, merges repeated `from x import` lines and sorts the names inside them.
+
+fn group_of(module str, stdlib List[str]) int
+    top := module.split(".")[0]
+    if module.starts_with(".") or top == "shopapp"
+        return 2
+    if stdlib.contains(top)
+        return 0
+    1
+
+fn main()
+    stdlib := ["os", "sys", "json", "re", "datetime", "collections"]
+    lines := ["import sys", "from shopapp.models import Order", "import requests", "from collections import defaultdict", "import os", "from .utils import slugify", "from collections import Counter", "import numpy", "import sys", "from shopapp.models import Customer, Basket", "import json"]
+    mut plain := Set[str]()
+    mut froms := Map[str, Set[str]]()
+    for line in lines
+        if rest := line.strip_prefix("from ")
+            parts := rest.split(" import ")
+            mut names := froms.get(parts[0]) else Set[str]()
+            for n in parts[1].split(",")
+                names.add(n.trim())
+            froms[parts[0]] = names
+        elif m := line.strip_prefix("import ")
+            plain.add(m)
+    titles := ["standard library", "third party", "local"]
+    mut written := 0
+    for g in 0..3
+        mut out := List[str]()
+        for m in plain.sorted()
+            if group_of(m, stdlib) == g
+                out.push("import {m}")
+        for m in froms.keys().sorted()
+            if group_of(m, stdlib) == g
+                names := froms[m].sorted().join(", ")
+                out.push("from {m} import {names}")
+        if out.len() > 0
+            print("# {titles[g]}")
+            for o in out
+                print(o)
+            written += out.len()
+    print("# {lines.len()} lines in, {written} out")
+
+@test fn groups()
+    assert_eq(group_of(".utils", ["os"]), 2)
+    assert_eq(group_of("os.path", ["os"]), 0)

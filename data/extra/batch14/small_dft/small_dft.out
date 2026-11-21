@@ -1,0 +1,10 @@
+bin 0: magnitude 40.000
+bin 1: magnitude 0.000
+bin 2: magnitude 12.649
+bin 3: magnitude 0.000
+bin 4: magnitude 0.000
+bin 5: magnitude 0.000
+bin 6: magnitude 12.649
+bin 7: magnitude 0.000
+inverse: 4.000, 8.000, 6.000, 2.000, 4.000, 8.000, 6.000, 2.000
+only bins 0, 2 and 6 are lit: the pattern repeats every 4 samples

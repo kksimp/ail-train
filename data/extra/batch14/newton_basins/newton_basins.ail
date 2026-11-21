@@ -1,0 +1,39 @@
+## Newton basins: Newton's method z -> z - (z^3 - 1) / (3z^2) from each point of a grid ends at one of
+## the three cube roots of 1; marking each point by its root draws the fractal boundary between basins.
+
+fn main()
+    roots := [[1.0, 0.0], [-0.5, 0.8660254037844386], [-0.5, -0.8660254037844386]]
+    marks := ["A", "B", "C"]
+    mut counts := [0, 0, 0]
+    for j in 0..11
+        mut row := List[str]()
+        for i in 0..26
+            mut x := (2 * i - 25).to_float() / 12.0
+            mut y := (11 - 2 * j).to_float() / 7.0
+            for step in 0..30
+                x2 := x * x - y * y
+                y2 := 2.0 * x * y
+                fre := x2 * x - y2 * y - 1.0
+                fim := x2 * y + y2 * x
+                dre := 3.0 * x2
+                dim := 3.0 * y2
+                d := dre * dre + dim * dim
+                x -= (fre * dre + fim * dim) / d
+                y -= (fim * dre - fre * dim) / d
+            mut best := 0
+            mut best_d := 1000000.0
+            for r in 0..3
+                dx := x - roots[r][0]
+                dy := y - roots[r][1]
+                dist := dx * dx + dy * dy
+                if dist < best_d
+                    best = r
+                    best_d = dist
+            counts[best] += 1
+            row.push(marks[best])
+        print(row.join(""))
+    print("points reaching 1: {counts[0]}, reaching -1/2 + 0.866i: {counts[1]}, reaching -1/2 - 0.866i: {counts[2]}")
+
+@test fn root_is_fixed()
+    x := 1.0
+    assert_eq(x * x * x - 1.0, 0.0)

@@ -1,0 +1,34 @@
+## Folded stacks: profiler samples written as "main;parse;lex 30" are merged into a call tree where each
+## frame's total counts every sample passing through it and its self count only samples ending there.
+
+fn main()
+    folded := ["main;load;read 40", "main;load;parse 25", "main;run;step;alloc 10", "main;run;step 50", "main;run;gc 15", "main;load;read 5", "main;save 5"]
+    mut total := Map[str, int]()
+    mut self_count := Map[str, int]()
+    mut order := List[str]()
+    mut samples := 0
+    for line in folded
+        sp := line.rfind(" ") else 0
+        stack := line.slice(0, sp).split(";")
+        n := line.slice(sp + 1).to_int() else 0
+        samples += n
+        for i in 0..stack.len()
+            path := stack.slice(0, i + 1).join(";")
+            if not total.contains(path)
+                order.push(path)
+            total[path] += n
+        self_count[stack.join(";")] += n
+    ordered := order.sorted(by: |p| p)
+    for p in ordered
+        parts := p.split(";")
+        depth := parts.len() - 1
+        name := parts[depth]
+        pct := (total[p] * 1000 / samples).to_float() / 10.0
+        pad := "  ".repeat(depth)
+        label := "{pad}{name}"
+        print("{label:<16} {total[p]:>4} {pct:>5.1}%  self {self_count.get_or(p, 0)}")
+    hottest := self_count.keys().sorted(by: |k| -self_count[k])[0]
+    print("hottest frame: {hottest} ({self_count[hottest]} samples)")
+
+@test fn tenths()
+    assert_eq(50 * 1000 / 150, 333)

@@ -1,0 +1,12 @@
+app.log            ignored by *.log
+logs/keep.log      kept
+logs/err.log       ignored by *.log
+build/out/app.js   ignored by build/
+src/build.rs       kept
+todo.txt           ignored by /todo.txt
+src/todo.txt       kept
+docs/guide.pdf     ignored by docs/*.pdf
+docs/api/ref.pdf   kept
+temp_notes.md      ignored by temp*
+src/tempfile.c     ignored by temp*
+4 of 11 files kept

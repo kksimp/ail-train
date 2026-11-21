@@ -1,0 +1,7 @@
+0.0000 + 1.0000i -> 0.0000 + 0.0000i, distance from centre 0.0000
+0.0000 + 0.0000i -> -1.0000 + 0.0000i, distance from centre 1.0000
+1.0000 + 0.0000i -> 0.0000 - 1.0000i, distance from centre 1.0000
+0.0000 + 2.0000i -> 0.3333 + 0.0000i, distance from centre 0.3333
+-3.0000 + 0.5000i -> 0.7333 + 0.5333i, distance from centre 0.9068
+Cayley after shift by 2, as one matrix: 0.6923 - 0.4615i, step by step: 0.6923 - 0.4615i
+cross ratio before -0.9529 - 0.7882i, after -0.9529 - 0.7882i

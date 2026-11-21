@@ -1,0 +1,42 @@
+## Column types: guesses each CSV column's type by testing every non-empty value in turn as an integer,
+## a decimal number, a yes/no flag and an ISO date, falling back to text; blanks are counted as missing.
+
+fn is_date(s str) bool
+    if s.len() != 10
+        return false
+    for i, c in s.chars().enumerate()
+        if i == 4 or i == 7
+            if c != '-'
+                return false
+        elif not c.is_digit()
+            return false
+    true
+
+fn is_flag(s str) bool
+    ["true", "false", "yes", "no"].contains(s.to_lower())
+
+fn guess(values List[str]) str
+    vals := values.filter(|v| v != "")
+    if vals.all(|v| v.to_int() != none)
+        return "int"
+    if vals.all(|v| v.to_float() != none)
+        return "float"
+    if vals.all(|v| is_flag(v))
+        return "bool"
+    if vals.all(|v| is_date(v))
+        return "date"
+    "text"
+
+fn main()
+    text := "id,price,active,joined,city,score\n1,12.5,yes,2024-01-05,Oslo,7\n2,8,no,2024-02-11,,-3\n3,,Yes,2023-12-30,Lima,10\n4,3.25,no,2024-13-01x,Pune,\n5,7.75,true,,Kyiv,4"
+    lines := text.split("\n")
+    header := lines[0].split(",")
+    rows := lines.slice(1).map(|l| l.split(","))
+    for j, name in header.enumerate()
+        col := rows.map(|r| r[j])
+        blanks := col.count(|v| v == "")
+        print("{name:<7} {guess(col):<6} {blanks} missing")
+
+@test fn guesses()
+    assert_eq(guess(["1", "", "-2"]), "int")
+    assert_eq(guess(["2024-01-01", "x"]), "text")

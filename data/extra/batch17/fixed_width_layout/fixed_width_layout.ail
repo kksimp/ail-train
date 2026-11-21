@@ -1,0 +1,35 @@
+## Fixed-width records: a mainframe-style layout gives each field a start and end column; amounts carry
+## two implied decimal places and dates are YYYYMMDD, so the reader slices, trims and reformats each field.
+
+struct Field
+    name str
+    from int
+    upto int
+
+fn money(cents int) str
+    "{cents / 100}.{cents % 100:02}"
+
+fn main()
+    layout := [Field(name: "id", from: 0, upto: 4), Field(name: "name", from: 4, upto: 16), Field(name: "amount", from: 16, upto: 24), Field(name: "date", from: 24, upto: 32)]
+    width := layout[layout.len() - 1].upto
+    lines := ["0001Ada Lovelace0001234520250301", "0002Alan Turing 0000099920250302", "0003Grace       0010000020250315", "0004short", "0005Edsger      0000050020250401"]
+    mut total := 0
+    for line in lines
+        if line.len() != width
+            print("rejected: length {line.len()}, expected {width}")
+            continue
+        mut rec := Map[str, str]()
+        for f in layout
+            rec[f.name] = line.slice(f.from, f.upto).trim()
+        cents := rec["amount"].to_int() else 0
+        total += cents
+        d := rec["date"]
+        iso := "{d.slice(0, 4)}-{d.slice(4, 6)}-{d.slice(6, 8)}"
+        id := rec["id"].to_int() else 0
+        who := rec["name"]
+        print("#{id} {who:<12} {money(cents):>8} {iso}")
+    print("total {money(total)}")
+
+@test fn implied_decimals()
+    assert_eq(money(12345), "123.45")
+    assert_eq(money(500), "5.00")

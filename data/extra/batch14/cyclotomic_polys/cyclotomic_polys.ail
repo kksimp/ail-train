@@ -1,0 +1,53 @@
+## Cyclotomic polynomials: Phi_n is x^n - 1 divided exactly by Phi_d for every proper divisor d of n;
+## the coefficients stay in -1, 0, 1 for every n below 105, where a -2 first appears.
+
+fn divide(p List[int], d List[int]) List[int]
+    mut rem := p
+    mut q := List[int]()
+    steps := p.len() - d.len() + 1
+    for i in 0..steps
+        c := rem[i]
+        q.push(c)
+        for j in 0..d.len()
+            rem[i + j] -= c * d[j]
+    q
+
+fn show(p List[int]) str
+    deg := p.len() - 1
+    mut parts := List[str]()
+    for i in 0..p.len()
+        c := p[i]
+        e := deg - i
+        if c != 0
+            pw := if e == 0 then "1" elif e == 1 then "x" else "x^{e}"
+            head := if c.abs() == 1 then "" else "{c.abs()}"
+            mut sign := if c < 0 then " - " else " + "
+            if parts.is_empty()
+                sign = if c < 0 then "-" else ""
+            parts.push("{sign}{head}{pw}")
+    parts.join("")
+
+fn main()
+    mut phi := Map[int, List[int]]()
+    for n in 1..=105
+        if n <= 12 or 105 % n == 0
+            mut p := [1]
+            for i in 0..n - 1
+                p.push(0)
+            p.push(-1)
+            for d in 1..n
+                if n % d == 0
+                    p = divide(p, phi[d])
+            phi[n] = p
+    for n in 1..=12
+        print("Phi{n} = {show(phi[n])}")
+    big := phi[105]
+    deg := big.len() - 1
+    mut spots := List[int]()
+    for i in 0..big.len()
+        if big[i].abs() > 1
+            spots.push(deg - i)
+    print("Phi105 has degree {deg} and coefficient -2 at x^k for k in {spots}")
+
+@test fn phi4()
+    assert_eq(divide([1, 0, 0, 0, -1], [1, 0, -1]), [1, 0, 1])

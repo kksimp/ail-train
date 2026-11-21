@@ -1,0 +1,63 @@
+## Hadamard matrices: Sylvester's rule H(2n) = [[H, H], [H, -H]] gives +-1 matrices with H H^T = n I;
+## any two rows differ in n/2 places (a code with large distance), and the fast Walsh transform computes H v.
+
+fn sylvester(n int) List[List[int]]
+    mut h := [[1]]
+    while h.len() < n
+        mut next := List[List[int]]()
+        for row in h
+            mut a := row
+            a.extend(row)
+            next.push(a)
+        for row in h
+            mut b := row
+            b.extend(row.map(|v| -v))
+            next.push(b)
+        h = next
+    h
+
+fn sign_char(v int) str
+    if v > 0 then "+" else "-"
+
+fn fwht(v List[int]) List[int]
+    mut a := v
+    mut len2 := 1
+    while len2 < a.len()
+        mut i := 0
+        while i < a.len()
+            for j in i..i + len2
+                x := a[j]
+                y := a[j + len2]
+                a[j] = x + y
+                a[j + len2] = x - y
+            i += 2 * len2
+        len2 *= 2
+    a
+
+fn main()
+    h := sylvester(8)
+    for row in h
+        print(row.map(|v| sign_char(v)).join(""))
+    mut ortho := true
+    mut min_diff := 8
+    for i in 0..8
+        for j in 0..8
+            mut dot := 0
+            mut diff := 0
+            for k in 0..8
+                dot += h[i][k] * h[j][k]
+                if h[i][k] != h[j][k]
+                    diff += 1
+            want := if i == j then 8 else 0
+            if dot != want
+                ortho = false
+            if i != j
+                min_diff = min_diff.min(diff)
+    print("H H^T = 8 I: {ortho}; rows differ in at least {min_diff} places")
+    v := [3, 1, 4, 1, 5, 9, 2, 6]
+    direct := [[h[i][k] * v[k] for k in 0..8].sum() for i in 0..8]
+    print("H v = {direct}")
+    print("fast Walsh transform = {fwht(v)}")
+
+@test fn two()
+    assert_eq(sylvester(2), [[1, 1], [1, -1]])

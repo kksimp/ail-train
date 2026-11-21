@@ -1,0 +1,62 @@
+## Simplex method: a tableau of exact fractions; the column with the most negative objective entry
+## enters, the row with the smallest ratio leaves, and pivoting repeats until no entry is negative.
+
+fn gcd(a int, b int) int
+    if b == 0 then a.abs() else gcd(b, a % b)
+
+fn norm(n int, d int) List[int]
+    g := gcd(n, d)
+    s := if d < 0 then -1 else 1
+    [s * n / g, s * d / g]
+
+fn fsub(a List[int], b List[int]) List[int]
+    norm(a[0] * b[1] - b[0] * a[1], a[1] * b[1])
+
+fn fmul(a List[int], b List[int]) List[int]
+    norm(a[0] * b[0], a[1] * b[1])
+
+fn fdiv(a List[int], b List[int]) List[int]
+    norm(a[0] * b[1], a[1] * b[0])
+
+fn show(a List[int]) str
+    if a[1] == 1 then "{a[0]}" else "{a[0]}/{a[1]}"
+
+fn main()
+    names := ["x", "y", "z", "s1", "s2", "s3"]
+    rows := [[2, 3, 1, 1, 0, 0, 5], [4, 1, 2, 0, 1, 0, 11], [3, 4, 2, 0, 0, 1, 8], [-5, -4, -3, 0, 0, 0, 0]]
+    mut t := rows.map(|r| r.map(|v| [v, 1]))
+    mut basis := [3, 4, 5]
+    print("maximise 5x + 4y + 3z with 2x + 3y + z <= 5, 4x + y + 2z <= 11, 3x + 4y + 2z <= 8")
+    while true
+        obj := t[3]
+        mut enter := -1
+        for j in 0..6
+            if obj[j][0] < 0 and (enter < 0 or obj[j][0] * obj[enter][1] < obj[enter][0] * obj[j][1])
+                enter = j
+        if enter < 0
+            break
+        mut leave := -1
+        mut best := [0, 1]
+        for i in 0..3
+            if t[i][enter][0] > 0
+                ratio := fdiv(t[i][6], t[i][enter])
+                if leave < 0 or ratio[0] * best[1] < best[0] * ratio[1]
+                    leave = i
+                    best = ratio
+        print("{names[enter]} enters, {names[basis[leave]]} leaves (ratio {show(best)})")
+        pivot := t[leave][enter]
+        t[leave] = t[leave].map(|v| fdiv(v, pivot))
+        for i in 0..4
+            if i != leave
+                factor := t[i][enter]
+                mut row := List[List[int]]()
+                for j in 0..7
+                    row.push(fsub(t[i][j], fmul(factor, t[leave][j])))
+                t[i] = row
+        basis[leave] = enter
+    for i in 0..3
+        print("{names[basis[i]]} = {show(t[i][6])}")
+    print("best value {show(t[3][6])}")
+
+@test fn half()
+    assert_eq(show(fdiv([1, 1], [2, 1])), "1/2")

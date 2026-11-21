@@ -1,0 +1,57 @@
+## Newton's identities: the power sums p_k = sum of r^k of a polynomial's roots follow from its
+## coefficients by p_k = e1 p(k-1) - e2 p(k-2) + ... +- k e_k, with no root ever found; and back again.
+
+fn elementary(roots List[int]) List[int]
+    mut e := [1]
+    for r in roots
+        mut next := e
+        next.push(0)
+        for i in 0..e.len()
+            next[i + 1] += r * e[i]
+        e = next
+    e
+
+fn power_sums(e List[int], upto int) List[int]
+    n := e.len() - 1
+    mut p := [n]
+    for k in 1..=upto
+        mut total := 0
+        for i in 1..k
+            if i <= n
+                sign := if i % 2 == 1 then 1 else -1
+                total += sign * e[i] * p[k - i]
+        if k <= n
+            sign := if k % 2 == 1 then 1 else -1
+            total += sign * k * e[k]
+        p.push(total)
+    p
+
+fn back(p List[int], n int) List[int]
+    mut e := [1]
+    for k in 1..=n
+        mut total := 0
+        for i in 1..=k
+            sign := if i % 2 == 1 then 1 else -1
+            total += sign * e[k - i] * p[i]
+        e.push(total / k)
+    e
+
+fn main()
+    roots := [1, 2, 3, 5]
+    e := elementary(roots)
+    print("roots {roots}: e1..e4 = {e.slice(1)}")
+    p := power_sums(e, 6)
+    for k in 1..=6
+        mut direct := 0
+        for r in roots
+            mut t := 1
+            for i in 0..k
+                t *= r
+            direct += t
+        print("p{k} from coefficients {p[k]:>6}, summed directly {direct:>6}")
+    print("back from power sums: {back(p, 4).slice(1)}")
+    cubic := power_sums([1, 6, 11, 6], 2)
+    print("x^3 - 6x^2 + 11x - 6: sum of squared roots is {cubic[2]}")
+
+@test fn squares()
+    assert_eq(power_sums([1, 3, 2], 2)[2], 5)

@@ -1,0 +1,7 @@
+total = 0
+for item in items:
+    total += item.count
+    recount = total * 2
+print("count is", total)  # count shown
+max_count = count_all(total)
+renamed 5, left alone (fields, strings, comments) 3

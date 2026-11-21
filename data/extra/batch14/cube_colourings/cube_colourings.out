@@ -1,0 +1,8 @@
+rotation group of the cube has 24 elements
+1 colours: 1 distinct cubes
+2 colours: 10 distinct cubes
+3 colours: 57 distinct cubes
+4 colours: 240 distinct cubes
+5 colours: 800 distinct cubes
+brute force with 2 colours: 10
+brute force with 3 colours: 57

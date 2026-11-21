@@ -1,0 +1,64 @@
+## Japanese numerals: writes numbers with the digits 一 to 九 and the units 十, 百, 千 inside each group
+## of four digits and 万 and 億 between groups (a lone one before 十, 百 or 千 is dropped), then reads them back.
+
+fn digit_chars() List[str]
+    ["〇", "一", "二", "三", "四", "五", "六", "七", "八", "九"]
+
+fn small(n int) str
+    d := digit_chars()
+    units := ["千", "百", "十", ""]
+    divs := [1000, 100, 10, 1]
+    mut out := List[str]()
+    for i in 0..4
+        k := n / divs[i] % 10
+        if k == 0
+            continue
+        if k == 1 and i < 3
+            out.push(units[i])
+        else
+            out.push("{d[k]}{units[i]}")
+    out.join("")
+
+fn to_kanji(n int) str
+    if n == 0
+        return "〇"
+    mut out := List[str]()
+    oku := n / 100000000
+    man := n / 10000 % 10000
+    rest := n % 10000
+    if oku > 0
+        out.push("{small(oku)}億")
+    if man > 0
+        out.push("{small(man)}万")
+    out.push(small(rest))
+    out.join("")
+
+fn from_kanji(s str) int
+    d := digit_chars()
+    mut total := 0
+    mut group := 0
+    mut digit := 0
+    for c in s.chars()
+        t := "{c}"
+        if i := d.index_of(t)
+            digit = i
+        elif t == "十" or t == "百" or t == "千"
+            unit := if t == "十" then 10 elif t == "百" then 100 else 1000
+            mult := if digit == 0 then 1 else digit
+            group += mult * unit
+            digit = 0
+        else
+            big := if t == "万" then 10000 else 100000000
+            total += (group + digit) * big
+            group = 0
+            digit = 0
+    total + group + digit
+
+fn main()
+    for n in [7, 10, 15, 111, 2025, 10000, 12345, 300000, 100010001, 987654321]
+        k := to_kanji(n)
+        print("{n:>10} {k} -> {from_kanji(k)}")
+
+@test fn round_trip()
+    assert_eq(to_kanji(2025), "二千二十五")
+    assert_eq(from_kanji("一万二千三百四十五"), 12345)

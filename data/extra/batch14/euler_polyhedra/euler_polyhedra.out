@@ -1,0 +1,9 @@
+{3,3} tetrahedron  V  4 E  6 F  4 V-E+F 2
+{3,4} octahedron   V  6 E 12 F  8 V-E+F 2
+{3,5} icosahedron  V 12 E 30 F 20 V-E+F 2
+{4,3} cube         V  8 E 12 F  6 V-E+F 2
+{5,3} dodecahedron V 20 E 30 F 12 V-E+F 2
+5 regular solids
+5-gon prism      V 10 E 15 F  7 V-E+F 2
+8-gon prism      V 16 E 24 F 10 V-E+F 2
+4x6 torus mesh   V 24 E 48 F 24 V-E+F 0

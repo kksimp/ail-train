@@ -1,0 +1,33 @@
+## CI matrix: expands a build matrix (every operating system by language version by database) into
+## jobs, drops combinations matched by exclude rules, appends explicit extra jobs, and names each job.
+
+fn matches(job List[str], rule List[str]) bool
+    for i in 0..job.len()
+        if rule[i] != "*" and rule[i] != job[i]
+            return false
+    true
+
+fn main()
+    systems := ["linux", "macos", "windows"]
+    versions := ["3.10", "3.12"]
+    dbs := ["sqlite", "postgres"]
+    excludes := [["windows", "*", "postgres"], ["macos", "3.10", "*"]]
+    includes := [["linux", "3.13-dev", "sqlite"]]
+    mut jobs := List[List[str]]()
+    mut dropped := 0
+    for sys_name in systems
+        for v in versions
+            for db in dbs
+                job := [sys_name, v, db]
+                if excludes.any(|r| matches(job, r))
+                    dropped += 1
+                else
+                    jobs.push(job)
+    jobs.extend(includes)
+    for i, j in jobs.enumerate()
+        print("job {i + 1:>2}: {j[0]}-py{j[1]}-{j[2]}")
+    print("{systems.len() * versions.len() * dbs.len()} combinations, {dropped} excluded, {includes.len()} added, {jobs.len()} jobs")
+
+@test fn wildcard()
+    assert(matches(["windows", "3.12", "postgres"], ["windows", "*", "postgres"]))
+    assert(not matches(["linux", "3.12", "postgres"], ["windows", "*", "postgres"]))

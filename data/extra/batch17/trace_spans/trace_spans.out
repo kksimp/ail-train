@@ -1,0 +1,8 @@
+GET /order           0-180 180 ms, self  22 ms
+  auth               5-25   20 ms, self  20 ms
+  load order        30-110  80 ms, self  12 ms
+    db query        35-90   55 ms, self  55 ms
+    cache set       92-105  13 ms, self  13 ms
+  render           112-170  58 ms, self  13 ms
+    template       115-160  45 ms, self  45 ms
+critical path: GET /order > render > template

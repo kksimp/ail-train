@@ -1,0 +1,6 @@
+K3: 3 edges, 8 colourings, 6 without a one-colour triangle: can be avoided
+K4: 6 edges, 64 colourings, 18 without a one-colour triangle: can be avoided
+K5: 10 edges, 1024 colourings, 12 without a one-colour triangle: can be avoided
+K6: 15 edges, 32768 colourings, 0 without a one-colour triangle: a one-colour triangle is forced
+pentagon red, pentagram blue has a triangle: false
+so R(3,3) = 6: any six people hold three mutual friends or three mutual strangers

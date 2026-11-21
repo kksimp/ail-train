@@ -1,0 +1,44 @@
+## Facet counts: a shop search shows, for each facet value, how many products would match if it were
+## picked; each facet's counts apply every other selected filter but not its own, so choices within a facet stay visible.
+
+struct Item
+    name str
+    brand str
+    colour str
+    price int
+
+fn band(p int) str
+    if p < 50 then "under 50" elif p < 100 then "50-99" else "100+"
+
+fn keep(it Item, brands List[str], colours List[str], skip str) bool
+    brand_ok := skip == "brand" or brands.is_empty() or brands.contains(it.brand)
+    colour_ok := skip == "colour" or colours.is_empty() or colours.contains(it.colour)
+    brand_ok and colour_ok
+
+fn main()
+    items := [Item(name: "trail", brand: "Acme", colour: "red", price: 80), Item(name: "city", brand: "Acme", colour: "black", price: 45), Item(name: "sprint", brand: "Bolt", colour: "red", price: 120), Item(name: "cloud", brand: "Bolt", colour: "white", price: 95), Item(name: "hike", brand: "Crest", colour: "black", price: 60), Item(name: "lite", brand: "Crest", colour: "red", price: 30), Item(name: "pro", brand: "Acme", colour: "white", price: 150)]
+    brands := ["Acme", "Bolt"]
+    colours := ["red"]
+    shown := items.filter(|it| keep(it, brands, colours, "")).map(|it| it.name).join(", ")
+    print("results: {shown}")
+    mut by_brand := Map[str, int]()
+    mut by_colour := Map[str, int]()
+    mut by_band := Map[str, int]()
+    for it in items
+        if keep(it, brands, colours, "brand")
+            by_brand[it.brand] += 1
+        if keep(it, brands, colours, "colour")
+            by_colour[it.colour] += 1
+        if keep(it, brands, colours, "")
+            by_band[band(it.price)] += 1
+    for b in by_brand.keys().sorted()
+        tick := if brands.contains(b) then "[x]" else "[ ]"
+        print("brand  {tick} {b:<6} {by_brand[b]}")
+    for c in by_colour.keys().sorted()
+        tick := if colours.contains(c) then "[x]" else "[ ]"
+        print("colour {tick} {c:<6} {by_colour[c]}")
+    for p, n in by_band
+        print("price      {p:<8} {n}")
+
+@test fn bands()
+    assert_eq(band(50), "50-99")

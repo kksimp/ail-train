@@ -1,0 +1,6 @@
+line 3: warn /search 240ms (cached)
+line 4: error upstream closed 80ms
+line 6: error disk almost full 0ms
+info   3
+warn   1
+error  2

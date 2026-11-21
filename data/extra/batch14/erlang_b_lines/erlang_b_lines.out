@@ -1,0 +1,14 @@
+ 1 lines for 5 erlangs:  83.33% of calls blocked
+ 2 lines for 5 erlangs:  67.57% of calls blocked
+ 3 lines for 5 erlangs:  52.97% of calls blocked
+ 4 lines for 5 erlangs:  39.83% of calls blocked
+ 5 lines for 5 erlangs:  28.49% of calls blocked
+ 6 lines for 5 erlangs:  19.18% of calls blocked
+ 7 lines for 5 erlangs:  12.05% of calls blocked
+ 8 lines for 5 erlangs:   7.00% of calls blocked
+ 9 lines for 5 erlangs:   3.75% of calls blocked
+10 lines for 5 erlangs:   1.84% of calls blocked
+1.0 erlangs need 5 lines for under 1% blocking (0.31%)
+3.0 erlangs need 8 lines for under 1% blocking (0.81%)
+8.0 erlangs need 15 lines for under 1% blocking (0.91%)
+20.0 erlangs need 30 lines for under 1% blocking (0.85%)

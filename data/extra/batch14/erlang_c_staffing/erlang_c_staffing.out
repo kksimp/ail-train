@@ -1,0 +1,8 @@
+2.0 calls a minute, 4.0 minutes each: 8.0 erlangs
+ 9 agents:  65.3% wait, mean wait 156.8 s,  39.9% answered within 20 s
+10 agents:  40.9% wait, mean wait  49.1 s,  65.4% answered within 20 s
+11 agents:  24.5% wait, mean wait  19.6 s,  80.9% answered within 20 s
+12 agents:  14.0% wait, mean wait   8.4 s,  90.0% answered within 20 s
+13 agents:   7.6% wait, mean wait   3.6 s,  95.0% answered within 20 s
+14 agents:   3.9% wait, mean wait   1.6 s,  97.6% answered within 20 s
+smallest team meeting 80/20: 11 agents

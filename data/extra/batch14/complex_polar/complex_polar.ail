@@ -1,0 +1,60 @@
+## Complex numbers in polar form: |z| and arg z (atan2, in degrees); multiplying multiplies lengths and
+## adds angles, dividing does the reverse, and De Moivre's rule makes (1 + i)^8 exactly 16.
+
+struct Cx
+    re float
+    im float
+
+impl Add for Cx
+    fn add(self, o Cx) Cx
+        Cx(re: self.re + o.re, im: self.im + o.im)
+
+impl Mul for Cx
+    fn mul(self, o Cx) Cx
+        Cx(re: self.re * o.re - self.im * o.im, im: self.re * o.im + self.im * o.re)
+
+impl Div for Cx
+    fn div(self, o Cx) Cx
+        d := o.re * o.re + o.im * o.im
+        Cx(re: (self.re * o.re + self.im * o.im) / d, im: (self.im * o.re - self.re * o.im) / d)
+
+fn Cx.size(self) float
+    (self.re * self.re + self.im * self.im).sqrt()
+
+fn Cx.angle(self) float
+    self.im.atan2(self.re) * 180.0 / 3.141592653589793
+
+fn tidy(v float) float
+    if v.abs() < 0.0005 then 0.0 else v
+
+fn Cx.text(self) str
+    r := tidy(self.re)
+    i := tidy(self.im)
+    if i < 0.0
+        mag := -i
+        return "{r:.3} - {mag:.3}i"
+    "{r:.3} + {i:.3}i"
+
+fn polar(r float, deg float) Cx
+    a := deg * 3.141592653589793 / 180.0
+    Cx(re: r * a.cos(), im: r * a.sin())
+
+fn main()
+    z := Cx(re: 3.0, im: 4.0)
+    w := Cx(re: 1.0, im: -2.0)
+    print("z = {z.text()}: length {z.size():.3}, angle {z.angle():.2} deg")
+    print("w = {w.text()}: length {w.size():.3}, angle {w.angle():.2} deg")
+    print("z + w = {(z + w).text()}")
+    zw := z * w
+    print("z w = {zw.text()}: length {zw.size():.3} = {z.size() * w.size():.3}, angle {zw.angle():.2} = {z.angle() + w.angle():.2}")
+    print("z / w = {(z / w).text()}")
+    mut p := Cx(re: 1.0, im: 0.0)
+    one_i := Cx(re: 1.0, im: 1.0)
+    for k in 0..8
+        p = p * one_i
+    print("(1 + i)^8 = {p.text()}")
+    print("2 at 30 deg times 3 at 60 deg = {(polar(2.0, 30.0) * polar(3.0, 60.0)).text()}")
+
+@test fn i_squared()
+    sq := Cx(re: 0.0, im: 1.0) * Cx(re: 0.0, im: 1.0)
+    assert_eq(sq.re, -1.0)

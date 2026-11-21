@@ -1,0 +1,49 @@
+## Shapley value: a fair split of a shared cost or prize averages each member's marginal contribution
+## over every order of arrival; an airstrip shared by four planes and a glove market show the rule.
+
+fn perms(n int) List[List[int]]
+    if n == 0
+        return [List[int]()]
+    mut out := List[List[int]]()
+    for p in perms(n - 1)
+        for pos in 0..=p.len()
+            mut q := p
+            q.insert(pos, n - 1)
+            out.push(q)
+    out
+
+fn worth(kind int, members List[int]) int
+    if kind == 0
+        needs := [10, 20, 30, 60]
+        return members.fold(0, |acc, m| acc.max(needs[m]))
+    lefts := members.filter(|m| m == 0).len()
+    rights := members.filter(|m| m > 0).len()
+    lefts.min(rights) * 12
+
+fn gcd(a int, b int) int
+    if b == 0 then a else gcd(b, a % b)
+
+fn shapley(kind int, n int, names List[str])
+    orders := perms(n)
+    mut share := [0 for i in 0..n]
+    for order in orders
+        mut present := List[int]()
+        for p in order
+            before := worth(kind, present)
+            present.push(p)
+            share[p] += worth(kind, present) - before
+    for i in 0..n
+        g := gcd(share[i], orders.len())
+        exact := share[i].to_float() / orders.len().to_float()
+        den := orders.len() / g
+        exact_text := if den == 1 then "{share[i] / g}" else "{share[i] / g}/{den}"
+        print("    {names[i]:<8} {exact_text} = {exact:.2}")
+
+fn main()
+    print("airstrip costing the longest need (10, 20, 30, 60):")
+    shapley(0, 4, ["glider", "prop", "turbo", "jet"])
+    print("one left glove and two right gloves, a pair sells for 12:")
+    shapley(1, 3, ["left", "right A", "right B"])
+
+@test fn pair_worth()
+    assert_eq(worth(1, [0, 1]), 12)

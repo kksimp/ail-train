@@ -1,0 +1,5 @@
+FAIL parser                raw 20, visible 11, codes [31 0]
+PASS lexer                 raw 21, visible 10, codes [1;32 0]
+plain line                 raw 10, visible 10, codes []
+WARN slow test (2.1s)      raw 45, visible 21, codes [31 4 0 1;32 0]
+column width needed: 21

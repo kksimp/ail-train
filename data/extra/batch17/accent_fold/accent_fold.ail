@@ -1,0 +1,33 @@
+## Accent folding for search: maps accented Latin letters to plain ones through two parallel tables
+## (German ä, ö, ü and ß become ae, oe, ue and ss), lower-cases the result, and matches queries against folded titles.
+
+fn fold(s str) str
+    from_chars := "àáâãåçèéêëìíîïñòóôõøùúûýÿÀÁÂÃÅÇÈÉÊËÌÍÎÏÑÒÓÔÕØÙÚÛÝ".chars()
+    to_chars := "aaaaaceeeeiiiinooooouuuyyaaaaaceeeeiiiinooooouuuy".chars()
+    mut out := List[str]()
+    for c in s.chars()
+        if i := from_chars.index_of(c)
+            out.push("{to_chars[i]}")
+        elif c == 'ä' or c == 'Ä'
+            out.push("ae")
+        elif c == 'ö' or c == 'Ö'
+            out.push("oe")
+        elif c == 'ü' or c == 'Ü'
+            out.push("ue")
+        elif c == 'ß'
+            out.push("ss")
+        else
+            out.push("{c}")
+    out.join("").to_lower()
+
+fn main()
+    titles := ["Crème Brûlée", "Smörgåsbord Guide", "Über den Fluß", "São Paulo Nights", "Café Society", "Ñandú Tales", "Dvořák Symphonies"]
+    for t in titles
+        print("{t:<19} -> {fold(t)}")
+    for q in ["creme", "uber", "fluss", "sao", "CAFE", "nandu", "dvorak"]
+        hits := titles.filter(|t| fold(t).contains(fold(q)))
+        shown := if hits.is_empty() then "(no match)" else hits.join(", ")
+        print("search {q:<7} {shown}")
+
+@test fn sharp_s()
+    assert_eq(fold("Straße"), "strasse")

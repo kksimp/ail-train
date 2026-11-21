@@ -1,0 +1,40 @@
+## Coverage ranges: for each source file, compares the executable lines with the lines a test run hit,
+## prints the coverage percentage and the missed lines compressed into ranges like 4-6, 9, the way coverage tools do.
+
+fn span(a int, b int) str
+    if a == b then "{a}" else "{a}-{b}"
+
+fn ranges(xs List[int]) str
+    if xs.is_empty()
+        return "-"
+    mut out := List[str]()
+    mut start := xs[0]
+    mut prev := xs[0]
+    for x in xs.slice(1)
+        if x != prev + 1
+            out.push(span(start, prev))
+            start = x
+        prev = x
+    out.push(span(start, prev))
+    out.join(", ")
+
+fn main()
+    files := [("cart.py", [1, 2, 3, 4, 5, 6, 8, 9, 10, 12], [1, 2, 3, 8, 12]), ("tax.py", [1, 2, 4, 5], [1, 2, 4, 5]), ("api.py", [3, 4, 5, 7, 9, 10, 11, 14, 15, 16, 17], [3, 4, 9, 14]), ("util.py", [2, 3], List[int]())]
+    mut all_lines := 0
+    mut all_hit := 0
+    for f in files
+        name, lines, hit := f
+        mut hit_set := Set[int]()
+        for h in hit
+            hit_set.add(h)
+        missed := lines.filter(|l| not hit_set.contains(l))
+        n := lines.len() - missed.len()
+        pct := (n * 100).to_float() / lines.len().to_float()
+        all_lines += lines.len()
+        all_hit += n
+        print("{name:<8} {n:>2}/{lines.len():<2} {pct:>5.1}%  missing {ranges(missed)}")
+    total := (all_hit * 100).to_float() / all_lines.to_float()
+    print("TOTAL    {all_hit:>2}/{all_lines:<2} {total:>5.1}%")
+
+@test fn compress()
+    assert_eq(ranges([4, 5, 6, 9, 11, 12]), "4-6, 9, 11-12")

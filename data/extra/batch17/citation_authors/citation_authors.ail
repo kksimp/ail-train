@@ -1,0 +1,51 @@
+## Citation authors: turns full names into "Last, F. M." form (particles like van and de stay with the
+## surname, hyphenated first names keep the hyphen), joins reference lists with "&", and writes the short in-text form.
+
+fn initials(given List[str]) str
+    mut out := List[str]()
+    for g in given
+        pieces := g.split("-").map(|p| "{p.slice(0, 1).to_upper()}.")
+        out.push(pieces.join("-"))
+    out.join(" ")
+
+fn surname_start(words List[str]) int
+    for i in 1..words.len()
+        first := words[i].char_at(0) else 'A'
+        if first.is_lower()
+            return i
+    words.len() - 1
+
+fn surname(name str) str
+    words := name.split(" ")
+    words.slice(surname_start(words)).join(" ")
+
+fn reference_name(name str) str
+    words := name.split(" ")
+    at := surname_start(words)
+    last := words.slice(at).join(" ")
+    "{last}, {initials(words.slice(0, at))}"
+
+fn reference_list(names List[str]) str
+    refs := names.map(|n| reference_name(n))
+    if refs.len() == 1
+        return refs[0]
+    head := refs.slice(0, refs.len() - 1).join(", ")
+    "{head}, & {refs[refs.len() - 1]}"
+
+fn in_text(names List[str], year int) str
+    if names.len() == 1
+        return "({surname(names[0])}, {year})"
+    if names.len() == 2
+        return "({surname(names[0])} & {surname(names[1])}, {year})"
+    "({surname(names[0])} et al., {year})"
+
+fn main()
+    works := [(["Ada King Lovelace"], 1843), (["Guido van Rossum", "Fred L. Drake"], 2009), (["Jean-Paul Sartre"], 1943), (["Donald Ervin Knuth", "James H. Morris", "Vaughan Pratt"], 1977), (["Ludwig van Beethoven", "Carl de la Cruz"], 1801)]
+    for w in works
+        names, year := w
+        print("{reference_list(names)} ({year}).")
+        print("    cited as {in_text(names, year)}")
+
+@test fn particle()
+    assert_eq(reference_name("Guido van Rossum"), "van Rossum, G.")
+    assert_eq(reference_name("Jean-Paul Sartre"), "Sartre, J.-P.")

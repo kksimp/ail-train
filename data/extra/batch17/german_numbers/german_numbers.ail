@@ -1,0 +1,44 @@
+## German number words: units come before tens joined by "und" (einundzwanzig), the teens and tens have
+## irregular forms (sechzehn, siebzig, dreißig), one is "eins" alone but "ein" inside compounds, and thousands join on.
+
+fn ones() List[str]
+    ["", "eins", "zwei", "drei", "vier", "fünf", "sechs", "sieben", "acht", "neun", "zehn", "elf", "zwölf", "dreizehn", "vierzehn", "fünfzehn", "sechzehn", "siebzehn", "achtzehn", "neunzehn"]
+
+fn tens() List[str]
+    ["", "", "zwanzig", "dreißig", "vierzig", "fünfzig", "sechzig", "siebzig", "achtzig", "neunzig"]
+
+fn unit_word(n int) str
+    if n == 1 then "ein" else ones()[n]
+
+fn below_100(n int) str
+    if n < 20
+        return ones()[n]
+    t := tens()[n / 10]
+    if n % 10 == 0
+        return t
+    "{unit_word(n % 10)}und{t}"
+
+fn below_1000(n int) str
+    if n < 100
+        return below_100(n)
+    head := "{unit_word(n / 100)}hundert"
+    if n % 100 == 0
+        return head
+    "{head}{below_100(n % 100)}"
+
+fn german(n int) str
+    if n < 1000
+        return below_1000(n)
+    th := n / 1000
+    head := if th == 1 then "eintausend" else "{below_1000(th)}tausend"
+    if n % 1000 == 0
+        return head
+    "{head}{below_1000(n % 1000)}"
+
+fn main()
+    for n in [1, 11, 16, 17, 21, 30, 67, 101, 199, 1000, 2025, 31001, 999999]
+        print("{n:>6} {german(n)}")
+
+@test fn compounds()
+    assert_eq(german(21), "einundzwanzig")
+    assert_eq(german(101), "einhunderteins")

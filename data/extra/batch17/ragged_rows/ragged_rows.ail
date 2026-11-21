@@ -1,0 +1,39 @@
+## Ragged rows: a comma-separated export where some rows are short and some have extra commas in
+## the last column; short rows are padded with blanks, long ones fold the extras back into the last field.
+
+fn repair(fields List[str], width int) List[str]
+    if fields.len() == width
+        return fields
+    if fields.len() < width
+        mut out := fields
+        while out.len() < width
+            out.push("")
+        return out
+    mut out2 := fields.slice(0, width - 1)
+    out2.push(fields.slice(width - 1).join(","))
+    out2
+
+fn main()
+    header := "date,user,action,comment".split(",")
+    lines := ["2025-03-01,ana,login,", "2025-03-01,ben,upload", "2025-03-02,ana,comment,nice, very nice", "2025-03-02,cy", "2025-03-03,ben,logout,bye"]
+    w := header.len()
+    mut fixed := List[List[str]]()
+    for i, line in lines.enumerate()
+        fields := line.split(",")
+        if fields.len() < w
+            print("row {i + 1}: {w - fields.len()} missing, padded")
+        elif fields.len() > w
+            print("row {i + 1}: {fields.len() - w} extra, joined into {header[w - 1]}")
+        fixed.push(repair(fields, w))
+    mut widths := header.map(|h| h.len())
+    for r in fixed
+        for j in 0..w
+            widths[j] = widths[j].max(r[j].len())
+    mut table := [header]
+    table.extend(fixed)
+    for r in table
+        cells := [r[j].pad_right(widths[j], ' ') for j in 0..w]
+        print(cells.join(" | ").trim_end())
+
+@test fn joins_extra()
+    assert_eq(repair(["a", "b", "c", "d"], 3), ["a", "b", "c,d"])

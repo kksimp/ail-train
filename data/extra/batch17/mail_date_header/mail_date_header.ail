@@ -1,0 +1,59 @@
+## Mail date header: reads e-mail Date headers like "Tue, 05 Mar 2024 14:03:00 +0100" (or with a zone
+## name such as GMT or EST), subtracts the offset and writes the moment in UTC, rolling over days, months and years.
+
+fn month_index(name str) int
+    months := ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+    (months.index_of(name) else 0) + 1
+
+fn days_in(y int, m int) int
+    if m == 2
+        leap := (y % 4 == 0 and y % 100 != 0) or y % 400 == 0
+        return if leap then 29 else 28
+    if [4, 6, 9, 11].contains(m) then 30 else 31
+
+fn zone_minutes(z str) int
+    named := {"GMT": 0, "UT": 0, "EST": -300, "EDT": -240, "PST": -480, "PDT": -420}
+    if v := named.get(z)
+        return v
+    sign := if z.starts_with("-") then -1 else 1
+    hh := z.slice(1, 3).to_int() else 0
+    mm := z.slice(3, 5).to_int() else 0
+    sign * (hh * 60 + mm)
+
+fn to_utc(header str) str
+    rest := if header.contains(",") then header.split(", ")[1] else header
+    p := rest.words()
+    mut d := p[0].to_int() else 1
+    mut m := month_index(p[1])
+    mut y := p[2].to_int() else 1970
+    hms := p[3].split(":").map(|x| x.to_int() else 0)
+    mut minutes := hms[0] * 60 + hms[1] - zone_minutes(p[4])
+    if minutes < 0
+        minutes += 1440
+        d -= 1
+        if d == 0
+            m -= 1
+            if m == 0
+                m = 12
+                y -= 1
+            d = days_in(y, m)
+    elif minutes >= 1440
+        minutes -= 1440
+        d += 1
+        if d > days_in(y, m)
+            d = 1
+            m += 1
+            if m == 13
+                m = 1
+                y += 1
+    hh := minutes / 60
+    mi := minutes % 60
+    "{y}-{m:02}-{d:02}T{hh:02}:{mi:02}:{hms[2]:02}Z"
+
+fn main()
+    headers := ["Tue, 05 Mar 2024 14:03:00 +0100", "Wed, 31 Dec 2025 22:30:15 -0330", "1 Mar 2024 00:20:00 +0530", "Fri, 28 Feb 2025 23:59:59 PST", "Mon, 10 Jun 2024 08:00:00 GMT", "Sun, 01 Jan 2023 01:00:00 +1400"]
+    for h in headers
+        print("{h:<33} -> {to_utc(h)}")
+
+@test fn leap_back()
+    assert_eq(to_utc("1 Mar 2024 00:20:00 +0530"), "2024-02-29T18:50:00Z")

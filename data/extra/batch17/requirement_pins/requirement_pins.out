@@ -1,0 +1,5 @@
+Exact      3  requests pytest sqlalchemy
+Compatible 1  django
+Ranged     1  flask
+Loose      2  numpy black
+5 of 7 packages have a version constraint

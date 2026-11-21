@@ -1,0 +1,45 @@
+## Name parts: splits personal names into title, first, middle, last and suffix, knowing a few titles
+## (Dr., Ms., Prof.) and suffixes (Jr., III, PhD) and the "Last, First Middle" order used by catalogues.
+
+struct Name
+    title str
+    first str
+    middle str
+    last str
+    suffix str
+
+fn parse_name(raw str) Name
+    titles := ["Dr.", "Mr.", "Ms.", "Mrs.", "Prof."]
+    suffixes := ["Jr.", "Sr.", "II", "III", "PhD"]
+    mut text := raw.trim()
+    if text.contains(",")
+        halves := text.split(",")
+        text = "{halves[1].trim()} {halves[0].trim()}"
+    mut words := text.words()
+    mut title := ""
+    mut suffix := ""
+    if words.len() > 1 and titles.contains(words[0])
+        title = words[0]
+        words = words.slice(1)
+    if words.len() > 1 and suffixes.contains(words[words.len() - 1])
+        suffix = words[words.len() - 1]
+        words = words.slice(0, words.len() - 1)
+    if words.len() == 1
+        return Name(title: title, first: words[0], middle: "", last: "", suffix: suffix)
+    middle := words.slice(1, words.len() - 1).join(" ")
+    Name(title: title, first: words[0], middle: middle, last: words[words.len() - 1], suffix: suffix)
+
+fn show(v str) str
+    if v == "" then "-" else v
+
+fn main()
+    raw_names := ["Dr. Martin Luther King Jr.", "Hopper, Grace Brewster", "Prof. Ada Lovelace", "Cher", "Mr. John Ronald Reuel Tolkien III", "  Turing,  Alan  "]
+    print("title  first   middle        last      suffix")
+    for r in raw_names
+        n := parse_name(r)
+        print("{show(n.title):<6} {n.first:<7} {show(n.middle):<13} {show(n.last):<9} {show(n.suffix)}")
+
+@test fn comma_order()
+    n := parse_name("Hopper, Grace Brewster")
+    assert_eq(n.first, "Grace")
+    assert_eq(n.last, "Hopper")

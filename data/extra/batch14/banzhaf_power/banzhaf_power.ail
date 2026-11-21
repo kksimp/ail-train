@@ -1,0 +1,32 @@
+## Banzhaf power index: in weighted voting a member is critical in a winning coalition when leaving
+## would make it lose; counting those swings shows weight is not power ([51: 49, 49, 2] gives equal power).
+
+fn swings(quota int, w List[int]) List[int]
+    n := w.len()
+    mut out := [0 for i in 0..n]
+    for mask in 0..(1 << n)
+        mut total := 0
+        for i in 0..n
+            if ((mask >> i) & 1) == 1
+                total += w[i]
+        if total >= quota
+            for i in 0..n
+                if ((mask >> i) & 1) == 1 and total - w[i] < quota
+                    out[i] += 1
+    out
+
+fn main()
+    cases := [(51, [49, 49, 2]), (6, [4, 3, 2, 1]), (12, [5, 5, 3, 2, 2, 1]), (9, [9, 3, 2, 1]), (16, [8, 8, 4, 4, 1])]
+    for c in cases
+        quota, w := c
+        s := swings(quota, w)
+        all_s := s.sum()
+        shares := s.map(|x| x.to_float() * 100.0 / all_s.to_float())
+        mut parts := List[str]()
+        for i in 0..w.len()
+            parts.push("{w[i]}:{shares[i]:.1}%")
+        joined := parts.join(" ")
+        print("quota {quota:>2} weights {w}: swings {s} -> {joined}")
+
+@test fn dictator()
+    assert_eq(swings(9, [9, 3, 2, 1]), [8, 0, 0, 0])

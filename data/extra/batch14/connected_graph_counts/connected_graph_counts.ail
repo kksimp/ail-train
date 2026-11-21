@@ -1,0 +1,26 @@
+## Connected labelled graphs: of the 2^(n(n-1)/2) graphs on n labelled vertices, the connected ones
+## follow c(n) = g(n) - sum C(n-1, k-1) c(k) g(n-k), removing graphs whose vertex 1 sits in a k-part.
+
+fn binom(n int, k int) int
+    mut r := 1
+    for i in 0..k
+        r = r * (n - i) / (i + 1)
+    r
+
+fn main()
+    mut g := [1]
+    mut c := [0]
+    for n in 1..=9
+        g.push(1 << (n * (n - 1) / 2))
+        mut cn := g[n]
+        for k in 1..n
+            cn -= binom(n - 1, k - 1) * c[k] * g[n - k]
+        c.push(cn)
+    print("  n           graphs        connected  share")
+    for n in 1..=9
+        share := c[n].to_float() / g[n].to_float()
+        print("{n:>3} {g[n]:>16} {c[n]:>16}  {share:.3}")
+    print("almost every large random graph is connected")
+
+@test fn three()
+    assert_eq(binom(5, 2), 10)

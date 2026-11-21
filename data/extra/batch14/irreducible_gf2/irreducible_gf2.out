@@ -1,0 +1,12 @@
+degree 1:  2 irreducible, formula  2
+    x, x + 1
+degree 2:  1 irreducible, formula  1
+    x^2 + x + 1
+degree 3:  2 irreducible, formula  2
+    x^3 + x + 1, x^3 + x^2 + 1
+degree 4:  3 irreducible, formula  3
+    x^4 + x + 1, x^4 + x^3 + 1, x^4 + x^3 + x^2 + x + 1
+degree 5:  6 irreducible, formula  6
+degree 6:  9 irreducible, formula  9
+degree 7: 18 irreducible, formula 18
+degree 8: 30 irreducible, formula 30

@@ -1,0 +1,12 @@
+majority:
+    DNF (~a & b & c) | (a & ~b & c) | (a & b & ~c) | (a & b & c)
+    CNF (a | b | c) & (a | b | ~c) & (a | ~b | c) & (~a | b | c)
+    both match the table: true
+odd parity:
+    DNF (~a & ~b & c) | (~a & b & ~c) | (a & ~b & ~c) | (a & b & c)
+    CNF (a | b | c) & (a | ~b | ~c) & (~a | b | ~c) & (~a | ~b | c)
+    both match the table: true
+a implies c:
+    DNF (~a & ~b & ~c) | (~a & ~b & c) | (~a & b & ~c) | (~a & b & c) | (a & ~b & c) | (a & b & c)
+    CNF (~a | b | c) & (~a | ~b | c)
+    both match the table: true

@@ -1,0 +1,49 @@
+## Combined log bytes: splits web access-log lines at their double quotes into client, request and
+## status fields, then sums the bytes sent per client, counts distinct paths each asked for, and names the heaviest.
+
+struct Hit
+    ip str
+    method str
+    path str
+    status int
+    size int
+
+fn parse(line str) Hit ! str
+    parts := line.split("\"")
+    if parts.len() < 3
+        return "no quoted request"
+    ip := parts[0].split(" ")[0]
+    req := parts[1].split(" ")
+    if req.len() != 3
+        return "bad request field"
+    tail := parts[2].trim().split(" ")
+    status := tail[0].to_int() else return "bad status"
+    size := tail[1].to_int() else 0
+    Hit(ip: ip, method: req[0], path: req[1], status: status, size: size)
+
+fn main()
+    lines := ["10.0.0.5 - - [12/Mar/2025:10:01:02 +0000] \"GET /index.html HTTP/1.1\" 200 5120", "10.0.0.7 - - [12/Mar/2025:10:01:09 +0000] \"GET /logo.png HTTP/1.1\" 200 20480", "10.0.0.5 - - [12/Mar/2025:10:02:11 +0000] \"GET /about.html HTTP/1.1\" 200 3072", "10.0.0.9 - - [12/Mar/2025:10:02:30 +0000] \"POST /login HTTP/1.1\" 302 -", "10.0.0.5 - - [12/Mar/2025:10:03:00 +0000] \"GET /index.html HTTP/1.1\" 304 0", "10.0.0.7 - - [12/Mar/2025:10:03:41 +0000] \"GET /video.mp4 HTTP/1.1\" 206 65536", "garbage line without quotes", "10.0.0.9 - - [12/Mar/2025:10:04:02 +0000] \"BREW\" 400 0"]
+    mut sent := Map[str, int]()
+    mut distinct := Map[str, int]()
+    mut seen := Set[str]()
+    mut posts := 0
+    for line in lines
+        if h := parse(line)
+            sent[h.ip] += h.size
+            if seen.add("{h.ip} {h.path}")
+                distinct[h.ip] += 1
+            if h.method == "POST"
+                posts += 1
+        else err
+            print("skipped: {err}")
+    for ip, b in sent
+        print("{ip:<10} {b:>6} bytes, {distinct[ip]} paths")
+    order := sent.keys().sorted(by: |k| -sent[k])
+    print("heaviest client: {order[0]}")
+    print("POST requests: {posts}")
+
+@test fn dash_size()
+    if h := parse("1.2.3.4 - - [x] \"GET / HTTP/1.1\" 200 -")
+        assert_eq(h.size, 0)
+    else
+        assert(false, "should parse")

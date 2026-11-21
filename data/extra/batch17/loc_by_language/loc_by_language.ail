@@ -1,0 +1,48 @@
+## Lines of code by language: like cloc, picks each file's language from its extension, then counts
+## blank lines, comment lines (by that language's line-comment marker or a /* */ block) and code lines.
+
+fn marker(ext str) str
+    match ext
+        "py" => "#"
+        "sh" => "#"
+        "sql" => "--"
+        _ => "//"
+
+fn main()
+    files := [("app.py", "import os\n\n# entry point\ndef main():\n    print(1)  # inline\n"), ("util.js", "// helpers\n/* block\n   comment */\nfunction f() \{\n\n  return 1\n}\n"), ("setup.sh", "#!/bin/sh\n# install\necho hi\n"), ("query.sql", "-- totals\nSELECT 1;\n\n"), ("main.js", "const x = 1 // one\n\n")]
+    mut stats := Map[str, List[int]]()
+    for f in files
+        name, text := f
+        ext := name.split(".")[1]
+        mark := marker(ext)
+        mut in_block := false
+        mut counts := stats.get(ext) else [0, 0, 0, 0]
+        counts[0] += 1
+        for raw in text.lines()
+            line := raw.trim()
+            if in_block
+                counts[2] += 1
+                if line.contains("*/")
+                    in_block = false
+            elif line == ""
+                counts[1] += 1
+            elif line.starts_with(mark)
+                counts[2] += 1
+            elif mark == "//" and line.starts_with("/*")
+                counts[2] += 1
+                in_block = not line.contains("*/")
+            else
+                counts[3] += 1
+        stats[ext] = counts
+    print("lang  files blank comment code")
+    mut total := [0, 0, 0, 0]
+    for ext in stats.keys().sorted()
+        c := stats[ext]
+        print("{ext:<5} {c[0]:>5} {c[1]:>5} {c[2]:>7} {c[3]:>4}")
+        for i in 0..4
+            total[i] += c[i]
+    print("total {total[0]:>5} {total[1]:>5} {total[2]:>7} {total[3]:>4}")
+
+@test fn markers()
+    assert_eq(marker("sql"), "--")
+    assert_eq(marker("go"), "//")

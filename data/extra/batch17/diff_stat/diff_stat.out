@@ -1,0 +1,6 @@
+ src/parser.ail       |  59 ++++++++++++++-----
+ src/lexer.ail        |   4 +-
+ docs/guide.md        |  12 ----
+ tests/parse_test.ail |  25 ++++++++
+ README.md            |   2 +-
+ 5 files changed, 71 insertions(+), 31 deletions(-)

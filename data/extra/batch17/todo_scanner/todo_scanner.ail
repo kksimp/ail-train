@@ -1,0 +1,52 @@
+## TODO scanner: finds TODO, FIXME and XXX markers in source comments, reads an optional owner in
+## brackets like TODO(ana), and lists the notes per owner with FIXMEs first, plus the files with the most notes.
+
+struct Note
+    file str
+    line int
+    tag str
+    owner str
+    text str
+
+fn scan(file str, lines List[str]) List[Note]
+    mut out := List[Note]()
+    for i, l in lines.enumerate()
+        at := l.find("#") else continue
+        comment := l.slice(at + 1).trim()
+        for tag in ["TODO", "FIXME", "XXX"]
+            if rest := comment.strip_prefix(tag)
+                mut owner := "nobody"
+                mut body := rest
+                if body.starts_with("(")
+                    close := body.find(")") else 0
+                    owner = body.slice(1, close)
+                    body = body.slice(close + 1)
+                text := (body.strip_prefix(":") else body).trim()
+                out.push(Note(file: file, line: i + 1, tag: tag, owner: owner, text: text))
+    out
+
+fn main()
+    mut notes := List[Note]()
+    notes.extend(scan("cart.py", ["total = 0  # TODO(ana): use Decimal", "# FIXME(ben): rounding is wrong for refunds", "x = 1", "# TODO handle empty basket"]))
+    notes.extend(scan("api.py", ["# XXX: temporary hack", "def get():  # TODO(ana): add caching", "    pass  # FIXME: crashes on None"]))
+    notes.extend(scan("ui.py", ["# a normal comment", "# TODO(cy): dark mode"]))
+    ordered := notes.sorted(by: |n| (n.owner, if_rank(n.tag), n.file, n.line))
+    mut current := ""
+    for n in ordered
+        if n.owner != current
+            print("{n.owner}:")
+            current = n.owner
+        print("  {n.tag:<5} {n.file}:{n.line} {n.text}")
+    mut per_file := Map[str, int]()
+    for n in notes
+        per_file[n.file] += 1
+    busiest := per_file.keys().sorted(by: |f| -per_file[f])
+    print("most notes: {busiest[0]} ({per_file[busiest[0]]})")
+
+fn if_rank(tag str) int
+    if tag == "FIXME" then 0 else 1
+
+@test fn owner_parsed()
+    ns := scan("a.py", ["# TODO(zoe): later"])
+    assert_eq(ns[0].owner, "zoe")
+    assert_eq(ns[0].text, "later")

@@ -1,0 +1,43 @@
+## Plane projection: the orthogonal projection onto the plane n . x = 0 is P = I - n n^T / (n . n);
+## with n = (1, 2, 2) every entry is a ninth, P P = P, and |n . x| / |n| is a point's distance to the plane.
+
+fn proj9(n List[int]) List[List[int]]
+    nn := n[0] * n[0] + n[1] * n[1] + n[2] * n[2]
+    mut p := List[List[int]]()
+    for i in 0..3
+        mut row := List[int]()
+        for j in 0..3
+            ident := if i == j then nn else 0
+            row.push(ident - n[i] * n[j])
+        p.push(row)
+    p
+
+fn mat_vec(m List[List[int]], v List[int]) List[int]
+    [m[i][0] * v[0] + m[i][1] * v[1] + m[i][2] * v[2] for i in 0..3]
+
+fn main()
+    n := [1, 2, 2]
+    nn := 9
+    p := proj9(n)
+    print("9 P = {p}")
+    mut pp := List[List[int]]()
+    for i in 0..3
+        mut row := List[int]()
+        for j in 0..3
+            mut s := 0
+            for k in 0..3
+                s += p[i][k] * p[k][j]
+            row.push(s / nn)
+        pp.push(row)
+    print("P P = P: {pp == p}")
+    for x in [[9, 0, 0], [3, 3, 3], [2, -1, 0], [0, 9, -9]]
+        img := mat_vec(p, x)
+        parts := img.map(|v| v.to_float() / 9.0).map(|f| "{f:.3}")
+        shown := parts.join(", ")
+        dot := n[0] * x[0] + n[1] * x[1] + n[2] * x[2]
+        dist := dot.abs().to_float() / 3.0
+        print("{x} -> ({shown}), distance to the plane {dist:.3}")
+    print("normal {n} -> {mat_vec(p, n)}: it collapses to the origin")
+
+@test fn on_plane()
+    assert_eq(mat_vec(proj9([1, 2, 2]), [2, -1, 0]), [18, -9, 0])

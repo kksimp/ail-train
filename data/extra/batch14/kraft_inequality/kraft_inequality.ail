@@ -1,0 +1,41 @@
+## Kraft inequality: a prefix code with word lengths l_i exists exactly when sum 2^-l_i <= 1; when it
+## does, the canonical code assigns consecutive binary numbers in order of length, and no word starts another.
+
+fn bits(v int, width int) str
+    mut out := List[str]()
+    for i in 0..width
+        out.push("{(v >> (width - 1 - i)) & 1}")
+    out.join("")
+
+fn main()
+    cases := [[1, 2, 3, 3], [2, 2, 2, 3, 3], [1, 2, 2, 3], [2, 3, 3, 3, 3, 4, 4], [3, 3, 3, 3, 3, 3, 3, 3]]
+    for lens in cases
+        top := lens.max() else 0
+        mut used := 0
+        for l in lens
+            used += 1 << (top - l)
+        room := 1 << top
+        if used > room
+            print("lengths {lens}: sum = {used}/{room} > 1, no prefix code exists")
+            continue
+        sorted_lens := lens.sorted()
+        mut code := 0
+        mut prev := sorted_lens[0]
+        mut words := List[str]()
+        for i in 0..sorted_lens.len()
+            l := sorted_lens[i]
+            if i > 0
+                code = (code + 1) << (l - prev)
+            words.push(bits(code, l))
+            prev = l
+        mut prefix_free := true
+        for a in words
+            for b in words
+                if a != b and b.starts_with(a)
+                    prefix_free = false
+        joined := words.join(" ")
+        note := if used == room then "complete" else "spare room"
+        print("lengths {lens}: sum = {used}/{room} ({note}), code {joined}, prefix-free {prefix_free}")
+
+@test fn three_bits()
+    assert_eq(bits(5, 3), "101")

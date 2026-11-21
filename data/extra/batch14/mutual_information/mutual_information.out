@@ -1,0 +1,8 @@
+rain vs umbrella: H(X) 0.9341, H(Y) 0.9710, H(X,Y) 1.5438
+    I(X;Y) = 0.3613 bits, summed directly 0.3613
+two fair coins: H(X) 1.0000, H(Y) 1.0000, H(X,Y) 2.0000
+    I(X;Y) = 0.0000 bits, summed directly 0.0000
+copied bit: H(X) 1.0000, H(Y) 1.0000, H(X,Y) 1.0000
+    I(X;Y) = 1.0000 bits, summed directly 1.0000
+grade vs seat row: H(X) 1.5766, H(Y) 1.5826, H(X,Y) 3.0113
+    I(X;Y) = 0.1479 bits, summed directly 0.1479

@@ -1,0 +1,46 @@
+## Normal forms: any truth table can be written as an OR of minterms (DNF, one per true row) or an AND of
+## maxterms (CNF, one per false row); evaluating both forms on every row reproduces the table.
+
+fn lit(name str, bit int, positive bool) str
+    if (bit == 1) == positive then name else "~{name}"
+
+fn main()
+    names := ["a", "b", "c"]
+    funcs := [("majority", [0, 0, 0, 1, 0, 1, 1, 1]), ("odd parity", [0, 1, 1, 0, 1, 0, 0, 1]), ("a implies c", [1, 1, 1, 1, 0, 1, 0, 1])]
+    for f in funcs
+        name, table := f
+        mut terms := List[str]()
+        mut clauses := List[str]()
+        for row in 0..8
+            bits := [(row >> 2) & 1, (row >> 1) & 1, row & 1]
+            if table[row] == 1
+                parts := [lit(names[i], bits[i], true) for i in 0..3]
+                joined := parts.join(" & ")
+                terms.push("({joined})")
+            else
+                parts := [lit(names[i], 1 - bits[i], true) for i in 0..3]
+                joined := parts.join(" | ")
+                clauses.push("({joined})")
+        mut ok := true
+        for row in 0..8
+            bits := [(row >> 2) & 1, (row >> 1) & 1, row & 1]
+            mut dnf := false
+            mut cnf := true
+            for r in 0..8
+                rb := [(r >> 2) & 1, (r >> 1) & 1, r & 1]
+                same := bits == rb
+                if table[r] == 1 and same
+                    dnf = true
+                if table[r] == 0 and same
+                    cnf = false
+            if dnf != (table[row] == 1) or cnf != (table[row] == 1)
+                ok = false
+        dnf_text := terms.join(" | ")
+        cnf_text := clauses.join(" & ")
+        print("{name}:")
+        print("    DNF {dnf_text}")
+        print("    CNF {cnf_text}")
+        print("    both match the table: {ok}")
+
+@test fn negated()
+    assert_eq(lit("a", 0, true), "~a")

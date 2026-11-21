@@ -1,0 +1,28 @@
+## Branch complexity: estimates cyclomatic complexity of each function in a small script as one plus
+## the number of decision words (if, elif, while, for, and, or) in its body, then rates it simple, moderate or complex.
+
+fn rating(n int) str
+    if n <= 4 then "simple" elif n <= 7 then "moderate" else "complex"
+
+fn main()
+    src := ["fn clamp(x, lo, hi)", "    if x < lo", "        return lo", "    if x > hi", "        return hi", "    return x", "fn grade(score)", "    if score >= 90 and bonus", "        return A", "    elif score >= 80 or extra", "        return B", "    elif score >= 70", "        return C", "    return F", "fn scan(rows)", "    for r in rows", "        while r.busy", "            if r.ok and r.ready or r.forced", "                send(r)", "            elif r.late", "                drop(r)", "    return done", "fn hello()", "    print(hi)"]
+    decision := ["if", "elif", "while", "for", "and", "or"]
+    mut names := List[str]()
+    mut scores := List[int]()
+    for line in src
+        if head := line.strip_prefix("fn ")
+            names.push(head.split("(")[0])
+            scores.push(1)
+        else
+            hits := line.words().count(|w| decision.contains(w))
+            scores[scores.len() - 1] += hits
+    for i, n in names.enumerate()
+        print("{n:<6} {scores[i]:>2}  {rating(scores[i])}")
+    top := scores.max() else 0
+    at := scores.index_of(top) else 0
+    worst := names[at]
+    print("refactor first: {worst}")
+
+@test fn ratings()
+    assert_eq(rating(4), "simple")
+    assert_eq(rating(8), "complex")

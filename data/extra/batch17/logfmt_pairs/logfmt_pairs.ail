@@ -1,0 +1,51 @@
+## Logfmt pairs: reads `key=value` log lines where a value in double quotes may hold spaces and a bare
+## key is a flag, then lists slow or failing requests (duration over 100 ms or level=error) and counts levels.
+
+fn parse_logfmt(line str) Map[str, str]
+    cs := line.chars()
+    mut out := Map[str, str]()
+    mut i := 0
+    while i < cs.len()
+        while i < cs.len() and cs[i] == ' '
+            i += 1
+        mut key := List[char]()
+        while i < cs.len() and cs[i] != '=' and cs[i] != ' '
+            key.push(cs[i])
+            i += 1
+        mut val := List[char]()
+        if i < cs.len() and cs[i] == '='
+            i += 1
+            if i < cs.len() and cs[i] == '"'
+                i += 1
+                while i < cs.len() and cs[i] != '"'
+                    val.push(cs[i])
+                    i += 1
+                i += 1
+            else
+                while i < cs.len() and cs[i] != ' '
+                    val.push(cs[i])
+                    i += 1
+        if key.len() > 0
+            out[key.join("")] = val.join("")
+    out
+
+fn main()
+    lines := ["level=info msg=\"server up\" port=8080", "level=info path=/home dur=35ms status=200", "level=warn path=/search dur=240ms status=200 cached", "level=error path=/pay dur=80ms status=502 msg=\"upstream closed\"", "level=info path=/img dur=12ms status=304", "level=error msg=\"disk almost full\" free=2%"]
+    mut levels := Map[str, int]()
+    for i, line in lines.enumerate()
+        m := parse_logfmt(line)
+        level := m.get_or("level", "info")
+        levels[level] += 1
+        dur_text := m.get_or("dur", "0ms")
+        dur := (dur_text.strip_suffix("ms") else "0").to_int() else 0
+        if level == "error" or dur > 100
+            what := m.get("msg") else m.get_or("path", "?")
+            flag := if m.contains("cached") then " (cached)" else ""
+            print("line {i + 1}: {level} {what} {dur}ms{flag}")
+    for k, v in levels
+        print("{k:<6} {v}")
+
+@test fn quoted_value()
+    m := parse_logfmt("a=1 b=\"x y\" c")
+    assert_eq(m["b"], "x y")
+    assert_eq(m["c"], "")

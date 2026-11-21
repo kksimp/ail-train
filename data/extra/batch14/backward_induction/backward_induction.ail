@@ -1,0 +1,27 @@
+## Backward induction: in a six-move centipede game the pot doubles each time a player passes; reasoning
+## from the last move back, each mover prefers to take, so the first player takes at once.
+
+fn main()
+    takes := [[4, 1], [2, 8], [16, 4], [8, 32], [64, 16], [32, 128]]
+    final := [256, 64]
+    names := ["Ann", "Bob"]
+    mut value := final
+    mut plan := ["" for i in 0..6]
+    mut k := 5
+    while k >= 0
+        mover := k % 2
+        take := takes[k]
+        cont := value[mover]
+        if take[mover] >= cont
+            value = take
+            plan[k] = "take"
+        else
+            plan[k] = "pass"
+        print("move {k + 1}: {names[mover]} compares take {take[mover]} with pass {cont} -> {plan[k]}")
+        k -= 1
+    print("predicted outcome: Ann {value[0]}, Bob {value[1]}")
+    print("if both always passed: Ann {final[0]}, Bob {final[1]}")
+
+@test fn last_move()
+    takes := [32, 128]
+    assert(takes[1] >= 64)

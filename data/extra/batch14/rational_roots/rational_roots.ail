@@ -1,0 +1,44 @@
+## Rational root theorem: any root p/q of an integer polynomial in lowest terms has p dividing the
+## constant term and q the leading one; each candidate is tested exactly via q^n P(p/q) = 0 in integers.
+
+fn gcd(a int, b int) int
+    if b == 0 then a.abs() else gcd(b, a % b)
+
+fn divisors(n int) List[int]
+    [d for d in 1..=n.abs() if n % d == 0]
+
+fn is_root(a List[int], p int, q int) bool
+    n := a.len() - 1
+    mut total := 0
+    for i in 0..a.len()
+        mut term := a[i]
+        for k in 0..n - i
+            term *= p
+        for k in 0..i
+            term *= q
+        total += term
+    total == 0
+
+fn main()
+    polys := [("2x^3 - 3x^2 - 11x + 6", [2, -3, -11, 6]), ("6x^3 - 11x^2 + 6x - 1", [6, -11, 6, -1]), ("x^3 - 2", [1, 0, 0, -2]), ("4x^4 - 17x^2 + 4", [4, 0, -17, 0, 4])]
+    for t in polys
+        name, a := t
+        mut tried := 0
+        mut roots := []
+        for q in divisors(a[0])
+            for p in divisors(a[a.len() - 1])
+                for s in [1, -1]
+                    if gcd(p, q) == 1
+                        tried += 1
+                        if is_root(a, s * p, q)
+                            roots.push((s * p, q))
+        ordered := roots.sorted(by: |r| r.0 * 1000000 / r.1)
+        mut shown := List[str]()
+        for r in ordered
+            num, den := r
+            shown.push(if den == 1 then "{num}" else "{num}/{den}")
+        text := if shown.is_empty() then "none" else shown.join(", ")
+        print("{name}: {tried} candidates, rational roots {text}")
+
+@test fn half()
+    assert(is_root([2, -1], 1, 2))

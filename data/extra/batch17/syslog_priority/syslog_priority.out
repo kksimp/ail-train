@@ -1,0 +1,10 @@
+<34> auth.crit: su: 'su root' failed for kim on /dev/pts/8
+<165> local4.notice: app: user login ok
+<0> kern.emerg: kernel: panic in scheduler
+<86> authpriv.info: sshd: session opened for user kim
+<13> user.notice: backup: nightly job done
+invalid: <200>bogus: out of range
+invalid: no priority here
+<27> daemon.err: disk: write error on sda1
+by severity: crit=1, notice=2, emerg=1, info=1, err=1
+err or worse: 3

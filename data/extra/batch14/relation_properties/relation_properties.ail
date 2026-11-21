@@ -1,0 +1,51 @@
+## Relation properties: on {1..6} tests reflexive, symmetric, antisymmetric and transitive for several
+## relations; reflexive + symmetric + transitive is an equivalence (its classes are listed), with antisymmetric an order.
+
+fn holds(kind int, a int, b int) bool
+    match kind
+        0 => b % a == 0
+        1 => a < b
+        2 => a % 2 == b % 2
+        3 => (a - b).abs() <= 1
+        4 => (a - b) % 3 == 0
+        _ => a + b == 7
+
+fn main()
+    names := ["divides", "less than", "same parity", "within 1", "same mod 3", "sum is 7"]
+    xs := [1, 2, 3, 4, 5, 6]
+    for k in 0..names.len()
+        refl := xs.all(|a| holds(k, a, a))
+        mut sym := true
+        mut anti := true
+        mut trans := true
+        for a in xs
+            for b in xs
+                if holds(k, a, b) and not holds(k, b, a)
+                    sym = false
+                if holds(k, a, b) and holds(k, b, a) and a != b
+                    anti = false
+                for c in xs
+                    if holds(k, a, b) and holds(k, b, c) and not holds(k, a, c)
+                        trans = false
+        mut kind := "neither"
+        if refl and sym and trans
+            kind = "equivalence"
+        elif refl and anti and trans
+            kind = "partial order"
+        elif anti and trans
+            kind = "strict order"
+        print("{names[k]:<12} reflexive {refl}, symmetric {sym}, antisymmetric {anti}, transitive {trans}: {kind}")
+        if kind == "equivalence"
+            mut done := Set[int]()
+            mut classes := List[str]()
+            for a in xs
+                if not done.contains(a)
+                    cls := xs.filter(|b| holds(k, a, b))
+                    for b in cls
+                        done.add(b)
+                    classes.push("{cls}")
+            joined := classes.join(" ")
+            print("    classes {joined}")
+
+@test fn divides_self()
+    assert(holds(0, 3, 6))

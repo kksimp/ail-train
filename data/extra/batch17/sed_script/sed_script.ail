@@ -1,0 +1,68 @@
+## Sed script: runs a small sed program over text; each command has an optional address (a line number,
+## a range N,M or a /text/ match) and is either s/old/new/ with an optional g flag or d to delete the line.
+
+struct Cmd
+    lo int
+    hi int
+    pattern str
+    op str
+    old str
+    new str
+    global bool
+
+fn parse(cmd str) Cmd
+    mut rest := cmd
+    mut lo := 0
+    mut hi := 0
+    mut pattern := ""
+    if rest.starts_with("/")
+        close := rest.slice(1).find("/") else 0
+        pattern = rest.slice(1, close + 1)
+        rest = rest.slice(close + 2)
+    else
+        mut digits := 0
+        while digits < rest.len() and ((rest.char_at(digits) else 'x').is_digit() or (rest.char_at(digits) else 'x') == ',')
+            digits += 1
+        if digits > 0
+            nums := rest.slice(0, digits).split(",")
+            lo = nums[0].to_int() else 0
+            hi = if nums.len() > 1 then (nums[1].to_int() else lo) else lo
+            rest = rest.slice(digits)
+    if rest == "d"
+        return Cmd(lo: lo, hi: hi, pattern: pattern, op: "d", old: "", new: "", global: false)
+    parts := rest.split("/")
+    Cmd(lo: lo, hi: hi, pattern: pattern, op: "s", old: parts[1], new: parts[2], global: parts[3] == "g")
+
+fn applies(c Cmd, n int, line str) bool
+    if c.pattern != ""
+        return line.contains(c.pattern)
+    if c.lo > 0
+        return n >= c.lo and n <= c.hi
+    true
+
+fn main()
+    script := ["s/colour/color/g", "2d", "/TODO/s/TODO/DONE/", "3,4s/ /_/g", "s/a/A/"]
+    cmds := script.map(|s| parse(s))
+    text := ["the colour of a colour wheel", "line to drop", "TODO: TODO list for today", "a b c", "banana bread"]
+    for i, line in text.enumerate()
+        mut cur := line
+        mut deleted := false
+        for c in cmds
+            if not applies(c, i + 1, cur)
+                continue
+            if c.op == "d"
+                deleted = true
+                break
+            if c.global
+                cur = cur.replace(c.old, c.new)
+            else
+                if at := cur.find(c.old)
+                    cur = "{cur.slice(0, at)}{c.new}{cur.slice(at + c.old.len())}"
+        if not deleted
+            print(cur)
+    print("({script.len()} commands, {text.len()} input lines)")
+
+@test fn range_address()
+    c := parse("3,4s/x/y/")
+    assert(applies(c, 4, "x"))
+    assert(not applies(c, 5, "x"))

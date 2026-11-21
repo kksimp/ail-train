@@ -1,0 +1,6 @@
+/home/ana/projects/app/src  -> ../../../docs/notes.txt  (3 up)
+/home/ana                   -> music/song.mp3           (0 up)
+/var/log                    -> .                        (0 up)
+/srv/www/site               -> ../../../etc/nginx/site.conf (3 up)
+/a/b/c                      -> d/e.txt                  (0 up)
+/data/2024                  -> ../2025/jan.csv          (1 up)

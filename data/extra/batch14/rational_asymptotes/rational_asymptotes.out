@@ -1,0 +1,12 @@
+(2x^2 + 1) / (x^2 - 4)
+    vertical at [-2, 2], holes at [], far away y = 2
+(x^2 - 1) / (x^2 + 2x - 3)
+    vertical at [-3], holes at [1], far away y = 1
+(x^3 + 2x) / (x^2 - 1)
+    vertical at [-1, 1], holes at [], far away y = x
+(3x + 6) / (x^2 + 1)
+    vertical at [], holes at [], far away y = 0
+(x^2 + x - 6) / (x - 2)
+    vertical at [], holes at [2], far away y = x + 3
+x^4 / (x - 1)
+    vertical at [1], holes at [], far away no line: it grows faster than any line

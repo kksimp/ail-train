@@ -1,0 +1,8 @@
+C(1000, 300) mod 13: Lucas 10, Pascal 10
+C(1000, 500) mod 7: Lucas 4, Pascal 4
+C(2026, 1000) mod 11: Lucas 0, Pascal 0
+C(100, 50) mod 3: Lucas 0, Pascal 0
+row 10: 4 odd entries, 2^2 = 4
+row 63: 64 odd entries, 2^6 = 64
+row 64: 2 odd entries, 2^1 = 2
+row 100: 8 odd entries, 2^3 = 8

@@ -1,0 +1,42 @@
+## Kullback-Leibler divergence: D(P, Q) = sum p log2(p / q) is the extra bits per symbol paid for coding
+## data from P with a code built for Q; it is never negative, not symmetric, and cross-entropy = H(P) + D.
+
+fn kl(p List[float], q List[float]) float
+    two := 2.0
+    mut t := 0.0
+    for i in 0..p.len()
+        if p[i] > 0.0
+            t += p[i] * (p[i] / q[i]).ln() / two.ln()
+    t
+
+fn entropy(p List[float]) float
+    two := 2.0
+    mut t := 0.0
+    for x in p
+        if x > 0.0
+            t -= x * x.ln() / two.ln()
+    t
+
+fn cross(p List[float], q List[float]) float
+    two := 2.0
+    mut t := 0.0
+    for i in 0..p.len()
+        if p[i] > 0.0
+            t -= p[i] * q[i].ln() / two.ln()
+    t
+
+fn main()
+    fair := [1.0 / 6.0, 1.0 / 6.0, 1.0 / 6.0, 1.0 / 6.0, 1.0 / 6.0, 1.0 / 6.0]
+    loaded := [0.1, 0.1, 0.1, 0.1, 0.1, 0.5]
+    rolls := [9, 11, 8, 10, 12, 50]
+    observed := rolls.map(|c| c.to_float() / 100.0)
+    print("D(loaded, fair)    = {kl(loaded, fair):.4} bits")
+    print("D(fair, loaded)    = {kl(fair, loaded):.4} bits")
+    print("D(observed, fair)  = {kl(observed, fair):.4} bits")
+    print("D(observed, loaded) = {kl(observed, loaded):.4} bits: the loaded model fits the rolls better")
+    h := entropy(loaded)
+    c := cross(loaded, fair)
+    print("H(loaded) {h:.4} + D {kl(loaded, fair):.4} = cross-entropy {c:.4} = log2 6 for any data under the fair code")
+
+@test fn same()
+    assert(kl([0.5, 0.5], [0.5, 0.5]).abs() < 0.000001)

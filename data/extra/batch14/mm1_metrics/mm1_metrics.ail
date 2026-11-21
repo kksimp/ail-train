@@ -1,0 +1,27 @@
+## M/M/1 queue: with arrivals at rate l and service at rate m (load r = l/m < 1) the mean number in the
+## system is r / (1 - r) and the mean time 1 / (m - l), tied by Little's law L = l W; the queue explodes as r -> 1.
+
+fn main()
+    mu := 30.0
+    print("coffee kiosk serving 30 an hour")
+    print("arrivals  load   in system  in queue  minutes in system  minutes waiting  Little check")
+    for per_hour in [10, 15, 20, 24, 27, 29]
+        lam := per_hour.to_float()
+        r := lam / mu
+        l := r / (1.0 - r)
+        lq := r * r / (1.0 - r)
+        w := 1.0 / (mu - lam)
+        wq := r / (mu - lam)
+        check := lam * w
+        print("{per_hour:>8} {r:>5.2} {l:>11.2} {lq:>9.2} {w * 60.0:>18.1} {wq * 60.0:>16.1} {check:>13.2}")
+    r := 24.0 / 30.0
+    mut probs := List[str]()
+    for n in 0..5
+        p := (1.0 - r) * r.pow(n.to_float())
+        probs.push("{p:.3}")
+    joined := probs.join(", ")
+    print("at 24 an hour, chance of 0..4 people present: {joined}")
+
+@test fn half_load()
+    r := 15.0 / 30.0
+    assert_eq(r / (1.0 - r), 1.0)

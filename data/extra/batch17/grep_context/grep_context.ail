@@ -1,0 +1,25 @@
+## Grep with context: prints lines containing a word together with one line before and after, numbered
+## like grep -n -C1 (":" after the number for matches, "-" for context), with "--" between groups that do not touch.
+
+fn main()
+    lines := ["import os", "def load(path):", "    data = read(path)", "    if not data:", "        raise ValueError(path)", "    return data", "", "def save(path, data):", "    write(path, data)", "    log(path)", "", "def remove(name):", "    os.remove(name)"]
+    word := "path"
+    ctx := 1
+    mut show := Set[int]()
+    mut hits := Set[int]()
+    for i, l in lines.enumerate()
+        if l.contains(word)
+            hits.add(i)
+            for j in (i - ctx).max(0)..=(i + ctx).min(lines.len() - 1)
+                show.add(j)
+    mut last := -2
+    for i in show.sorted()
+        if last >= 0 and i > last + 1
+            print("--")
+        sep := if hits.contains(i) then ":" else "-"
+        print("{i + 1}{sep}{lines[i]}")
+        last = i
+    print("{hits.len()} matching lines, {show.len()} shown")
+
+@test fn window()
+    assert_eq((0 - 1).max(0), 0)

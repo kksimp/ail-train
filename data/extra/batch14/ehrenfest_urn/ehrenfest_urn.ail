@@ -1,0 +1,36 @@
+## Ehrenfest urns: 10 balls in two urns, each step a random ball may switch (lazy: half the time nothing
+## moves); from all in urn A the chain mixes towards the binomial C(10, k) / 2^10, and returning takes 2^10 steps.
+
+fn binom(n int, k int) int
+    mut r := 1
+    for i in 0..k
+        r = r * (n - i) / (i + 1)
+    r
+
+fn main()
+    n := 10
+    total := (1 << n).to_float()
+    target := [binom(n, k).to_float() / total for k in 0..=n]
+    mut p := [0.0 for k in 0..=n]
+    p[n] = 1.0
+    mut t := 0
+    for stop in [5, 10, 20, 40, 80]
+        while t < stop
+            mut q := [0.0 for k in 0..=n]
+            for k in 0..=n
+                q[k] += 0.5 * p[k]
+                if k > 0
+                    q[k - 1] += 0.5 * p[k] * k.to_float() / n.to_float()
+                if k < n
+                    q[k + 1] += 0.5 * p[k] * (n - k).to_float() / n.to_float()
+            p = q
+            t += 1
+        mut tv := 0.0
+        for k in 0..=n
+            tv += (p[k] - target[k]).abs()
+        print("after {t:>2} steps: P(5 in A) = {p[5]:.4}, distance from binomial {tv / 2.0:.4}")
+    print("binomial P(5 in A) = {target[5]:.4}")
+    print("Kac: mean time to return to all-in-A is 1 / {1.0 / total} = {1 << n} steps (lazy chain: twice that)")
+
+@test fn middle()
+    assert_eq(binom(10, 5), 252)

@@ -1,0 +1,32 @@
+## Cyrillic to Latin: transliterates Russian names letter by letter with a passport-style table
+## (ж zh, х kh, ц ts, щ shch, ю iu, я ia, soft sign dropped), keeping capitals by looking the letter up in two parallel lists.
+
+fn latin_table() List[str]
+    ["a", "b", "v", "g", "d", "e", "e", "zh", "z", "i", "i", "k", "l", "m", "n", "o", "p", "r", "s", "t", "u", "f", "kh", "ts", "ch", "sh", "shch", "ie", "y", "", "e", "iu", "ia"]
+
+fn transliterate(s str) str
+    lower := "абвгдеёжзийклмнопрстуфхцчшщъыьэюя".chars()
+    upper := "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ".chars()
+    table := latin_table()
+    mut out := List[str]()
+    for c in s.chars()
+        if i := lower.index_of(c)
+            out.push(table[i])
+        elif j := upper.index_of(c)
+            t := table[j]
+            out.push("{t.slice(0, 1).to_upper()}{t.slice(1)}")
+        else
+            out.push("{c}")
+    out.join("")
+
+fn main()
+    names := ["Москва", "Санкт-Петербург", "Чайковский", "Юрий Гагарин", "Щёлково", "Хабаровск", "Ольга", "Нижний Новгород"]
+    for n in names
+        t := transliterate(n)
+        print("{n:<16} {t}")
+    before := names.map(|n| n.len()).sum()
+    after := names.map(|n| transliterate(n).len()).sum()
+    print("letters before and after: {before} -> {after}")
+
+@test fn capitals()
+    assert_eq(transliterate("Жук"), "Zhuk")

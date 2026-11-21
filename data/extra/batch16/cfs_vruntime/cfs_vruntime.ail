@@ -1,14 +1,14 @@
 ## Fair scheduler by virtual runtime: the task with the least virtual runtime runs a 4 ms slice, and
 ## its virtual time grows by the slice scaled by 1024 over its weight, so heavier tasks get more real time.
 
-struct Task
+struct Job
     name str
     weight int
     vrun int
     real int
 
 fn main()
-    mut tasks := [Task(name: "editor", weight: 3121, vrun: 0, real: 0), Task(name: "build", weight: 1024, vrun: 0, real: 0), Task(name: "backup", weight: 335, vrun: 0, real: 0)]
+    mut tasks := [Job(name: "editor", weight: 3121, vrun: 0, real: 0), Job(name: "build", weight: 1024, vrun: 0, real: 0), Job(name: "backup", weight: 335, vrun: 0, real: 0)]
     mut order := List[str]()
     for slice in 0..24
         mut i := 0

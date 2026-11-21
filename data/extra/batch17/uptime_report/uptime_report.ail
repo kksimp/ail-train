@@ -1,0 +1,37 @@
+## Uptime report: one probe per minute per service, U for up and D for down; prints the uptime
+## percentage, how many separate outages there were and the longest one, and flags services under 99%.
+
+fn longest_run(s str, c char) int
+    mut best := 0
+    mut cur := 0
+    for x in s.chars()
+        if x == c
+            cur += 1
+            best = best.max(cur)
+        else
+            cur = 0
+    best
+
+fn outages(s str) int
+    mut n := 0
+    mut prev := 'U'
+    for x in s.chars()
+        if x == 'D' and prev != 'D'
+            n += 1
+        prev = x
+    n
+
+fn main()
+    probes := [("api", "UUUUUUUUUUDDUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU"), ("db", "UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU"), ("cache", "UUUDUUUUDDDUUUUUUUUUUUUUDUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU"), ("mail", "DDDDDDUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUDDDD")]
+    for p in probes
+        name, s := p
+        total := s.len()
+        up := s.count("U")
+        pct := (up * 100).to_float() / total.to_float()
+        verdict := if up * 100 >= total * 99 then "ok" else "BELOW 99%"
+        worst := longest_run(s, 'D')
+        print("{name:<6} {pct:>6.2}% up, {outages(s)} outages, longest {worst} min  {verdict}")
+
+@test fn runs()
+    assert_eq(longest_run("UDDUDDD", 'D'), 3)
+    assert_eq(outages("DUDDUD"), 3)

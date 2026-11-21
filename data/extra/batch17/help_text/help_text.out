@@ -1,0 +1,12 @@
+usage: logscan [OPTIONS] PATTERN [FILE...]
+options:
+  -o, --output FILE  write the report to FILE instead
+                     of standard output
+  -n, --lines N      show only the first N matching
+                     lines (default: 20)
+      --color WHEN   colour the output: always, never
+                     or auto, where auto colours only
+                     when writing to a terminal
+                     (default: auto)
+  -v, --verbose      explain each step
+  -h, --help         show this help and exit

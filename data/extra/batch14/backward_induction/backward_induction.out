@@ -1,0 +1,8 @@
+move 6: Bob compares take 128 with pass 64 -> take
+move 5: Ann compares take 64 with pass 32 -> take
+move 4: Bob compares take 32 with pass 16 -> take
+move 3: Ann compares take 16 with pass 8 -> take
+move 2: Bob compares take 8 with pass 4 -> take
+move 1: Ann compares take 4 with pass 2 -> take
+predicted outcome: Ann 4, Bob 1
+if both always passed: Ann 256, Bob 64

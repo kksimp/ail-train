@@ -1,0 +1,23 @@
+## Cournot duopoly: with price 100 - (q1 + q2) and unit cost 10 each firm's best reply is (90 - other) / 2;
+## taking turns replying, from firm 2 first making 20/3, converges to 30 each; a monopoly makes 45, competition 90.
+
+fn reply(other float) float
+    (90.0 - other) / 2.0
+
+fn profit(q float, other float) float
+    q * (100.0 - q - other - 10.0)
+
+fn main()
+    mut q1 := 0.0
+    mut q2 := 20.0 / 3.0
+    for round in 1..=8
+        q1 = reply(q2)
+        q2 = reply(q1)
+        print("round {round}: firm 1 makes {q1:.3}, firm 2 makes {q2:.3}")
+    print("Cournot: 30 each, price {100.0 - 60.0}, profit {profit(30.0, 30.0)} each")
+    print("one monopolist: makes 45, price {100.0 - 45.0}, profit {profit(45.0, 0.0)}")
+    print("price at cost: total 90, price 10.0, profit 0.0")
+    print("if both make 22.5 (half the monopoly) each earns {profit(22.5, 22.5)}, but one would deviate to {reply(22.5)}")
+
+@test fn best_reply()
+    assert_eq(reply(30.0), 30.0)

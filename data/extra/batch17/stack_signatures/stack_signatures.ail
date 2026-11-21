@@ -1,0 +1,26 @@
+## Crash signatures: each crash report is a list of frames, top first; the signature is the top two
+## frames with line numbers dropped, so crashes from one bug group together even when line numbers drift.
+
+fn signature(report str) str
+    frames := report.split(";").map(|f| f.split(":")[0])
+    "{frames[0]} < {frames[1]}"
+
+fn main()
+    reports := ["parse@json.py:12;load@config.py:40;main@app.py:5", "parse@json.py:14;load@config.py:40;main@app.py:5", "send@net.py:88;flush@queue.py:20;worker@app.py:30", "parse@json.py:12;load@config.py:41;reload@app.py:60", "div@math.py:3;ratio@stats.py:9;report@app.py:70", "send@net.py:90;flush@queue.py:20;worker@app.py:30", "send@net.py:88;retry@queue.py:25;worker@app.py:30"]
+    mut counts := Map[str, int]()
+    mut tops := Map[str, int]()
+    mut seen := Set[str]()
+    for r in reports
+        sig := signature(r)
+        counts[sig] += 1
+        top := r.split(";")[0]
+        if seen.add("{sig}|{top}")
+            tops[sig] += 1
+    order := counts.keys().sorted(by: |k| -counts[k])
+    for sig in order
+        print("{counts[sig]}x {sig:<28} {tops[sig]} distinct top lines")
+    print("{reports.len()} crashes, {counts.len()} signatures")
+    print("fix first: {order[0]}")
+
+@test fn drops_lines()
+    assert_eq(signature("a@x:1;b@y:2;c@z:3"), "a@x < b@y")

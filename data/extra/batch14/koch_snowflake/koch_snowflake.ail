@@ -1,0 +1,31 @@
+## Koch snowflake: each step replaces every side by four sides a third as long, so the perimeter grows
+## by 4/3 forever while the area, kept as an exact fraction of the first triangle, climbs only towards 8/5.
+
+fn gcd(a int, b int) int
+    if b == 0 then a else gcd(b, a % b)
+
+fn main()
+    mut sides := 3
+    mut num := 1
+    mut den := 1
+    mut new_tris := 3
+    mut tri_den := 9
+    print("step  sides  perimeter  area / first triangle")
+    for n in 0..=7
+        third := 1.0 / 3.0
+        perim := 3.0 * (4.0 * third).pow(n.to_float())
+        g := gcd(num, den)
+        ratio := num.to_float() / den.to_float()
+        print("{n:>4} {sides:>6} {perim:>10.4}  {num / g}/{den / g} = {ratio:.5}")
+        num = num * tri_den + new_tris * den
+        den = den * tri_den
+        g2 := gcd(num, den)
+        num /= g2
+        den /= g2
+        sides *= 4
+        new_tris *= 4
+        tri_den *= 9
+    print("the area never passes 8/5 = 1.6 while the perimeter has no bound")
+
+@test fn first_step()
+    assert_eq(gcd(12, 9), 3)

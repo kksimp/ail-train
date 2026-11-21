@@ -1,0 +1,58 @@
+## Business days: dates become day numbers (days-from-civil), weekdays come from day number mod 7,
+## and counting or adding working days skips Saturdays, Sundays and a list of public holidays.
+
+fn days_from_civil(y0 int, m int, d int) int
+    y := if m <= 2 then y0 - 1 else y0
+    era := y / 400
+    yoe := y - era * 400
+    mp := if m > 2 then m - 3 else m + 9
+    doy := (153 * mp + 2) / 5 + d - 1
+    doe := yoe * 365 + yoe / 4 - yoe / 100 + doy
+    era * 146097 + doe - 719468
+
+fn civil(z0 int) str
+    z := z0 + 719468
+    era := z / 146097
+    doe := z - era * 146097
+    yoe := (doe - doe / 1460 + doe / 36524 - doe / 146096) / 365
+    doy := doe - (365 * yoe + yoe / 4 - yoe / 100)
+    mp := (5 * doy + 2) / 153
+    d := doy - (153 * mp + 2) / 5 + 1
+    m := if mp < 10 then mp + 3 else mp - 9
+    y := if m <= 2 then yoe + era * 400 + 1 else yoe + era * 400
+    "{y}-{m:02}-{d:02}"
+
+fn is_workday(day int, holidays Set[int]) bool
+    wd := (day + 4) % 7
+    wd != 0 and wd != 6 and not holidays.contains(day)
+
+fn add_workdays(start int, n int, holidays Set[int]) int
+    mut day := start
+    mut left := n
+    while left > 0
+        day += 1
+        if is_workday(day, holidays)
+            left -= 1
+    day
+
+fn main()
+    hol := [[1, 1], [4, 3], [4, 6], [5, 4], [5, 25], [8, 31], [12, 25], [12, 28]]
+    mut holidays := Set[int]()
+    for h in hol
+        holidays.add(days_from_civil(2026, h[0], h[1]))
+    mut total := 0
+    for q in 0..4
+        a := days_from_civil(2026, q * 3 + 1, 1)
+        b := if q == 3 then days_from_civil(2027, 1, 1) else days_from_civil(2026, q * 3 + 4, 1)
+        n := [d for d in a..b if is_workday(d, holidays)].len()
+        total += n
+        print("Q{q + 1} 2026: {b - a} days, {n} working days")
+    print("2026 has {total} working days")
+    names := ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+    for s in [[12, 18, 10], [3, 30, 5], [11, 21, 3]]
+        start := days_from_civil(2026, s[0], s[1])
+        due := add_workdays(start, s[2], holidays)
+        print("{civil(start)} + {s[2]} working days = {civil(due)} ({names[(due + 4) % 7]})")
+
+@test fn epoch()
+    assert_eq(days_from_civil(1970, 1, 1), 0)

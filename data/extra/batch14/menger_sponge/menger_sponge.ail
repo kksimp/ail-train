@@ -1,0 +1,46 @@
+## Menger sponge: each cube splits into 27 and the centre and six face-centres go, leaving 20^n cubes
+## with volume (20/27)^n -> 0 while the surface 2 (20/9)^n + 4 (8/9)^n grows; a voxel count confirms level 2.
+
+fn filled(x int, y int, z int, level int) bool
+    mut a := x
+    mut b := y
+    mut c := z
+    for i in 0..level
+        ones := [a % 3, b % 3, c % 3].filter(|d| d == 1).len()
+        if ones >= 2
+            return false
+        a /= 3
+        b /= 3
+        c /= 3
+    true
+
+fn main()
+    print("level  cubes   volume  surface")
+    for n in 0..=4
+        f := n.to_float()
+        a := 20.0 / 27.0
+        b := 20.0 / 9.0
+        c := 8.0 / 9.0
+        cubes := [20 for i in 0..n].fold(1, |acc, v| acc * v)
+        surf := 2.0 * b.pow(f) + 4.0 * c.pow(f)
+        print("{n:>5} {cubes:>6} {a.pow(f):>8.4} {surf:>8.4}")
+    side := 9
+    mut count := 0
+    mut faces := 0
+    dirs := [[1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], [0, 0, 1], [0, 0, -1]]
+    for x in 0..side
+        for y in 0..side
+            for z in 0..side
+                if filled(x, y, z, 2)
+                    count += 1
+                    for d in dirs
+                        nx := x + d[0]
+                        ny := y + d[1]
+                        nz := z + d[2]
+                        outside := nx < 0 or ny < 0 or nz < 0 or nx >= side or ny >= side or nz >= side
+                        if outside or not filled(nx, ny, nz, 2)
+                            faces += 1
+    print("voxel check, level 2: {count} cubes, {faces} faces of area 1/81 = {faces / 81} + {faces % 81}/81")
+
+@test fn centre_gone()
+    assert(not filled(1, 1, 0, 1))

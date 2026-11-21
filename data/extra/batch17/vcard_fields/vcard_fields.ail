@@ -1,0 +1,45 @@
+## vCard reading: joins folded lines (a line starting with a space continues the one before), splits
+## each property into name, parameters and value, and prints every contact's name, phones by type and email.
+
+struct Prop
+    name str
+    params str
+    value str
+
+fn unfold(lines List[str]) List[str]
+    mut out := List[str]()
+    for l in lines
+        if l.starts_with(" ") and out.len() > 0
+            last := out.len() - 1
+            out[last] = "{out[last]}{l.slice(1)}"
+        else
+            out.push(l)
+    out
+
+fn parse_prop(line str) Prop
+    colon := line.find(":") else line.len()
+    head := line.slice(0, colon)
+    value := line.slice((colon + 1).min(line.len()))
+    semi := head.find(";") else head.len()
+    params := if semi < head.len() then head.slice(semi + 1) else ""
+    Prop(name: head.slice(0, semi).to_upper(), params: params, value: value)
+
+fn main()
+    raw := ["BEGIN:VCARD", "FN:Ada Lovelace", "TEL;TYPE=work:+44 20 7946 0001", "TEL;TYPE=cell:+44 7700 900123", "EMAIL:ada@example.org", "NOTE:Wrote the first published program for", "  the Analytical Engine.", "END:VCARD", "BEGIN:VCARD", "FN:Alan Turing", "tel;type=home:+44 161 496 0000", "END:VCARD"]
+    lines := unfold(raw)
+    print("{raw.len()} raw lines, {lines.len()} after unfolding")
+    mut count := 0
+    for l in lines
+        p := parse_prop(l)
+        match p.name
+            "BEGIN" => count += 1
+            "FN" => print("contact {count}: {p.value}")
+            "TEL" =>
+                kind := (p.params.to_lower().strip_prefix("type=") else "other")
+                print("  phone ({kind}): {p.value}")
+            "EMAIL" => print("  email: {p.value}")
+            "NOTE" => print("  note: {p.value}")
+            _ => continue
+
+@test fn folded()
+    assert_eq(unfold(["A:x", " y"]), ["A:xy"])

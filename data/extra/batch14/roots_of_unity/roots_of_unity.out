@@ -1,0 +1,10 @@
+k = 0: 1.000 + 0.000i (not primitive)
+k = 1: 0.500 + 0.866i (primitive)
+k = 2: -0.500 + 0.866i (not primitive)
+k = 3: -1.000 + 0.000i (not primitive)
+k = 4: -0.500 - 0.866i (not primitive)
+k = 5: 0.500 - 0.866i (primitive)
+sum of the 6 roots: 0.000 + 0.000i
+product of the 5 roots: 1.000 + 0.000i
+product of the 8 roots: -1.000 + 0.000i
+primitive roots for n = 1..12: [1, 1, 2, 2, 4, 2, 6, 4, 6, 4, 10, 4]

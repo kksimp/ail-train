@@ -1,0 +1,36 @@
+## Tabular Islamic calendar: 12 lunar months alternating 30 and 29 days, with 11 leap years (an extra day)
+## in each 30-year cycle; converting through the Julian Day Number maps Gregorian dates to Hijri dates.
+
+fn jdn(y int, m int, d int) int
+    a := (14 - m) / 12
+    yy := y + 4800 - a
+    mm := m + 12 * a - 3
+    d + (153 * mm + 2) / 5 + 365 * yy + yy / 4 - yy / 100 + yy / 400 - 32045
+
+fn hijri(jd int) List[int]
+    mut l := jd - 1948440 + 10632
+    n := (l - 1) / 10631
+    l = l - 10631 * n + 354
+    j := ((10985 - l) / 5316) * ((50 * l) / 17719) + (l / 5670) * ((43 * l) / 15238)
+    l = l - ((30 - j) / 15) * ((17719 * j) / 50) - (j / 16) * ((15238 * j) / 43) + 29
+    m := (24 * l) / 709
+    d := l - (709 * m) / 24
+    [30 * n + j - 30, m, d]
+
+fn is_leap(y int) bool
+    (14 + 11 * y) % 30 < 11
+
+fn main()
+    months := ["Muharram", "Safar", "Rabi I", "Rabi II", "Jumada I", "Jumada II", "Rajab", "Shaban", "Ramadan", "Shawwal", "Dhu al-Qada", "Dhu al-Hijja"]
+    for dt in [[622, 7, 19], [2000, 1, 1], [2024, 3, 11], [2026, 11, 21], [2030, 1, 5]]
+        h := hijri(jdn(dt[0], dt[1], dt[2]))
+        print("{dt[0]}-{dt[1]:02}-{dt[2]:02} is {h[2]} {months[h[1] - 1]} {h[0]} AH")
+    leaps := [y for y in 1441..=1470 if is_leap(y)]
+    print("leap years in the cycle 1441-1470: {leaps}")
+    mut days := 0
+    for y in 1441..=1470
+        days += if is_leap(y) then 355 else 354
+    print("30 lunar years = {days} days, mean month {days.to_float() / 360.0:.5} days")
+
+@test fn leap_count()
+    assert_eq([y for y in 1..=30 if is_leap(y)].len(), 11)

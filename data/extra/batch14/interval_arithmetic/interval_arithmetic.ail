@@ -1,0 +1,49 @@
+## Interval arithmetic: each quantity is a range [lo, hi] and + - * / give ranges sure to hold the true
+## result; resistor tolerances show it, and x - x = [-w, w] shows how repeating a variable widens the answer.
+
+struct Iv
+    lo float
+    hi float
+
+impl Add for Iv
+    fn add(self, o Iv) Iv
+        Iv(lo: self.lo + o.lo, hi: self.hi + o.hi)
+
+impl Sub for Iv
+    fn sub(self, o Iv) Iv
+        Iv(lo: self.lo - o.hi, hi: self.hi - o.lo)
+
+impl Mul for Iv
+    fn mul(self, o Iv) Iv
+        ps := [self.lo * o.lo, self.lo * o.hi, self.hi * o.lo, self.hi * o.hi]
+        low := ps.min() else 0.0
+        high := ps.max() else 0.0
+        Iv(lo: low, hi: high)
+
+impl Div for Iv
+    fn div(self, o Iv) Iv
+        self * Iv(lo: 1.0 / o.hi, hi: 1.0 / o.lo)
+
+fn Iv.text(self) str
+    "[{self.lo:.2}, {self.hi:.2}]"
+
+fn tol(v float, pct float) Iv
+    Iv(lo: v * (100.0 - pct) / 100.0, hi: v * (100.0 + pct) / 100.0)
+
+fn main()
+    r1 := tol(100.0, 5.0)
+    r2 := tol(220.0, 5.0)
+    print("R1 = {r1.text()} ohm, R2 = {r2.text()} ohm")
+    print("in series: {(r1 + r2).text()}")
+    print("parallel as R1 R2 / (R1 + R2): {(r1 * r2 / (r1 + r2)).text()}  (too wide)")
+    one := Iv(lo: 1.0, hi: 1.0)
+    tight := one / (one / r1 + one / r2)
+    print("parallel as 1 / (1/R1 + 1/R2): {tight.text()}  (exact range)")
+    v := Iv(lo: 11.5, hi: 12.5)
+    print("current through R1 at {v.text()} volt: {(v / r1).text()} amp")
+    x := Iv(lo: 1.0, hi: 2.0)
+    print("x = {x.text()}: x - x = {(x - x).text()}, x * x = {(x * x).text()}")
+
+@test fn width()
+    d := Iv(lo: 1.0, hi: 2.0) - Iv(lo: 1.0, hi: 2.0)
+    assert_eq(d.hi, 1.0)

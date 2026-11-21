@@ -1,0 +1,5 @@
+K4         4 vertices  6 edges: girth 3
+cube       8 vertices 12 edges: girth 4
+Petersen  10 vertices 15 edges: girth 5
+hexagon    6 vertices  6 edges: girth 6
+tree       6 vertices  5 edges: no cycle

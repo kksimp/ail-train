@@ -1,0 +1,11 @@
+  n  t  ball  upper words  lower words  data bits between
+  7  1     8           16            5  2 to 4  perfect
+ 15  1    16         2048          271  8 to 11  perfect
+ 23  1    24       349525        30284  14 to 18
+  7  2    29            4            2  1 to 2
+ 15  2   121          270           17  4 to 8
+ 23  2   277        30283          770  9 to 14
+  7  3    64            2            2  1 to 1  perfect
+ 15  3   576           56            4  2 to 5
+ 23  3  2048         4096           58  5 to 12  perfect
+perfect codes: Hamming (7,4) and (15,11) with t = 1, Golay (23,12) with t = 3

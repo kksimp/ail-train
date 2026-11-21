@@ -1,0 +1,53 @@
+## DPLL satisfiability: clauses are lists of signed variable numbers; unit clauses force values,
+## otherwise the first open variable is tried true then false, backtracking on an empty clause.
+
+fn simplify(clauses List[List[int]], lit int) List[List[int]]
+    mut out := List[List[int]]()
+    for c in clauses
+        if c.contains(lit)
+            continue
+        out.push(c.filter(|x| x != -lit))
+    out
+
+fn dpll(clauses List[List[int]], mut assign Map[int, bool], mut steps List[int]) bool
+    steps[0] += 1
+    if clauses.is_empty()
+        return true
+    if clauses.any(|c| c.is_empty())
+        return false
+    for c in clauses
+        if c.len() == 1
+            unit := c[0]
+            assign[unit.abs()] = unit > 0
+            return dpll(simplify(clauses, unit), mut assign, mut steps)
+    v := clauses[0][0].abs()
+    for lit in [v, -v]
+        mut trial := assign
+        if dpll(simplify(clauses, lit), mut trial, mut steps)
+            trial[v] = lit > 0
+            assign = trial
+            return true
+    false
+
+fn solve(name str, clauses List[List[int]], n int)
+    mut assign := Map[int, bool]()
+    mut steps := [0]
+    if dpll(clauses, mut assign, mut steps)
+        mut shown := List[str]()
+        for v in 1..=n
+            val := assign.get_or(v, true)
+            shown.push("x{v}={val}")
+        joined := shown.join(" ")
+        print("{name}: satisfiable after {steps[0]} calls: {joined}")
+    else
+        print("{name}: unsatisfiable after {steps[0]} calls")
+
+fn main()
+    solve("small", [[1, 2], [-1, 3], [-2, -3], [2, 3]], 3)
+    solve("chain", [[1], [-1, 2], [-2, 3], [-3, 4], [-4, -5], [5, 6]], 6)
+    pigeons := [[1, 2], [3, 4], [5, 6], [-1, -3], [-1, -5], [-3, -5], [-2, -4], [-2, -6], [-4, -6]]
+    solve("3 pigeons, 2 holes", pigeons, 6)
+    solve("contradiction", [[1, 2], [1, -2], [-1, 2], [-1, -2]], 2)
+
+@test fn unit()
+    assert_eq(simplify([[1, 2], [-1, 3]], 1), [[3]])

@@ -1,0 +1,6 @@
+box side   Pascal mod 2      line    square
+      64      9 (1.585)    4 (1.0)    16 (2.0)
+      16     81 (1.585)   16 (1.0)   256 (2.0)
+       4    729 (1.585)   64 (1.0)  4096 (2.0)
+       1   6561 (1.585)  256 (1.0) 65536 (2.0)
+exact dimension of the triangle: log 3 / log 2 = 1.585

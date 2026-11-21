@@ -1,0 +1,6 @@
+login     PPPPP  100% stable
+checkout  PFPPF   60% FLAKY failed in runs [2, 5]
+search    FFFFF    0% broken
+export    PPFPP   80% FLAKY failed in runs [3]
+upload    FFFF     0% broken
+2 flaky tests over 5 runs

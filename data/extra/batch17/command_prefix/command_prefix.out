@@ -1,0 +1,12 @@
+st      -> status
+sta     !! 'sta' is ambiguous: status, stash
+stas    -> stash
+c       !! 'c' is ambiguous: commit, checkout, cherry-pick
+che     !! 'che' is ambiguous: checkout, cherry-pick
+cherry  -> cherry-pick
+co      -> checkout
+pu      !! 'pu' is ambiguous: push, pull
+pus     -> push
+log     -> log
+lo      -> log
+merge   !! unknown command 'merge'

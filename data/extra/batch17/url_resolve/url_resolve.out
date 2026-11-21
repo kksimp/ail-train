@@ -1,0 +1,20 @@
+base http://a/b/c/d;p?q
+g          -> http://a/b/c/g
+./g        -> http://a/b/c/g
+g/         -> http://a/b/c/g/
+/g         -> http://a/g
+//g        -> http://g
+?y         -> http://a/b/c/d;p?y
+g?y        -> http://a/b/c/g?y
+#s         -> http://a/b/c/d;p?q#s
+g;x?y#s    -> http://a/b/c/g;x?y#s
+(empty)    -> http://a/b/c/d;p?q
+.          -> http://a/b/c/
+./         -> http://a/b/c/
+..         -> http://a/b/
+../g       -> http://a/b/g
+../..      -> http://a/
+../../g    -> http://a/g
+../../../g -> http://a/g
+/./g       -> http://a/g
+g:h        -> g:h

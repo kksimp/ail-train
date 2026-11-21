@@ -1,0 +1,8 @@
+5           24 permutations (even), counted 24
+4+1         30 permutations (odd), counted 30
+3+2         20 permutations (odd), counted 20
+3+1+1       20 permutations (even), counted 20
+2+2+1       15 permutations (even), counted 15
+2+1+1+1     10 permutations (odd), counted 10
+1+1+1+1+1    1 permutations (even), counted 1
+120 in all, 60 even (the group A5)

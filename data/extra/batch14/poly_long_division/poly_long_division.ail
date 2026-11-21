@@ -1,0 +1,54 @@
+## Polynomial long division: divide by a monic divisor term by term, leading coefficient first, to
+## get quotient and remainder with p = q d + r and deg r < deg d; multiplying back checks the answer.
+
+fn show(p List[int]) str
+    deg := p.len() - 1
+    mut parts := List[str]()
+    for i in 0..p.len()
+        c := p[i]
+        e := deg - i
+        if c != 0
+            mag := c.abs()
+            pw := if e == 0 then "" elif e == 1 then "x" else "x^{e}"
+            num := if mag == 1 and e > 0 then "" else "{mag}"
+            mut sign := if c < 0 then " - " else " + "
+            if parts.is_empty()
+                sign = if c < 0 then "-" else ""
+            parts.push("{sign}{num}{pw}")
+    if parts.is_empty() then "0" else parts.join("")
+
+fn divide(p List[int], d List[int]) List[List[int]]
+    mut rem := p
+    mut q := List[int]()
+    steps := p.len() - d.len() + 1
+    for i in 0..steps
+        c := rem[i] / d[0]
+        q.push(c)
+        for j in 0..d.len()
+            rem[i + j] -= c * d[j]
+    [q, rem.slice(steps)]
+
+fn mul(a List[int], b List[int]) List[int]
+    mut out := [0 for k in 0..a.len() + b.len() - 1]
+    for i in 0..a.len()
+        for j in 0..b.len()
+            out[i + j] += a[i] * b[j]
+    out
+
+fn main()
+    cases := [[[1, -6, 11, -6], [1, -1]], [[2, 3, 0, -1, 5], [1, 1, -1]], [[1, 0, 0, 0, 0, -1], [1, -1]], [[3, 0, -2, 7], [1, 0, 4]]]
+    for c in cases
+        p := c[0]
+        d := c[1]
+        qr := divide(p, d)
+        q := qr[0]
+        r := qr[1]
+        print("({show(p)}) / ({show(d)})")
+        mut back := mul(q, d)
+        offset := back.len() - r.len()
+        for i in 0..r.len()
+            back[offset + i] += r[i]
+        print("    quotient {show(q)}, remainder {show(r)}, check {back == p}")
+
+@test fn exact()
+    assert_eq(divide([1, -3, 2], [1, -1])[0], [1, -2])

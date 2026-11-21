@@ -1,0 +1,8 @@
+triangle: P(x) = x^3 - 3x^2 + 2x
+    3 colours: 6 ways, 4 colours: 24 ways, chromatic number 3
+square: P(x) = x^4 - 4x^3 + 6x^2 - 3x
+    3 colours: 18 ways, 4 colours: 84 ways, chromatic number 2
+house: P(x) = x^5 - 6x^4 + 14x^3 - 15x^2 + 6x
+    3 colours: 18 ways, 4 colours: 168 ways, chromatic number 3
+wheel: P(x) = x^5 - 8x^4 + 24x^3 - 31x^2 + 14x
+    3 colours: 6 ways, 4 colours: 72 ways, chromatic number 3

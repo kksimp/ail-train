@@ -1,0 +1,28 @@
+## Command prefixes: a tool accepts any unambiguous prefix of a subcommand (st for status), checks
+## aliases and exact names first, and for an ambiguous prefix lists the candidates instead of guessing.
+
+fn resolve(word str, commands List[str], aliases Map[str, str]) str ! str
+    if commands.contains(word)
+        return word
+    if target := aliases.get(word)
+        return target
+    hits := commands.filter(|c| c.starts_with(word))
+    if hits.len() == 1
+        return hits[0]
+    if hits.is_empty()
+        return "unknown command '{word}'"
+    shown := hits.join(", ")
+    "'{word}' is ambiguous: {shown}"
+
+fn main()
+    commands := ["status", "stash", "commit", "checkout", "cherry-pick", "push", "pull", "log"]
+    aliases := {"co": "checkout", "ci": "commit", "st": "status"}
+    for word in ["st", "sta", "stas", "c", "che", "cherry", "co", "pu", "pus", "log", "lo", "merge"]
+        if cmd := resolve(word, commands, aliases)
+            print("{word:<7} -> {cmd}")
+        else err
+            print("{word:<7} !! {err}")
+
+@test fn unique_prefix()
+    cmd := resolve("cher", ["checkout", "cherry-pick"], Map[str, str]()) else ""
+    assert_eq(cmd, "cherry-pick")

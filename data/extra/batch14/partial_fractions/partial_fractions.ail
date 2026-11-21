@@ -1,0 +1,59 @@
+## Partial fractions: N(x) / ((x - r1)(x - r2)...) with distinct roots splits into sum A_i / (x - r_i),
+## and the cover-up rule gives A_i = N(r_i) / prod over j != i of (r_i - r_j); a check at x = 10 agrees.
+
+struct Frac
+    num int
+    den int
+
+fn gcd(a int, b int) int
+    if b == 0 then a.abs() else gcd(b, a % b)
+
+fn make(n int, d int) Frac
+    g := gcd(n, d)
+    s := if d < 0 then -1 else 1
+    Frac(num: s * n / g, den: s * d / g)
+
+fn Frac.plus(self, o Frac) Frac
+    make(self.num * o.den + o.num * self.den, self.den * o.den)
+
+fn Frac.text(self) str
+    if self.den == 1 then "{self.num}" else "{self.num}/{self.den}"
+
+fn eval(c List[int], x int) int
+    mut t := 0
+    for k in c
+        t = t * x + k
+    t
+
+fn factor(r int) str
+    if r == 0 then "x" elif r < 0 then "(x + {-r})" else "(x - {r})"
+
+fn main()
+    cases := [("3x + 5", [3, 5], [1, -1]), ("x^2 + 1", [1, 0, 1], [0, 1, 2]), ("5", [5], [-1, -2, -3]), ("2x^2 - x + 4", [2, -1, 4], [3, -1, 2])]
+    for t in cases
+        name, num, roots := t
+        mut terms := List[str]()
+        mut total := make(0, 1)
+        mut den10 := 1
+        for i in 0..roots.len()
+            mut d := 1
+            for j in 0..roots.len()
+                if j != i
+                    d *= roots[i] - roots[j]
+            a := make(eval(num, roots[i]), d)
+            mag := make(a.num.abs(), a.den)
+            body := if a.den == 1 then "{mag.text()}/{factor(roots[i])}" else "({mag.text()})/{factor(roots[i])}"
+            mut sign := if a.num < 0 then " - " else " + "
+            if terms.is_empty()
+                sign = if a.num < 0 then "-" else ""
+            terms.push("{sign}{body}")
+            total = total.plus(make(a.num, a.den * (10 - roots[i])))
+            den10 *= 10 - roots[i]
+        lhs := make(eval(num, 10), den10)
+        dens := roots.map(|r| factor(r)).join("")
+        joined := terms.join("")
+        print("({name}) / {dens} = {joined}")
+        print("    at x = 10: {lhs.text()} vs {total.text()}")
+
+@test fn cover_up()
+    assert_eq(make(8, 2).text(), "4")

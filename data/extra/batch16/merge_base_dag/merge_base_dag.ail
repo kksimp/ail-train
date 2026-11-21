@@ -3,11 +3,11 @@
 
 fn ancestors(parents Map[str, List[str]], start str) Set[str]
     mut seen := Set[str]()
-    mut todo := [start]
-    while c := todo.pop()
+    mut pending := [start]
+    while c := pending.pop()
         if seen.add(c)
             for p in parents.get_or(c, List[str]())
-                todo.push(p)
+                pending.push(p)
     seen
 
 fn bases(parents Map[str, List[str]], a str, b str) List[str]

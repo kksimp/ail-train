@@ -1,0 +1,31 @@
+## Mixed equilibrium of a 2x2 game: each player mixes so the other is indifferent, p = (B11 - B10) /
+## (B00 - B10 - B01 + B11) and likewise q; exact fractions give the odds and each side's expected payoff.
+
+fn gcd(a int, b int) int
+    if b == 0 then a.abs() else gcd(b, a % b)
+
+fn frac(n int, d int) str
+    g := gcd(n, d)
+    s := if d < 0 then -1 else 1
+    if d * s / g == 1 then "{s * n / g}" else "{s * n / g}/{d * s / g}"
+
+fn solve(name str, a List[List[int]], b List[List[int]])
+    pn := b[1][1] - b[1][0]
+    pd := b[0][0] - b[1][0] - b[0][1] + b[1][1]
+    qn := a[1][1] - a[0][1]
+    qd := a[0][0] - a[0][1] - a[1][0] + a[1][1]
+    row_val_n := qn * a[0][0] + (qd - qn) * a[0][1]
+    col_val_n := pn * b[0][0] + (pd - pn) * b[1][0]
+    print("{name}: row plays first move with chance {frac(pn, pd)}, column with {frac(qn, qd)}")
+    print("    row expects {frac(row_val_n, qd)}, column expects {frac(col_val_n, pd)}")
+
+fn main()
+    solve("matching pennies", [[1, -1], [-1, 1]], [[-1, 1], [1, -1]])
+    solve("concert or match", [[2, 0], [0, 1]], [[1, 0], [0, 2]])
+    kick := [[58, 95], [93, 70]]
+    save := kick.map(|r| r.map(|v| -v))
+    solve("penalty kick (% scored)", kick, save)
+    solve("hawk or dove", [[-1, 4], [0, 2]], [[-1, 0], [4, 2]])
+
+@test fn reduce()
+    assert_eq(frac(6, -8), "-3/4")

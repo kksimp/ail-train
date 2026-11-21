@@ -1,0 +1,48 @@
+## TSV escapes: fields of tab-separated rows may hold tabs, newlines and backslashes, so writing turns
+## them into \t, \n and \\ and reading turns them back; the program checks every row survives the round trip.
+
+fn escape_field(s str) str
+    mut out := List[str]()
+    for c in s.chars()
+        if c == '\\'
+            out.push("\\\\")
+        elif c == '\n'
+            out.push("\\n")
+        elif c.code() == 9
+            out.push("\\t")
+        else
+            out.push("{c}")
+    out.join("")
+
+fn unescape_field(s str, tab str) str
+    cs := s.chars()
+    mut out := List[str]()
+    mut i := 0
+    while i < cs.len()
+        if cs[i] == '\\' and i + 1 < cs.len()
+            nc := cs[i + 1]
+            piece := if nc == 'n' then "\n" elif nc == 't' then tab elif nc == '\\' then "\\" else "\\{nc}"
+            out.push(piece)
+            i += 2
+        else
+            out.push("{cs[i]}")
+            i += 1
+    out.join("")
+
+fn main()
+    tc := char.from_code(9) else ' '
+    tab := "{tc}"
+    rows := [["id", "note", "path"], ["1", "line one\nline two", "C:\\temp"], ["2", "tab{tab}inside", "plain"], ["3", "", "a\\nb"]]
+    mut all_ok := true
+    for row in rows
+        line := row.map(|f| escape_field(f)).join(tab)
+        shown := line.replace(tab, " | ")
+        print(shown)
+        back := line.split(tab).map(|f| unescape_field(f, tab))
+        if back != row
+            all_ok = false
+            print("  mismatch!")
+    print("rows: {rows.len()}, round trip ok: {all_ok}")
+
+@test fn backslash_n_is_not_newline()
+    assert_eq(escape_field("a\\nb"), "a\\\\nb")

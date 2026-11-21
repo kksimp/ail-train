@@ -1,0 +1,55 @@
+## URL resolve: turns a relative link into a full URL against a base, as browsers do (RFC 3986): the
+## reference's path is merged with the base directory, then "." and ".." segments are removed with a stack.
+
+fn remove_dots(p str) str
+    segs := p.split("/")
+    mut out := List[str]()
+    for i, s in segs.enumerate()
+        last := i == segs.len() - 1
+        if s == "."
+            if last
+                out.push("")
+        elif s == ".."
+            if out.len() > 1
+                out = out.slice(0, out.len() - 1)
+            if last
+                out.push("")
+        else
+            out.push(s)
+    out.join("/")
+
+fn resolve(scheme str, host str, path str, query str, raw str) str
+    mut r := raw
+    mut frag := ""
+    if at := r.find("#")
+        frag = r.slice(at)
+        r = r.slice(0, at)
+    mut q := ""
+    if qa := r.find("?")
+        q = r.slice(qa)
+        r = r.slice(0, qa)
+    if r.contains(":")
+        return raw
+    if rest := r.strip_prefix("//")
+        cut := rest.find("/") else rest.len()
+        return "{scheme}://{rest.slice(0, cut)}{remove_dots(rest.slice(cut))}{q}{frag}"
+    if r == ""
+        use_q := if q == "" then query else q
+        return "{scheme}://{host}{path}{use_q}{frag}"
+    if r.starts_with("/")
+        return "{scheme}://{host}{remove_dots(r)}{q}{frag}"
+    dir_end := (path.rfind("/") else 0) + 1
+    merged := "{path.slice(0, dir_end)}{r}"
+    "{scheme}://{host}{remove_dots(merged)}{q}{frag}"
+
+fn main()
+    print("base http://a/b/c/d;p?q")
+    refs := ["g", "./g", "g/", "/g", "//g", "?y", "g?y", "#s", "g;x?y#s", "", ".", "./", "..", "../g", "../..", "../../g", "../../../g", "/./g", "g:h"]
+    for r in refs
+        full := resolve("http", "a", "/b/c/d;p", "?q", r)
+        shown := if r == "" then "(empty)" else r
+        print("{shown:<10} -> {full}")
+
+@test fn up_too_far()
+    assert_eq(remove_dots("/b/c/../../../g"), "/g")
+    assert_eq(remove_dots("/b/c/."), "/b/c/")

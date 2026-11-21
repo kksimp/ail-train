@@ -1,0 +1,39 @@
+## Hunk header check: in a unified diff each "@@ -a,b +c,d @@" header must count the old-side lines
+## (context and -) and new-side lines (context and +) of its body; wrong counts are found and rewritten.
+
+fn num(s str) int
+    s.to_int() else 0
+
+fn header_nums(h str) List[int]
+    inner := h.replace("@", "").trim()
+    halves := inner.split(" ")
+    old := halves[0].slice(1).split(",")
+    new := halves[1].slice(1).split(",")
+    [num(old[0]), num(old[1]), num(new[0]), num(new[1])]
+
+fn main()
+    diff := ["@@ -1,4 +1,4 @@", " [server]", "-port = 80", "+port = 8080", " host = a", " debug = no", "@@ -10,3 +10,5 @@", " [db]", "+pool = 8", "+timeout = 30", " name = shop", "@@ -20,2 +22,2 @@", " [log]", "-level = info", "-file = app.log", "+level = warn"]
+    mut i := 0
+    mut fixed := 0
+    while i < diff.len()
+        head := diff[i]
+        i += 1
+        mut old_n := 0
+        mut new_n := 0
+        while i < diff.len() and not diff[i].starts_with("@@")
+            l := diff[i]
+            if not l.starts_with("+")
+                old_n += 1
+            if not l.starts_with("-")
+                new_n += 1
+            i += 1
+        n := header_nums(head)
+        if n[1] == old_n and n[3] == new_n
+            print("{head:<20} ok")
+        else
+            fixed += 1
+            print("{head:<20} body has -{old_n} +{new_n}, now @@ -{n[0]},{old_n} +{n[2]},{new_n} @@")
+    print("{fixed} header(s) rewritten")
+
+@test fn reads_numbers()
+    assert_eq(header_nums("@@ -3,4 +5,6 @@"), [3, 4, 5, 6])

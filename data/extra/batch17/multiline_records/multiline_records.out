@@ -1,0 +1,7 @@
+#1 10:00:01 INFO server started (0 frames)
+#2 10:00:05 ERROR request failed (3 frames)
+   root cause: timeout after 30s
+#3 10:00:09 WARN slow query 1200ms (0 frames)
+#4 10:00:12 ERROR cannot open file (1 frames)
+#5 10:00:15 INFO shutdown (0 frames)
+5 records from 10 lines, 2 with traces

@@ -1,0 +1,24 @@
+## Gradient descent on f(x, y) = (x - 3)^2 + 10 (y + 1)^2: steps of size s along -grad f converge only
+## while s < 2 / 20 (the steep direction's curvature); just above it the y coordinate oscillates outwards.
+
+fn f(x float, y float) float
+    (x - 3.0) * (x - 3.0) + 10.0 * (y + 1.0) * (y + 1.0)
+
+fn main()
+    for s in [0.01, 0.05, 0.09, 0.11]
+        mut x := 0.0
+        mut y := 0.0
+        mut marks := List[str]()
+        for k in 1..=30
+            gx := 2.0 * (x - 3.0)
+            gy := 20.0 * (y + 1.0)
+            x -= s * gx
+            y -= s * gy
+            if k % 10 == 0
+                marks.push("{f(x, y):.4}")
+        joined := marks.join(", ")
+        print("step {s}: f after 10, 20, 30 steps = {joined}; now at ({x:.3}, {y:.3})")
+    print("the minimum is f(3, -1) = 0")
+
+@test fn at_min()
+    assert_eq(f(3.0, -1.0), 0.0)

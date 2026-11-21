@@ -1,0 +1,13 @@
+UK sw1a1aa     -> SW1A 1AA
+UK M1 1AE      -> M1 1AE
+UK EC1A 1BB    -> EC1A 1BB
+UK 12345       -> invalid
+US 90210       -> 90210
+US 10001-0001  -> 10001-0001
+US 9021        -> invalid
+CA k1a0b1      -> K1A 0B1
+CA K1A-0B      -> invalid
+NL 1012ab      -> 1012 AB
+NL 0123 AB     -> invalid
+FR 75001       -> unknown country
+7 of 12 valid

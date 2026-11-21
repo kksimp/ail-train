@@ -1,0 +1,47 @@
+## Mutual information: I(X; Y) = H(X) + H(Y) - H(X, Y) measures in bits how much knowing one variable
+## tells about the other; from a table of counts it is large for weather and umbrellas and 0 for independent coins.
+
+fn h(ps List[float]) float
+    two := 2.0
+    mut t := 0.0
+    for p in ps
+        if p > 0.0
+            t -= p * p.ln() / two.ln()
+    t
+
+fn tidy(v float) float
+    if v.abs() < 0.00005 then 0.0 else v
+
+fn report(name str, counts List[List[int]])
+    mut total := 0
+    for row in counts
+        total += row.sum()
+    tf := total.to_float()
+    rows := counts.map(|r| r.sum().to_float() / tf)
+    mut cols := List[float]()
+    for j in 0..counts[0].len()
+        mut s := 0
+        for row in counts
+            s += row[j]
+        cols.push(s.to_float() / tf)
+    mut joint := List[float]()
+    mut direct := 0.0
+    two := 2.0
+    for i in 0..counts.len()
+        for j in 0..counts[i].len()
+            p := counts[i][j].to_float() / tf
+            joint.push(p)
+            if p > 0.0
+                direct += p * (p / (rows[i] * cols[j])).ln() / two.ln()
+    mi := h(rows) + h(cols) - h(joint)
+    print("{name}: H(X) {h(rows):.4}, H(Y) {h(cols):.4}, H(X,Y) {h(joint):.4}")
+    print("    I(X;Y) = {tidy(mi):.4} bits, summed directly {tidy(direct):.4}")
+
+fn main()
+    report("rain vs umbrella", [[30, 5], [10, 55]])
+    report("two fair coins", [[25, 25], [25, 25]])
+    report("copied bit", [[50, 0], [0, 50]])
+    report("grade vs seat row", [[12, 6, 2], [8, 10, 7], [3, 6, 11]])
+
+@test fn fair_coin()
+    assert((h([0.5, 0.5]) - 1.0).abs() < 0.000001)

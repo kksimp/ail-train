@@ -1,0 +1,21 @@
+## Erlang B: with A erlangs of traffic offered to c lines and no waiting room, the chance a call is
+## blocked follows B(c) = A B(c-1) / (c + A B(c-1)); the smallest c with B under 1% sizes the trunk group.
+
+fn blocking(a float, c int) float
+    mut b := 1.0
+    for k in 1..=c
+        b = a * b / (k.to_float() + a * b)
+    b
+
+fn main()
+    a := 5.0
+    for c in 1..=10
+        print("{c:>2} lines for 5 erlangs: {blocking(a, c) * 100.0:>6.2}% of calls blocked")
+    for load in [1.0, 3.0, 8.0, 20.0]
+        mut c := 1
+        while blocking(load, c) >= 0.01
+            c += 1
+        print("{load} erlangs need {c} lines for under 1% blocking ({blocking(load, c) * 100.0:.2}%)")
+
+@test fn one_line()
+    assert_eq(blocking(1.0, 1), 0.5)

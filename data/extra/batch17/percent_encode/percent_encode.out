@@ -1,0 +1,7 @@
+q     café & crème   -> caf%C3%A9%20%26%20cr%C3%A8me
+page  2              -> 2
+sort  price:asc      -> price%3Aasc
+tag   50% off        -> 50%25%20off
+a     x/y?z          -> x%2Fy%3Fz
+tag   new            -> new
+canonical: a=x%2Fy%3Fz&page=2&q=caf%C3%A9%20%26%20cr%C3%A8me&sort=price%3Aasc&tag=50%25%20off&tag=new
