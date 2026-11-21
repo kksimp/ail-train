@@ -1,0 +1,39 @@
+## Grid type: a generic Grid[T] with get, set, map-like fill and row printing, used for a
+## multiplication table of ints and a board of strings.
+
+struct Grid[T]
+    w int
+    h int
+    cells List[T]
+
+fn Grid.filled(w int, h int, v T) Self
+    Grid(w: w, h: h, cells: [v for _ in 0..w * h])
+
+fn Grid.get(self, r int, c int) T
+    self.cells[r * self.w + c]
+
+fn Grid.put(mut self, r int, c int, v T)
+    self.cells[r * self.w + c] = v
+
+fn main()
+    mut table := Grid[int].filled(6, 6, 0)
+    for r in 0..6
+        for c in 0..6
+            table.put(r, c, (r + 1) * (c + 1))
+    for r in 0..6
+        row := [table.get(r, c) for c in 0..6].map(|x| "{x:>3}").join("")
+        print(row)
+    mut board := Grid[str].filled(3, 3, ".")
+    board.put(0, 0, "X")
+    board.put(1, 1, "O")
+    board.put(2, 0, "X")
+    board.put(1, 0, "O")
+    for r in 0..3
+        print([board.get(r, c) for c in 0..3].join(" "))
+    diag := table.get(5, 5) + table.get(0, 0)
+    print("corners {diag}")
+
+@test fn put_get()
+    mut g := Grid[int].filled(2, 2, 0)
+    g.put(1, 0, 7)
+    assert_eq(g.get(1, 0), 7)

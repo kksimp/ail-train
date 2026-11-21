@@ -1,0 +1,11 @@
+A100 pay: now State.Paid
+A101 ship: not allowed from State.Placed
+A100 ship: now State.Shipped
+A102 cancel: now State.Cancelled
+A101 pay: now State.Paid
+A102 pay: not allowed from State.Cancelled
+A100 deliver: now State.Delivered
+A101 cancel: now State.Cancelled
+A100: State.Delivered
+A101: State.Cancelled
+A102: State.Cancelled

@@ -1,0 +1,41 @@
+## Generic ring buffer: a fixed-capacity ring buffer type with push that overwrites the
+## oldest item, used for the last five sensor readings and the last three log lines.
+
+struct Ring[T]
+    items List[T]
+    start int
+    size int
+
+fn Ring.make(fill T, cap int) Self
+    Ring(items: [fill for _ in 0..cap], start: 0, size: 0)
+
+fn Ring.add(mut self, x T)
+    cap := self.items.len()
+    if self.size < cap
+        self.items[(self.start + self.size) % cap] = x
+        self.size += 1
+    else
+        self.items[self.start] = x
+        self.start = (self.start + 1) % cap
+
+fn Ring.to_list(self) List[T]
+    cap := self.items.len()
+    [self.items[(self.start + i) % cap] for i in 0..self.size]
+
+fn main()
+    mut temps := Ring[int].make(0, 5)
+    for t in [12, 15, 11, 18, 20, 17, 14, 19]
+        temps.add(t)
+        shown := temps.to_list().map(|x| "{x}").join(" ")
+        print("after {t}: {shown}")
+    mut logs := Ring[str].make("", 3)
+    for line in ["boot", "net up", "disk ok", "user login", "backup"]
+        logs.add(line)
+    print(logs.to_list().join(" | "))
+
+@test fn overwrite()
+    mut r := Ring[int].make(0, 2)
+    r.add(1)
+    r.add(2)
+    r.add(3)
+    assert_eq(r.to_list(), [2, 3])

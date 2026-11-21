@@ -1,0 +1,47 @@
+## Account kinds: a trait for monthly fees and interest implemented by current and savings
+## accounts; twelve months are simulated in cents and the final balances printed.
+
+trait Account
+    fn month(mut self)
+    fn balance(self) int
+    fn label(self) str
+
+struct Current
+    cents int
+    fee int
+
+struct Savings
+    cents int
+    rate_bp int
+
+impl Account for Current
+    fn month(mut self)
+        self.cents -= self.fee
+    fn balance(self) int
+        self.cents
+    fn label(self) str
+        "current"
+
+impl Account for Savings
+    fn month(mut self)
+        self.cents += self.cents * self.rate_bp / 120000
+    fn balance(self) int
+        self.cents
+    fn label(self) str
+        "savings"
+
+fn main()
+    mut c := Current(cents: 250000, fee: 450)
+    mut s := Savings(cents: 500000, rate_bp: 450)
+    for m in 1..=12
+        c.month()
+        s.month()
+        if m % 4 == 0
+            print("month {m:>2}: {c.label()} {c.balance()}, {s.label()} {s.balance()}")
+    gain := s.balance() - 500000
+    print("savings interest {gain / 100}.{gain % 100:02}")
+
+@test fn fee()
+    mut c := Current(cents: 1000, fee: 100)
+    c.month()
+    assert_eq(c.balance(), 900)

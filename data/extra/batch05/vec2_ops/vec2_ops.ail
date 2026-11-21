@@ -1,0 +1,48 @@
+## 2D vectors: a Vec2 struct with Add, Sub, Neg and a scale method; a projectile is stepped
+## with gravity until it lands, printing positions every few steps.
+
+struct Vec2
+    x float
+    y float
+
+impl Add for Vec2
+    fn add(self, o Vec2) Vec2
+        Vec2(x: self.x + o.x, y: self.y + o.y)
+
+impl Sub for Vec2
+    fn sub(self, o Vec2) Vec2
+        Vec2(x: self.x - o.x, y: self.y - o.y)
+
+impl Neg for Vec2
+    fn neg(self) Vec2
+        Vec2(x: -self.x, y: -self.y)
+
+fn Vec2.scale(self, k float) Vec2
+    Vec2(x: self.x * k, y: self.y * k)
+
+fn Vec2.length(self) float
+    (self.x * self.x + self.y * self.y).sqrt()
+
+fn main()
+    dt := 0.1
+    g := Vec2(x: 0.0, y: -9.8)
+    mut pos := Vec2(x: 0.0, y: 0.0)
+    mut vel := Vec2(x: 6.0, y: 8.0)
+    mut steps := 0
+    while true
+        vel = vel + g.scale(dt)
+        pos = pos + vel.scale(dt)
+        steps += 1
+        if steps % 4 == 0
+            t := steps.to_float() * dt
+            print("t={t:.1} x={pos.x:.2} y={pos.y:.2}")
+        if pos.y < 0.0
+            break
+    back := -pos
+    print("landed after {steps} steps at x={pos.x:.2}, distance {pos.length():.2}, back {back.x:.2}")
+    d := Vec2(x: 3.0, y: 4.0) - Vec2(x: 0.0, y: 0.0)
+    print("check length {d.length():.1}")
+
+@test fn add()
+    v := Vec2(x: 1.0, y: 2.0) + Vec2(x: 3.0, y: 4.0)
+    assert_eq(v.x, 4.0)

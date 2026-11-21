@@ -1,0 +1,46 @@
+## Stack machine: a tiny stack language with push, add, mul, dup, swap and print, run over
+## a few programs, reporting stack underflow as an error.
+
+fn run(prog str) str ! str
+    mut stack := List[int]()
+    mut out := List[str]()
+    for tok in prog.split(" ")
+        if n := tok.to_int()
+            stack.push(n)
+            continue
+        if tok == "print"
+            top := stack.last() else return "print on empty stack"
+            out.push("{top}")
+            continue
+        if tok == "dup"
+            top := stack.last() else return "dup on empty stack"
+            stack.push(top)
+            continue
+        if stack.len() < 2
+            return "{tok} needs two values"
+        b := stack.pop() else 0
+        a := stack.pop() else 0
+        if tok == "add"
+            stack.push(a + b)
+        elif tok == "mul"
+            stack.push(a * b)
+        elif tok == "sub"
+            stack.push(a - b)
+        elif tok == "swap"
+            stack.push(b)
+            stack.push(a)
+        else
+            return "unknown word {tok}"
+    out.join(" ")
+
+fn main()
+    progs := ["2 3 add print", "4 dup mul print 1 sub print", "1 2 swap sub print", "5 add", "3 4 pow"]
+    for p in progs
+        if r := run(p)
+            print("{p} => {r}")
+        else err
+            print("{p} => error: {err}")
+
+@test fn square()
+    r := run("6 dup mul print") else ""
+    assert_eq(r, "36")

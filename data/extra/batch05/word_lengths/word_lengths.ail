@@ -1,0 +1,21 @@
+## Word lengths: a histogram of word lengths in a passage, drawn with stars, plus the mean
+## length and the longest words.
+
+fn main()
+    text := "it was the best of times it was the worst of times it was the age of wisdom it was the age of foolishness"
+    words := text.split(" ")
+    mut hist := Map[int, int]()
+    for w in words
+        hist[w.len()] += 1
+    for n in hist.keys().sorted()
+        stars := "*".repeat(hist[n])
+        print("{n:>2} {stars}")
+    total := words.map(|w| w.len()).sum()
+    mean := total.to_float() / words.len().to_float()
+    top := words.map(|w| w.len()).max() else 0
+    longest := words.filter(|w| w.len() == top)
+    shown := longest.join(", ")
+    print("mean {mean:.2}, longest ({top}): {shown}")
+
+@test fn count()
+    assert_eq("a bb".split(" ").len(), 2)

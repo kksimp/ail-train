@@ -1,0 +1,27 @@
+## Heat index: a simple comfort label from temperature and humidity using a dew point
+## approximation, for a list of afternoon readings.
+
+fn dew_point(t float, rh float) float
+    a := 17.27
+    b := 237.7
+    g := a * t / (b + t) + (rh / 100.0).ln()
+    b * g / (a - g)
+
+fn comfort(dp float) str
+    if dp < 10.0
+        return "dry"
+    if dp < 16.0
+        return "pleasant"
+    if dp < 21.0
+        return "sticky"
+    "oppressive"
+
+fn main()
+    readings := [("Mon", 24.0, 35.0), ("Tue", 27.0, 60.0), ("Wed", 31.0, 70.0), ("Thu", 22.0, 80.0), ("Fri", 33.0, 40.0)]
+    for r in readings
+        day, t, rh := r
+        dp := dew_point(t, rh)
+        print("{day}: {t:.0}C {rh:.0}% dew point {dp:.1}C, {comfort(dp)}")
+
+@test fn saturated()
+    assert(dew_point(20.0, 100.0) > 19.9)

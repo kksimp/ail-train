@@ -1,0 +1,3 @@
+ok: example.org:8080 debug=true
+error: line 3: not a bool: yes
+error: line 2: unknown key colour

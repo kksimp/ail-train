@@ -1,0 +1,40 @@
+## Rental cars: a small fleet with daily rates; bookings ask for a class and a day range and
+## get the cheapest free car of that class, or are refused.
+
+struct Car
+    plate str
+    class str
+    rate int
+    busy List[(int, int)]
+
+fn free(c Car, a int, b int) bool
+    c.busy.all(|r| b < r.0 or a > r.1)
+
+fn main()
+    mut fleet := [
+        Car(plate: "K1", class: "small", rate: 35, busy: []),
+        Car(plate: "K2", class: "small", rate: 32, busy: []),
+        Car(plate: "V1", class: "van", rate: 70, busy: []),
+        Car(plate: "E1", class: "estate", rate: 48, busy: []),
+    ]
+    bookings := [("small", 1, 3), ("small", 2, 4), ("small", 3, 5), ("van", 1, 7), ("van", 6, 8), ("estate", 4, 4), ("small", 5, 6)]
+    mut income := 0
+    for bk in bookings
+        class, a, b := bk
+        mut pick := -1
+        for i, c in fleet.enumerate()
+            if c.class == class and free(c, a, b)
+                if pick < 0 or c.rate < fleet[pick].rate
+                    pick = i
+        if pick < 0
+            print("{class} days {a}-{b}: refused")
+        else
+            fleet[pick].busy.push((a, b))
+            cost := fleet[pick].rate * (b - a + 1)
+            income += cost
+            print("{class} days {a}-{b}: {fleet[pick].plate} for {cost}")
+    print("income {income}")
+
+@test fn overlap()
+    c := Car(plate: "x", class: "s", rate: 1, busy: [(2, 4)])
+    assert(not free(c, 4, 6))
