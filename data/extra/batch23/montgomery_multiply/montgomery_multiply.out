@@ -1,0 +1,9 @@
+n = 3329: n' = 3327, n * n' mod R = 65535
+  3^3327: Montgomery 1110, plain 1110
+  12345^3327: Montgomery 3305, plain 3305
+n = 40961: n' = 40959, n * n' mod R = 65535
+  3^40959: Montgomery 13654, plain 13654
+  12345^40959: Montgomery 15243, plain 15243
+n = 65521: n' = 61167, n * n' mod R = 65535
+  3^65519: Montgomery 43681, plain 43681
+  12345^65519: Montgomery 22525, plain 22525

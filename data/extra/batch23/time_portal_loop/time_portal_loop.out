@@ -1,0 +1,9 @@
+  barn    -> pond      3
+  pond    -> mill      2
+  mill    -> well      4
+  well    -> barn     -5
+  pond    -> orchard   1
+  orchard -> mill      2
+  well    -> orchard   6
+farm 1: no loop goes back in time
+farm 2: pond -> orchard -> mill -> well -> barn -> pond arrives 1 hours before it left

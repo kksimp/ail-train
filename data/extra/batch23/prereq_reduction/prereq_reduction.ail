@@ -1,0 +1,37 @@
+## Transitive reduction of a prerequisite graph: a direct link u -> v is redundant when v can be reached from
+## u through some other course, so dropping it changes no ordering; what is left is the smallest equivalent graph.
+
+fn reaches(adj List[List[int]], from int, target int, skip int) bool
+    mut seen := Set[int]()
+    mut stack := List[int]()
+    for v in adj[from]
+        if v != skip
+            stack.push(v)
+    while u := stack.pop()
+        if u == target
+            return true
+        if seen.add(u)
+            for w in adj[u]
+                stack.push(w)
+    false
+
+fn main()
+    names := ["intro", "maths", "data", "algo", "systems", "compilers", "graphics", "thesis"]
+    links := [[0, 2], [1, 2], [0, 3], [2, 3], [1, 3], [2, 4], [3, 5], [4, 5], [2, 5], [1, 6], [3, 6], [5, 7], [6, 7], [0, 7], [3, 7]]
+    mut adj := List[List[int]]()
+    for _ in 0..names.len()
+        adj.push(List[int]())
+    for l in links
+        adj[l[0]].push(l[1])
+    mut kept := 0
+    for l in links
+        if reaches(adj, l[0], l[1], l[1])
+            print("drop {names[l[0]]} -> {names[l[1]]} (implied)")
+        else
+            kept += 1
+    print("{kept} of {links.len()} links are needed")
+
+@test fn triangle()
+    adj := [[1, 2], [2], List[int]()]
+    assert(reaches(adj, 0, 2, 2))
+    assert(not reaches(adj, 0, 1, 1))

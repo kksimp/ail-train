@@ -1,0 +1,43 @@
+## Nesting boxes (Russian dolls): sort by width ascending and height descending, so equal widths can't chain, then a
+## patience-sorting longest increasing run of heights with back links gives the longest chain of boxes inside boxes.
+
+fn longest_chain(boxes List[List[int]]) List[List[int]]
+    order := boxes.sorted(by: |b| (b[0], -b[1]))
+    mut tails := List[int]()
+    mut back := List[int]()
+    for i, b in order.enumerate()
+        mut lo := 0
+        mut hi := tails.len()
+        while lo < hi
+            mid := (lo + hi) / 2
+            if order[tails[mid]][1] < b[1]
+                lo = mid + 1
+            else
+                hi = mid
+        prev := if lo > 0 then tails[lo - 1] else -1
+        back.push(prev)
+        if lo == tails.len()
+            tails.push(i)
+        else
+            tails[lo] = i
+    mut chain := List[List[int]]()
+    if tails.len() == 0
+        return chain
+    mut k := tails[tails.len() - 1]
+    while k >= 0
+        chain.push(order[k])
+        k = back[k]
+    chain.reverse()
+    chain
+
+fn main()
+    boxes := [[5, 4], [6, 4], [6, 7], [2, 3], [8, 9], [3, 5], [7, 8], [4, 4], [9, 6], [10, 10], [3, 3]]
+    chain := longest_chain(boxes)
+    print("{boxes.len()} boxes, longest nesting chain has {chain.len()}")
+    for b in chain
+        print("  {b[0]:>2} x {b[1]:>2}")
+    same := longest_chain([[4, 4], [4, 5], [4, 6]])
+    print("three boxes of width 4 nest {same.len()} deep")
+
+@test fn simple_chain()
+    assert_eq(longest_chain([[1, 1], [2, 2], [3, 3]]).len(), 3)

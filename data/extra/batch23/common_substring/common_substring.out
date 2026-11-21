@@ -1,0 +1,6 @@
+GATTACAGT     CTTACAGA     -> [TTACAG] length 6
+photograph    telegraph    -> [graph] length 5
+interstellar  stellarator  -> [stellar] length 7
+abc           xyz          -> [] length 0
+sunflower     mayflower    -> [flower] length 6
+rhythm        algorithm    -> [thm] length 3

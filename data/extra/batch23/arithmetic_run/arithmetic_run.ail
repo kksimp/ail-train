@@ -1,0 +1,35 @@
+## Longest arithmetic subsequence: for each position i and gap d, len(i, d) = len(j, d) + 1 for the latest earlier
+## j with a[i] - a[j] = d; a map per position holds its gaps, and the best (end, gap, length) rebuilds the run.
+
+fn longest(xs List[int]) List[int]
+    mut maps := List[Map[int, int]]()
+    mut best_len := 1
+    mut best_end := 0
+    mut best_gap := 0
+    for i in 0..xs.len()
+        mut here := Map[int, int]()
+        for j in 0..i
+            d := xs[i] - xs[j]
+            l := maps[j].get_or(d, 1) + 1
+            if l > here.get_or(d, 0)
+                here[d] = l
+            if l > best_len
+                best_len = l
+                best_end = i
+                best_gap = d
+        maps.push(here)
+    mut run := List[int]()
+    mut v := xs[best_end] - best_gap * (best_len - 1)
+    for k in 0..best_len
+        run.push(v)
+        v += best_gap
+    run
+
+fn main()
+    for xs in [[3, 6, 9, 12], [9, 4, 7, 2, 10], [20, 1, 15, 3, 10, 5, 8], [1, 7, 10, 13, 14, 19], [5, 5, 5, 1, 5], [83, 20, 17, 43, 52, 78, 68, 45]]
+        run := longest(xs)
+        gap := if run.len() > 1 then run[1] - run[0] else 0
+        print("{xs} -> {run} (length {run.len()}, step {gap})")
+
+@test fn simple()
+    assert_eq(longest([9, 4, 7, 2, 10]), [4, 7, 10])

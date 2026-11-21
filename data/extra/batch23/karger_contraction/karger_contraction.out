@@ -1,0 +1,4 @@
+8 nodes, 15 edges: two tight clusters joined by two links
+cut found by each trial: [2, 2, 3, 2, 4, 4, 2, 3, 2, 4, 3, 4]
+smallest cut 2, found in 5 of 12 trials
+one trial succeeds with chance at least 2/(n(n-1)) = 1/28

@@ -1,0 +1,60 @@
+## Space-Saving heavy hitters: k counters follow a stream; a new item with no free counter takes over the smallest
+## one, inheriting its count plus one, and that inherited count is the item's possible overcount (its error bound).
+
+struct Lcg
+    state int
+
+fn Lcg.next(mut self, n int) int
+    self.state = (self.state * 1103515245 + 12345) % 2147483648
+    (self.state >> 8) % n
+
+struct Slot
+    item str
+    count int
+    err int
+
+fn offer(mut slots List[Slot], item str, k int)
+    for i in 0..slots.len()
+        if slots[i].item == item
+            slots[i].count += 1
+            return
+    if slots.len() < k
+        slots.push(Slot(item: item, count: 1, err: 0))
+        return
+    mut low := 0
+    for i in 1..slots.len()
+        if slots[i].count < slots[low].count
+            low = i
+    floor := slots[low].count
+    slots[low] = Slot(item: item, count: floor + 1, err: floor)
+
+fn main()
+    pages := ["home", "news", "shop", "help", "blog", "jobs", "about", "faq", "terms", "press"]
+    weights := [30, 18, 12, 8, 6, 5, 4, 3, 2, 2]
+    mut cumulative := List[int]()
+    mut run := 0
+    for w in weights
+        run += w
+        cumulative.push(run)
+    mut rng := Lcg(state: 31)
+    mut slots := List[Slot]()
+    mut exact := Map[str, int]()
+    for _ in 0..5000
+        r := rng.next(run)
+        mut i := 0
+        while cumulative[i] <= r
+            i += 1
+        offer(mut slots, pages[i], 5)
+        exact[pages[i]] += 1
+    ranked := slots.sorted(by: |s| -s.count)
+    for s in ranked
+        lowest := s.count - s.err
+        print("{s.item:<6} counted {s.count:>4} (true count between {lowest} and {s.count}; actual {exact[s.item]})")
+    print("5 counters followed a stream of 5000 views over {pages.len()} pages")
+
+@test fn takeover()
+    mut slots := List[Slot]()
+    offer(mut slots, "a", 1)
+    offer(mut slots, "b", 1)
+    assert_eq(slots[0].count, 2)
+    assert_eq(slots[0].err, 1)

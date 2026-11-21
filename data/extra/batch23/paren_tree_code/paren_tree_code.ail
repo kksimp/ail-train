@@ -1,0 +1,58 @@
+## Balanced-parentheses tree encoding: a depth-first walk writes "(" on entering a node and ")" on leaving, 2 bits a
+## node; depth is the excess of opens before a node, and the matching close gives its subtree size and its parent.
+
+fn encode(kids List[List[int]], v int, mut out List[char], mut order List[int])
+    out.push('(')
+    order.push(v)
+    for c in kids[v]
+        encode(kids, c, mut out, mut order)
+    out.push(')')
+
+fn find_close(bp List[char], i int) int
+    mut depth := 0
+    mut j := i
+    while j < bp.len()
+        depth += if bp[j] == '(' then 1 else -1
+        if depth == 0
+            return j
+        j += 1
+    -1
+
+fn enclose(bp List[char], i int) int
+    mut depth := 0
+    mut j := i - 1
+    while j >= 0
+        depth += if bp[j] == ')' then 1 else -1
+        if depth < 0
+            return j
+        j -= 1
+    -1
+
+fn main()
+    names := ["root", "docs", "src", "a.md", "b.md", "lib", "main", "x.rs", "y.rs", "test"]
+    parent := [-1, 0, 0, 1, 1, 2, 2, 5, 5, 0]
+    mut kids := [List[int]() for nm in names]
+    for child in 1..names.len()
+        kids[parent[child]].push(child)
+    mut bp := List[char]()
+    mut order := List[int]()
+    encode(kids, 0, mut bp, mut order)
+    shown := bp.join("")
+    print("{shown} ({bp.len()} bits for {names.len()} nodes)")
+    opens := [i for i in 0..bp.len() if bp[i] == '(']
+    for n in 0..names.len()
+        at := opens[n]
+        before := bp.slice(0, at)
+        depth := before.count(|c| c == '(') - before.count(|c| c == ')')
+        size := (find_close(bp, at) - at + 1) / 2
+        up := enclose(bp, at)
+        mut boss := "-"
+        if up >= 0
+            pos := opens.index_of(up) else 0
+            boss = names[order[pos]]
+        print("{names[order[n]]:<5} depth {depth} subtree {size:>2} parent {boss}")
+
+@test fn single_leaf()
+    bp := ['(', '(', ')', ')']
+    assert_eq(find_close(bp, 1), 2)
+    assert_eq(enclose(bp, 1), 0)

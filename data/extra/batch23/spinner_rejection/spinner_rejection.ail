@@ -1,0 +1,36 @@
+## Rejection sampling: to spin a loaded spinner with only a fair generator, propose a sector uniformly and accept it
+## when a second uniform number falls under that sector's weight; the acceptance rate is sum(w) / (n max(w)).
+
+struct Lcg
+    state int
+
+fn Lcg.next(mut self, n int) int
+    self.state = (self.state * 1103515245 + 12345) % 2147483648
+    (self.state >> 8) % n
+
+fn main()
+    weights := [9, 3, 6, 1, 4, 7]
+    top := weights.max() else 1
+    n := weights.len()
+    mut rng := Lcg(state: 2025)
+    mut counts := [0, 0, 0, 0, 0, 0]
+    mut proposals := 0
+    mut accepted := 0
+    while accepted < 6000
+        x := rng.next(n)
+        u := rng.next(top)
+        proposals += 1
+        if u < weights[x]
+            counts[x] += 1
+            accepted += 1
+    total := weights.sum()
+    for i in 0..n
+        expect := 6000 * weights[i] / total
+        bar := "#".repeat(counts[i] / 100)
+        print("sector {i + 1} weight {weights[i]}: {counts[i]:>4} (expected {expect:>4}) {bar}")
+    rate := accepted.to_float() / proposals.to_float()
+    ideal := total.to_float() / (n * top).to_float()
+    print("accepted {accepted} of {proposals} proposals: rate {rate:.3}, theory {ideal:.3}")
+
+@test fn theory_rate()
+    assert_eq(30 * 1000 / (6 * 9), 555)

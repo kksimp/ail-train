@@ -1,0 +1,10 @@
+abc          8 distinct subsequences (with the empty one)
+aba          7 distinct subsequences (with the empty one)
+aaa          4 distinct subsequences (with the empty one)
+banana       40 distinct subsequences (with the empty one)
+mississippi  478 distinct subsequences (with the empty one)
+abcdefghij   1024 distinct subsequences (with the empty one)
+rabbit inside rabbbit: 3 ways
+bag inside babgbag: 5 ways
+sue inside subsequence: 7 ways
+aa inside aaaaa: 10 ways

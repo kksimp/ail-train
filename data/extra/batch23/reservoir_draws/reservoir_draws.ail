@@ -1,0 +1,40 @@
+## Reservoir sampling (Algorithm R): keep the first k items of a stream, then let item i (counting from 1) replace a
+## random slot with chance k / i; without knowing the length n, every item ends up sampled with chance k / n.
+
+struct Lcg
+    state int
+
+fn Lcg.below(mut self, n int) int
+    self.state = (self.state * 1103515245 + 12345) % 2147483648
+    (self.state >> 8) % n
+
+fn sample(stream List[str], k int, mut rng Lcg) List[str]
+    mut keep := List[str]()
+    for i in 0..stream.len()
+        if i < k
+            keep.push(stream[i])
+        else
+            j := rng.below(i + 1)
+            if j < k
+                keep[j] = stream[i]
+    keep
+
+fn main()
+    orders := ["A101", "B202", "C303", "D404", "E505", "F606", "G707", "H808", "I909", "J010"]
+    mut rng := Lcg(state: 99)
+    for day in 1..=3
+        picked := sample(orders, 3, mut rng).join(" ")
+        print("day {day} audit sample: {picked}")
+    trials := 6000
+    mut hits := Map[str, int]()
+    for _ in 0..trials
+        drawn := sample(orders, 3, mut rng)
+        for o in drawn
+            hits[o] += 1
+    counts := [hits.get_or(o2, 0) for o2 in orders]
+    print("times each order was picked in {trials} audits: {counts}")
+    print("expected for every order: {trials * 3 / orders.len()}")
+
+@test fn short_stream()
+    mut rng := Lcg(state: 1)
+    assert_eq(sample(["a", "b"], 2, mut rng), ["a", "b"])

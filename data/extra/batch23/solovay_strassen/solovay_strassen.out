@@ -1,0 +1,11 @@
+(a/15) for a = 1..14: [1, 1, 0, 1, 0, 0, -1, 1, 0, 0, -1, 0, -1, -1]
+   91: Fermat liars    36, Euler liars   18 of 90
+  561: Fermat liars   320, Euler liars   80 of 560
+ 1105: Fermat liars   768, Euler liars  192 of 1104
+ 1729: Fermat liars  1296, Euler liars  648 of 1728
+15841: Fermat liars 12960, Euler liars 6480 of 15840
+7919: probably prime
+1729: composite
+104729: probably prime
+999999937: probably prime
+999999929: probably prime

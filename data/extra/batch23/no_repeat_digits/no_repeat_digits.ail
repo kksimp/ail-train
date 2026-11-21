@@ -1,0 +1,49 @@
+## Digit-by-digit counting: how many numbers from 1 to N have no two equal neighbouring digits? Shorter numbers give
+## 9^L each length; for N's own length, every smaller digit at a position frees the rest to 9 choices each.
+
+fn pow9(e int) int
+    mut r := 1
+    for _ in 0..e
+        r *= 9
+    r
+
+fn count_upto(n int) int
+    text := "{n}"
+    mut ds := List[int]()
+    for c in text.chars()
+        ds.push(c.to_digit(10) else 0)
+    size := ds.len()
+    mut total := 0
+    for l in 1..size
+        total += pow9(l)
+    mut prev := -1
+    for i in 0..size
+        low := if i == 0 then 1 else 0
+        for d in low..ds[i]
+            if d != prev
+                total += pow9(size - i - 1)
+        if ds[i] == prev
+            return total
+        prev = ds[i]
+    total + 1
+
+fn brute(n int) int
+    mut count := 0
+    for x in 1..=n
+        s := "{x}".chars()
+        mut ok := true
+        for i in 1..s.len()
+            if s[i] == s[i - 1]
+                ok = false
+        if ok
+            count += 1
+    count
+
+fn main()
+    for n in [100, 1000, 2024, 4554, 99999, 1234567890]
+        print("1..{n}: {count_upto(n)} numbers with no repeated neighbour digits")
+    print("check by brute force up to 4554: {brute(4554)}")
+
+@test fn hundred()
+    assert_eq(count_upto(100), 90)
+    assert_eq(count_upto(2024), brute(2024))

@@ -1,0 +1,42 @@
+## Douglas-Peucker simplification of a GPS track: keep both ends, find the point farthest from the line joining
+## them, and recurse on both halves when it is farther than the tolerance (compared exactly as squared integers).
+
+fn simplify(pts List[List[int]], first int, last int, tol int, mut keep List[bool])
+    if last <= first + 1
+        return
+    ax := pts[first][0]
+    ay := pts[first][1]
+    dx := pts[last][0] - ax
+    dy := pts[last][1] - ay
+    len2 := dx * dx + dy * dy
+    mut far := -1
+    mut far_cross := -1
+    from := first + 1
+    for i in from..last
+        c := (dx * (pts[i][1] - ay) - dy * (pts[i][0] - ax)).abs()
+        if c > far_cross
+            far_cross = c
+            far = i
+    if far_cross * far_cross > tol * tol * len2
+        keep[far] = true
+        simplify(pts, first, far, tol, mut keep)
+        simplify(pts, far, last, tol, mut keep)
+
+fn run(pts List[List[int]], tol int) List[int]
+    mut keep := [false for p in pts]
+    keep[0] = true
+    keep[pts.len() - 1] = true
+    simplify(pts, 0, pts.len() - 1, tol, mut keep)
+    [i for i in 0..pts.len() if keep[i]]
+
+fn main()
+    track := [[0, 0], [2, 1], [4, 0], [6, 3], [8, 2], [10, 8], [12, 9], [14, 7], [16, 10], [18, 9], [20, 15], [22, 14], [24, 16]]
+    print("track of {track.len()} points")
+    for tol in [0, 1, 2, 4, 8]
+        kept := run(track, tol)
+        parts := [" ({track[k][0]},{track[k][1]})" for k in kept]
+        shown := parts.join("")
+        print("tolerance {tol}: {kept.len():>2} points{shown}")
+
+@test fn straight_line()
+    assert_eq(run([[0, 0], [1, 1], [2, 2], [3, 3]], 0), [0, 3])

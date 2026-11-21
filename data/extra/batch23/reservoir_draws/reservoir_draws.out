@@ -1,0 +1,5 @@
+day 1 audit sample: D404 B202 C303
+day 2 audit sample: D404 G707 C303
+day 3 audit sample: D404 F606 J010
+times each order was picked in 6000 audits: [1806, 1846, 1796, 1765, 1815, 1798, 1791, 1799, 1823, 1761]
+expected for every order: 1800

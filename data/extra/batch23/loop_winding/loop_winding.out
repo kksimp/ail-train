@@ -1,0 +1,7 @@
+flight path: a five-pointed star drawn in one stroke
+beacon (  0,  0): circled 2 times, even-odd says outside
+beacon (  0,  7): circled 1 times, even-odd says inside
+beacon (  5,  3): circled 1 times, even-odd says inside
+beacon ( -7,  3): circled 1 times, even-odd says inside
+beacon ( 12,  0): circled 0 times, even-odd says outside
+beacon (  0, -6): circled 0 times, even-odd says outside

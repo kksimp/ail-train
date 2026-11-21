@@ -1,0 +1,53 @@
+## Optimal Golomb rulers: marks at integer positions whose pairwise differences are all distinct; backtracking adds
+## marks left to right with a table of used differences, trying lengths upward until one ruler fits.
+
+fn place(mut marks List[int], order int, length int, mut used List[bool], mut nodes List[int]) bool
+    nodes[0] += 1
+    if marks.len() == order
+        return true
+    last := marks[marks.len() - 1]
+    from := last + 1
+    for m in from..=length
+        if marks.len() == order - 1 and m != length
+            continue
+        mut ok := true
+        for x in marks
+            if used[m - x]
+                ok = false
+        if ok
+            for x in marks
+                used[m - x] = true
+            marks.push(m)
+            if place(mut marks, order, length, mut used, mut nodes)
+                return true
+            _ := marks.pop()
+            for x in marks
+                used[m - x] = false
+    false
+
+fn optimal(order int) List[int]
+    mut length := order - 1
+    mut result := List[int]()
+    while result.len() == 0
+        mut marks := [0]
+        mut used := List[bool]()
+        cells := length + 1
+        for _ in 0..cells
+            used.push(false)
+        mut nodes := [0]
+        if place(mut marks, order, length, mut used, mut nodes)
+            marks.push(nodes[0])
+            result = marks
+        length += 1
+    result
+
+fn main()
+    for order in 2..=6
+        r := optimal(order)
+        nodes := r[r.len() - 1]
+        marks := r.slice(0, r.len() - 1)
+        print("{order} marks: length {marks[marks.len() - 1]:>2}, ruler {marks} ({nodes} nodes in the last search)")
+
+@test fn three_marks()
+    r := optimal(3)
+    assert_eq(r.slice(0, 3), [0, 1, 3])

@@ -1,0 +1,60 @@
+## Alpha-beta pruning: a minimax search that carries the best value each side is already sure of (alpha for the
+## maximiser, beta for the minimiser) and stops reading a node's children once alpha >= beta; same answer, fewer nodes.
+
+struct Lcg
+    state int
+
+fn Lcg.next(mut self, n int) int
+    self.state = (self.state * 1103515245 + 12345) % 2147483648
+    (self.state >> 8) % n
+
+fn minimax(depth int, idx int, maxing bool, leaves List[int], mut count List[int]) int
+    count[0] += 1
+    if depth == 0
+        return leaves[idx]
+    mut best := if maxing then -1 else 1000
+    for c in 0..3
+        v := minimax(depth - 1, idx * 3 + c, not maxing, leaves, mut count)
+        best = if maxing then best.max(v) else best.min(v)
+    best
+
+fn alphabeta(depth int, idx int, alpha int, beta int, maxing bool, leaves List[int], mut count List[int]) int
+    count[0] += 1
+    if depth == 0
+        return leaves[idx]
+    mut a := alpha
+    mut b := beta
+    if maxing
+        mut high := -1
+        for c in 0..3
+            v1 := alphabeta(depth - 1, idx * 3 + c, a, b, false, leaves, mut count)
+            high = high.max(v1)
+            a = a.max(high)
+            if a >= b
+                break
+        return high
+    mut low := 1000
+    for c in 0..3
+        v2 := alphabeta(depth - 1, idx * 3 + c, a, b, true, leaves, mut count)
+        low = low.min(v2)
+        b = b.min(low)
+        if a >= b
+            break
+    low
+
+fn main()
+    for seed in [3, 8, 21]
+        mut rng := Lcg(state: seed)
+        mut leaves := List[int]()
+        for _ in 0..81
+            leaves.push(rng.next(100))
+        mut c1 := [0]
+        mut c2 := [0]
+        v1 := minimax(4, 0, true, leaves, mut c1)
+        v2 := alphabeta(4, 0, -1, 1000, true, leaves, mut c2)
+        print("tree {seed:>2}: value {v1} / {v2}, minimax read {c1[0]} nodes, alpha-beta {c2[0]}")
+
+@test fn small_tree()
+    leaves := [3, 5, 2, 9, 1, 4, 7, 6, 8]
+    mut c := [0]
+    assert_eq(alphabeta(2, 0, -1, 1000, true, leaves, mut c), 6)

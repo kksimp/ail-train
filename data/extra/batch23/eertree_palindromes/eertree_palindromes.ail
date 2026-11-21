@@ -1,0 +1,60 @@
+## Palindromic tree (eertree): two roots of length -1 and 0, one node per distinct palindrome, each with a
+## suffix link to its longest proper palindromic suffix; each new letter adds at most one node.
+
+struct Eertree
+    lens List[int]
+    links List[int]
+    edges List[Map[char, int]]
+    text List[char]
+    last int
+
+fn Eertree.make() Eertree
+    Eertree(lens: [-1, 0], links: [0, 0], edges: [Map[char, int](), Map[char, int]()], text: [], last: 1)
+
+fn Eertree.fits(self, u int, i int) bool
+    l := self.lens[u]
+    i - l - 1 >= 0 and self.text[i - l - 1] == self.text[i]
+
+fn Eertree.suffix_for(self, v int, i int) int
+    mut u := v
+    while not self.fits(u, i)
+        u = self.links[u]
+    u
+
+fn Eertree.add(mut self, c char) bool
+    self.text.push(c)
+    i := self.text.len() - 1
+    cur := self.suffix_for(self.last, i)
+    if self.edges[cur].contains(c)
+        self.last = self.edges[cur][c]
+        return false
+    node := self.lens.len()
+    self.lens.push(self.lens[cur] + 2)
+    self.edges.push(Map[char, int]())
+    if self.lens[node] == 1
+        self.links.push(1)
+    else
+        w := self.suffix_for(self.links[cur], i)
+        self.links.push(self.edges[w][c])
+    self.edges[cur][c] = node
+    self.last = node
+    true
+
+fn palindromes(s str) List[str]
+    mut t := Eertree.make()
+    mut found := List[str]()
+    cs := s.chars()
+    for i in 0..cs.len()
+        if t.add(cs[i])
+            l := t.lens[t.last]
+            found.push(s.slice(i - l + 1, i + 1))
+    found
+
+fn main()
+    for s in ["abacaba", "banana", "aaaa", "racecars", "abcd"]
+        ps := palindromes(s)
+        shown := ps.join(" ")
+        print("{s:<9} {ps.len()} distinct: {shown}")
+
+@test fn repeats()
+    assert_eq(palindromes("aaaa").len(), 4)

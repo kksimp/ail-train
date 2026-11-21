@@ -1,0 +1,7 @@
+1..100: 90 numbers with no repeated neighbour digits
+1..1000: 819 numbers with no repeated neighbour digits
+1..2024: 1561 numbers with no repeated neighbour digits
+1..4554: 3375 numbers with no repeated neighbour digits
+1..99999: 66429 numbers with no repeated neighbour digits
+1..1234567890: 490329046 numbers with no repeated neighbour digits
+check by brute force up to 4554: 3375

@@ -1,0 +1,33 @@
+## Self-avoiding walks: a depth-first search on the square lattice that never revisits a point counts the n-step
+## walks from the origin (4, 12, 36, ...) and the mean squared end distance, which grows faster than n.
+
+fn walk(x int, y int, steps int, mut seen Set[int], mut totals List[int])
+    if steps == 0
+        totals[0] += 1
+        totals[1] += x * x + y * y
+        return
+    for d in [[1, 0], [-1, 0], [0, 1], [0, -1]]
+        nx := x + d[0]
+        ny := y + d[1]
+        key := (nx + 50) * 1000 + ny + 50
+        if not seen.contains(key)
+            seen.add(key)
+            walk(nx, ny, steps - 1, mut seen, mut totals)
+            seen.remove(key)
+
+fn main()
+    for n in 1..=10
+        mut seen := Set[int]()
+        seen.add(50 * 1000 + 50)
+        mut totals := [0, 0]
+        walk(0, 0, n, mut seen, mut totals)
+        mean := totals[1].to_float() / totals[0].to_float()
+        ratio := mean / n.to_float()
+        print("{n:>2} steps: {totals[0]:>5} walks, mean squared distance {mean:>7.3} ({ratio:.3} per step)")
+
+@test fn two_steps()
+    mut seen := Set[int]()
+    seen.add(50050)
+    mut totals := [0, 0]
+    walk(0, 0, 2, mut seen, mut totals)
+    assert_eq(totals[0], 12)

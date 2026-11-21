@@ -1,0 +1,54 @@
+## Decoding digits as letters (A=1 ... Z=26): ways(i) = ways(i-1) when digit i is not 0, plus ways(i-2) when the
+## last two digits make 10..26; short messages are also expanded into every possible reading.
+
+fn digits(s str) List[int]
+    mut out := List[int]()
+    for c in s.chars()
+        out.push(c.to_digit(10) else 0)
+    out
+
+fn ways(s str) int
+    ds := digits(s)
+    mut prev2 := 1
+    mut prev1 := if ds.len() > 0 and ds[0] != 0 then 1 else 0
+    for i in 1..ds.len()
+        mut cur := 0
+        if ds[i] != 0
+            cur += prev1
+        pair := ds[i - 1] * 10 + ds[i]
+        if pair >= 10 and pair <= 26
+            cur += prev2
+        prev2 = prev1
+        prev1 = cur
+    prev1
+
+fn letter(n int) str
+    c := char.from_code(64 + n) else '?'
+    "{c}"
+
+fn expand(ds List[int], i int, sofar str, mut out List[str])
+    if i == ds.len()
+        out.push(sofar)
+        return
+    if ds[i] != 0
+        one := letter(ds[i])
+        expand(ds, i + 1, "{sofar}{one}", mut out)
+        if i + 1 < ds.len()
+            pair := ds[i] * 10 + ds[i + 1]
+            if pair <= 26
+                two := letter(pair)
+                expand(ds, i + 2, "{sofar}{two}", mut out)
+
+fn main()
+    for s in ["12", "226", "1212", "2101", "301", "11106", "1111111111", "2626262626"]
+        print("{s:<11} {ways(s)} readings")
+    for s in ["1212", "2101"]
+        mut out := List[str]()
+        ds := digits(s)
+        expand(ds, 0, "", mut out)
+        shown := out.join(" ")
+        print("{s}: {shown}")
+
+@test fn zeros()
+    assert_eq(ways("226"), 3)
+    assert_eq(ways("301"), 0)

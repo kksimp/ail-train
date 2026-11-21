@@ -1,0 +1,4 @@
+LCG top bit            ones 193 of 400  z =   -1.08  looks random
+LCG bit 16             ones 200 of 400  z =    0.50  looks random
+LCG lowest bit         ones 200 of 400  z =   19.92  not random
+flips 20% of the time  ones 261 of 400  z =  -12.41  not random

@@ -1,0 +1,10 @@
+column 0: keep common if coin < 100/100, else common
+column 1: keep uncommon if coin < 35/100, else common
+column 2: keep rare if coin < 75/100, else common
+column 3: keep epic if coin < 40/100, else common
+column 4: keep legend if coin < 10/100, else uncommon
+common    drawn  5940, expected  6000
+uncommon  drawn  3081, expected  3000
+rare      drawn  1801, expected  1800
+epic      drawn   959, expected   960
+legend    drawn   219, expected   240

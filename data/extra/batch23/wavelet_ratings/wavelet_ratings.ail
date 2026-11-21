@@ -1,0 +1,58 @@
+## Wavelet tree: each node splits its value range in half and stores, for every prefix of its sequence, how many
+## values went left; the k-th smallest rating in any range of days (here range medians) takes one step per level.
+
+struct WNode
+    lo int
+    hi int
+    counts List[int]
+    left int
+    right int
+
+fn build(mut nodes List[WNode], xs List[int], lo int, hi int) int
+    idx := nodes.len()
+    nodes.push(WNode(lo: lo, hi: hi, counts: [0], left: -1, right: -1))
+    if lo == hi or xs.len() == 0
+        return idx
+    mid := (lo + hi) / 2
+    mut counts := [0]
+    mut ls := List[int]()
+    mut rs := List[int]()
+    for x in xs
+        if x <= mid
+            ls.push(x)
+            counts.push(counts[counts.len() - 1] + 1)
+        else
+            rs.push(x)
+            counts.push(counts[counts.len() - 1])
+    l := build(mut nodes, ls, lo, mid)
+    r := build(mut nodes, rs, mid + 1, hi)
+    nodes[idx].counts = counts
+    nodes[idx].left = l
+    nodes[idx].right = r
+    idx
+
+fn kth(nodes List[WNode], at int, l int, r int, k int) int
+    n := nodes[at]
+    if n.lo == n.hi
+        return n.lo
+    went_left := n.counts[r] - n.counts[l]
+    if k <= went_left
+        kth(nodes, n.left, n.counts[l], n.counts[r], k)
+    else
+        kth(nodes, n.right, l - n.counts[l], r - n.counts[r], k - went_left)
+
+fn main()
+    stars := [3, 7, 1, 4, 4, 6, 2, 7, 5, 0, 3, 6, 7, 2, 4, 5]
+    mut nodes := List[WNode]()
+    root := build(mut nodes, stars, 0, 7)
+    print("ratings: {stars} ({nodes.len()} tree nodes)")
+    for q in [[0, 16], [3, 9], [8, 14]]
+        size := q[1] - q[0]
+        k := (size + 1) / 2
+        part := stars.slice(q[0], q[1]).sorted()
+        print("median of days {q[0]}..{q[1] - 1}: {kth(nodes, root, q[0], q[1], k)} (check {part[k - 1]})")
+
+@test fn smallest()
+    mut nodes := List[WNode]()
+    root := build(mut nodes, [5, 1, 3], 0, 7)
+    assert_eq(kth(nodes, root, 0, 3, 1), 1)

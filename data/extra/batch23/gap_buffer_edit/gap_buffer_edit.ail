@@ -1,0 +1,60 @@
+## Gap buffer: the text lives in one array with a gap at the cursor, so typing fills the gap from the left and moving
+## the cursor shifts one character across it; edits near the cursor never move the rest of the text.
+
+struct GapBuffer
+    cells List[char]
+    start int
+    end int
+
+fn GapBuffer.make(capacity int) GapBuffer
+    cells := ['_' for i in 0..capacity]
+    GapBuffer(cells: cells, start: 0, end: capacity)
+
+fn GapBuffer.type_text(mut self, s str)
+    for c in s.chars()
+        self.cells[self.start] = c
+        self.start += 1
+
+fn GapBuffer.left(mut self, n int)
+    for i in 0..n
+        self.start -= 1
+        self.end -= 1
+        self.cells[self.end] = self.cells[self.start]
+        self.cells[self.start] = '_'
+
+fn GapBuffer.right(mut self, n int)
+    for i in 0..n
+        if self.end < self.cells.len()
+            self.cells[self.start] = self.cells[self.end]
+            self.cells[self.end] = '_'
+            self.start += 1
+            self.end += 1
+
+fn GapBuffer.text(self) str
+    before := self.cells.slice(0, self.start).join("")
+    after := self.cells.slice(self.end).join("")
+    "{before}{after}"
+
+fn show(step str, g GapBuffer)
+    raw := g.cells.join("")
+    print("{step:<16} [{raw}] -> {g.text()}")
+
+fn main()
+    mut g := GapBuffer.make(16)
+    g.type_text("helo world")
+    show("type", g)
+    g.left(7)
+    show("left 7", g)
+    g.type_text("l")
+    show("type l", g)
+    g.right(7)
+    show("right 7", g)
+    g.type_text("!")
+    show("type !", g)
+
+@test fn edit_middle()
+    mut g := GapBuffer.make(8)
+    g.type_text("ac")
+    g.left(1)
+    g.type_text("b")
+    assert_eq(g.text(), "abc")

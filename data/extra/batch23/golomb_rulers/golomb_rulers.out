@@ -1,0 +1,5 @@
+2 marks: length  1, ruler [0, 1] (2 nodes in the last search)
+3 marks: length  3, ruler [0, 1, 3] (3 nodes in the last search)
+4 marks: length  6, ruler [0, 1, 4, 6] (5 nodes in the last search)
+5 marks: length 11, ruler [0, 1, 4, 9, 11] (12 nodes in the last search)
+6 marks: length 17, ruler [0, 1, 4, 10, 12, 17] (47 nodes in the last search)

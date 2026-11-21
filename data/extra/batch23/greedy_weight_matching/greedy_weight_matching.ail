@@ -1,0 +1,41 @@
+## Greedy weighted matching: take compatibility links from strongest to weakest, keeping a link when neither person
+## is paired yet; the result weighs at least half the best matching, which a search over all link subsets finds.
+
+struct Link
+    a int
+    b int
+    w int
+
+fn best_matching(links List[Link], i int, mut used List[bool]) int
+    if i == links.len()
+        return 0
+    mut best := best_matching(links, i + 1, mut used)
+    l := links[i]
+    if not used[l.a] and not used[l.b]
+        used[l.a] = true
+        used[l.b] = true
+        with_it := l.w + best_matching(links, i + 1, mut used)
+        used[l.a] = false
+        used[l.b] = false
+        best = best.max(with_it)
+    best
+
+fn main()
+    names := ["Ada", "Ben", "Cas", "Dot", "Eli", "Fay", "Gus", "Hal"]
+    links := [Link(a: 0, b: 1, w: 9), Link(a: 1, b: 2, w: 10), Link(a: 2, b: 3, w: 9), Link(a: 0, b: 4, w: 4), Link(a: 4, b: 5, w: 7), Link(a: 5, b: 6, w: 8), Link(a: 6, b: 7, w: 5), Link(a: 3, b: 7, w: 6), Link(a: 1, b: 5, w: 3), Link(a: 2, b: 6, w: 2)]
+    order := links.sorted(by: |l| -l.w)
+    mut taken := [false, false, false, false, false, false, false, false]
+    mut total := 0
+    for l in order
+        if not taken[l.a] and not taken[l.b]
+            taken[l.a] = true
+            taken[l.b] = true
+            total += l.w
+            print("pair {names[l.a]} + {names[l.b]} ({l.w})")
+    mut used := [false, false, false, false, false, false, false, false]
+    best := best_matching(links, 0, mut used)
+    print("greedy total {total}, best possible {best}")
+
+@test fn single_link()
+    mut used := [false, false]
+    assert_eq(best_matching([Link(a: 0, b: 1, w: 5)], 0, mut used), 5)

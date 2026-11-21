@@ -1,0 +1,35 @@
+## Summing floor(N / i) for i = 1..N (the total divisor count up to N) in O(sqrt N): the quotient q = N / i stays the
+## same for every i up to N / q, so each block of equal quotients is added in one step.
+
+fn by_blocks(n int, mut blocks List[int]) int
+    mut total := 0
+    mut i := 1
+    while i <= n
+        q := n / i
+        j := n / q
+        total += q * (j - i + 1)
+        blocks[0] += 1
+        i = j + 1
+    total
+
+fn brute(n int) int
+    mut total := 0
+    for i in 1..=n
+        total += n / i
+    total
+
+fn main()
+    for n in [10, 100, 1000, 100000, 1000000000]
+        mut blocks := [0]
+        fast := by_blocks(n, mut blocks)
+        slow := if n <= 100000 then "{brute(n)}" else "skipped"
+        print("N = {n:>10}: sum {fast:>11} in {blocks[0]:>5} blocks (one by one: {slow})")
+    mut counts := List[int]()
+    for k in 1..=12
+        mut b := [0]
+        counts.push(by_blocks(k, mut b) - by_blocks(k - 1, mut b))
+    print("divisor counts d(1..12) as differences: {counts}")
+
+@test fn ten()
+    mut blocks := [0]
+    assert_eq(by_blocks(10, mut blocks), 27)

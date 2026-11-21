@@ -1,0 +1,47 @@
+## Binary GCD (Stein's algorithm): strip the common factors of two with shifts, then keep subtracting the smaller odd
+## number from the larger and halving the difference until it reaches zero; no division at all, compared with Euclid.
+
+fn stein(a0 int, b0 int, mut steps List[int]) int
+    mut a := a0
+    mut b := b0
+    if a == 0 or b == 0
+        return a + b
+    mut shift := 0
+    while ((a | b) & 1) == 0
+        a = a >> 1
+        b = b >> 1
+        shift += 1
+    while (a & 1) == 0
+        a = a >> 1
+    while b != 0
+        while (b & 1) == 0
+            b = b >> 1
+        if a > b
+            t := a
+            a = b
+            b = t
+        b = b - a
+        steps[0] += 1
+    a << shift
+
+fn euclid(a0 int, b0 int, mut steps List[int]) int
+    mut a := a0
+    mut b := b0
+    while b != 0
+        r := a % b
+        a = b
+        b = r
+        steps[0] += 1
+    a
+
+fn main()
+    for pair in [[48, 18], [1071, 462], [270, 192], [1000000, 999999], [987, 610], [1024, 768], [0, 35]]
+        mut s1 := [0]
+        mut s2 := [0]
+        g1 := stein(pair[0], pair[1], mut s1)
+        g2 := euclid(pair[0], pair[1], mut s2)
+        print("gcd({pair[0]}, {pair[1]}) = {g1} (Euclid {g2}): {s1[0]} subtractions, {s2[0]} divisions")
+
+@test fn known()
+    mut s := [0]
+    assert_eq(stein(48, 18, mut s), 6)

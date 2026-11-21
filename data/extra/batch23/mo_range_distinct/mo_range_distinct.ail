@@ -1,0 +1,54 @@
+## Mo's algorithm: answer offline "how many different values in [l, r]" queries by sorting them by block of l, then
+## by r, and sliding one window whose ends move one step at a time while a count table tracks distinct values.
+
+fn main()
+    xs := [2, 5, 2, 8, 5, 3, 3, 9, 2, 8, 1, 5, 7, 7, 3, 2]
+    queries := [[0, 4], [3, 9], [1, 1], [5, 15], [0, 15], [10, 13], [2, 7], [8, 12]]
+    block := 4
+    order := [i for i in 0..queries.len()].sorted(by: |q| (queries[q][0] / block, queries[q][1]))
+    mut counts := Map[int, int]()
+    mut distinct := 0
+    mut lo := 0
+    mut hi := -1
+    mut moves := 0
+    mut answers := [0, 0, 0, 0, 0, 0, 0, 0]
+    for qi in order
+        l := queries[qi][0]
+        r := queries[qi][1]
+        while hi < r
+            hi += 1
+            counts[xs[hi]] += 1
+            if counts[xs[hi]] == 1
+                distinct += 1
+            moves += 1
+        while hi > r
+            counts[xs[hi]] -= 1
+            if counts[xs[hi]] == 0
+                distinct -= 1
+            hi -= 1
+            moves += 1
+        while lo < l
+            counts[xs[lo]] -= 1
+            if counts[xs[lo]] == 0
+                distinct -= 1
+            lo += 1
+            moves += 1
+        while lo > l
+            lo -= 1
+            counts[xs[lo]] += 1
+            if counts[xs[lo]] == 1
+                distinct += 1
+            moves += 1
+        answers[qi] = distinct
+    mut naive := 0
+    for i in 0..queries.len()
+        q := queries[i]
+        part := xs.slice(q[0], q[1] + 1)
+        naive += part.len()
+        print("[{q[0]:>2}, {q[1]:>2}]: {answers[i]} different values")
+    print("window steps: {moves} (rescanning each range would read {naive})")
+
+@test fn block_order()
+    qs := [[5, 9], [0, 3], [1, 2]]
+    order := [i for i in 0..3].sorted(by: |q| (qs[q][0] / 4, qs[q][1]))
+    assert_eq(order, [2, 1, 0])

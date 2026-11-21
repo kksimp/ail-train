@@ -1,0 +1,55 @@
+## DGIM sliding-window count: the ones in the last N bits are kept as buckets of power-of-two sizes, at most two
+## of each size (a third merges the two oldest); the estimate counts all buckets but half of the oldest one.
+
+struct Lcg
+    state int
+
+fn Lcg.next(mut self, n int) int
+    self.state = (self.state * 1103515245 + 12345) % 2147483648
+    (self.state >> 8) % n
+
+fn add(mut buckets List[List[int]], t int, bit int, window int)
+    while buckets.len() > 0 and buckets[buckets.len() - 1][0] <= t - window
+        _ := buckets.pop()
+    if bit == 1
+        buckets.insert(0, [t, 1])
+        mut size := 1
+        while true
+            idx := [k for k in 0..buckets.len() if buckets[k][1] == size]
+            if idx.len() < 3
+                break
+            buckets[idx[1]][1] = size * 2
+            buckets.remove_at(idx[2])
+            size *= 2
+
+fn estimate(buckets List[List[int]]) int
+    if buckets.len() == 0
+        return 0
+    mut total := 0
+    for b in buckets
+        total += b[1]
+    total - buckets[buckets.len() - 1][1] / 2
+
+fn main()
+    window := 64
+    mut rng := Lcg(state: 8)
+    mut buckets := List[List[int]]()
+    mut bits := List[int]()
+    for t in 1..=400
+        chance := if t < 200 then 3 else 8
+        bit := if rng.next(10) < chance then 1 else 0
+        bits.push(bit)
+        add(mut buckets, t, bit, window)
+        if t % 50 == 0
+            start := (bits.len() - window).max(0)
+            exact := bits.slice(start).sum()
+            sizes := [b[1] for b in buckets]
+            print("t={t:>3}: exact {exact:>2}, estimate {estimate(buckets):>2}, buckets {sizes}")
+
+@test fn three_ones()
+    mut b := List[List[int]]()
+    add(mut b, 1, 1, 10)
+    add(mut b, 2, 1, 10)
+    add(mut b, 3, 1, 10)
+    assert_eq(b.len(), 2)
+    assert_eq(estimate(b), 2)

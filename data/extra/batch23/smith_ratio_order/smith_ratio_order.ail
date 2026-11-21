@@ -1,0 +1,57 @@
+## Smith's rule: on one machine, the total weighted finishing time sum w C is smallest when jobs run in increasing
+## order of time / weight (compared by cross-multiplying); shortest-first and every ordering are compared.
+
+struct Job
+    name str
+    time int
+    weight int
+
+fn cost(jobs List[Job]) int
+    mut clock := 0
+    mut total := 0
+    for j in jobs
+        clock += j.time
+        total += j.weight * clock
+    total
+
+fn smith(jobs List[Job]) List[Job]
+    mut out := List[Job]()
+    for j in jobs
+        mut i := out.len()
+        out.push(j)
+        while i > 0 and out[i].time * out[i - 1].weight < out[i - 1].time * out[i].weight
+            out.swap(i, i - 1)
+            i -= 1
+    out
+
+fn best_order(jobs List[Job], mut used List[bool], mut current List[Job], mut best List[int])
+    if current.len() == jobs.len()
+        best[0] = best[0].min(cost(current))
+        return
+    for i in 0..jobs.len()
+        if not used[i]
+            used[i] = true
+            current.push(jobs[i])
+            best_order(jobs, mut used, mut current, mut best)
+            _ := current.pop()
+            used[i] = false
+
+fn main()
+    jobs := [Job(name: "A", time: 3, weight: 1), Job(name: "B", time: 1, weight: 1), Job(name: "C", time: 4, weight: 5), Job(name: "D", time: 2, weight: 4), Job(name: "E", time: 6, weight: 3), Job(name: "F", time: 5, weight: 2)]
+    s := smith(jobs)
+    names := [j.name for j in s].join("")
+    print("Smith's order {names}: weighted finish {cost(s)}")
+    spt := jobs.sorted(by: |j| j.time)
+    spt_names := [j.name for j in spt].join("")
+    print("shortest first {spt_names}: weighted finish {cost(spt)}")
+    print("given order ABCDEF: weighted finish {cost(jobs)}")
+    mut used := [false, false, false, false, false, false]
+    mut current := List[Job]()
+    mut best := [1000000]
+    best_order(jobs, mut used, mut current, mut best)
+    print("best of all 720 orders: {best[0]}")
+
+@test fn two_jobs()
+    a := Job(name: "a", time: 2, weight: 1)
+    b := Job(name: "b", time: 1, weight: 3)
+    assert_eq(cost(smith([a, b])), 9)

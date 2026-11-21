@@ -1,0 +1,54 @@
+## Articulation points: a router is a single point of failure when removing it splits the network; in a depth-first
+## search a non-root v is one when a child w has low[w] >= disc[v], and the root is one when it has two children.
+
+struct Search
+    adj List[List[int]]
+    disc List[int]
+    low List[int]
+    clock int
+    cut List[bool]
+
+fn Search.visit(mut self, v int, parent int)
+    self.clock += 1
+    self.disc[v] = self.clock
+    self.low[v] = self.clock
+    mut children := 0
+    nbrs := self.adj[v]
+    for w in nbrs
+        if self.disc[w] == 0
+            children += 1
+            self.visit(w, v)
+            self.low[v] = self.low[v].min(self.low[w])
+            if parent >= 0 and self.low[w] >= self.disc[v]
+                self.cut[v] = true
+        elif w != parent
+            self.low[v] = self.low[v].min(self.disc[w])
+    if parent < 0 and children > 1
+        self.cut[v] = true
+
+fn build(n int, links List[List[int]]) List[List[int]]
+    mut adj := [List[int]() for i in 0..n]
+    for l in links
+        adj[l[0]].push(l[1])
+        adj[l[1]].push(l[0])
+    adj
+
+fn main()
+    names := ["core", "edge1", "edge2", "lab", "dmz", "web", "db", "wifi", "cam"]
+    links := [[0, 1], [0, 2], [1, 2], [2, 3], [3, 4], [4, 5], [4, 6], [5, 6], [3, 7], [7, 8]]
+    adj := build(names.len(), links)
+    mut s := Search(adj: adj, disc: [0 for a in adj], low: [0 for b in adj], clock: 0, cut: [false for c in adj])
+    s.visit(0, -1)
+    mut count := 0
+    for v in 0..names.len()
+        if s.cut[v]
+            count += 1
+            print("{names[v]:<6} is a cut point")
+    print("{count} of {names.len()} routers are single points of failure")
+
+@test fn path_middle()
+    adj := build(3, [[0, 1], [1, 2]])
+    mut s := Search(adj: adj, disc: [0, 0, 0], low: [0, 0, 0], clock: 0, cut: [false, false, false])
+    s.visit(0, -1)
+    assert(s.cut[1])
+    assert(not s.cut[0])

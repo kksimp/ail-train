@@ -1,0 +1,50 @@
+## Shortest path with wall breaking: breadth-first search over states (row, column, walls broken so far) finds the
+## fewest steps across a grid when up to k walls may be knocked through; more allowed breaks never cost steps.
+
+fn shortest(grid List[str], limit int) int
+    cells := [line.chars() for line in grid]
+    rows := cells.len()
+    cols := cells[0].len()
+    layers := limit + 1
+    mut dist := List[int]()
+    states := rows * cols * layers
+    for _ in 0..states
+        dist.push(-1)
+    dist[0] = 0
+    mut queue := [0]
+    mut head := 0
+    dr := [1, -1, 0, 0]
+    dc := [0, 0, 1, -1]
+    while head < queue.len()
+        s := queue[head]
+        head += 1
+        k := s % layers
+        cell := s / layers
+        r := cell / cols
+        c := cell % cols
+        if r == rows - 1 and c == cols - 1
+            return dist[s]
+        for d in 0..4
+            nr := r + dr[d]
+            nc := c + dc[d]
+            if nr >= 0 and nr < rows and nc >= 0 and nc < cols
+                wall := if cells[nr][nc] == '#' then 1 else 0
+                nk := k + wall
+                if nk <= limit
+                    ns := (nr * cols + nc) * layers + nk
+                    if dist[ns] < 0
+                        dist[ns] = dist[s] + 1
+                        queue.push(ns)
+    -1
+
+fn main()
+    grid := [".........", "########.", ".........", ".########", ".........", "########.", "........."]
+    for row in grid
+        print(row)
+    for k in 0..3
+        steps := shortest(grid, k)
+        shown := if steps < 0 then "no way through" else "{steps} steps"
+        print("break up to {k} walls: {shown}")
+
+@test fn open_room()
+    assert_eq(shortest(["...", "...", "..."], 0), 4)

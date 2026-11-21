@@ -1,0 +1,12 @@
+8 queens after 9 moves:
+. . . . Q . . .
+. Q . . . . . .
+. . . Q . . . .
+. . . . . Q . .
+. . . . . . . Q
+. . Q . . . . .
+Q . . . . . . .
+. . . . . . Q .
+16 queens: solved after 49 moves
+32 queens: solved after 96 moves
+64 queens: solved after 84 moves

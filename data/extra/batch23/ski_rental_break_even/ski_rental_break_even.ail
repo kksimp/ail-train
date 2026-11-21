@@ -1,0 +1,35 @@
+## Ski rental: renting costs 1 a day and buying costs B, but the season length is unknown in advance; renting for
+## B - 1 days and then buying never pays more than 2 - 1/B times what hindsight would have paid.
+
+fn break_even(days int, buy int) int
+    if days < buy
+        days
+    else
+        buy - 1 + buy
+
+fn hindsight(days int, buy int) int
+    days.min(buy)
+
+fn main()
+    buy := 10
+    print("skis cost {buy} to buy or 1 a day to rent")
+    mut worst_num := 0
+    mut worst_den := 1
+    mut worst_day := 0
+    for days in [1, 5, 9, 10, 11, 15, 30, 100]
+        paid := break_even(days, buy)
+        best := hindsight(days, buy)
+        print("season {days:>3} days: strategy pays {paid:>2}, hindsight {best:>2}")
+    for days in 1..=100
+        cost := break_even(days, buy)
+        ideal := hindsight(days, buy)
+        if cost * worst_den > worst_num * ideal
+            worst_num = cost
+            worst_den = ideal
+            worst_day = days
+    ratio := worst_num.to_float() / worst_den.to_float()
+    print("worst ratio {worst_num}/{worst_den} = {ratio} at {worst_day} days (2 - 1/B = 1.9)")
+    print("buying on day one pays {buy} even for a 1-day season: {buy}x worse")
+
+@test fn bound_holds()
+    assert(break_even(10, 10) <= 2 * hindsight(10, 10))

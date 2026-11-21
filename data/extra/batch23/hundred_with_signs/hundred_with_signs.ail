@@ -1,0 +1,23 @@
+## Signs between digits: put +, - or nothing between 1 2 3 4 5 6 7 8 9 (in that order) so the sum is 100; a recursion
+## over the 3^8 choices keeps a running total and the number being built, and lists every solution.
+
+fn go(d int, total int, term int, sign int, text str, mut out List[str])
+    if d == 10
+        if total + sign * term == 100
+            out.push(text)
+        return
+    go(d + 1, total, term * 10 + d, sign, "{text}{d}", mut out)
+    go(d + 1, total + sign * term, d, 1, "{text}+{d}", mut out)
+    go(d + 1, total + sign * term, d, -1, "{text}-{d}", mut out)
+
+fn main()
+    mut out := List[str]()
+    go(2, 0, 1, 1, "1", mut out)
+    for s in out
+        print("{s} = 100")
+    print("{out.len()} ways out of 6561")
+
+@test fn count()
+    mut out := List[str]()
+    go(2, 0, 1, 1, "1", mut out)
+    assert_eq(out.len(), 11)

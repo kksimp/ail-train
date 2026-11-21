@@ -1,0 +1,34 @@
+## Morris approximate counting: a register c goes up by one with chance 2^-c, so 2^c - 1 estimates the number of
+## events while c itself needs only a few bits; averaging eight independent registers steadies the estimate.
+
+struct Lcg
+    state int
+
+fn Lcg.next(mut self) int
+    self.state = (self.state * 1103515245 + 12345) % 2147483648
+    self.state >> 4
+
+fn bump(mut c List[int], mut rng Lcg)
+    for i in 0..c.len()
+        if rng.next() % (1 << c[i]) == 0
+            c[i] += 1
+
+fn main()
+    mut rng := Lcg(state: 4242)
+    mut regs := [0, 0, 0, 0, 0, 0, 0, 0]
+    mut events := 0
+    for stop in [10, 100, 1000, 10000, 50000]
+        while events < stop
+            bump(mut regs, mut rng)
+            events += 1
+        ests := [(1 << c) - 1 for c in regs]
+        avg := ests.sum() / ests.len()
+        print("{events:>5} events: registers {regs}, mean estimate {avg}")
+    top := regs.max() else 0
+    print("largest register {top} fits in 5 bits; an exact count of {events} needs 16")
+
+@test fn first_event_always_counts()
+    mut rng := Lcg(state: 1)
+    mut c := [0]
+    bump(mut c, mut rng)
+    assert_eq(c[0], 1)

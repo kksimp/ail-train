@@ -1,0 +1,43 @@
+## Greedy set cover: to reach every village with as few radio masts as possible, repeatedly pick the site that covers
+## the most villages not yet covered; checking all subsets shows how close the greedy pick gets to the optimum.
+
+fn uncovered_gain(site List[int], covered Set[int]) int
+    site.count(|v| not covered.contains(v))
+
+fn main()
+    sites := [[1, 2, 3, 4, 5, 6, 7], [8, 9, 10, 11, 12, 13, 14], [1, 8], [2, 3, 9, 10], [4, 5, 6, 7, 11, 12, 13, 14], [1, 2, 8]]
+    universe := 14
+    mut covered := Set[int]()
+    mut chosen := List[int]()
+    while covered.len() < universe
+        mut best := -1
+        mut gain := 0
+        for i in 0..sites.len()
+            g := uncovered_gain(sites[i], covered)
+            if g > gain
+                gain = g
+                best = i
+        chosen.push(best)
+        for v in sites[best]
+            covered.add(v)
+        print("pick site {best}: covers {gain} new villages, {covered.len()} of {universe} covered")
+    mut fewest := sites.len()
+    mut mask := 1
+    total := 1 << sites.len()
+    while mask < total
+        mut seen := Set[int]()
+        mut used := 0
+        for i in 0..sites.len()
+            if ((mask >> i) & 1) == 1
+                used += 1
+                for v in sites[i]
+                    seen.add(v)
+        if seen.len() == universe and used < fewest
+            fewest = used
+        mask += 1
+    print("greedy used {chosen.len()} sites; the best possible is {fewest}")
+
+@test fn gain_counts_new_only()
+    mut covered := Set[int]()
+    covered.add(1)
+    assert_eq(uncovered_gain([1, 2, 3], covered), 2)

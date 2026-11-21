@@ -1,0 +1,60 @@
+## IDA* on a 2 x 3 sliding puzzle: depth-first searches bounded by g + h, where h is the Manhattan distance of
+## the tiles; each round raises the bound to the smallest f that was cut off, so memory stays tiny.
+
+fn manhattan(b List[int]) int
+    mut h := 0
+    for i in 0..6
+        t := b[i]
+        if t != 0
+            g := t - 1
+            h += (i / 3 - g / 3).abs() + (i % 3 - g % 3).abs()
+    h
+
+fn search(mut b List[int], blank int, g int, bound int, prev int, mut path List[str], mut nodes List[int]) int
+    nodes[0] += 1
+    f := g + manhattan(b)
+    if f > bound
+        return f
+    if f == g
+        return -1
+    mut least := 1000
+    for m in [(-1, 0, "U"), (1, 0, "D"), (0, -1, "L"), (0, 1, "R")]
+        dr, dc, step := m
+        nr := blank / 3 + dr
+        nc := blank % 3 + dc
+        nb := nr * 3 + nc
+        if nr >= 0 and nr < 2 and nc >= 0 and nc < 3 and nb != prev
+            b.swap(blank, nb)
+            path.push(step)
+            t := search(mut b, nb, g + 1, bound, blank, mut path, mut nodes)
+            if t == -1
+                return -1
+            least = least.min(t)
+            _ := path.pop()
+            b.swap(blank, nb)
+    least
+
+fn ida(start List[int]) str
+    mut b := start
+    blank := b.index_of(0) else 0
+    mut bound := manhattan(b)
+    mut path := List[str]()
+    mut nodes := [0]
+    mut rounds := 0
+    while bound <= 30
+        rounds += 1
+        t := search(mut b, blank, 0, bound, -1, mut path, mut nodes)
+        if t == -1
+            moves := path.join("")
+            return "{path.len()} moves {moves} ({rounds} rounds, {nodes[0]} nodes)"
+        bound = t
+    "no solution within 30 moves"
+
+fn main()
+    print("goal 123450 (0 is the blank; moves name the way the blank goes)")
+    for s in [[1, 2, 3, 4, 0, 5], [4, 1, 2, 0, 5, 3], [2, 4, 1, 5, 0, 3], [0, 2, 3, 4, 5, 1], [0, 1, 2, 3, 4, 5], [5, 3, 0, 4, 1, 2]]
+        shown := s.join("")
+        print("{shown}: {ida(s)}")
+
+@test fn solved_board()
+    assert_eq(manhattan([1, 2, 3, 4, 5, 0]), 0)

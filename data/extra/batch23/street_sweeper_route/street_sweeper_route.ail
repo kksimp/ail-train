@@ -1,0 +1,59 @@
+## Route inspection (Chinese postman): a closed walk over every street needs extra trips only between junctions of
+## odd degree; Floyd-Warshall gives their distances and the cheapest pairing of them is added to the street total.
+
+INF := 1000000
+
+fn best_pairing(odd List[int], dist List[List[int]], mut used List[bool]) int
+    mut first := -1
+    for i in 0..odd.len()
+        if first < 0 and not used[i]
+            first = i
+    if first < 0
+        return 0
+    used[first] = true
+    mut best := INF
+    for j in 0..odd.len()
+        if not used[j]
+            used[j] = true
+            cost := dist[odd[first]][odd[j]] + best_pairing(odd, dist, mut used)
+            if cost < best
+                best = cost
+            used[j] = false
+    used[first] = false
+    best
+
+fn main()
+    names := ["A", "B", "C", "D", "E", "F"]
+    streets := [[0, 1, 4], [0, 2, 3], [1, 2, 2], [1, 3, 5], [2, 4, 6], [3, 4, 1], [3, 5, 4], [4, 5, 3]]
+    n := names.len()
+    mut dist := List[List[int]]()
+    mut degree := [0 for nm in names]
+    for i in 0..n
+        mut row := [INF for j in 0..n]
+        row[i] = 0
+        dist.push(row)
+    mut total := 0
+    for s in streets
+        dist[s[0]][s[1]] = s[2]
+        dist[s[1]][s[0]] = s[2]
+        degree[s[0]] += 1
+        degree[s[1]] += 1
+        total += s[2]
+    for k in 0..n
+        for i in 0..n
+            for j in 0..n
+                if dist[i][k] + dist[k][j] < dist[i][j]
+                    dist[i][j] = dist[i][k] + dist[k][j]
+    odd := [v for v in 0..n if degree[v] % 2 == 1]
+    odd_names := [names[v] for v in odd]
+    shown := odd_names.join(" ")
+    mut used := [false for v in odd]
+    extra := best_pairing(odd, dist, mut used)
+    print("streets: {streets.len()}, total length {total}")
+    print("odd junctions: {shown}")
+    print("cheapest repeat of streets: {extra}")
+    print("shortest sweeping round: {total + extra}")
+
+@test fn square_needs_nothing()
+    mut used := List[bool]()
+    assert_eq(best_pairing(List[int](), [[0]], mut used), 0)

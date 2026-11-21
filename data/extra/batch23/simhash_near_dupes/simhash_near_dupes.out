@@ -1,0 +1,10 @@
+doc 0: b6be921f
+doc 1: 36feb71d
+doc 2: f62c9b0c
+doc 3: 4420382c
+doc 4: 5622382e
+bits apart from doc 0:  0  6  9 18 14
+bits apart from doc 1:  6  0 11 18 16
+bits apart from doc 2:  9 11  0 11 11
+bits apart from doc 3: 18 18 11  0  4
+bits apart from doc 4: 14 16 11  4  0

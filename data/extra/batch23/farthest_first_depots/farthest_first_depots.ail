@@ -1,0 +1,55 @@
+## Farthest-first k-centre: start at one town, then repeatedly open a depot at the town farthest from every open depot;
+## the worst town-to-depot distance is at most twice the best possible, which a search over all triples confirms.
+
+fn d2(a List[int], b List[int]) int
+    dx := a[0] - b[0]
+    dy := a[1] - b[1]
+    dx * dx + dy * dy
+
+fn radius2(towns List[List[int]], centres List[int]) int
+    mut worst := 0
+    for t in towns
+        mut near := -1
+        for c in centres
+            d := d2(t, towns[c])
+            if near < 0 or d < near
+                near = d
+        worst = worst.max(near)
+    worst
+
+fn main()
+    towns := [[0, 0], [2, 1], [1, 3], [10, 2], [11, 0], [12, 3], [5, 9], [6, 11], [4, 10], [9, 9], [3, 6], [8, 5]]
+    mut centres := [0]
+    while centres.len() < 3
+        mut far := 0
+        mut far_d := -1
+        for i in 0..towns.len()
+            mut near := -1
+            for c in centres
+                d := d2(towns[i], towns[c])
+                if near < 0 or d < near
+                    near = d
+            if near > far_d
+                far_d = near
+                far = i
+        centres.push(far)
+    g := radius2(towns, centres)
+    print("farthest-first depots at towns {centres}: worst distance {g.to_float().sqrt():.2}")
+    mut best := -1
+    mut best_set := [0, 0, 0]
+    n := towns.len()
+    for a in 0..n
+        from_b := a + 1
+        for b in from_b..n
+            from_c := b + 1
+            for c in from_c..n
+                r := radius2(towns, [a, b, c])
+                if best < 0 or r < best
+                    best = r
+                    best_set = [a, b, c]
+    print("best possible depots {best_set}: worst distance {best.to_float().sqrt():.2}")
+    ratio := (g.to_float() / best.to_float()).sqrt()
+    print("ratio {ratio:.2} (never above 2)")
+
+@test fn single_centre()
+    assert_eq(radius2([[0, 0], [3, 4]], [0]), 25)

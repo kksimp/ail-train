@@ -1,0 +1,40 @@
+## Longest wiggle subsequence: up(i) = down(i-1) + 1 after a rise and down(i) = up(i-1) + 1 after a fall give the
+## longest run of readings that alternately rise and fall; keeping only the turning points builds one such run.
+
+fn wiggle_length(xs List[int]) int
+    if xs.len() == 0
+        return 0
+    mut up := 1
+    mut down := 1
+    for i in 1..xs.len()
+        if xs[i] > xs[i - 1]
+            up = down + 1
+        elif xs[i] < xs[i - 1]
+            down = up + 1
+    up.max(down)
+
+fn turning_points(xs List[int]) List[int]
+    mut flat := List[int]()
+    for x in xs
+        if flat.len() == 0 or flat[flat.len() - 1] != x
+            flat.push(x)
+    if flat.len() < 3
+        return flat
+    mut out := [flat[0]]
+    last := flat.len() - 1
+    for i in 1..last
+        rising := flat[i] > flat[i - 1]
+        falling := flat[i + 1] < flat[i]
+        if rising == falling
+            out.push(flat[i])
+    out.push(flat[flat.len() - 1])
+    out
+
+fn main()
+    for xs in [[1, 7, 4, 9, 2, 5], [1, 17, 5, 10, 13, 15, 10, 5, 16, 8], [1, 2, 3, 4, 5, 6], [3, 3, 3, 3], [10, 22, 9, 33, 49, 50, 31, 60], [5, 1, 1, 6, 2, 2, 8, 0]]
+        run := turning_points(xs)
+        print("{xs} -> length {wiggle_length(xs)}: {run}")
+
+@test fn classic()
+    assert_eq(wiggle_length([1, 7, 4, 9, 2, 5]), 6)
+    assert_eq(turning_points([1, 2, 3, 4]), [1, 4])

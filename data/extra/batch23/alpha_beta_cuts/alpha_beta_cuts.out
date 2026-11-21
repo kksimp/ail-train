@@ -1,0 +1,3 @@
+tree  3: value 41 / 41, minimax read 121 nodes, alpha-beta 72
+tree  8: value 36 / 36, minimax read 121 nodes, alpha-beta 85
+tree 21: value 34 / 34, minimax read 121 nodes, alpha-beta 85

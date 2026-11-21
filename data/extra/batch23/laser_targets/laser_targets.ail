@@ -1,0 +1,40 @@
+## Laser and round targets: a beam segment hits a circle when the nearest point of the segment to the centre lies
+## within the radius; the projection is clamped to the segment, and every test stays in exact integer arithmetic.
+
+struct Target
+    name str
+    x int
+    y int
+    r int
+
+fn hits(ax int, ay int, bx int, by int, t Target) bool
+    dx := bx - ax
+    dy := by - ay
+    len2 := dx * dx + dy * dy
+    px := t.x - ax
+    py := t.y - ay
+    dot := px * dx + py * dy
+    if dot <= 0
+        return px * px + py * py <= t.r * t.r
+    if dot >= len2
+        qx := t.x - bx
+        qy := t.y - by
+        return qx * qx + qy * qy <= t.r * t.r
+    c := px * dy - py * dx
+    c * c <= t.r * t.r * len2
+
+fn along(ax int, ay int, bx int, by int, t Target) int
+    (t.x - ax) * (bx - ax) + (t.y - ay) * (by - ay)
+
+fn main()
+    targets := [Target(name: "red", x: 5, y: 3, r: 2), Target(name: "blue", x: 9, y: 9, r: 1), Target(name: "green", x: 14, y: 6, r: 3), Target(name: "gold", x: 3, y: 8, r: 2), Target(name: "grey", x: 20, y: 12, r: 2)]
+    for beam in [[0, 0, 16, 8], [0, 0, 10, 10], [2, 10, 18, 2]]
+        struck := [x for x in targets if hits(beam[0], beam[1], beam[2], beam[3], x)]
+        ordered := struck.sorted(by: |s| along(beam[0], beam[1], beam[2], beam[3], s))
+        names := [o.name for o in ordered]
+        shown := if names.len() == 0 then "nothing" else names.join(", ")
+        print("beam ({beam[0]},{beam[1]})->({beam[2]},{beam[3]}): hits {shown}")
+
+@test fn end_cap()
+    assert(hits(0, 0, 4, 0, Target(name: "t", x: 6, y: 0, r: 2)))
+    assert(not hits(0, 0, 4, 0, Target(name: "t", x: 7, y: 0, r: 2)))

@@ -1,0 +1,6 @@
+dodecahedron: cycle 0-1-2-3-4-13-12-11-10-9-8-7-6-15-16-17-18-19-14-5-0
+  31 search steps
+petersen: no Hamiltonian cycle
+  274 search steps
+square: cycle 0-1-2-3-0
+  4 search steps

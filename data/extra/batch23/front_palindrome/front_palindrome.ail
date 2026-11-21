@@ -1,0 +1,30 @@
+## Shortest palindrome by adding letters in front: the prefix function of s + "#" + reverse(s) ends with the
+## longest palindromic prefix of s; the rest of s, reversed, is the fewest letters to put before it.
+
+fn prefix_fn(cs List[char]) List[int]
+    mut pi := [0]
+    for i in 1..cs.len()
+        mut k := pi[i - 1]
+        while k > 0 and cs[i] != cs[k]
+            k = pi[k - 1]
+        if cs[i] == cs[k]
+            k += 1
+        pi.push(k)
+    pi
+
+fn make_palindrome(s str) str
+    rev := s.chars().reversed().join("")
+    joined := "{s}#{rev}"
+    pi := prefix_fn(joined.chars())
+    keep := pi[pi.len() - 1]
+    extra := s.slice(keep).chars().reversed().join("")
+    "{extra}{s}"
+
+fn main()
+    for s in ["abcd", "aacecaaa", "racecar", "banana", "abab", "noonday"]
+        p := make_palindrome(s)
+        added := p.len() - s.len()
+        print("{s:<9} +{added} -> {p}")
+
+@test fn adds_three()
+    assert_eq(make_palindrome("abcd"), "dcbabcd")

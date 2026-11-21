@@ -1,0 +1,41 @@
+## Rod cutting: best(n) = max over the first piece i of price(i) + best(n - i), filled from short lengths up; keeping
+## the best first piece for every length lets the whole cutting plan be read back by following it.
+
+fn solve(prices List[int], n int, mut best List[int], mut first List[int])
+    best.push(0)
+    first.push(0)
+    for len_ in 1..=n
+        mut top := -1
+        mut pick := 0
+        for i in 1..=len_.min(prices.len())
+            v := prices[i - 1] + best[len_ - i]
+            if v > top
+                top = v
+                pick = i
+        best.push(top)
+        first.push(pick)
+
+fn pieces(first List[int], n int) str
+    mut parts := List[str]()
+    mut left := n
+    while left > 0
+        parts.push("{first[left]}")
+        left -= first[left]
+    parts.join("+")
+
+fn main()
+    prices := [1, 5, 8, 9, 10, 17, 17, 20]
+    mut best := List[int]()
+    mut first := List[int]()
+    solve(prices, 12, mut best, mut first)
+    print("price list by length 1..8: {prices}")
+    for n in 1..=12
+        plan := pieces(first, n)
+        whole := if n <= prices.len() then "{prices[n - 1]}" else "-"
+        print("length {n:>2}: best {best[n]:>2} by cutting {plan:<7} (uncut sells for {whole})")
+
+@test fn length_four()
+    mut best := List[int]()
+    mut first := List[int]()
+    solve([1, 5, 8, 9], 4, mut best, mut first)
+    assert_eq(best[4], 10)

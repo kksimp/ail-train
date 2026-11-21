@@ -1,0 +1,46 @@
+## Elias-Fano coding of sorted document ids below U: each id keeps its low l = floor(log2(U / n)) bits as is, and its
+## high part is written in unary as a bit vector of n + U / 2^l bits; the i-th id is the i-th 1 bit minus i, then the low bits.
+
+fn encode(ids List[int], universe int, mut lows List[int], mut highs List[int]) int
+    n := ids.len()
+    mut l := 0
+    while (n << (l + 1)) <= universe
+        l += 1
+    size := n + (universe >> l) + 1
+    for _ in 0..size
+        highs.push(0)
+    for i in 0..n
+        lows.push(ids[i] & ((1 << l) - 1))
+        highs[(ids[i] >> l) + i] = 1
+    l
+
+fn access(lows List[int], highs List[int], l int, i int) int
+    mut seen := -1
+    mut pos := 0
+    while seen < i
+        if highs[pos] == 1
+            seen += 1
+        pos += 1
+    high := pos - 1 - i
+    (high << l) | lows[i]
+
+fn main()
+    ids := [3, 9, 14, 22, 23, 41, 57, 58, 60, 88, 95, 120]
+    universe := 128
+    mut lows := List[int]()
+    mut highs := List[int]()
+    l := encode(ids, universe, mut lows, mut highs)
+    print("{ids.len()} ids below {universe}: low bits per id l = {l}")
+    print("low parts:  {lows}")
+    shown := highs.join("")
+    print("high bits:  {shown}")
+    total := ids.len() * l + highs.len()
+    print("space: {total} bits, against {ids.len() * 7} bits for plain 7-bit ids")
+    back := [access(lows, highs, l, i) for i in 0..ids.len()]
+    print("decoded:    {back}")
+
+@test fn round_trip()
+    mut lows := List[int]()
+    mut highs := List[int]()
+    l := encode([2, 5, 6], 16, mut lows, mut highs)
+    assert_eq(access(lows, highs, l, 1), 5)

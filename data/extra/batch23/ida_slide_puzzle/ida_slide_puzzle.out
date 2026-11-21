@@ -1,0 +1,7 @@
+goal 123450 (0 is the blank; moves name the way the blank goes)
+123405: 1 moves R (1 rounds, 4 nodes)
+412053: 4 moves URRD (1 rounds, 6 nodes)
+241503: 11 moves LURRDLLURDR (3 rounds, 75 nodes)
+023451: 11 moves DRRULDLURRD (5 rounds, 63 nodes)
+012345: 15 moves RRDLLURDRULLDRR (5 rounds, 258 nodes)
+530412: 17 moves LDRULLDRURDLLURDR (6 rounds, 484 nodes)

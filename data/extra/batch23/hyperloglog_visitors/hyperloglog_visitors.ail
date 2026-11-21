@@ -1,0 +1,54 @@
+## HyperLogLog: each visitor id is hashed to 32 bits; the low 8 bits pick one of 256 registers, which keeps the
+## longest run of leading zeros seen in the other 24 bits; alpha m^2 / sum 2^-M estimates the distinct count.
+
+struct Lcg
+    state int
+
+fn Lcg.next(mut self, n int) int
+    self.state = (self.state * 1103515245 + 12345) % 2147483648
+    (self.state >> 8) % n
+
+fn mix(x int) int
+    mut h := x * 73244475 % 4294967296
+    h = (h >> 16) ^ h
+    h = h * 73244475 % 4294967296
+    (h >> 16) ^ h
+
+fn rank(w int) int
+    mut r := 1
+    mut bit := 1 << 23
+    while r <= 24 and (w & bit) == 0
+        r += 1
+        bit = bit >> 1
+    r
+
+fn estimate(regs List[int]) float
+    mut total := 0.0
+    for m in regs
+        total += 1.0 / (1 << m).to_float()
+    alpha := 0.7213 / (1.0 + 1.079 / 256.0)
+    alpha * 256.0 * 256.0 / total
+
+fn main()
+    mut regs := List[int]()
+    for _ in 0..256
+        regs.push(0)
+    mut exact := Set[int]()
+    mut rng := Lcg(state: 7)
+    mut seen := 0
+    for stop in [1000, 4000, 16000, 40000]
+        while seen < stop
+            id := rng.next(60000)
+            exact.add(id)
+            h := mix(id)
+            j := h & 255
+            regs[j] = regs[j].max(rank(h >> 8))
+            seen += 1
+        e := estimate(regs)
+        err := (e - exact.len().to_float()) / exact.len().to_float() * 100.0
+        print("{seen:>5} visits: {exact.len():>5} distinct, estimate {e:>8.1} ({err:>5.1}% off)")
+    print("memory: 256 small registers instead of a set of every id")
+
+@test fn ranks()
+    assert_eq(rank(1 << 23), 1)
+    assert_eq(rank(0), 25)

@@ -1,0 +1,4 @@
+ratings: [3, 7, 1, 4, 4, 6, 2, 7, 5, 0, 3, 6, 7, 2, 4, 5] (15 tree nodes)
+median of days 0..15: 4 (check 4)
+median of days 3..8: 4 (check 4)
+median of days 8..13: 3 (check 3)

@@ -1,0 +1,31 @@
+## Wilson's theorem: n > 1 is prime exactly when (n - 1)! leaves remainder n - 1 on division by n; a running product
+## mod n tests it, and the rare Wilson primes have (p - 1)! = -1 even modulo p squared.
+
+fn fact_mod(k int, m int) int
+    mut acc := 1 % m
+    for i in 2..=k
+        acc = acc * i % m
+    acc
+
+fn is_prime(n int) bool
+    n > 1 and fact_mod(n - 1, n) == n - 1
+
+fn main()
+    mut primes := List[int]()
+    for n in 2..40
+        if is_prime(n)
+            primes.push(n)
+    print("primes below 40 by Wilson: {primes}")
+    for n in [4, 6, 8, 9, 12, 25]
+        k := n - 1
+        print("{k}! mod {n} = {fact_mod(k, n)}")
+    mut special := List[int]()
+    for p in 2..600
+        if is_prime(p)
+            sq := p * p
+            if fact_mod(p - 1, sq) == sq - 1
+                special.push(p)
+    print("Wilson primes below 600: {special}")
+
+@test fn six_mod_seven()
+    assert_eq(fact_mod(6, 7), 6)

@@ -1,0 +1,6 @@
+   10 events: registers [3, 4, 3, 3, 4, 3, 3, 4], mean estimate 10
+  100 events: registers [7, 6, 6, 7, 7, 7, 6, 7], mean estimate 103
+ 1000 events: registers [10, 10, 9, 10, 10, 11, 10, 10], mean estimate 1087
+10000 events: registers [13, 13, 13, 13, 14, 14, 14, 13], mean estimate 11263
+50000 events: registers [15, 16, 16, 16, 16, 15, 16, 16], mean estimate 57343
+largest register 16 fits in 5 bits; an exact count of 50000 needs 16

@@ -1,0 +1,10 @@
+monthly sales by team:
+  team of Ana    335 (people 0..7 in tour order)
+  team of Ben    165 (people 1..3 in tour order)
+  team of Cleo   160 (people 4..7 in tour order)
+  team of Finn    90 (people 5..6 in tour order)
+after Hal sells 25 more and Dev returns 20:
+  team of Ana    340 (people 0..7 in tour order)
+  team of Ben    145 (people 1..3 in tour order)
+  team of Cleo   185 (people 4..7 in tour order)
+  team of Finn   115 (people 5..6 in tour order)

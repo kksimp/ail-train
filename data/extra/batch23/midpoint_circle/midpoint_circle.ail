@@ -1,0 +1,35 @@
+## Midpoint circle drawing: step y up from 0 while x >= y, keeping an integer error term that says when x must
+## step in; each computed point is mirrored into all eight octants, so only additions and comparisons are used.
+
+fn circle_points(r int) Set[int]
+    mut pts := Set[int]()
+    mut x := r
+    mut y := 0
+    mut err := 1 - r
+    while x >= y
+        for p in [(x, y), (y, x), (-y, x), (-x, y), (-x, -y), (-y, -x), (y, -x), (x, -y)]
+            pts.add((p.0 + 50) * 100 + p.1 + 50)
+        y += 1
+        if err < 0
+            err += 2 * y + 1
+        else
+            x -= 1
+            err += 2 * (y - x) + 1
+    pts
+
+fn main()
+    r := 5
+    pts := circle_points(r)
+    size := 2 * r + 1
+    for row in 0..size
+        mut line := List[str]()
+        for col in 0..size
+            key := (col - r + 50) * 100 + (r - row) + 50
+            mark := if pts.contains(key) then "#" else "."
+            line.push(mark)
+        print(line.join(""))
+    counts := [circle_points(k).len() for k in 1..=8]
+    print("pixels for radius 1..8: {counts}")
+
+@test fn radius_one()
+    assert_eq(circle_points(1).len(), 4)

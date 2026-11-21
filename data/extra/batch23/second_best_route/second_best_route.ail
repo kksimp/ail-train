@@ -1,0 +1,50 @@
+## Second-best route: Dijkstra's search that keeps the two smallest distinct arrival times at every junction,
+## so a backup route strictly longer than the best is known too (a route may pass a road twice).
+
+INF := 1000000
+
+fn two_best(n int, links List[List[int]], src int) List[List[int]]
+    mut adj := List[List[List[int]]]()
+    mut first := List[int]()
+    mut second := List[int]()
+    for _ in 0..n
+        adj.push(List[List[int]]())
+        first.push(INF)
+        second.push(INF)
+    for l in links
+        adj[l[0]].push([l[1], l[2]])
+        adj[l[1]].push([l[0], l[2]])
+    first[src] = 0
+    mut h := Heap[int]()
+    h.push(src)
+    while code := h.pop()
+        d := code / 100
+        u := code % 100
+        if d > second[u]
+            continue
+        for e in adj[u]
+            v := e[0]
+            nd := d + e[1]
+            if nd < first[v]
+                old := first[v]
+                first[v] = nd
+                h.push(nd * 100 + v)
+                if old < second[v]
+                    second[v] = old
+                    h.push(old * 100 + v)
+            elif nd > first[v] and nd < second[v]
+                second[v] = nd
+                h.push(nd * 100 + v)
+    [first, second]
+
+fn main()
+    places := ["Station", "Mill", "Ford", "Church", "Green", "Hospital"]
+    links := [[0, 1, 4], [0, 2, 2], [1, 2, 1], [1, 3, 5], [2, 3, 8], [2, 4, 10], [3, 4, 2], [3, 5, 6], [4, 5, 3]]
+    r := two_best(places.len(), links, 0)
+    for v in 1..places.len()
+        extra := r[1][v] - r[0][v]
+        print("{places[v]:<8} best {r[0][v]:>2}, backup {r[1][v]:>2} (+{extra})")
+
+@test fn back_and_forth()
+    r := two_best(2, [[0, 1, 2]], 0)
+    assert_eq(r[1][1], 6)

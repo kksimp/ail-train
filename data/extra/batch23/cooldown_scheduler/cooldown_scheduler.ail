@@ -1,0 +1,50 @@
+## Task scheduling with a cooldown: the same kind of task must wait n slots before running again; greedily running
+## the ready kind with the most tasks left (idle when none is ready) meets the bound max((top - 1)(n + 1) + ties, total).
+
+fn schedule(tasks str, n int) str
+    mut left := Map[char, int]()
+    for c in tasks.chars()
+        left[c] += 1
+    mut ready_at := Map[char, int]()
+    mut out := List[char]()
+    mut remaining := tasks.len()
+    mut t := 0
+    while remaining > 0
+        mut pick := ' '
+        mut most := 0
+        for c in left.keys().sorted()
+            if left[c] > most and ready_at.get_or(c, 0) <= t
+                most = left[c]
+                pick = c
+        if most == 0
+            out.push('.')
+        else
+            out.push(pick)
+            left[pick] -= 1
+            ready_at[pick] = t + n + 1
+            remaining -= 1
+        t += 1
+    out.join("")
+
+fn bound(tasks str, n int) int
+    mut counts := Map[char, int]()
+    for c in tasks.chars()
+        counts[c] += 1
+    mut top := 0
+    mut ties := 0
+    for c, v in counts
+        if v > top
+            top = v
+            ties = 1
+        elif v == top
+            ties += 1
+    ((top - 1) * (n + 1) + ties).max(tasks.len())
+
+fn main()
+    for job in [("AAABBB", 2), ("AAABBB", 0), ("AAAAAABCDEFG", 2), ("AABBCCDD", 3), ("AAAABBBCC", 1)]
+        tasks, n := job
+        plan := schedule(tasks, n)
+        print("{tasks:<13} n={n}: {plan} ({plan.len()} slots, bound {bound(tasks, n)})")
+
+@test fn idle_slots()
+    assert_eq(schedule("AAA", 1), "A.A.A")

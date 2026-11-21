@@ -1,0 +1,13 @@
+radar sweep from due east, counter-clockwise:
+ 1. ( 5,  0) upper
+ 2. ( 1,  1) upper
+ 3. ( 3,  4) upper
+ 4. ( 6,  8) upper
+ 5. ( 0,  3) upper
+ 6. (-2,  5) upper
+ 7. (-4,  0) lower
+ 8. (-6, -1) lower
+ 9. (-3, -3) lower
+10. ( 0, -7) lower
+11. ( 2, -3) lower
+12. ( 4, -1) lower
