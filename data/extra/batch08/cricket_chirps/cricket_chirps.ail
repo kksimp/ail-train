@@ -1,0 +1,19 @@
+## Cricket thermometer: Dolbear's law reads the temperature from how fast snowy tree crickets
+## chirp (F = 50 + (N - 40) / 4 for N chirps a minute), and works it backwards too.
+
+fn fahrenheit(per_min int) float
+    50.0 + (per_min - 40).to_float() / 4.0
+
+fn main()
+    counts := [10, 18, 25, 32, 40, 47]
+    for c in counts
+        per_min := c * 4
+        f := fahrenheit(per_min)
+        cel := (f - 32.0) * 5.0 / 9.0
+        print("{c:>2} chirps in 15 s: {per_min:>3}/min, {f:.1} F, {cel:.1} C")
+    for target in [60, 68, 77]
+        expect := (target - 50) * 4 + 40
+        print("at {target} F expect {expect} chirps a minute")
+
+@test fn base()
+    assert_eq(fahrenheit(40), 50.0)

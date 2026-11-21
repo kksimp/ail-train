@@ -1,0 +1,17 @@
+## Fret spacing: on an equal-tempered fretboard fret n sits L - L / 2^(n / 12) from the nut, so
+## frets crowd together up the neck and the 12th fret falls at half the scale length.
+
+fn from_nut(scale float, fret int) float
+    two := 2.0
+    scale - scale / two.pow(fret.to_float() / 12.0)
+
+fn main()
+    scale := 648.0
+    for f in [1, 2, 3, 5, 7, 12, 17, 19, 24]
+        print("fret {f:>2}: {from_nut(scale, f):>6.1} mm")
+    first := from_nut(scale, 1)
+    twelfth_gap := from_nut(scale, 12) - from_nut(scale, 11)
+    print("gap nut to fret 1 {first:.1} mm, fret 11 to 12 {twelfth_gap:.1} mm")
+
+@test fn half()
+    assert_eq(from_nut(648.0, 12), 324.0)

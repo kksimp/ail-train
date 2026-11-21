@@ -1,0 +1,38 @@
+## Correlation: Pearson's r between hours studied, hours of screen time and exam scores for a
+## class, read as strong, moderate or weak and as positive or negative.
+
+fn mean(xs List[float]) float
+    xs.sum() / xs.len().to_float()
+
+fn pearson(xs List[float], ys List[float]) float
+    mx := mean(xs)
+    my := mean(ys)
+    mut sxy := 0.0
+    mut sxx := 0.0
+    mut syy := 0.0
+    for i in 0..xs.len()
+        dx := xs[i] - mx
+        dy := ys[i] - my
+        sxy += dx * dy
+        sxx += dx * dx
+        syy += dy * dy
+    sxy / (sxx * syy).sqrt()
+
+fn describe(r float) str
+    size := r.abs()
+    strength := if size >= 0.7 then "strong" elif size >= 0.4 then "moderate" else "weak"
+    sign := if r >= 0.0 then "positive" else "negative"
+    "{strength} {sign}"
+
+fn main()
+    study := [2.0, 4.0, 5.0, 1.0, 6.0, 3.0, 7.0, 4.5]
+    screen := [5.0, 3.0, 2.5, 6.0, 1.0, 4.0, 2.0, 3.5]
+    shoe := [42.0, 38.0, 44.0, 40.0, 39.0, 43.0, 41.0, 37.0]
+    score := [55.0, 68.0, 74.0, 48.0, 83.0, 60.0, 88.0, 70.0]
+    for pair in [("study", study), ("screen", screen), ("shoe size", shoe)]
+        name, xs := pair
+        r := pearson(xs, score)
+        print("{name:<9} vs score: r = {r:>6.3} ({describe(r)})")
+
+@test fn perfect()
+    assert(pearson([1.0, 2.0, 3.0], [2.0, 4.0, 6.0]) > 0.9999)

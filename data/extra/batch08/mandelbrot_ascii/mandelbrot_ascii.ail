@@ -1,0 +1,34 @@
+## Mandelbrot set: iterates z = z^2 + c for each point of a grid on the complex plane and shades
+## it by how many steps it takes to escape past 2; points that never escape print as @.
+
+fn steps(cr float, ci float, limit int) int
+    mut zr := 0.0
+    mut zi := 0.0
+    for k in 0..limit
+        if zr * zr + zi * zi > 4.0
+            return k
+        t := zr * zr - zi * zi + cr
+        zi = 2.0 * zr * zi + ci
+        zr = t
+    limit
+
+fn main()
+    shades := ".,:-=+*#%".chars()
+    limit := 30
+    mut inside := 0
+    for r in 0..16
+        mut row := List[char]()
+        for c in 0..40
+            x := -2.0 + c.to_float() * 0.0625
+            y := -1.125 + r.to_float() * 0.15
+            n := steps(x, y, limit)
+            if n == limit
+                row.push('@')
+                inside += 1
+            else
+                row.push(shades[n * shades.len() / limit])
+        print(row.join(""))
+    print("{inside} of 640 points stayed bounded")
+
+@test fn origin()
+    assert_eq(steps(0.0, 0.0, 10), 10)

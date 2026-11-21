@@ -1,0 +1,13 @@
+## Boiling point: water boils about 1 degree lower per 300 m of altitude; estimates the
+## boiling point at towns and passes, and adds cooking time for pasta at height.
+
+fn main()
+    places := [("Amsterdam", 0), ("Denver", 1609), ("Cusco", 3399), ("La Paz", 3640), ("Everest base", 5364)]
+    for p in places
+        name, metres := p
+        boil := 100.0 - metres.to_float() / 300.0
+        extra := (100.0 - boil) * 0.5
+        print("{name:<12} {metres:>4} m: boils at {boil:.1} C, pasta +{extra:.1} min")
+
+@test fn sea()
+    assert_eq(100.0 - 0.0 / 300.0, 100.0)

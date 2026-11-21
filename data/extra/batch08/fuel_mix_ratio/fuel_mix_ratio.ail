@@ -1,0 +1,18 @@
+## Fuel mix: oil needed for two-stroke fuel at ratios like 50:1 for different amounts of
+## petrol, in millilitres, and how to fix a tank mixed at the wrong ratio.
+
+fn main()
+    for ratio in [25, 40, 50]
+        sizes := [1.0, 2.0, 5.0, 10.0]
+        parts := sizes.map(|l| "{l:.1} l: {l * 1000.0 / ratio.to_float():.0} ml")
+        shown := parts.join(", ")
+        print("{ratio}:1 -> {shown}")
+    petrol := 5.0
+    oil_ml := 200.0
+    have := petrol * 1000.0 / oil_ml
+    want := 50.0
+    add := oil_ml * want / 1000.0 - petrol
+    print("5.0 l with 200 ml oil is {have:.0}:1; add {add:.1} l petrol to reach {want:.0}:1")
+
+@test fn fifty()
+    assert_eq(5.0 * 1000.0 / 50.0, 100.0)

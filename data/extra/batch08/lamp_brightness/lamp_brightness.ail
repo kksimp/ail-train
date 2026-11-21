@@ -1,0 +1,15 @@
+## Lamp brightness: illuminance under a lamp falls with the square of distance and the cosine
+## of the angle; computes lux across a desk from a lamp hanging 0.8 m above its centre.
+
+fn main()
+    intensity := 400.0
+    height := 0.8
+    for x in [0.0, 0.2, 0.4, 0.6, 0.8, 1.0]
+        d2 := height * height + x * x
+        cos_angle := height / d2.sqrt()
+        lux := intensity * cos_angle / d2
+        bar := "#".repeat((lux / 50.0).to_int())
+        print("{x:.1} m: {lux:>6.1} lux {bar}")
+
+@test fn below()
+    assert_eq(400.0 / (0.5 * 0.5), 1600.0)

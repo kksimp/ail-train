@@ -1,0 +1,25 @@
+## Sorting belt: parcels on a conveyor are routed to chutes by colour tag; a chute holds 3
+## parcels and is emptied when full, and unknown tags go to the reject bin.
+
+fn main()
+    chutes := ["red", "blue", "green"]
+    belt := ["red", "blue", "red", "green", "red", "yellow", "blue", "red", "blue", "blue", "green", "red", "pink", "red"]
+    mut held := [0, 0, 0]
+    mut emptied := [0, 0, 0]
+    mut rejects := 0
+    for i, tag in belt.enumerate()
+        if c := chutes.index_of(tag)
+            held[c] += 1
+            if held[c] == 3
+                emptied[c] += 1
+                held[c] = 0
+                print("parcel {i + 1}: {tag} chute full, emptied")
+        else
+            rejects += 1
+            print("parcel {i + 1}: {tag} rejected")
+    for i, name in chutes.enumerate()
+        print("{name}: emptied {emptied[i]} times, {held[i]} waiting")
+    print("{rejects} rejects")
+
+@test fn idx()
+    assert_eq(["a", "b"].index_of("b") else -1, 1)

@@ -1,0 +1,23 @@
+## Chi-square test: 120 rolls of each die should show every face about 20 times; the statistic
+## sums (observed - expected)^2 / expected and is compared with 11.07 (5 degrees of freedom, 5%).
+
+fn chi_square(counts List[int]) float
+    total := counts.sum().to_float()
+    expected := total / counts.len().to_float()
+    mut stat := 0.0
+    for c in counts
+        diff := c.to_float() - expected
+        stat += diff * diff / expected
+    stat
+
+fn main()
+    dice := [("red", [22, 17, 21, 19, 23, 18]), ("blue", [12, 15, 18, 20, 24, 31]), ("green", [20, 20, 20, 20, 20, 20]), ("white", [27, 14, 16, 25, 13, 25])]
+    for d in dice
+        name, counts := d
+        stat := chi_square(counts)
+        verdict := if stat > 11.07 then "looks loaded" else "consistent with fair"
+        shown := counts.join(" ")
+        print("{name:<5} {shown}: chi-square {stat:>5.2}, {verdict}")
+
+@test fn perfect()
+    assert_eq(chi_square([5, 5, 5]), 0.0)

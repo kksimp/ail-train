@@ -1,0 +1,9 @@
+10 chirps in 15 s:  40/min, 50.0 F, 10.0 C
+18 chirps in 15 s:  72/min, 58.0 F, 14.4 C
+25 chirps in 15 s: 100/min, 65.0 F, 18.3 C
+32 chirps in 15 s: 128/min, 72.0 F, 22.2 C
+40 chirps in 15 s: 160/min, 80.0 F, 26.7 C
+47 chirps in 15 s: 188/min, 87.0 F, 30.6 C
+at 60 F expect 80 chirps a minute
+at 68 F expect 112 chirps a minute
+at 77 F expect 148 chirps a minute

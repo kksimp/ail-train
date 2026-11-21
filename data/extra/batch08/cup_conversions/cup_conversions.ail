@@ -1,0 +1,26 @@
+## Cup conversions: turns recipe cup measures into grams using each ingredient's grams per
+## cup, handling fractions written like "3/4" and mixed numbers like "1 1/2".
+
+fn amount(text str) float
+    mut total := 0.0
+    for part in text.split(" ")
+        if part.contains("/")
+            nd := part.split("/")
+            total += (nd[0].to_float() else 0.0) / (nd[1].to_float() else 1.0)
+        else
+            total += part.to_float() else 0.0
+    total
+
+fn main()
+    per_cup := {"flour": 120.0, "sugar": 200.0, "butter": 226.0, "oats": 90.0, "honey": 340.0}
+    lines := [("2 1/4", "flour"), ("3/4", "sugar"), ("1/2", "butter"), ("1 1/3", "oats"), ("1/3", "honey")]
+    mut total := 0.0
+    for l in lines
+        cups, what := l
+        grams := amount(cups) * per_cup[what]
+        total += grams
+        print("{cups} cup {what}: {grams:.0} g")
+    print("total {total:.0} g")
+
+@test fn mixed()
+    assert_eq(amount("1 1/2"), 1.5)

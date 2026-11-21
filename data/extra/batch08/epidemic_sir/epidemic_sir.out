@@ -1,0 +1,10 @@
+day   0: S    9990  I     10  R       0
+day  20: S    9460  I    359  R     181
+day  40: S    3461  I   3115  R    3423
+day  60: S     821  I   1141  R    8038
+day  80: S     575  I    215  R    9210
+day 100: S     540  I     38  R    9423
+day 120: S     534  I      7  R    9460
+day 140: S     533  I      1  R    9466
+day 160: S     533  I      0  R    9467
+peak 3127 infected on day 41; 533 never infected

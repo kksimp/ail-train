@@ -1,0 +1,9 @@
+Mon    0 km/h: force  0, calm
+Tue    4 km/h: force  1, light air
+Wed   15 km/h: force  3, gentle breeze
+Thu   28 km/h: force  4, moderate breeze
+Fri   45 km/h: force  6, strong breeze
+Sat   70 km/h: force  8, gale
+Sun   95 km/h: force 10, storm
+gust 130 km/h: force 12, hurricane force
+highest force 12: hurricane force

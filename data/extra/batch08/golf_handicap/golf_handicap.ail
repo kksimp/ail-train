@@ -1,0 +1,21 @@
+## Golf handicap: each round's differential is (score - course rating) * 113 / slope, and the
+## handicap index averages the best 8 of the last 20 differentials.
+
+fn main()
+    rounds := [(88, 71.0, 128), (92, 72.0, 131), (85, 70.0, 120), (90, 71.0, 128), (95, 73.0, 135), (84, 70.0, 120), (87, 71.0, 128), (91, 72.0, 131), (89, 70.0, 120), (86, 71.0, 128), (93, 73.0, 135), (82, 70.0, 120), (88, 72.0, 131), (90, 71.0, 128), (85, 70.0, 120), (94, 73.0, 135), (87, 71.0, 128), (83, 70.0, 120), (89, 72.0, 131), (92, 71.0, 128)]
+    mut diffs := List[float]()
+    for r in rounds
+        score, rating, slope := r
+        diffs.push((score.to_float() - rating) * 113.0 / slope.to_float())
+    best := diffs.sorted().slice(0, 8)
+    index := best.sum() / 8.0
+    shown := best.map(|d| "{d:.1}").join(" ")
+    print("best 8 differentials: {shown}")
+    print("handicap index {index:.1}")
+    for course in [("Hillside", 71.0, 128, 72), ("Links", 73.0, 135, 72)]
+        name, rating, slope, par_strokes := course
+        strokes := index * slope.to_float() / 113.0 + (rating - par_strokes.to_float())
+        print("{name}: course handicap {strokes:.0}")
+
+@test fn level()
+    assert_eq((71.0 - 71.0) * 113.0 / 128.0, 0.0)

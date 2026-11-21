@@ -1,0 +1,23 @@
+## Dew point: the Magnus formula turns air temperature and relative humidity into the dew
+## point, and the dew point says how muggy the air feels.
+
+fn dew_point(temp float, rh float) float
+    b := 17.62
+    c := 243.12
+    ratio := rh / 100.0
+    gamma := ratio.ln() + b * temp / (c + temp)
+    c * gamma / (b - gamma)
+
+fn feel(dp float) str
+    if dp < 10.0 then "dry" elif dp < 16.0 then "comfortable" elif dp < 21.0 then "humid" else "oppressive"
+
+fn main()
+    readings := [(30.0, 40.0), (25.0, 80.0), (18.0, 55.0), (33.0, 65.0), (12.0, 95.0), (5.0, 50.0)]
+    for r in readings
+        temp, rh := r
+        dp := dew_point(temp, rh)
+        gap := temp - dp
+        print("{temp:>4.1} C at {rh:.0}%: dew point {dp:>5.1} C, gap {gap:.1}, {feel(dp)}")
+
+@test fn saturated()
+    assert(dew_point(20.0, 100.0) > 19.99)

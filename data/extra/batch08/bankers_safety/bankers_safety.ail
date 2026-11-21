@@ -1,0 +1,40 @@
+## Banker's algorithm: jobs hold some of three resources and may ask for up to their maximum;
+## a state is safe when the jobs can all finish in some order, each releasing what it holds.
+
+fn safe_order(free List[int], held List[List[int]], most List[List[int]]) List[int]
+    mut work := free
+    mut done := List[bool]()
+    for i in 0..held.len()
+        done.push(false)
+    mut order := List[int]()
+    mut progress := true
+    while progress
+        progress = false
+        for i in 0..held.len()
+            if not done[i]
+                mut fits := true
+                for r in 0..work.len()
+                    if most[i][r] - held[i][r] > work[r]
+                        fits = false
+                if fits
+                    for r in 0..work.len()
+                        work[r] += held[i][r]
+                    done[i] = true
+                    order.push(i)
+                    progress = true
+    order
+
+fn main()
+    held := [[0, 1, 0], [2, 0, 0], [3, 0, 2], [2, 1, 1], [0, 0, 2]]
+    most := [[7, 5, 3], [3, 2, 2], [9, 0, 2], [2, 2, 2], [4, 3, 3]]
+    for free in [[3, 3, 2], [1, 0, 2], [0, 1, 1]]
+        order := safe_order(free, held, most)
+        label := free.join(",")
+        if order.len() == held.len()
+            shown := order.map(|i| "J{i}").join(" ")
+            print("free {label}: safe, order {shown}")
+        else
+            print("free {label}: unsafe, only {order.len()} of {held.len()} can finish")
+
+@test fn empty_need()
+    assert_eq(safe_order([0], [[1]], [[1]]), [0])

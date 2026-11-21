@@ -1,0 +1,21 @@
+## Julian day numbers: counts days continuously across months and years (Fliegel and Van
+## Flandern's formula), which turns date gaps and weekdays into plain integer arithmetic.
+
+fn jdn(year int, month int, day int) int
+    a := (14 - month) / 12
+    y := year + 4800 - a
+    m := month + 12 * a - 3
+    day + (153 * m + 2) / 5 + 365 * y + y / 4 - y / 100 + y / 400 - 32045
+
+fn main()
+    weekdays := ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+    dates := [(1582, 10, 15), (1969, 7, 20), (2000, 1, 1), (2000, 2, 29), (2024, 3, 1), (2026, 11, 21)]
+    for d in dates
+        year, month, day := d
+        j := jdn(year, month, day)
+        print("{year}-{month:02}-{day:02}: day {j}, a {weekdays[(j + 1) % 7]}")
+    gap := jdn(2026, 11, 21) - jdn(1969, 7, 20)
+    print("{gap} days from the Moon landing to 2026-11-21")
+
+@test fn epoch()
+    assert_eq(jdn(2000, 1, 1), 2451545)

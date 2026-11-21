@@ -1,0 +1,20 @@
+## Decibels: sound levels add on a log scale, L = 10 log10(sum of 10^(Li/10)); combines
+## machines in a workshop and checks against an 85 dB limit.
+
+fn combine(levels List[float]) float
+    ten := 10.0
+    mut power := 0.0
+    for l in levels
+        power += ten.pow(l / 10.0)
+    10.0 * power.log10()
+
+fn main()
+    rooms := [("office", [55.0, 52.0, 48.0]), ("workshop", [82.0, 79.0, 80.0, 75.0]), ("print room", [70.0, 70.0]), ("plant room", [88.0, 84.0])]
+    for r in rooms
+        name, levels := r
+        total := combine(levels)
+        verdict := if total > 85.0 then "over the limit" else "ok"
+        print("{name}: {levels.len()} sources, {total:.1} dB, {verdict}")
+
+@test fn double()
+    assert((combine([60.0, 60.0]) - 63.0103).abs() < 0.001)

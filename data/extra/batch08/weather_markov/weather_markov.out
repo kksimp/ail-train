@@ -1,0 +1,11 @@
+day 1: sunny 0.700, cloudy 0.200, rainy 0.100
+day 2: sunny 0.570, cloudy 0.260, rainy 0.170
+day 3: sunny 0.511, cloudy 0.286, rainy 0.203
+day 4: sunny 0.484, cloudy 0.298, rainy 0.218
+day 5: sunny 0.472, cloudy 0.303, rainy 0.225
+day 6: sunny 0.466, cloudy 0.306, rainy 0.228
+day 7: sunny 0.464, cloudy 0.307, rainy 0.230
+expected rainy days in the week: 1.37
+long run sunny: 0.462
+long run cloudy: 0.308
+long run rainy: 0.231

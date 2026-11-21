@@ -1,0 +1,19 @@
+## Ideal gas law: PV = nRT; a sealed tyre's pressure follows its absolute temperature, and the
+## moles of gas in a balloon come from its volume, pressure and temperature.
+
+fn main()
+    r := 8.314
+    cold_kelvin := 273.15 + 5.0
+    gauge := 220.0
+    absolute := gauge + 101.3
+    for c in [-10.0, 5.0, 20.0, 35.0, 60.0]
+        kelvin := 273.15 + c
+        p_abs := absolute * kelvin / cold_kelvin
+        print("tyre at {c:>5.1} C: {p_abs - 101.3:>6.1} kPa gauge")
+    for b in [("party balloon", 0.014, 101.3, 20.0), ("weather balloon", 4.2, 101.3, 15.0), ("scuba tank", 0.012, 20000.0, 20.0)]
+        name, litres_m3, kpa, c := b
+        moles := kpa * 1000.0 * litres_m3 / (r * (273.15 + c))
+        print("{name:<15} {moles:>8.2} mol of gas")
+
+@test fn constant()
+    assert_eq(100.0 * 300.0 / 300.0, 100.0)

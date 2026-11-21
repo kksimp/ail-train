@@ -1,0 +1,28 @@
+## Day length: the sun's declination for a day of the year and the latitude give the sunset
+## hour angle (cos w = -tan(lat) tan(dec)); polar day and night clamp to 24 and 0 hours.
+
+fn hours_of_daylight(lat float, day int) float
+    pi := 3.141592653589793
+    dec := 23.44 * pi / 180.0 * (2.0 * pi * (284 + day).to_float() / 365.0).sin()
+    phi := lat * pi / 180.0
+    mut c := -phi.tan() * dec.tan()
+    if c > 1.0
+        c = 1.0
+    if c < -1.0
+        c = -1.0
+    s := (1.0 - c * c).sqrt()
+    w := s.atan2(c)
+    2.0 * w * 180.0 / pi / 15.0
+
+fn main()
+    places := [("Quito", -0.2), ("Cape Town", -33.9), ("Madrid", 40.4), ("London", 51.5), ("Reykjavik", 64.1), ("Longyearbyen", 78.2)]
+    print("place          Mar 20  Jun 21  Dec 21")
+    for p in places
+        name, lat := p
+        a := hours_of_daylight(lat, 79)
+        b := hours_of_daylight(lat, 172)
+        c := hours_of_daylight(lat, 355)
+        print("{name:<13} {a:>6.1}h {b:>6.1}h {c:>6.1}h")
+
+@test fn equator()
+    assert((hours_of_daylight(0.0, 172) - 12.0).abs() < 0.000001)

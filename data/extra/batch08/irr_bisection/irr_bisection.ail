@@ -1,0 +1,31 @@
+## Internal rate of return: the discount rate at which a project's cash flows have zero net
+## present value, found by bisection between 0% and 100% since NPV falls as the rate rises.
+
+fn npv(rate float, flows List[float]) float
+    mut total := 0.0
+    base := 1.0 + rate
+    for t in 0..flows.len()
+        total += flows[t] / base.pow(t.to_float())
+    total
+
+fn irr(flows List[float]) float
+    mut lo := 0.0
+    mut hi := 1.0
+    for k in 0..100
+        mid := (lo + hi) / 2.0
+        if npv(mid, flows) > 0.0
+            lo = mid
+        else
+            hi = mid
+    (lo + hi) / 2.0
+
+fn main()
+    projects := [("solar roof", [-12000.0, 1500.0, 1500.0, 1500.0, 1500.0, 1500.0, 1500.0, 1500.0, 1500.0, 1500.0, 1500.0]), ("food truck", [-40000.0, 9000.0, 14000.0, 16000.0, 16000.0]), ("new oven", [-5000.0, 2500.0, 2500.0, 2500.0]), ("vending", [-3000.0, 900.0, 900.0, 900.0, 900.0])]
+    for p in projects
+        name, flows := p
+        at_ten := npv(0.1, flows)
+        rate := irr(flows) * 100.0
+        print("{name:<10} NPV at 10% {at_ten:>9.2}, IRR {rate:.2}%")
+
+@test fn even()
+    assert(npv(0.0, [-100.0, 100.0]) == 0.0)

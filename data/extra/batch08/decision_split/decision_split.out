@@ -1,0 +1,6 @@
+label entropy 0.940
+outlook     gain 0.247
+temperature gain 0.029
+humidity    gain 0.152
+wind        gain 0.048
+split first on outlook

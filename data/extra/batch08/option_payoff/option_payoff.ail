@@ -1,0 +1,25 @@
+## Option payoffs: at expiry a call pays max(price - strike, 0) and a put pays max(strike - price,
+## 0); after the premium paid, shows profit across prices and each option's break-even price.
+
+fn call_pay(price float, strike float) float
+    if price > strike then price - strike else 0.0
+
+fn put_pay(price float, strike float) float
+    if strike > price then strike - price else 0.0
+
+fn main()
+    strike := 50.0
+    call_premium := 3.5
+    put_premium := 2.25
+    print("price   call profit   put profit   straddle")
+    for price in [35.0, 40.0, 45.0, 50.0, 55.0, 60.0, 65.0]
+        c := call_pay(price, strike) - call_premium
+        p := put_pay(price, strike) - put_premium
+        both := c + p
+        print("{price:>5.0} {c:>13.2} {p:>12.2} {both:>10.2}")
+    call_even := strike + call_premium
+    put_even := strike - put_premium
+    print("call breaks even at {call_even:.2}, put at {put_even:.2}")
+
+@test fn out_of_money()
+    assert_eq(call_pay(40.0, 50.0), 0.0)

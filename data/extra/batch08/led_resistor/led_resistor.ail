@@ -1,0 +1,29 @@
+## LED resistor: the series resistor for an LED is (supply - forward voltage) / current; picks
+## the next standard E12 value up and reports the real current and the resistor's power.
+
+fn e12_values() List[int]
+    base := [10, 12, 15, 18, 22, 27, 33, 39, 47, 56, 68, 82]
+    mut out := List[int]()
+    for mult in [1, 10, 100, 1000]
+        for b in base
+            out.push(b * mult)
+    out
+
+fn main()
+    standard := e12_values()
+    leds := [("red", 2000), ("green", 3100), ("blue", 3300), ("white", 3200)]
+    for supply in [5000, 9000, 12000]
+        for led in leds
+            colour, forward := led
+            drop := supply - forward
+            exact := (drop + 19) / 20
+            mut pick := standard[standard.len() - 1]
+            for r in standard
+                if r >= exact and r < pick
+                    pick = r
+            ma := drop.to_float() / pick.to_float()
+            mw := drop.to_float() * ma / 1000.0
+            print("{supply / 1000:>2} V {colour:<5}: needs {exact:>4} ohm, use {pick:>4}, {ma:.1} mA, {mw:.1} mW")
+
+@test fn e12_count()
+    assert_eq(e12_values().len(), 48)

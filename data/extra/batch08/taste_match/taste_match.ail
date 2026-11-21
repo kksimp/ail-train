@@ -1,0 +1,33 @@
+## Taste match: finds the reader whose book ratings are closest to yours (smallest average gap
+## on books you both rated, at least two shared) and suggests their 4 and 5 star books you lack.
+
+fn main()
+    readers := ["you", "Ana", "Bo", "Cy"]
+    books := ["Dune", "Emma", "Ulysses", "Beloved", "Matilda", "Kindred"]
+    ratings := [[5, 0, 1, 4, 0, 0], [5, 2, 1, 5, 4, 5], [1, 5, 4, 2, 5, 0], [4, 0, 0, 0, 2, 4]]
+    mut best := -1
+    mut best_gap := 100.0
+    for r in 1..readers.len()
+        mut shared := 0
+        mut diff := 0
+        for b in 0..books.len()
+            if ratings[0][b] > 0 and ratings[r][b] > 0
+                shared += 1
+                diff += (ratings[0][b] - ratings[r][b]).abs()
+        if shared >= 2
+            gap := diff.to_float() / shared.to_float()
+            print("{readers[r]}: {shared} shared, average gap {gap:.2}")
+            if gap < best_gap
+                best = r
+                best_gap = gap
+        else
+            print("{readers[r]}: only {shared} shared, skipped")
+    mut picks := List[str]()
+    for b in 0..books.len()
+        if ratings[0][b] == 0 and ratings[best][b] >= 4
+            picks.push(books[b])
+    shown := picks.join(", ")
+    print("closest taste: {readers[best]}; try {shown}")
+
+@test fn gap()
+    assert_eq((5 - 4).abs() + (1 - 1).abs(), 1)

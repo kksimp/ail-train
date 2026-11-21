@@ -1,0 +1,32 @@
+## Refraction: Snell's law n1 sin a = n2 sin b bends light crossing between materials; going from
+## glass or water into air, beyond the critical angle the light reflects back entirely.
+
+fn degrees(rad float) float
+    rad * 180.0 / 3.141592653589793
+
+fn radians(deg float) float
+    deg * 3.141592653589793 / 180.0
+
+fn asin(x float) float
+    x.atan2((1.0 - x * x).sqrt())
+
+fn main()
+    pairs := [("air to water", 1.0, 1.333), ("air to glass", 1.0, 1.5), ("water to air", 1.333, 1.0), ("glass to air", 1.5, 1.0)]
+    for p in pairs
+        name, n1, n2 := p
+        mut parts := List[str]()
+        for a in [20.0, 40.0, 60.0]
+            s := n1 * radians(a).sin() / n2
+            if s > 1.0
+                parts.push("{a:.0} -> reflects")
+            else
+                b := degrees(asin(s))
+                parts.push("{a:.0} -> {b:.1}")
+        shown := parts.join(", ")
+        print("{name:<13} {shown}")
+        if n1 > n2
+            critical := degrees(asin(n2 / n1))
+            print("  critical angle {critical:.1} degrees")
+
+@test fn straight()
+    assert_eq(asin(0.0), 0.0)

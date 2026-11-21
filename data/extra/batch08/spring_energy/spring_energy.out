@@ -1,0 +1,7 @@
+pen spring      k     300 N/m, 0.004 m: force     1.2 N, energy    0.002 J
+door closer     k     900 N/m, 0.080 m: force    72.0 N, energy    2.880 J
+car suspension  k   25000 N/m, 0.050 m: force  1250.0 N, energy   31.250 J
+trampoline      k    5000 N/m, 0.400 m: force  2000.0 N, energy  400.000 J
+toy launcher at 0.02 m: 1.26 m/s
+toy launcher at 0.05 m: 3.16 m/s
+toy launcher at 0.10 m: 6.32 m/s

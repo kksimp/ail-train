@@ -1,0 +1,23 @@
+## Heat loss: each part of a house loses U x area x temperature difference watts; compares the
+## loss before and after insulating, and the yearly saving from 2,500 degree-days of heating.
+
+fn main()
+    parts := [("walls", 95.0, 1.6, 0.3), ("roof", 60.0, 2.3, 0.15), ("windows", 18.0, 4.8, 1.4), ("floor", 60.0, 0.9, 0.25), ("door", 2.0, 3.0, 1.0)]
+    inside := 20.0
+    outside := -2.0
+    mut before := 0.0
+    mut after := 0.0
+    for p in parts
+        name, area, u_old, u_new := p
+        w_old := u_old * area * (inside - outside)
+        w_new := u_new * area * (inside - outside)
+        before += w_old
+        after += w_new
+        print("{name:<8} {area:>5.1} m2: {w_old:>6.0} W -> {w_new:>5.0} W")
+    print("total {before / 1000.0:.2} kW -> {after / 1000.0:.2} kW at {inside - outside:.0} degrees difference")
+    per_degree := (before - after) / (inside - outside)
+    saving := per_degree * 2500.0 * 24.0 / 1000.0
+    print("yearly saving about {saving:.0} kWh")
+
+@test fn simple()
+    assert_eq(1.0 * 10.0 * 20.0, 200.0)

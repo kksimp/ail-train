@@ -1,0 +1,18 @@
+## Springs: Hooke's law F = kx gives the force at each stretch, the stored energy is kx^2 / 2,
+## and a released spring launches a mass at x sqrt(k / m) when no energy is lost.
+
+fn main()
+    springs := [("pen spring", 300.0, 0.004), ("door closer", 900.0, 0.08), ("car suspension", 25000.0, 0.05), ("trampoline", 5000.0, 0.4)]
+    for s in springs
+        name, k, x := s
+        force := k * x
+        energy := 0.5 * k * x * x
+        print("{name:<15} k {k:>7.0} N/m, {x:>5.3} m: force {force:>7.1} N, energy {energy:>8.3} J")
+    k := 200.0
+    m := 0.05
+    for x in [0.02, 0.05, 0.1]
+        speed := x * (k / m).sqrt()
+        print("toy launcher at {x:.2} m: {speed:.2} m/s")
+
+@test fn energy()
+    assert_eq(0.5 * 100.0 * 0.5 * 0.5, 12.5)

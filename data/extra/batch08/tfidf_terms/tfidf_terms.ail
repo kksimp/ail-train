@@ -1,0 +1,38 @@
+## TF-IDF: a word scores high in a document when it is frequent there (term frequency) but rare
+## across the collection (inverse document frequency, ln(N / df)); finds each note's key words.
+
+fn main()
+    docs := ["the cat sat on the mat", "the dog chased the cat", "a dog and a cat played in the park", "rain fell on the park all day"]
+    n := docs.len().to_float()
+    mut df := Map[str, int]()
+    for d in docs
+        mut seen := Set[str]()
+        for w in d.words()
+            seen.add(w)
+        for w in seen
+            df[w] += 1
+    for i in 0..docs.len()
+        words := docs[i].words()
+        mut counts := Map[str, int]()
+        for w in words
+            counts[w] += 1
+        mut picks := List[str]()
+        mut taken := Set[str]()
+        for round in 0..2
+            mut best := ""
+            mut best_score := -1.0
+            for w in counts.keys().sorted()
+                if not taken.contains(w)
+                    ratio := n / df[w].to_float()
+                    score := counts[w].to_float() / words.len().to_float() * ratio.ln()
+                    if score > best_score
+                        best = w
+                        best_score = score
+            taken.add(best)
+            picks.push("{best} {best_score:.3}")
+        shown := picks.join(", ")
+        print("note {i + 1}: {shown}")
+
+@test fn common()
+    one := 1.0
+    assert_eq(one.ln(), 0.0)

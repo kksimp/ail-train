@@ -1,0 +1,48 @@
+## Molar mass: parses chemical formulas like H2O, C6H12O6 and Ca(OH)2 (one level of brackets)
+## and adds up atomic masses to give grams per mole.
+
+fn mass_of(formula str, table Map[str, float]) float
+    cs := formula.chars()
+    mut total := 0.0
+    mut group := 0.0
+    mut in_group := false
+    mut i := 0
+    while i < cs.len()
+        c := cs[i]
+        if c == '('
+            in_group = true
+            group = 0.0
+            i += 1
+            continue
+        mut sym := ""
+        mut add := 0.0
+        if c == ')'
+            in_group = false
+            add = group
+            i += 1
+        else
+            sym = "{c}"
+            i += 1
+            if i < cs.len() and cs[i].is_lower()
+                sym = "{sym}{cs[i]}"
+                i += 1
+            add = table.get(sym) else 0.0
+        mut n := 0
+        while i < cs.len() and cs[i].is_digit()
+            n = n * 10 + (cs[i].to_digit(10) else 0)
+            i += 1
+        count := if n == 0 then 1 else n
+        if in_group
+            group += add * count.to_float()
+        else
+            total += add * count.to_float()
+    total
+
+fn main()
+    table := {"H": 1.008, "C": 12.011, "N": 14.007, "O": 15.999, "Na": 22.99, "Cl": 35.45, "Ca": 40.078, "S": 32.06}
+    for f in ["H2O", "CO2", "NaCl", "C6H12O6", "Ca(OH)2", "H2SO4", "(NH4)2SO4"]
+        print("{f}: {mass_of(f, table):.3} g/mol")
+
+@test fn water()
+    w := mass_of("H2O", {"H": 1.0, "O": 16.0})
+    assert_eq(w, 18.0)

@@ -1,0 +1,4 @@
+cautious: TP 3 FP 0 TN 15 FN 2
+  accuracy 0.900, precision 1.000, recall 0.600, F1 0.750
+eager: TP 5 FP 4 TN 11 FN 0
+  accuracy 0.800, precision 0.556, recall 1.000, F1 0.714

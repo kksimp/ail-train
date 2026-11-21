@@ -1,0 +1,18 @@
+## Star magnitudes: each step of 5 in magnitude is a factor of 100 in brightness; turns apparent
+## magnitude and distance into absolute magnitude, M = m - 5 log10(d / 10 parsecs).
+
+fn main()
+    stars := [("Sirius", -1.46, 8.6), ("Vega", 0.03, 25.0), ("Betelgeuse", 0.5, 548.0), ("Polaris", 1.98, 433.0), ("Proxima", 11.13, 4.24), ("Rigel", 0.13, 863.0)]
+    ten := 10.0
+    sirius := stars[0].1
+    for s in stars
+        name, m, ly := s
+        parsecs := ly / 3.2616
+        ratio := parsecs / 10.0
+        absolute := m - 5.0 * ratio.log10()
+        dimmer := ten.pow(0.4 * (m - sirius))
+        print("{name:<10} m {m:>6.2}, {ly:>5.0} ly, M {absolute:>6.2}, {dimmer:>10.1}x dimmer than Sirius")
+
+@test fn hundred()
+    ten := 10.0
+    assert((ten.pow(0.4 * 5.0) - 100.0).abs() < 0.000001)

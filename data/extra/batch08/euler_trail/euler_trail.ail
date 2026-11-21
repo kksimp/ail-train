@@ -1,0 +1,52 @@
+## Walk every path once: a walk using each path exactly once exists when 0 or 2 places have an
+## odd number of paths; Hierholzer's algorithm then finds it, starting at an odd place.
+
+fn trail(edges List[List[int]], start int) List[int]
+    mut used := List[bool]()
+    for i in 0..edges.len()
+        used.push(false)
+    mut stack := [start]
+    mut path := List[int]()
+    while stack.len() > 0
+        v := stack[stack.len() - 1]
+        mut found := -1
+        for i in 0..edges.len()
+            if not used[i] and (edges[i][0] == v or edges[i][1] == v)
+                found = i
+                break
+        if found < 0
+            path.push(v)
+            _ := stack.pop()
+        else
+            used[found] = true
+            other := if edges[found][0] == v then edges[found][1] else edges[found][0]
+            stack.push(other)
+    path.reverse()
+    path
+
+fn plan(places List[str], edges List[List[int]])
+    mut degree := List[int]()
+    for p in places
+        degree.push(0)
+    for e in edges
+        degree[e[0]] += 1
+        degree[e[1]] += 1
+    mut odd := List[int]()
+    for i in 0..places.len()
+        if degree[i] % 2 == 1
+            odd.push(i)
+    if odd.len() != 0 and odd.len() != 2
+        print("{odd.len()} places with odd paths: no single walk")
+        return
+    start := if odd.len() == 2 then odd[0] else 0
+    walk := trail(edges, start).map(|i| places[i]).join(" -> ")
+    print(walk)
+
+fn main()
+    places := ["Gate", "Pond", "Mill", "Hill", "Oak"]
+    plan(places, [[0, 1], [1, 2], [2, 0], [0, 3], [3, 4], [4, 0], [1, 3]])
+    plan(places, [[0, 1], [1, 2], [2, 3], [3, 4], [4, 0]])
+    plan(places, [[0, 1], [0, 2], [0, 3], [1, 2]])
+
+@test fn loop_back()
+    assert_eq(trail([[0, 1], [1, 2], [2, 0]], 0).len(), 4)

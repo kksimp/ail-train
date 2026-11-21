@@ -1,0 +1,48 @@
+## Eight puzzle: breadth-first search over board states (the blank is 0) finds the fewest slides
+## to put the tiles in order; the moves are the directions the blank travels.
+
+fn solve(start str) str
+    goal := "123456780"
+    mut came := Map[str, str]()
+    mut how := Map[str, str]()
+    came[start] = ""
+    mut queue := [start]
+    mut head := 0
+    while head < queue.len()
+        u := queue[head]
+        head += 1
+        if u == goal
+            break
+        cs := u.chars()
+        mut blank := 0
+        for i in 0..9
+            if cs[i] == '0'
+                blank = i
+        r := blank / 3
+        c := blank % 3
+        for m in [(-1, 0, "U"), (1, 0, "D"), (0, -1, "L"), (0, 1, "R")]
+            nr := r + m.0
+            nc := c + m.1
+            if nr >= 0 and nr < 3 and nc >= 0 and nc < 3
+                mut next_cs := cs
+                next_cs.swap(blank, nr * 3 + nc)
+                v := next_cs.join("")
+                if not came.contains(v)
+                    came[v] = u
+                    how[v] = m.2
+                    queue.push(v)
+    mut moves := List[str]()
+    mut v := goal
+    while v != start
+        moves.push(how[v])
+        v = came[v]
+    moves.reverse()
+    path := moves.join("")
+    "{moves.len()} moves {path}, {came.len()} boards seen"
+
+fn main()
+    for start in ["123405786", "123456708", "023145786", "413726580", "182043765"]
+        print("{start}: {solve(start)}")
+
+@test fn done()
+    assert_eq(solve("123456780"), "0 moves , 1 boards seen")

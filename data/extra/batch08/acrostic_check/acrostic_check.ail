@@ -1,0 +1,16 @@
+## Acrostics: checks whether the first letters of a poem's lines spell a hidden word, and
+## also reads the last letters of each line as a second message.
+
+fn main()
+    poems := [
+        ["Gentle rain on the roof", "Over the hills it rolls", "Light returns by noon", "Dawn will bring it again"],
+        ["Silver moon above", "Under quiet trees", "Night birds call softly"],
+        ["Morning comes", "Answers wait", "Pages turn", "Evening falls"],
+    ]
+    for p in poems
+        firsts := p.map(|l| l.char_at(0) else '?').map(|c| "{c}").join("")
+        lasts := p.map(|l| l.char_at(l.len() - 1) else '?').map(|c| "{c}").join("")
+        print("down the left: {firsts.to_upper()}, down the right: {lasts.to_upper()}")
+
+@test fn first()
+    assert_eq("Gold".char_at(0) else '?', 'G')

@@ -1,0 +1,20 @@
+## Logistic map: x -> r x (1 - x) settles to one value, then cycles of 2 and 4 as r grows, and
+## turns chaotic near r = 3.9; counts the distinct values visited after a long warm-up.
+
+fn main()
+    for r in [2.8, 3.2, 3.5, 3.9]
+        mut x := 0.5
+        for k in 0..1000
+            x = r * x * (1.0 - x)
+        mut seen := List[str]()
+        for k in 0..8
+            x = r * x * (1.0 - x)
+            v := "{x:.3}"
+            if not seen.contains(v)
+                seen.push(v)
+        shown := seen.join(" ")
+        print("r {r}: {seen.len()} values: {shown}")
+
+@test fn fixed()
+    x := 1.0 - 1.0 / 2.0
+    assert_eq(2.0 * x * (1.0 - x), x)

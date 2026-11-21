@@ -1,0 +1,3 @@
+study     vs score: r =  0.998 (strong positive)
+screen    vs score: r = -0.950 (strong negative)
+shoe size vs score: r = -0.120 (weak negative)

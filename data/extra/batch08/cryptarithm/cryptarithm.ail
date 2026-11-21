@@ -1,0 +1,56 @@
+## Cryptarithms: letter sums like TWO + TWO = FOUR where each letter is a different digit and no
+## number starts with 0; backtracking assigns digits letter by letter and counts every solution.
+
+fn value(word str, letters List[char], digits List[int]) int
+    mut v := 0
+    for c in word.chars()
+        mut i := 0
+        while letters[i] != c
+            i += 1
+        v = v * 10 + digits[i]
+    v
+
+fn search(k int, letters List[char], leads Set[char], words List[str], mut digits List[int], mut used List[bool], mut first List[str]) int
+    if k == letters.len()
+        a := value(words[0], letters, digits)
+        b := value(words[1], letters, digits)
+        t := value(words[2], letters, digits)
+        if a + b == t
+            if first.len() == 0
+                first.push("{a} + {b} = {t}")
+            return 1
+        return 0
+    mut count := 0
+    for d in 0..10
+        if not used[d] and not (d == 0 and leads.contains(letters[k]))
+            used[d] = true
+            digits[k] = d
+            count += search(k + 1, letters, leads, words, mut digits, mut used, mut first)
+            used[d] = false
+    count
+
+fn main()
+    for puzzle in [["TO", "GO", "OUT"], ["TWO", "TWO", "FOUR"], ["AB", "BA", "CC"], ["ODD", "ODD", "EVEN"]]
+        mut letters := List[char]()
+        mut leads := Set[char]()
+        for w in puzzle
+            leads.add(w.chars()[0])
+            for c in w.chars()
+                if not letters.contains(c)
+                    letters.push(c)
+        mut digits := List[int]()
+        for c in letters
+            digits.push(0)
+        mut used := List[bool]()
+        for d in 0..10
+            used.push(false)
+        mut first := List[str]()
+        n := search(0, letters, leads, puzzle, mut digits, mut used, mut first)
+        label := "{puzzle[0]} + {puzzle[1]} = {puzzle[2]}"
+        if n == 0
+            print("{label}: no solution")
+        else
+            print("{label}: {n} found, first {first[0]}")
+
+@test fn read()
+    assert_eq(value("AB", ['A', 'B'], [4, 2]), 42)

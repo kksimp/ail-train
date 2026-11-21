@@ -1,0 +1,42 @@
+## Rabin-Karp search: a rolling hash of each window of text (base 256, a small modulus of 13) is compared
+## with the pattern's hash, and only windows with equal hashes are checked letter by letter.
+
+fn search(text str, pat str)
+    base := 256
+    modulus := 13
+    t := text.chars().map(|c| c.code())
+    p := pat.chars().map(|c| c.code())
+    m := p.len()
+    mut high := 1
+    for i in 0..m - 1
+        high = (high * base) % modulus
+    mut hp := 0
+    mut ht := 0
+    for i in 0..m
+        hp = (hp * base + p[i]) % modulus
+        ht = (ht * base + t[i]) % modulus
+    mut hits := List[int]()
+    mut false_alarms := 0
+    for s in 0..t.len() - m + 1
+        if hp == ht
+            mut same := true
+            for k in 0..m
+                if t[s + k] != p[k]
+                    same = false
+            if same
+                hits.push(s)
+            else
+                false_alarms += 1
+        if s + m < t.len()
+            drop := (t[s] * high) % modulus
+            ht = ((ht - drop + modulus) * base + t[s + m]) % modulus
+    shown := hits.join(", ")
+    print("'{pat}' at [{shown}], {false_alarms} hash collisions")
+
+fn main()
+    text := "the cat sat on the mat with the hat that sat"
+    for pat in ["at", "the", "sat", "dog", "hat t"]
+        search(text, pat)
+
+@test fn one()
+    assert_eq("abc".chars().map(|c| c.code()).sum(), 294)

@@ -1,0 +1,7 @@
+walls     95.0 m2:   3344 W ->   627 W
+roof      60.0 m2:   3036 W ->   198 W
+windows   18.0 m2:   1901 W ->   554 W
+floor     60.0 m2:   1188 W ->   330 W
+door       2.0 m2:    132 W ->    44 W
+total 9.60 kW -> 1.75 kW at 22 degrees difference
+yearly saving about 21402 kWh

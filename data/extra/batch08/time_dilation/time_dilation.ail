@@ -1,0 +1,18 @@
+## Time dilation: a clock moving at speed v runs slow by the Lorentz factor 1 / sqrt(1 - v^2 / c^2);
+## shows how much a traveller ages during ten years on Earth at various fractions of light speed.
+
+fn gamma(beta float) float
+    1.0 / (1.0 - beta * beta).sqrt()
+
+fn main()
+    earth_years := 10.0
+    for beta in [0.1, 0.5, 0.8, 0.9, 0.99, 0.999]
+        g := gamma(beta)
+        ship := earth_years / g
+        print("{beta:>5.3} c: factor {g:>7.3}, traveller ages {ship:>5.2} years")
+    hours := 24.0 * 365.25
+    jet := (gamma(0.00000083) - 1.0) * hours * 3600.0 * 1000000000.0
+    print("a year on a jet at 900 km/h gains about {jet:.0} ns")
+
+@test fn at_rest()
+    assert_eq(gamma(0.0), 1.0)

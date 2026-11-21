@@ -1,0 +1,17 @@
+## Calorie needs: resting energy by the Mifflin-St Jeor formula from weight, height, age and
+## sex, multiplied by an activity factor, rounded to whole calories.
+
+fn resting(kg float, cm float, age int, male bool) float
+    base := 10.0 * kg + 6.25 * cm - 5.0 * age.to_float()
+    if male then base + 5.0 else base - 161.0
+
+fn main()
+    people := [("Ari", 70.0, 175.0, 30, true, 1.55), ("Bea", 58.0, 164.0, 45, false, 1.375), ("Cole", 95.0, 188.0, 52, true, 1.2), ("Dina", 64.0, 172.0, 24, false, 1.725)]
+    for p in people
+        name, kg, cm, age, male, factor := p
+        r := resting(kg, cm, age, male)
+        daily := r * factor
+        print("{name}: resting {r:.0} kcal, daily {daily:.0} kcal")
+
+@test fn formula()
+    assert_eq(resting(70.0, 175.0, 30, true), 1648.75)

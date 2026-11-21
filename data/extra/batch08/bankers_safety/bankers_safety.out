@@ -1,0 +1,3 @@
+free 3,3,2: safe, order J1 J3 J4 J0 J2
+free 1,0,2: unsafe, only 0 of 5 can finish
+free 0,1,1: unsafe, only 2 of 5 can finish

@@ -1,0 +1,17 @@
+## Coffee ratio: each brewing method uses a ratio of coffee to water by weight; works out the
+## grams of ground coffee for a serving and a week's beans for one cup a day of each.
+
+fn main()
+    methods := [("espresso", 2.0, 36.0), ("pour over", 16.0, 250.0), ("french press", 15.0, 500.0), ("cold brew", 8.0, 1000.0), ("aeropress", 13.0, 220.0), ("moka pot", 10.0, 200.0)]
+    mut week := 0.0
+    for m in methods
+        name, ratio, water := m
+        grams := water / ratio
+        spoons := grams / 5.0
+        week += grams * 7.0
+        print("{name:<12} 1:{ratio:<4.0} {water:>6.0} g water -> {grams:>5.1} g coffee ({spoons:.1} tbsp)")
+    bags := (week / 250.0).ceil().to_int()
+    print("a week of one of each: {week:.0} g, {bags} bags of 250 g")
+
+@test fn press()
+    assert_eq(450.0 / 15.0, 30.0)

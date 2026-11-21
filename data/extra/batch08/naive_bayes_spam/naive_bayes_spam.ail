@@ -1,0 +1,42 @@
+## Naive Bayes: learns word counts from labelled messages, then scores new ones by summing log
+## chances of each word under spam and under normal mail (add-one smoothing for unseen words).
+
+fn score(words List[str], counts Map[str, int], total int, vocab int, prior float) float
+    mut s := prior.ln()
+    for w in words
+        p := (counts.get_or(w, 0) + 1).to_float() / (total + vocab).to_float()
+        s += p.ln()
+    s
+
+fn main()
+    training := [("spam", "win cash now"), ("spam", "cheap cash offer now"), ("spam", "win a free prize now"), ("ham", "lunch at noon"), ("ham", "project meeting moved to noon"), ("ham", "can you send the project notes"), ("ham", "free for lunch tomorrow")]
+    mut spam := Map[str, int]()
+    mut ham := Map[str, int]()
+    mut spam_total := 0
+    mut ham_total := 0
+    mut spam_msgs := 0
+    mut vocab := Set[str]()
+    for t in training
+        label, text := t
+        for w in text.words()
+            vocab.add(w)
+            if label == "spam"
+                spam[w] += 1
+                spam_total += 1
+            else
+                ham[w] += 1
+                ham_total += 1
+        if label == "spam"
+            spam_msgs += 1
+    prior_spam := spam_msgs.to_float() / training.len().to_float()
+    tests := ["free cash prize", "project lunch at noon", "win the meeting", "send cash now"]
+    for msg in tests
+        words := msg.words()
+        a := score(words, spam, spam_total, vocab.len(), prior_spam)
+        b := score(words, ham, ham_total, vocab.len(), 1.0 - prior_spam)
+        verdict := if a > b then "spam" else "ham"
+        gap := a - b
+        print("{msg:<22} log odds {gap:>6.2} -> {verdict}")
+
+@test fn smoothing()
+    assert_eq((0 + 1).to_float() / (9 + 1).to_float(), 0.1)

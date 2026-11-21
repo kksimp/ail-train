@@ -1,0 +1,7 @@
+step  40: position  -4
+step  80: position -12
+step 120: position  -2
+step 160: position  -4
+step 200: position -12
+furthest 12 steps away, back at the start 11 times
+400 steps on a grid end at (4, -2), 4.47 from the start

@@ -1,0 +1,27 @@
+## SIR epidemic: susceptible, infected and recovered counts in a town of 10,000, stepped a day
+## at a time with contact rate 0.3 and recovery rate 0.1 (R0 = 3); finds the peak day.
+
+fn main()
+    pop := 10000.0
+    mut s := 9990.0
+    mut i := 10.0
+    mut r := 0.0
+    beta := 0.3
+    gamma := 0.1
+    mut peak_day := 0
+    mut peak := 0.0
+    for day in 0..=160
+        if day % 20 == 0
+            print("day {day:>3}: S {s:>7.0}  I {i:>6.0}  R {r:>7.0}")
+        if i > peak
+            peak = i
+            peak_day = day
+        new_cases := beta * s * i / pop
+        recovered := gamma * i
+        s -= new_cases
+        i += new_cases - recovered
+        r += recovered
+    print("peak {peak:.0} infected on day {peak_day}; {s:.0} never infected")
+
+@test fn r0()
+    assert_eq(0.3 / 0.1 > 2.9, true)

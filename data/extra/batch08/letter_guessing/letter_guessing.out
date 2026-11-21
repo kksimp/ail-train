@@ -1,0 +1,16 @@
+E: _ _ _ _ E _ (hit)
+A: _ _ A _ E _ (hit)
+S: _ _ A _ E _ (miss 1)
+T: _ _ A _ E T (hit)
+R: _ _ A _ E T (miss 2)
+L: _ L A _ E T (hit)
+N: _ L A N E T (hit)
+P: P L A N E T (hit)
+solved with 2 misses
+E: _ _ _ _ _ _ (miss 1)
+A: _ _ _ _ _ _ (miss 2)
+I: _ _ _ _ _ _ (miss 3)
+O: _ _ _ _ _ _ (miss 4)
+U: _ _ _ _ _ _ (miss 5)
+S: _ _ _ _ _ _ (miss 6)
+out of guesses, the word was RHYTHM

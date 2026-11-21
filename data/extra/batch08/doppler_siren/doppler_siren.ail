@@ -1,0 +1,20 @@
+## Doppler effect: a siren sounds higher as it approaches and lower as it moves away,
+## f' = f (v + listener speed) / (v - source speed) with sound at 343 m/s.
+
+fn heard(f float, source float, listener float, closing bool) float
+    v := 343.0
+    if closing then f * (v + listener) / (v - source) else f * (v - listener) / (v + source)
+
+fn main()
+    siren := 700.0
+    for kmh in [30.0, 60.0, 100.0, 140.0]
+        speed := kmh / 3.6
+        up := heard(siren, speed, 0.0, true)
+        down := heard(siren, speed, 0.0, false)
+        drop := up - down
+        print("ambulance at {kmh:>5.0} km/h: {up:.1} Hz coming, {down:.1} Hz going, drop {drop:.1} Hz")
+    both := heard(siren, 25.0, 25.0, true)
+    print("both driving at each other at 90 km/h: {both:.1} Hz")
+
+@test fn still()
+    assert_eq(heard(700.0, 0.0, 0.0, true), 700.0)

@@ -1,0 +1,25 @@
+## Next alarm: alarms are set for some weekdays at set times; from any moment in the week this
+## finds the next alarm to ring after it, rolling over into next week, and how long until then.
+
+fn main()
+    days := ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+    alarms := [(0, 6, 30), (1, 6, 30), (2, 6, 30), (3, 6, 30), (4, 7, 0), (5, 9, 15)]
+    moments := [(0, 5, 0), (0, 6, 30), (4, 8, 0), (5, 10, 0), (6, 22, 45), (2, 23, 59)]
+    week := 7 * 24 * 60
+    for m in moments
+        now := m.0 * 1440 + m.1 * 60 + m.2
+        mut best := week + 1
+        mut pick := 0
+        for i in 0..alarms.len()
+            al := alarms[i]
+            at := al.0 * 1440 + al.1 * 60 + al.2
+            wait := (at - now + week) % week
+            gap := if wait == 0 then week else wait
+            if gap < best
+                best = gap
+                pick = i
+        nx := alarms[pick]
+        print("{days[m.0]} {m.1:02}:{m.2:02} -> {days[nx.0]} {nx.1:02}:{nx.2:02} in {best / 60} h {best % 60} min")
+
+@test fn later_same_day()
+    assert_eq((390 - 300 + 10080) % 10080, 90)

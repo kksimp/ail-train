@@ -1,0 +1,25 @@
+## Beaufort scale: wind speeds in km/h are placed on the 0 to 12 force scale by counting how many
+## lower limits they reach, with the name sailors use for each force.
+
+fn force(kmh int) int
+    limits := [1, 6, 12, 20, 29, 39, 50, 62, 75, 89, 103, 118]
+    mut f := 0
+    for lim in limits
+        if kmh >= lim
+            f += 1
+    f
+
+fn main()
+    names := ["calm", "light air", "light breeze", "gentle breeze", "moderate breeze", "fresh breeze", "strong breeze", "near gale", "gale", "strong gale", "storm", "violent storm", "hurricane force"]
+    readings := [("Mon", 0), ("Tue", 4), ("Wed", 15), ("Thu", 28), ("Fri", 45), ("Sat", 70), ("Sun", 95), ("gust", 130)]
+    mut worst := 0
+    for r in readings
+        day, kmh := r
+        f := force(kmh)
+        if f > worst
+            worst = f
+        print("{day:<4} {kmh:>3} km/h: force {f:>2}, {names[f]}")
+    print("highest force {worst}: {names[worst]}")
+
+@test fn edges()
+    assert_eq(force(12), 3)

@@ -1,0 +1,16 @@
+## Thin lens: 1/f = 1/do + 1/di gives where a converging lens forms the image of an object; a
+## negative distance is a virtual image on the same side, and magnification is -di / do.
+
+fn main()
+    f := 10.0
+    for d_obj in [50.0, 30.0, 20.0, 15.0, 10.0, 5.0]
+        if d_obj == f
+            print("object at {d_obj:>4.1} cm: no image, rays leave parallel")
+        else
+            d_img := 1.0 / (1.0 / f - 1.0 / d_obj)
+            mag := 0.0 - d_img / d_obj
+            kind := if d_img > 0.0 then "real, upside down" else "virtual, upright"
+            print("object at {d_obj:>4.1} cm: image at {d_img:>6.1} cm, x{mag.abs():.2} ({kind})")
+
+@test fn twice_focal()
+    assert_eq(1.0 / (1.0 / 10.0 - 1.0 / 20.0), 20.0)

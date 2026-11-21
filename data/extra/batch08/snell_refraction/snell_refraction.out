@@ -1,0 +1,6 @@
+air to water  20 -> 14.9, 40 -> 28.8, 60 -> 40.5
+air to glass  20 -> 13.2, 40 -> 25.4, 60 -> 35.3
+water to air  20 -> 27.1, 40 -> 59.0, 60 -> reflects
+  critical angle 48.6 degrees
+glass to air  20 -> 30.9, 40 -> 74.6, 60 -> reflects
+  critical angle 41.8 degrees

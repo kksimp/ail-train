@@ -1,0 +1,7 @@
+stomach acid pH  2.00, pOH 12.00 (acidic)
+lemon juice  pH  2.30, pOH 11.70 (acidic)
+coffee       pH  5.00, pOH  9.00 (acidic)
+pure water   pH  7.00, pOH  7.00 (neutral)
+sea water    pH  8.00, pOH  6.00 (basic)
+soap         pH 10.00, pOH  4.00 (basic)
+diluting 0.1 M acid tenfold: 1.0 -> 2.0 -> 3.0 -> 4.0 -> 5.0

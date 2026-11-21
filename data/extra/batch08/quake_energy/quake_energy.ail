@@ -1,0 +1,16 @@
+## Quake energy: each step of one in magnitude releases about 31.6 times more energy
+## (10^1.5); compares earthquakes with a reference magnitude 5 quake.
+
+fn main()
+    ten := 10.0
+    quakes := [("Ridgecrest", 7.1), ("Tohoku", 9.1), ("Christchurch", 6.2), ("Northridge", 6.7), ("local tremor", 3.4)]
+    for q in quakes
+        name, mag := q
+        ratio := ten.pow(1.5 * (mag - 5.0))
+        joules := ten.pow(1.5 * mag + 4.8)
+        rounded := if ratio >= 10.0 then "{ratio:.0}" else "{ratio:.3}"
+        print("{name:<12} M{mag:.1}: {rounded} x an M5, about {joules / 1000000000000.0:.1} TJ")
+
+@test fn same()
+    ten := 10.0
+    assert_eq(ten.pow(0.0), 1.0)

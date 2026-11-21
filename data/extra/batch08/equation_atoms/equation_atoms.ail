@@ -1,0 +1,46 @@
+## Equation balance: counts atoms on each side of chemical equations written with
+## coefficients ("2 H2 + O2 -> 2 H2O") and reports whether they balance.
+
+fn count_atoms(side str) Map[str, int]
+    mut counts := Map[str, int]()
+    for term in side.split(" + ")
+        parts := term.split(" ")
+        mut coef := 1
+        if parts.len() == 2
+            coef = parts[0].to_int() else 1
+        formula := parts[parts.len() - 1].chars()
+        mut i := 0
+        while i < formula.len()
+            mut sym := "{formula[i]}"
+            i += 1
+            if i < formula.len() and formula[i].is_lower()
+                sym = "{sym}{formula[i]}"
+                i += 1
+            mut n := 0
+            while i < formula.len() and formula[i].is_digit()
+                n = n * 10 + (formula[i].to_digit(10) else 0)
+                i += 1
+            each := if n == 0 then 1 else n
+            counts[sym] += coef * each
+    counts
+
+fn main()
+    for eq in ["2 H2 + O2 -> 2 H2O", "CH4 + 2 O2 -> CO2 + 2 H2O", "N2 + H2 -> 2 NH3", "C3H8 + 5 O2 -> 3 CO2 + 4 H2O", "Fe + O2 -> Fe2O3"]
+        sides := eq.split(" -> ")
+        left := count_atoms(sides[0])
+        right := count_atoms(sides[1])
+        mut keys := left.keys()
+        for k in right.keys()
+            if not keys.contains(k)
+                keys.push(k)
+        mut off := List[str]()
+        for k in keys.sorted()
+            l := left.get(k) else 0
+            r := right.get(k) else 0
+            if l != r
+                off.push("{k} {l} vs {r}")
+        verdict := if off.is_empty() then "balanced" else off.join(", ")
+        print("{eq}: {verdict}")
+
+@test fn water()
+    assert_eq(count_atoms("2 H2O")["H"], 4)

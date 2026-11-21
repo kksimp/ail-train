@@ -1,0 +1,43 @@
+## Mentor matching: Gale-Shapley stable matching; students ask mentors in order of preference,
+## and a mentor keeps whichever asker they rank higher, so no pair would rather swap.
+
+fn main()
+    students := ["Ava", "Ben", "Cia", "Dan"]
+    mentors := ["Ng", "Ortiz", "Patel", "Quinn"]
+    wants := [[0, 1, 2, 3], [0, 2, 1, 3], [1, 0, 3, 2], [0, 3, 2, 1]]
+    likes := [[1, 0, 3, 2], [2, 0, 1, 3], [3, 2, 0, 1], [0, 1, 2, 3]]
+    mut rank := List[List[int]]()
+    for m in 0..4
+        mut row := [0, 0, 0, 0]
+        for pos in 0..4
+            row[likes[m][pos]] = pos
+        rank.push(row)
+    mut partner := [-1, -1, -1, -1]
+    mut tried := [0, 0, 0, 0]
+    mut queue := [0, 1, 2, 3]
+    mut head := 0
+    while head < queue.len()
+        s := queue[head]
+        head += 1
+        m := wants[s][tried[s]]
+        tried[s] += 1
+        cur := partner[m]
+        if cur == -1
+            partner[m] = s
+            print("{students[s]} asks {mentors[m]}: yes")
+        elif rank[m][s] < rank[m][cur]
+            partner[m] = s
+            queue.push(cur)
+            print("{students[s]} asks {mentors[m]}: yes, {students[cur]} is free again")
+        else
+            queue.push(s)
+            print("{students[s]} asks {mentors[m]}: no")
+    for m in 0..4
+        print("{mentors[m]} mentors {students[partner[m]]}")
+
+@test fn ranks()
+    likes := [2, 0, 1]
+    mut row := [0, 0, 0]
+    for pos in 0..3
+        row[likes[pos]] = pos
+    assert_eq(row, [1, 2, 0])

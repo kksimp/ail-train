@@ -1,0 +1,28 @@
+## Weather chain: tomorrow's weather depends only on today's, through a table of transition
+## chances; steps the chances forward from a sunny day and finds the long-run share of each.
+
+fn step(dist List[float], table List[List[float]]) List[float]
+    mut out := [0.0, 0.0, 0.0]
+    for from in 0..3
+        for to in 0..3
+            out[to] += dist[from] * table[from][to]
+    out
+
+fn main()
+    names := ["sunny", "cloudy", "rainy"]
+    table := [[0.7, 0.2, 0.1], [0.3, 0.4, 0.3], [0.2, 0.4, 0.4]]
+    mut dist := [1.0, 0.0, 0.0]
+    mut rainy_week := 0.0
+    for day in 1..=7
+        dist = step(dist, table)
+        rainy_week += dist[2]
+        print("day {day}: sunny {dist[0]:.3}, cloudy {dist[1]:.3}, rainy {dist[2]:.3}")
+    print("expected rainy days in the week: {rainy_week:.2}")
+    for n in 0..60
+        dist = step(dist, table)
+    for k in 0..3
+        print("long run {names[k]}: {dist[k]:.3}")
+
+@test fn sums()
+    d := step([1.0, 0.0, 0.0], [[0.5, 0.25, 0.25], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]])
+    assert_eq(d[0] + d[1] + d[2], 1.0)

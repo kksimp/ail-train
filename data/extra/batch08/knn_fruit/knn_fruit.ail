@@ -1,0 +1,37 @@
+## Nearest neighbours: classifies unknown fruit by weight and diameter from the three closest
+## known fruit (features scaled so grams and centimetres count equally), by majority vote.
+
+struct Fruit
+    grams float
+    cm float
+    kind str
+
+fn main()
+    known := [Fruit(grams: 150.0, cm: 7.0, kind: "apple"), Fruit(grams: 170.0, cm: 7.5, kind: "apple"), Fruit(grams: 140.0, cm: 6.8, kind: "apple"), Fruit(grams: 130.0, cm: 6.0, kind: "lemon"), Fruit(grams: 110.0, cm: 5.8, kind: "lemon"), Fruit(grams: 120.0, cm: 5.5, kind: "lemon"), Fruit(grams: 300.0, cm: 9.5, kind: "grapefruit"), Fruit(grams: 330.0, cm: 10.0, kind: "grapefruit"), Fruit(grams: 280.0, cm: 9.0, kind: "grapefruit")]
+    unknown := [(160.0, 7.2), (115.0, 5.6), (290.0, 9.6), (135.0, 6.4), (220.0, 8.2)]
+    for u in unknown
+        grams, cm := u
+        mut order := List[int]()
+        mut dists := List[float]()
+        for k in known
+            dg := (k.grams - grams) / 100.0
+            dc := k.cm - cm
+            dists.push((dg * dg + dc * dc).sqrt())
+        for i in 0..known.len()
+            order.push(i)
+        nearest := order.sorted(by: |i| (dists[i] * 1000000.0).to_int())
+        mut votes := Map[str, int]()
+        mut names := List[str]()
+        for j in 0..3
+            k := known[nearest[j]]
+            votes[k.kind] += 1
+            names.push(k.kind)
+        mut pick := names[0]
+        for name in names
+            if votes[name] > votes[pick]
+                pick = name
+        shown := names.join(", ")
+        print("{grams:.0} g, {cm:.1} cm: neighbours {shown} -> {pick}")
+
+@test fn same()
+    assert_eq((0.0 * 0.0 + 0.0 * 0.0).sqrt(), 0.0)

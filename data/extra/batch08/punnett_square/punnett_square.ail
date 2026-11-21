@@ -1,0 +1,50 @@
+## Punnett squares: every pairing of one allele from each parent, counted by genotype, with
+## the share showing the dominant trait; a two-gene cross gives the 9:3:3:1 split.
+
+fn child(a char, b char) str
+    if a.is_upper() or not b.is_upper() then "{a}{b}" else "{b}{a}"
+
+fn cross(p str, q str)
+    mut counts := Map[str, int]()
+    for a in p.chars()
+        for b in q.chars()
+            counts[child(a, b)] += 1
+    mut parts := List[str]()
+    mut dominant := 0
+    for k in counts.keys().sorted()
+        parts.push("{k} {counts[k]}/4")
+        if k.chars()[0].is_upper()
+            dominant += counts[k]
+    shown := parts.join(", ")
+    print("{p} x {q}: {shown}; dominant look {dominant}/4")
+
+fn gametes(p str) List[str]
+    cs := p.chars()
+    mut out := List[str]()
+    for x in [cs[0], cs[1]]
+        for y in [cs[2], cs[3]]
+            out.push("{x}{y}")
+    out
+
+fn main()
+    cross("Aa", "Aa")
+    cross("AA", "aa")
+    cross("Aa", "aa")
+    mut looks := Map[str, int]()
+    for g in gametes("AaBb")
+        for h in gametes("AaBb")
+            gc := g.chars()
+            hc := h.chars()
+            a_dom := gc[0].is_upper() or hc[0].is_upper()
+            b_dom := gc[1].is_upper() or hc[1].is_upper()
+            first := if a_dom then "A_" else "aa"
+            second := if b_dom then "B_" else "bb"
+            looks["{first}{second}"] += 1
+    mut parts := List[str]()
+    for k in ["A_B_", "A_bb", "aaB_", "aabb"]
+        parts.push("{k} {looks[k]}")
+    shown := parts.join(", ")
+    print("AaBb x AaBb: {shown} of 16")
+
+@test fn order()
+    assert_eq(child('a', 'A'), "Aa")

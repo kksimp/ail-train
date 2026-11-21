@@ -1,0 +1,21 @@
+## Note frequencies: equal temperament puts MIDI note n at 440 * 2^((n - 69) / 12) Hz; names the
+## notes with octaves and measures how far the tempered fifth is from a pure 3:2 fifth.
+
+fn freq(midi int) float
+    two := 2.0
+    440.0 * two.pow((midi - 69).to_float() / 12.0)
+
+fn name(midi int) str
+    names := ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
+    "{names[midi % 12]}{midi / 12 - 1}"
+
+fn main()
+    for midi in [21, 48, 60, 64, 67, 69, 72, 81, 108]
+        print("{midi:>3} {name(midi):<4} {freq(midi):>8.2} Hz")
+    pure := 1.5
+    two := 2.0
+    cents := 1200.0 * pure.ln() / two.ln()
+    print("pure fifth {cents:.2} cents, tempered 700.00, gap {cents - 700.0:.2}")
+
+@test fn octave()
+    assert_eq(freq(81), 880.0)

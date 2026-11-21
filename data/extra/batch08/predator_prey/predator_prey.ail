@@ -1,0 +1,29 @@
+## Predator and prey: the Lotka-Volterra equations for hares and lynxes, stepped with small time
+## steps; the populations rise and fall in turn, the lynx peak lagging the hare peak.
+
+fn main()
+    mut hares := 10.0
+    mut lynx := 5.0
+    birth := 1.1
+    eaten := 0.4
+    gain := 0.1
+    death := 0.4
+    dt := 0.01
+    mut peak_hares := (0.0, 0.0)
+    mut peak_lynx := (0.0, 0.0)
+    for step in 0..=2000
+        t := step.to_float() * dt
+        if step % 200 == 0
+            print("t {t:>4.1}: hares {hares:>5.1}, lynxes {lynx:>5.1}")
+        if hares > peak_hares.1
+            peak_hares = (t, hares)
+        if lynx > peak_lynx.1
+            peak_lynx = (t, lynx)
+        dh := (birth * hares - eaten * hares * lynx) * dt
+        dl := (gain * hares * lynx - death * lynx) * dt
+        hares += dh
+        lynx += dl
+    print("hares peak {peak_hares.1:.1} at t {peak_hares.0:.2}, lynxes peak {peak_lynx.1:.1} at t {peak_lynx.0:.2}")
+
+@test fn balance()
+    assert_eq(0.4 / 0.1, 4.0)
