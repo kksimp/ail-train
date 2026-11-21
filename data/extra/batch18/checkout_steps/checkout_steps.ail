@@ -1,0 +1,50 @@
+## Checkout steps: reserving items, charging a card and booking a courier each return a result
+## that can `Fail`; `checkout` chains them with `?`, so the first failing step stops the order.
+
+struct Order
+    id int
+    item str
+    qty int
+    card_ok bool
+    postcode str
+
+fn reserve(shelf Map[str, int], item str, qty int) int ! Fail
+    have := shelf.get_or(item, 0)
+    if have < qty
+        return Fail(msg: "only {have} {item} on the shelf")
+    have - qty
+
+fn charge(ok bool, cents int) int ! Fail
+    if not ok
+        return Fail(msg: "card declined for {cents} cents")
+    cents
+
+fn courier(postcode str) str ! Fail
+    if postcode.starts_with("ZZ")
+        return Fail(msg: "no courier to {postcode}")
+    "CR-{postcode.len() * 7}"
+
+fn checkout(shelf Map[str, int], o Order) str ! Fail
+    left := reserve(shelf, o.item, o.qty)?
+    paid := charge(o.card_ok, o.qty * 1250)?
+    label := courier(o.postcode)?
+    "order {o.id}: {paid} cents, label {label}, {left} {o.item} left"
+
+fn main() !
+    shelf := {"lamp": 5, "rug": 1}
+    orders := [
+        Order(id: 1, item: "lamp", qty: 2, card_ok: true, postcode: "AB1 2CD"),
+        Order(id: 2, item: "rug", qty: 2, card_ok: true, postcode: "EF3 4GH"),
+        Order(id: 3, item: "lamp", qty: 1, card_ok: false, postcode: "IJ5 6KL"),
+        Order(id: 4, item: "lamp", qty: 3, card_ok: true, postcode: "ZZ9 9ZZ"),
+    ]
+    first := checkout(shelf, orders[0])?
+    print(first)
+    for o in orders.slice(1)
+        if done := checkout(shelf, o)
+            print(done)
+        else err
+            print("order {o.id} stopped: {err.msg}")
+
+@test fn declined()
+    assert_err(charge(false, 100))

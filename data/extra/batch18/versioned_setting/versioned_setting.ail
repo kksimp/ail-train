@@ -1,0 +1,47 @@
+## Versioned setting: a generic `History[T]` keeps every value a setting has had, so it can
+## undo back to the previous value or report the value at any version number (or none).
+
+struct History[T]
+    values List[T]
+
+fn History.start(first T) Self
+    History(values: [first])
+
+fn History.set(mut self, v T)
+    self.values.push(v)
+
+fn History.current(self) T
+    self.values[self.values.len() - 1]
+
+fn History.undo(mut self) bool
+    if self.values.len() < 2
+        return false
+    _ := self.values.pop()
+    true
+
+fn History.at(self, version int) T?
+    if version < 1 or version > self.values.len()
+        return none
+    self.values[version - 1]
+
+fn main()
+    mut target := History[int].start(19)
+    for t in [20, 21, 18]
+        target.set(t)
+        print("thermostat set to {t}")
+    print("now {target.current()} after {target.values.len()} versions")
+    if target.undo()
+        print("undo: back to {target.current()}")
+    v2 := target.at(2) else -1
+    v9 := target.at(9) else -1
+    print("version 2 was {v2}, version 9 is {v9}")
+    mut theme := History[str].start("light")
+    theme.set("dark")
+    first_undo := theme.undo()
+    second_undo := theme.undo()
+    print("theme {theme.current()}, undo results {first_undo} {second_undo}")
+
+@test fn cannot_undo_first()
+    mut h := History[str].start("a")
+    assert_eq(h.undo(), false)
+    assert_eq(h.current(), "a")

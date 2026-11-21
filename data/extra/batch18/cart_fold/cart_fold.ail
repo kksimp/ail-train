@@ -1,0 +1,40 @@
+## Cart fold: a shopping cart is summarised in one pass with `fold` into a `Totals` struct
+## (items, net, VAT at 20% or 5% per line); a helper builds each new accumulator.
+
+struct Line
+    name str
+    qty int
+    cents int
+    reduced bool
+
+struct Totals
+    items int
+    net int
+    vat int
+
+fn add_line(t Totals, l Line) Totals
+    net := l.qty * l.cents
+    rate := if l.reduced then 5 else 20
+    Totals(items: t.items + l.qty, net: t.net + net, vat: t.vat + net * rate / 100)
+
+fn money(c int) str
+    rest := c % 100
+    "{c / 100}.{rest:02}"
+
+fn main()
+    cart := [
+        Line(name: "kettle", qty: 1, cents: 2999, reduced: false),
+        Line(name: "kids coat", qty: 2, cents: 1850, reduced: true),
+        Line(name: "batteries", qty: 4, cents: 325, reduced: false),
+        Line(name: "car seat", qty: 1, cents: 8900, reduced: true),
+    ]
+    t := cart.fold(Totals(items: 0, net: 0, vat: 0), |acc, l| add_line(acc, l))
+    print("{t.items} items, net {money(t.net)}, VAT {money(t.vat)}, total {money(t.net + t.vat)}")
+    reduced := cart.filter(|l| l.reduced).fold(Totals(items: 0, net: 0, vat: 0), |acc, l| add_line(acc, l))
+    print("reduced-rate lines: {reduced.items} items, VAT {money(reduced.vat)}")
+    dearest := cart.max(by: |l| l.qty * l.cents)?.name else "-"
+    print("dearest line: {dearest}")
+
+@test fn one_line()
+    t := add_line(Totals(items: 0, net: 0, vat: 0), Line(name: "x", qty: 2, cents: 500, reduced: false))
+    assert_eq(t.vat, 200)

@@ -1,0 +1,43 @@
+## Badge rules: a walking app's badges are structs holding a name and a `fn(Month) bool` closure;
+## each walker's month is checked with `filter` on the rules and the earned names are listed.
+
+struct Month
+    who str
+    days List[int]
+
+struct Badge
+    name str
+    earned fn(Month) bool
+
+fn total(m Month) int
+    m.days.sum()
+
+fn longest_run(m Month, goal int) int
+    mut best := 0
+    mut run := 0
+    for d in m.days
+        run = if d >= goal then run + 1 else 0
+        best = best.max(run)
+    best
+
+fn main()
+    goal := 8000
+    badges := [
+        Badge(name: "100k club", earned: |m| total(m) >= 100000),
+        Badge(name: "every day", earned: |m| m.days.all(|d| d > 0)),
+        Badge(name: "big day", earned: |m| m.days.any(|d| d >= 20000)),
+        Badge(name: "streak 5", earned: |m| longest_run(m, goal) >= 5),
+    ]
+    walkers := [
+        Month(who: "Noa", days: [9000, 12000, 8500, 8100, 9900, 4000, 21000, 8800, 9100, 10200, 7000, 11000]),
+        Month(who: "Jem", days: [3000, 0, 2500, 4100, 3900, 6000, 5200, 1800, 2600, 4400, 3000, 2000]),
+        Month(who: "Rui", days: [15000, 14000, 16500, 9000, 12000, 13000, 8000, 9500, 11000, 8200, 7900, 10100]),
+    ]
+    for w in walkers
+        got := badges.filter(|b| (b.earned)(w)).map(|b| b.name)
+        joined := if got.is_empty() then "none yet" else got.join(", ")
+        print("{w.who}: {total(w)} steps, best run {longest_run(w, goal)} -> {joined}")
+
+@test fn run_resets()
+    m := Month(who: "x", days: [9000, 9000, 100, 9000])
+    assert_eq(longest_run(m, 8000), 2)

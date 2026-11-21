@@ -1,0 +1,8 @@
+wren buys lantern from rook for 15
+rook cannot pay 40
+wren has no map
+wren buys sword from moss for 30
+rook: 35 gold, [rope, map]
+wren: 10 gold, [potion, lantern, sword]
+moss: 35 gold, [shield]
+gold in play: 80

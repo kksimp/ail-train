@@ -1,0 +1,46 @@
+## Editor commands: an enum `Edit` with payloads (insert text at a position, delete a run,
+## replace a word, upper-case all) is applied to a text buffer one command at a time.
+
+enum Edit
+    Insert(at int, text str)
+    Delete(at int, n int)
+    Replace(old str, new str)
+    Shout
+
+fn apply(buf str, e Edit) str
+    match e
+        Insert(at, text) =>
+            head := buf.slice(0, at)
+            tail := buf.slice(at)
+            "{head}{text}{tail}"
+        Delete(at, n) =>
+            head := buf.slice(0, at)
+            tail := buf.slice((at + n).min(buf.len()))
+            "{head}{tail}"
+        Replace(old, new) => buf.replace(old, new)
+        Shout => buf.to_upper()
+
+fn describe(e Edit) str
+    match e
+        Insert(at, text) => "insert '{text}' at {at}"
+        Delete(at, n) => "delete {n} at {at}"
+        Replace(old, new) => "replace '{old}' with '{new}'"
+        Shout => "upper-case all"
+
+fn main()
+    edits := [
+        Edit.Insert(at: 0, text: "Dear team, "),
+        Edit.Replace(old: "friday", new: "Thursday"),
+        Edit.Delete(at: 11, n: 5),
+        Edit.Insert(at: 11, text: "our call "),
+        Edit.Shout,
+    ]
+    mut buf := "demo moved to friday"
+    print("start: {buf}")
+    for e in edits
+        buf = apply(buf, e)
+        print("{describe(e)} -> {buf}")
+    print("{buf.len()} characters")
+
+@test fn delete_clamps_at_end()
+    assert_eq(apply("abc", Edit.Delete(at: 1, n: 9)), "a")

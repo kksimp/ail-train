@@ -1,0 +1,32 @@
+## Promo codes: checkout codes like SAVE15 or SHIP-FREE are read with `strip_prefix` and
+## `to_int`, both optionals, nested in `if v := ...`; anything unreadable is rejected.
+
+fn discount(code str, basket int) int?
+    if rest := code.strip_prefix("SAVE")
+        pct := rest.to_int()?
+        if pct < 5 or pct > 50
+            return none
+        return basket * pct / 100
+    if code == "SHIP-FREE"
+        return 495
+    none
+
+fn main()
+    basket := 6480
+    codes := ["SAVE15", "SAVE", "SHIP-FREE", "SAVE80", "save10", "SAVE5", "WELCOME"]
+    mut best := 0
+    mut best_code := "none"
+    for c in codes
+        if d := discount(c, basket)
+            print("{c:<10} takes off {d / 100}.{d % 100:02}")
+            if d > best
+                best = d
+                best_code = c
+        else
+            print("{c:<10} rejected")
+    pay := basket - best
+    print("best code {best_code}: pay {pay / 100}.{pay % 100:02}")
+
+@test fn limits()
+    assert(discount("SAVE60", 1000) == none)
+    assert_eq(discount("SAVE10", 1000) else 0, 100)

@@ -1,0 +1,57 @@
+## Order lifecycle: an order's `Status` enum (placed, paid with an amount, shipped by a carrier,
+## delivered on a day, cancelled with a reason) changes only by allowed events; others are refused.
+
+enum Status
+    Placed
+    Paid(cents int)
+    Shipped(carrier str)
+    Delivered(day int)
+    Cancelled(reason str)
+
+enum Event
+    Pay(cents int)
+    Ship(carrier str)
+    Deliver(day int)
+    Cancel(reason str)
+
+fn stage(s Status) int
+    match s
+        Placed => 0
+        Paid => 1
+        Shipped => 2
+        Delivered => 3
+        Cancelled => 4
+
+fn step(s Status, e Event) Status?
+    match e
+        Pay(c) => if stage(s) == 0 then Status.Paid(cents: c) else none
+        Ship(c) => if stage(s) == 1 then Status.Shipped(carrier: c) else none
+        Deliver(d) => if stage(s) == 2 then Status.Delivered(day: d) else none
+        Cancel(r) => if stage(s) == 0 then Status.Cancelled(reason: r) elif stage(s) == 1 then Status.Cancelled(reason: "{r}, refunded") else none
+
+fn show(s Status) str
+    match s
+        Placed => "placed"
+        Paid(c) => "paid {c} cents"
+        Shipped(c) => "shipped by {c}"
+        Delivered(d) => "delivered on day {d}"
+        Cancelled(r) => "cancelled ({r})"
+
+fn run(id int, events List[Event])
+    mut s := Status.Placed
+    mut refused := 0
+    for e in events
+        if t := step(s, e)
+            s = t
+        else
+            refused += 1
+    print("order {id}: {show(s)}, {refused} refused")
+
+fn main()
+    run(1, [Event.Pay(cents: 2599), Event.Ship(carrier: "DHL"), Event.Deliver(day: 4)])
+    run(2, [Event.Ship(carrier: "UPS"), Event.Pay(cents: 1250), Event.Cancel(reason: "changed mind")])
+    run(3, [Event.Pay(cents: 800), Event.Ship(carrier: "post"), Event.Cancel(reason: "late"), Event.Deliver(day: 9)])
+    run(4, [Event.Cancel(reason: "duplicate"), Event.Pay(cents: 500)])
+
+@test fn cannot_ship_unpaid()
+    assert(step(Status.Placed, Event.Ship(carrier: "x")) == none)

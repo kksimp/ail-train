@@ -1,0 +1,37 @@
+## Seating plan versions: a wedding seating plan is a `List[List[str]]`; two planners copy the
+## base plan and swap guests independently, then the versions are compared table by table.
+
+fn swap_guests(mut plan List[List[str]], a str, b str)
+    for t in 0..plan.len()
+        for s in 0..plan[t].len()
+            if plan[t][s] == a
+                plan[t][s] = b
+            elif plan[t][s] == b
+                plan[t][s] = a
+
+fn show(name str, plan List[List[str]])
+    tables := plan.map(|t| t.join("/"))
+    joined := tables.join("  ")
+    print("{name:<5} {joined}")
+
+fn main()
+    base := [["Ada", "Ben", "Cal"], ["Dee", "Eve", "Fin"], ["Gus", "Hal", "Ivy"]]
+    mut mum := base
+    swap_guests(mut mum, "Ben", "Eve")
+    swap_guests(mut mum, "Cal", "Ivy")
+    mut dad := base
+    swap_guests(mut dad, "Ada", "Gus")
+    show("base", base)
+    show("mum", mum)
+    show("dad", dad)
+    for t in 0..base.len()
+        moved := [g for g in mum[t] if not base[t].contains(g)]
+        print("table {t + 1}: mum moved in {moved}")
+    same := [i for i in 0..3 if mum[i] == dad[i]]
+    print("tables both agree on: {same}")
+
+@test fn base_untouched()
+    b := [["a", "b"]]
+    mut c := b
+    swap_guests(mut c, "a", "b")
+    assert_eq(b[0][0], "a")

@@ -1,0 +1,34 @@
+## Eligibility checks: scholarship applicants' module marks are tested with `all` (no mark below
+## 50), `any` (a distinction of 85+), `count` and `find` over the applicants, all with closures.
+
+struct Applicant
+    name str
+    marks List[int]
+    income int
+
+fn eligible(a Applicant) bool
+    a.marks.all(|m| m >= 50) and a.marks.any(|m| m >= 85) and a.income < 30000
+
+fn main()
+    pool := [
+        Applicant(name: "Femi", marks: [72, 88, 65, 91], income: 21000),
+        Applicant(name: "Greta", marks: [95, 49, 90, 88], income: 18000),
+        Applicant(name: "Hugo", marks: [70, 75, 80, 84], income: 25000),
+        Applicant(name: "Isla", marks: [86, 90, 77, 59], income: 34000),
+        Applicant(name: "Jun", marks: [55, 85, 60, 62], income: 12000),
+    ]
+    for a in pool
+        low := a.marks.count(|m| m < 50)
+        high := a.marks.count(|m| m >= 85)
+        verdict := if eligible(a) then "eligible" else "not eligible"
+        print("{a.name:<6} fails {low}, distinctions {high}: {verdict}")
+    n := pool.count(|a| eligible(a))
+    print("{n} of {pool.len()} eligible")
+    if first := pool.find(|a| eligible(a) and a.income < 15000)
+        print("first priority award: {first.name}")
+    all_pass := pool.all(|a| a.marks.all(|m| m >= 50))
+    print("everyone passed every module: {all_pass}")
+
+@test fn needs_distinction()
+    a := Applicant(name: "x", marks: [60, 70], income: 1000)
+    assert_eq(eligible(a), false)

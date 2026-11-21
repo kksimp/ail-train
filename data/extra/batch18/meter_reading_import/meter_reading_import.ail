@@ -1,0 +1,29 @@
+## Meter reading import: monthly electricity readings are checked one by one by a function
+## returning `int ! str` (not a number, going backwards, an implausible jump); bad ones are skipped.
+
+fn check(text str, prev int) int ! str
+    v := text.trim().to_int() else return "'{text}' is not a reading"
+    if v < prev
+        return "{v} is lower than {prev}"
+    if v - prev > 900
+        return "jump of {v - prev} kWh looks wrong"
+    v
+
+fn main()
+    months := ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"]
+    raw := ["10412", "10790", "1O980", "11105", "11002", "12950", " 11388 "]
+    mut prev := 10200
+    mut used := List[int]()
+    mut skipped := 0
+    for i, t in raw.enumerate()
+        v := check(t, prev) else err
+            print("{months[i]}: skipped, {err}")
+            skipped += 1
+            continue
+        used.push(v - prev)
+        print("{months[i]}: {v}, used {v - prev} kWh")
+        prev = v
+    print("{used.sum()} kWh over {used.len()} readings, {skipped} skipped")
+
+@test fn backwards()
+    assert_err(check("5", 10))

@@ -1,0 +1,39 @@
+## Result pages: a generic `Pages[T]` struct splits a list of search hits into pages of a fixed
+## size, with the page count by ceiling division, one page's items and a has-next check.
+
+struct Pages[T]
+    items List[T]
+    size int
+
+fn Pages.of(items List[T], size int) Self
+    Pages(items: items, size: size)
+
+fn Pages.count(self) int
+    (self.items.len() + self.size - 1) / self.size
+
+fn Pages.page(self, n int) List[T]
+    start := (n - 1) * self.size
+    stop := (start + self.size).min(self.items.len())
+    self.items.slice(start, stop)
+
+fn Pages.has_next(self, n int) bool
+    n < self.count()
+
+fn main()
+    hits := ["kettle", "toaster", "blender", "mixer", "scale", "grinder", "juicer"]
+    pages := Pages[str].of(hits, 3)
+    print("{hits.len()} hits on {pages.count()} pages")
+    for n in 1..=pages.count()
+        shown := pages.page(n).join(", ")
+        more := if pages.has_next(n) then "more" else "end"
+        print("page {n}: {shown} ({more})")
+    orders := [1042, 1043, 1050, 1061, 1077]
+    op := Pages[int].of(orders, 2)
+    last := op.page(op.count())
+    print("orders: {op.count()} pages, last page {last}")
+    none_found := Pages[str].of(List[str](), 4)
+    print("empty search: {none_found.count()} pages")
+
+@test fn last_page_short()
+    p := Pages[int].of([1, 2, 3, 4, 5], 2)
+    assert_eq(p.page(3), [5])

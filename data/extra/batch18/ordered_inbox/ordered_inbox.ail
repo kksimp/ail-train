@@ -1,0 +1,48 @@
+## Ordered inbox: a generic `Sorted[T]` list inserts each item after every item not greater
+## than it, so it stays ordered; messages compare by (priority, minute, subject) via `impl Ord`.
+
+struct Sorted[T]
+    items List[T]
+
+fn Sorted.blank() Self
+    Sorted(items: [])
+
+fn Sorted[T Ord].insert(mut self, x T) int
+    mut i := 0
+    while i < self.items.len() and self.items[i] <= x
+        i += 1
+    self.items.insert(i, x)
+    i
+
+struct Msg
+    priority int
+    minute int
+    subject str
+
+impl Ord for Msg
+
+fn main()
+    mut inbox := Sorted[Msg].blank()
+    arrivals := [
+        Msg(priority: 2, minute: 5, subject: "lunch plans"),
+        Msg(priority: 1, minute: 9, subject: "server down"),
+        Msg(priority: 3, minute: 11, subject: "newsletter"),
+        Msg(priority: 1, minute: 2, subject: "invoice overdue"),
+        Msg(priority: 2, minute: 5, subject: "budget review"),
+    ]
+    for m in arrivals
+        at := inbox.insert(m)
+        print("{m.subject} -> position {at}")
+    for m in inbox.items
+        print("p{m.priority} {m.minute:>2}m {m.subject}")
+    mut tickets := Sorted[int].blank()
+    for t in [40, 12, 33, 12, 7]
+        _ := tickets.insert(t)
+    print("tickets {tickets.items}")
+
+@test fn insert_keeps_order()
+    mut s := Sorted[str].blank()
+    first := s.insert("b")
+    second := s.insert("a")
+    assert_eq(first + second, 0)
+    assert_eq(s.items, ["a", "b"])

@@ -1,0 +1,45 @@
+## Mail headers: header lines are split once at ": " with `split(": ", 2)`, folded lines starting
+## with a space join the previous value, and repeated "Re: " prefixes are stripped in a `while` loop.
+
+fn strip_re(s str) str?
+    if r := s.strip_prefix("Re: ")
+        return r
+    s.strip_prefix("RE: ")
+
+fn main()
+    raw := [
+        "From: Lena Ortiz <lena@example.org>",
+        "To: team@example.org",
+        "Subject: Re: Re: RE: Offsite: agenda",
+        "Date: Tue, 17 Nov 2026 09:12:44 +0000",
+        "X-Labels: travel, planning,",
+        "  budget",
+        "Received from mx1",
+    ]
+    mut keys := List[str]()
+    mut values := Map[str, str]()
+    mut bad := 0
+    for line in raw
+        if line.starts_with(" ")
+            if last := keys.last()
+                prev := values[last]
+                more := line.trim()
+                values[last] = "{prev} {more}"
+            continue
+        parts := line.split(": ", 2)
+        if parts.len() < 2
+            bad += 1
+            continue
+        k := parts[0].to_lower()
+        keys.push(k)
+        values[k] = parts[1]
+    for k in keys
+        print("{k:<9} {values[k]}")
+    mut subject := values.get_or("subject", "")
+    while rest := strip_re(subject)
+        subject = rest
+    print("thread topic: {subject}")
+    print("{keys.len()} headers, {bad} unreadable")
+
+@test fn split_once()
+    assert_eq("a: b: c".split(": ", 2), ["a", "b: c"])

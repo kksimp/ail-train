@@ -1,0 +1,33 @@
+## Expense groups: a trip's shared expenses are grouped by category with `group_by`, then each
+## group is totalled with `fold`, and `map` and `max(by:)` find who paid most in each group.
+
+struct Expense
+    who str
+    category str
+    cents int
+
+fn money(c int) str
+    rest := c % 100
+    "{c / 100}.{rest:02}"
+
+fn main()
+    spend := [
+        Expense(who: "Ana", category: "food", cents: 4250),
+        Expense(who: "Ben", category: "fuel", cents: 6100),
+        Expense(who: "Ana", category: "rooms", cents: 18000),
+        Expense(who: "Cai", category: "food", cents: 3875),
+        Expense(who: "Ben", category: "food", cents: 2290),
+        Expense(who: "Cai", category: "fuel", cents: 5400),
+    ]
+    groups := spend.group_by(|e| e.category)
+    for cat, items in groups
+        sum_c := items.fold(0, |acc, e| acc + e.cents)
+        top := items.max(by: |e| e.cents)?.who else "-"
+        print("{cat:<6} {items.len()} items {money(sum_c):>7}, most paid by {top}")
+    whole := spend.fold(0, |acc, e| acc + e.cents)
+    share := whole / 3
+    print("total {money(whole)}, fair share {money(share)} each")
+
+@test fn groups_count()
+    g := ["a", "bb", "c"].group_by(|s| s.len())
+    assert_eq(g.len(), 2)

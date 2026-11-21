@@ -1,0 +1,40 @@
+## Sprinkler program: a garden controller runs a list of enum steps (water a zone for some
+## minutes, pause, skip a zone with a reason); it prints a clock-time schedule and minutes per zone.
+
+enum Step
+    Water(zone int, mins int)
+    Pause(mins int)
+    Skip(zone int, why str)
+
+fn clock(m int) str
+    h := m / 60
+    mm := m % 60
+    "{h:02}:{mm:02}"
+
+fn main()
+    program := [
+        Step.Water(zone: 1, mins: 12),
+        Step.Water(zone: 2, mins: 8),
+        Step.Pause(mins: 15),
+        Step.Skip(zone: 3, why: "soil wet"),
+        Step.Water(zone: 1, mins: 6),
+        Step.Water(zone: 4, mins: 20),
+    ]
+    mut now := 6 * 60
+    mut per_zone := Map[int, int]()
+    for s in program
+        match s
+            Water(zone, mins) =>
+                print("{clock(now)} zone {zone} on for {mins} min")
+                per_zone[zone] += mins
+                now += mins
+            Pause(mins) =>
+                print("{clock(now)} pause {mins} min")
+                now += mins
+            Skip(zone, why) => print("{clock(now)} skip zone {zone}: {why}")
+    print("finished at {clock(now)}")
+    for z in per_zone.keys().sorted()
+        print("zone {z}: {per_zone[z]} min")
+
+@test fn clock_text()
+    assert_eq(clock(390), "06:30")

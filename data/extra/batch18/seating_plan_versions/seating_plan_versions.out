@@ -1,0 +1,7 @@
+base  Ada/Ben/Cal  Dee/Eve/Fin  Gus/Hal/Ivy
+mum   Ada/Eve/Ivy  Dee/Ben/Fin  Gus/Hal/Cal
+dad   Gus/Ben/Cal  Dee/Eve/Fin  Ada/Hal/Ivy
+table 1: mum moved in ["Eve", "Ivy"]
+table 2: mum moved in ["Ben"]
+table 3: mum moved in ["Cal"]
+tables both agree on: []

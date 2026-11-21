@@ -1,0 +1,38 @@
+## Museum tickets: visitors are an enum (adult, child with an age, student with a card number,
+## group with a size, member with an id); `match` prices each, with free entry for small children.
+
+enum Visitor
+    Adult
+    Child(age int)
+    Student(card str)
+    Group(size int)
+    Member(id int)
+
+fn price(v Visitor) int
+    match v
+        Adult => 1600
+        Child(age) => if age < 5 then 0 else 800
+        Student(card) => if card.starts_with("ISIC") then 1000 else 1600
+        Group(size) => if size >= 10 then size * 1200 else size * 1600
+        Member => 0
+
+fn heads(v Visitor) int
+    match v
+        Group(size) => size
+        _ => 1
+
+fn main()
+    queue := [Visitor.Adult, Visitor.Child(age: 3), Visitor.Child(age: 9), Visitor.Student(card: "ISIC-77812"), Visitor.Student(card: "LIB-201"), Visitor.Group(size: 12), Visitor.Member(id: 5531), Visitor.Group(size: 4)]
+    mut takings := 0
+    mut people := 0
+    for v in queue
+        p := price(v)
+        takings += p
+        people += heads(v)
+        cents := p % 100
+        print("{heads(v):>2} visitor(s): {p / 100}.{cents:02}")
+    rest := takings % 100
+    print("{people} people, takings {takings / 100}.{rest:02}")
+
+@test fn toddler_free()
+    assert_eq(price(Visitor.Child(age: 2)), 0)

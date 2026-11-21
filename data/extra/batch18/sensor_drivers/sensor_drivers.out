@@ -1,0 +1,4 @@
+t0: temp: 25.2 C | pressure: 97.5 kPa | humidity 2: 68.4 %
+t1: temp: 26.7 C | pressure: 100.5 kPa | humidity 2: 71.4 %
+t2: temp: 23.1 C | pressure: 102.5 kPa | humidity 2: 63.5 %
+hottest 26.7 C over 3 frames

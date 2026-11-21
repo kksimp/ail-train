@@ -1,0 +1,33 @@
+## Room numbering: a hotel skips any room number containing a 4 and room 13 on every floor; a
+## generator `Seq[int]` yields the allowed numbers per floor and `take(n).collect()` assigns them.
+
+fn has_four(n int) bool
+    text := "{n}"
+    text.contains('4')
+
+fn room_numbers(floor int) Seq[int]
+    mut n := 1
+    while n < 100
+        num := floor * 100 + n
+        text := "{num}"
+        if not text.contains('4') and n != 13
+            yield num
+        n += 1
+
+fn main()
+    per_floor := 16
+    mut all_rooms := List[int]()
+    for floor in [1, 2, 3, 5]
+        rooms := room_numbers(floor).take(per_floor).collect()
+        all_rooms.extend(rooms)
+        first := rooms.first() else 0
+        last := rooms.last() else 0
+        skipped := last - first + 1 - rooms.len()
+        print("floor {floor}: {first} to {last}, {skipped} numbers skipped")
+    clean := all_rooms.all(|r| not has_four(r))
+    print("{all_rooms.len()} rooms, none with a 4: {clean}")
+    sample := room_numbers(1).skip(10).take(4).collect()
+    print("floor 1 rooms 11 to 14: {sample}")
+
+@test fn skips_thirteen()
+    assert_eq(room_numbers(1).take(13).collect().contains(113), false)

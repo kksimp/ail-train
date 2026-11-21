@@ -1,0 +1,51 @@
+## Cart discount: functions change the caller's cart only through `mut` parameters, written again
+## at the call (`add(mut cart, ...)`); a plain parameter gets a copy, so its changes are lost.
+
+struct Item
+    name str
+    qty int
+    cents int
+
+fn add(mut cart List[Item], name str, qty int, cents int)
+    for mut it in cart
+        if it.name == name
+            it.qty += qty
+            return
+    cart.push(Item(name: name, qty: qty, cents: cents))
+
+fn bulk_discount(mut cart List[Item], min_qty int, pct int) int
+    mut saved := 0
+    for mut it in cart
+        if it.qty >= min_qty
+            cut := it.cents * pct / 100
+            it.cents -= cut
+            saved += cut * it.qty
+    saved
+
+fn try_free_gift(cart List[Item]) int
+    mut copy := cart
+    copy.push(Item(name: "gift", qty: 1, cents: 0))
+    copy.len()
+
+fn total(cart List[Item]) int
+    cart.fold(0, |acc, it| acc + it.qty * it.cents)
+
+fn main()
+    mut cart := List[Item]()
+    add(mut cart, "pens", 4, 120)
+    add(mut cart, "paper", 2, 650)
+    add(mut cart, "pens", 8, 120)
+    add(mut cart, "stapler", 1, 899)
+    print("before: {total(cart)} cents, {cart.len()} lines")
+    saved := bulk_discount(mut cart, 10, 15)
+    print("bulk discount saved {saved} cents")
+    for it in cart
+        print("  {it.name:<8} {it.qty:>2} x {it.cents}")
+    print("copy had {try_free_gift(cart)} lines, cart keeps {cart.len()}")
+    print("after: {total(cart)} cents")
+
+@test fn merges_same_name()
+    mut c := List[Item]()
+    add(mut c, "a", 1, 5)
+    add(mut c, "a", 2, 5)
+    assert_eq(c[0].qty, 3)

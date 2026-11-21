@@ -1,0 +1,10 @@
+rejected seat K4: no row K
+rejected seat B: seat is not a number
+rejected seat D0: seats run 1 to 20
+rejected seat : empty
+rejected seat E7x: seat is not a number
+4 good seats
+row 1, seat 1
+row 3, seat 12
+row 8, seat 3
+row 10, seat 20

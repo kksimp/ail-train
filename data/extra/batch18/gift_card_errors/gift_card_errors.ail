@@ -1,0 +1,38 @@
+## Gift card errors: redeeming a gift card fails with an `error enum` (unknown code, expired,
+## balance too low); callers print the error text and `match err` to count each kind.
+
+error enum CardError
+    Unknown(code str) "unknown card {code}"
+    Expired(day int) "card expired on day {day}"
+    Short(balance int) "only {balance} cents left"
+
+fn redeem(mut balances Map[str, int], expiry Map[str, int], code str, cents int, today int) int ! CardError
+    bal := balances.get(code) else return CardError.Unknown(code: code)
+    last := expiry.get_or(code, 9999)
+    if today > last
+        return CardError.Expired(day: last)
+    if bal < cents
+        return CardError.Short(balance: bal)
+    balances[code] = bal - cents
+    bal - cents
+
+fn main()
+    mut balances := {"GC-100": 5000, "GC-200": 1200, "GC-300": 8000}
+    expiry := {"GC-300": 40}
+    uses := [("GC-100", 1999), ("GC-200", 1500), ("GC-999", 500), ("GC-300", 2500), ("GC-100", 3001), ("GC-200", 1200)]
+    mut kinds := [0, 0, 0]
+    for u in uses
+        code, cents := u
+        left := redeem(mut balances, expiry, code, cents, 52) else err
+            print("{code}: refused, {err}")
+            match err
+                Unknown => kinds[0] += 1
+                Expired => kinds[1] += 1
+                Short => kinds[2] += 1
+            continue
+        print("{code}: paid {cents}, {left} left")
+    print("refusals unknown/expired/short: {kinds}")
+
+@test fn too_little()
+    mut b := {"x": 100}
+    assert_err(redeem(mut b, Map[str, int](), "x", 500, 1), CardError.Short)

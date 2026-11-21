@@ -1,0 +1,35 @@
+## Contact fallback: customer records have an optional phone, email and postal address; the best
+## channel is the first one present, chosen with `if v := x` / `elif`, and missing ones are counted.
+
+struct Customer
+    name str
+    phone str?
+    email str?
+    post str?
+
+fn reach(c Customer) str
+    if p := c.phone
+        return "call {p}"
+    if e := c.email
+        return "email {e}"
+    if a := c.post
+        return "write to {a}"
+    "no way to reach"
+
+fn main()
+    people := [
+        Customer(name: "Olu", phone: "0161 496 0012", email: "olu@mail.test", post: none),
+        Customer(name: "Mei", phone: none, email: "mei@mail.test", post: "4 Elm Row"),
+        Customer(name: "Raf", phone: none, email: none, post: "9 Quay St"),
+        Customer(name: "Tia", phone: none, email: none, post: none),
+    ]
+    for c in people
+        print("{c.name}: {reach(c)}")
+    no_phone := people.count(|c| c.phone == none)
+    print("{no_phone} of {people.len()} have no phone")
+    emails := [(c.email else "-") for c in people]
+    print("emails: {emails}")
+
+@test fn email_when_no_phone()
+    c := Customer(name: "x", phone: none, email: "a@b", post: none)
+    assert_eq(reach(c), "email a@b")

@@ -1,0 +1,42 @@
+## Fridge scan: shelves of items with days until their use-by date; a labelled loop uses
+## `continue outer` to note each shelf's first item due today and `break outer` at the first expired one.
+
+struct Item
+    name str
+    days int
+
+fn main()
+    shelves := [
+        [Item(name: "yoghurt", days: 2), Item(name: "milk", days: 0), Item(name: "cream", days: 0)],
+        [Item(name: "ham", days: 3), Item(name: "cheese", days: 9)],
+        [Item(name: "salad", days: 0), Item(name: "chicken", days: -1), Item(name: "eggs", days: 12)],
+        [Item(name: "jam", days: 90)],
+    ]
+    mut today := List[str]()
+    outer: for i, shelf in shelves.enumerate()
+        for it in shelf
+            if it.days == 0
+                today.push("shelf {i + 1}: {it.name}")
+                continue outer
+    for t in today
+        print("use today, {t}")
+    mut checked := 0
+    mut found := "nothing"
+    scan: for shelf in shelves
+        for it in shelf
+            checked += 1
+            if it.days < 0
+                found = it.name
+                break scan
+    print("first expired: {found} after checking {checked} items")
+    total := shelves.map(|s| s.len()).sum()
+    print("{total} items in the fridge")
+
+@test fn labelled_break()
+    mut n := 0
+    out: for a in 0..3
+        for b in 0..3
+            n += 1
+            if b == 1
+                break out
+    assert_eq(n, 2)

@@ -1,0 +1,8 @@
+sourdough  oven 1 from   0 to  45
+baguettes  oven 2 from   0 to  25
+croissants oven 2 from  25 to  43
+rye        oven 2 from  43 to  93
+buns       oven 1 from  45 to  65
+focaccia   oven 1 from  65 to  95
+all baked after 95 minutes
+oven 2 is free first, at 93

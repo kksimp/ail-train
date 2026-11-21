@@ -1,0 +1,40 @@
+## Nested pricing: a recursive enum `Price` (a fixed price, a rate per kg, a bundle of prices, a
+## percentage off another price) describes deli offers; one recursive `match` totals each in cents.
+
+enum Price
+    Fixed(cents int)
+    PerKg(cents int, grams int)
+    Bundle(parts List[Price])
+    Off(pct int, inner Price)
+
+fn total(p Price) int
+    match p
+        Fixed(c) => c
+        PerKg(c, g) => c * g / 1000
+        Bundle(parts) => parts.map(|x| total(x)).sum()
+        Off(pct, inner) =>
+            full := total(inner)
+            full - full * pct / 100
+
+fn depth(p Price) int
+    match p
+        Bundle(parts) => 1 + (parts.map(|x| depth(x)).max() else 0)
+        Off(_, inner) => 1 + depth(inner)
+        _ => 1
+
+fn euros(c int) str
+    rest := c % 100
+    "{c / 100}.{rest:02}"
+
+fn main()
+    cheese := Price.PerKg(cents: 2400, grams: 350)
+    olives := Price.PerKg(cents: 1290, grams: 200)
+    bread := Price.Fixed(cents: 320)
+    picnic := Price.Off(pct: 10, inner: Price.Bundle(parts: [cheese, olives, bread]))
+    offers := [("cheese", cheese), ("olives", olives), ("bread", bread), ("picnic box", picnic), ("two boxes", Price.Bundle(parts: [picnic, picnic]))]
+    for o in offers
+        name, p := o
+        print("{name:<10} {euros(total(p)):>6} (depth {depth(p)})")
+
+@test fn percent_off()
+    assert_eq(total(Price.Off(pct: 25, inner: Price.Fixed(cents: 400))), 300)

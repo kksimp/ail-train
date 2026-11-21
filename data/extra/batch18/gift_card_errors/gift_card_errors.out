@@ -1,0 +1,7 @@
+GC-100: paid 1999, 3001 left
+GC-200: refused, only 1200 cents left
+GC-999: refused, unknown card GC-999
+GC-300: refused, card expired on day 40
+GC-100: paid 3001, 0 left
+GC-200: paid 1200, 0 left
+refusals unknown/expired/short: [1, 1, 1]

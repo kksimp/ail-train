@@ -1,0 +1,33 @@
+## Charger finder: EV chargers have a plug type, free bays and a distance; `filter` and
+## `min(by:)` give the nearest free charger with the right plug as an optional, or none in range.
+
+struct Charger
+    site str
+    plug str
+    free int
+    km int
+
+fn nearest(all List[Charger], plug str, max_km int) Charger?
+    all.filter(|c| c.plug == plug and c.free > 0 and c.km <= max_km).min(by: |c| c.km)
+
+fn main()
+    sites := [
+        Charger(site: "Retail Park", plug: "CCS", free: 0, km: 2),
+        Charger(site: "Hotel", plug: "Type2", free: 2, km: 5),
+        Charger(site: "Motorway Services", plug: "CCS", free: 3, km: 11),
+        Charger(site: "Town Hall", plug: "CCS", free: 1, km: 7),
+        Charger(site: "Garage", plug: "CHAdeMO", free: 1, km: 26),
+    ]
+    asks := [("CCS", 15), ("Type2", 4), ("CHAdeMO", 30), ("Type2", 10)]
+    for a in asks
+        plug, range_km := a
+        if c := nearest(sites, plug, range_km)
+            print("{plug} within {range_km} km: {c.site} ({c.km} km, {c.free} free)")
+        else
+            print("{plug} within {range_km} km: none")
+    busy := sites.filter(|c| c.free == 0).map(|c| c.site)
+    print("full right now: {busy}")
+
+@test fn none_when_far()
+    s := [Charger(site: "a", plug: "CCS", free: 1, km: 50)]
+    assert(nearest(s, "CCS", 10) == none)

@@ -1,0 +1,36 @@
+## Date field errors: a form's date field "YYYY-MM-DD" is read into a day of the year; a typed
+## `error enum` says whether the shape, the month or the day (past the month's length) was wrong.
+
+error enum DateError
+    Shape(text str) "'{text}' is not YYYY-MM-DD"
+    Month(m int) "month {m} does not exist"
+    Day(d int, last int) "day {d} is past the {last}th"
+
+fn leap(y int) bool
+    (y % 4 == 0 and y % 100 != 0) or y % 400 == 0
+
+fn day_of_year(text str) int ! DateError
+    p := text.split("-")
+    if p.len() != 3 or p[0].len() != 4
+        return DateError.Shape(text: text)
+    y := p[0].to_int() else return DateError.Shape(text: text)
+    m := p[1].to_int() else return DateError.Shape(text: text)
+    d := p[2].to_int() else return DateError.Shape(text: text)
+    if m < 1 or m > 12
+        return DateError.Month(m: m)
+    feb := if leap(y) then 29 else 28
+    lengths := [31, feb, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+    if d < 1 or d > lengths[m - 1]
+        return DateError.Day(d: d, last: lengths[m - 1])
+    lengths.slice(0, m - 1).sum() + d
+
+fn main()
+    for t in ["2024-03-01", "2023-03-01", "2024-02-30", "2024-13-02", "24-01-05", "2000-12-31", "2026-11-21"]
+        if n := day_of_year(t)
+            print("{t}: day {n}")
+        else err
+            print("{t}: {err}")
+
+@test fn leap_years()
+    assert(leap(2000))
+    assert_eq(leap(1900), false)

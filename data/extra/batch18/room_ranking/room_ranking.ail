@@ -1,0 +1,39 @@
+## Room ranking: hotel rooms get a hand-written `impl Ord` whose `cmp` orders by price, then by
+## rating from best down, then by name; `sorted`, `min` and `<` all follow that order.
+
+struct Room
+    name str
+    price int
+    rating int
+
+impl Ord for Room
+    fn cmp(self, other Self) Ordering
+        if price != other.price
+            return price.cmp(other.price)
+        if rating != other.rating
+            return other.rating.cmp(rating)
+        if name < other.name then Less elif name > other.name then Greater else Equal
+
+fn main()
+    rooms := [
+        Room(name: "Harbour View", price: 120, rating: 4),
+        Room(name: "Old Mill", price: 95, rating: 3),
+        Room(name: "Garden Suite", price: 120, rating: 5),
+        Room(name: "Station Inn", price: 95, rating: 3),
+        Room(name: "Loft 9", price: 140, rating: 5),
+    ]
+    for i, r in rooms.sorted().enumerate()
+        stars := "*".repeat(r.rating)
+        print("{i + 1}. {r.name:<13} {r.price:>4} {stars}")
+    if best := rooms.min()
+        print("first pick: {best.name}")
+    print("Garden Suite before Harbour View: {rooms[2] < rooms[0]}")
+    budget := 110
+    cheap := rooms.filter(|r| r.price <= budget).map(|r| r.name)
+    joined := cheap.join(", ")
+    print("within {budget}: {joined}")
+
+@test fn rating_breaks_price_tie()
+    a := Room(name: "a", price: 100, rating: 5)
+    b := Room(name: "b", price: 100, rating: 2)
+    assert(a < b)

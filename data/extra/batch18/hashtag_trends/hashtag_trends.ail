@@ -1,0 +1,29 @@
+## Hashtag trends: hashtags in a stream of posts are counted case-insensitively in a `Map`, and
+## `m.top(3)` names the most used ones (ties keep first-seen order) for a trending panel.
+
+fn tags_in(text str) List[str]
+    text.words().filter(|w| w.starts_with("#") and w.len() > 1).map(|w| w.to_lower())
+
+fn main()
+    posts := [
+        "Morning run by the river #running #Sunrise",
+        "New PB today! #Running #marathon",
+        "Coffee first #sunrise #coffee",
+        "Rain again #running",
+        "Trying oat milk #Coffee #vegan",
+        "Hill reps done #marathon #running",
+        "Lazy sunday # nothing",
+    ]
+    mut counts := Map[str, int]()
+    for p in posts
+        for t in tags_in(p)
+            counts[t] += 1
+    trending := counts.top(3)
+    for i, t in trending.enumerate()
+        print("{i + 1}. {t} ({counts[t]} posts)")
+    once := counts.keys().filter(|k| counts[k] == 1).sorted()
+    print("used once: {once}")
+    print("{counts.len()} distinct tags in {posts.len()} posts")
+
+@test fn ignores_bare_hash()
+    assert_eq(tags_in("a # b #C"), ["#c"])

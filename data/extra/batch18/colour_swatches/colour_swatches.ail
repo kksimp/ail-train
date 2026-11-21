@@ -1,0 +1,43 @@
+## Colour swatches: `impl Eq` makes two paints equal when their RGB values match, whatever the
+## name; generic helpers with a `T Eq` bound find each brand B paint's twin in brand A's range.
+
+struct Paint
+    name str
+    r int
+    g int
+    b int
+
+impl Eq for Paint
+    fn eq(self, other Self) bool
+        r == other.r and g == other.g and b == other.b
+
+fn first_same[T Eq](xs List[T], x T) int?
+    for i in 0..xs.len()
+        if xs[i] == x
+            return i
+    none
+
+fn count_same[T Eq](xs List[T], x T) int
+    xs.count(|y| y == x)
+
+fn hex(p Paint) str
+    "#{p.r:02x}{p.g:02x}{p.b:02x}"
+
+fn main()
+    brand_a := [Paint(name: "Harbour Fog", r: 176, g: 196, b: 202), Paint(name: "Clay", r: 186, g: 112, b: 78), Paint(name: "Moss", r: 96, g: 120, b: 64), Paint(name: "Chalk", r: 240, g: 236, b: 226)]
+    brand_b := [Paint(name: "Sea Mist", r: 176, g: 196, b: 202), Paint(name: "Terracotta", r: 190, g: 110, b: 80), Paint(name: "Old Linen", r: 240, g: 236, b: 226)]
+    for p in brand_b
+        if i := first_same(brand_a, p)
+            print("{p.name} {hex(p)} = {brand_a[i].name}")
+        else
+            print("{p.name} {hex(p)}: no twin")
+    mut both := brand_a
+    both.extend(brand_b)
+    chalk := brand_a[3]
+    print("{chalk.name} appears {count_same(both, chalk)} times across both ranges")
+    fake := Paint(name: "Clay", r: 0, g: 0, b: 0)
+    print("same name, other colour: {fake == brand_a[1]}")
+
+@test fn names_ignored()
+    a := Paint(name: "x", r: 1, g: 2, b: 3)
+    assert(a == Paint(name: "y", r: 1, g: 2, b: 3))

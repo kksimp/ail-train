@@ -1,0 +1,29 @@
+## Survey skips: answers are a `List[int?]` where `none` marks a skipped question; averages use
+## answered questions only, and `first()` gives an `int??` that tells an empty form from a skip.
+
+fn describe_first(xs List[int?]) str
+    if v := xs.first()
+        if score := v
+            return "first answer {score}"
+        return "first question skipped"
+    "empty form"
+
+fn report(who str, answers List[int?]) int
+    given := [(a else 0) for a in answers if a != none]
+    if given.is_empty()
+        print("{who}: no answers ({describe_first(answers)})")
+        return answers.len()
+    mean := given.sum().to_float() / given.len().to_float()
+    print("{who}: mean {mean:.2} from {given.len()} answers, {describe_first(answers)}")
+    answers.len() - given.len()
+
+fn main()
+    mut skipped := report("Ama", [4, 5, none, 3, 5])
+    skipped += report("Ben", [none, 2, 2, none, 1])
+    skipped += report("Caz", [])
+    skipped += report("Dev", [5, 5, 4, 4, 5])
+    print("{skipped} questions skipped in total")
+
+@test fn skip_vs_empty()
+    assert_eq(describe_first([none, 3]), "first question skipped")
+    assert_eq(describe_first(List[int?]()), "empty form")

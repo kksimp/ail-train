@@ -1,0 +1,27 @@
+## Initial avatars: a chat app draws an avatar from a display name: the first letters of the
+## first and last words in capitals, and a colour picked by the sum of character codes mod 6.
+
+COLOURS := ["red", "teal", "amber", "plum", "navy", "olive"]
+
+fn initials(name str) str
+    ws := name.words()
+    if ws.is_empty()
+        return "?"
+    a := ws[0].char_at(0) else '?'
+    if ws.len() == 1
+        b := ws[0].char_at(1) else ' '
+        return "{a.to_upper()}{b}".trim()
+    z := ws[ws.len() - 1].char_at(0) else '?'
+    "{a.to_upper()}{z.to_upper()}"
+
+fn colour(name str) str
+    codes := name.chars().map(|c| c.code()).sum()
+    COLOURS[codes % COLOURS.len()]
+
+fn main()
+    for n in ["ada lovelace", "Grace Brewster Hopper", "linus", "  ", "Zoë Kravitz", "x"]
+        shown := if n.trim().is_empty() then "(blank)" else n
+        print("{shown:<22} {initials(n):<3} {colour(n)}")
+
+@test fn two_words()
+    assert_eq(initials("mary ann"), "MA")

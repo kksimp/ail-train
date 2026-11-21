@@ -1,0 +1,34 @@
+## Click heatmap: clicks on an 800 by 400 page (from a seeded LCG, every third one on the buy
+## button) are binned into a built-in `Grid` of 100-pixel cells and drawn as a character heatmap.
+
+fn shade(n int) char
+    if n == 0 then '.' elif n == 1 then '-' elif n < 4 then '+' else '#'
+
+fn main()
+    mut g := Grid.fill(4, 8, 0)
+    mut seed := 2026
+    for i in 0..60
+        seed = (seed * 1103515245 + 12345) % 2147483648
+        mut x := (seed / 65536) % 800
+        mut y := (seed / 7) % 400
+        if i % 3 == 0
+            x = 650 + seed % 50
+            y = 300 + seed % 40
+        g[y / 100, x / 100] += 1
+    for r in 0..g.rows
+        cells := g.row(r).map(|n| shade(n))
+        drawn := cells.join("")
+        print("{drawn}  {g.row(r).sum()}")
+    mut best := 0
+    mut at := (0, 0)
+    for r in 0..g.rows
+        for c in 0..g.cols
+            if g[r, c] > best
+                best = g[r, c]
+                at = (r, c)
+    print("hottest cell row {at.0} col {at.1} with {best} clicks")
+
+@test fn grid_counts()
+    mut g := Grid.fill(2, 2, 0)
+    g[1, 0] += 3
+    assert_eq(g[1, 0], 3)

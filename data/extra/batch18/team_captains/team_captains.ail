@@ -1,0 +1,32 @@
+## Team captains: each team may name a captain by shirt number; a function returning `Player?`
+## uses `x?` and `find`, and callers read fields through `captain(t)?.name else ...`.
+
+struct Player
+    no int
+    name str
+
+struct Team
+    name str
+    players List[Player]
+    captain_no int?
+
+fn captain(t Team) Player?
+    no := t.captain_no?
+    t.players.find(|p| p.no == no)
+
+fn main()
+    teams := [
+        Team(name: "Rovers", players: [Player(no: 4, name: "Diaz"), Player(no: 9, name: "Okoro"), Player(no: 1, name: "Berg")], captain_no: 9),
+        Team(name: "United", players: [Player(no: 7, name: "Lam"), Player(no: 5, name: "Hart")], captain_no: none),
+        Team(name: "Athletic", players: [Player(no: 3, name: "Sato"), Player(no: 8, name: "Kane")], captain_no: 10),
+    ]
+    for t in teams
+        who := captain(t)?.name else "no captain"
+        first := t.players.first()?.name else "nobody"
+        print("{t.name}: captain {who}, first listed {first}")
+    named := teams.count(|t| captain(t) != none)
+    print("{named} of {teams.len()} teams have a valid captain")
+
+@test fn missing_number()
+    t := Team(name: "x", players: [Player(no: 1, name: "a")], captain_no: 2)
+    assert(captain(t) == none)

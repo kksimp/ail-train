@@ -1,0 +1,6 @@
+cheapest: IB6250 at 156
+quickest: BA0117 in 7h50
+longest: IB6250 in 12h00
+fewest stops, then cheapest: VS0003
+direct: ["BA0117", "VS0003"]
+average fare 277

@@ -1,0 +1,31 @@
+## Clipboard history: copies go to the front of a `Deque` holding at most four entries, the
+## oldest falling off the back; copying an entry again moves it to the front instead of repeating it.
+
+fn copy(mut h Deque[str], text str)
+    if h.to_list().contains(text)
+        rest := h.to_list().filter(|t| t != text)
+        h = Deque[str]()
+        for t in rest
+            h.push_back(t)
+    h.push_front(text)
+    if h.len() > 4
+        dropped := h.pop_back() else ""
+        print("  (dropped '{dropped}')")
+
+fn main()
+    mut h := Deque[str]()
+    for text in ["invoice #4471", "kim@site.io", "SELECT * FROM users", "kim@site.io", "+44 20 7946 0958", "https://ail.dev", "invoice #4471"]
+        print("copy '{text}'")
+        copy(mut h, text)
+    joined := h.to_list().join(" | ")
+    print("history: {joined}")
+    print("paste 2nd: {h[1]}")
+    oldest := h.last() else ""
+    print("oldest kept: {oldest}")
+
+@test fn moves_to_front()
+    mut h := Deque[str]()
+    copy(mut h, "a")
+    copy(mut h, "b")
+    copy(mut h, "a")
+    assert_eq(h.to_list(), ["a", "b"])

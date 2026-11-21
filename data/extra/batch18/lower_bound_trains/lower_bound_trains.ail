@@ -1,0 +1,39 @@
+## Lower bound trains: a generic binary search `lower_bound[T Ord]` finds the first item not less
+## than a key; used on departure times (a `Clock` with derived `impl Ord`) and on sorted fares.
+
+struct Clock
+    h int
+    m int
+
+impl Ord for Clock
+
+fn lower_bound[T Ord](xs List[T], x T) int
+    mut lo := 0
+    mut hi := xs.len()
+    while lo < hi
+        mid := (lo + hi) / 2
+        if xs[mid] < x
+            lo = mid + 1
+        else
+            hi = mid
+    lo
+
+fn show(c Clock) str
+    "{c.h:02}:{c.m:02}"
+
+fn main()
+    trains := [Clock(h: 6, m: 15), Clock(h: 7, m: 5), Clock(h: 7, m: 40), Clock(h: 9, m: 0), Clock(h: 12, m: 30), Clock(h: 17, m: 45), Clock(h: 22, m: 10)]
+    for now in [Clock(h: 5, m: 50), Clock(h: 7, m: 5), Clock(h: 13, m: 0), Clock(h: 23, m: 0)]
+        i := lower_bound(trains, now)
+        if i < trains.len()
+            wait := (trains[i].h * 60 + trains[i].m) - (now.h * 60 + now.m)
+            print("at {show(now)}: next train {show(trains[i])}, wait {wait} min")
+        else
+            print("at {show(now)}: no more trains today")
+    fares := [8, 12, 12, 19, 25, 40]
+    for cap in [12, 20]
+        n := lower_bound(fares, cap + 1)
+        print("fares up to {cap}: {n} of {fares.len()}")
+
+@test fn finds_first_equal()
+    assert_eq(lower_bound([1, 3, 3, 5], 3), 1)

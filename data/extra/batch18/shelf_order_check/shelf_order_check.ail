@@ -1,0 +1,37 @@
+## Shelf order check: library call numbers (class, author code, year) get a derived `impl Ord`
+## comparing fields in order; books smaller than the one before them are flagged as misplaced.
+
+struct CallNo
+    class int
+    cutter str
+    year int
+
+impl Ord for CallNo
+
+fn label(c CallNo) str
+    "{c.class} {c.cutter} {c.year}"
+
+fn main()
+    shelf := [
+        CallNo(class: 510, cutter: "ADA", year: 1999),
+        CallNo(class: 510, cutter: "BRO", year: 2004),
+        CallNo(class: 512, cutter: "ALT", year: 2011),
+        CallNo(class: 510, cutter: "CHE", year: 1987),
+        CallNo(class: 512, cutter: "ALT", year: 2008),
+        CallNo(class: 516, cutter: "KIM", year: 2020),
+        CallNo(class: 519, cutter: "DOE", year: 2015),
+    ]
+    mut wrong := 0
+    for i in 1..shelf.len()
+        if shelf[i] < shelf[i - 1]
+            wrong += 1
+            print("misplaced: {label(shelf[i])} after {label(shelf[i - 1])}")
+    print("{wrong} books out of order")
+    fixed := shelf.sorted()
+    print("first {label(fixed[0])}, last {label(fixed[fixed.len() - 1])}")
+    returned := CallNo(class: 512, cutter: "ALT", year: 2010)
+    spot := fixed.count(|c| c < returned)
+    print("returned book {label(returned)} goes at position {spot + 1}")
+
+@test fn year_breaks_tie()
+    assert(CallNo(class: 1, cutter: "A", year: 2000) < CallNo(class: 1, cutter: "A", year: 2001))

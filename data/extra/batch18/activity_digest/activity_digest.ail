@@ -1,0 +1,42 @@
+## Activity digest: notifications are an enum (mention, like, follow, reply) with payloads; a
+## digest counts likes per post in a `Map`, lists new followers and quotes replies.
+
+enum Notice
+    Mention(by str, post int)
+    Like(by str, post int)
+    Follow(by str)
+    Reply(by str, text str)
+
+fn main()
+    feed := [
+        Notice.Like(by: "kai", post: 12),
+        Notice.Follow(by: "noor"),
+        Notice.Like(by: "lu", post: 12),
+        Notice.Reply(by: "kai", text: "great shot!"),
+        Notice.Mention(by: "ren", post: 15),
+        Notice.Like(by: "noor", post: 15),
+        Notice.Like(by: "ren", post: 12),
+        Notice.Follow(by: "max"),
+    ]
+    mut likes := Map[int, int]()
+    mut followers := List[str]()
+    mut lines := List[str]()
+    for n in feed
+        match n
+            Like(_, post) => likes[post] += 1
+            Follow(by) => followers.push(by)
+            Mention(by, post) => lines.push("{by} mentioned you on post {post}")
+            Reply(by, text) => lines.push("{by} replied: {text}")
+    for pid in likes.keys().sorted()
+        print("post {pid}: {likes[pid]} likes")
+    joined := followers.join(" and ")
+    print("new followers: {joined}")
+    for l in lines
+        print(l)
+    print("{feed.len()} notifications in one digest")
+
+@test fn map_counts()
+    mut m := Map[int, int]()
+    m[3] += 1
+    m[3] += 1
+    assert_eq(m[3], 2)

@@ -1,0 +1,45 @@
+## Loan breakdown: one generic `count_by[T]` takes any list and a key function and counts the
+## items per key in a `Map`; used on library loans by genre and by length band, and on names.
+
+struct Loan
+    title str
+    genre str
+    days int
+
+fn count_by[T](xs List[T], key fn(T) str) Map[str, int]
+    mut out := Map[str, int]()
+    for x in xs
+        out[key(x)] += 1
+    out
+
+fn length_band(l Loan) str
+    if l.days <= 7 then "week" elif l.days <= 21 then "fortnight+" else "long"
+
+fn parity(n int) str
+    if n % 2 == 0 then "even" else "odd"
+
+fn show(title str, counts Map[str, int])
+    parts := ["{k}={v}" for k, v in counts]
+    joined := parts.join(" ")
+    print("{title}: {joined}")
+
+fn main()
+    loans := [
+        Loan(title: "Dune", genre: "sf", days: 14),
+        Loan(title: "Emma", genre: "classic", days: 7),
+        Loan(title: "Hyperion", genre: "sf", days: 28),
+        Loan(title: "Rebecca", genre: "classic", days: 21),
+        Loan(title: "Gone Girl", genre: "crime", days: 5),
+        Loan(title: "Solaris", genre: "sf", days: 7),
+    ]
+    show("by genre", count_by(loans, |l| l.genre))
+    show("by length", count_by(loans, length_band))
+    borrowers := ["mia", "max", "ola", "mo", "ike", "oto"]
+    show("by initial", count_by(borrowers, |s| s.slice(0, 1)))
+    longest := loans.max(by: |l| l.days)
+    if top := longest
+        print("longest loan: {top.title} ({top.days} days)")
+
+@test fn counts_ints()
+    c := count_by([1, 2, 3, 4], parity)
+    assert_eq(c["odd"], 2)

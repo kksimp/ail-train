@@ -1,0 +1,31 @@
+## Door lock rules: a washing machine decides its door lock by matching a tuple of (running,
+## water in the drum, drum hot) against arms with `bool` literals and `_` wildcards.
+
+fn lock_state(running bool, water bool, hot bool) str
+    match (running, water, hot)
+        (true, _, _) => "locked: program running"
+        (false, true, _) => "locked: draining water"
+        (false, false, true) => "locked: cooling down"
+        _ => "open"
+
+fn main()
+    mut temp := 60
+    mut water := 30
+    mut running := true
+    mut minute := 0
+    while minute < 12
+        hot := temp >= 45
+        state := lock_state(running, water > 0, hot)
+        print("min {minute:>2}: temp {temp}, water {water} l -> {state}")
+        if state == "open"
+            break
+        if minute == 2
+            running = false
+        if not running
+            water = (water - 15).max(0)
+        temp -= 3
+        minute += 1
+    print("door opens after {minute} minutes")
+
+@test fn idle_is_open()
+    assert_eq(lock_state(false, false, false), "open")

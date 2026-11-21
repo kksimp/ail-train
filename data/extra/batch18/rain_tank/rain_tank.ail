@@ -1,0 +1,41 @@
+## Rain tank: a water butt struct with `invariant` lines (level between 0 and capacity) that hold
+## after every `mut self` method; rain past the top spills, and garden use draws what is there.
+
+struct Tank
+    cap int
+    level int
+    spilled int
+    invariant level >= 0
+    invariant level <= cap
+
+fn Tank.rain(mut self, litres int)
+    requires litres >= 0
+    room := self.cap - self.level
+    if litres > room
+        self.spilled += litres - room
+        self.level = self.cap
+    else
+        self.level += litres
+
+fn Tank.draw(mut self, want int) int
+    requires want >= 0
+    got := want.min(self.level)
+    self.level -= got
+    got
+
+fn main()
+    mut t := Tank(cap: 300, level: 120, spilled: 0)
+    rain_mm := [0, 4, 9, 0, 0, 1, 6]
+    roof := 32
+    mut short := 0
+    for day, mm in rain_mm.enumerate()
+        t.rain(mm * roof)
+        got := t.draw(60)
+        short += 60 - got
+        print("day {day + 1}: {mm} mm, drew {got} l, level {t.level}/{t.cap}")
+    print("spilled {t.spilled} l, garden short by {short} l")
+
+@test fn draw_stops_at_empty()
+    mut t := Tank(cap: 10, level: 4, spilled: 0)
+    assert_eq(t.draw(9), 4)
+    assert_eq(t.level, 0)

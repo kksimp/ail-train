@@ -1,0 +1,6 @@
+original   [12, 60, 128, 200, 245, 90]
+brighter   [52, 100, 168, 240, 255, 130]
+inverted   [243, 195, 127, 55, 10, 165]
+pipeline   [255, 255, 0, 0, 0, 255]
+dark+flip  [255, 245, 177, 105, 60, 215]
+3 of 6 pixels end up white

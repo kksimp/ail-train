@@ -1,0 +1,36 @@
+## Quiz places: quiz teams are sorted by score with `sorted(by:)` on a negated key, then given
+## shared places on ties (1, 2, 2, 4) by comparing each score with the one before it.
+
+struct Team
+    name str
+    score int
+
+fn places(sorted_teams List[Team]) List[int]
+    mut out := List[int]()
+    for i, t in sorted_teams.enumerate()
+        if i > 0 and t.score == sorted_teams[i - 1].score
+            out.push(out[i - 1])
+        else
+            out.push(i + 1)
+    out
+
+fn main()
+    teams := [
+        Team(name: "Quizzly Bears", score: 41),
+        Team(name: "Know-it-Owls", score: 47),
+        Team(name: "Les Quizerables", score: 41),
+        Team(name: "Trivia Newton", score: 38),
+        Team(name: "Agatha Quiztie", score: 47),
+        Team(name: "Pub Brains", score: 29),
+    ]
+    ranked := teams.sorted(by: |t| -t.score)
+    ps := places(ranked)
+    for i, t in ranked.enumerate()
+        tie := if i > 0 and ps[i] == ps[i - 1] then "=" else " "
+        print("{ps[i]}{tie} {t.name:<16} {t.score}")
+    shared := ps.count(|p| ps.count(|q| q == p) > 1)
+    print("{shared} teams share a place")
+
+@test fn ties_share()
+    ts := [Team(name: "a", score: 5), Team(name: "b", score: 5), Team(name: "c", score: 3)]
+    assert_eq(places(ts), [1, 1, 3])

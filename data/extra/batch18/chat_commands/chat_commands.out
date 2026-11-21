@@ -1,0 +1,10 @@
+[#lobby] guest: hello all
+* guest is now Juno
+* Juno joined #gardening
+[#gardening] Juno: anyone grow chillies?
+* Juno waves
+! join needs a #room
+! unknown command /shout
+* Juno left #gardening
+[#lobby] Juno: bye
+9 lines, ending in #lobby

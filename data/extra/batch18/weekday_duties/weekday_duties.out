@@ -1,0 +1,9 @@
+Mon: Asha
+Tue: Bruno
+Wed: Chen
+Thu: Asha
+Fri: Bruno
+Bruno takes Day.Thu from Asha
+Chen: no duty on Sat
+Asha takes Day.Tue from Bruno
+duties per person: [2, 2, 1]

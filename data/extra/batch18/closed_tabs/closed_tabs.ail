@@ -1,0 +1,30 @@
+## Closed tabs: a browser keeps closed tabs on a stack; "reopen" pops with `while t := xs.pop()`
+## until a pinned tab is restored, and `last()` peeks at what would come back next.
+
+struct Tab
+    title str
+    pinned bool
+
+fn main()
+    mut closed := List[Tab]()
+    for t in [Tab(title: "Mail", pinned: true), Tab(title: "Docs", pinned: false), Tab(title: "Weather", pinned: false), Tab(title: "Calendar", pinned: true), Tab(title: "News", pinned: false), Tab(title: "Video", pinned: false)]
+        closed.push(t)
+    if peek := closed.last()
+        print("next to reopen: {peek.title}")
+    mut open := List[str]()
+    while t := closed.pop()
+        open.push(t.title)
+        print("reopened {t.title}")
+        if t.pinned
+            print("stopped at pinned tab {t.title}")
+            break
+    joined := open.join(", ")
+    print("open now: {joined}")
+    left := closed.map(|t| t.title)
+    print("closed: {left}")
+    nxt := closed.last()?.title else "nothing"
+    print("next would be {nxt}")
+
+@test fn pop_empty()
+    mut xs := List[int]()
+    assert(xs.pop() == none)

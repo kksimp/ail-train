@@ -1,0 +1,37 @@
+## Festival lineup: each stage holds its acts; `flat_map` gathers every act from all stages,
+## then `sorted(by:)`, `take`, `skip` and `filter` give the running order and the headliners.
+
+struct Act
+    name str
+    start int
+    stage str
+
+struct Stage
+    name str
+    acts List[Act]
+
+fn hhmm(m int) str
+    mm := m % 60
+    "{m / 60}:{mm:02}"
+
+fn main()
+    stages := [
+        Stage(name: "Main", acts: [Act(name: "The Larks", start: 1080, stage: "Main"), Act(name: "Neon Fox", start: 1200, stage: "Main"), Act(name: "Kite", start: 960, stage: "Main")]),
+        Stage(name: "Tent", acts: [Act(name: "Dune Choir", start: 1020, stage: "Tent"), Act(name: "Velvet", start: 1260, stage: "Tent")]),
+        Stage(name: "Garden", acts: List[Act]()),
+        Stage(name: "Barn", acts: [Act(name: "Static Bloom", start: 1140, stage: "Barn")]),
+    ]
+    every := stages.flat_map(|s| s.acts).sorted(by: |a| a.start)
+    print("{every.len()} acts on {stages.len()} stages")
+    for a in every.take(3)
+        print("early: {hhmm(a.start)} {a.name} ({a.stage})")
+    late := every.skip(3).map(|a| a.name)
+    print("later: {late}")
+    empty := stages.filter(|s| s.acts.is_empty()).map(|s| s.name)
+    print("stages with nothing booked: {empty}")
+    if last := every.last()
+        print("closing act: {last.name} at {hhmm(last.start)}")
+
+@test fn flat_map_joins()
+    xs := [[1, 2], List[int](), [3]]
+    assert_eq(xs.flat_map(|x| x), [1, 2, 3])

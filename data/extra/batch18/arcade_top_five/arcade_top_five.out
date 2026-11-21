@@ -1,0 +1,15 @@
+AXE 4200: in
+BOB 1500: in
+CAT 8800: in
+DEX 3100: in
+EVE 2600: in
+FOX 1200: not enough
+GUS 9900: in, BOB drops out
+HAL 3100: in, EVE drops out
+JO 7000: in, DEX drops out
+HIGH SCORES
+1 GUS   9900
+2 CAT   8800
+3 JO    7000
+4 AXE   4200
+5 HAL   3100

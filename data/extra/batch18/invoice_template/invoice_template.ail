@@ -1,0 +1,41 @@
+## Invoice template: a template invoice is copied for each client with `mut inv := template`;
+## values are independent, so changing a copy's lines and terms never changes the template.
+
+struct Line
+    what str
+    cents int
+
+struct Invoice
+    client str
+    lines List[Line]
+    days int
+
+fn total(inv Invoice) int
+    inv.lines.map(|l| l.cents).sum()
+
+fn show(inv Invoice)
+    t := total(inv)
+    rest := t % 100
+    print("{inv.client:<9} {inv.lines.len()} lines, {t / 100}.{rest:02}, due in {inv.days} days")
+
+fn main()
+    template := Invoice(client: "(blank)", lines: [Line(what: "monthly hosting", cents: 4900), Line(what: "support plan", cents: 2500)], days: 30)
+    mut acme := template
+    acme.client = "Acme"
+    acme.lines.push(Line(what: "extra storage", cents: 1200))
+    mut bolt := template
+    bolt.client = "Bolt Ltd"
+    bolt.days = 14
+    bolt.lines[1].cents = 0
+    mut cove := bolt
+    cove.client = "Cove"
+    cove.lines.remove_at(1)
+    for inv in [template, acme, bolt, cove]
+        show(inv)
+    print("template unchanged: {template.lines.len() == 2 and template.days == 30}")
+
+@test fn copies_are_independent()
+    a := Invoice(client: "a", lines: [], days: 1)
+    mut b := a
+    b.days = 9
+    assert_eq(a.days, 1)

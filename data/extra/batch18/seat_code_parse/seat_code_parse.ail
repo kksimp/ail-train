@@ -1,0 +1,36 @@
+## Seat code parse: tickets name seats like "C12" (row A to J, seat 1 to 20); a bad code fails
+## with an `error struct BadSeat` whose message shows the code and the reason.
+
+error struct BadSeat "seat {code}: {why}"
+    code str
+    why str
+
+struct Seat
+    row int
+    num int
+
+fn parse_seat(code str) Seat ! BadSeat
+    letter := code.char_at(0) else return BadSeat(code: code, why: "empty")
+    if letter < 'A' or letter > 'J'
+        return BadSeat(code: code, why: "no row {letter}")
+    num := code.slice(1).to_int() else return BadSeat(code: code, why: "seat is not a number")
+    if num < 1 or num > 20
+        return BadSeat(code: code, why: "seats run 1 to 20")
+    base := 'A'
+    Seat(row: letter.code() - base.code(), num: num)
+
+fn main()
+    codes := ["C12", "A1", "K4", "B", "J20", "D0", "", "E7x", "H3"]
+    mut ok := List[Seat]()
+    for c in codes
+        s := parse_seat(c) else err
+            print("rejected {err}")
+            continue
+        ok.push(s)
+    print("{ok.len()} good seats")
+    front := ok.sorted(by: |s| (s.row, s.num))
+    for s in front
+        print("row {s.row + 1}, seat {s.num}")
+
+@test fn row_out_of_range()
+    assert_err(parse_seat("Z3"))

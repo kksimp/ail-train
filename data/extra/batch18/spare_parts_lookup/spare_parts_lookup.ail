@@ -1,0 +1,26 @@
+## Spare parts lookup: an engineer needs parts; each is looked up in the van, then the depot,
+## then the supplier's lead times, each a `Map` read with `get` as an optional, else unknown.
+
+fn source(part str, van Map[str, int], depot Map[str, int], lead Map[str, int]) str
+    if n := van.get(part)
+        if n > 0
+            return "in the van ({n} left)"
+    if n := depot.get(part)
+        if n > 0
+            return "at the depot ({n} there)"
+    if days := lead.get(part)
+        return "order it, {days} days"
+    "unknown part"
+
+fn main()
+    van := {"fuse 13A": 6, "valve seal": 0, "thermostat": 1}
+    depot := {"valve seal": 14, "pump": 2, "fan motor": 0}
+    lead := {"fan motor": 5, "pump": 3, "control board": 12}
+    needs := ["fuse 13A", "valve seal", "fan motor", "control board", "gasket", "thermostat"]
+    for p in needs
+        print("{p:<13} {source(p, van, depot, lead)}")
+    on_hand := needs.count(|p| van.get_or(p, 0) + depot.get_or(p, 0) > 0)
+    print("{on_hand} of {needs.len()} parts on hand today")
+
+@test fn depot_after_empty_van()
+    assert_eq(source("a", {"a": 0}, {"a": 3}, Map[str, int]()), "at the depot (3 there)")

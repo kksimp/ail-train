@@ -1,0 +1,32 @@
+## Weekday duties: an enum `Day` with no payloads gives `Day.variants()` to walk the week,
+## `d.name()` for its text and `Day.from_str` to read swap requests (unknown days are refused).
+
+enum Day
+    Mon
+    Tue
+    Wed
+    Thu
+    Fri
+
+fn main()
+    people := ["Asha", "Bruno", "Chen"]
+    mut rota := Map[str, str]()
+    for i, d in Day.variants().enumerate()
+        rota[d.name()] = people[i % people.len()]
+    for d in Day.variants()
+        print("{d.name()}: {rota[d.name()]}")
+    requests := [("Bruno", "Thu"), ("Chen", "Sat"), ("Asha", "Tue")]
+    for r in requests
+        who, text := r
+        if d := Day.from_str(text)
+            old := rota[d.name()]
+            rota[d.name()] = who
+            print("{who} takes {d} from {old}")
+        else
+            print("{who}: no duty on {text}")
+    counts := people.map(|p| rota.values().count(|x| x == p))
+    print("duties per person: {counts}")
+
+@test fn exact_names_only()
+    assert(Day.from_str("mon") == none)
+    assert_eq(Day.variants().len(), 5)

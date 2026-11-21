@@ -1,0 +1,11 @@
+lunch plans -> position 0
+server down -> position 0
+newsletter -> position 2
+invoice overdue -> position 0
+budget review -> position 2
+p1  2m invoice overdue
+p1  9m server down
+p2  5m budget review
+p2  5m lunch plans
+p3 11m newsletter
+tickets [7, 12, 12, 33, 40]

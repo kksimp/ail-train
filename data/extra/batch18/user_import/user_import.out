@@ -1,0 +1,6 @@
+skip 'Bo, 15, bo@example.org': age 15 is under 16
+skip 'Cy, x9, cy@example.org': age 'x9' is not a number
+skip 'Di, 41': expected 3 fields, got 2
+skip 'Ed, 29, ed.example.org': email 'ed.example.org' has no @
+imported ["Ada", "Fay"]
+2 unreadable, 2 broke a rule

@@ -1,0 +1,6 @@
+order 1: 21.99
+order 2: rejected, no such product CUP-09
+order 3: rejected, bad quantity in 'two x TEA-50'
+order 4: 52.96
+order 5: rejected, quantity must be positive in '0 x TEA-50'
+accepted value 74.95
