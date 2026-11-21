@@ -1,0 +1,25 @@
+## One-dimensional automaton: runs Wolfram's elementary rules 30, 90 and 110 from a single
+## live cell on a 31-cell row with fixed dead edges, printing 12 generations each.
+
+fn cell(b bool) str
+    if b then "#" else "."
+
+fn main()
+    width := 31
+    for rule in [30, 90, 110]
+        print("rule {rule}:")
+        mut row := [false for _ in 0..width]
+        row[width / 2] = true
+        for _ in 0..12
+            line := row.map(cell).join("")
+            print(line)
+            mut next := [false for _ in 0..width]
+            for i in 1..width - 1
+                l := if row[i - 1] then 4 else 0
+                c := if row[i] then 2 else 0
+                r := if row[i + 1] then 1 else 0
+                next[i] = ((rule >> (l + c + r)) & 1) == 1
+            row = next
+
+@test fn bit()
+    assert_eq(cell(true), "#")

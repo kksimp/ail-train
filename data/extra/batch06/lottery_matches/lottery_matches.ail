@@ -1,0 +1,32 @@
+## Lottery matches: checks tickets of six numbers against the draw and a bonus ball, and
+## pays prizes by tier (3, 4, 5, 5 plus bonus, 6 matches).
+
+fn prize(hits int, bonus bool) int
+    if hits == 6
+        return 1000000
+    if hits == 5 and bonus
+        return 50000
+    if hits == 5
+        return 1000
+    if hits == 4
+        return 100
+    if hits == 3
+        return 25
+    0
+
+fn main()
+    draw := {4, 11, 19, 23, 37, 42}
+    bonus_ball := 8
+    tickets := [[4, 11, 19, 23, 37, 42], [1, 4, 8, 19, 23, 37], [4, 11, 19, 23, 37, 8], [2, 3, 5, 7, 13, 17], [11, 23, 30, 31, 42, 45], [19, 23, 37, 42, 44, 4]]
+    mut paid := 0
+    for i, t in tickets.enumerate()
+        hits := t.filter(|n| draw.contains(n)).len()
+        has_bonus := t.contains(bonus_ball)
+        p := prize(hits, has_bonus)
+        paid += p
+        mark := if has_bonus then " + bonus" else ""
+        print("ticket {i + 1}: {hits} matches{mark}, prize {p}")
+    print("total paid {paid}")
+
+@test fn tiers()
+    assert_eq(prize(5, true), 50000)

@@ -1,0 +1,29 @@
+## Snakes and ladders: plays a 100-square board for two players with a fixed list of dice
+## rolls; an exact roll is needed to finish. Prints each jump and the winner.
+
+fn main()
+    jumps := {3: 22, 8: 30, 28: 84, 58: 77, 75: 86, 80: 99, 17: 4, 52: 29, 57: 40, 62: 22, 88: 18, 95: 51, 97: 79}
+    rolls := [3, 5, 6, 2, 5, 4, 6, 6, 1, 3, 4, 2, 6, 5, 3, 3, 2, 4, 5, 1, 6, 6, 4, 2, 3, 5, 1, 2, 6, 4, 2, 3, 5, 6, 4, 1, 3, 2, 6, 5]
+    mut pos := [0, 0]
+    mut turn := 0
+    mut winner := -1
+    for r in rolls
+        p := turn % 2
+        target := pos[p] + r
+        if target <= 100
+            pos[p] = target
+            if to := jumps.get(target)
+                kind := if to > target then "ladder" else "snake"
+                print("player {p + 1} rolls {r}: {kind} {target} -> {to}")
+                pos[p] = to
+        if pos[p] == 100
+            winner = p
+            break
+        turn += 1
+    if winner >= 0
+        print("player {winner + 1} wins after {turn + 1} turns")
+    else
+        print("no winner yet: {pos[0]} and {pos[1]}")
+
+@test fn exact()
+    assert(98 + 3 > 100)

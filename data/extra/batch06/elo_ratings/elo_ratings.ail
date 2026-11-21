@@ -1,0 +1,23 @@
+## Elo ratings: updates players' ratings after a series of games with K = 32, using the
+## expected score 1 / (1 + 10^((Rb - Ra) / 400)), and prints the final table.
+
+fn expected(ra float, rb float) float
+    ten := 10.0
+    1.0 / (1.0 + ten.pow((rb - ra) / 400.0))
+
+fn main()
+    mut rating := {"Ana": 1500.0, "Bo": 1500.0, "Cy": 1620.0, "Di": 1380.0}
+    games := [("Ana", "Bo", 1.0), ("Cy", "Di", 0.0), ("Ana", "Cy", 0.5), ("Bo", "Di", 1.0), ("Di", "Ana", 0.0), ("Cy", "Bo", 1.0)]
+    for g in games
+        a, b, score := g
+        ea := expected(rating[a], rating[b])
+        delta := 32.0 * (score - ea)
+        rating[a] = rating[a] + delta
+        rating[b] = rating[b] - delta
+        sign := if delta >= 0.0 then "+" else ""
+        print("{a} v {b} ({score:.1}): expected {ea:.3}, {a} {sign}{delta:.2}")
+    for name in rating.keys().sorted(by: |k| (-rating[k], k))
+        print("{name:<4} {rating[name]:.1}")
+
+@test fn even()
+    assert_eq(expected(1500.0, 1500.0), 0.5)

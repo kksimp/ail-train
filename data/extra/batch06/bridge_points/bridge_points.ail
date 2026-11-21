@@ -1,0 +1,25 @@
+## Bridge points: counts high-card points (A 4, K 3, Q 2, J 1) and distribution points for
+## bridge hands written as suit groups, and suggests an opening bid level.
+
+fn hcp(cards str) int
+    mut p := 0
+    for c in cards.chars()
+        p += if c == 'A' then 4 elif c == 'K' then 3 elif c == 'Q' then 2 elif c == 'J' then 1 else 0
+    p
+
+fn main()
+    hands := ["AKJ4.Q83.K962.75", "Q7.AJ10953.A4.K82", "8642.973.J85.Q64", "AKQ.KQJ.AQ7.KJ104", "KQ98754..A93.J82"]
+    for h in hands
+        suits := h.split(".")
+        high := suits.map(|s| hcp(s)).sum()
+        counts := suits.map(|s| s.replace("10", "T").len())
+        mut shape := 0
+        for n in counts
+            shape += if n == 0 then 3 elif n == 1 then 2 elif n == 2 then 1 else 0
+        total := high + shape
+        bid := if high >= 22 then "2 clubs" elif total >= 12 then "one of a suit" else "pass"
+        lengths := counts.map(|n| "{n}").join("-")
+        print("{h}: {high} hcp + {shape} shape = {total}, {lengths}, {bid}")
+
+@test fn honours()
+    assert_eq(hcp("AKQJ"), 10)

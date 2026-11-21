@@ -1,0 +1,37 @@
+## Numeric integration: compares the trapezoid rule and Simpson's rule on a few functions
+## over an interval, against the exact answer, for 4 and 16 strips.
+
+fn f(kind int, x float) float
+    if kind == 0
+        return x * x * x
+    if kind == 1
+        return 1.0 / x
+    x.sin()
+
+fn trap(kind int, a float, b float, n int) float
+    h := (b - a) / n.to_float()
+    mut s := (f(kind, a) + f(kind, b)) / 2.0
+    for i in 1..n
+        s += f(kind, a + h * i.to_float())
+    s * h
+
+fn simpson(kind int, a float, b float, n int) float
+    h := (b - a) / n.to_float()
+    mut s := f(kind, a) + f(kind, b)
+    for i in 1..n
+        w := if i % 2 == 1 then 4.0 else 2.0
+        s += w * f(kind, a + h * i.to_float())
+    s * h / 3.0
+
+fn main()
+    cases := [("x^3 on 0..2", 0, 0.0, 2.0, 4.0), ("1/x on 1..3", 1, 1.0, 3.0, 1.0986122886681098), ("sin on 0..pi", 2, 0.0, 3.141592653589793, 2.0)]
+    for c in cases
+        label, kind, a, b, exact := c
+        for n in [4, 16]
+            t := trap(kind, a, b, n)
+            s := simpson(kind, a, b, n)
+            err := (t - exact).abs()
+            print("{label}, n={n}: trapezoid {t:.6} (err {err:.6}), simpson {s:.6}")
+
+@test fn line()
+    assert_eq(trap(0, 0.0, 0.0, 4), 0.0)

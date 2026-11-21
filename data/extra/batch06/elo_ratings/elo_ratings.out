@@ -1,0 +1,10 @@
+Ana v Bo (1.0): expected 0.500, Ana +16.00
+Cy v Di (0.0): expected 0.799, Cy -25.58
+Ana v Cy (0.5): expected 0.389, Ana +3.55
+Bo v Di (1.0): expected 0.611, Bo +12.45
+Di v Ana (0.0): expected 0.326, Di -10.42
+Cy v Bo (1.0): expected 0.633, Cy +11.76
+Cy   1602.6
+Ana  1530.0
+Bo   1484.7
+Di   1382.7
