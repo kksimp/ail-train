@@ -1,0 +1,26 @@
+## Train delays: scheduled and actual arrival minutes for services; classifies each as on
+## time (under 5 late), late or cancelled, and gives the punctuality percentage.
+
+fn main()
+    services := [("06:10", 370, 372), ("06:40", 400, 409), ("07:05", 425, -1), ("07:30", 450, 450), ("08:00", 480, 478), ("08:20", 500, 531), ("08:45", 525, 529)]
+    mut on_time := 0
+    mut ran := 0
+    mut total_late := 0
+    for s in services
+        name, planned, actual := s
+        if actual < 0
+            print("{name}: cancelled")
+            continue
+        ran += 1
+        late := (actual - planned).max(0)
+        total_late += late
+        if late < 5
+            on_time += 1
+            print("{name}: on time")
+        else
+            print("{name}: {late} min late")
+    pct := on_time * 1000 / services.len()
+    print("punctuality {pct / 10}.{pct % 10}% of {services.len()} planned, {total_late} min late in total over {ran} trains")
+
+@test fn early_counts_as_zero()
+    assert_eq((478 - 480).max(0), 0)

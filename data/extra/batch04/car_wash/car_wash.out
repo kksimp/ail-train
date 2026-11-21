@@ -1,0 +1,9 @@
+basic   arrives  0, starts  0, done  6, waited 0
+full    arrives  2, starts  6, done 24, waited 4
+basic   arrives  5, starts 24, done 30, waited 19
+deluxe  arrives  9, starts 30, done 41, waited 21
+basic   arrives 100, starts 100, done 106, waited 0
+full    arrives 101, starts 106, done 124, waited 5
+deluxe  arrives 103, starts 124, done 135, waited 21
+polish  arrives 110, starts 135, done 143, waited 25
+bay idle 59 min, longest wait 25 min, last car done at 143

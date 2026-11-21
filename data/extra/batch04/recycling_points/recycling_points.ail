@@ -1,0 +1,35 @@
+## Recycling points: households log bags of glass, paper and plastic; each kind earns
+## different points, with a bonus for sorting all three in one week.
+
+enum Kind
+    Glass
+    Paper
+    Plastic
+
+fn points(k Kind) int
+    match k
+        Glass => 3
+        Paper => 1
+        Plastic => 2
+
+fn main()
+    logs := [
+        ("no.4", [Kind.Glass, Kind.Paper, Kind.Paper]),
+        ("no.7", [Kind.Plastic]),
+        ("no.9", [Kind.Glass, Kind.Plastic, Kind.Paper, Kind.Paper]),
+        ("no.12", List[Kind]()),
+        ("no.15", [Kind.Paper, Kind.Plastic, Kind.Plastic, Kind.Glass, Kind.Glass]),
+    ]
+    mut board := List[(str, int)]()
+    for entry in logs
+        house, bags := entry
+        base := bags.map(points).sum()
+        sorted_all := bags.contains(Kind.Glass) and bags.contains(Kind.Paper) and bags.contains(Kind.Plastic)
+        bonus := if sorted_all then 5 else 0
+        board.push((house, base + bonus))
+        print("{house:<6} {bags.len()} bags, {base} points + {bonus} bonus")
+    winner := board.max(by: |b| b.1) else ("", 0)
+    print("top: {winner.0} with {winner.1}")
+
+@test fn glass_worth_three()
+    assert_eq(points(Glass), 3)

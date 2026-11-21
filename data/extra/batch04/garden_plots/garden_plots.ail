@@ -1,0 +1,21 @@
+## Garden plots: allotment plots with width and length in centimetres; computes areas in
+## square metres to two places, the total, and the plots that need a water butt (over 20 m2).
+
+fn area_cm2(p (str, int, int)) int
+    p.1 * p.2
+
+fn m2(cm2 int) str
+    hundredths := cm2 / 100
+    "{hundredths / 100}.{hundredths % 100:02}"
+
+fn main()
+    plots := [("A1", 450, 300), ("A2", 500, 520), ("B1", 380, 410), ("B2", 610, 350), ("C1", 250, 900)]
+    for p in plots
+        print("{p.0}: {p.1} x {p.2} cm = {m2(area_cm2(p))} m2")
+    total := plots.map(area_cm2).sum()
+    print("total {m2(total)} m2")
+    big := plots.filter(|p| area_cm2(p) > 200000).map(|p| p.0)
+    print("need a water butt: {big.join(" ")}")
+
+@test fn area()
+    assert_eq(m2(area_cm2(("x", 100, 150))), "1.50")

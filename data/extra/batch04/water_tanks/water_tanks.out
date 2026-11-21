@@ -1,0 +1,4 @@
+[9, 1, 1, 1] -> [4, 3, 3, 2] after 5 sweeps, total kept true
+[0, 0, 12, 0, 0] -> [2, 3, 3, 2, 2] after 5 sweeps, total kept true
+[4, 4, 4] -> [4, 4, 4] after 0 sweeps, total kept true
+[10, 0, 10, 0] -> [6, 5, 5, 4] after 5 sweeps, total kept true

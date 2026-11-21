@@ -1,0 +1,29 @@
+## Water tanks: a row of connected tanks with given levels; each step moves one litre from
+## the fullest tank to its emptier neighbour, until no neighbours differ by more than one.
+
+fn settle(levels List[int]) (List[int], int)
+    mut t := levels
+    mut steps := 0
+    while true
+        mut moved := false
+        for i in 0..t.len() - 1
+            if t[i] - t[i + 1] > 1
+                t[i] -= 1
+                t[i + 1] += 1
+                moved = true
+            elif t[i + 1] - t[i] > 1
+                t[i + 1] -= 1
+                t[i] += 1
+                moved = true
+        if not moved
+            break
+        steps += 1
+    (t, steps)
+
+fn main()
+    for start in [[9, 1, 1, 1], [0, 0, 12, 0, 0], [4, 4, 4], [10, 0, 10, 0]]
+        result, steps := settle(start)
+        print("{start} -> {result} after {steps} sweeps, total kept {result.sum() == start.sum()}")
+
+@test fn already_level()
+    assert_eq(settle([2, 3, 2]).1, 0)

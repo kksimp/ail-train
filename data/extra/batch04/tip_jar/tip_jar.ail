@@ -1,0 +1,18 @@
+## Tip jar: splits a night's tips between staff by hours worked, in whole cents, and hands
+## the leftover cents one each to the staff with the largest remainders.
+
+fn main()
+    tips := 48763
+    staff := [("Kai", 6), ("Lou", 4), ("Max", 7), ("Nia", 3), ("Oto", 5)]
+    hours := staff.map(|s| s.1).sum()
+    mut shares := staff.map(|s| tips * s.1 / hours)
+    left := tips - shares.sum()
+    order := [i for i in 0..staff.len()].sorted(by: |i| (-(tips * staff[i].1 % hours), i))
+    for k in 0..left
+        shares[order[k]] += 1
+    for i, s in staff.enumerate()
+        print("{s.0}: {s.1} h, {shares[i] / 100}.{shares[i] % 100:02}")
+    print("total {shares.sum()} of {tips}, {left} leftover cents handed out")
+
+@test fn exact_split()
+    assert_eq(1000 * 2 / 4, 500)
