@@ -1,0 +1,7 @@
+car    10 x  24.0 km:   40.8 kg
+train   2 x  60.0 km:    4.2 kg
+bus     6 x   8.0 km:    4.8 kg
+plane   1 x 900.0 km:  225.0 kg
+bike    8 x   5.0 km:    0.0 kg
+month total: 274.8 kg
+car commute by train instead saves 32.4 kg

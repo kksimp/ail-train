@@ -1,0 +1,12 @@
+ 5 V red  : needs  150 ohm, use  150, 20.0 mA, 60.0 mW
+ 5 V green: needs   95 ohm, use  100, 19.0 mA, 36.1 mW
+ 5 V blue : needs   85 ohm, use  100, 17.0 mA, 28.9 mW
+ 5 V white: needs   90 ohm, use  100, 18.0 mA, 32.4 mW
+ 9 V red  : needs  350 ohm, use  390, 17.9 mA, 125.6 mW
+ 9 V green: needs  295 ohm, use  330, 17.9 mA, 105.5 mW
+ 9 V blue : needs  285 ohm, use  330, 17.3 mA, 98.5 mW
+ 9 V white: needs  290 ohm, use  330, 17.6 mA, 101.9 mW
+12 V red  : needs  500 ohm, use  560, 17.9 mA, 178.6 mW
+12 V green: needs  445 ohm, use  470, 18.9 mA, 168.5 mW
+12 V blue : needs  435 ohm, use  470, 18.5 mA, 161.0 mW
+12 V white: needs  440 ohm, use  470, 18.7 mA, 164.8 mW

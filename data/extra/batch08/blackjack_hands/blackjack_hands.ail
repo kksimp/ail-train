@@ -1,0 +1,32 @@
+## Blackjack hands: face cards count 10 and an ace 11, dropping to 1 while the hand would bust;
+## labels each hand as bust, blackjack, soft (an ace still counts 11) or a plain total.
+
+fn number(c str) int
+    c.to_int() else 0
+
+fn card_points(c str) int
+    match c
+        "A" => 11
+        "K" | "Q" | "J" => 10
+        _ => number(c)
+
+fn hand(cards List[str]) str
+    mut total := 0
+    mut aces := 0
+    for c in cards
+        total += card_points(c)
+        if c == "A"
+            aces += 1
+    while total > 21 and aces > 0
+        total -= 10
+        aces -= 1
+    shown := cards.join(" ")
+    if total > 21 then "{shown}: {total} bust" elif total == 21 and cards.len() == 2 then "{shown}: blackjack" elif aces > 0 then "{shown}: soft {total}" else "{shown}: {total}"
+
+fn main()
+    hands := [["A", "K"], ["A", "6"], ["A", "6", "9"], ["10", "7", "5"], ["A", "A", "9"], ["5", "4", "A", "A"], ["Q", "J"], ["7", "7", "7"]]
+    for h in hands
+        print(hand(h))
+
+@test fn two_aces()
+    assert_eq(hand(["A", "A"]), "A A: soft 12")

@@ -1,0 +1,34 @@
+## Street skyline: buildings given as (left, right, height) along a street; walks every wall
+## position to find where the roofline's height changes, and sums the area under the roofline.
+
+fn height_at(buildings List[List[int]], x int) int
+    mut h := 0
+    for b in buildings
+        if b[0] <= x and x < b[1] and b[2] > h
+            h = b[2]
+    h
+
+fn main()
+    buildings := [[2, 9, 10], [3, 7, 15], [5, 12, 12], [15, 20, 10], [19, 24, 8]]
+    mut xs := List[int]()
+    for b in buildings
+        xs.push(b[0])
+        xs.push(b[1])
+    edges := xs.sorted()
+    mut prev := 0
+    mut points := List[str]()
+    mut area := 0
+    for i in 0..edges.len()
+        x := edges[i]
+        h := height_at(buildings, x)
+        if h != prev
+            points.push("({x}, {h})")
+            prev = h
+        if i + 1 < edges.len()
+            area += h * (edges[i + 1] - x)
+    shown := points.join(" ")
+    print("roofline: {shown}")
+    print("area under roofline: {area}")
+
+@test fn gap()
+    assert_eq(height_at([[0, 2, 5]], 3), 0)

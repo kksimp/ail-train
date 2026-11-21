@@ -1,0 +1,14 @@
+## Battery runtime: capacity in mAh times a usable fraction (cells lose some to the converter),
+## divided by the average current draw, gives hours; shown as days and hours too.
+
+fn main()
+    devices := [("doorbell", 6000, 4.5), ("headphones", 800, 35.0), ("trail camera", 12000, 18.0), ("smoke alarm", 1200, 0.02), ("torch", 2600, 450.0)]
+    usable := 0.85
+    for d in devices
+        name, mah, draw := d
+        hours := mah.to_float() * usable / draw
+        whole := hours.to_int()
+        print("{name:<12} {mah:>5} mAh at {draw:>6.2} mA: {hours:>9.1} h ({whole / 24} d {whole % 24} h)")
+
+@test fn simple()
+    assert_eq(1000.0 * 0.5 / 100.0, 5.0)

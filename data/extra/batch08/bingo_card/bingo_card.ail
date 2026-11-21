@@ -1,0 +1,51 @@
+## Bingo: numbers are called one by one and marked on a 5 by 5 card with a free centre; after
+## each call the rows, columns and both diagonals are checked for a full line.
+
+fn on_card(card List[List[int]], n int) bool
+    for row in card
+        if row.contains(n)
+            return true
+    false
+
+fn full_lines(card List[List[int]], marked Set[int]) int
+    mut lines := 0
+    mut diag_a := true
+    mut diag_b := true
+    for i in 0..5
+        mut row_full := true
+        mut col_full := true
+        for j in 0..5
+            if not marked.contains(card[i][j])
+                row_full = false
+            if not marked.contains(card[j][i])
+                col_full = false
+        if row_full
+            lines += 1
+        if col_full
+            lines += 1
+        if not marked.contains(card[i][i])
+            diag_a = false
+        if not marked.contains(card[i][4 - i])
+            diag_b = false
+    if diag_a
+        lines += 1
+    if diag_b
+        lines += 1
+    lines
+
+fn main()
+    card := [[3, 18, 33, 49, 62], [11, 22, 40, 54, 70], [7, 29, 0, 46, 66], [14, 16, 38, 58, 75], [1, 25, 44, 52, 68]]
+    calls := [22, 40, 7, 62, 54, 29, 46, 11, 66, 70, 18, 33]
+    mut marked := Set[int]()
+    marked.add(0)
+    for i, n in calls.enumerate()
+        marked.add(n)
+        hit := if on_card(card, n) then "marked" else "not on card"
+        lines := full_lines(card, marked)
+        print("call {i + 1}: {n} {hit}")
+        if lines > 0
+            print("bingo after {i + 1} calls ({lines} line)")
+            break
+
+@test fn free_centre()
+    assert(on_card([[0]], 0))

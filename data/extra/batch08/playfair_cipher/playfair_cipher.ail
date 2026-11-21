@@ -1,0 +1,62 @@
+## Playfair cipher: a 5 by 5 square from a keyword (J folded into I); the message is split into
+## letter pairs (X between doubles and at an odd end) and each pair is moved by row or column.
+
+fn square(key str) List[char]
+    mut seen := Set[char]()
+    mut grid := List[char]()
+    text := "{key}ABCDEFGHIKLMNOPQRSTUVWXYZ".to_upper()
+    for c in text.chars()
+        d := if c == 'J' then 'I' else c
+        if d.is_alpha() and not seen.contains(d)
+            seen.add(d)
+            grid.push(d)
+    grid
+
+fn pos(grid List[char], c char) int
+    for i in 0..grid.len()
+        if grid[i] == c
+            return i
+    0
+
+fn encrypt(grid List[char], msg str) str
+    mut letters := List[char]()
+    for c in msg.to_upper().chars()
+        if c.is_alpha()
+            letters.push(if c == 'J' then 'I' else c)
+    mut out := List[char]()
+    mut i := 0
+    while i < letters.len()
+        a := letters[i]
+        mut b := 'X'
+        if i + 1 < letters.len() and letters[i + 1] != a
+            b = letters[i + 1]
+            i += 2
+        else
+            i += 1
+        pa := pos(grid, a)
+        pb := pos(grid, b)
+        ra := pa / 5
+        ca := pa % 5
+        rb := pb / 5
+        cb := pb % 5
+        if ra == rb
+            out.push(grid[ra * 5 + (ca + 1) % 5])
+            out.push(grid[rb * 5 + (cb + 1) % 5])
+        elif ca == cb
+            out.push(grid[((ra + 1) % 5) * 5 + ca])
+            out.push(grid[((rb + 1) % 5) * 5 + cb])
+        else
+            out.push(grid[ra * 5 + cb])
+            out.push(grid[rb * 5 + ca])
+    out.join("")
+
+fn main()
+    grid := square("playfair example")
+    for r in 0..5
+        row := grid.slice(r * 5, r * 5 + 5).join(" ")
+        print(row)
+    for msg in ["Hide the gold in the tree stump", "Meet at noon", "Jazz"]
+        print("{msg} -> {encrypt(grid, msg)}")
+
+@test fn size()
+    assert_eq(square("key").len(), 25)
