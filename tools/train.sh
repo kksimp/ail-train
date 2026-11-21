@@ -5,7 +5,7 @@
 # Reads BASE_MODEL from the untracked config.local (D6). Optional environment: EPOCHS (default 2), NUM_LAYERS
 # (default 16), SEQ (default 2048), LR (default 1e-4), ACCUM (gradient accumulation, default 8), EVAL_EVERY (default
 # 400 optimizer steps), SWAP_ABORT_MB (default 2048).
-# Writes ~/ail-train-work/runs/train-STAMP/{lora.yaml,lora.log,adapter/,val.txt,summary.txt}. Keeps the Mac awake
+# Writes ~/ail-train-work/runs/train-STAMP/{adapter.yaml,lora.log,adapter/,val.txt,summary.txt}. Keeps the Mac awake
 # with caffeinate. Stops on a swap blow-up or when validation loss rises at two evaluations in a row (PLAN.md 6); the
 # adapter checkpoints stay, so a stopped run can be resumed or the best checkpoint used. bash 3.2 compatible.
 set -u
@@ -34,22 +34,37 @@ eval_every="${EVAL_EVERY:-400}"; swap_abort="${SWAP_ABORT_MB:-2048}"
 items="$(wc -l < "$data/train.jsonl" | tr -d ' ')"
 # mlx-lm counts one iteration per batch (batch 1); with accumulation the optimizer steps every ACCUM iterations.
 iters=$((epochs * items))
-warmup=$((iters / 50))
+# The learning-rate schedule advances once per optimizer update (every ACCUM iterations), not per iteration.
+warmup=$((iters / accum / 50))
+adapter="adapter"
 if [ -n "${RESUME:-}" ]; then
     run="$RESUME"
-    [ -f "$run/lora.yaml" ] || die "no run at $run"
-    last="$(ls "$run"/adapter/*_adapters.safetensors 2>/dev/null | sort | tail -1)"
-    [ -n "$last" ] || die "no checkpoint in $run/adapter"
-    done_iters="$(basename "$last" | sed 's/^0*\([0-9]*\)_.*/\1/')"
+    [ -f "$run/adapter.yaml" ] || die "no run at $run"
+    # mlx-lm loads only the weights on resume and numbers its checkpoints from 1 again, so each resume writes to its
+    # own folder (adapter-r1, adapter-r2, ...) and the iterations already done are the sum over the folders.
+    done_iters=0
+    last=""
+    n=0
+    for a in "$run"/adapter "$run"/adapter-r*; do
+        [ -d "$a" ] || continue
+        f="$(ls "$a"/*_adapters.safetensors 2>/dev/null | sort | tail -1)"
+        [ -n "$f" ] || continue
+        done_iters=$((done_iters + $(basename "$f" | sed 's/^0*\([0-9]*\)_.*/\1/')))
+        last="$f"
+        n=$((n + 1))
+    done
+    [ -n "$last" ] || die "no checkpoint in $run"
+    adapter="adapter-r$n"
     resume_line="resume_adapter_file: \"$last\""
     iters=$((iters - done_iters))
+    warmup=0   # the optimizer and schedule restart; decay over what is left
     echo "resuming after $done_iters iterations from $last"
 else
     run="$work/runs/train-$(date -u +%Y%m%dT%H%M%SZ)"
     mkdir -p "$run"
     resume_line=""
 fi
-cat > "$run/lora.yaml" <<YAML
+cat > "$run/$adapter.yaml" <<YAML
 model: "$mdir"
 train: true
 fine_tune_type: lora
@@ -65,11 +80,11 @@ lr_schedule:
   name: cosine_decay
   warmup: $warmup
   warmup_init: 1.0e-7
-  arguments: [$lr, $iters, 1.0e-6]
+  arguments: [$lr, $((iters / accum - warmup)), 1.0e-6]
 steps_per_report: 50
 steps_per_eval: $((eval_every * accum))
 save_every: $((eval_every * accum))
-adapter_path: "$run/adapter"
+adapter_path: "$run/$adapter"
 max_seq_length: $seq
 grad_checkpoint: true
 mask_prompt: true
@@ -87,7 +102,7 @@ YAML
 } >> "$run/summary.txt"
 cat "$run/summary.txt"
 
-"$work/venv/bin/mlx_lm.lora" -c "$run/lora.yaml" >> "$run/lora.log" 2>&1 &
+"$work/venv/bin/mlx_lm.lora" -c "$run/$adapter.yaml" >> "$run/lora.log" 2>&1 &
 pid=$!
 caffeinate -i -s -w "$pid" &
 swap_mb() { sysctl -n vm.swapusage | sed -n 's/.*used = \([0-9.]*\)M.*/\1/p' | awk '{printf "%d", $1}'; }
@@ -110,11 +125,11 @@ fi
 wait "$pid" 2>/dev/null
 rc=$?
 sed 's/\x1b\[[0-9;]*m//g' "$run/lora.log" | awk '$2 == "val" {print $1, $3}' > "$run/val.txt"
-best="$(sort -k2 -n "$run/val.txt" | head -1)"
+best="$(sort -k2 -n "$run/val.txt" | head -1)"   # iterations count from 1 again in each resumed part
 {
     echo "ended: $(date -u +%Y-%m-%dT%H:%M:%SZ); ${why:-finished (exit $rc)}"
     echo "best validation (iter loss): ${best:-none}"
-    echo "checkpoints: $(ls "$run"/adapter/*_adapters.safetensors 2>/dev/null | wc -l | tr -d ' ')"
+    echo "checkpoints: $(ls "$run"/adapter*/*_adapters.safetensors 2>/dev/null | wc -l | tr -d ' ')"
 } >> "$run/summary.txt"
 cat "$run/summary.txt"
 echo "run folder: $run"
