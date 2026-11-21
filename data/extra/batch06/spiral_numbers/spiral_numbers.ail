@@ -1,0 +1,29 @@
+## Spiral numbers: fills an n x n grid with 1, 2, 3... spiralling clockwise inwards from
+## the top left, and prints the grids for sizes 4 and 5.
+
+fn fill(n int) List[List[int]]
+    row := [0 for _ in 0..n]
+    mut g := [row for _ in 0..n]
+    dr := [0, 1, 0, -1]
+    dc := [1, 0, -1, 0]
+    mut r := 0
+    mut c := 0
+    mut d := 0
+    for k in 1..=n * n
+        g[r][c] = k
+        nr := r + dr[d]
+        nc := c + dc[d]
+        if nr < 0 or nr >= n or nc < 0 or nc >= n or g[nr][nc] != 0
+            d = (d + 1) % 4
+        r += dr[d]
+        c += dc[d]
+    g
+
+fn main()
+    for n in [4, 5]
+        for row in fill(n)
+            print(row.map(|x| "{x:>3}").join(""))
+        print("")
+
+@test fn centre()
+    assert_eq(fill(3)[1][1], 9)

@@ -1,0 +1,33 @@
+## Morse timing: converts words to Morse and computes the transmission time in units (dot 1,
+## dash 3, gap inside a letter 1, between letters 3, between words 7).
+
+fn code(c char) str
+    letters := "abcdefghijklmnopqrstuvwxyz"
+    codes := [".-", "-...", "-.-.", "-..", ".", "..-.", "--.", "....", "..", ".---", "-.-", ".-..", "--", "-.", "---", ".--.", "--.-", ".-.", "...", "-", "..-", "...-", ".--", "-..-", "-.--", "--.."]
+    i := letters.chars().index_of(c) else 0
+    codes[i]
+
+fn units(text str) int
+    mut total := 0
+    words := text.split(" ")
+    for wi, w in words.enumerate()
+        if wi > 0
+            total += 7
+        for li, c in w.chars().enumerate()
+            if li > 0
+                total += 3
+            symbols := code(c).chars()
+            for si, s in symbols.enumerate()
+                if si > 0
+                    total += 1
+                length := if s == '.' then 1 else 3
+                total += length
+    total
+
+fn main()
+    for t in ["sos", "paris", "hello world", "e", "t"]
+        shown := t.split(" ").map(|w| w.chars().map(|c| code(c)).join(" ")).join(" / ")
+        print("{t}: {shown} = {units(t)} units")
+
+@test fn paris()
+    assert_eq(units("paris"), 43)

@@ -1,0 +1,17 @@
+## Pressure units: converts tyre pressures between psi, bar and kPa, and flags tyres more
+## than 10% below the recommended pressure.
+
+fn main()
+    recommended := 2.4
+    tyres := [("front left", 34.0, "psi"), ("front right", 2.35, "bar"), ("rear left", 205.0, "kPa"), ("rear right", 31.5, "psi")]
+    for t in tyres
+        name, value, unit := t
+        bar := if unit == "psi" then value / 14.5038 elif unit == "kPa" then value / 100.0 else value
+        psi := bar * 14.5038
+        kpa := bar * 100.0
+        low := bar < recommended * 0.9
+        flag := if low then " LOW" else ""
+        print("{name:<11} {bar:.2} bar {psi:.1} psi {kpa:.0} kPa{flag}")
+
+@test fn convert()
+    assert(2.0 * 14.5038 > 29.0)

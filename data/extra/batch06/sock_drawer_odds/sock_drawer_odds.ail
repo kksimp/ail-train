@@ -1,0 +1,21 @@
+## Drawer odds: exact probabilities, as reduced fractions, of drawing a matching pair when
+## taking two socks at random from drawers with different colour counts.
+
+fn gcd(a int, b int) int
+    if b == 0 then a else gcd(b, a % b)
+
+fn main()
+    drawers := [[4, 4], [6, 2], [3, 3, 3], [10, 1, 1], [2, 2, 2, 2]]
+    for d in drawers
+        total := d.sum()
+        pairs := total * (total - 1) / 2
+        mut same := 0
+        for n in d
+            same += n * (n - 1) / 2
+        g := gcd(same, pairs)
+        shown := d.map(|n| "{n}").join("/")
+        pct := same.to_float() * 100.0 / pairs.to_float()
+        print("{shown}: {same / g}/{pairs / g} ({pct:.1}%)")
+
+@test fn halves()
+    assert_eq(gcd(12, 28), 4)

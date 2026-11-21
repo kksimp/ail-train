@@ -1,0 +1,16 @@
+## Fence posts: a rectangular field fenced with posts every 2.5 m, with a gate gap on one
+## side; counts posts, rails (three per span) and total rail length.
+
+fn main()
+    fields := [(20, 12, 4), (35, 35, 5), (9, 6, 0)]
+    for f in fields
+        w, h, gate := f
+        perimeter := 2 * (w + h)
+        fenced := perimeter - gate
+        spans := (fenced * 10 + 24) / 25
+        posts := if gate > 0 then spans + 1 else spans
+        rails := spans * 3
+        print("{w}x{h} m, gate {gate} m: {posts} posts, {spans} spans, {rails} rails, {fenced * 3} m of rail")
+
+@test fn spans()
+    assert_eq((60 * 10 + 24) / 25, 24)

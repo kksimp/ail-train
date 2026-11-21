@@ -1,0 +1,39 @@
+## Jug puzzle: breadth-first search over states of a 3-litre and a 5-litre jug (fill,
+## empty, pour) to measure exactly 4 litres, printing the steps.
+
+fn main()
+    cap_a := 3
+    cap_b := 5
+    goal := 4
+    mut prev := Map[(int, int), ((int, int), str)]()
+    start := (0, 0)
+    prev[start] = (start, "start")
+    mut queue := [start]
+    mut head := 0
+    mut found := (-1, -1)
+    while head < queue.len()
+        s := queue[head]
+        head += 1
+        a, b := s
+        if a == goal or b == goal
+            found = s
+            break
+        pour_ab := if a < cap_b - b then a else cap_b - b
+        pour_ba := if b < cap_a - a then b else cap_a - a
+        moves := [((cap_a, b), "fill A"), ((a, cap_b), "fill B"), ((0, b), "empty A"), ((a, 0), "empty B"), ((a - pour_ab, b + pour_ab), "pour A into B"), ((a + pour_ba, b - pour_ba), "pour B into A")]
+        for m in moves
+            if not prev.contains(m.0)
+                prev[m.0] = (s, m.1)
+                queue.push(m.0)
+    mut steps := List[str]()
+    mut cur := found
+    while cur != start
+        p := prev[cur]
+        steps.push("{p.1} -> ({cur.0}, {cur.1})")
+        cur = p.0
+    steps.reverse()
+    for i, s in steps.enumerate()
+        print("{i + 1}. {s}")
+
+@test fn pour()
+    assert_eq(3 - 3, 0)
