@@ -1,0 +1,9 @@
+week 1: dishes=Ari, bins=Bea, bathroom=Cas, hoover=Dee
+week 2: dishes=Bea, bins=Cas, bathroom=Dee, hoover=Ari
+week 3: dishes=Cas, bins=Dee, bathroom=Ari, hoover=Bea
+week 4: dishes=Dee, bins=Ari, bathroom=Bea, hoover=Cas
+Ari: 160 min
+Bea: 160 min
+Cas: 160 min
+Dee: 160 min
+fair: true

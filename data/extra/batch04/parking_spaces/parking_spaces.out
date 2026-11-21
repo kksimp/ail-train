@@ -1,0 +1,12 @@
+AB12: bay 1
+CD34: bay 2
+EF56: bay 3
+CD34: left bay 2
+GH78: bay 2
+IJ90: bay 4
+KL11: bay 5
+MN22: bay 6
+OP33: full, turned away
+AB12: left bay 1
+QR44: bay 1
+1:QR44 2:GH78 3:EF56 4:IJ90 5:KL11 6:MN22

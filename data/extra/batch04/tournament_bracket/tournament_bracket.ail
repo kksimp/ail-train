@@ -1,0 +1,25 @@
+## Tournament bracket: seeded players meet in a knockout bracket (1 v 8, 4 v 5, ...); the
+## higher rating wins each match, and each round's winners are printed.
+
+fn main()
+    ratings := {"Aki": 2710, "Bram": 2650, "Cleo": 2690, "Dana": 2600, "Esa": 2580, "Finn": 2640, "Gia": 2700, "Hugo": 2550}
+    seeded := ratings.keys().sorted(by: |p| (-ratings[p], p))
+    order := [0, 7, 3, 4, 1, 6, 2, 5]
+    mut field := order.map(|i| seeded[i])
+    mut round := 1
+    while field.len() > 1
+        mut next_field := List[str]()
+        mut i := 0
+        while i < field.len()
+            a := field[i]
+            b := field[i + 1]
+            winner := if ratings[a] >= ratings[b] then a else b
+            next_field.push(winner)
+            i += 2
+        print("round {round}: {next_field.join(", ")}")
+        field = next_field
+        round += 1
+    print("champion: {field[0]}")
+
+@test fn pairs()
+    assert_eq([0, 7, 3, 4].len() % 2, 0)

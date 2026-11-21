@@ -1,0 +1,29 @@
+## Packing list: items with weights and tags; builds a list for a trip by including items
+## whose tags match the trip, then trims the lightest-value items to fit a weight limit.
+
+struct Item
+    name str
+    grams int
+    tags List[str]
+    value int
+
+fn main()
+    items := [
+        Item(name: "tent", grams: 2100, tags: ["camp"], value: 10),
+        Item(name: "stove", grams: 800, tags: ["camp"], value: 6),
+        Item(name: "rain jacket", grams: 400, tags: ["camp", "city", "hike"], value: 9),
+        Item(name: "camera", grams: 700, tags: ["city", "hike"], value: 5),
+        Item(name: "boots", grams: 1300, tags: ["hike", "camp"], value: 8),
+        Item(name: "book", grams: 350, tags: ["city", "camp"], value: 2),
+        Item(name: "sun hat", grams: 120, tags: ["hike", "beach"], value: 4),
+    ]
+    for trip in [("camp", 4500), ("hike", 2000), ("city", 3000)]
+        kind, limit := trip
+        mut picked := items.filter(|i| i.tags.contains(kind)).sorted(by: |i| (-i.value, i.name))
+        while picked.map(|i| i.grams).sum() > limit
+            _ := picked.pop()
+        weight := picked.map(|i| i.grams).sum()
+        print("{kind} ({limit} g): {picked.map(|i| i.name).join(", ")} = {weight} g")
+
+@test fn tags()
+    assert(["a", "b"].contains("b"))

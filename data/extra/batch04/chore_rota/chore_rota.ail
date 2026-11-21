@@ -1,0 +1,22 @@
+## Chore rota: rotates chores among housemates week by week so each person does each chore
+## in turn, and prints who has the most minutes of chores over four weeks.
+
+fn main()
+    people := ["Ari", "Bea", "Cas", "Dee"]
+    chores := [("dishes", 70), ("bins", 15), ("bathroom", 45), ("hoover", 30)]
+    mut minutes := Map[str, int]()
+    for p in people
+        minutes[p] = 0
+    for week in 0..4
+        mut line := List[str]()
+        for i, c in chores.enumerate()
+            who := people[(i + week) % people.len()]
+            minutes[who] += c.1
+            line.push("{c.0}={who}")
+        print("week {week + 1}: {line.join(", ")}")
+    for p in people
+        print("{p}: {minutes[p]} min")
+    print("fair: {people.all(|p| minutes[p] == minutes[people[0]])}")
+
+@test fn wraps()
+    assert_eq((3 + 2) % 4, 1)

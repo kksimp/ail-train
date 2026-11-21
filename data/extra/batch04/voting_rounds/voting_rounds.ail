@@ -1,0 +1,28 @@
+## Voting rounds: instant-runoff counting of ranked ballots; the candidate with the fewest
+## first choices is removed each round until someone has a majority.
+
+fn main()
+    ballots := [["A", "B", "C"], ["B", "A", "C"], ["C", "B", "A"], ["A", "C", "B"], ["B", "C", "A"], ["C", "A", "B"], ["B", "A", "C"], ["A", "B", "C"], ["B", "C", "A"]]
+    mut alive := ["A", "B", "C"]
+    mut round := 1
+    while true
+        mut tally := Map[str, int]()
+        for c in alive
+            tally[c] = 0
+        for b in ballots
+            top := b.filter(|c| alive.contains(c)).first() else ""
+            if top != ""
+                tally[top] += 1
+        shown := alive.map(|c| "{c}={tally[c]}").join(" ")
+        print("round {round}: {shown}")
+        leader := alive.max(by: |c| tally[c]) else ""
+        if tally[leader] * 2 > ballots.len()
+            print("winner: {leader}")
+            break
+        loser := alive.min(by: |c| (tally[c], c)) else ""
+        print("  {loser} is out")
+        alive = alive.filter(|c| c != loser)
+        round += 1
+
+@test fn majority()
+    assert(5 * 2 > 9)
