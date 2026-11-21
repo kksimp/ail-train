@@ -1,0 +1,27 @@
+## Roman dates: prints years in Roman numerals and finds, in a range of years, the year with
+## the longest numeral and those with the shortest.
+
+fn roman(n int) str
+    vals := [1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1]
+    syms := ["M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I"]
+    mut left := n
+    mut out := ""
+    for i in 0..vals.len()
+        while left >= vals[i]
+            s := syms[i]
+            out = "{out}{s}"
+            left -= vals[i]
+    out
+
+fn main()
+    for y in [1066, 1492, 1888, 1999, 2026]
+        print("{y}: {roman(y)}")
+    years := [y for y in 1900..=2030]
+    longest := years.max(by: |y| (roman(y).len(), -y)) else 0
+    shortest_len := years.map(|y| roman(y).len()).min() else 0
+    shortest := years.filter(|y| roman(y).len() == shortest_len).map(|y| "{y}").join(", ")
+    print("longest: {longest} {roman(longest)} ({roman(longest).len()} letters)")
+    print("shortest ({shortest_len} letters): {shortest}")
+
+@test fn four()
+    assert_eq(roman(4), "IV")

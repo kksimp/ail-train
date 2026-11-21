@@ -1,0 +1,16 @@
+Ana booked spin
+Ben booked spin
+Cat booked yoga
+Dan booked spin
+Eve waitlisted for spin
+Fay booked yoga
+Gus waitlisted for yoga
+Ben cancelled spin
+  Eve moved up
+Cat cancelled yoga
+  Gus moved up
+Hal waitlisted for spin
+Ana cancelled spin
+  Hal moved up
+spin: Dan, Eve, Hal | waiting: none
+yoga: Fay, Gus | waiting: none

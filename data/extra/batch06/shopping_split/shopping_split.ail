@@ -1,0 +1,20 @@
+## Shopping split: a shared shopping list where each item is split among the people who will
+## use it; prints each person's share in cents with rounding remainders given out fairly.
+
+fn main()
+    items := [("milk", 189, ["Ari", "Bo", "Cy"]), ("coffee", 650, ["Ari", "Cy"]), ("bread", 145, ["Ari", "Bo", "Cy"]), ("cereal", 299, ["Bo"]), ("cheese", 410, ["Ari", "Bo", "Cy"])]
+    mut owed := {"Ari": 0, "Bo": 0, "Cy": 0}
+    for it in items
+        name, cents, who := it
+        each := cents / who.len()
+        extra := cents % who.len()
+        for i, p in who.enumerate()
+            bonus := if i < extra then 1 else 0
+            owed[p] += each + bonus
+    total := items.map(|i| i.1).sum()
+    for p in ["Ari", "Bo", "Cy"]
+        print("{p}: {owed[p] / 100}.{owed[p] % 100:02}")
+    print("total {total / 100}.{total % 100:02}, shares add up: {owed.values().sum() == total}")
+
+@test fn split3()
+    assert_eq(189 / 3, 63)

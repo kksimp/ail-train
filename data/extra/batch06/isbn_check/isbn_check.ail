@@ -1,0 +1,36 @@
+## ISBN check: validates ISBN-10 (weights 10 down to 1, X means 10) and ISBN-13 (weights 1
+## and 3) check digits, ignoring hyphens, and names the expected digit when wrong.
+
+fn digits_of(s str) List[char]
+    s.chars().filter(|c| c != '-')
+
+fn check10(cs List[char]) str
+    mut total := 0
+    for i in 0..9
+        total += (cs[i].to_digit(10) else 0) * (10 - i)
+    want := (11 - total % 11) % 11
+    digit := cs[9].to_digit(10) else -1
+    last := if cs[9] == 'X' then 10 else digit
+    if last == want
+        return "valid"
+    shown := if want == 10 then "X" else "{want}"
+    "invalid, expected {shown}"
+
+fn check13(cs List[char]) str
+    mut total := 0
+    for i in 0..12
+        w := if i % 2 == 0 then 1 else 3
+        total += (cs[i].to_digit(10) else 0) * w
+    want := (10 - total % 10) % 10
+    if (cs[12].to_digit(10) else -1) == want
+        return "valid"
+    "invalid, expected {want}"
+
+fn main()
+    for s in ["0-306-40615-2", "0-306-40615-3", "0-8044-2957-X", "978-0-306-40615-7", "978-0-306-40615-1", "12345"]
+        cs := digits_of(s)
+        verdict := if cs.len() == 10 then check10(cs) elif cs.len() == 13 then check13(cs) else "wrong length"
+        print("{s}: {verdict}")
+
+@test fn ten()
+    assert_eq(check10(digits_of("0306406152")), "valid")

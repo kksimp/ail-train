@@ -1,0 +1,28 @@
+## Book ratings: readers rate books 1 to 5; prints each book's mean, a Bayesian average that
+## pulls books with few ratings towards the overall mean, and the ranking by it.
+
+fn main()
+    ratings := [
+        ("Dune", [5, 4, 5, 5, 4, 5, 3, 5]),
+        ("Ulysses", [5]),
+        ("Emma", [4, 4, 3, 5, 4]),
+        ("Ivanhoe", [2, 3, 3]),
+        ("Beloved", [5, 5, 4, 5, 5, 4]),
+    ]
+    mut every := List[int]()
+    for r in ratings
+        every.extend(r.1)
+    overall := every.sum().to_float() / every.len().to_float()
+    weight := 5.0
+    mut scored := List[(str, float, float, int)]()
+    for r in ratings
+        n := r.1.len()
+        mean := r.1.sum().to_float() / n.to_float()
+        bayes := (weight * overall + r.1.sum().to_float()) / (weight + n.to_float())
+        scored.push((r.0, mean, bayes, n))
+    print("overall mean {overall:.3}")
+    for s in scored.sorted(by: |s| -s.2)
+        print("{s.0:<8} n={s.3} mean {s.1:.2} bayes {s.2:.3}")
+
+@test fn single()
+    assert_eq([5].sum(), 5)
