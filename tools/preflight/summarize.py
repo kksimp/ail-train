@@ -34,6 +34,7 @@ TABLE = re.compile(r"^\s*(\d+)\s+([\d.]+)\s+(?:[^\s\d.]+\s+)?([\d.]+)\s+([\d.]+k
 
 
 def lora_numbers(log, peak):
+    log = re.sub(r"\x1b\[[0-9;]*m", "", log)  # mlx-lm 0.32 colours the table
     rows = [m.groups() for m in REPORT.finditer(log)]
     if not rows:
         t = [m.groups() for m in TABLE.finditer(log)]
