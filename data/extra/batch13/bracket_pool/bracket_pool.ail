@@ -1,5 +1,5 @@
 ## Bracket pool: entrants pick the winners of an eight-team knockout; a correct pick is worth 1 point
-## in the quarter-finals, 2 in the semis and 4 in the final, and the pool table is ranked.
+## in the quarter-finals, 2 in the semis and 4 in the final (12 for a perfect bracket), and the pool table is ranked.
 
 struct Entry
     name str
@@ -27,8 +27,8 @@ fn main()
         print("{t.name:<6} {t.points:>2}")
     best := ranked[0]
     champ := actual[2][0]
-    print("pool winner {best.name} with {best.points} of 16; champion {champ}")
+    print("pool winner {best.name} with {best.points} of 12; champion {champ}")
 
 @test fn perfect_bracket()
     a := [["a", "b", "c", "d"], ["a", "c"], ["a"]]
-    assert_eq(score(a, a), 16)
+    assert_eq(score(a, a), 12)

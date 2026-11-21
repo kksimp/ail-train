@@ -17,4 +17,4 @@ for name, pts in ranked:
     print(f"{name:<6} {pts:>2}")
 best = ranked[0]
 champ = actual[2][0]
-print(f"pool winner {best[0]} with {best[1]} of 16; champion {champ}")
+print(f"pool winner {best[0]} with {best[1]} of 12; champion {champ}")

@@ -19,11 +19,11 @@ fn main()
     for start in 0..cells
         if g[start / n][start % n] != '.' or seen.contains(start)
             continue
-        mut todo := [start]
+        mut pending := [start]
         seen.add(start)
         mut size := 0
         mut borders := Set[char]()
-        while cell := todo.pop()
+        while cell := pending.pop()
             size += 1
             r := cell / n
             c := cell % n
@@ -34,7 +34,7 @@ fn main()
                     v := g[nr][nc]
                     if v == '.'
                         if seen.add(nr * n + nc)
-                            todo.push(nr * n + nc)
+                            pending.push(nr * n + nc)
                     else
                         borders.add(v)
         if borders.len() == 1 and borders.contains('B')

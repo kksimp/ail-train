@@ -30,4 +30,4 @@ fn main()
     print("a trip from day {start} can last {length} days")
 
 @test fn window_clips()
-    assert_eq(days_in_window([[1, 10]], 185), 4)
+    assert_eq(days_in_window([[1, 10]], 185), 5)

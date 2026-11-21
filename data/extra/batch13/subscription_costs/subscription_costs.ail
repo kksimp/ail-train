@@ -6,13 +6,13 @@ enum Period
     Monthly
     Yearly
 
-struct Sub
+struct Plan
     name str
     cents int
     period Period
     days_since_use int
 
-fn Sub.monthly(self) int
+fn Plan.monthly(self) int
     match period
         Weekly => cents * 52 / 12
         Monthly => cents
@@ -22,7 +22,7 @@ fn money(c int) str
     "{c / 100}.{c % 100:02}"
 
 fn main()
-    subs := [Sub(name: "music", cents: 1099, period: Period.Monthly, days_since_use: 1), Sub(name: "video", cents: 1549, period: Period.Monthly, days_since_use: 75), Sub(name: "cloud", cents: 9999, period: Period.Yearly, days_since_use: 3), Sub(name: "newspaper", cents: 350, period: Period.Weekly, days_since_use: 40), Sub(name: "gym", cents: 3500, period: Period.Monthly, days_since_use: 92), Sub(name: "game pass", cents: 5999, period: Period.Yearly, days_since_use: 200)]
+    subs := [Plan(name: "music", cents: 1099, period: Period.Monthly, days_since_use: 1), Plan(name: "video", cents: 1549, period: Period.Monthly, days_since_use: 75), Plan(name: "cloud", cents: 9999, period: Period.Yearly, days_since_use: 3), Plan(name: "newspaper", cents: 350, period: Period.Weekly, days_since_use: 40), Plan(name: "gym", cents: 3500, period: Period.Monthly, days_since_use: 92), Plan(name: "game pass", cents: 5999, period: Period.Yearly, days_since_use: 200)]
     mut total := 0
     mut saving := 0
     for s in subs
@@ -37,4 +37,4 @@ fn main()
     print("cancelling unused plans saves {money(saving)} a month")
 
 @test fn weekly_to_monthly()
-    assert_eq(Sub(name: "x", cents: 300, period: Period.Weekly, days_since_use: 0).monthly(), 1300)
+    assert_eq(Plan(name: "x", cents: 300, period: Period.Weekly, days_since_use: 0).monthly(), 1300)
