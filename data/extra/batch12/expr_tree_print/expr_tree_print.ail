@@ -1,0 +1,63 @@
+## Expression tree: builds a tree from postfix tokens with a stack, then prints it in infix with
+## only the brackets that precedence and left-to-right order need, and evaluates it.
+
+enum Expr
+    Num(v int)
+    Op(sym str, l int, r int)
+
+fn prec(sym str) int
+    if sym == "+" or sym == "-" then 1 else 2
+
+fn level(nodes List[Expr], i int) int
+    match nodes[i]
+        Num(_) => 3
+        Op(sym, _, _) => prec(sym)
+
+fn text(nodes List[Expr], i int) str
+    match nodes[i]
+        Num(v) => "{v}"
+        Op(sym, l, r) =>
+            p := prec(sym)
+            mut a := text(nodes, l)
+            mut b := text(nodes, r)
+            if level(nodes, l) < p
+                a = "({a})"
+            rl := level(nodes, r)
+            if rl < p or (rl == p and (sym == "-" or sym == "/"))
+                b = "({b})"
+            "{a} {sym} {b}"
+
+fn eval(nodes List[Expr], i int) int
+    match nodes[i]
+        Num(v) => v
+        Op(sym, l, r) =>
+            a := eval(nodes, l)
+            b := eval(nodes, r)
+            match sym
+                "+" => a + b
+                "-" => a - b
+                "*" => a * b
+                _ => a / b
+
+fn build(postfix str, mut nodes List[Expr]) int
+    mut stack := List[int]()
+    for tok in postfix.split(" ")
+        if n := tok.to_int()
+            nodes.push(Expr.Num(v: n))
+        else
+            r := stack.pop() else 0
+            l := stack.pop() else 0
+            nodes.push(Expr.Op(sym: tok, l: l, r: r))
+        stack.push(nodes.len() - 1)
+    stack.pop() else 0
+
+fn main()
+    for pf in ["3 4 + 2 *", "3 4 2 * +", "10 4 2 - -", "10 4 - 2 -", "8 2 / 2 /", "1 2 + 3 4 - *", "6 2 3 * /"]
+        mut nodes := List[Expr]()
+        root := build(pf, mut nodes)
+        print("{pf:<16} => {text(nodes, root)} = {eval(nodes, root)}")
+
+@test fn simple()
+    mut nodes := List[Expr]()
+    root := build("2 3 *", mut nodes)
+    assert_eq(eval(nodes, root), 6)

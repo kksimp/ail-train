@@ -1,0 +1,38 @@
+## Driver routes: Kuhn's augmenting-path matching gives each delivery route a licensed driver;
+## a route may take a busy driver when that driver's current route can be moved to another.
+
+fn try_route(r int, can List[List[int]], mut seen List[bool], mut owner List[int]) bool
+    for d in can[r]
+        if not seen[d]
+            seen[d] = true
+            cur := owner[d]
+            if cur < 0 or try_route(cur, can, mut seen, mut owner)
+                owner[d] = r
+                return true
+    false
+
+fn main()
+    routes := ["North loop", "Harbour", "Airport", "Old town", "Ring road"]
+    drivers := ["Ana", "Bo", "Cy", "Dev", "Eli", "Fay"]
+    can := [[0, 1], [0], [1, 2, 3], [2], [3, 4]]
+    mut owner := [-1, -1, -1, -1, -1, -1]
+    mut matched := 0
+    for r in 0..routes.len()
+        mut seen := [false, false, false, false, false, false]
+        if try_route(r, can, mut seen, mut owner)
+            matched += 1
+            print("{routes[r]:<11} matched, drivers now {owner}")
+        else
+            print("{routes[r]:<11} has no free driver")
+    for d in 0..drivers.len()
+        if owner[d] >= 0
+            print("{drivers[d]} drives {routes[owner[d]]}")
+        else
+            print("{drivers[d]} is spare")
+    print("{matched} of {routes.len()} routes covered")
+
+@test fn single_pair()
+    mut seen := [false]
+    mut owner := [-1]
+    assert(try_route(0, [[0]], mut seen, mut owner))
+    assert_eq(owner, [0])

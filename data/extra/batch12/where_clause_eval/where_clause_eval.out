@@ -1,0 +1,8 @@
+WHERE (((price < 50 AND qty > 0) OR featured = 1) AND NOT discontinued = 1)
+lamp    keep
+rug     keep
+vase    skip
+clock   skip
+chair   skip
+mirror  skip
+2 rows: lamp, rug

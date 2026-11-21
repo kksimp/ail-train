@@ -1,0 +1,10 @@
+12 -> page 0, offset  18 (table) -> 512
+1a4 -> page 1, offset 164 (table) -> 9a4
+ff -> page 0, offset 255 (TLB hit) -> 5ff
+2c3 -> page 2, offset 195 (page fault) -> ac3
+105 -> page 1, offset   5 (table) -> 905
+2ff -> page 2, offset 255 (TLB hit) -> aff
+330 -> page 3, offset  48 (page fault) -> b30
+11 -> page 0, offset  17 (table) -> 511
+3a0 -> page 3, offset 160 (TLB hit) -> ba0
+TLB hits 3, page faults 2, frames used 4

@@ -1,0 +1,36 @@
+## Clock replacement: the second-chance page policy; frames sit on a circle with a use bit, and on
+## a fault the hand clears set bits as it passes and replaces the first page whose bit is clear.
+
+fn show(frames List[int], used List[bool], hand int) str
+    mut parts := List[str]()
+    for i in 0..frames.len()
+        p := if frames[i] < 0 then "-" else "{frames[i]}"
+        star := if used[i] then "*" else ""
+        arrow := if i == hand then ">" else " "
+        parts.push("{arrow}{p}{star}")
+    parts.join(" ")
+
+fn main()
+    refs := [1, 2, 3, 4, 1, 2, 5, 1, 2, 3, 4, 5, 2]
+    mut frames := [-1, -1, -1, -1]
+    mut used := [false, false, false, false]
+    mut hand := 0
+    mut faults := 0
+    for p in refs
+        at := frames.index_of(p) else -1
+        if at >= 0
+            used[at] = true
+            print("{p:>2} hit    {show(frames, used, hand)}")
+            continue
+        faults += 1
+        while used[hand]
+            used[hand] = false
+            hand = (hand + 1) % frames.len()
+        frames[hand] = p
+        used[hand] = true
+        hand = (hand + 1) % frames.len()
+        print("{p:>2} fault  {show(frames, used, hand)}")
+    print("{faults} faults for {refs.len()} references")
+
+@test fn display()
+    assert_eq(show([3, -1], [true, false], 1), " 3* >-")

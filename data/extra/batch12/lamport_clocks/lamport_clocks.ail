@@ -1,0 +1,35 @@
+## Lamport clocks: three servers tick their counter on every event; a message carries the sender's
+## time and the receiver jumps past it, so (time, server) gives one order all servers agree on.
+
+enum Ev
+    Local(who int)
+    Send(who int, to int)
+    Recv(who int)
+
+fn main()
+    events := [Ev.Local(who: 0), Ev.Send(who: 0, to: 1), Ev.Local(who: 2), Ev.Send(who: 2, to: 1), Ev.Recv(who: 1), Ev.Local(who: 1), Ev.Recv(who: 1), Ev.Send(who: 1, to: 0), Ev.Local(who: 2), Ev.Recv(who: 0)]
+    mut clock := [0, 0, 0]
+    mut inbox := [List[int](), List[int](), List[int]()]
+    mut stamped := List[List[int]]()
+    for e in events
+        match e
+            Local(who) =>
+                clock[who] += 1
+                print("S{who} local       t={clock[who]}")
+                stamped.push([clock[who], who])
+            Send(who, to) =>
+                clock[who] += 1
+                inbox[to].push(clock[who])
+                print("S{who} send to S{to}  t={clock[who]}")
+                stamped.push([clock[who], who])
+            Recv(who) =>
+                sent := inbox[who][0]
+                inbox[who].remove_at(0)
+                clock[who] = clock[who].max(sent) + 1
+                print("S{who} receive {sent}   t={clock[who]}")
+                stamped.push([clock[who], who])
+    order := stamped.sorted().map(|p| "{p[0]}.S{p[1]}").join(" ")
+    print("total order: {order}")
+
+@test fn jump()
+    assert_eq(1.max(5) + 1, 6)

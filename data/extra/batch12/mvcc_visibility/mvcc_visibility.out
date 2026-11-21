@@ -1,0 +1,4 @@
+snapshot at 3, T2 running: pen=120
+snapshot at 5, T4 running: pen=120 cap=900 mug=450
+snapshot at 7, none running: pen=135 cap=900 mug=480
+snapshot at 7, T6 running: pen=135 cap=900 mug=450

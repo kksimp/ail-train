@@ -1,0 +1,11 @@
+farthest from Lobby: Server at 90 m
+farthest from Server: Archive at 170 m
+longest cable run: Server to Archive, 170 m
+Lobby    reaches every office within 90 m
+Sales    reaches every office within 120 m
+Ops      reaches every office within 100 m
+Lab      reaches every office within 145 m
+Print    reaches every office within 115 m
+Server   reaches every office within 170 m
+Archive  reaches every office within 170 m
+Roof     reaches every office within 125 m

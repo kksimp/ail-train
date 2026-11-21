@@ -1,0 +1,12 @@
+start: [0, 1, 2, 4, 7]
+  after b: [1, 2, 4, 5, 6, 7]
+  after a: [1, 2, 3, 4, 6, 7, 8]
+  after b: [1, 2, 4, 5, 6, 7, 9]
+  after b: [1, 2, 4, 5, 6, 7, 10]
+'abb' accept
+'aabb' accept
+'babb' accept
+'abab' reject
+'ab' reject
+'bbbabb' accept
+'' reject

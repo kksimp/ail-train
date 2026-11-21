@@ -1,0 +1,55 @@
+## Slide and merge: the 2048 tile game's move; each row slides its tiles left and joins equal
+## neighbours once per move, and the other directions reuse it by reversing or transposing.
+
+fn slide(row List[int], mut score List[int]) List[int]
+    tiles := row.filter(|x| x != 0)
+    mut out := List[int]()
+    mut i := 0
+    while i < tiles.len()
+        if i + 1 < tiles.len() and tiles[i] == tiles[i + 1]
+            out.push(tiles[i] * 2)
+            score[0] += tiles[i] * 2
+            i += 2
+        else
+            out.push(tiles[i])
+            i += 1
+    while out.len() < row.len()
+        out.push(0)
+    out
+
+fn transpose(b List[List[int]]) List[List[int]]
+    [[b[r][c] for r in 0..b.len()] for c in 0..b[0].len()]
+
+fn slide_all(rows List[List[int]], flip bool, mut score List[int]) List[List[int]]
+    mut out := List[List[int]]()
+    for r in rows
+        if flip
+            out.push(slide(r.reversed(), mut score).reversed())
+        else
+            out.push(slide(r, mut score))
+    out
+
+fn apply(b List[List[int]], dir char, mut score List[int]) List[List[int]]
+    if dir == 'L'
+        return slide_all(b, false, mut score)
+    if dir == 'R'
+        return slide_all(b, true, mut score)
+    t := transpose(b)
+    if dir == 'U'
+        return transpose(slide_all(t, false, mut score))
+    transpose(slide_all(t, true, mut score))
+
+fn main()
+    mut b := [[2, 2, 4, 0], [0, 4, 4, 4], [2, 0, 2, 8], [8, 8, 0, 8]]
+    mut score := [0]
+    for d in "LUDRL".chars()
+        b = apply(b, d, mut score)
+        rows := b.map(|r| r.map(|x| "{x:>3}").join("")).join(" |")
+        print("{d}:{rows}")
+    tops := b.map(|r| r.max() else 0)
+    top := tops.max() else 0
+    print("score {score[0]}, best tile {top}")
+
+@test fn merge_once()
+    mut s := [0]
+    assert_eq(slide([2, 2, 2, 2], mut s), [4, 4, 0, 0])

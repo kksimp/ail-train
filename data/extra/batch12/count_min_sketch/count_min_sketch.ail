@@ -1,0 +1,35 @@
+## Count-min sketch: page views are counted in four rows of sixteen counters, each row with its
+## own hash; a page's estimate is the smallest of its four counters, never below the true count.
+
+fn base_hash(s str) int
+    mut h := 0
+    for c in s.chars()
+        h = (h * 31 + c.code()) % 1000003
+    h
+
+fn slot(s str, row int) int
+    seeds := [[17, 5], [29, 11], [43, 3], [61, 7]]
+    ((base_hash(s) * seeds[row][0] + seeds[row][1]) % 1009) % 16
+
+fn main()
+    pages := ["/home", "/shop", "/cart", "/help", "/blog", "/about", "/jobs", "/news", "/faq", "/login"]
+    mut grid := List[List[int]]()
+    for r in 0..4
+        grid.push([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+    mut truth := Map[str, int]()
+    mut seed := 11
+    for i in 0..300
+        seed = (seed * 1103515245 + 12345) % 2147483648
+        roll := (seed >> 8) % 100
+        page := if roll < 40 then pages[0] elif roll < 60 then pages[1] elif roll < 70 then pages[2] else pages[3 + roll % 7]
+        truth[page] += 1
+        for r in 0..4
+            grid[r][slot(page, r)] += 1
+    for p in pages
+        est := [grid[r][slot(p, r)] for r in 0..4].min() else 0
+        real := truth.get_or(p, 0)
+        print("{p:<7} true {real:>3}, estimate {est:>3}, over by {est - real}")
+    print("64 counters for {pages.len()} pages")
+
+@test fn in_range()
+    assert(slot("/x", 2) < 16)

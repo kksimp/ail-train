@@ -1,0 +1,9 @@
+[3, 3, 3, 3]: possible, 6 handshakes
+[4, 3, 3, 2, 2]: possible, 7 handshakes
+[3, 3, 3, 1]: impossible
+[5, 4, 3, 2, 1, 1]: impossible
+[2, 2, 2, 2, 2, 2]: possible, 6 handshakes
+[4, 4, 4, 1, 1]: impossible
+[3, 2, 2, 1]: possible, 4 handshakes
+[6, 1, 1, 1, 1, 1, 1]: possible, 6 handshakes
+5 of 8 parties could happen

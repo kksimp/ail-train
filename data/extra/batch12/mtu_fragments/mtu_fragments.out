@@ -1,0 +1,4 @@
+after MTU 1500: 0/1480+ 185/1480+ 370/1020
+after MTU 576:  0/552+ 69/552+ 138/376+ 185/552+ 254/552+ 323/376+ 370/552+ 439/468
+8 fragments carry 3980 data bytes plus 160 header bytes
+offset/size, + means more fragments follow

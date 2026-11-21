@@ -1,0 +1,49 @@
+## Poker ranks: names each five-card hand (straight flush down to high card) from rank counts and
+## suits, builds a comparable score list (category, then ranks by count), and picks the winner.
+
+fn value(c char) int
+    match c
+        'T' => 10
+        'J' => 11
+        'Q' => 12
+        'K' => 13
+        'A' => 14
+        _ => (c.to_digit(10) else 0)
+
+fn score(hand str) List[int]
+    cards := hand.split(" ")
+    vals := cards.map(|c| value(c.chars()[0])).sorted().reversed()
+    mut suit_set := Set[char]()
+    for c in cards
+        suit_set.add(c.chars()[1])
+    mut counts := Map[int, int]()
+    for v in vals
+        counts[v] += 1
+    mut ks := List[int]()
+    for k in counts.keys()
+        ks.push(k)
+    order := ks.sorted(by: |k| (-counts[k], -k))
+    flush := suit_set.len() == 1
+    straight := counts.len() == 5 and vals[0] - vals[4] == 4
+    top := counts[order[0]]
+    cat := if straight and flush then 8 elif top == 4 then 7 elif top == 3 and counts.len() == 2 then 6 elif flush then 5 elif straight then 4 elif top == 3 then 3 elif top == 2 and counts.len() == 3 then 2 elif top == 2 then 1 else 0
+    mut out := [cat]
+    out.extend(order)
+    out
+
+fn main()
+    names := ["high card", "pair", "two pair", "three of a kind", "straight", "flush", "full house", "four of a kind", "straight flush"]
+    players := [("Ivy", "KH KD 7S 7C 2H"), ("Jon", "9C TC JC QC KC"), ("Kim", "3D 3S 3H 9C 9D"), ("Lee", "AS 4S 9S JS 2S"), ("Max", "5H 6D 7S 8C 9H"), ("Ned", "KS KC 7D 7H AH")]
+    mut best_name := ""
+    mut best := [-1]
+    for p in players
+        who, hand := p
+        s := score(hand)
+        print("{who}: {hand} is {names[s[0]]} {s}")
+        if s > best
+            best = s
+            best_name = who
+    print("winner: {best_name}")
+
+@test fn pair_beats_high()
+    assert(score("2H 2D 5S 7C 9H") > score("AH KD 5S 7C 9H"))

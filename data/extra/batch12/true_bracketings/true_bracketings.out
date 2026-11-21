@@ -1,0 +1,6 @@
+T|F&T           2 true bracketings
+T^F|F           2 true bracketings
+T&F^T|F         5 true bracketings
+F|T^F&T|F      14 true bracketings
+T^T^T^T         0 true bracketings
+F&F|T^T&F|T    19 true bracketings

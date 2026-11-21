@@ -1,0 +1,8 @@
+design       start day  0, slack 0 *
+order parts  start day  5, slack 0 *
+write code   start day  5, slack 1
+build rig    start day 12, slack 0 *
+test         start day 16, slack 0 *
+manual       start day 15, slack 4
+ship         start day 22, slack 0 *
+project takes 24 days; * marks the critical path

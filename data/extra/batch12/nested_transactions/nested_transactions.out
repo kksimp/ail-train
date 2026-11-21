@@ -1,0 +1,10 @@
+GET a -> 30
+ROLLBACK -> rolled back 1 keys
+GET a -> 20
+GET b -> 5
+ROLLBACK -> rolled back 2 keys
+GET a -> 10
+GET b -> NULL
+ROLLBACK -> NO TRANSACTION
+GET c -> 1
+open levels: 0, keys: ["a", "c"]

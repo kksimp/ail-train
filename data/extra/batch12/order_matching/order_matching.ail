@@ -1,0 +1,51 @@
+## Order matching: a limit order book; an incoming buy trades against the cheapest resting sells
+## (oldest first at a price) while its limit allows, and the rest of it waits in the book.
+
+struct Order
+    id int
+    side str
+    price int
+    qty int
+
+fn best(book List[Order], side str) int
+    mut at := -1
+    for i in 0..book.len()
+        o := book[i]
+        if o.side == side and o.qty > 0
+            better := at < 0 or (side == "sell" and o.price < book[at].price) or (side == "buy" and o.price > book[at].price)
+            if better
+                at = i
+    at
+
+fn main()
+    mut book := List[Order]()
+    incoming := [Order(id: 1, side: "sell", price: 102, qty: 50), Order(id: 2, side: "sell", price: 101, qty: 30), Order(id: 3, side: "buy", price: 99, qty: 40), Order(id: 4, side: "buy", price: 102, qty: 60), Order(id: 5, side: "sell", price: 98, qty: 70), Order(id: 6, side: "sell", price: 101, qty: 25), Order(id: 7, side: "buy", price: 103, qty: 45)]
+    mut volume := 0
+    for o0 in incoming
+        mut o := o0
+        other := if o.side == "buy" then "sell" else "buy"
+        while o.qty > 0
+            at := best(book, other)
+            if at < 0
+                break
+            p := book[at].price
+            crosses := if o.side == "buy" then p <= o.price else p >= o.price
+            if not crosses
+                break
+            fill := o.qty.min(book[at].qty)
+            print("trade {fill} at {p}: order {o.id} with resting order {book[at].id}")
+            book[at].qty -= fill
+            o.qty -= fill
+            volume += fill
+        if o.qty > 0
+            book.push(o)
+        book = book.filter(|r| r.qty > 0)
+    for side in ["buy", "sell"]
+        rest := book.filter(|r| r.side == side).map(|r| "{r.qty}@{r.price}")
+        shown := if rest.len() == 0 then "empty" else rest.join(" ")
+        print("{side} side: {shown}")
+    print("traded volume {volume}")
+
+@test fn best_sell()
+    book := [Order(id: 1, side: "sell", price: 5, qty: 1), Order(id: 2, side: "sell", price: 4, qty: 1)]
+    assert_eq(best(book, "sell"), 1)

@@ -1,0 +1,13 @@
+t= 1s tea   miss, fetched 942
+t= 3s rice  miss, fetched 1257
+t= 8s tea   hit 942
+  sweep at 10s dropped 0
+t=12s salt  miss, fetched 1308
+t=16s tea   miss, fetched 942
+t=19s rice  miss, fetched 1257
+  sweep at 20s dropped 0
+t=22s tea   hit 942
+t=27s salt  miss, fetched 1308
+  sweep at 30s dropped 2
+t=33s oil   miss, fetched 972
+7 fetches for 9 reads

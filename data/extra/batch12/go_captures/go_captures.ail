@@ -1,0 +1,59 @@
+## Go captures: stones are played on a 7x7 board; after each move any enemy group touching the
+## stone with no empty neighbours (liberties) is lifted, found by flood fill, and counted.
+
+fn group(b List[List[char]], r0 int, c0 int, mut cells List[List[int]]) int
+    colour := b[r0][c0]
+    mut seen := Set[int]()
+    mut libs := Set[int]()
+    mut stack := [[r0, c0]]
+    seen.add(r0 * 7 + c0)
+    while cur := stack.pop()
+        cells.push(cur)
+        for d in [[1, 0], [-1, 0], [0, 1], [0, -1]]
+            r := cur[0] + d[0]
+            c := cur[1] + d[1]
+            if r >= 0 and r < 7 and c >= 0 and c < 7
+                if b[r][c] == '.'
+                    libs.add(r * 7 + c)
+                elif b[r][c] == colour and seen.add(r * 7 + c)
+                    stack.push([r, c])
+    libs.len()
+
+fn play(mut b List[List[char]], r int, c int, me char) int
+    b[r][c] = me
+    foe := if me == 'X' then 'O' else 'X'
+    mut taken := 0
+    for d in [[1, 0], [-1, 0], [0, 1], [0, -1]]
+        nr := r + d[0]
+        nc := c + d[1]
+        if nr >= 0 and nr < 7 and nc >= 0 and nc < 7 and b[nr][nc] == foe
+            mut cells := List[List[int]]()
+            if group(b, nr, nc, mut cells) == 0
+                for cell in cells
+                    b[cell[0]][cell[1]] = '.'
+                taken += cells.len()
+    taken
+
+fn main()
+    mut b := List[List[char]]()
+    for i in 0..7
+        b.push(['.', '.', '.', '.', '.', '.', '.'])
+    moves := [[2, 2], [2, 3], [1, 3], [3, 3], [3, 2], [2, 4], [6, 6], [3, 4], [4, 3], [1, 4], [0, 4], [5, 5], [1, 5], [6, 5], [2, 5], [5, 6], [3, 5], [6, 0], [4, 4]]
+    mut caps := [0, 0]
+    for i, m in moves.enumerate()
+        me := if i % 2 == 0 then 'X' else 'O'
+        got := play(mut b, m[0], m[1], me)
+        caps[i % 2] += got
+        if got > 0
+            print("move {i + 1}: {me} at ({m[0]}, {m[1]}) captures {got}")
+    for row in b
+        print(row.join(""))
+    print("captures: X {caps[0]}, O {caps[1]}")
+
+@test fn lone_stone_liberties()
+    mut b := List[List[char]]()
+    for i in 0..7
+        b.push(['.', '.', '.', '.', '.', '.', '.'])
+    b[0][0] = 'X'
+    mut cells := List[List[int]]()
+    assert_eq(group(b, 0, 0, mut cells), 2)

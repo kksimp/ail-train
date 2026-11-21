@@ -1,0 +1,47 @@
+## Where clause: a filter is a small tree of comparisons joined by and, or and not, kept as enum
+## nodes in a list; each product row is tested by walking the tree, and the condition is printed.
+
+enum Cond
+    Cmp(field str, op str, val int)
+    All(l int, r int)
+    Either(l int, r int)
+    Negate(x int)
+
+fn holds(nodes List[Cond], i int, row Map[str, int]) bool
+    match nodes[i]
+        Cmp(field, op, val) =>
+            v := row.get_or(field, 0)
+            match op
+                "<" => v < val
+                ">" => v > val
+                _ => v == val
+        All(l, r) => holds(nodes, l, row) and holds(nodes, r, row)
+        Either(l, r) => holds(nodes, l, row) or holds(nodes, r, row)
+        Negate(x) => not holds(nodes, x, row)
+
+fn text(nodes List[Cond], i int) str
+    match nodes[i]
+        Cmp(field, op, val) => "{field} {op} {val}"
+        All(l, r) => "({text(nodes, l)} AND {text(nodes, r)})"
+        Either(l, r) => "({text(nodes, l)} OR {text(nodes, r)})"
+        Negate(x) => "NOT {text(nodes, x)}"
+
+fn main()
+    nodes := [Cond.Cmp(field: "price", op: "<", val: 50), Cond.Cmp(field: "qty", op: ">", val: 0), Cond.All(l: 0, r: 1), Cond.Cmp(field: "featured", op: "=", val: 1), Cond.Either(l: 2, r: 3), Cond.Cmp(field: "discontinued", op: "=", val: 1), Cond.Negate(x: 5), Cond.All(l: 4, r: 6)]
+    root := nodes.len() - 1
+    print("WHERE {text(nodes, root)}")
+    names := ["lamp", "rug", "vase", "clock", "chair", "mirror"]
+    rows := [{"price": 35, "qty": 4, "featured": 0, "discontinued": 0}, {"price": 120, "qty": 2, "featured": 1, "discontinued": 0}, {"price": 20, "qty": 0, "featured": 0, "discontinued": 0}, {"price": 45, "qty": 7, "featured": 0, "discontinued": 1}, {"price": 80, "qty": 1, "featured": 0, "discontinued": 0}, {"price": 60, "qty": 3, "featured": 1, "discontinued": 1}]
+    mut kept := List[str]()
+    for i, row in rows.enumerate()
+        ok := holds(nodes, root, row)
+        mark := if ok then "keep" else "skip"
+        print("{names[i]:<7} {mark}")
+        if ok
+            kept.push(names[i])
+    shown := kept.join(", ")
+    print("{kept.len()} rows: {shown}")
+
+@test fn single_cmp()
+    row := {"a": 3}
+    assert(holds([Cond.Cmp(field: "a", op: ">", val: 2)], 0, row))

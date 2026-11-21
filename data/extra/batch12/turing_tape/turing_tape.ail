@@ -1,0 +1,46 @@
+## Turing tape: a Turing machine simulator with rules keyed by state and symbol; it runs a binary
+## increment machine on a few numbers and the two-state busy beaver on a blank tape.
+
+struct Rule
+    write char
+    shift int
+    next_state str
+
+fn run(rules Map[str, Rule], input str, start str) List[str]
+    mut tape := Map[int, char]()
+    for i, ch in input.chars().enumerate()
+        tape[i] = ch
+    mut head := if input.len() > 0 then input.len() - 1 else 0
+    if start == "bb_a"
+        head = 0
+    mut state := start
+    mut steps := 0
+    while state != "halt" and steps < 100
+        sym := tape.get_or(head, '_')
+        key := "{state}:{sym}"
+        r := rules.get(key) else break
+        tape[head] = r.write
+        head += r.shift
+        state = r.next_state
+        steps += 1
+    ks := tape.keys().sorted()
+    lo := ks[0]
+    hi := ks[ks.len() - 1]
+    mut cells := List[char]()
+    for i in lo..=hi
+        cells.push(tape.get_or(i, '_'))
+    shown := cells.join("")
+    [shown, "{steps}"]
+
+fn main()
+    inc := {"inc:1": Rule(write: '0', shift: -1, next_state: "inc"), "inc:0": Rule(write: '1', shift: 0, next_state: "halt"), "inc:_": Rule(write: '1', shift: 0, next_state: "halt")}
+    for n in ["1011", "111", "0", "1001"]
+        r := run(inc, n, "inc")
+        print("increment {n}: {r[0]} in {r[1]} steps")
+    bb := {"bb_a:_": Rule(write: '1', shift: 1, next_state: "bb_b"), "bb_a:1": Rule(write: '1', shift: -1, next_state: "bb_b"), "bb_b:_": Rule(write: '1', shift: -1, next_state: "bb_a"), "bb_b:1": Rule(write: '1', shift: 1, next_state: "halt")}
+    r := run(bb, "", "bb_a")
+    print("busy beaver: tape {r[0]} after {r[1]} steps")
+
+@test fn carry()
+    inc := {"inc:1": Rule(write: '0', shift: -1, next_state: "inc"), "inc:_": Rule(write: '1', shift: 0, next_state: "halt")}
+    assert_eq(run(inc, "11", "inc")[0], "100")

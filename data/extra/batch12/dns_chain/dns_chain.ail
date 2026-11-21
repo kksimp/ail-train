@@ -1,0 +1,37 @@
+## DNS chain: a resolver follows CNAME aliases until it reaches an address record, refusing chains
+## longer than eight steps or that loop back on themselves, and caches every answer it finds.
+
+fn resolve(name str, zone Map[str, List[str]], mut cache Map[str, str]) str ! Fail
+    if hit := cache.get(name)
+        return "{hit} (cached)"
+    mut cur := name
+    mut seen := Set[str]()
+    mut path := List[str]()
+    for i in 0..8
+        if not seen.add(cur)
+            return Fail(msg: "loop at {cur}")
+        rec := zone.get(cur) else return Fail(msg: "no record for {cur}")
+        if rec[0] == "A"
+            cache[name] = rec[1]
+            path.push(rec[1])
+            via := path.join(" > ")
+            return "{via}"
+        path.push(rec[1])
+        cur = rec[1]
+    return Fail(msg: "chain too long")
+
+fn main()
+    zone := {"www.shop.test": ["CNAME", "shop.cdn.test"], "shop.cdn.test": ["CNAME", "edge7.cdn.test"], "edge7.cdn.test": ["A", "198.51.100.7"], "api.shop.test": ["A", "198.51.100.20"], "old.shop.test": ["CNAME", "legacy.shop.test"], "legacy.shop.test": ["CNAME", "old.shop.test"], "blog.shop.test": ["CNAME", "gone.host.test"]}
+    mut cache := Map[str, str]()
+    for name in ["www.shop.test", "api.shop.test", "old.shop.test", "blog.shop.test", "www.shop.test"]
+        if answer := resolve(name, zone, mut cache)
+            print("{name}: {answer}")
+        else err
+            print("{name}: error, {err.msg}")
+    print("{cache.len()} names cached")
+
+@test fn direct()
+    mut cache := Map[str, str]()
+    zone := {"a.test": ["A", "1.2.3.4"]}
+    answer := resolve("a.test", zone, mut cache) else ""
+    assert_eq(answer, "1.2.3.4")

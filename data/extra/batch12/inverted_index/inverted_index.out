@@ -1,0 +1,6 @@
+21 words indexed
+printer AND toner: notes [2, 5]
+wifi OR laptop: notes [1, 3, 6]
+floor AND wifi: notes [3]
+printer NOT toner: notes [0]
+room AND fax: notes []

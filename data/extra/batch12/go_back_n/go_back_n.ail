@@ -1,0 +1,36 @@
+## Go-back-N: a sender keeps up to four unacknowledged frames in flight; the receiver accepts only
+## the next frame in order, so a lost frame makes the sender resend it and everything after it.
+
+fn main()
+    total := 10
+    window := 4
+    lost := {"2:1", "5:1", "5:2", "8:1"}
+    mut attempts := List[int]()
+    for i in 0..total
+        attempts.push(0)
+    mut base := 0
+    mut sent := 0
+    mut round := 1
+    while base < total
+        mut expected := base
+        mut shown := List[str]()
+        top := (base + window).min(total)
+        for f in base..top
+            attempts[f] += 1
+            sent += 1
+            tag := "{f}:{attempts[f]}"
+            if lost.contains(tag)
+                shown.push("{f}x")
+            elif f == expected
+                expected += 1
+                shown.push("{f}")
+            else
+                shown.push("{f}-")
+        line := shown.join(" ")
+        print("round {round}: sent {line}; ack {expected}")
+        base = expected
+        round += 1
+    print("{sent} transmissions for {total} frames (x lost, - discarded out of order)")
+
+@test fn window_top()
+    assert_eq((8 + 4).min(10), 10)

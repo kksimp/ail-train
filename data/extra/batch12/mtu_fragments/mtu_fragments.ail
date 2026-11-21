@@ -1,0 +1,41 @@
+## MTU fragments: an IPv4 packet larger than a link's MTU is cut into fragments whose data is a
+## multiple of 8 bytes, each with an offset in 8-byte units and a more-fragments flag.
+
+struct Frag
+    offset int
+    size int
+    more bool
+
+fn fragment(f Frag, mtu int) List[Frag]
+    room := (mtu - 20) / 8 * 8
+    if f.size <= mtu - 20
+        return [f]
+    mut out := List[Frag]()
+    mut done := 0
+    while done < f.size
+        part := room.min(f.size - done)
+        last := done + part >= f.size
+        out.push(Frag(offset: f.offset + done / 8, size: part, more: f.more or not last))
+        done += part
+    out
+
+fn show(fs List[Frag]) str
+    fs.map(|f| "{f.offset}/{f.size}{flag(f.more)}").join(" ")
+
+fn flag(more bool) str
+    if more then "+" else ""
+
+fn main()
+    packet := Frag(offset: 0, size: 3980, more: false)
+    first := fragment(packet, 1500)
+    print("after MTU 1500: {show(first)}")
+    mut second := List[Frag]()
+    for f in first
+        second.extend(fragment(f, 576))
+    print("after MTU 576:  {show(second)}")
+    total := second.fold(0, |acc, f| acc + f.size)
+    print("{second.len()} fragments carry {total} data bytes plus {second.len() * 20} header bytes")
+    print("offset/size, + means more fragments follow")
+
+@test fn small_passes()
+    assert_eq(fragment(Frag(offset: 0, size: 100, more: false), 576).len(), 1)

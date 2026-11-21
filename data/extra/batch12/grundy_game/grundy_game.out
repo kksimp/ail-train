@@ -1,0 +1,6 @@
+grundy values 0..20: [0, 1, 0, 1, 2, 3, 2, 0, 1, 0, 1, 2, 3, 2, 0, 1, 0, 1, 2, 3, 2]
+losing pile sizes: [0, 2, 7, 9, 14, 16]
+[5, 7]: xor 3, win by take 3 from pile 1
+[2, 9, 13]: xor 2, win by take 3 from pile 2
+[6, 6]: xor 0, the player to move loses
+[4, 8, 10]: xor 2, win by take 4 from pile 1

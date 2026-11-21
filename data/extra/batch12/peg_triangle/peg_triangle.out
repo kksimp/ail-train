@@ -1,0 +1,15 @@
+36 possible jumps on the board
+ 1: peg 3 jumps 1 into 0
+ 2: peg 5 jumps 4 into 3
+ 3: peg 0 jumps 2 into 5
+ 4: peg 6 jumps 3 into 1
+ 5: peg 9 jumps 5 into 2
+ 6: peg 11 jumps 7 into 4
+ 7: peg 12 jumps 8 into 5
+ 8: peg 1 jumps 4 into 8
+ 9: peg 2 jumps 5 into 9
+10: peg 14 jumps 9 into 5
+11: peg 5 jumps 8 into 12
+12: peg 13 jumps 12 into 11
+13: peg 10 jumps 11 into 12
+one peg left after 13 jumps

@@ -1,0 +1,48 @@
+## Knight stays: the chance that a knight making k random moves never leaves an 8x8 board, by a
+## table of probabilities per square, each move spreading a square's chance in eighths.
+
+fn stay_chance(r0 int, c0 int, k int) float
+    jumps := [[1, 2], [2, 1], [-1, 2], [-2, 1], [1, -2], [2, -1], [-1, -2], [-2, -1]]
+    mut p := List[List[float]]()
+    for r in 0..8
+        mut row := List[float]()
+        for c in 0..8
+            row.push(0.0)
+        p.push(row)
+    p[r0][c0] = 1.0
+    for _ in 0..k
+        mut q := List[List[float]]()
+        for r in 0..8
+            mut row := List[float]()
+            for c in 0..8
+                row.push(0.0)
+            q.push(row)
+        for r in 0..8
+            for c in 0..8
+                if p[r][c] > 0.0
+                    for j in jumps
+                        nr := r + j[0]
+                        nc := c + j[1]
+                        if nr >= 0 and nr < 8 and nc >= 0 and nc < 8
+                            q[nr][nc] += p[r][c] / 8.0
+        p = q
+    mut total := 0.0
+    for row in p
+        for x in row
+            total += x
+    total
+
+fn main()
+    squares := [("a1", 0, 0), ("b1", 0, 1), ("d4", 3, 3)]
+    for s in squares
+        name, r, c := s
+        mut parts := List[str]()
+        for k in 1..=4
+            v := stay_chance(r, c, k)
+            parts.push("{v:.6}")
+        shown := parts.join("  ")
+        print("{name}: {shown}")
+    print("columns are 1 to 4 moves")
+
+@test fn corner_one_move()
+    assert_eq(stay_chance(0, 0, 1), 0.25)

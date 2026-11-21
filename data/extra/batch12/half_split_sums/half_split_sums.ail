@@ -1,0 +1,43 @@
+## Half split sums: meet in the middle; the subset sums of each half of 16 cargo weights are listed,
+## one side is sorted, and a binary search per sum finds the load closest to the limit from below.
+
+fn subset_sums(ws List[int]) List[int]
+    mut sums := [0]
+    for w in ws
+        more := sums.map(|s| s + w)
+        sums.extend(more)
+    sums
+
+fn best_below(sorted_sums List[int], cap int) int
+    mut lo := 0
+    mut hi := sorted_sums.len() - 1
+    mut found := -1
+    while lo <= hi
+        mid := (lo + hi) / 2
+        if sorted_sums[mid] <= cap
+            found = sorted_sums[mid]
+            lo = mid + 1
+        else
+            hi = mid - 1
+    found
+
+fn main()
+    weights := [173, 241, 88, 412, 305, 157, 69, 230, 391, 126, 284, 47, 358, 199, 263, 115]
+    limit := 2000
+    left := subset_sums(weights.slice(0, 8))
+    right := subset_sums(weights.slice(8)).sorted()
+    print("{left.len()} sums per half instead of {left.len() * right.len()} subsets")
+    mut best := 0
+    mut best_left := 0
+    for s in left
+        if s <= limit
+            r := best_below(right, limit - s)
+            if s + r > best
+                best = s + r
+                best_left = s
+    print("best load {best} of {limit}, left half gives {best_left}")
+    for cap in [500, 1000, 3000]
+        print("limit {cap}: right half alone reaches {best_below(right, cap)}")
+
+@test fn sums()
+    assert_eq(subset_sums([1, 2]), [0, 1, 2, 3])

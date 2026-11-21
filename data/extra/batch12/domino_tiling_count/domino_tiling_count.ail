@@ -1,0 +1,38 @@
+## Domino tiling count: the ways to tile an h by n floor with 2x1 tiles, by a column-profile table
+## where a bit mask records which cells of the next column are already covered by flat tiles.
+
+fn fill(row int, h int, cur int, nxt int, ways int, mut out List[int])
+    if row >= h
+        out[nxt] += ways
+        return
+    if ((cur >> row) & 1) == 1
+        fill(row + 1, h, cur, nxt, ways, mut out)
+        return
+    fill(row + 1, h, cur, nxt | (1 << row), ways, mut out)
+    if row + 1 < h and ((cur >> (row + 1)) & 1) == 0
+        fill(row + 2, h, cur, nxt, ways, mut out)
+
+fn tilings(h int, n int) int
+    size := 1 << h
+    mut dp := List[int]()
+    for m in 0..size
+        dp.push(0)
+    dp[0] = 1
+    for col in 0..n
+        mut out := List[int]()
+        for m in 0..size
+            out.push(0)
+        for m in 0..size
+            if dp[m] > 0
+                fill(0, h, m, 0, dp[m], mut out)
+        dp = out
+    dp[0]
+
+fn main()
+    for h in 2..=4
+        counts := [tilings(h, n) for n in 1..=8]
+        print("height {h}: {counts}")
+    print("a 4 by 4 floor: {tilings(4, 4)} ways")
+
+@test fn two_by_three()
+    assert_eq(tilings(2, 3), 3)

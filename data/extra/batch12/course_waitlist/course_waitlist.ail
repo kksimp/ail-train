@@ -1,0 +1,56 @@
+## Course waitlist: students enrol in courses with a capacity and prerequisites; a missing
+## prerequisite is a `Fail`, a full course puts the student on a waitlist, and drops promote it.
+
+struct Course
+    name str
+    cap int
+    needs List[str]
+    seats List[str]
+    queue List[str]
+
+fn Course.enrol(mut self, who str) str
+    if self.seats.len() < self.cap
+        self.seats.push(who)
+        return "enrolled"
+    self.queue.push(who)
+    "waitlisted at {self.queue.len()}"
+
+fn Course.drop(mut self, who str) str
+    at := self.seats.index_of(who) else return "not enrolled"
+    self.seats.remove_at(at)
+    if self.queue.len() > 0
+        next_in := self.queue[0]
+        self.queue.remove_at(0)
+        self.seats.push(next_in)
+        return "{next_in} moves up"
+    "seat left empty"
+
+fn check(passed List[str], needs List[str]) int ! Fail
+    for n in needs
+        if not passed.contains(n)
+            return Fail(msg: "needs {n}")
+    needs.len()
+
+fn main()
+    mut courses := {"ML": Course(name: "ML", cap: 2, needs: ["Stats", "Python"], seats: List[str](), queue: List[str]()), "Art": Course(name: "Art", cap: 3, needs: List[str](), seats: List[str](), queue: List[str]())}
+    passed := {"ann": ["Stats", "Python"], "bo": ["Python"], "cy": ["Stats", "Python"], "di": ["Stats", "Python", "Art"]}
+    asks := [("ann", "ML"), ("bo", "ML"), ("cy", "ML"), ("di", "ML"), ("bo", "Art")]
+    for a in asks
+        who, name := a
+        has := passed.get(who) else List[str]()
+        met := check(has, courses[name].needs) else err
+            print("{who} -> {name}: refused, {err.msg}")
+            continue
+        mut c := courses[name]
+        result := c.enrol(who)
+        courses[name] = c
+        print("{who} -> {name}: {result} ({met} prerequisites met)")
+    mut ml := courses["ML"]
+    dropped := ml.drop("ann")
+    courses["ML"] = ml
+    print("ann drops ML: {dropped}")
+    for name, course in courses
+        print("{name}: seats {course.seats}, waiting {course.queue}")
+
+@test fn missing_prereq()
+    assert_err(check(["Python"], ["Stats"]))

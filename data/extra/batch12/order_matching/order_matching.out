@@ -1,0 +1,8 @@
+trade 30 at 101: order 4 with resting order 2
+trade 30 at 102: order 4 with resting order 1
+trade 40 at 99: order 5 with resting order 3
+trade 30 at 98: order 7 with resting order 5
+trade 15 at 101: order 7 with resting order 6
+buy side: empty
+sell side: 20@102 10@101
+traded volume 145

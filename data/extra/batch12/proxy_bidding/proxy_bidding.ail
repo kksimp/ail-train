@@ -1,0 +1,44 @@
+## Proxy bidding: each bidder gives a secret maximum; the auction shows the leader at one step
+## above the runner-up's maximum, capped at the leader's own, with ties going to the earlier bid.
+
+struct Auction
+    leader str
+    top int
+    price int
+    step int
+
+fn money(cents int) str
+    "{cents / 100}.{cents % 100:02}"
+
+fn Auction.bid(mut self, who str, limit int) str
+    if self.leader == ""
+        self.leader = who
+        self.top = limit
+        return "opens, {who} leads"
+    if who == self.leader
+        self.top = self.top.max(limit)
+        return "{who} raises their own maximum"
+    if limit > self.top
+        self.price = limit.min(self.top + self.step)
+        self.leader = who
+        self.top = limit
+        return "{who} takes the lead"
+    self.price = self.top.min(limit + self.step)
+    "{self.leader} keeps the lead"
+
+fn main()
+    mut a := Auction(leader: "", top: 0, price: 1000, step: 100)
+    bids := [("kim", 2500), ("lou", 1800), ("max", 3000), ("kim", 3000), ("nia", 4250), ("lou", 4000), ("max", 4300)]
+    for b in bids
+        who, limit := b
+        note := a.bid(who, limit)
+        print("{who} bids up to {money(limit):>6}: {note}, price {money(a.price)}")
+    print("sold to {a.leader} for {money(a.price)}")
+
+@test fn capped_at_leader()
+    mut a := Auction(leader: "", top: 0, price: 500, step: 100)
+    first := a.bid("x", 1000)
+    second := a.bid("y", 950)
+    assert_eq(first, "opens, x leads")
+    assert_eq(second, "x keeps the lead")
+    assert_eq(a.price, 1000)

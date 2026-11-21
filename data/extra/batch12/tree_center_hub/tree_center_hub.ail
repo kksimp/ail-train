@@ -1,0 +1,42 @@
+## Tree centre hub: peels the leaves of a tree-shaped road network round by round; the one or two
+## towns left at the end are the centre, the best place for a hub that minimises the longest trip.
+
+fn main()
+    names := ["Quay", "Mill", "Fort", "Gate", "Hall", "Inn", "Keep", "Lane", "Moor"]
+    links := [[0, 1], [1, 2], [2, 3], [3, 4], [2, 5], [5, 6], [6, 7], [1, 8]]
+    n := names.len()
+    mut adj := List[List[int]]()
+    mut deg := List[int]()
+    mut alive := List[bool]()
+    for i in 0..n
+        adj.push(List[int]())
+        deg.push(0)
+        alive.push(true)
+    for l in links
+        adj[l[0]].push(l[1])
+        adj[l[1]].push(l[0])
+        deg[l[0]] += 1
+        deg[l[1]] += 1
+    mut left := n
+    mut round := 1
+    while left > 2
+        leaves := [i for i in 0..n if alive[i] and deg[i] == 1]
+        shown := leaves.map(|i| names[i]).join(", ")
+        print("round {round}: remove {shown}")
+        for u in leaves
+            alive[u] = false
+            left -= 1
+            for v in adj[u]
+                deg[v] -= 1
+        round += 1
+    centre := [i for i in 0..n if alive[i]].map(|i| names[i]).join(" and ")
+    print("centre: {centre}")
+    print("radius: {round - 1} hops")
+
+@test fn degrees()
+    links := [[0, 1], [1, 2]]
+    mut deg := [0, 0, 0]
+    for l in links
+        deg[l[0]] += 1
+        deg[l[1]] += 1
+    assert_eq(deg, [1, 2, 1])

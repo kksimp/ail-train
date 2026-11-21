@@ -1,0 +1,6 @@
+n1 -> n2: election, n2 answers ok
+n1 -> n3: election, n3 answers ok
+n2 -> n3: election, n3 answers ok
+n3 announces itself coordinator to 3 nodes
+12 election messages
+n4 restarts: n3 notices, n4 wins after 4 messages

@@ -1,0 +1,48 @@
+## Cuckoo hashing: every key has one home in each of two tables; an insert that finds its slot
+## taken kicks the old key to its other table, and so on, giving up after a fixed number of kicks.
+
+struct Cuckoo
+    a List[int]
+    b List[int]
+
+fn h1(k int) int
+    k % 7
+
+fn h2(k int) int
+    (k / 7) % 7
+
+fn Cuckoo.insert(mut self, key int) str
+    mut k := key
+    mut path := List[int]()
+    for kick in 0..8
+        i := h1(k)
+        if self.a[i] < 0
+            self.a[i] = k
+            return "{key} placed after {kick} kicks {path}"
+        moved := self.a[i]
+        self.a[i] = k
+        path.push(moved)
+        j := h2(moved)
+        if self.b[j] < 0
+            self.b[j] = moved
+            return "{key} placed after {kick + 1} kicks {path}"
+        k = self.b[j]
+        self.b[j] = moved
+        path.push(k)
+    "{key} failed, {k} left homeless {path}"
+
+fn Cuckoo.find(self, key int) bool
+    self.a[h1(key)] == key or self.b[h2(key)] == key
+
+fn main()
+    mut t := Cuckoo(a: [-1, -1, -1, -1, -1, -1, -1], b: [-1, -1, -1, -1, -1, -1, -1])
+    for k in [20, 50, 53, 75, 100, 67, 105, 3, 36, 39]
+        print(t.insert(k))
+    print("table A: {t.a}")
+    print("table B: {t.b}")
+    for k in [53, 36, 40]
+        print("find {k}: {t.find(k)}")
+
+@test fn homes()
+    assert_eq(h1(50), 1)
+    assert_eq(h2(50), 0)

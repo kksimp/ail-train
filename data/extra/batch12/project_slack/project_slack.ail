@@ -1,0 +1,46 @@
+## Project slack: the critical path method; a forward pass gives each task's earliest start, a
+## backward pass its latest finish, and tasks with zero slack form the critical path.
+
+struct Task
+    name str
+    days int
+    after List[int]
+
+fn earliest(tasks List[Task]) List[int]
+    mut early := List[int]()
+    for t in tasks
+        mut s := 0
+        for p in t.after
+            s = s.max(early[p] + tasks[p].days)
+        early.push(s)
+    early
+
+fn main()
+    none_before := List[int]()
+    tasks := [Task(name: "design", days: 5, after: none_before), Task(name: "order parts", days: 7, after: [0]), Task(name: "write code", days: 10, after: [0]), Task(name: "build rig", days: 4, after: [1]), Task(name: "test", days: 6, after: [2, 3]), Task(name: "manual", days: 3, after: [2]), Task(name: "ship", days: 2, after: [4, 5])]
+    n := tasks.len()
+    early := earliest(tasks)
+    mut finish := 0
+    for i in 0..n
+        finish = finish.max(early[i] + tasks[i].days)
+    mut lf := List[int]()
+    for i in 0..n
+        lf.push(finish)
+    mut j := n - 1
+    while j >= 0
+        ls := lf[j] - tasks[j].days
+        for p in tasks[j].after
+            if ls < lf[p]
+                lf[p] = ls
+        j -= 1
+    for k in 0..n
+        t := tasks[k]
+        slack := lf[k] - t.days - early[k]
+        mark := if slack == 0 then " *" else ""
+        print("{t.name:<12} start day {early[k]:>2}, slack {slack}{mark}")
+    print("project takes {finish} days; * marks the critical path")
+
+@test fn chain()
+    a := Task(name: "a", days: 3, after: List[int]())
+    b := Task(name: "b", days: 2, after: [0])
+    assert_eq(earliest([a, b]), [0, 3])

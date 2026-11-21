@@ -1,0 +1,42 @@
+## Role permissions: roles grant actions and inherit other roles (editor includes viewer, admin
+## includes editor and auditor); a check gathers a user's actions through the inheritance chain.
+
+fn actions(role str, grants Map[str, List[str]], parents Map[str, List[str]], mut seen Set[str]) Set[str]
+    mut out := Set[str]()
+    if not seen.add(role)
+        return out
+    for a in grants.get_or(role, List[str]())
+        out.add(a)
+    for p in parents.get_or(role, List[str]())
+        for a in actions(p, grants, parents, mut seen)
+            out.add(a)
+    out
+
+fn can(user_roles List[str], action str, grants Map[str, List[str]], parents Map[str, List[str]]) bool
+    mut seen := Set[str]()
+    for r in user_roles
+        if actions(r, grants, parents, mut seen).contains(action)
+            return true
+    false
+
+fn main()
+    grants := {"viewer": ["read"], "editor": ["write", "comment"], "auditor": ["export", "read_logs"], "admin": ["delete", "invite"]}
+    parents := {"editor": ["viewer"], "admin": ["editor", "auditor"]}
+    users := {"rae": ["viewer"], "sol": ["editor"], "tam": ["auditor", "viewer"], "uma": ["admin"]}
+    checks := ["read", "write", "export", "delete"]
+    header := checks.map(|c| "{c:<8}").join("").trim_end()
+    print("user  {header}")
+    for name, roles in users
+        cells := checks.map(|c| if_yes(can(roles, c, grants, parents))).join("").trim_end()
+        print("{name:<5} {cells}")
+    mut seen := Set[str]()
+    all_admin := actions("admin", grants, parents, mut seen).sorted().join(" ")
+    print("admin can: {all_admin}")
+
+fn if_yes(b bool) str
+    if b then "yes     " else "-       "
+
+@test fn inherited()
+    grants := {"viewer": ["read"]}
+    parents := {"editor": ["viewer"]}
+    assert(can(["editor"], "read", grants, parents))

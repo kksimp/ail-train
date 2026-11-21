@@ -1,0 +1,70 @@
+## Buddy allocator: 256 KB of memory is split in halves until a block fits each request (rounded
+## up to a power of two); a freed block merges with its buddy whenever the buddy is also free.
+
+fn fit(kb int) int
+    mut size := 1
+    while size < kb
+        size *= 2
+    size
+
+fn alloc(mut free Map[int, List[int]], kb int) int
+    want := fit(kb)
+    mut size := want
+    while size <= 256 and free.get_or(size, List[int]()).len() == 0
+        size *= 2
+    if size > 256
+        return -1
+    mut blocks := free[size]
+    off := blocks[0]
+    blocks.remove_at(0)
+    free[size] = blocks
+    while size > want
+        size /= 2
+        free.push(size, off + size)
+    off
+
+fn release(mut free Map[int, List[int]], off0 int, size0 int)
+    mut off := off0
+    mut size := size0
+    while size < 256
+        buddy := off ^ size
+        mut blocks := free.get_or(size, List[int]())
+        at := blocks.index_of(buddy) else -1
+        if at < 0
+            break
+        blocks.remove_at(at)
+        free[size] = blocks
+        off = off.min(buddy)
+        size *= 2
+    free.push(size, off)
+
+fn show(free Map[int, List[int]]) str
+    mut parts := List[str]()
+    for size in free.keys().sorted()
+        if free[size].len() > 0
+            offs := free[size].sorted()
+            parts.push("{size}K at {offs}")
+    parts.join(", ")
+
+fn main()
+    mut free := Map[int, List[int]]()
+    free.push(256, 0)
+    reqs := [("A", 30), ("B", 60), ("C", 7), ("D", 60), ("E", 100)]
+    mut placed := Map[str, int]()
+    mut asked := Map[str, int]()
+    for r in reqs
+        who, kb := r
+        off := alloc(mut free, kb)
+        if off < 0
+            print("{who} wants {kb}K: no block free")
+        else
+            placed[who] = off
+            asked[who] = kb
+            print("{who} wants {kb}K: {fit(kb)}K block at {off}K")
+    print("free: {show(free)}")
+    for who in ["A", "C", "B"]
+        release(mut free, placed[who], fit(asked[who]))
+        print("free {who}: {show(free)}")
+
+@test fn rounding()
+    assert_eq(fit(33), 64)

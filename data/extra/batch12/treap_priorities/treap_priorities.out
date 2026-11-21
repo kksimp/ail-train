@@ -1,0 +1,5 @@
+31 sorted keys
+plain tree depth: 31
+treap depth: 10
+treap root: key 10, priority 64150
+root children: 7 and 30

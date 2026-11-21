@@ -1,0 +1,51 @@
+## Parcel lockers: small, medium and large lockers; each parcel takes the smallest free locker it
+## fits, gets a pickup code from a fixed-seed generator, and a pickup with the code frees it.
+
+enum Size
+    Small
+    Medium
+    Large
+
+fn rank(s Size) int
+    match s
+        Small => 1
+        Medium => 2
+        Large => 3
+
+struct Locker
+    id str
+    size Size
+    code int
+
+fn main()
+    mut lockers := [Locker(id: "A1", size: Size.Small, code: 0), Locker(id: "A2", size: Size.Small, code: 0), Locker(id: "B1", size: Size.Medium, code: 0), Locker(id: "B2", size: Size.Medium, code: 0), Locker(id: "C1", size: Size.Large, code: 0)]
+    mut seed := 4242
+    mut codes := Map[str, int]()
+    events := [("drop", "book", Size.Small), ("drop", "shoes", Size.Medium), ("drop", "lamp", Size.Large), ("drop", "mug", Size.Small), ("drop", "phone", Size.Small), ("drop", "rug", Size.Large), ("pick", "shoes", Size.Small), ("drop", "rug", Size.Large), ("drop", "kettle", Size.Medium)]
+    for e in events
+        kind, item, size := e
+        if kind == "drop"
+            mut pick := -1
+            for i in 0..lockers.len()
+                if lockers[i].code == 0 and rank(lockers[i].size) >= rank(size)
+                    if pick < 0 or rank(lockers[i].size) < rank(lockers[pick].size)
+                        pick = i
+            if pick < 0
+                print("{item} ({size}): no locker free")
+                continue
+            seed = (seed * 7919 + 13) % 9973
+            code := 1000 + seed % 9000
+            lockers[pick].code = code
+            codes[item] = code
+            print("{item} ({size}) -> {lockers[pick].id}, code {code}")
+        else
+            code := codes.get_or(item, -1)
+            for mut l in lockers
+                if l.code == code
+                    l.code = 0
+                    print("{item} picked up from {l.id}")
+    busy := lockers.filter(|l| l.code != 0).map(|l| l.id)
+    print("busy: {busy}")
+
+@test fn ranks()
+    assert(rank(Size.Large) > rank(Size.Small))

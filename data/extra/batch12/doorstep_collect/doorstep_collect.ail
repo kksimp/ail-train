@@ -1,0 +1,39 @@
+## Doorstep collection: a charity walker may not call at two neighbouring houses, so the best
+## pledge total is a take-or-skip table along the street; a ring-shaped close is solved twice.
+
+fn best_line(xs List[int]) int
+    mut take := 0
+    mut skip := 0
+    for x in xs
+        t := skip + x
+        skip = skip.max(take)
+        take = t
+    take.max(skip)
+
+fn chosen(xs List[int]) List[int]
+    n := xs.len()
+    mut dp := [0, xs[0]]
+    for i in 1..n
+        dp.push(dp[i].max(dp[i - 1] + xs[i]))
+    mut out := List[int]()
+    mut k := n
+    while k > 0
+        if dp[k] == dp[k - 1]
+            k -= 1
+        else
+            out.push(k)
+            k -= 2
+    out.reversed()
+
+fn main()
+    street := [12, 7, 9, 30, 2, 14, 20, 5, 8, 16]
+    print("pledges: {street}")
+    print("best on the street: {best_line(street)}")
+    print("houses called at: {chosen(street)}")
+    close := [20, 4, 6, 18, 9, 22]
+    a := best_line(close.slice(0, close.len() - 1))
+    b := best_line(close.slice(1))
+    print("ring close {close}: skip last {a}, skip first {b}, best {a.max(b)}")
+
+@test fn small()
+    assert_eq(best_line([5, 1, 1, 5]), 10)

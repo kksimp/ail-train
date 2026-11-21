@@ -1,0 +1,9 @@
+A wants 30K: 32K block at 0K
+B wants 60K: 64K block at 64K
+C wants 7K: 8K block at 32K
+D wants 60K: 64K block at 128K
+E wants 100K: no block free
+free: 8K at [40], 16K at [48], 64K at [192]
+free A: 8K at [40], 16K at [48], 32K at [0], 64K at [192]
+free C: 64K at [0, 192]
+free B: 64K at [192], 128K at [0]

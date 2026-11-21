@@ -1,0 +1,8 @@
+address   0: tag 0, set 0, offset  0
+address   4: tag 0, set 0, offset  4
+address  64: tag 1, set 0, offset  0
+address   8: tag 0, set 0, offset  8
+address  68: tag 1, set 0, offset  4
+direct-mapped: 1 of 14 hits
+2-way:         4 of 14 hits
+fully assoc.:  7 of 14 hits

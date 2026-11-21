@@ -1,0 +1,42 @@
+## End coins game: two players take a coin from either end of a row; a table of the best lead the
+## mover can secure on each sub-row drives both players' choices, and the game is played out.
+
+fn lead_table(coins List[int]) List[List[int]]
+    n := coins.len()
+    mut d := List[List[int]]()
+    for i in 0..n
+        mut row := List[int]()
+        for j in 0..n
+            v := if i == j then coins[i] else 0
+            row.push(v)
+        d.push(row)
+    for gap in 1..n
+        for i in 0..n - gap
+            j := i + gap
+            d[i][j] = (coins[i] - d[i + 1][j]).max(coins[j] - d[i][j - 1])
+    d
+
+fn main()
+    coins := [5, 3, 7, 10, 2, 14, 6, 1]
+    d := lead_table(coins)
+    print("coins {coins}; first player can lead by {d[0][coins.len() - 1]}")
+    mut i := 0
+    mut j := coins.len() - 1
+    mut score := [0, 0]
+    mut turn := 0
+    names := ["Ada", "Ben"]
+    while i <= j
+        take_left := i == j or coins[i] - d[i + 1][j] >= coins[j] - d[i][j - 1]
+        if take_left
+            print("{names[turn]} takes {coins[i]} from the left")
+            score[turn] += coins[i]
+            i += 1
+        else
+            print("{names[turn]} takes {coins[j]} from the right")
+            score[turn] += coins[j]
+            j -= 1
+        turn = 1 - turn
+    print("final: Ada {score[0]}, Ben {score[1]}")
+
+@test fn pair()
+    assert_eq(lead_table([3, 9])[0][1], 6)

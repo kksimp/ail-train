@@ -1,0 +1,43 @@
+## Mark and sweep: heap objects point at each other; marking walks from the roots with an explicit
+## stack, and the sweep frees every unmarked object, including cycles nothing reaches any more.
+
+struct Obj
+    name str
+    refs List[int]
+
+fn collect(heap List[Obj], roots List[int], mut alive List[bool]) List[str]
+    mut marked := List[bool]()
+    for o in heap
+        marked.push(false)
+    mut stack := roots
+    while i := stack.pop()
+        if alive[i] and not marked[i]
+            marked[i] = true
+            for r in heap[i].refs
+                stack.push(r)
+    mut freed := List[str]()
+    for i in 0..heap.len()
+        if alive[i] and not marked[i]
+            alive[i] = false
+            freed.push(heap[i].name)
+    freed
+
+fn main()
+    heap := [Obj(name: "config", refs: [1]), Obj(name: "logger", refs: List[int]()), Obj(name: "session", refs: [3, 4]), Obj(name: "cart", refs: [5]), Obj(name: "user", refs: [2]), Obj(name: "item", refs: List[int]()), Obj(name: "temp", refs: [7]), Obj(name: "buffer", refs: [6])]
+    mut alive := List[bool]()
+    for o in heap
+        alive.push(true)
+    mut roots := [0, 2]
+    rounds := [("both roots held", [0, 2]), ("session root dropped", [0]), ("config root dropped", List[int]())]
+    for r in rounds
+        label, rs := r
+        roots = rs
+        freed := collect(heap, roots, mut alive)
+        shown := if freed.len() == 0 then "nothing" else freed.join(", ")
+        live := [heap[i].name for i in 0..heap.len() if alive[i]].len()
+        print("{label}: freed {shown}; {live} objects live")
+
+@test fn cycle_freed()
+    heap := [Obj(name: "a", refs: [1]), Obj(name: "b", refs: [0])]
+    mut alive := [true, true]
+    assert_eq(collect(heap, List[int](), mut alive), ["a", "b"])

@@ -1,0 +1,51 @@
+## Guard posts: the fewest guards so every corridor in a tree-shaped museum has a guard at one
+## end (minimum vertex cover on a tree), by a take-or-skip dynamic programme over subtrees.
+
+fn solve(u int, from int, adj List[List[int]], mut take List[int], mut skip List[int])
+    take[u] = 1
+    skip[u] = 0
+    for v in adj[u]
+        if v != from
+            solve(v, u, adj, mut take, mut skip)
+            take[u] += take[v].min(skip[v])
+            skip[u] += take[v]
+
+fn pick(u int, from int, parent_taken bool, adj List[List[int]], take List[int], skip List[int], mut chosen List[int])
+    me := not parent_taken or take[u] < skip[u]
+    if me
+        chosen.push(u)
+    for v in adj[u]
+        if v != from
+            pick(v, u, me, adj, take, skip, mut chosen)
+
+fn main()
+    rooms := ["Foyer", "Egypt", "Rome", "Greece", "Mummies", "Coins", "Statues", "Vases", "Shop", "Cafe"]
+    halls := [[0, 1], [0, 2], [0, 8], [1, 4], [2, 3], [2, 5], [3, 6], [3, 7], [8, 9]]
+    n := rooms.len()
+    mut adj := List[List[int]]()
+    mut take := List[int]()
+    mut skip := List[int]()
+    for i in 0..n
+        adj.push(List[int]())
+        take.push(0)
+        skip.push(0)
+    for h in halls
+        adj[h[0]].push(h[1])
+        adj[h[1]].push(h[0])
+    solve(0, -1, adj, mut take, mut skip)
+    print("with a guard in the Foyer: {take[0]}, without: {skip[0]}")
+    mut chosen := List[int]()
+    pick(0, -1, true, adj, take, skip, mut chosen)
+    names := chosen.sorted().map(|i| rooms[i]).join(", ")
+    print("{chosen.len()} guards: {names}")
+    for h in halls
+        ok := chosen.contains(h[0]) or chosen.contains(h[1])
+        if not ok
+            print("unguarded: {rooms[h[0]]}-{rooms[h[1]]}")
+    print("all {halls.len()} corridors watched")
+
+@test fn single_edge()
+    mut take := [0, 0]
+    mut skip := [0, 0]
+    solve(0, -1, [[1], [0]], mut take, mut skip)
+    assert_eq(take[0].min(skip[0]), 1)

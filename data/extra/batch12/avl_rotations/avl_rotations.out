@@ -1,0 +1,13 @@
+insert 10: no rotation
+insert 20: no rotation
+insert 30: left at 10
+insert 40: no rotation
+insert 50: left at 30
+insert 25: right-left at 20
+insert  5: no rotation
+insert  4: right at 10
+insert  3: right at 20
+insert 35: no rotation
+insert 45: no rotation
+insert 47: left-right at 50
+preorder key/height: 30/4 5/3 4/2 3/1 20/2 10/1 25/1 40/3 35/1 47/2 45/1 50/1

@@ -1,0 +1,38 @@
+## Grundy game: players remove 1, 3 or 4 tokens from one pile; each pile size gets a Grundy value
+## (the smallest number not reached in one move), and the XOR over piles says who wins.
+
+fn grundy(limit int, takes List[int]) List[int]
+    mut g := List[int]()
+    for n in 0..=limit
+        mut reach := Set[int]()
+        for t in takes
+            if t <= n
+                reach.add(g[n - t])
+        mut m := 0
+        while reach.contains(m)
+            m += 1
+        g.push(m)
+    g
+
+fn main()
+    takes := [1, 3, 4]
+    g := grundy(20, takes)
+    print("grundy values 0..20: {g}")
+    losing := [n for n in 0..=20 if g[n] == 0]
+    print("losing pile sizes: {losing}")
+    for piles in [[5, 7], [2, 9, 13], [6, 6], [4, 8, 10]]
+        mut x := 0
+        for p in piles
+            x = x ^ g[p]
+        if x == 0
+            print("{piles}: xor 0, the player to move loses")
+        else
+            mut plan := "none"
+            for i, p in piles.enumerate()
+                for t in takes
+                    if t <= p and plan == "none" and ((x ^ g[p]) ^ g[p - t]) == 0
+                        plan = "take {t} from pile {i + 1}"
+            print("{piles}: xor {x}, win by {plan}")
+
+@test fn small_values()
+    assert_eq(grundy(4, [1, 3, 4]), [0, 1, 0, 1, 2])

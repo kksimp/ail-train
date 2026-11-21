@@ -1,0 +1,33 @@
+## Route lookup: a router forwards each destination by the longest matching prefix in its table;
+## addresses and prefixes are 32-bit numbers compared after shifting away the host bits.
+
+fn to_num(ip str) int
+    mut n := 0
+    for part in ip.split(".")
+        n = n * 256 + (part.to_int() else 0)
+    n
+
+fn matches(addr int, net int, bits int) bool
+    if bits == 0
+        return true
+    (addr >> (32 - bits)) == (net >> (32 - bits))
+
+fn main()
+    table := [("0.0.0.0/0", "isp"), ("10.0.0.0/8", "core"), ("10.20.0.0/16", "branch"), ("10.20.30.0/24", "lab"), ("192.168.1.0/24", "office"), ("192.168.1.128/25", "wifi")]
+    for dest in ["10.1.2.3", "10.20.5.9", "10.20.30.77", "192.168.1.10", "192.168.1.200", "8.8.8.8"]
+        a := to_num(dest)
+        mut best := -1
+        mut via := ""
+        mut route := ""
+        for r in table
+            prefix, port := r
+            parts := prefix.split("/")
+            bits := parts[1].to_int() else 0
+            if matches(a, to_num(parts[0]), bits) and bits > best
+                best = bits
+                via = port
+                route = prefix
+        print("{dest:<14} -> {via:<6} ({route})")
+
+@test fn convert()
+    assert_eq(to_num("1.0.0.1"), 16777217)

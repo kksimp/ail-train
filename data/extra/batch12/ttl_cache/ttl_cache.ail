@@ -1,0 +1,54 @@
+## TTL cache: price quotes are cached with a time to live; a read before expiry is a hit, a read
+## after it is a miss that refetches, and a sweep every ten seconds drops expired entries.
+
+struct Item
+    value int
+    expires int
+
+struct TtlCache
+    ttl int
+    items Map[str, Item]
+    fetches int
+
+fn source(key str) int
+    mut h := 0
+    for c in key.chars()
+        h += c.code()
+    h * 3
+
+fn TtlCache.read(mut self, key str, now int) str
+    if it := self.items.get(key)
+        if now < it.expires
+            return "hit {it.value}"
+    self.fetches += 1
+    v := source(key)
+    self.items[key] = Item(value: v, expires: now + self.ttl)
+    "miss, fetched {v}"
+
+fn TtlCache.sweep(mut self, now int) int
+    mut old := List[str]()
+    for k, it in self.items
+        if it.expires <= now
+            old.push(k)
+    for k in old
+        self.items.remove(k)
+    old.len()
+
+fn main()
+    mut c := TtlCache(ttl: 10, items: Map[str, Item](), fetches: 0)
+    reads := [(1, "tea"), (3, "rice"), (8, "tea"), (12, "salt"), (16, "tea"), (19, "rice"), (22, "tea"), (27, "salt"), (33, "oil")]
+    mut next_sweep := 10
+    for r in reads
+        now, key := r
+        while next_sweep <= now
+            gone := c.sweep(next_sweep)
+            print("  sweep at {next_sweep}s dropped {gone}")
+            next_sweep += 10
+        got := c.read(key, now)
+        print("t={now:>2}s {key:<5} {got}")
+    print("{c.fetches} fetches for {reads.len()} reads")
+
+@test fn expires()
+    mut c := TtlCache(ttl: 5, items: Map[str, Item](), fetches: 0)
+    _ := c.read("a", 0)
+    assert_eq(c.read("a", 5), "miss, fetched 291")

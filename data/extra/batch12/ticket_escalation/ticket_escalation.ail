@@ -1,0 +1,55 @@
+## Ticket escalation: support tickets carry a priority with its own response limit in hours;
+## at each check, open tickets past their limit move up a support tier, and the top tier pages.
+
+enum Priority
+    Urgent
+    High
+    Normal
+
+enum Tier
+    Desk
+    Specialist
+    Manager
+
+fn limit(p Priority) int
+    match p
+        Urgent => 2
+        High => 8
+        Normal => 24
+
+fn up(t Tier) Tier
+    match t
+        Desk => Tier.Specialist
+        Specialist => Tier.Manager
+        Manager => Tier.Manager
+
+struct Ticket
+    id int
+    pri Priority
+    opened int
+    tier Tier
+    closed bool
+
+fn main()
+    mut tickets := [Ticket(id: 101, pri: Priority.Urgent, opened: 0, tier: Tier.Desk, closed: false), Ticket(id: 102, pri: Priority.High, opened: 1, tier: Tier.Desk, closed: false), Ticket(id: 103, pri: Priority.Normal, opened: 2, tier: Tier.Desk, closed: false), Ticket(id: 104, pri: Priority.Urgent, opened: 5, tier: Tier.Desk, closed: false), Ticket(id: 105, pri: Priority.High, opened: 6, tier: Tier.Desk, closed: false)]
+    closes := {104: 6, 102: 12}
+    for now in [4, 8, 12, 16, 30]
+        for mut t in tickets
+            if closes.get_or(t.id, 1000) <= now and not t.closed
+                t.closed = true
+                print("hour {now:>2}: #{t.id} closed at {t.tier}")
+            if not t.closed and now >= t.opened
+                waited := now - t.opened
+                steps := waited / limit(t.pri)
+                mut target := Tier.Desk
+                for i in 0..steps
+                    target = up(target)
+                if target != t.tier
+                    t.tier = target
+                    note := if target == Tier.Manager then ", page the manager" else ""
+                    print("hour {now:>2}: #{t.id} {t.pri} waited {waited}h -> {target}{note}")
+    open := tickets.filter(|t| not t.closed).map(|t| t.id)
+    print("open at the end: {open}")
+
+@test fn escalate_twice()
+    assert_eq(up(up(Tier.Desk)), Tier.Manager)

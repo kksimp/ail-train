@@ -1,0 +1,6 @@
+www.shop.test: shop.cdn.test > edge7.cdn.test > 198.51.100.7
+api.shop.test: 198.51.100.20
+old.shop.test: error, loop at old.shop.test
+blog.shop.test: error, no record for gone.host.test
+www.shop.test: 198.51.100.7 (cached)
+2 names cached

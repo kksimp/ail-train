@@ -1,0 +1,56 @@
+## Cage puzzle: a 4x4 grid where each row and column holds 1 to 4 once and each cage of cells
+## must reach its target with its operation; backtracking checks a cage once it is full.
+
+struct Cage
+    op char
+    target int
+    cells List[int]
+
+fn Cage.holds(self, g List[int]) bool
+    vals := self.cells.map(|c| g[c])
+    if vals.contains(0)
+        return true
+    a := vals[0]
+    b := vals[vals.len() - 1]
+    match self.op
+        '+' => vals.sum() == self.target
+        '*' => vals.fold(1, |acc, v| acc * v) == self.target
+        '-' => (a - b).abs() == self.target
+        '/' => a.max(b) == a.min(b) * self.target
+        _ => a == self.target
+
+fn solve(mut g List[int], pos int, cages List[Cage], mut count List[int], mut first List[int])
+    if pos == 16
+        count[0] += 1
+        if count[0] == 1
+            first.extend(g)
+        return
+    r := pos / 4
+    c := pos % 4
+    for v in 1..=4
+        mut clash := false
+        for k in 0..4
+            if g[r * 4 + k] == v or g[k * 4 + c] == v
+                clash = true
+        if not clash
+            g[pos] = v
+            if cages.all(|cg| cg.holds(g))
+                solve(mut g, pos + 1, cages, mut count, mut first)
+            g[pos] = 0
+
+fn main()
+    cages := [Cage(op: '-', target: 2, cells: [0, 4]), Cage(op: '*', target: 6, cells: [1, 2]), Cage(op: '/', target: 2, cells: [3, 7]), Cage(op: '-', target: 3, cells: [5, 6]), Cage(op: '+', target: 5, cells: [8, 9]), Cage(op: '+', target: 6, cells: [10, 11, 15]), Cage(op: '*', target: 6, cells: [12, 13]), Cage(op: '=', target: 4, cells: [14])]
+    mut g := List[int]()
+    for i in 0..16
+        g.push(0)
+    mut count := [0]
+    mut first := List[int]()
+    solve(mut g, 0, cages, mut count, mut first)
+    for r in 0..4
+        print(first.slice(r * 4, r * 4 + 4).join(" "))
+    print("{count[0]} solution(s)")
+
+@test fn cage_check()
+    cg := Cage(op: '/', target: 2, cells: [0, 1])
+    assert(cg.holds([4, 2]))
+    assert(not cg.holds([3, 2]))

@@ -1,0 +1,52 @@
+## Viterbi states: a pump is either Good or Worn, which is hidden; from a run of vibration readings
+## the Viterbi algorithm keeps the likeliest path into each state and traces the best one back.
+
+enum Level
+    Low
+    Mid
+    High
+
+fn code(l Level) int
+    match l
+        Low => 0
+        Mid => 1
+        High => 2
+
+fn main()
+    states := ["Good", "Worn"]
+    start := [0.8, 0.2]
+    trans := [[0.9, 0.1], [0.2, 0.8]]
+    emit := [[0.6, 0.3, 0.1], [0.1, 0.4, 0.5]]
+    obs := [Level.Low, Level.Low, Level.Mid, Level.High, Level.Mid, Level.High, Level.High, Level.Low]
+    mut v := [start[0] * emit[0][code(obs[0])], start[1] * emit[1][code(obs[0])]]
+    mut back := List[List[int]]()
+    for t in 1..obs.len()
+        o := code(obs[t])
+        mut nv := List[float]()
+        mut from := List[int]()
+        for s in 0..2
+            a := v[0] * trans[0][s]
+            b := v[1] * trans[1][s]
+            if a >= b
+                nv.push(a * emit[s][o])
+                from.push(0)
+            else
+                nv.push(b * emit[s][o])
+                from.push(1)
+        back.push(from)
+        v = nv
+    mut last := if v[0] >= v[1] then 0 else 1
+    best := v[last] * 1000000.0
+    mut path := [last]
+    mut w := back.len() - 1
+    while w >= 0
+        last = back[w][last]
+        path.push(last)
+        w -= 1
+    path.reverse()
+    for i in 0..obs.len()
+        print("{obs[i]}: {states[path[i]]}")
+    print("path likelihood x 10^6: {best:.3}")
+
+@test fn codes()
+    assert_eq(code(Level.High), 2)

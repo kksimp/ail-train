@@ -1,0 +1,45 @@
+## Equal crates: splits parcels into k crates of exactly equal weight by backtracking, placing the
+## heaviest parcels first and never trying two empty crates for the same parcel.
+
+fn place(i int, items List[int], target int, mut loads List[int], mut crate_of List[int]) bool
+    if i == items.len()
+        return true
+    for c in 0..loads.len()
+        if loads[c] + items[i] <= target
+            loads[c] += items[i]
+            crate_of[i] = c
+            if place(i + 1, items, target, mut loads, mut crate_of)
+                return true
+            loads[c] -= items[i]
+        if loads[c] == 0
+            break
+    false
+
+fn split(weights List[int], k int) str
+    total := weights.sum()
+    if total % k != 0
+        return "{k} crates: impossible, total {total} does not divide"
+    items := weights.sorted().reversed()
+    mut loads := List[int]()
+    for c in 0..k
+        loads.push(0)
+    mut crate_of := List[int]()
+    for w in items
+        crate_of.push(-1)
+    if not place(0, items, total / k, mut loads, mut crate_of)
+        return "{k} crates: impossible"
+    mut parts := List[str]()
+    for c in 0..k
+        mine := [items[i] for i in 0..items.len() if crate_of[i] == c]
+        parts.push(mine.join("+"))
+    shown := parts.join(" | ")
+    "{k} crates of {total / k}: {shown}"
+
+fn main()
+    weights := [4, 3, 2, 3, 5, 2, 1, 7, 6, 3]
+    print("parcels {weights}, total {weights.sum()}")
+    for k in [2, 3, 4, 5, 6, 9]
+        print(split(weights, k))
+
+@test fn halves()
+    assert_eq(split([1, 1], 2), "2 crates of 1: 1 | 1")

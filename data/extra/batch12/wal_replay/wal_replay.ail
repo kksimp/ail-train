@@ -1,0 +1,34 @@
+## WAL replay: after a crash, recovery reads the write-ahead log; changes of committed transactions
+## are redone in log order, and changes of unfinished ones are undone in reverse order.
+
+struct Rec
+    tx int
+    op str
+    key str
+    old int
+    new int
+
+fn main()
+    log := [Rec(tx: 1, op: "begin", key: "", old: 0, new: 0), Rec(tx: 1, op: "set", key: "alice", old: 100, new: 70), Rec(tx: 2, op: "begin", key: "", old: 0, new: 0), Rec(tx: 1, op: "set", key: "bob", old: 50, new: 80), Rec(tx: 2, op: "set", key: "carol", old: 20, new: 95), Rec(tx: 1, op: "commit", key: "", old: 0, new: 0), Rec(tx: 3, op: "begin", key: "", old: 0, new: 0), Rec(tx: 3, op: "set", key: "alice", old: 70, new: 60), Rec(tx: 2, op: "set", key: "bob", old: 80, new: 10), Rec(tx: 3, op: "commit", key: "", old: 0, new: 0)]
+    mut disk := {"alice": 100, "bob": 80, "carol": 95}
+    print("disk after crash: {disk}")
+    committed := log.filter(|r| r.op == "commit").map(|r| r.tx)
+    print("committed transactions: {committed}")
+    for r in log
+        if r.op == "set" and committed.contains(r.tx)
+            disk[r.key] = r.new
+            print("redo T{r.tx}: {r.key} = {r.new}")
+    mut i := log.len() - 1
+    while i >= 0
+        r := log[i]
+        if r.op == "set" and not committed.contains(r.tx)
+            disk[r.key] = r.old
+            print("undo T{r.tx}: {r.key} = {r.old}")
+        i -= 1
+    print("disk after recovery: {disk}")
+    total := disk.values().sum()
+    print("total money {total}")
+
+@test fn no_commit()
+    r := Rec(tx: 9, op: "set", key: "x", old: 1, new: 2)
+    assert_eq(r.old, 1)

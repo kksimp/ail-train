@@ -1,0 +1,33 @@
+## Congestion window: a TCP Reno sender doubles its window each round trip in slow start, adds one
+## per round trip after the threshold, halves on three duplicate acks and drops to one on a timeout.
+
+enum Loss
+    NoLoss
+    DupAcks
+    Timeout
+
+fn step(cwnd int, ssthresh int, ev Loss) List[int]
+    match ev
+        DupAcks => [(cwnd / 2).max(2), (cwnd / 2).max(2)]
+        Timeout => [1, (cwnd / 2).max(2)]
+        NoLoss =>
+            if cwnd < ssthresh
+                [(cwnd * 2).min(ssthresh), ssthresh]
+            else
+                [cwnd + 1, ssthresh]
+
+fn main()
+    events := {8: Loss.DupAcks, 12: Loss.Timeout}
+    mut cwnd := 1
+    mut ssthresh := 16
+    for rtt in 1..=15
+        ev := events.get(rtt) else Loss.NoLoss
+        bar := "#".repeat(cwnd)
+        note := if ev == Loss.NoLoss then "" else " {ev}"
+        print("{rtt:>2} {cwnd:>2} {bar}{note}")
+        r := step(cwnd, ssthresh, ev)
+        cwnd = r[0]
+        ssthresh = r[1]
+
+@test fn halves()
+    assert_eq(step(20, 16, Loss.DupAcks), [10, 10])

@@ -1,0 +1,8 @@
+buy  100 at 2.50
+buy   50 at 2.75
+sell  80 at 4.00: cost of goods 200.00, margin 120.00
+buy  120 at 2.60
+sell 100 at 4.20: cost of goods 265.50, margin 154.50
+sell  60 at 4.10: cost of goods 156.00, margin 90.00
+left: 30@2.60 worth 78.00
+total margin 364.50

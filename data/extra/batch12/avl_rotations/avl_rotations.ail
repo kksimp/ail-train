@@ -1,0 +1,93 @@
+## AVL rotations: a self-balancing search tree kept in a list of nodes; after each insert the
+## heights are fixed on the way up, and a balance of two triggers a single or double rotation.
+
+struct Node
+    key int
+    left int
+    right int
+    height int
+
+fn ht(ns List[Node], i int) int
+    if i < 0 then 0 else ns[i].height
+
+fn fix(mut ns List[Node], i int)
+    h := 1 + ht(ns, ns[i].left).max(ht(ns, ns[i].right))
+    ns[i].height = h
+
+fn rot_right(mut ns List[Node], y int) int
+    x := ns[y].left
+    ns[y].left = ns[x].right
+    ns[x].right = y
+    fix(mut ns, y)
+    fix(mut ns, x)
+    x
+
+fn rot_left(mut ns List[Node], x int) int
+    y := ns[x].right
+    ns[x].right = ns[y].left
+    ns[y].left = x
+    fix(mut ns, x)
+    fix(mut ns, y)
+    y
+
+fn insert(mut ns List[Node], root int, key int, mut log List[str]) int
+    if root < 0
+        ns.push(Node(key: key, left: -1, right: -1, height: 1))
+        return ns.len() - 1
+    if key < ns[root].key
+        lc := ns[root].left
+        ls := insert(mut ns, lc, key, mut log)
+        ns[root].left = ls
+    else
+        rc := ns[root].right
+        rs := insert(mut ns, rc, key, mut log)
+        ns[root].right = rs
+    fix(mut ns, root)
+    bal := ht(ns, ns[root].left) - ht(ns, ns[root].right)
+    k := ns[root].key
+    if bal > 1
+        l := ns[root].left
+        if key >= ns[l].key
+            log.push("left-right at {k}")
+            nl := rot_left(mut ns, l)
+            ns[root].left = nl
+        else
+            log.push("right at {k}")
+        return rot_right(mut ns, root)
+    if bal < -1
+        r := ns[root].right
+        if key < ns[r].key
+            log.push("right-left at {k}")
+            nr := rot_right(mut ns, r)
+            ns[root].right = nr
+        else
+            log.push("left at {k}")
+        return rot_left(mut ns, root)
+    root
+
+fn pre(ns List[Node], i int, mut out List[str])
+    if i >= 0
+        out.push("{ns[i].key}/{ns[i].height}")
+        pre(ns, ns[i].left, mut out)
+        pre(ns, ns[i].right, mut out)
+
+fn main()
+    mut ns := List[Node]()
+    mut root := -1
+    for key in [10, 20, 30, 40, 50, 25, 5, 4, 3, 35, 45, 47]
+        mut log := List[str]()
+        root = insert(mut ns, root, key, mut log)
+        note := if log.len() > 0 then log.join(", ") else "no rotation"
+        print("insert {key:>2}: {note}")
+    mut out := List[str]()
+    pre(ns, root, mut out)
+    shown := out.join(" ")
+    print("preorder key/height: {shown}")
+
+@test fn three_in_a_row()
+    mut ns := List[Node]()
+    mut log := List[str]()
+    mut root := -1
+    for key in [1, 2, 3]
+        root = insert(mut ns, root, key, mut log)
+    assert_eq(ns[root].key, 2)

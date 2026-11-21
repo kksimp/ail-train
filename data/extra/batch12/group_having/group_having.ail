@@ -1,0 +1,41 @@
+## Group and having: a tiny query engine runs SELECT region, COUNT, SUM, AVG over order rows,
+## GROUP BY region, HAVING the sum above a threshold, ORDER BY the sum from largest down.
+
+struct Row
+    region str
+    product str
+    amount int
+
+struct Group
+    region str
+    count int
+    total int
+
+fn group_by(rows List[Row]) List[Group]
+    mut groups := List[Group]()
+    for r in rows
+        mut found := false
+        for mut g in groups
+            if g.region == r.region
+                g.count += 1
+                g.total += r.amount
+                found = true
+        if not found
+            groups.push(Group(region: r.region, count: 1, total: r.amount))
+    groups
+
+fn main()
+    rows := [Row(region: "north", product: "tea", amount: 120), Row(region: "south", product: "tea", amount: 80), Row(region: "east", product: "jam", amount: 45), Row(region: "north", product: "jam", amount: 60), Row(region: "west", product: "tea", amount: 200), Row(region: "south", product: "oats", amount: 35), Row(region: "east", product: "oats", amount: 30), Row(region: "north", product: "oats", amount: 90), Row(region: "west", product: "jam", amount: 15), Row(region: "south", product: "jam", amount: 25)]
+    min_total := 100
+    groups := group_by(rows)
+    kept := groups.filter(|g| g.total > min_total).sorted(by: |g| -g.total)
+    print("region  count  sum    avg")
+    for g in kept
+        avg := g.total.to_float() / g.count.to_float()
+        print("{g.region:<7} {g.count:>5} {g.total:>4} {avg:>6.1}")
+    dropped := groups.filter(|g| g.total <= min_total).map(|g| g.region)
+    print("{groups.len()} groups, {kept.len()} with sum over {min_total}; dropped {dropped}")
+
+@test fn grouping()
+    gs := group_by([Row(region: "a", product: "x", amount: 2), Row(region: "a", product: "y", amount: 3)])
+    assert_eq(gs[0].total, 5)

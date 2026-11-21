@@ -1,0 +1,34 @@
+## Degree sequence: can a list of handshake counts come from a real party? The Havel-Hakimi test
+## takes the largest count d, lowers the next d counts by one, and repeats until all are zero.
+
+fn graphical(seq List[int]) bool
+    mut ds := seq.sorted().reversed()
+    while ds.len() > 0
+        d := ds[0]
+        ds.remove_at(0)
+        if d > ds.len()
+            return false
+        for i in 0..d
+            ds[i] -= 1
+            if ds[i] < 0
+                return false
+        ds = ds.sorted().reversed()
+    true
+
+fn main()
+    parties := [[3, 3, 3, 3], [4, 3, 3, 2, 2], [3, 3, 3, 1], [5, 4, 3, 2, 1, 1], [2, 2, 2, 2, 2, 2], [4, 4, 4, 1, 1], [3, 2, 2, 1], [6, 1, 1, 1, 1, 1, 1]]
+    mut ok := 0
+    for p in parties
+        total := p.sum()
+        if graphical(p)
+            ok += 1
+            print("{p}: possible, {total / 2} handshakes")
+        elif total % 2 == 1
+            print("{p}: impossible, odd total {total}")
+        else
+            print("{p}: impossible")
+    print("{ok} of {parties.len()} parties could happen")
+
+@test fn tiny()
+    assert(graphical([1, 1]))
+    assert(not graphical([1]))

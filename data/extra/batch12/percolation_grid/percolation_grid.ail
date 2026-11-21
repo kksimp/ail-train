@@ -1,0 +1,53 @@
+## Percolation grid: union-find joins neighbouring open cells of a rock sample, with two extra
+## nodes for the top and bottom faces; water seeps through when the two faces share a root.
+
+fn find(mut parent List[int], x int) int
+    mut r := x
+    while parent[r] != r
+        r = parent[r]
+    mut c := x
+    while parent[c] != r
+        up := parent[c]
+        parent[c] = r
+        c = up
+    r
+
+fn join(mut parent List[int], a int, b int)
+    ra := find(mut parent, a)
+    rb := find(mut parent, b)
+    if ra != rb
+        parent[ra] = rb
+
+fn percolates(rows List[str]) bool
+    h := rows.len()
+    w := rows[0].len()
+    top := h * w
+    bottom := h * w + 1
+    mut parent := [i for i in 0..h * w + 2]
+    cells := rows.map(|r| r.chars())
+    for r in 0..h
+        for c in 0..w
+            if cells[r][c] == '.'
+                id := r * w + c
+                if r == 0
+                    join(mut parent, id, top)
+                if r == h - 1
+                    join(mut parent, id, bottom)
+                if c + 1 < w and cells[r][c + 1] == '.'
+                    join(mut parent, id, id + 1)
+                if r + 1 < h and cells[r + 1][c] == '.'
+                    join(mut parent, id, id + w)
+    a := find(mut parent, top)
+    b := find(mut parent, bottom)
+    a == b
+
+fn main()
+    samples := [["#.###", "#..##", "##.#.", "#..#.", "#.###"], ["..#..", "#.#.#", "#.###", "###..", "....."], [".#.#.", ".#.#.", "...#.", "####.", "....."], ["#####", ".....", ".....", ".....", "....."]]
+    for i, s in samples.enumerate()
+        open := s.fold(0, |acc, r| acc + r.count("."))
+        verdict := if percolates(s) then "seeps through" else "holds water"
+        print("sample {i + 1}: {open:>2} of 25 cells open, {verdict}")
+
+@test fn one_cell()
+    assert(percolates(["."]))
+    assert(not percolates(["#"]))

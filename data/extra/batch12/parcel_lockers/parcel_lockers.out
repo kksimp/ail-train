@@ -1,0 +1,10 @@
+book (Size.Small) -> A1, code 4347
+shoes (Size.Medium) -> B1, code 7645
+lamp (Size.Large) -> C1, code 5220
+mug (Size.Small) -> A2, code 9643
+phone (Size.Small) -> B2, code 1204
+rug (Size.Large): no locker free
+shoes picked up from B1
+rug (Size.Large): no locker free
+kettle (Size.Medium) -> B1, code 4805
+busy: ["A1", "A2", "B1", "B2", "C1"]

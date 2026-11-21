@@ -1,0 +1,8 @@
+disk 0:   41 6e 20 45
+disk 1:   62 79 74 65
+disk 2:   7f 00 13 c4
+disk 3:   99 2a 5e 01
+parity:   c5 3d 19 e5
+disk 2 fails
+rebuilt:  7f 00 13 c4
+matches original: true

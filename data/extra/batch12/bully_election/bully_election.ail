@@ -1,0 +1,45 @@
+## Bully election: when a node notices the coordinator is down it challenges every higher id;
+## any live higher node answers and starts its own election, so the highest live id wins.
+
+fn elect(start int, alive List[bool], mut msgs List[int], mut log List[str]) int
+    n := alive.len()
+    mut answered := false
+    for h in start + 1..n
+        msgs[0] += 1
+        if alive[h]
+            msgs[0] += 1
+            answered = true
+            log.push("n{start} -> n{h}: election, n{h} answers ok")
+    if not answered
+        return start
+    mut up := n - 1
+    while not alive[up]
+        up -= 1
+    if up == start
+        return start
+    mut next_up := start + 1
+    while not alive[next_up]
+        next_up += 1
+    elect(next_up, alive, mut msgs, mut log)
+
+fn main()
+    mut alive := [true, true, true, true, true, true]
+    alive[5] = false
+    alive[4] = false
+    mut msgs := [0]
+    mut log := List[str]()
+    leader := elect(1, alive, mut msgs, mut log)
+    for line in log
+        print(line)
+    print("n{leader} announces itself coordinator to {alive.count(|a| a) - 1} nodes")
+    print("{msgs[0]} election messages")
+    alive[4] = true
+    mut msgs2 := [0]
+    mut log2 := List[str]()
+    again := elect(3, alive, mut msgs2, mut log2)
+    print("n4 restarts: n3 notices, n{again} wins after {msgs2[0]} messages")
+
+@test fn top_node_wins_alone()
+    mut msgs := [0]
+    mut log := List[str]()
+    assert_eq(elect(2, [true, true, true], mut msgs, mut log), 2)

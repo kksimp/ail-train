@@ -1,0 +1,4 @@
+balloons: [3, 1, 5, 8, 2]
+pop in order: [1, 5, 8, 2, 3]
+best score: 192
+popping left to right scores 66

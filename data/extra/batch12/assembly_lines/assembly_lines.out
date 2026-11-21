@@ -1,0 +1,4 @@
+line 1 times: [9, 18, 20, 24, 32, 35]
+line 2 times: [12, 16, 22, 25, 30, 37]
+stations use lines 1 2 1 2 2 1
+finished in 38 minutes

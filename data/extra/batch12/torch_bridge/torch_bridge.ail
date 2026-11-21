@@ -1,0 +1,54 @@
+## Torch bridge: four walkers cross a bridge at night, at most two at a time with one torch, a pair
+## moving at the slower pace; Dijkstra over who-is-across states finds the quickest crossing.
+
+fn main()
+    names := ["Ann", "Bob", "Cat", "Dan"]
+    pace := [1, 2, 5, 10]
+    n := 4
+    states := 32
+    mut best := List[int]()
+    mut prev := List[int]()
+    mut note := List[str]()
+    for i in 0..states
+        best.push(1000000)
+        prev.push(-1)
+        note.push("")
+    best[0] = 0
+    mut h := Heap[int]()
+    h.push(0)
+    while v := h.pop()
+        t := v / 100
+        st := v % 100
+        if t > best[st]
+            continue
+        far := (st >> 4) == 1
+        people := st & 15
+        here := 15 ^ people
+        side_bit := if far then 0 else 16
+        for a in 0..n
+            for b in a..n
+                on_side := if far then people else here
+                if ((on_side >> a) & 1) == 1 and ((on_side >> b) & 1) == 1
+                    group := (1 << a) | (1 << b)
+                    moved := (people ^ group) | side_bit
+                    cost := t + pace[a].max(pace[b])
+                    if cost < best[moved]
+                        best[moved] = cost
+                        prev[moved] = st
+                        who := if a == b then names[a] else "{names[a]}+{names[b]}"
+                        dir := if far then "back" else "over"
+                        note[moved] = "{who} {dir}"
+                        h.push(cost * 100 + moved)
+    goal := 31
+    mut steps := List[str]()
+    mut cur := goal
+    while cur != 0
+        steps.push("{note[cur]} (t={best[cur]})")
+        cur = prev[cur]
+    steps.reverse()
+    for line in steps
+        print(line)
+    print("everyone across in {best[goal]} minutes")
+
+@test fn pair_pace()
+    assert_eq([5, 10].max() else 0, 10)

@@ -1,0 +1,8 @@
+round 1: A sees 0 2 5 7 9
+round 2: A sees 0 2 5 6 9
+round 3: A sees 0 2 5 6 8
+round 4: A sees 0 2 5 6 8
+A to B: cost 2 via B
+A to C: cost 5 via B
+A to D: cost 6 via B
+A to E: cost 8 via B

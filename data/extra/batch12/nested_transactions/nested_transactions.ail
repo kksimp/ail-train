@@ -1,0 +1,50 @@
+## Nested transactions: a key-value store where BEGIN opens a level, ROLLBACK undoes only the
+## latest level using its saved old values, and COMMIT folds every open level into the store.
+
+struct Store
+    data Map[str, int]
+    undo List[Map[str, int]]
+
+MISSING := -999
+
+fn Store.set(mut self, k str, v int)
+    if self.undo.len() > 0
+        last := self.undo.len() - 1
+        if not self.undo[last].contains(k)
+            old := self.data.get_or(k, MISSING)
+            self.undo[last][k] = old
+    self.data[k] = v
+
+fn Store.rollback(mut self) str
+    level := self.undo.pop() else return "NO TRANSACTION"
+    for k, old in level
+        if old == MISSING
+            self.data.remove(k)
+        else
+            self.data[k] = old
+    "rolled back {level.len()} keys"
+
+fn main()
+    mut db := Store(data: Map[str, int](), undo: List[Map[str, int]]())
+    script := ["SET a 10", "BEGIN", "SET a 20", "SET b 5", "BEGIN", "SET a 30", "GET a", "ROLLBACK", "GET a", "GET b", "ROLLBACK", "GET a", "GET b", "ROLLBACK", "BEGIN", "SET c 1", "COMMIT", "GET c"]
+    for line in script
+        p := line.split(" ")
+        match p[0]
+            "SET" => db.set(p[1], p[2].to_int() else 0)
+            "GET" =>
+                v := db.data.get(p[1])
+                n := v else 0
+                shown := if v == none then "NULL" else "{n}"
+                print("{line} -> {shown}")
+            "BEGIN" => db.undo.push(Map[str, int]())
+            "ROLLBACK" =>
+                msg := db.rollback()
+                print("{line} -> {msg}")
+            _ => db.undo = List[Map[str, int]]()
+    print("open levels: {db.undo.len()}, keys: {db.data.keys().sorted()}")
+
+@test fn undo_new_key()
+    mut db := Store(data: Map[str, int](), undo: [Map[str, int]()])
+    db.set("x", 1)
+    _ := db.rollback()
+    assert(not db.data.contains("x"))

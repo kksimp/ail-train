@@ -1,0 +1,47 @@
+## Feedback queues: a multilevel feedback scheduler with three queues and time slices of 2, 4 and
+## 8; a job that uses its whole slice drops a level, so short interactive jobs finish first.
+
+struct Proc
+    name str
+    arrive int
+    need int
+
+fn main()
+    procs := [Proc(name: "edit", arrive: 0, need: 3), Proc(name: "build", arrive: 0, need: 14), Proc(name: "chat", arrive: 1, need: 2), Proc(name: "render", arrive: 2, need: 9), Proc(name: "ping", arrive: 6, need: 1)]
+    slices := [2, 4, 8]
+    mut queues := [List[int](), List[int](), List[int]()]
+    mut left := procs.map(|p| p.need)
+    mut arrived := 0
+    mut t := 0
+    mut finished := 0
+    mut segs := List[str]()
+    while finished < procs.len()
+        while arrived < procs.len() and procs[arrived].arrive <= t
+            queues[0].push(arrived)
+            arrived += 1
+        mut lvl := 0
+        while lvl < 3 and queues[lvl].len() == 0
+            lvl += 1
+        if lvl == 3
+            t += 1
+            continue
+        p := queues[lvl][0]
+        queues[lvl].remove_at(0)
+        run := slices[lvl].min(left[p])
+        t += run
+        left[p] -= run
+        segs.push("{procs[p].name}@{lvl}:{run}")
+        while arrived < procs.len() and procs[arrived].arrive <= t
+            queues[0].push(arrived)
+            arrived += 1
+        if left[p] == 0
+            finished += 1
+            print("{procs[p].name:<6} done at {t:>2}, turnaround {t - procs[p].arrive}")
+        else
+            down := (lvl + 1).min(2)
+            queues[down].push(p)
+    shown := segs.join(" ")
+    print("runs: {shown}")
+
+@test fn slice_cap()
+    assert_eq([2, 4, 8][1].min(3), 3)

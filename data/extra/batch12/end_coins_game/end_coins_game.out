@@ -1,0 +1,10 @@
+coins [5, 3, 7, 10, 2, 14, 6, 1]; first player can lead by 12
+Ada takes 5 from the left
+Ben takes 3 from the left
+Ada takes 1 from the right
+Ben takes 7 from the left
+Ada takes 10 from the left
+Ben takes 2 from the left
+Ada takes 14 from the left
+Ben takes 6 from the left
+final: Ada 30, Ben 18

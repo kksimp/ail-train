@@ -1,0 +1,55 @@
+## Lights out solver: on a 5x5 board each press toggles a lamp and its neighbours; every choice of
+## top-row presses is tried, the rest are forced by chasing lit lamps down, and the fewest wins.
+
+fn press(mut g List[List[bool]], r int, c int)
+    for d in [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]]
+        nr := r + d[0]
+        nc := c + d[1]
+        if nr >= 0 and nr < 5 and nc >= 0 and nc < 5
+            g[nr][nc] = not g[nr][nc]
+
+fn attempt(start List[List[bool]], top int, mut presses List[List[bool]]) bool
+    mut g := start
+    for c in 0..5
+        if ((top >> c) & 1) == 1
+            press(mut g, 0, c)
+            presses[0][c] = true
+    for r in 1..5
+        for c in 0..5
+            if g[r - 1][c]
+                press(mut g, r, c)
+                presses[r][c] = true
+    not g[4].any(|x| x)
+
+fn mark(on bool) str
+    if on then "X" else "."
+
+fn blank() List[List[bool]]
+    mut g := List[List[bool]]()
+    for r in 0..5
+        g.push([false, false, false, false, false])
+    g
+
+fn main()
+    rows := ["#.#.#", ".##..", "#...#", "..##.", "#.#.#"]
+    start := rows.map(|s| s.chars().map(|ch| ch == '#'))
+    mut best := 26
+    mut plan := blank()
+    mut solvable := 0
+    for top in 0..32
+        mut presses := blank()
+        if attempt(start, top, mut presses)
+            solvable += 1
+            n := presses.fold(0, |acc, row| acc + row.count(|x| x))
+            if n < best
+                best = n
+                plan = presses
+    print("{solvable} of 32 top rows clear the board")
+    for row in plan
+        print(row.map(|x| mark(x)).join(""))
+    print("fewest presses: {best}")
+
+@test fn single_press()
+    mut g := blank()
+    press(mut g, 0, 0)
+    assert(g[0][1] and g[1][0] and not g[1][1])

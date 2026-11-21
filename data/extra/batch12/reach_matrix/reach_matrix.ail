@@ -1,0 +1,40 @@
+## Reach matrix: Warshall's transitive closure over one-way radio relays; station i reaches j
+## when some relay chain links them, and the matrix shows which stations can reach every other.
+
+fn closure(mut r List[List[bool]])
+    n := r.len()
+    for k in 0..n
+        for i in 0..n
+            for j in 0..n
+                if r[i][k] and r[k][j]
+                    r[i][j] = true
+
+fn bit(b bool) str
+    if b then "1" else "0"
+
+fn main()
+    names := ["Alpha", "Bravo", "Charlie", "Delta", "Echo", "Foxtrot"]
+    relays := [[0, 1], [1, 2], [2, 0], [2, 3], [3, 4], [5, 4], [4, 3]]
+    n := names.len()
+    mut r := List[List[bool]]()
+    for i in 0..n
+        mut row := List[bool]()
+        for j in 0..n
+            row.push(i == j)
+        r.push(row)
+    for e in relays
+        r[e[0]][e[1]] = true
+    closure(mut r)
+    for i in 0..n
+        cells := r[i].map(|b| bit(b)).join(" ")
+        print("{names[i]:<8} {cells}")
+    for i in 0..n
+        reach := r[i].count(|b| b) - 1
+        heard := [j for j in 0..n if r[j][i] and j != i].len()
+        print("{names[i]} reaches {reach}, heard by {heard}")
+
+@test fn chain_closes()
+    mut r := [[true, true, false], [false, true, true], [false, false, true]]
+    closure(mut r)
+    assert(r[0][2])
+    assert(not r[2][0])

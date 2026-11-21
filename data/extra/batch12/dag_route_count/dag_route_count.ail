@@ -1,0 +1,46 @@
+## DAG route count: downhill trails form a directed acyclic graph; Kahn's topological order lets
+## each junction add its route count to the junctions below it, along with the longest route.
+
+fn topo(edges List[List[str]]) List[str]
+    mut indeg := Map[str, int]()
+    mut places := List[str]()
+    for e in edges
+        for p in e
+            if not indeg.contains(p)
+                indeg[p] = 0
+                places.push(p)
+        indeg[e[1]] += 1
+    mut ready := places.filter(|p| indeg[p] == 0)
+    mut order := List[str]()
+    while ready.len() > 0
+        u := ready[0]
+        ready.remove_at(0)
+        order.push(u)
+        for e in edges
+            if e[0] == u
+                indeg[e[1]] -= 1
+                if indeg[e[1]] == 0
+                    ready.push(e[1])
+    order
+
+fn main()
+    trails := [["Summit", "Ridge"], ["Summit", "Col"], ["Ridge", "Tarn"], ["Col", "Tarn"], ["Col", "Forest"], ["Tarn", "Bridge"], ["Forest", "Bridge"], ["Tarn", "Forest"], ["Bridge", "Car park"], ["Forest", "Car park"], ["Ridge", "Bridge"]]
+    order := topo(trails)
+    shown := order.join(" > ")
+    print("order: {shown}")
+    mut ways := Map[str, int]()
+    mut longest := Map[str, int]()
+    for p in order
+        ways[p] = 0
+        longest[p] = 0
+    ways[order[0]] = 1
+    for u in order
+        for e in trails
+            if e[0] == u
+                ways[e[1]] += ways[u]
+                longest[e[1]] = longest[e[1]].max(longest[u] + 1)
+    for p in order
+        print("{p:<9} {ways[p]:>2} routes, longest {longest[p]} legs")
+
+@test fn chain_order()
+    assert_eq(topo([["b", "c"], ["a", "b"]]), ["a", "b", "c"])

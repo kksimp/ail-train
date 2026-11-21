@@ -1,0 +1,62 @@
+## Two-phase commit: a coordinator asks every participant to prepare an order; each one votes from
+## its own rule (a trait method), and the order commits only if every vote is yes.
+
+trait Participant
+    fn name(self) str
+    fn vote(self, qty int, cost int) bool
+
+struct Warehouse
+    on_hand int
+
+struct Wallet
+    balance int
+
+struct Courier
+    max_parcels int
+
+impl Participant for Warehouse
+    fn name(self) str
+        "warehouse"
+    fn vote(self, qty int, cost int) bool
+        qty <= on_hand
+
+impl Participant for Wallet
+    fn name(self) str
+        "wallet"
+    fn vote(self, qty int, cost int) bool
+        qty * cost <= balance
+
+impl Participant for Courier
+    fn name(self) str
+        "courier"
+    fn vote(self, qty int, cost int) bool
+        qty <= max_parcels
+
+fn main()
+    mut parts := List[any Participant]()
+    parts.push(Warehouse(on_hand: 12))
+    parts.push(Wallet(balance: 500))
+    parts.push(Courier(max_parcels: 8))
+    orders := [(5, 40), (10, 30), (6, 90), (8, 60), (3, 200)]
+    mut done := 0
+    for o in orders
+        qty, cost := o
+        mut votes := List[str]()
+        mut yes := true
+        for p in parts
+            v := p.vote(qty, cost)
+            label := if v then "yes" else "no"
+            votes.push("{p.name()} {label}")
+            if not v
+                yes = false
+        decision := if yes then "COMMIT" else "ABORT"
+        if yes
+            done += 1
+        shown := votes.join(", ")
+        print("order {qty} x {cost}: {shown} -> {decision}")
+    print("{done} of {orders.len()} orders committed")
+
+@test fn wallet_rule()
+    w := Wallet(balance: 100)
+    assert(w.vote(2, 50))
+    assert(not w.vote(3, 50))
