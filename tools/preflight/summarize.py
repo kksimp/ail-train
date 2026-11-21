@@ -28,8 +28,15 @@ def read(path):
         return ""
 
 
-def lora_numbers(log):
+# mlx-lm 0.32 prints a table instead: "iter train_loss tok/s tokens" rows.
+TABLE = re.compile(r"^\s*(\d+)\s+([\d.]+)\s+([\d.]+)\s+(\d+)\s*$", re.M)
+
+
+def lora_numbers(log, peak):
     rows = [m.groups() for m in REPORT.finditer(log)]
+    if not rows:
+        t = [m.groups() for m in TABLE.finditer(log)]
+        rows = [(it, loss, "0", tps, peak or "0") for it, loss, tps, _ in t]
     if not rows:
         return {}
     later = rows[1:] or rows
@@ -41,7 +48,7 @@ def lora_numbers(log):
         "loss_last": rows[-1][1],
         "train_tok_s": round(tps, 1),
         "s_per_step": round(1 / its, 1) if its else None,
-        "peak_gb": max(float(r[4]) for r in rows),
+        "peak_gb": peak or max(float(r[4]) for r in rows),
         "hours_per_1M_tokens": round(1e6 / tps / 3600, 2) if tps else None,
     }
 
@@ -63,8 +70,14 @@ def main():
         status = read(os.path.join(d, "status.txt")).strip() or "not run"
         t = read_json(os.path.join(d, "tokens.json"))
         g = read_json(os.path.join(d, "gen.json"))
-        l = lora_numbers(read(os.path.join(d, "lora.log")))
+        peak = read(os.path.join(d, "peak_gb.txt")).strip()
+        l = lora_numbers(read(os.path.join(d, "lora.log")), peak)
+        if not l and peak:
+            l = {"peak_gb": peak}
         swap = read(os.path.join(d, "swap_delta_mb.txt")).strip()
+        free = [int(x) for x in read(os.path.join(d, "free_pct.txt")).split() if x.isdigit()]
+        if free:
+            swap += " (min free {}%)".format(min(free))
         disk = read(os.path.join(d, "disk_gb.txt")).strip()
         port = t.get("port", {})
         lines.append(
@@ -78,9 +91,9 @@ def main():
         )
         if g.get("answer"):
             answers.append("### {} ({}), untrained answer\n\n```\n{}\n```\n".format(c, name, g["answer"].strip()))
-        if l:
+        if l.get("steps"):
             answers.append("{} loss {} -> {} over {} steps".format(c, l["loss_first"], l["loss_last"], l["steps"]))
-    lines += ["", "Train numbers: batch 1, LoRA rank 16 on 16 layers, gradient checkpointing, prompt masked, the 50",
+    lines += ["", "Train numbers: batch 1, LoRA rank 16 (layers as in the header), gradient checkpointing, prompt masked, the 50",
               "longest port examples that fit the sequence cap. Hours per 1M tokens is trained tokens at the median rate.",
               ""] + answers
     text = "\n".join(lines) + "\n"

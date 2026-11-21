@@ -10,7 +10,9 @@
 # Candidates come from the untracked config.local at the repository root (D6), for example:
 #   PREFLIGHT_MODELS="org/first-model-4bit org/second-model-4bit org/third-model-4bit"
 #   AIL_ROOT="$HOME/ail-train-work/ail-pinned"      # an ail checkout at .ail-version (for the core card and corpus)
-# Optional environment: ITERS (default 20), SEQ (default 4096), SWAP_ABORT_MB (default 512), ONLY_CANDIDATE=N.
+# Optional environment: ITERS (default 20), SEQ (default 4096), NUM_LAYERS (LoRA layers, default 16),
+# SWAP_ABORT_MB (default 1536), ONLY_CANDIDATE=N (or a list, "1 3").
+# 512 MB of swap growth was too tight: macOS pages idle apps out as soon as a 4096-token run loads, before step 1.
 #
 # Limits (PLAN.md section 3): starts only while load < 8, no Mac gate running and at least 20 GB free disk; one
 # candidate at a time; a run is stopped if swap use grows by more than SWAP_ABORT_MB, and marked over the cap if MLX
@@ -20,7 +22,8 @@ root="$(cd "$(dirname "$0")/.." && pwd)"
 work="$HOME/ail-train-work"
 iters="${ITERS:-20}"
 seq="${SEQ:-4096}"
-swap_abort="${SWAP_ABORT_MB:-512}"
+swap_abort="${SWAP_ABORT_MB:-1536}"
+layers="${NUM_LAYERS:-16}"
 only="${ONLY_CANDIDATE:-}"
 
 die() { echo "preflight: $*" >&2; exit 2; }
@@ -78,14 +81,14 @@ mkdir -p "$run"
     echo "free disk: $(free_disk_gb) GB; load: $(load1); swap used: $(swap_used_mb) MB"
     echo "mlx-lm $("$vpy" -c 'import importlib.metadata as m; print(m.version("mlx-lm"))'), mlx $("$vpy" -c 'import importlib.metadata as m; print(m.version("mlx"))'), python $("$vpy" -c 'import platform; print(platform.python_version())')"
     echo "ail: $(cd "$ail_root" && git rev-parse --short HEAD 2>/dev/null || echo unknown); ail-train: $(cd "$root" && git rev-parse --short HEAD)"
-    echo "smoke run: $iters steps, sequence $seq, batch 1, LoRA rank 16 on 16 layers, grad checkpoint, prompt masked"
+    echo "smoke run: $iters steps, sequence $seq, batch 1, LoRA rank 16 on $layers layers, grad checkpoint, prompt masked"
 } > "$run/system.txt"
 cat "$run/system.txt"
 
 n=0
 for model in $PREFLIGHT_MODELS; do
     n=$((n + 1))
-    if [ -n "$only" ] && [ "$only" != "$n" ]; then continue; fi
+    if [ -n "$only" ]; then case " $only " in *" $n "*) ;; *) continue ;; esac; fi
     d="$run/$n"
     mkdir -p "$d"
     echo "$model" > "$d/model.txt"
@@ -112,12 +115,12 @@ train: true
 fine_tune_type: lora
 data: "$d/data"
 seed: 0
-num_layers: 16
+num_layers: $layers
 batch_size: 1
 iters: $iters
 val_batches: 2
 learning_rate: 1.0e-4
-steps_per_report: 5
+steps_per_report: 1
 steps_per_eval: 1000
 save_every: 100000
 adapter_path: "$d/adapter"
@@ -136,6 +139,8 @@ EOF
     aborted=""
     while kill -0 "$pid" 2>/dev/null; do
         s="$(swap_used_mb)"
+        top -l 1 -pid "$pid" -stats mem 2>/dev/null | tail -1 >> "$d/footprint.txt"
+        memory_pressure -Q 2>/dev/null | sed -n 's/.*percentage: \([0-9]*\)%.*/\1/p' >> "$d/free_pct.txt"
         [ "$s" -gt "$maxswap" ] && maxswap="$s"
         if [ $((s - swap0)) -gt "$swap_abort" ]; then
             aborted="swap grew by $((s - swap0)) MB"
@@ -149,7 +154,10 @@ EOF
     wait "$pid" 2>/dev/null
     rc=$?
     echo $((maxswap - swap0)) > "$d/swap_delta_mb.txt"
-    peak="$(sed -n 's/.*Peak mem \([0-9.]*\) GB.*/\1/p' "$d/lora.log" | sort -n | tail -1)"
+    # MLX memory is unified, so the process footprint (top's MEM column) is the peak to hold under 6 GB.
+    peak="$(awk '{ v = $1; sub(/[+-]$/, "", v); u = substr(v, length(v)); n = v + 0; if (u == "G") n *= 1024; else if (u == "K") n /= 1024;
+        if (n > m) m = n } END { if (m) printf "%.2f", m / 1024 }' "$d/footprint.txt" 2>/dev/null)"
+    echo "${peak:-}" > "$d/peak_gb.txt"
     if [ -n "$aborted" ]; then
         echo "stopped: $aborted" > "$d/status.txt"
     elif [ "$rc" -ne 0 ]; then
