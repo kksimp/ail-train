@@ -6,8 +6,9 @@ fn acronym(phrase str) str
     words := phrase.replace("-", " ").split(" ").filter(|w| w != "")
     mut out := ""
     for i, w in words.enumerate()
-        if i == 0 or not small.contains(w.lower())
-            out += w.slice(0, 1).upper()
+        if i == 0 or not small.contains(w.to_lower())
+            head := w.slice(0, 1).to_upper()
+            out = "{out}{head}"
     out
 
 fn main()

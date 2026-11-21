@@ -17,20 +17,20 @@ fn digit(c char) int
     0
 
 fn soundex(name str) str
-    cs := name.lower().chars()
+    cs := name.to_lower().chars()
     first := cs[0]
-    mut out := name.slice(0, 1).upper()
+    mut out := name.slice(0, 1).to_upper()
     mut last := digit(first)
     for c in cs.skip(1)
         d := digit(c)
         if d != 0 and d != last
-            out += "{d}"
+            out = "{out}{d}"
             if out.len() == 4
                 break
         if c != 'h' and c != 'w'
             last = d
     while out.len() < 4
-        out += "0"
+        out = "{out}0"
     out
 
 fn main()

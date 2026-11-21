@@ -16,9 +16,8 @@ fn main()
     mut counts := Map[str, int]()
     for eu in sold
         counts[uk_size(eu, table)] += 1
-    for pair in counts.top(3)
-        size, n := pair
-        print("UK {size}: {n} pairs")
+    for size in counts.top(3)
+        print("UK {size}: {counts[size]} pairs")
 
 @test fn exact_match()
     assert_eq(uk_size(38, [(38, "5"), (39, "6")]), "5")

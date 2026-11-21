@@ -2,7 +2,7 @@
 ## one word in order of first appearance, and the largest group.
 
 fn signature(w str) str
-    w.lower().chars().sorted().join("")
+    w.to_lower().chars().sorted().join("")
 
 fn main()
     words := ["listen", "silent", "enlist", "stone", "notes", "onset", "tones", "lemon", "melon", "apple", "inlets", "solo"]

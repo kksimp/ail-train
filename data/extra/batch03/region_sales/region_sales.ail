@@ -22,13 +22,14 @@ fn main()
             skipped += 1
     months := ["jan", "feb", "mar"]
     heading := "region"
-    print("{heading:<6}" + months.map(|m| "{m:>5}").join("") + "  total")
+    month_cells := months.map(|m| "{m:>5}").join("")
+    print("{heading:<6}{month_cells}  total")
     for region in table.keys().sorted()
         row := table[region]
         mut cells := ""
         for m in months
             v := row.get(m) else 0
-            cells += "{v:>5}"
+            cells = "{cells}{v:>5}"
         print("{region:<6}{cells}  {row.values().sum():>5}")
     print("skipped {skipped}")
 

@@ -12,19 +12,19 @@ fn fields(line str) List[str]
         if quoted
             if c == '"'
                 if i + 1 < cs.len() and cs[i + 1] == '"'
-                    cur += "\""
+                    cur = "{cur}\""
                     i += 1
                 else
                     quoted = false
             else
-                cur += "{c}"
+                cur = "{cur}{c}"
         elif c == '"'
             quoted = true
         elif c == ','
             out.push(cur)
             cur = ""
         else
-            cur += "{c}"
+            cur = "{cur}{c}"
         i += 1
     out.push(cur)
     out

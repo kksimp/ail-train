@@ -9,14 +9,15 @@ fn main()
     for a in answers
         counts[a] += 1
     heading := "band"
-    print("{heading:<7}" + choices.map(|c| "{c:>8}").join(""))
+    choice_cells := choices.map(|c| "{c:>8}").join("")
+    print("{heading:<7}{choice_cells}")
     for band in bands
         total := choices.map(|c| counts.get((band, c)) else 0).sum()
         mut cells := ""
         for c in choices
             n := counts.get((band, c)) else 0
             pct := (n * 200 + total) / (total * 2)
-            cells += "{n:>3} {pct:>3}%"
+            cells = "{cells}{n:>3} {pct:>3}%"
         print("{band:<7}{cells}")
 
 @test fn tuple_keys()

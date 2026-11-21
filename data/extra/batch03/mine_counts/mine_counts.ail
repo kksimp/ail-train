@@ -8,14 +8,15 @@ fn annotate(field List[str]) List[str]
         mut line := ""
         for c in 0..g[r].len()
             if g[r][c] == '*'
-                line += "*"
+                line = "{line}*"
                 continue
             mut n := 0
             for rr in (r - 1).max(0)..=(r + 1).min(g.len() - 1)
                 for cc in (c - 1).max(0)..=(c + 1).min(g[r].len() - 1)
                     if g[rr][cc] == '*'
                         n += 1
-            line += (if n == 0 then "." else "{n}")
+            mark := if n == 0 then "." else "{n}"
+            line = "{line}{mark}"
         out.push(line)
     out
 
