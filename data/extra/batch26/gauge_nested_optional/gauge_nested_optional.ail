@@ -17,10 +17,13 @@ fn present_total(xs List[int?]) int
             acc += v
     acc
 
+fn reports(xs List[int?]) List[int?]
+    xs
+
 fn main()
-    north := [5, none, 2]
-    south := [4, none]
-    west := [6, none, none, 7]
+    north := reports([5, none, 2])
+    south := reports([4, none])
+    west := reports([6, none, none, 7])
     east := List[int?]()
     gauges := [("north", north), ("south", south), ("west", west), ("east", east)]
     for g in gauges

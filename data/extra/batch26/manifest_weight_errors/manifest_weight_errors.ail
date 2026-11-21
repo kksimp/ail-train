@@ -36,6 +36,8 @@ fn main()
             print("manifest rejected: {err}")
     if total := shipment([good, good])
         print("two good manifests: {total} g")
+    else err
+        print("shipment rejected: {err}")
     whole := shipment([good, typo, broken]) else err
         print("shipment stopped: {err}")
         0

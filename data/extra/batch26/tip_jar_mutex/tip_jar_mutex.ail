@@ -1,10 +1,10 @@
-## Tip jar: each shift's tips are added to one `Mutex` from a `par for` loop with `with jar as mut x`,
+## Tip jar: each shift's tips are added to one `Mutex` in a loop with `with jar as mut x`,
 ## which holds the lock for the read-modify-write; the total is then split evenly with the rest kept.
 
 fn main()
     shifts := [[250, 100, 500], [0, 300], [125, 125, 125, 125], [1000]]
     jar := Mutex(0)
-    par for i in 0..shifts.len()
+    for i in 0..shifts.len()
         with jar as mut x
             x += shifts[i].sum()
     for i, s in shifts.enumerate()
