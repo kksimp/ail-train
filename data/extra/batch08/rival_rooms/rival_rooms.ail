@@ -1,0 +1,52 @@
+## Rival rooms: people who clash must sit in different rooms; a breadth-first two-colouring
+## finds the split, or shows there is none when rivals form an odd loop.
+
+fn split(n int, pairs List[List[int]]) List[int]
+    mut adj := List[List[int]]()
+    mut side := List[int]()
+    for i in 0..n
+        adj.push(List[int]())
+        side.push(-1)
+    for p in pairs
+        adj[p[0]].push(p[1])
+        adj[p[1]].push(p[0])
+    for start in 0..n
+        if side[start] == -1
+            side[start] = 0
+            mut queue := [start]
+            mut head := 0
+            while head < queue.len()
+                v := queue[head]
+                head += 1
+                for w in adj[v]
+                    if side[w] == -1
+                        side[w] = 1 - side[v]
+                        queue.push(w)
+                    elif side[w] == side[v]
+                        return List[int]()
+    side
+
+fn show(people List[str], pairs List[List[int]])
+    side := split(people.len(), pairs)
+    if side.is_empty()
+        print("no split: some rivals form an odd loop")
+        return
+    mut room_a := List[str]()
+    mut room_b := List[str]()
+    for i in 0..people.len()
+        if side[i] == 0
+            room_a.push(people[i])
+        else
+            room_b.push(people[i])
+    a := room_a.join(", ")
+    b := room_b.join(", ")
+    print("room A: {a} | room B: {b}")
+
+fn main()
+    people := ["Ida", "Jon", "Kim", "Lou", "Mo", "Nia"]
+    show(people, [[0, 1], [1, 2], [2, 3], [0, 3], [4, 5], [1, 4]])
+    show(people, [[0, 1], [1, 2], [2, 0], [3, 4]])
+    show(people, [[0, 5]])
+
+@test fn triangle()
+    assert(split(3, [[0, 1], [1, 2], [2, 0]]).is_empty())

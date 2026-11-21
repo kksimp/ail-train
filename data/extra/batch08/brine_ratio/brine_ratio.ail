@@ -1,0 +1,18 @@
+## Brine: salt for a brine of a given strength by total weight is water * p / (100 - p);
+## lists grams and tablespoons per litre of water for common pickling jobs.
+
+fn salt_for(water float, pct float) float
+    water * pct / (100.0 - pct)
+
+fn main()
+    uses := [("pickles", 3.5), ("olives", 10.0), ("turkey", 6.0), ("kimchi", 2.0), ("feta", 8.0)]
+    for u in uses
+        name, pct := u
+        salt := salt_for(1000.0, pct)
+        spoons := salt / 18.0
+        print("{name:<8} {pct:>4.1}%: {salt:>6.1} g salt per litre, {spoons:.1} tbsp")
+    total := uses.map(|u| salt_for(1000.0, u.1)).sum()
+    print("all five: {total:.0} g")
+
+@test fn tenth()
+    assert_eq(salt_for(900.0, 10.0), 100.0)

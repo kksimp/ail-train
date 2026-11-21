@@ -1,0 +1,21 @@
+## Drain time: Torricelli's law gives the time for a tank to empty through a hole in its base,
+## t = (A / a) * sqrt(2 h / g); the top half drains faster than the bottom half.
+
+fn drain_seconds(tank_d float, hole_cm float, height float) float
+    ratio := tank_d / (hole_cm / 100.0)
+    ratio * ratio * (2.0 * height / 9.81).sqrt()
+
+fn clock(secs float) str
+    whole := secs.to_int()
+    "{whole / 60} min {whole % 60} s"
+
+fn main()
+    tanks := [("rain barrel", 0.6, 2.0, 0.9), ("water butt", 0.8, 2.5, 1.2), ("cistern", 1.5, 5.0, 2.0), ("bath", 0.7, 4.0, 0.4)]
+    for t in tanks
+        name, d, hole, h := t
+        full := drain_seconds(d, hole, h)
+        half := full - drain_seconds(d, hole, h / 2.0)
+        print("{name:<12} empties in {clock(full)}, top half in {clock(half)}")
+
+@test fn empty()
+    assert_eq(drain_seconds(1.0, 10.0, 0.0), 0.0)
