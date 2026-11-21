@@ -5,16 +5,16 @@ fn key_of(var str) str
     rest := var.strip_prefix("APP_") else ""
     rest.to_lower().replace("__", ".")
 
-fn convert(default str, raw str) str ! str
+fn convert(default str, raw str) str ! Fail
     if default == "true" or default == "false"
         low := raw.to_lower()
         if low == "1" or low == "yes" or low == "true"
             return "true"
         if low == "0" or low == "no" or low == "false"
             return "false"
-        return "'{raw}' is not a yes/no value"
+        return Fail(msg: "'{raw}' is not a yes/no value")
     if default.to_int() != none
-        n := raw.trim().to_int() else return "'{raw}' is not a whole number"
+        n := raw.trim().to_int() else return Fail(msg: "'{raw}' is not a whole number")
         return "{n}"
     raw
 
@@ -34,7 +34,7 @@ fn main()
             settings[key] = v
             print("{var:<18} -> {key}: {old} -> {v}")
         else err
-            print("{var:<18} -> {key}: rejected, {err}")
+            print("{var:<18} -> {key}: rejected, {err.msg}")
     for k in settings.keys().sorted()
         print("  {k} = {settings[k]}")
 

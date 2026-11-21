@@ -1,7 +1,7 @@
 ## Command prefixes: a tool accepts any unambiguous prefix of a subcommand (st for status), checks
 ## aliases and exact names first, and for an ambiguous prefix lists the candidates instead of guessing.
 
-fn resolve(word str, commands List[str], aliases Map[str, str]) str ! str
+fn resolve(word str, commands List[str], aliases Map[str, str]) str ! Fail
     if commands.contains(word)
         return word
     if target := aliases.get(word)
@@ -10,9 +10,9 @@ fn resolve(word str, commands List[str], aliases Map[str, str]) str ! str
     if hits.len() == 1
         return hits[0]
     if hits.is_empty()
-        return "unknown command '{word}'"
+        return Fail(msg: "unknown command '{word}'")
     shown := hits.join(", ")
-    "'{word}' is ambiguous: {shown}"
+    return Fail(msg: "'{word}' is ambiguous: {shown}")
 
 fn main()
     commands := ["status", "stash", "commit", "checkout", "cherry-pick", "push", "pull", "log"]
@@ -21,7 +21,7 @@ fn main()
         if cmd := resolve(word, commands, aliases)
             print("{word:<7} -> {cmd}")
         else err
-            print("{word:<7} !! {err}")
+            print("{word:<7} !! {err.msg}")
 
 @test fn unique_prefix()
     cmd := resolve("cher", ["checkout", "cherry-pick"], Map[str, str]()) else ""

@@ -8,7 +8,7 @@ fn keypad(c char) char
         return table[up.code() - 65]
     c
 
-fn to_e164(raw str) str ! str
+fn to_e164(raw str) str ! Fail
     mut body := raw
     mut ext := ""
     low := raw.to_lower()
@@ -29,10 +29,10 @@ fn to_e164(raw str) str ! str
         if num.len() == 11 and num.starts_with("1")
             num = num.slice(1)
         if num.len() != 10
-            return "{num.len()} digits is not a full number"
+            return Fail(msg: "{num.len()} digits is not a full number")
         num = "1{num}"
     if num.len() < 8 or num.len() > 15
-        return "bad length {num.len()}"
+        return Fail(msg: "bad length {num.len()}")
     tail := if ext == "" then "" else " x{ext}"
     "+{num}{tail}"
 
@@ -45,7 +45,7 @@ fn main()
         if v := to_e164(raw)
             print("{raw:<26} {v}")
         else err
-            print("{raw:<26} rejected: {err}")
+            print("{raw:<26} rejected: {err.msg}")
 
 @test fn letters()
     assert_eq(keypad('s'), '7')
