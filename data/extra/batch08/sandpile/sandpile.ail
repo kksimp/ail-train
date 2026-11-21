@@ -1,0 +1,38 @@
+## Sandpile: grains dropped on the centre of a grid; any square holding 4 or more topples, sending
+## one grain to each neighbour (grains off the edge are lost), until every square is stable.
+
+fn main()
+    size := 7
+    mut grid := List[List[int]]()
+    for r in 0..size
+        mut row := List[int]()
+        for c in 0..size
+            row.push(0)
+        grid.push(row)
+    grid[3][3] = 150
+    mut topples := 0
+    mut busy := true
+    while busy
+        busy = false
+        for r in 0..size
+            for c in 0..size
+                if grid[r][c] >= 4
+                    busy = true
+                    topples += 1
+                    grid[r][c] -= 4
+                    if r > 0
+                        grid[r - 1][c] += 1
+                    if r < size - 1
+                        grid[r + 1][c] += 1
+                    if c > 0
+                        grid[r][c - 1] += 1
+                    if c < size - 1
+                        grid[r][c + 1] += 1
+    mut left := 0
+    for row in grid
+        print(row.join(" "))
+        left += row.sum()
+    print("{topples} topples, {left} grains left, {150 - left} fell off")
+
+@test fn stable()
+    assert(3 < 4)

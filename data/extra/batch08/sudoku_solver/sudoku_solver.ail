@@ -1,0 +1,54 @@
+## Sudoku solver: backtracking fills the first empty cell with each digit that does not clash in
+## its row, column or 3 by 3 box, undoing a choice when the rest of the grid gets stuck.
+
+fn fits(b List[int], pos int, d int) bool
+    r := pos / 9
+    c := pos % 9
+    for i in 0..9
+        if b[r * 9 + i] == d or b[i * 9 + c] == d
+            return false
+    br := r / 3 * 3
+    bc := c / 3 * 3
+    for i in 0..3
+        for j in 0..3
+            if b[(br + i) * 9 + bc + j] == d
+                return false
+    true
+
+fn solve(mut b List[int], mut tries List[int]) bool
+    mut pos := -1
+    for i in 0..81
+        if b[i] == 0
+            pos = i
+            break
+    if pos < 0
+        return true
+    for d in 1..=9
+        if fits(b, pos, d)
+            b[pos] = d
+            tries[0] += 1
+            if solve(mut b, mut tries)
+                return true
+            b[pos] = 0
+    false
+
+fn main()
+    puzzle := "530070000600195000098000060800060003400803001700020006060000280000419005000080079"
+    mut board := List[int]()
+    for ch in puzzle.chars()
+        board.push(ch.to_digit(10) else 0)
+    mut tries := [0]
+    if solve(mut board, mut tries)
+        for r in 0..9
+            row := board.slice(r * 9, r * 9 + 9).join("")
+            print(row)
+        print("solved after {tries[0]} placements")
+    else
+        print("no solution")
+
+@test fn clash()
+    mut b := List[int]()
+    for i in 0..81
+        b.push(0)
+    b[0] = 5
+    assert(not fits(b, 1, 5))
