@@ -1,0 +1,28 @@
+## Point inside: the even-odd ray casting test decides whether points lie inside a polygon
+## by counting how many edges a ray to the right crosses.
+
+fn inside(p (float, float), poly List[(float, float)]) bool
+    px, py := p
+    mut result := false
+    n := poly.len()
+    mut j := n - 1
+    for i in 0..n
+        xi, yi := poly[i]
+        xj, yj := poly[j]
+        if (yi > py) != (yj > py)
+            cross_x := (xj - xi) * (py - yi) / (yj - yi) + xi
+            if px < cross_x
+                result = not result
+        j = i
+    result
+
+fn main()
+    star := [(0.0, 3.0), (1.0, 1.0), (3.0, 1.0), (1.5, -0.5), (2.0, -3.0), (0.0, -1.5), (-2.0, -3.0), (-1.5, -0.5), (-3.0, 1.0), (-1.0, 1.0)]
+    for p in [(0.0, 0.0), (0.0, 2.5), (2.5, 0.8), (2.5, 2.0), (-1.9, -2.7), (0.0, -2.0), (5.0, 0.0)]
+        place := if inside(p, star) then "inside" else "outside"
+        print("{p}: {place}")
+
+@test fn square()
+    sq := [(0.0, 0.0), (2.0, 0.0), (2.0, 2.0), (0.0, 2.0)]
+    assert(inside((1.0, 1.0), sq))
+    assert(not inside((3.0, 1.0), sq))

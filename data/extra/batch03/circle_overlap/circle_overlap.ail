@@ -1,0 +1,41 @@
+## Circle overlap: classifies pairs of circles as separate, touching, overlapping, or one
+## inside the other, comparing squared distances so no square root is needed.
+
+struct Circle
+    x int
+    y int
+    r int
+
+fn relation(a Circle, b Circle) str
+    dx := a.x - b.x
+    dy := a.y - b.y
+    d2 := dx * dx + dy * dy
+    reach := a.r + b.r
+    diff := (a.r - b.r).abs()
+    if d2 > reach * reach
+        return "separate"
+    if d2 == reach * reach
+        return "touching outside"
+    if d2 == 0 and diff == 0
+        return "same circle"
+    if d2 < diff * diff
+        return "one inside the other"
+    if d2 == diff * diff
+        return "touching inside"
+    "overlapping"
+
+fn main()
+    pairs := [
+        (Circle(x: 0, y: 0, r: 2), Circle(x: 5, y: 0, r: 2)),
+        (Circle(x: 0, y: 0, r: 2), Circle(x: 3, y: 4, r: 3)),
+        (Circle(x: 0, y: 0, r: 5), Circle(x: 1, y: 1, r: 1)),
+        (Circle(x: 0, y: 0, r: 5), Circle(x: 3, y: 0, r: 2)),
+        (Circle(x: 1, y: 1, r: 3), Circle(x: 2, y: 2, r: 3)),
+        (Circle(x: 4, y: 4, r: 1), Circle(x: 4, y: 4, r: 1)),
+    ]
+    for p in pairs
+        a, b := p
+        print("({a.x},{a.y}) r{a.r} and ({b.x},{b.y}) r{b.r}: {relation(a, b)}")
+
+@test fn far_apart()
+    assert_eq(relation(Circle(x: 0, y: 0, r: 1), Circle(x: 10, y: 0, r: 1)), "separate")

@@ -1,0 +1,28 @@
+## BMI bands: body mass index from height in centimetres and weight in kilograms, placed in
+## the usual bands, with the weight range that would give a healthy BMI.
+
+fn bmi(height_cm int, weight_kg float) float
+    m := height_cm.to_float() / 100.0
+    weight_kg / (m * m)
+
+fn band(b float) str
+    if b < 18.5
+        return "under"
+    if b < 25.0
+        return "healthy"
+    if b < 30.0
+        return "over"
+    "obese"
+
+fn main()
+    people := [("Ola", 182, 77.5), ("Pia", 160, 45.0), ("Quin", 175, 92.3), ("Ravi", 168, 70.0), ("Sol", 190, 110.8)]
+    for p in people
+        name, h, w := p
+        b := bmi(h, w)
+        m := h.to_float() / 100.0
+        low := 18.5 * m * m
+        high := 25.0 * m * m
+        print("{name:<5} {b:5.1} {band(b):<8} healthy {low:.1}-{high:.1} kg")
+
+@test fn healthy()
+    assert_eq(band(bmi(180, 70.0)), "healthy")

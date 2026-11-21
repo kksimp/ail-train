@@ -1,0 +1,7 @@
+(0.0, 0.0): inside
+(0.0, 2.5): inside
+(2.5, 0.8): inside
+(2.5, 2.0): outside
+(-1.9, -2.7): inside
+(0.0, -2.0): outside
+(5.0, 0.0): outside
