@@ -1,0 +1,6 @@
+character    longest palindromic subsequence carac    (5), insert 4 to make a palindrome
+racecar      longest palindromic subsequence racecar  (7), insert 0 to make a palindrome
+agbdba       longest palindromic subsequence abdba    (5), insert 1 to make a palindrome
+programming  longest palindromic subsequence gmmg     (4), insert 7 to make a palindrome
+abcd         longest palindromic subsequence d        (1), insert 3 to make a palindrome
+banana       longest palindromic subsequence anana    (5), insert 1 to make a palindrome

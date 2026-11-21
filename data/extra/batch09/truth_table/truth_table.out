@@ -1,0 +1,12 @@
+a b c | (a or b) and not c
+0 0 0 | 0
+0 0 1 | 0
+0 1 0 | 1
+0 1 1 | 0
+1 0 0 | 1
+1 0 1 | 0
+1 1 0 | 1
+1 1 1 | 0
+a or not a: true in 2 of 2 rows, tautology
+a and not a: true in 0 of 2 rows, contradiction
+(a and b) or (not a and not b): true in 2 of 4 rows, satisfiable

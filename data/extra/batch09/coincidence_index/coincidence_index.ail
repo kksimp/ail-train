@@ -1,0 +1,45 @@
+## Index of coincidence: the chance that two letters drawn from a text match, sum n(n-1) / N(N-1),
+## is about 0.066 for English; splitting a Vigenere text into columns by each guessed key length shows the real length.
+
+fn ioc(cs List[char]) float
+    mut counts := Map[char, int]()
+    for c in cs
+        counts[c] += 1
+    n := cs.len()
+    mut total := 0
+    for c, k in counts
+        total += k * (k - 1)
+    total.to_float() / (n * (n - 1)).to_float()
+
+fn vigenere(text List[char], key str) List[char]
+    ks := key.chars()
+    mut out := List[char]()
+    for i, c in text.enumerate()
+        v := (c.code() - 65 + ks[i % ks.len()].code() - 65) % 26
+        out.push(char.from_code(v + 65) else '?')
+    out
+
+fn main()
+    plain := "ITWASTHEBESTOFTIMESITWASTHEWORSTOFTIMESITWASTHEAGEOFWISDOMITWASTHEAGEOFFOOLISHNESSITWASTHEEPOCHOFBELIEFITWASTHEEPOCHOFINCREDULITYITWASTHESEASONOFLIGHT".chars()
+    code := vigenere(plain, "LEMON")
+    print("plain text ioc {ioc(plain):.4}, cipher text ioc {ioc(code):.4}")
+    mut best := 0
+    mut best_score := 0.0
+    for period in 1..9
+        mut score := 0.0
+        for start in 0..period
+            mut column := List[char]()
+            mut i := start
+            while i < code.len()
+                column.push(code[i])
+                i += period
+            score += ioc(column)
+        avg := score / period.to_float()
+        print("key length {period}: average column ioc {avg:.4}")
+        if avg > best_score
+            best_score = avg
+            best = period
+    print("most likely key length: {best}")
+
+@test fn uniform()
+    assert_eq(ioc("AB".chars()), 0.0)

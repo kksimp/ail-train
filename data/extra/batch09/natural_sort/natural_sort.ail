@@ -1,0 +1,29 @@
+## Natural sort: file names are compared with each run of digits read as a number, so file2 comes
+## before file10; the sort key pads every number to 12 digits and lower-cases the letters.
+
+fn natural_key(s str) str
+    mut out := List[str]()
+    mut digits := List[char]()
+    for c in s.chars()
+        if c.is_digit()
+            digits.push(c)
+        else
+            if not digits.is_empty()
+                out.push(digits.join("").pad_left(12, '0'))
+                digits.clear()
+            out.push("{c}".to_lower())
+    if not digits.is_empty()
+        out.push(digits.join("").pad_left(12, '0'))
+    out.join("")
+
+fn main()
+    files := ["file10.txt", "file2.txt", "File1.txt", "file1b.txt", "img12.png", "img2.png", "img100.png", "track 9.mp3", "track 10.mp3", "v1.10.0", "v1.9.2"]
+    plain := files.sorted().join(" ")
+    natural := files.sorted(by: |f| natural_key(f)).join(" ")
+    print("plain:   {plain}")
+    print("natural: {natural}")
+    key := natural_key("v1.10.0")
+    print("key of v1.10.0: {key}")
+
+@test fn order()
+    assert(natural_key("a2") < natural_key("a10"))

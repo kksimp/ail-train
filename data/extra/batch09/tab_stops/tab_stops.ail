@@ -1,0 +1,38 @@
+## Tab stops: each tab moves the column to the next multiple of the stop width, so how many spaces it
+## stands for depends on where it falls; converting leading spaces back to tabs gives the reverse.
+
+fn expand_tabs(line str, stop int) str
+    mut out := List[char]()
+    for c in line.chars()
+        if c.code() == 9
+            out.push(' ')
+            while out.len() % stop != 0
+                out.push(' ')
+        else
+            out.push(c)
+    out.join("")
+
+fn entab_lead(line str, stop int) str
+    mut spaces := 0
+    for c in line.chars()
+        if c != ' '
+            break
+        spaces += 1
+    tabs := "\\t".repeat(spaces / stop)
+    pad := " ".repeat(spaces % stop)
+    rest := line.slice(spaces)
+    "{tabs}{pad}{rest}"
+
+fn main()
+    tc := char.from_code(9) else ' '
+    tab := "{tc}"
+    rows := ["name>qty>price", "tea>4>2.50", "biscuits>12>1.20", "a>bb>ccc>dddd"].map(|r| r.replace(">", tab))
+    for stop in [8, 4]
+        print("tab stops every {stop}:")
+        for r in rows
+            print("  {expand_tabs(r, stop)}|")
+    for line in ["        indented twice", "      six spaces", "   three"]
+        print("{entab_lead(line, 4)}")
+
+@test fn mid_tab()
+    assert_eq(expand_tabs("ab\tc", 4), "ab  c")

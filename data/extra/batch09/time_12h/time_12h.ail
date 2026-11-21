@@ -1,0 +1,34 @@
+## 12-hour times: parses "7:05 pm", "12 am" or "11:59 p.m." into minutes after midnight (12 am is 0:00,
+## 12 pm is noon) and prints 24-hour time, rejecting hours above 12 or minutes above 59.
+
+fn parse(text str) int ! str
+    t := text.to_lower().replace(".", "").replace(" ", "")
+    mut pm := false
+    mut body := t
+    if t.ends_with("pm")
+        pm = true
+        body = t.slice(0, t.len() - 2)
+    elif t.ends_with("am")
+        body = t.slice(0, t.len() - 2)
+    else
+        return "no am or pm"
+    parts := body.split(":")
+    h := parts[0].to_int() else return "bad hour"
+    m := if parts.len() > 1 then (parts[1].to_int() else -1) else 0
+    if h < 1 or h > 12
+        return "hour {h} is not 1 to 12"
+    if m < 0 or m > 59
+        return "bad minutes"
+    base := if h == 12 then 0 else h
+    extra := if pm then 12 else 0
+    (base + extra) * 60 + m
+
+fn main()
+    for t in ["7:05 pm", "12:00 am", "12:30 PM", "11:59 p.m.", "9 am", "6:15am", "13:00 pm", "4:75 pm", "noon"]
+        if mins := parse(t)
+            print("{t:<11} -> {mins / 60:02}:{mins % 60:02}")
+        else err
+            print("{t:<11} -> error: {err}")
+
+@test fn midnight()
+    assert_eq(parse("12:00 am") else -1, 0)

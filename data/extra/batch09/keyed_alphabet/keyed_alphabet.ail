@@ -1,0 +1,43 @@
+## Keyword substitution: the cipher alphabet is the keyword's letters without repeats followed by the
+## rest of the alphabet in order; each message letter is swapped for the one at the same place.
+
+fn cipher_alphabet(key str) List[char]
+    mut seen := Set[char]()
+    mut out := List[char]()
+    for c in "{key}ABCDEFGHIJKLMNOPQRSTUVWXYZ".chars()
+        if c.is_upper() and seen.add(c)
+            out.push(c)
+    out
+
+fn swap_letters(text str, from List[char], to List[char]) str
+    mut out := List[char]()
+    for c in text.chars()
+        if c.is_upper()
+            at := from.index_of(c) else 0
+            out.push(to[at])
+        else
+            out.push(c)
+    out.join("")
+
+fn main()
+    plain := "ABCDEFGHIJKLMNOPQRSTUVWXYZ".chars()
+    for key in ["ZEBRAS", "KANGAROO"]
+        alpha := cipher_alphabet(key)
+        letters := alpha.join("")
+        print("{key:<9} {letters}")
+    cipher := cipher_alphabet("ZEBRAS")
+    for msg in ["FLEE AT ONCE. WE ARE DISCOVERED!", "THE QUICK BROWN FOX"]
+        code := swap_letters(msg, plain, cipher)
+        back := swap_letters(code, cipher, plain)
+        print("{code} -> {back}")
+    for key in ["ZEBRAS", "KANGAROO"]
+        other := cipher_alphabet(key)
+        mut fixed := List[char]()
+        for i in 0..26
+            if plain[i] == other[i]
+                fixed.push(plain[i])
+        same := if fixed.is_empty() then "none" else fixed.join("")
+        print("letters unchanged under {key}: {same}")
+
+@test fn starts()
+    assert_eq(cipher_alphabet("BOOK").slice(0, 4).join(""), "BOKA")

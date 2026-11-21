@@ -1,0 +1,57 @@
+## JSON tokenizer: scans text into punctuation, strings (with backslash escapes skipped over),
+## numbers and the words true, false and null, tracking nesting depth and reporting the first bad character.
+
+fn tokenize(text str) List[str] ! str
+    cs := text.chars()
+    mut out := List[str]()
+    mut i := 0
+    while i < cs.len()
+        c := cs[i]
+        mut j := i + 1
+        if c == ' '
+            i = j
+            continue
+        if c == '"'
+            while j < cs.len() and cs[j] != '"'
+                step := if cs[j] == '\\' then 2 else 1
+                j += step
+            if j >= cs.len()
+                return "unterminated string at {i}"
+            j += 1
+        elif c.is_alnum() or c == '-'
+            while j < cs.len() and (cs[j].is_alnum() or cs[j] == '.')
+                j += 1
+            w := text.slice(i, j)
+            if c.is_alpha() and w != "true" and w != "false" and w != "null"
+                return "unknown word '{w}' at {i}"
+        elif not "\{}[]:,".contains(c)
+            return "unexpected '{c}' at {i}"
+        out.push(text.slice(i, j))
+        i = j
+    out
+
+fn kind(t str) str
+    first := t.chars()[0]
+    if first == '"' then "string" elif first.is_digit() or first == '-' then "number" elif first.is_alpha() then "word" else "punct"
+
+fn main()
+    docs := ["\{\"name\": \"Ada\", \"age\": 36, \"langs\": [\"en\", \"fr\"], \"admin\": false}", "[1, -2.5, \{\"a\": [null, true]}]", "\{\"quote\": \"say \\\"hi\\\"\"}", "\{\"bad\": tru}", "[\"open]", "\{\"x\": #1}"]
+    for d in docs
+        if toks := tokenize(d)
+            mut depth := 0
+            mut deepest := 0
+            mut counts := Map[str, int]()
+            for t in toks
+                counts[kind(t)] += 1
+                if t == "\{" or t == "["
+                    depth += 1
+                    deepest = deepest.max(depth)
+                elif t == "}" or t == "]"
+                    depth -= 1
+            shown := counts.keys().map(|k| "{counts[k]} {k}").join(", ")
+            print("{toks.len()} tokens ({shown}), depth {deepest}")
+        else err
+            print("error: {err}")
+
+@test fn count()
+    assert_eq((tokenize("[1, 2]") else List[str]()).len(), 5)

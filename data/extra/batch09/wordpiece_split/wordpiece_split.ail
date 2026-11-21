@@ -1,0 +1,37 @@
+## WordPiece tokenising: each word is split greedily by taking the longest vocabulary piece from the
+## left, where pieces after the first carry a ## prefix; a word that cannot be covered becomes [UNK].
+
+fn pieces(word str, vocab Set[str]) List[str]
+    cs := word.chars()
+    mut out := List[str]()
+    mut start := 0
+    while start < cs.len()
+        mut end := cs.len()
+        mut found := ""
+        while end > start
+            core := cs.slice(start, end).join("")
+            cand := if start > 0 then "##{core}" else core
+            if vocab.contains(cand)
+                found = cand
+                break
+            end -= 1
+        if found == ""
+            return ["[UNK]"]
+        out.push(found)
+        start = end
+    out
+
+fn main()
+    vocab := {"un", "##aff", "##able", "play", "##ing", "##ed", "##er", "##s", "run", "##n", "token", "##ize", "##iz", "##ation", "a", "##b", "##c"}
+    text := "unaffable playing played runner tokenization players xyz abc"
+    mut total := 0
+    for w in text.split(" ")
+        ps := pieces(w, vocab)
+        total += ps.len()
+        joined := ps.join(" ")
+        print("{w:<13} {joined}")
+    words := text.split(" ")
+    print("{words.len()} words became {total} tokens")
+
+@test fn unknown()
+    assert_eq(pieces("zzz", {"a"}), ["[UNK]"])

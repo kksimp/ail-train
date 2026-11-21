@@ -1,0 +1,57 @@
+## Date normaliser: reads dates written as 2024-03-05, 05/03/2024 (day first), 5 Mar 2024,
+## or March 5, 2024, checks the day against the month length (leap years too) and writes ISO form.
+
+fn month_of(name str) int
+    names := ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]
+    key := name.to_lower().slice(0, name.len().min(3))
+    (names.index_of(key) else -1) + 1
+
+fn days_in(y int, m int) int
+    leap := (y % 4 == 0 and y % 100 != 0) or y % 400 == 0
+    feb := if leap then 29 else 28
+    lengths := [31, feb, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+    lengths[m - 1]
+
+fn normalise(text str) str ! Fail
+    t := text.replace(",", "")
+    mut y := 0
+    mut m := 0
+    mut d := 0
+    if t.contains("-")
+        dash := t.split("-")
+        y = dash[0].to_int() else 0
+        m = dash[1].to_int() else 0
+        d = dash[2].to_int() else 0
+    elif t.contains("/")
+        slash := t.split("/")
+        d = slash[0].to_int() else 0
+        m = slash[1].to_int() else 0
+        y = slash[2].to_int() else 0
+    elif t.contains(" ")
+        p := t.split(" ")
+        if p.len() != 3
+            return Fail(msg: "unknown layout")
+        if p[0].chars()[0].is_digit()
+            d = p[0].to_int() else 0
+            m = month_of(p[1])
+        else
+            m = month_of(p[0])
+            d = p[1].to_int() else 0
+        y = p[2].to_int() else 0
+    else
+        return Fail(msg: "unknown layout")
+    if m < 1 or m > 12
+        return Fail(msg: "no month {m}")
+    if d < 1 or d > days_in(y, m)
+        return Fail(msg: "day {d} is not in {y}-{m:02}")
+    "{y}-{m:02}-{d:02}"
+
+fn main()
+    for t in ["2024-03-05", "05/03/2024", "5 Mar 2024", "March 5, 2024", "20240305", "29 Feb 2023", "29/02/2024", "2024-13-01", "next tuesday"]
+        if iso := normalise(t)
+            print("{t:<14} -> {iso}")
+        else err
+            print("{t:<14} -> rejected: {err.msg}")
+
+@test fn leap()
+    assert_eq(days_in(2000, 2), 29)

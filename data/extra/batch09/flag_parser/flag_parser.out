@@ -1,0 +1,6 @@
+--name=Ann -v report.txt       flags [name=Ann,v=true] args [report.txt]
+-x --count 3 a.txt b.txt       flags [x=true,count=3] args [a.txt,b.txt]
+-o out.txt -- -strange-file    flags [o=out.txt] args [-strange-file]
+--count                        error: --count needs a value
+-z                             error: unknown flag -z
+--verbose - --name Bo Li       flags [verbose=true,name=Bo Li] args [-]

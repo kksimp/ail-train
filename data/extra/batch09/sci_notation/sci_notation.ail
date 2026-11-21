@@ -1,0 +1,48 @@
+## Scientific notation by text: splits a number like -1.5e-3 into sign, digits and exponent, then
+## writes it normalised (d.ddd x 10^n), as plain decimal digits, and counts its significant figures.
+
+struct Sci
+    negative bool
+    digits str
+    exp int
+
+fn parse(text str) Sci
+    t := text.to_lower()
+    parts := t.split("e")
+    mut mant := parts[0]
+    exp := if parts.len() > 1 then (parts[1].replace("+", "").to_int() else 0) else 0
+    negative := mant.starts_with("-")
+    if negative
+        mant = mant.slice(1)
+    dot := mant.find(".") else mant.len()
+    whole := mant.replace(".", "")
+    mut lead := 0
+    cs := whole.chars()
+    while lead < cs.len() - 1 and cs[lead] == '0'
+        lead += 1
+    digits := whole.slice(lead)
+    Sci(negative: negative, digits: digits, exp: exp + dot - 1 - lead)
+
+fn normal(s Sci) str
+    sign := if s.negative then "-" else ""
+    rest := if s.digits.len() > 1 then ".{s.digits.slice(1)}" else ""
+    "{sign}{s.digits.slice(0, 1)}{rest} x 10^{s.exp}"
+
+fn plain(s Sci) str
+    sign := if s.negative then "-" else ""
+    point := s.exp + 1
+    if point <= 0
+        zeros := "0".repeat(-point)
+        return "{sign}0.{zeros}{s.digits}"
+    if point >= s.digits.len()
+        zeros := "0".repeat(point - s.digits.len())
+        return "{sign}{s.digits}{zeros}"
+    "{sign}{s.digits.slice(0, point)}.{s.digits.slice(point)}"
+
+fn main()
+    for text in ["6.022e23", "-1.5E-3", "42", "3.00e+08", "0.000250", "1234.5", "9.81"]
+        s := parse(text)
+        print("{text:<10} {normal(s):<20} {plain(s):<26} {s.digits.len()} sig figs")
+
+@test fn small()
+    assert_eq(plain(parse("1.5e-3")), "0.0015")

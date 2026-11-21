@@ -1,0 +1,46 @@
+## Manacher's algorithm: in one left-to-right pass it finds the palindrome radius around every
+## centre (odd and even), reusing mirrored radii; the radii sum to the number of palindromic pieces.
+
+fn radii(cs List[char], even bool) List[int]
+    n := cs.len()
+    mut d := List[int]()
+    for i in 0..n
+        d.push(0)
+    shift := if even then 1 else 0
+    mut l := 0
+    mut r := -1
+    for i in 0..n
+        mut k := if even then 0 else 1
+        if i <= r
+            k = d[l + r - i + shift].min(r - i + 1)
+        while i - k - shift >= 0 and i + k < n and cs[i - k - shift] == cs[i + k]
+            k += 1
+        d[i] = k
+        if i + k - 1 > r
+            l = i - k + 1 - shift
+            r = i + k - 1
+    d
+
+fn main()
+    for w in ["abacaba", "aabbaa", "forgeeksskeegfor", "racecars", "noon"]
+        cs := w.chars()
+        odd := radii(cs, false)
+        even := radii(cs, true)
+        count := odd.sum() + even.sum()
+        mut best_len := 0
+        mut best_at := 0
+        for i in 0..cs.len()
+            if 2 * odd[i] - 1 > best_len
+                best_len = 2 * odd[i] - 1
+                best_at = i - odd[i] + 1
+            if 2 * even[i] > best_len
+                best_len = 2 * even[i]
+                best_at = i - even[i]
+        longest := w.slice(best_at, best_at + best_len)
+        print("{w:<17} {count:>3} palindromic pieces, longest '{longest}'")
+    o := radii("abacaba".chars(), false).join(" ")
+    print("odd radii of abacaba: {o}")
+
+@test fn three_as()
+    cs := "aaa".chars()
+    assert_eq(radii(cs, false).sum() + radii(cs, true).sum(), 6)

@@ -1,0 +1,32 @@
+## Unique run: the longest stretch of a playlist with no song repeated, found in one pass by keeping
+## each song's last position and jumping the window start past a repeat.
+
+fn longest_unique(items List[str]) List[int]
+    mut last := Map[str, int]()
+    mut start := 0
+    mut best_start := 0
+    mut best_len := 0
+    for i, s in items.enumerate()
+        prev := last.get_or(s, -1)
+        if prev >= start
+            start = prev + 1
+        last[s] = i
+        if i - start + 1 > best_len
+            best_len = i - start + 1
+            best_start = start
+    [best_start, best_len]
+
+fn main()
+    plays := "rain sun wind rain moon star sun tide moon wind rain star dusk".split(" ")
+    r := longest_unique(plays)
+    run := plays.slice(r[0], r[0] + r[1]).join(", ")
+    print("playlist of {plays.len()} plays: longest fresh run is {r[1]} songs from play {r[0] + 1}")
+    print("  {run}")
+    for word in ["abcabcbb", "bbbbb", "pwwkew", "dvdf", "abcdefg"]
+        letters := word.chars().map(|c| "{c}")
+        q := longest_unique(letters)
+        piece := word.slice(q[0], q[0] + q[1])
+        print("{word:<9} {q[1]} distinct letters: {piece}")
+
+@test fn repeats()
+    assert_eq(longest_unique(["a", "a", "a"]), [0, 1])

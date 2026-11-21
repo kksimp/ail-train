@@ -1,0 +1,12 @@
+42           = 42
+-17          = -17
+0x1F         = 31
+0xff_ff      = 65535
+0o755        = 493
+0b1010_0101  = 165
+1_000_000    = 1000000
+0x           error: no digits
+12ab         error: 'a' is not a base 10 digit
+1__0         error: double underscore
+0b102        error: '2' is not a base 2 digit
+_5           error: underscore at an end

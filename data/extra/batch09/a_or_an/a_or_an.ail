@@ -1,0 +1,29 @@
+## A or an: the article follows the sound, not the letter: vowels take "an" except "uni", "use", "eu"
+## and "one" words, a silent h takes "an", and an acronym read letter by letter goes by its first letter's name.
+
+fn article(word str) str
+    lower := word.to_lower()
+    cs := word.chars()
+    if cs.len() > 1 and cs.all(|c| c.is_upper())
+        return if "AEFHILMNORSX".contains(cs[0]) then "an" else "a"
+    for p in ["uni", "use", "eu", "one", "once"]
+        if lower.starts_with(p)
+            return "a"
+    for p in ["hour", "honest", "heir", "honour"]
+        if lower.starts_with(p)
+            return "an"
+    first := lower.chars()[0]
+    if "aeiou".contains(first) then "an" else "a"
+
+fn main()
+    words := ["apple", "banana", "hour", "house", "umbrella", "unicorn", "user", "European", "one-off", "honest", "FBI", "UFO", "LED", "MRI", "egg", "heir"]
+    mut parts := List[str]()
+    for w in words
+        parts.push("{article(w)} {w}")
+    for row in parts.chunks(4)
+        print(row.join(", "))
+    an_count := words.count(|w| article(w) == "an")
+    print("{an_count} of {words.len()} take an")
+
+@test fn sounds()
+    assert_eq(article("hour"), "an")

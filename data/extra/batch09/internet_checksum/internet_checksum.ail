@@ -1,0 +1,31 @@
+## Internet checksum: an IPv4 header is added up as 16-bit words, carries above 16 bits are folded
+## back in, and the ones' complement is the checksum; a header holding its checksum sums to ffff.
+
+fn words(hex str) List[int]
+    hex.split(" ").map(|w| w.to_int(16) else 0)
+
+fn fold_sum(ws List[int]) int
+    mut s := 0
+    for w in ws
+        s += w
+    while s > 65535
+        s = (s & 65535) + (s >> 16)
+    s
+
+fn main()
+    header := "4500 0073 0000 4000 4011 0000 c0a8 0001 c0a8 00c7"
+    mut ws := words(header)
+    raw := ws.sum()
+    folded := fold_sum(ws)
+    check := 65535 - folded
+    print("raw sum {raw:x}, folded {folded:x}, checksum {check:04x}")
+    ws[5] = check
+    print("with checksum in place the sum is {fold_sum(ws):x}")
+    ws[2] = 1
+    bad := fold_sum(ws)
+    print("after one word changes the sum is {bad:x}, so the header is rejected")
+    other := words("4500 003c 1c46 4000 4006 0000 ac10 0a63 ac10 0a0c")
+    print("second header checksum {65535 - fold_sum(other):04x}")
+
+@test fn folding()
+    assert_eq(fold_sum([65535, 1]), 1)

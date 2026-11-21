@@ -1,0 +1,33 @@
+## Lexical diversity: the type-token ratio is distinct words over all words, which falls as texts get
+## longer, so the moving-average version averages it over every 8-word window instead.
+
+fn clean(text str) List[str]
+    text.to_lower().split(" ").map(|w| w.chars().filter(|c| c.is_alpha()).join("")).filter(|w| w != "")
+
+fn ttr(ws List[str]) float
+    mut seen := Set[str]()
+    for w in ws
+        seen.add(w)
+    seen.len().to_float() / ws.len().to_float()
+
+fn mattr(ws List[str], size int) float
+    if ws.len() < size
+        return ttr(ws)
+    mut total := 0.0
+    mut count := 0
+    for i in 0..ws.len() - size + 1
+        total += ttr(ws.slice(i, i + size))
+        count += 1
+    total / count.to_float()
+
+fn main()
+    texts := [("nursery", "the cat sat on the mat and the cat saw the rat and the rat ran from the cat"), ("weather", "grey clouds gathered over distant hills while cold wind pushed rain across empty fields toward town"), ("speech", "we will build and we will grow and we will win because we will never stop trying")]
+    for t in texts
+        name, body := t
+        ws := clean(body)
+        print("{name:<8} {ws.len():>2} words, ttr {ttr(ws):.3}, moving ttr {mattr(ws, 8):.3}")
+    short := clean("the cat sat on the mat")
+    print("first six nursery words alone: ttr {ttr(short):.3}")
+
+@test fn all_new()
+    assert_eq(ttr(["a", "b", "c", "d"]), 1.0)

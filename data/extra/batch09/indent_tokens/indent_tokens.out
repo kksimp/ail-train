@@ -1,0 +1,7 @@
+if ready NL
+INDENT start engine NL
+if fast NL
+INDENT boost NL
+DEDENT stop NL
+DEDENT done NL
+error: line 3: dedent to 2 matches no outer level

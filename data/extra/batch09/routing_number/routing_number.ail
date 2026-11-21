@@ -1,0 +1,27 @@
+## Bank routing numbers: nine digits weighted 3, 7, 1 repeating must sum to a multiple of 10, which
+## catches any single wrong digit; the ninth digit can be computed from the first eight.
+
+fn weighted(digits List[int]) int
+    weights := [3, 7, 1, 3, 7, 1, 3, 7, 1]
+    mut total := 0
+    for i, d in digits.enumerate()
+        total += d * weights[i]
+    total
+
+fn digits_of(s str) List[int]
+    s.chars().map(|c| c.to_digit(10) else 0)
+
+fn main()
+    for num in ["011000015", "123456780", "123456789", "091000019", "026009593"]
+        total := weighted(digits_of(num))
+        verdict := if total % 10 == 0 then "valid" else "invalid"
+        print("{num}: weighted sum {total:>3} -> {verdict}")
+    for prefix in ["12345678", "07200080", "11100002"]
+        mut ds := digits_of(prefix)
+        ds.push(0)
+        partial := weighted(ds)
+        check := (10 - partial % 10) % 10
+        print("{prefix} needs check digit {check}")
+
+@test fn check()
+    assert_eq(weighted(digits_of("123456780")) % 10, 0)

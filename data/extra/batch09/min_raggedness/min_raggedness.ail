@@ -1,0 +1,59 @@
+## Minimum raggedness line breaking: dynamic programming over break points minimises the sum of
+## squared spare spaces on every line but the last, where the greedy method fills each line in turn.
+
+fn line_len(ws List[str], i int, j int) int
+    j - i - 1 + ws.slice(i, j).map(|w| w.len()).sum()
+
+fn greedy(ws List[str], width int) List[List[int]]
+    mut out := List[List[int]]()
+    mut start := 0
+    for j in 1..ws.len() + 1
+        if line_len(ws, start, j) > width
+            out.push([start, j - 1])
+            start = j - 1
+    out.push([start, ws.len()])
+    out
+
+fn best(ws List[str], width int) List[List[int]]
+    n := ws.len()
+    mut cost := List[int]()
+    mut choice := List[int]()
+    for k in 0..n + 1
+        cost.push(0)
+        choice.push(n)
+    for back in 0..n
+        i := n - 1 - back
+        cost[i] = -1
+        for j in i + 1..n + 1
+            used := line_len(ws, i, j)
+            if used > width
+                break
+            spare := width - used
+            here := if j == n then 0 else spare * spare
+            if cost[i] < 0 or here + cost[j] < cost[i]
+                cost[i] = here + cost[j]
+                choice[i] = j
+    mut out := List[List[int]]()
+    mut at := 0
+    while at < n
+        out.push([at, choice[at]])
+        at = choice[at]
+    out
+
+fn show(ws List[str], lines List[List[int]], width int, name str)
+    mut total := 0
+    for k, l in lines.enumerate()
+        text := ws.slice(l[0], l[1]).join(" ")
+        if k < lines.len() - 1
+            spare := width - text.len()
+            total += spare * spare
+        print("{text.pad_right(width, ' ')}|")
+    print("{name}: badness {total}")
+
+fn main()
+    ws := "a bird in the hand is worth two in the bush they say".split(" ")
+    show(ws, greedy(ws, 12), 12, "greedy")
+    show(ws, best(ws, 12), 12, "balanced")
+
+@test fn fits()
+    assert_eq(line_len(["ab", "cd"], 0, 2), 5)

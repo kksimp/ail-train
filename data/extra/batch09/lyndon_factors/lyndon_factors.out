@@ -1,0 +1,7 @@
+banana       b | an | an | a  (4 factors)
+abracadabra  abracad | abr | a  (3 factors)
+aabab        aabab  (Lyndon word)
+zebra        z | e | br | a  (4 factors)
+abcabcab     abc | abc | ab  (3 factors)
+mississippi  m | iss | iss | ipp | i  (5 factors)
+cbacbacba factors never increase: true

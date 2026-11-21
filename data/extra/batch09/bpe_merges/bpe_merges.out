@@ -1,0 +1,12 @@
+merge 1: e + s (11 times)
+merge 2: es + t (11 times)
+merge 3: l + o (9 times)
+merge 4: lo + w (9 times)
+merge 5: e + w (6 times)
+merge 6: ew + est (6 times)
+low     low
+lower   low e r
+newest  n ewest
+widest  w i d est
+lowest  low est
+slowest -> s low est

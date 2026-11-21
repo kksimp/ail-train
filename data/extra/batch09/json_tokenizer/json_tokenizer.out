@@ -1,0 +1,6 @@
+21 tokens (12 punct, 7 string, 1 number, 1 word), depth 2
+15 tokens (10 punct, 2 number, 1 string, 2 word), depth 3
+5 tokens (3 punct, 2 string), depth 1
+error: unknown word 'tru' at 8
+error: unterminated string at 1
+error: unexpected '#' at 6

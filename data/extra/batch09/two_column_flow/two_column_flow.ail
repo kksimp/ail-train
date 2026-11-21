@@ -1,0 +1,33 @@
+## Two-column layout: words are packed greedily into lines of a column width, the first half of the
+## lines (one extra if odd) go in the left column, and the rest sit beside them after a gutter.
+
+fn pack(text str, width int) List[str]
+    mut lines := List[str]()
+    mut cur := List[str]()
+    mut used := 0
+    for w in text.split(" ")
+        extra := if cur.is_empty() then w.len() else w.len() + 1
+        if used + extra > width and not cur.is_empty()
+            lines.push(cur.join(" "))
+            cur = [w]
+            used = w.len()
+        else
+            cur.push(w)
+            used += extra
+    if not cur.is_empty()
+        lines.push(cur.join(" "))
+    lines
+
+fn main()
+    text := "Small town news: the bakery on Mill Lane reopens on Monday after a month of repairs, with the same bread, a new oven and longer hours on Saturday mornings for the market crowd."
+    width := 20
+    lines := pack(text, width)
+    half := (lines.len() + 1) / 2
+    for i in 0..half
+        right := if i + half < lines.len() then lines[i + half] else ""
+        row := "{lines[i]:<20}  |  {right}"
+        print(row.trim_end())
+    print("{lines.len()} lines in two columns of {half}")
+
+@test fn packs()
+    assert_eq(pack("aa bb cc", 5), ["aa bb", "cc"])

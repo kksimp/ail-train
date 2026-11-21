@@ -1,0 +1,35 @@
+## Word squares: backtracking places four-letter words row by row so that row k reads the same as
+## column k; each new word must start with the letters the earlier rows already put in its column.
+
+fn fits(rows List[str], w str) bool
+    k := rows.len()
+    wc := w.chars()
+    for j in 0..k
+        if rows[j].chars()[k] != wc[j]
+            return false
+    true
+
+fn search(words List[str], mut rows List[str], mut found List[str])
+    if rows.len() == 4
+        found.push(rows.join(" "))
+        return
+    for w in words
+        if fits(rows, w)
+            rows.push(w)
+            search(words, mut rows, mut found)
+            _ := rows.pop()
+
+fn main()
+    words := ["ball", "area", "lead", "lady", "card", "acre", "rely", "dyes", "wall", "dear", "earl", "arts", "lest", "cake", "aloe", "kept", "eyes"]
+    mut rows := List[str]()
+    mut found := List[str]()
+    search(words, mut rows, mut found)
+    print("{found.len()} word squares from {words.len()} words")
+    for sq in found.take(3)
+        print(sq)
+    first := found[0].split(" ")
+    for w in first
+        print("  {w.to_upper()}")
+
+@test fn column()
+    assert(fits(["ball"], "area"))

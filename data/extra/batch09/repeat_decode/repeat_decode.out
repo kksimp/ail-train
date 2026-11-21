@@ -1,0 +1,6 @@
+3[ab]2[c]    -> abababcc (8 chars)
+2[a3[b]]     -> abbbabbb (8 chars)
+x10[-]y      -> x----------y (12 chars)
+2[ab2[cd]]e  -> abcdcdabcdcde (13 chars)
+3[z]2[xy]    -> zzzxyxy (7 chars)
+plain        -> plain (5 chars)

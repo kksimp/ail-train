@@ -1,0 +1,6 @@
+ABC   in 'ADOBECODEBANC': 'BANC'
+tist  in 'this is a test string': 't stri'
+ork   in 'geeksforgeeks': 'ksfor'
+abc   in 'aaabbbccc': 'abbbc'
+xyz   in 'hello': none
+abb   in 'abbcabb': 'abb'

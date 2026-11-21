@@ -1,0 +1,32 @@
+## Repeat decoding: expands compact text like 3[ab]2[c] by recursive descent, where a count before
+## brackets repeats the decoded inside, and brackets may nest, as in 2[a3[b]].
+
+fn expand(cs List[char], mut pos int) str
+    mut out := List[str]()
+    while pos < cs.len() and cs[pos] != ']'
+        c := cs[pos]
+        if c.is_digit()
+            mut n := 0
+            while cs[pos].is_digit()
+                n = n * 10 + (cs[pos].to_digit(10) else 0)
+                pos += 1
+            pos += 1
+            inner := expand(cs, mut pos)
+            pos += 1
+            out.push(inner.repeat(n))
+        else
+            out.push("{c}")
+            pos += 1
+    out.join("")
+
+fn decode(s str) str
+    mut pos := 0
+    expand(s.chars(), mut pos)
+
+fn main()
+    for s in ["3[ab]2[c]", "2[a3[b]]", "x10[-]y", "2[ab2[cd]]e", "3[z]2[xy]", "plain"]
+        d := decode(s)
+        print("{s:<12} -> {d} ({d.len()} chars)")
+
+@test fn nested()
+    assert_eq(decode("2[a2[b]]"), "abbabb")

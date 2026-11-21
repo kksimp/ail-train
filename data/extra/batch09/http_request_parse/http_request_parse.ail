@@ -1,0 +1,46 @@
+## HTTP request parsing: splits a raw request at CRLF into the request line (method, target, version),
+## headers with lower-cased names, and the body, whose length must match Content-Length.
+
+struct Request
+    method str
+    path str
+    query str
+    headers Map[str, str]
+    body str
+
+fn parse(raw str) Request ! str
+    blank := raw.find("\r\n\r\n") else return "no blank line after headers"
+    head := raw.slice(0, blank).split("\r\n")
+    body := raw.slice(blank + 4)
+    first := head[0].split(" ")
+    if first.len() != 3
+        return "bad request line '{head[0]}'"
+    if not first[2].starts_with("HTTP/")
+        return "bad version {first[2]}"
+    mut headers := Map[str, str]()
+    for line in head.slice(1)
+        at := line.find(":") else return "header without colon: {line}"
+        headers[line.slice(0, at).trim().to_lower()] = line.slice(at + 1).trim()
+    want := (headers.get("content-length") else "0").to_int() else -1
+    if want != body.len()
+        return "body is {body.len()} bytes, header says {want}"
+    target := first[1]
+    q := target.find("?") else target.len()
+    query := if q < target.len() then target.slice(q + 1) else ""
+    Request(method: first[0], path: target.slice(0, q), query: query, headers: headers, body: body)
+
+fn main()
+    crlf := "\r\n"
+    reqs := [["GET /search?q=tea&page=2 HTTP/1.1", "Host: shop.test", "Accept: text/html", "", ""], ["POST /orders HTTP/1.1", "Host: shop.test", "Content-Type: application/json", "Content-Length: 10", "", "\{\"tea\": 2}"], ["POST /orders HTTP/1.1", "Content-Length: 50", "", "short"], ["FETCH /x", "", ""]]
+    for parts in reqs
+        raw := parts.join(crlf)
+        if r := parse(raw)
+            host := r.headers.get("host") else "?"
+            print("{r.method} {r.path} query '{r.query}' host {host}, {r.headers.len()} headers, body '{r.body}'")
+        else err
+            print("rejected: {err}")
+
+@test fn split_query()
+    raw := ["GET /a?b=1 HTTP/1.0", "", ""].join("\r\n")
+    r := parse(raw)?
+    assert_eq(r.query, "b=1")

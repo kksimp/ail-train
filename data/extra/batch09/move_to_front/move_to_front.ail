@@ -1,0 +1,33 @@
+## Move-to-front coding: each letter is replaced by its position in a list of the alphabet and then
+## moved to the front, so repeated letters become zeros; decoding replays the same moves.
+
+fn encode(s str) List[int]
+    mut table := "abcdefghijklmnopqrstuvwxyz".chars()
+    mut out := List[int]()
+    for c in s.chars()
+        at := table.index_of(c) else 0
+        out.push(at)
+        table.remove_at(at)
+        table.insert(0, c)
+    out
+
+fn decode(codes List[int]) str
+    mut table := "abcdefghijklmnopqrstuvwxyz".chars()
+    mut out := List[char]()
+    for at in codes
+        c := table[at]
+        out.push(c)
+        table.remove_at(at)
+        table.insert(0, c)
+    out.join("")
+
+fn main()
+    for s in ["bananaaa", "aaabbbccc", "abcabcabc", "nnbaaa", "zzzzzy"]
+        codes := encode(s)
+        zeros := codes.count(|c| c == 0)
+        shown := codes.join(" ")
+        back := decode(codes)
+        print("{s:<10} {shown:<26} zeros {zeros}, sum {codes.sum():>3}, decodes to {back}")
+
+@test fn repeats()
+    assert_eq(encode("aaa"), [0, 0, 0])

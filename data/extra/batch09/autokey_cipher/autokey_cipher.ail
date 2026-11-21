@@ -1,0 +1,37 @@
+## Autokey cipher: like Vigenere, but after the keyword runs out the key continues with the message
+## itself, so the key never repeats; decryption rebuilds the key from letters it has already recovered.
+
+fn letter(n int) char
+    char.from_code((n % 26 + 26) % 26 + 65) else '?'
+
+fn encrypt(msg str, primer str) str
+    p := msg.chars()
+    mut key := primer.chars()
+    key.extend(p)
+    mut out := List[char]()
+    for i in 0..p.len()
+        out.push(letter(p[i].code() + key[i].code() - 130))
+    out.join("")
+
+fn decrypt(code str, primer str) str
+    cs := code.chars()
+    mut key := primer.chars()
+    mut out := List[char]()
+    for i in 0..cs.len()
+        c := letter(cs[i].code() - key[i].code())
+        out.push(c)
+        key.push(c)
+    out.join("")
+
+fn main()
+    pairs := [("ATTACKATDAWN", "QUEENLY"), ("HELLOTHERE", "KEY"), ("SENDMOREMONEY", "ZEBRA")]
+    for p in pairs
+        msg, primer := p
+        code := encrypt(msg, primer)
+        back := decrypt(code, primer)
+        print("{msg:<14} key {primer:<8} -> {code:<14} -> {back}")
+    primer := "QUEENLY"
+    print("key stream for the first: {primer}ATTAC...")
+
+@test fn known()
+    assert_eq(encrypt("ATTACKATDAWN", "QUEENLY"), "QNXEPVYTWTWP")

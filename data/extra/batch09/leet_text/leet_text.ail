@@ -1,0 +1,34 @@
+## Leet speak: letters are swapped for look-alike digits (a=4, e=3, i=1, o=0, s=5, t=7); since 1
+## could be i or l, decoding tries both readings and keeps the one found in a word list.
+
+fn to_leet(text str) str
+    table := {'a': '4', 'e': '3', 'i': '1', 'o': '0', 's': '5', 't': '7'}
+    text.to_lower().chars().map(|c| table.get(c) else c).join("")
+
+fn readings(word str) List[str]
+    back := {'4': 'a', '3': 'e', '0': 'o', '5': 's', '7': 't'}
+    mut out := [""]
+    for c in word.chars()
+        mut next := List[str]()
+        for prefix in out
+            if c == '1'
+                next.push("{prefix}i")
+                next.push("{prefix}l")
+            else
+                d := back.get(c) else c
+                next.push("{prefix}{d}")
+        out = next
+    out
+
+fn main()
+    known := {"little", "toast", "elite", "listen", "silent", "steel", "tile", "lost", "is", "steal", "list"}
+    for phrase in ["elite toast", "listen", "silent steel"]
+        print("{phrase:<13} -> {to_leet(phrase)}")
+    for code in ["1i771e", "5113n7", "1i57", "71135"]
+        options := readings(code)
+        hits := options.filter(|w| known.contains(w))
+        shown := if hits.is_empty() then "unknown" else hits.join(" or ")
+        print("{code:<7} {options.len()} readings -> {shown}")
+
+@test fn basic()
+    assert_eq(to_leet("Tea"), "734")

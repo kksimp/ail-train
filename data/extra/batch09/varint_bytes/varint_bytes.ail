@@ -1,0 +1,45 @@
+## Varints: LEB128 stores a number in 7-bit groups, low group first, with the top bit set on every
+## byte but the last; signed numbers are zigzag-mapped first (0, -1, 1, -2 -> 0, 1, 2, 3).
+
+fn zigzag(n int) int
+    if n >= 0 then 2 * n else -2 * n - 1
+
+fn unzigzag(z int) int
+    if z % 2 == 0 then z / 2 else -(z + 1) / 2
+
+fn encode(value int) List[int]
+    mut v := value
+    mut out := List[int]()
+    while true
+        b := v & 127
+        v = v >> 7
+        if v != 0
+            out.push(b | 128)
+        else
+            out.push(b)
+            break
+    out
+
+fn decode(bs List[int]) int
+    mut v := 0
+    mut shift := 0
+    for b in bs
+        v = v | ((b & 127) << shift)
+        shift += 7
+    v
+
+fn hex(bs List[int]) str
+    bs.map(|b| "{b:02x}").join(" ")
+
+fn main()
+    for n in [0, 1, 127, 128, 300, 16384, 1000000]
+        bs := encode(n)
+        print("{n:>8} -> {hex(bs):<12} back {decode(bs)}")
+    for n in [-1, 1, -64, 64, -1000]
+        z := zigzag(n)
+        bs := encode(z)
+        back := unzigzag(decode(bs))
+        print("{n:>8} zigzag {z:>4} -> {hex(bs):<12} back {back}")
+
+@test fn three_hundred()
+    assert_eq(encode(300), [172, 2])

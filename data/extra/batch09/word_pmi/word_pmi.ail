@@ -1,0 +1,37 @@
+## Pointwise mutual information: log2(p(x y) / (p(x) p(y))) scores how much more often two words sit
+## side by side than chance would give; high scores pick out set phrases like "ice cream".
+
+struct Scored
+    pair str
+    pmi float
+    count int
+
+fn main()
+    text := "we ate ice cream at the beach and the ice cream melted in the sun so we bought more ice cream and sat in the shade of the old pier near the beach and the sun went down over the old pier"
+    words := text.split(" ")
+    n := words.len().to_float()
+    mut single := Map[str, int]()
+    for w in words
+        single[w] += 1
+    mut pairs := Map[str, int]()
+    for i in 0..words.len() - 1
+        pairs["{words[i]} {words[i + 1]}"] += 1
+    nb := (words.len() - 1).to_float()
+    two := 2.0
+    mut scored := List[Scored]()
+    for pair, count in pairs
+        if count >= 2
+            parts := pair.split(" ")
+            pxy := count.to_float() / nb
+            px := single[parts[0]].to_float() / n
+            py := single[parts[1]].to_float() / n
+            ratio := pxy / (px * py)
+            scored.push(Scored(pair: pair, pmi: ratio.ln() / two.ln(), count: count))
+    ranked := scored.sorted(by: |t| -(t.pmi * 1000000.0).to_int())
+    for t in ranked
+        print("{t.pair:<10} seen {t.count} times, pmi {t.pmi:.2}")
+    print("{words.len()} words, {pairs.len()} different neighbour pairs")
+
+@test fn independent()
+    ratio := (0.25) / (0.5 * 0.5)
+    assert_eq(ratio, 1.0)

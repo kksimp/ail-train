@@ -1,0 +1,46 @@
+## NATO spelling: reads a booking code aloud letter by letter with the phonetic alphabet (Alfa to
+## Zulu, digits with Niner for 9), and turns a spoken sequence back into the code.
+
+fn words() List[str]
+    "Alfa Bravo Charlie Delta Echo Foxtrot Golf Hotel India Juliett Kilo Lima Mike November Oscar Papa Quebec Romeo Sierra Tango Uniform Victor Whiskey Xray Yankee Zulu".split(" ")
+
+fn digits() List[str]
+    "Zero One Two Three Four Five Six Seven Eight Niner".split(" ")
+
+fn spell(code str) str
+    ws := words()
+    ds := digits()
+    mut out := List[str]()
+    for c in code.to_upper().chars()
+        if c.is_upper()
+            out.push(ws[c.code() - 65])
+        elif c.is_digit()
+            out.push(ds[c.to_digit(10) else 0])
+        elif c == '-'
+            out.push("(dash)")
+    out.join(" ")
+
+fn unspell(spoken str) str
+    ws := words()
+    ds := digits()
+    mut out := List[char]()
+    for w in spoken.split(" ")
+        i := ws.index_of(w) else -1
+        d := ds.index_of(w) else -1
+        if i >= 0
+            out.push(char.from_code(i + 65) else '?')
+        elif d >= 0
+            out.push(char.from_code(d + 48) else '?')
+        else
+            out.push('-')
+    out.join("")
+
+fn main()
+    for code in ["QX7-K9", "ZB42", "hj-1905"]
+        print("{code:<8} {spell(code)}")
+    heard := "Tango Echo Sierra Tango (dash) Niner One"
+    print("heard: {heard}")
+    print("code:  {unspell(heard)}")
+
+@test fn round_trip()
+    assert_eq(unspell(spell("AB12")), "AB12")

@@ -1,0 +1,39 @@
+## Braille cells: letters a to j use dots from the top four positions, k to t add dot 3, and u to z
+## (except w) add dots 3 and 6; each cell prints as three rows of two, o for a raised dot.
+
+fn dots(c char) List[int]
+    base := ["1", "12", "14", "145", "15", "124", "1245", "125", "24", "245"]
+    i := c.code() - 97
+    mut s := ""
+    if c == 'w'
+        s = "2456"
+    elif i < 10
+        s = base[i]
+    elif i < 20
+        s = "{base[i - 10]}3"
+    else
+        k := if i > 22 then i - 21 else i - 20
+        s = "{base[k]}36"
+    s.chars().map(|d| d.to_digit(10) else 0)
+
+fn render(word str) List[str]
+    mut rows := List[str]()
+    for r in 0..3
+        mut cells := List[str]()
+        for c in word.chars()
+            ds := dots(c)
+            left := if ds.contains(r + 1) then "o" else "."
+            right := if ds.contains(r + 4) then "o" else "."
+            cells.push("{left}{right}")
+        rows.push(cells.join(" "))
+    rows
+
+fn main()
+    for word in ["hello", "braille", "quiz"]
+        names := word.chars().map(|c| dots(c).sorted().join("")).join("-")
+        print("{word}: {names}")
+        for row in render(word)
+            print("  {row}")
+
+@test fn letter_z()
+    assert_eq(dots('z').sorted(), [1, 3, 5, 6])

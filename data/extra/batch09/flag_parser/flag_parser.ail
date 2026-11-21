@@ -1,0 +1,51 @@
+## Flag parser: reads --name=value and --name value, single-letter flags like -v or -o FILE, and
+## positional arguments, with -- ending the flags; unknown flags and missing values are errors.
+
+struct Parsed
+    flags Map[str, str]
+    positional List[str]
+
+fn parse(argv List[str]) Parsed ! str
+    known := {"name": true, "count": true, "o": true, "v": false, "x": false, "verbose": false}
+    mut flags := Map[str, str]()
+    mut positional := List[str]()
+    mut i := 0
+    while i < argv.len()
+        a := argv[i]
+        i += 1
+        if a == "--"
+            positional.extend(argv.slice(i))
+            break
+        if not a.starts_with("-") or a == "-"
+            positional.push(a)
+            continue
+        body := if a.starts_with("--") then a.slice(2) else a.slice(1)
+        eq := body.find("=") else -1
+        name := if eq >= 0 then body.slice(0, eq) else body
+        if not known.contains(name)
+            return "unknown flag {a}"
+        if not known[name]
+            flags[name] = "true"
+        elif eq >= 0
+            flags[name] = body.slice(eq + 1)
+        elif i < argv.len()
+            flags[name] = argv[i]
+            i += 1
+        else
+            return "{a} needs a value"
+    Parsed(flags: flags, positional: positional)
+
+fn main()
+    cmds := [["--name=Ann", "-v", "report.txt"], ["-x", "--count", "3", "a.txt", "b.txt"], ["-o", "out.txt", "--", "-strange-file"], ["--count"], ["-z"], ["--verbose", "-", "--name", "Bo Li"]]
+    for argv in cmds
+        line := argv.join(" ")
+        if p := parse(argv)
+            shown_flags := p.flags.keys().map(|k| "{k}={p.flags[k]}").join(",")
+            shown_args := p.positional.join(",")
+            print("{line:<30} flags [{shown_flags}] args [{shown_args}]")
+        else err
+            print("{line:<30} error: {err}")
+
+@test fn switch()
+    p := parse(["-v", "file"])?
+    assert_eq(p.positional, ["file"])

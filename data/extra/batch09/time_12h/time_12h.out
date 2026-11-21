@@ -1,0 +1,9 @@
+7:05 pm     -> 19:05
+12:00 am    -> 00:00
+12:30 PM    -> 12:30
+11:59 p.m.  -> 23:59
+9 am        -> 09:00
+6:15am      -> 06:15
+13:00 pm    -> error: hour 13 is not 1 to 12
+4:75 pm     -> error: bad minutes
+noon        -> error: no am or pm

@@ -1,0 +1,37 @@
+## Lyndon factors: Duval's algorithm splits a word into a non-increasing sequence of Lyndon words
+## (each strictly smaller than all its own rotations) in one pass; a word is Lyndon when it is one factor.
+
+fn factors(s str) List[str]
+    cs := s.chars()
+    n := cs.len()
+    mut out := List[str]()
+    mut i := 0
+    while i < n
+        mut j := i + 1
+        mut k := i
+        while j < n and cs[k].code() <= cs[j].code()
+            if cs[k].code() < cs[j].code()
+                k = i
+            else
+                k += 1
+            j += 1
+        while i <= k
+            out.push(s.slice(i, i + j - k))
+            i += j - k
+    out
+
+fn main()
+    for w in ["banana", "abracadabra", "aabab", "zebra", "abcabcab", "mississippi"]
+        fs := factors(w)
+        shown := fs.join(" | ")
+        kind := if fs.len() == 1 then "Lyndon word" else "{fs.len()} factors"
+        print("{w:<12} {shown}  ({kind})")
+    mut ordered := true
+    parts := factors("cbacbacba")
+    for i in 1..parts.len()
+        if parts[i] > parts[i - 1]
+            ordered = false
+    print("cbacbacba factors never increase: {ordered}")
+
+@test fn banana()
+    assert_eq(factors("banana").join(" "), "b an an a")

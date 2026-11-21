@@ -1,0 +1,58 @@
+## Four-square cipher: two plain alphabet squares and two keyed squares; each letter pair is found in
+## the plain squares and replaced by the keyed-square letters at the other corners of its rectangle.
+
+fn keyed(key str) List[char]
+    mut seen := Set[char]()
+    mut out := List[char]()
+    for c in "{key}ABCDEFGHIJKLMNOPRSTUVWXYZ".chars()
+        if seen.add(c)
+            out.push(c)
+    out
+
+fn encrypt(msg str, k1 str, k2 str) str
+    plain := keyed("")
+    top := keyed(k1)
+    low := keyed(k2)
+    mut letters := msg.chars().filter(|c| c.is_alpha() and c != 'Q')
+    if letters.len() % 2 == 1
+        letters.push('X')
+    mut out := List[char]()
+    mut i := 0
+    while i < letters.len()
+        a := plain.index_of(letters[i]) else 0
+        b := plain.index_of(letters[i + 1]) else 0
+        out.push(top[(a / 5) * 5 + b % 5])
+        out.push(low[(b / 5) * 5 + a % 5])
+        i += 2
+    out.join("")
+
+fn decrypt(code str, k1 str, k2 str) str
+    plain := keyed("")
+    top := keyed(k1)
+    low := keyed(k2)
+    cs := code.chars()
+    mut out := List[char]()
+    mut i := 0
+    while i < cs.len()
+        x := top.index_of(cs[i]) else 0
+        y := low.index_of(cs[i + 1]) else 0
+        out.push(plain[(x / 5) * 5 + y % 5])
+        out.push(plain[(y / 5) * 5 + x % 5])
+        i += 2
+    out.join("")
+
+fn main()
+    k1 := "EXAMPLE"
+    k2 := "KEYWORD"
+    top := keyed(k1)
+    low := keyed(k2)
+    for r in 0..5
+        a := top.slice(r * 5, r * 5 + 5).join("")
+        b := low.slice(r * 5, r * 5 + 5).join("")
+        print("{a}  {b}")
+    for msg in ["HELPMEOBIWANKENOBI", "MEETATNOON", "SECRET"]
+        code := encrypt(msg, k1, k2)
+        print("{msg:<18} -> {code:<18} -> {decrypt(code, k1, k2)}")
+
+@test fn known()
+    assert_eq(encrypt("HELPMEOBIWANKENOBI", "EXAMPLE", "KEYWORD"), "FYGMKYHOBXMFKKKIMD")

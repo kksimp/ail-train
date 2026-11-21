@@ -1,0 +1,41 @@
+## VIN check digit: letters of a vehicle number are turned into values (I, O and Q are not allowed),
+## multiplied by fixed position weights and summed mod 11; the 9th character must be that, with 10 as X.
+
+fn values() Map[char, int]
+    mut m := Map[char, int]()
+    for i, c in "ABCDEFGH".chars().enumerate()
+        m[c] = i + 1
+    for i, c in "JKLMN".chars().enumerate()
+        m[c] = i + 1
+    m['P'] = 7
+    m['R'] = 9
+    for i, c in "STUVWXYZ".chars().enumerate()
+        m[c] = i + 2
+    m
+
+fn expected(vin str) str ! Fail
+    weights := [8, 7, 6, 5, 4, 3, 2, 10, 0, 9, 8, 7, 6, 5, 4, 3, 2]
+    table := values()
+    cs := vin.chars()
+    if cs.len() != 17
+        return Fail(msg: "length {cs.len()}, not 17")
+    mut total := 0
+    for i, c in cs.enumerate()
+        v := if c.is_digit() then (c.to_digit(10) else 0) else table.get_or(c, -1)
+        if v < 0
+            return Fail(msg: "letter {c} is not allowed")
+        total += v * weights[i]
+    r := total % 11
+    if r == 10 then "X" else "{r}"
+
+fn main()
+    for vin in ["1M8GDM9AXKP042788", "11111111111111111", "1M8GDM9A1KP042788", "5GZCZ43D13S812715", "1HGCM82633A00435", "JH4KA7650MC0O1234"]
+        if c := expected(vin)
+            given := vin.slice(8, 9)
+            verdict := if given == c then "valid" else "wrong check digit"
+            print("{vin:<18} needs {c}, has {given}: {verdict}")
+        else err
+            print("{vin:<18} rejected: {err.msg}")
+
+@test fn ones()
+    assert_eq(expected("11111111111111111") else "", "1")

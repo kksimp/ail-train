@@ -1,0 +1,10 @@
+ 0 with k=2: 000
+ 3 with k=2: 011
+ 6 with k=2: 1010
+12 with k=2: 111000
+k=0: 59 bits
+k=1: 45 bits
+k=2: 44 bits
+k=3: 50 bits
+k=4: 60 bits
+best k=2: 44 bits against 96 as bytes

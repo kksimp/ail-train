@@ -1,0 +1,45 @@
+## Hill cipher: letter pairs are vectors multiplied by a 2 by 2 key matrix mod 26; decryption uses the
+## inverse matrix, which exists only when the determinant has an inverse mod 26.
+
+fn inv_mod(a int) int
+    for k in 1..26
+        if (a * k) % 26 == 1
+            return k
+    0
+
+fn md(x int) int
+    (x % 26 + 26) % 26
+
+fn apply(m List[List[int]], text str) str
+    mut cs := text.chars()
+    if cs.len() % 2 == 1
+        cs.push('X')
+    mut out := List[char]()
+    mut i := 0
+    while i < cs.len()
+        a := cs[i].code() - 65
+        b := cs[i + 1].code() - 65
+        out.push(char.from_code(md(m[0][0] * a + m[0][1] * b) + 65) else '?')
+        out.push(char.from_code(md(m[1][0] * a + m[1][1] * b) + 65) else '?')
+        i += 2
+    out.join("")
+
+fn inverse(m List[List[int]]) List[List[int]]
+    det := md(m[0][0] * m[1][1] - m[0][1] * m[1][0])
+    d := inv_mod(det)
+    [[md(d * m[1][1]), md(-d * m[0][1])], [md(-d * m[1][0]), md(d * m[0][0])]]
+
+fn main()
+    key := [[3, 3], [2, 5]]
+    inv := inverse(key)
+    det := md(3 * 5 - 3 * 2)
+    print("key {key}, determinant {det}, inverse {inv}")
+    for msg in ["HELP", "SHORTEXAMPLE", "ATTACKATDAWN", "ODD"]
+        code := apply(key, msg)
+        print("{msg:<13} -> {code:<13} -> {apply(inv, code)}")
+    bad := [[2, 4], [6, 8]]
+    bd := md(2 * 8 - 4 * 6)
+    print("key {bad} has determinant {bd}, inverse mod 26 {inv_mod(bd)}: unusable")
+
+@test fn help()
+    assert_eq(apply([[3, 3], [2, 5]], "HELP"), "HIAT")

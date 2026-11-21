@@ -1,0 +1,52 @@
+## Character translation like the tr tool: sets such as a-z are expanded, each character of the first
+## set maps to the same place in the second (its last character repeats), and -d and -s delete or squeeze.
+
+fn expand(spec str) List[char]
+    cs := spec.chars()
+    mut out := List[char]()
+    mut i := 0
+    while i < cs.len()
+        if i + 2 < cs.len() and cs[i + 1] == '-'
+            for code in cs[i].code()..cs[i + 2].code() + 1
+                out.push(char.from_code(code) else '?')
+            i += 3
+        else
+            out.push(cs[i])
+            i += 1
+    out
+
+fn translate(text str, from str, to str) str
+    src := expand(from)
+    dst := expand(to)
+    mut out := List[char]()
+    for c in text.chars()
+        if at := src.index_of(c)
+            out.push(dst[at.min(dst.len() - 1)])
+        else
+            out.push(c)
+    out.join("")
+
+fn delete(text str, set str) str
+    gone := expand(set)
+    text.chars().filter(|c| not gone.contains(c)).join("")
+
+fn squeeze(text str, set str) str
+    keep := expand(set)
+    mut out := List[char]()
+    for c in text.chars()
+        last := out.last() else '\n'
+        if not (keep.contains(c) and c == last)
+            out.push(c)
+    out.join("")
+
+fn main()
+    print(translate("hello, world", "a-z", "A-Z"))
+    print(translate("Why did the chicken cross the road?", "a-zA-Z", "n-za-mN-ZA-M"))
+    print(translate("2026-11-21 10:45", "-: ", "/._"))
+    print(translate("secret plans", "a-z", "*"))
+    print(delete("call 555-0199 or 555-0123 today", "0-9-"))
+    print(squeeze("too    many     spaces   here", " "))
+    print(squeeze(translate("a--b__c  d", "-_ ", "..."), "."))
+
+@test fn ranges()
+    assert_eq(expand("a-e").len(), 5)

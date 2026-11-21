@@ -1,0 +1,40 @@
+## Least rotation: the two-pointer minimum-expression method finds where the alphabetically smallest
+## rotation of a circular code starts, so codes that are rotations of each other share one canonical form.
+
+fn least_start(s str) int
+    cs := s.chars()
+    n := cs.len()
+    mut i := 0
+    mut j := 1
+    mut k := 0
+    while i < n and j < n and k < n
+        a := cs[(i + k) % n]
+        b := cs[(j + k) % n]
+        if a == b
+            k += 1
+        else
+            if a > b
+                i = i + k + 1
+            else
+                j = j + k + 1
+            if i == j
+                j += 1
+            k = 0
+    i.min(j)
+
+fn canon(s str) str
+    at := least_start(s)
+    "{s.slice(at)}{s.slice(0, at)}"
+
+fn main()
+    codes := ["dcab", "bdca", "abdc", "cabd", "baba", "abab", "zyxzyw", "wzyxzy"]
+    mut groups := Map[str, List[str]]()
+    for c in codes
+        print("{c:<7} starts at {least_start(c)} -> {canon(c)}")
+        groups.push(canon(c), c)
+    for key, members in groups
+        shown := members.join(" ")
+        print("ring {key}: {shown}")
+
+@test fn small()
+    assert_eq(canon("bca"), "abc")

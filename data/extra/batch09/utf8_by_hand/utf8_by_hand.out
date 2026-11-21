@@ -1,0 +1,8 @@
+U+0041   1 bytes: 41           back U+0041
+U+00E9   2 bytes: c3 a9        back U+00e9
+U+00DF   2 bytes: c3 9f        back U+00df
+U+0416   2 bytes: d0 96        back U+0416
+U+20AC   3 bytes: e2 82 ac     back U+20ac
+U+4E2D   3 bytes: e4 b8 ad     back U+4e2d
+U+1D11E  4 bytes: f0 9d 84 9e  back U+1d11e
+7 of 7 match the built-in encoder

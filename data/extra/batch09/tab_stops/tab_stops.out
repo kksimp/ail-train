@@ -1,0 +1,13 @@
+tab stops every 8:
+  name    qty     price|
+  tea     4       2.50|
+  biscuits        12      1.20|
+  a       bb      ccc     dddd|
+tab stops every 4:
+  name    qty price|
+  tea 4   2.50|
+  biscuits    12  1.20|
+  a   bb  ccc dddd|
+\t\tindented twice
+\t  six spaces
+   three

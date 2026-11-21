@@ -1,0 +1,44 @@
+## Polybius square: the alphabet (I and J sharing a cell) fills a 5 by 5 grid and each letter is sent
+## as its row and column digits; a keyword can reorder the square so the digits are harder to read.
+
+fn square(key str) List[char]
+    mut seen := Set[char]()
+    mut out := List[char]()
+    for c in "{key}ABCDEFGHIKLMNOPQRSTUVWXYZ".chars()
+        d := if c == 'J' then 'I' else c
+        if seen.add(d)
+            out.push(d)
+    out
+
+fn encode(grid List[char], text str) str
+    mut parts := List[str]()
+    for c in text.chars()
+        if c.is_upper()
+            d := if c == 'J' then 'I' else c
+            at := grid.index_of(d) else 0
+            parts.push("{at / 5 + 1}{at % 5 + 1}")
+    parts.join(" ")
+
+fn decode(grid List[char], code str) str
+    mut out := List[char]()
+    for pair in code.split(" ")
+        cs := pair.chars()
+        r := cs[0].to_digit(10) else 1
+        c := cs[1].to_digit(10) else 1
+        out.push(grid[(r - 1) * 5 + c - 1])
+    out.join("")
+
+fn main()
+    plain := square("")
+    for r in 0..5
+        print(plain.slice(r * 5, r * 5 + 5).join(" "))
+    msg := "ATTACK AT DAWN"
+    code := encode(plain, msg)
+    print("{msg} -> {code}")
+    print("decoded: {decode(plain, code)}")
+    keyed := square("ZEBRA")
+    k := encode(keyed, msg)
+    print("with key ZEBRA: {k} -> {decode(keyed, k)}")
+
+@test fn corner()
+    assert_eq(encode(square(""), "Z"), "55")

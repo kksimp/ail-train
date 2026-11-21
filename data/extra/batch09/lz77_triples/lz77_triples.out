@@ -1,0 +1,8 @@
+abracadabra: 6 triples for 11 letters, round trip ok
+  (0,0,a) (0,0,b) (0,0,r) (3,1,c) (2,1,d) (7,3,a)
+aaaaaaaaaaaa: 3 triples for 12 letters, round trip ok
+  (0,0,a) (1,6,a) (1,3,a)
+banana_bandana: 6 triples for 14 letters, round trip ok
+  (0,0,b) (0,0,a) (0,0,n) (2,3,_) (7,3,d) (3,2,a)
+abcabcabcabcx: 5 triples for 13 letters, round trip ok
+  (0,0,a) (0,0,b) (0,0,c) (3,6,a) (3,2,x)

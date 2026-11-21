@@ -1,0 +1,60 @@
+## Tape machine interpreter: eight one-letter commands move a pointer along 8 byte cells, change the
+## cell, print it as a character, or loop while it is non-zero; brackets are matched with a stack first.
+
+fn jumps(code List[char]) List[int] ! Fail
+    mut pair := List[int]()
+    mut open := List[int]()
+    for i, c in code.enumerate()
+        pair.push(-1)
+        if c == '['
+            open.push(i)
+        elif c == ']'
+            j := open.pop() else return Fail(msg: "']' at {i} has no '['")
+            pair[i] = j
+            pair[j] = i
+    if not open.is_empty()
+        return Fail(msg: "{open.len()} '[' never closed")
+    pair
+
+fn run(src str) str ! Fail
+    code := src.chars()
+    pair := jumps(code)?
+    mut cells := [0, 0, 0, 0, 0, 0, 0, 0]
+    mut ptr := 0
+    mut pc := 0
+    mut steps := 0
+    mut out := List[char]()
+    while pc < code.len()
+        c := code[pc]
+        steps += 1
+        if c == '+'
+            cells[ptr] = (cells[ptr] + 1) % 256
+        elif c == '-'
+            cells[ptr] = (cells[ptr] + 255) % 256
+        elif c == '>'
+            ptr += 1
+        elif c == '<'
+            ptr -= 1
+        elif c == '.'
+            out.push(char.from_code(cells[ptr]) else '?')
+        elif c == '['
+            if cells[ptr] == 0
+                pc = pair[pc]
+        elif c == ']'
+            if cells[ptr] != 0
+                pc = pair[pc]
+        pc += 1
+    text := out.join("")
+    "{text} ({steps} steps)"
+
+fn main()
+    programs := [("say Hi", "++++++++[>+++++++++<-]>.+++++++++++++++++++++++++++++++++."), ("2 + 5", "++>+++++[<+>-]++++++++[<++++++>-]<."), ("count to 3", "++++++[>++++++++<-]>+.+.+."), ("broken", "+[>+<-]]"), ("unclosed", "[[+]")]
+    for p in programs
+        name, src := p
+        if text := run(src)
+            print("{name:<11} -> {text}")
+        else err
+            print("{name:<11} -> error: {err.msg}")
+
+@test fn add()
+    assert_eq(run("++[-]") else "", " (7 steps)")

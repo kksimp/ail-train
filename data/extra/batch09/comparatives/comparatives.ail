@@ -1,0 +1,43 @@
+## Comparatives: short adjectives (one syllable, or two ending in y) take -er and -est with spelling
+## changes (large, happy, big); longer ones use more and most; good, bad and far are irregular.
+
+fn vowel(c char) bool
+    "aeiouy".contains(c)
+
+fn syllables(word str) int
+    mut count := 0
+    mut prev := false
+    for c in word.chars()
+        v := vowel(c)
+        if v and not prev
+            count += 1
+        prev = v
+    if word.ends_with("e") and count > 1
+        count -= 1
+    count
+
+fn forms(adj str) List[str]
+    irregular := {"good": ["better", "best"], "bad": ["worse", "worst"], "far": ["farther", "farthest"]}
+    if irregular.contains(adj)
+        return irregular[adj]
+    s := syllables(adj)
+    cs := adj.chars()
+    n := cs.len()
+    if s >= 3 or (s == 2 and not adj.ends_with("y"))
+        return ["more {adj}", "most {adj}"]
+    mut stem := adj
+    if adj.ends_with("e")
+        stem = adj.slice(0, n - 1)
+    elif adj.ends_with("y") and s == 2
+        stem = "{adj.slice(0, n - 1)}i"
+    elif n >= 3 and not vowel(cs[n - 1]) and vowel(cs[n - 2]) and not vowel(cs[n - 3]) and not "wx".contains(cs[n - 1])
+        stem = "{adj}{cs[n - 1]}"
+    ["{stem}er", "{stem}est"]
+
+fn main()
+    for adj in ["tall", "large", "big", "happy", "busy", "careful", "beautiful", "good", "bad", "far", "thin", "slow", "modern"]
+        f := forms(adj)
+        print("{adj:<10} {syllables(adj)} syllable(s): {f[0]:<15} {f[1]}")
+
+@test fn big()
+    assert_eq(forms("big"), ["bigger", "biggest"])

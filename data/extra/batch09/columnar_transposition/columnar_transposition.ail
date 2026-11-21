@@ -1,0 +1,48 @@
+## Columnar transposition: the message is written in rows under a keyword (padded with X) and the
+## columns are read out in the alphabetical order of the key letters; decryption refills the columns.
+
+fn order(key str) List[int]
+    ks := key.chars()
+    idx := [i for i in 0..ks.len()]
+    idx.sorted(by: |i| (ks[i].code(), i))
+
+fn encrypt(msg str, key str) str
+    cols := key.len()
+    mut letters := msg.chars().filter(|c| c.is_alpha())
+    while letters.len() % cols != 0
+        letters.push('X')
+    rows := letters.len() / cols
+    mut out := List[char]()
+    for c in order(key)
+        for r in 0..rows
+            out.push(letters[r * cols + c])
+    out.join("")
+
+fn decrypt(code str, key str) str
+    cols := key.len()
+    cs := code.chars()
+    rows := cs.len() / cols
+    mut grid := List[char]()
+    for i in 0..cs.len()
+        grid.push(' ')
+    mut at := 0
+    for c in order(key)
+        for r in 0..rows
+            grid[r * cols + c] = cs[at]
+            at += 1
+    grid.join("")
+
+fn main()
+    key := "ZEBRAS"
+    shown := order(key).map(|i| i + 1).join(" ")
+    print("key {key}: columns read in order {shown}")
+    msg := "WEAREDISCOVEREDFLEEATONCE"
+    code := encrypt(msg, key)
+    print("{msg} -> {code}")
+    print("decrypted: {decrypt(code, key)}")
+    second := encrypt("MEETATTHEBRIDGE", "SECRET")
+    again := decrypt(second, "SECRET")
+    print("MEETATTHEBRIDGE with SECRET -> {second} -> {again}")
+
+@test fn ties()
+    assert_eq(order("BAB"), [1, 0, 2])

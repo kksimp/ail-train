@@ -1,0 +1,51 @@
+## Palindromic subsequence: a table over every stretch of a word gives its longest palindromic
+## subsequence; the word needs (length - that) inserted letters to become a palindrome.
+
+fn table(cs List[char]) List[List[int]]
+    n := cs.len()
+    mut dp := List[List[int]]()
+    for i in 0..n
+        mut row := List[int]()
+        for j in 0..n
+            row.push(if i == j then 1 else 0)
+        dp.push(row)
+    for size in 2..n + 1
+        for i in 0..n - size + 1
+            j := i + size - 1
+            if cs[i] == cs[j]
+                dp[i][j] = dp[i + 1][j - 1] + 2
+            else
+                dp[i][j] = dp[i + 1][j].max(dp[i][j - 1])
+    dp
+
+fn longest(s str) str
+    cs := s.chars()
+    dp := table(cs)
+    mut left := List[char]()
+    mut middle := ""
+    mut i := 0
+    mut j := cs.len() - 1
+    while i <= j
+        if i == j
+            middle = "{cs[i]}"
+            break
+        if cs[i] == cs[j]
+            left.push(cs[i])
+            i += 1
+            j -= 1
+        elif dp[i + 1][j] >= dp[i][j - 1]
+            i += 1
+        else
+            j -= 1
+    a := left.join("")
+    b := left.reversed().join("")
+    "{a}{middle}{b}"
+
+fn main()
+    for w in ["character", "racecar", "agbdba", "programming", "abcd", "banana"]
+        p := longest(w)
+        need := w.len() - p.len()
+        print("{w:<12} longest palindromic subsequence {p:<8} ({p.len()}), insert {need} to make a palindrome")
+
+@test fn known()
+    assert_eq(longest("agbdba").len(), 5)

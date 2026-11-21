@@ -1,0 +1,6 @@
+1M8GDM9AXKP042788  needs X, has X: valid
+11111111111111111  needs 1, has 1: valid
+1M8GDM9A1KP042788  needs X, has 1: wrong check digit
+5GZCZ43D13S812715  needs 1, has 1: valid
+1HGCM82633A00435   rejected: length 16, not 17
+JH4KA7650MC0O1234  rejected: letter O is not allowed

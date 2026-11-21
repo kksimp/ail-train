@@ -1,0 +1,47 @@
+## Filter queries: a tiny query language over a staff list, "field op value" conditions joined by and
+## and or, where and binds tighter (the query is split on or first, then each part on and).
+
+struct Person
+    name str
+    age int
+    city str
+    role str
+
+fn field(p Person, f str) str
+    match f
+        "name" => p.name
+        "age" => "{p.age}"
+        "city" => p.city
+        "role" => p.role
+        _ => ""
+
+fn check(p Person, cond str) bool
+    t := cond.trim().split(" ")
+    have := field(p, t[0])
+    want := t[2]
+    op := t[1]
+    if op == "=" or op == "!="
+        return (have == want) == (op == "=")
+    a := have.to_int() else 0
+    b := want.to_int() else 0
+    match op
+        "<" => a < b
+        ">" => a > b
+        "<=" => a <= b
+        ">=" => a >= b
+        _ => false
+
+fn matches(p Person, query str) bool
+    query.split(" or ").any(|part| part.split(" and ").all(|c| check(p, c)))
+
+fn main()
+    staff := [Person(name: "Ann", age: 34, city: "Oslo", role: "dev"), Person(name: "Bo", age: 23, city: "Bergen", role: "dev"), Person(name: "Cy", age: 45, city: "Oslo", role: "ops"), Person(name: "Di", age: 29, city: "Tromso", role: "design"), Person(name: "Ed", age: 52, city: "Bergen", role: "ops")]
+    queries := ["city = Oslo", "age > 30 and role = ops", "role = design or age < 25", "city != Oslo and age >= 29", "age > 40 and city = Oslo or name = Bo"]
+    for q in queries
+        names := staff.filter(|p| matches(p, q)).map(|p| p.name).join(", ")
+        shown := if names == "" then "nobody" else names
+        print("{q:<38} -> {shown}")
+
+@test fn one()
+    p := Person(name: "Z", age: 40, city: "X", role: "r")
+    assert(matches(p, "age >= 40 and city = X"))

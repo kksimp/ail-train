@@ -1,0 +1,7 @@
+        fnv1a 811c9dc5  djb2 00001505
+a       fnv1a e40c292c  djb2 0002b606
+foobar  fnv1a bf9cf968  djb2 fde460be
+hello   fnv1a 4f9f2cab  djb2 0f923099
+hellp   fnv1a 5c9f4122  djb2 0f92309a
+fnv1a buckets [4, 4, 2, 4, 2, 2, 4, 2], largest 4
+djb2  buckets [3, 3, 2, 2, 3, 4, 4, 3], largest 4

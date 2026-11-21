@@ -1,0 +1,9 @@
+10100000
+10000010
+10100101
+10010011
+10101001
+10110010
+00001111
+after noise: row 2 and column 4 fail
+repaired text: PARITY

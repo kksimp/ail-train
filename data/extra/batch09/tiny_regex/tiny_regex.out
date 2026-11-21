@@ -1,0 +1,6 @@
+ab*c    abc=yes ac=yes abbbcd=yes xabcx=yes cab=no
+^ab*c$  abc=yes ac=yes abbbcd=no xabcx=no cab=no
+a.c     abc=yes ac=no abbbcd=no xabcx=yes cab=no
+^c      abc=no ac=no abbbcd=no xabcx=no cab=yes
+b*$     abc=yes ac=yes abbbcd=yes xabcx=yes cab=yes
+x.*x    abc=no ac=no abbbcd=no xabcx=yes cab=no

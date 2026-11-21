@@ -1,0 +1,5 @@
+skips for 'example': a=4 e=6 l=1 m=3 p=2 x=5, others 7
+example   hits 17, 31; 8 alignments, 24 letter checks
+simple    hits 10; 8 alignments, 21 letter checks
+ex        hits 17, 31, 40; 22 alignments, 25 letter checks
+plex      hits none; 12 alignments, 14 letter checks
