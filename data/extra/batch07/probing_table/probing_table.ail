@@ -1,0 +1,33 @@
+## Open addressing: a hash table of 11 slots with linear probing stores number plates by a
+## simple letter-sum hash; prints probe counts, the final table and a few lookups.
+
+fn slot_of(key str) int
+    mut s := 0
+    for c in key.chars()
+        s += c.code()
+    s % 11
+
+fn main()
+    mut table := ["" for k in 0..11]
+    for plate in ["AB12", "CD34", "BA21", "EF56", "GH78", "DC43", "XY99", "ZZ01"]
+        mut i := slot_of(plate)
+        mut probes := 1
+        while table[i] != ""
+            i = (i + 1) % 11
+            probes += 1
+        table[i] = plate
+        print("{plate}: home {slot_of(plate)}, stored at {i} after {probes} probe(s)")
+    for idx, t in table.enumerate()
+        shown := if t == "" then "-" else t
+        print("  {idx:>2} {shown}")
+    for want in ["DC43", "QQ00"]
+        mut pos := slot_of(want)
+        mut steps := 1
+        while table[pos] != "" and table[pos] != want
+            pos = (pos + 1) % 11
+            steps += 1
+        verdict := if table[pos] == want then "found at {pos}" else "absent"
+        print("lookup {want}: {verdict} in {steps} step(s)")
+
+@test fn home()
+    assert_eq(slot_of("A"), 65 % 11)

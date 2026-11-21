@@ -1,0 +1,19 @@
+## Radix sort: sorts non-negative numbers by distributing them into ten buckets on each
+## decimal digit from least significant up, printing the list after each pass.
+
+fn main()
+    mut xs := [170, 45, 75, 90, 802, 24, 2, 66, 431, 7]
+    biggest := xs.max() else 0
+    mut place := 1
+    while biggest / place > 0
+        mut buckets := [List[int]() for d in 0..10]
+        for x in xs
+            buckets[(x / place) % 10].push(x)
+        xs = buckets.flatten()
+        shown := xs.map(|x| "{x}").join(" ")
+        print("by {place}s: {shown}")
+        place *= 10
+    print("sorted: {xs == xs.sorted()}")
+
+@test fn digit()
+    assert_eq((802 / 10) % 10, 0)

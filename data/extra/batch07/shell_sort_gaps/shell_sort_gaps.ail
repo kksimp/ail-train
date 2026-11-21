@@ -1,0 +1,33 @@
+## Shell sort: sorts with gapped insertion sort using two gap sequences (halving, and Knuth's
+## 1, 4, 13, 40), counting element moves to compare them.
+
+fn shell(data List[int], gaps List[int]) (List[int], int)
+    mut xs := data
+    mut moves := 0
+    for g in gaps
+        for i in g..xs.len()
+            v := xs[i]
+            mut j := i
+            while j >= g and xs[j - g] > v
+                xs[j] = xs[j - g]
+                j -= g
+                moves += 1
+            xs[j] = v
+    (xs, moves)
+
+fn main()
+    data := [62, 83, 18, 53, 7, 17, 95, 86, 47, 69, 25, 28, 3, 74, 41, 99, 12, 58, 36, 90]
+    mut halving := List[int]()
+    mut g := data.len() / 2
+    while g > 0
+        halving.push(g)
+        g /= 2
+    knuth := [13, 4, 1]
+    for p in [("halving", halving), ("Knuth", knuth)]
+        name, gaps := p
+        r := shell(data, gaps)
+        shown := gaps.map(|x| "{x}").join(",")
+        print("{name} gaps {shown}: {r.1} moves, sorted {r.0 == data.sorted()}")
+
+@test fn tiny()
+    assert_eq(shell([3, 1, 2], [1]).0, [1, 2, 3])

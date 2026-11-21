@@ -1,0 +1,40 @@
+## Palindrome cuts: the fewest cuts that split a string into palindromes, by a table of which
+## substrings are palindromes and a minimum-cuts pass, printing one best split.
+
+fn split_pal(s str) List[str]
+    cs := s.chars()
+    n := cs.len()
+    mut pal := [[false for k in 0..n] for q in 0..n]
+    for len_minus in 0..n
+        for i in 0..n - len_minus
+            j := i + len_minus
+            if cs[i] == cs[j] and (len_minus < 2 or pal[i + 1][j - 1])
+                pal[i][j] = true
+    mut cuts := [0 for k2 in 0..n]
+    mut from := [0 for q2 in 0..n]
+    for j in 0..n
+        if pal[0][j]
+            cuts[j] = 0
+            from[j] = 0
+            continue
+        cuts[j] = n
+        for i in 1..=j
+            if pal[i][j] and cuts[i - 1] + 1 < cuts[j]
+                cuts[j] = cuts[i - 1] + 1
+                from[j] = i
+    mut parts := List[str]()
+    mut end := n - 1
+    while end >= 0
+        start := from[end]
+        parts.push(cs[start..end + 1].map(|c| "{c}").join(""))
+        end = start - 1
+    parts.reversed()
+
+fn main()
+    for s in ["aab", "racecarannakayak", "banana", "abcde", "noonabbad"]
+        parts := split_pal(s)
+        shown := parts.join("|")
+        print("{s}: {parts.len() - 1} cut(s), {shown}")
+
+@test fn whole()
+    assert_eq(split_pal("level"), ["level"])

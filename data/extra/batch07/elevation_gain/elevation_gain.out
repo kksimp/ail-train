@@ -1,0 +1,5 @@
+threshold  1 m: up 52 m, down 50 m
+threshold  3 m: up 46 m, down 44 m
+threshold  5 m: up 43 m, down 37 m
+threshold 10 m: up 43 m, down 37 m
+start 212 m, peak 255 m, finish 214 m

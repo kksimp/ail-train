@@ -1,0 +1,44 @@
+## Min stack: a stack that also reports its smallest element in constant time by keeping a
+## second stack of running minimums; replays a list of operations.
+
+struct MinStack
+    items List[int]
+    mins List[int]
+
+impl MinStack
+    fn push(mut self, x int)
+        self.items.push(x)
+        low := if self.mins.is_empty() then x else (if x < self.mins[self.mins.len() - 1] then x else self.mins[self.mins.len() - 1])
+        self.mins.push(low)
+
+    fn pop(mut self) int?
+        _ := self.mins.pop()
+        self.items.pop()
+
+    fn min(self) int?
+        self.mins.last()
+
+fn main()
+    mut s := MinStack(items: [], mins: [])
+    ops := ["push 5", "push 3", "push 7", "min", "push 2", "min", "pop", "min", "pop", "pop", "min", "pop", "min"]
+    for op in ops
+        parts := op.split(" ")
+        if parts[0] == "push"
+            s.push(parts[1].to_int() else 0)
+            print("{op}")
+        elif parts[0] == "pop"
+            if v := s.pop()
+                print("pop -> {v}")
+            else
+                print("pop -> empty")
+        else
+            if x := s.min()
+                print("min -> {x}")
+            else
+                print("min -> empty")
+
+@test fn mins()
+    mut s := MinStack(items: [], mins: [])
+    s.push(4)
+    s.push(9)
+    assert_eq(s.min() else 0, 4)
