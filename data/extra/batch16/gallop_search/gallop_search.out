@@ -1,0 +1,6 @@
+target    4: index   1 found  gallop  2 probes, binary  8 (same index true)
+target   10: index   3 found  gallop  5 probes, binary  8 (same index true)
+target   25: index   8 found  gallop  6 probes, binary  8 (same index true)
+target  301: index 100 found  gallop 14 probes, binary  7 (same index true)
+target  598: index 199 found  gallop 14 probes, binary  8 (same index true)
+target 1000: index 200 absent gallop 14 probes, binary  7 (same index true)

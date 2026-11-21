@@ -1,0 +1,36 @@
+## Delta-of-delta timestamps: regular readings give a constant gap, so storing the change of the gap
+## is mostly zero; zero costs one bit and small changes take 9, 12 or 16 bits as in time-series stores.
+
+fn cost(dod int) int
+    if dod == 0
+        return 1
+    if dod >= -63 and dod <= 64
+        return 9
+    if dod >= -255 and dod <= 256
+        return 12
+    if dod >= -2047 and dod <= 2048
+        return 16
+    36
+
+fn main()
+    ts := [1000, 1060, 1120, 1180, 1241, 1300, 1360, 1420, 1500, 1560, 1620, 1620, 1680, 4000]
+    mut bits := 64 + 14
+    mut prev_delta := ts[1] - ts[0]
+    mut parts := List[str]()
+    for i in 2..ts.len()
+        delta := ts[i] - ts[i - 1]
+        dod := delta - prev_delta
+        c := cost(dod)
+        bits += c
+        parts.push("{dod}:{c}")
+        prev_delta = delta
+    print("first time stored whole (64 bits), first gap {ts[1] - ts[0]} (14 bits)")
+    for chunk in parts.chunks(6)
+        line := chunk.join("  ")
+        print("  {line}")
+    raw := 64 * ts.len()
+    print("{ts.len()} timestamps: {bits} bits instead of {raw}")
+
+@test fn zero_is_one_bit()
+    assert_eq(cost(0), 1)
+    assert_eq(cost(-64), 12)

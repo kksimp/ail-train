@@ -1,0 +1,6 @@
+block  4: claimed by inode 1 and inode 2 (needs a copy)
+block  4: owned by inode 1 but marked free, marking used
+block 11: owned by inode 3 but marked free, marking used
+block 12: marked used but owned by no inode, freeing
+block 13: marked used but owned by no inode, freeing
+5 problems; bitmap now [0, 1, 2, 3, 4, 5, 6, 10, 11, 14, 15, 16]

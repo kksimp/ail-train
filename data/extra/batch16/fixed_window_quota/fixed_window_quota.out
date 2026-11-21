@@ -1,0 +1,16 @@
+t=  5 window 0 call 1 allowed
+t= 20 window 0 call 2 allowed
+t= 50 window 0 call 3 allowed
+t= 55 window 0 call 4 allowed
+t= 57 window 0 call 5 allowed
+t= 58 window 0 rejected
+t= 59 window 0 rejected
+t= 61 window 1 call 1 allowed
+t= 62 window 1 call 2 allowed
+t= 63 window 1 call 3 allowed
+t= 64 window 1 call 4 allowed
+t= 65 window 1 call 5 allowed
+t= 66 window 1 rejected
+t=100 window 1 rejected
+t=130 window 2 call 1 allowed
+busiest 60 s span starts at 5 with 9 calls (limit 5)

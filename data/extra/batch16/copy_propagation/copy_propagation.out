@@ -1,0 +1,11 @@
+a = x
+b = x + 1   (was a + 1)
+c = x   (was a)
+d = x * b   (was c * b)
+x = 5
+e = a + c
+a = 2
+f = c + a
+g = b
+h = b - d   (was g - d)
+4 reads replaced; live copies at the end: 1

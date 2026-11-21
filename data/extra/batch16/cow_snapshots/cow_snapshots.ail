@@ -1,0 +1,53 @@
+## Copy-on-write snapshots: a snapshot copies only the block table and bumps reference counts; writing a
+## shared block puts the new data in a fresh physical block, and deleting a snapshot frees unshared blocks.
+
+struct Store
+    data List[str]
+    refs List[int]
+
+fn Store.write(mut self, mut table List[int], logical int, text str)
+    p := table[logical]
+    if self.refs[p] > 1
+        self.refs[p] -= 1
+        self.data.push(text)
+        self.refs.push(1)
+        table[logical] = self.data.len() - 1
+    else
+        self.data[p] = text
+
+fn Store.drop(mut self, table List[int])
+    for p in table
+        self.refs[p] -= 1
+
+fn Store.report(self, label str, table List[int])
+    cells := self.data
+    view := table.map(|p| cells[p]).join("")
+    live := self.refs.count(|r| r > 0)
+    print("{label:<20} map {table} reads {view}  physical in use {live}")
+
+fn main()
+    mut st := Store(data: ["a", "b", "c", "d", "e"], refs: [1, 1, 1, 1, 1])
+    mut vol := [0, 1, 2, 3, 4]
+    st.report("volume", vol)
+    snap1 := vol
+    for p in snap1
+        st.refs[p] += 1
+    st.write(mut vol, 1, "B")
+    st.write(mut vol, 3, "D")
+    st.report("after 2 writes", vol)
+    st.report("snapshot 1", snap1)
+    snap2 := vol
+    for p in snap2
+        st.refs[p] += 1
+    st.write(mut vol, 1, "X")
+    st.write(mut vol, 4, "E")
+    st.report("after snapshot 2", vol)
+    st.drop(snap1)
+    st.report("snapshot 1 deleted", vol)
+    st.report("snapshot 2", snap2)
+
+@test fn unshared_in_place()
+    mut st := Store(data: ["a"], refs: [1])
+    mut m := [0]
+    st.write(mut m, 0, "z")
+    assert_eq(st.data, ["z"])

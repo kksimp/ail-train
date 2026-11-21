@@ -1,0 +1,7 @@
+declaration order:
+  flag@0 count@4 ptr@8 ch@16 total@24 ok@32 buf@36 id@48
+  frame 64 bytes, padding 24
+largest alignment first:
+  ptr@0 total@8 count@16 buf@20 id@32 ch@36 flag@38 ok@39
+  frame 48 bytes, padding 8
+data bytes 40, saved 16

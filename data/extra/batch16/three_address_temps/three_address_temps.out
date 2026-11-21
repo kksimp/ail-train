@@ -1,0 +1,14 @@
+postfix: a b + c d - *
+    t1 = a + b
+    t2 = c - d
+    t1 = t1 * t2
+postfix: x y * z w * + u v * +
+    t1 = x * y
+    t2 = z * w
+    t1 = t1 + t2
+    t2 = u * v
+    t1 = t1 + t2
+postfix: p q r s + * +
+    t1 = r + s
+    t1 = q * t1
+    t1 = p + t1

@@ -1,0 +1,47 @@
+## Liveness analysis: backward dataflow over a loop-shaped control flow graph; a block's live-out
+## set joins its successors' live-in sets, and live-in is uses plus live-out minus definitions.
+
+fn as_text(xs List[str]) str
+    inner := xs.join(", ")
+    "\{{inner}}"
+
+fn main()
+    names := ["B0 entry", "B1 test", "B2 body", "B3 exit"]
+    uses := [List[str](), ["a", "n"], ["b", "c", "a"], ["c"]]
+    defs := [["a", "b", "n"], ["c"], ["b", "a"], List[str]()]
+    succ := [[1], [2, 3], [1], List[int]()]
+    n := names.len()
+    mut live_in := List[List[str]]()
+    mut live_out := List[List[str]]()
+    for i in 0..n
+        live_in.push(List[str]())
+        live_out.push(List[str]())
+    mut changed := true
+    mut rounds := 0
+    while changed
+        changed = false
+        rounds += 1
+        for step in 0..n
+            b := n - 1 - step
+            mut out := Set[str]()
+            for s in succ[b]
+                for v in live_in[s]
+                    out.add(v)
+            mut inn := Set[str]()
+            for v in uses[b]
+                inn.add(v)
+            for v in out
+                if not defs[b].contains(v)
+                    inn.add(v)
+            new_in := inn.sorted()
+            new_out := out.sorted()
+            if new_in != live_in[b] or new_out != live_out[b]
+                changed = true
+                live_in[b] = new_in
+                live_out[b] = new_out
+    for b in 0..n
+        print("{names[b]:<9} in {as_text(live_in[b])} out {as_text(live_out[b])}")
+    print("fixed point after {rounds} rounds")
+
+@test fn braces()
+    assert_eq(as_text(["a", "b"]), "\{a, b}")

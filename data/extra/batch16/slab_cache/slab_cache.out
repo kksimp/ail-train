@@ -1,0 +1,19 @@
+12 bytes -> slab 0 slot 0 (16-byte class)
+30 bytes -> slab 1 slot 0 (32-byte class)
+ 8 bytes -> slab 0 slot 1 (16-byte class)
+60 bytes -> slab 2 slot 0 (64-byte class)
+16 bytes -> slab 0 slot 2 (16-byte class)
+20 bytes -> slab 1 slot 1 (32-byte class)
+ 9 bytes -> slab 0 slot 3 (16-byte class)
+14 bytes -> slab 3 slot 0 (16-byte class)
+40 bytes -> slab 2 slot 1 (64-byte class)
+free handle 0
+ 5 bytes -> slab 0 slot 0 (16-byte class)
+free handle 10
+11 bytes -> slab 3 slot 1 (16-byte class)
+ 3 bytes -> slab 3 slot 2 (16-byte class)
+slab 0 16 B [####]
+slab 1 32 B [.#..]
+slab 2 64 B [##..]
+slab 3 16 B [###.]
+internal waste 86 bytes over 10 live objects

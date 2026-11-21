@@ -1,0 +1,5 @@
+base links: 5 groups
+try [[4, 5], [5, 6], [6, 7]]: 2 groups, 0 and 7 connected false
+try [[3, 4], [0, 7]]: 3 groups, 0 and 7 connected true
+try [[4, 7], [7, 4]]: 4 groups, 0 and 7 connected false
+after rollbacks: 5 groups, parents [0, 0, 0, 2, 4, 5, 6, 7]

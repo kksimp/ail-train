@@ -1,0 +1,49 @@
+## Symlink resolution: a path is walked one name at a time; a link splices its target in front of the
+## names left to visit (from the root if absolute), with a limit of eight links to catch loops.
+
+fn resolve(fs Map[str, str], path str) str ! Fail
+    mut cur := List[str]()
+    mut todo := path.split("/").filter(|p| p != "")
+    mut hops := 0
+    while not todo.is_empty()
+        comp := todo[0]
+        todo = todo.slice(1)
+        if comp == "."
+            continue
+        if comp == ".."
+            _ := cur.pop()
+            continue
+        mut parts := cur
+        parts.push(comp)
+        inner := parts.join("/")
+        here := "/{inner}"
+        kind := fs.get(here) else return Fail(msg: "{here} does not exist")
+        if kind.starts_with("link:")
+            hops += 1
+            if hops > 8
+                return Fail(msg: "too many links at {here}")
+            target := kind.slice(5)
+            if target.starts_with("/")
+                cur = List[str]()
+            mut spliced := target.split("/").filter(|p| p != "")
+            spliced.extend(todo)
+            todo = spliced
+        elif kind == "file" and not todo.is_empty()
+            return Fail(msg: "{here} is a file, not a folder")
+        else
+            cur.push(comp)
+    whole := cur.join("/")
+    "/{whole} ({hops} links)"
+
+fn main()
+    fs := {"/home": "dir", "/home/kai": "dir", "/home/kai/docs": "link:/data/docs", "/data": "dir", "/data/docs": "dir", "/data/docs/plan.txt": "file", "/home/kai/latest": "link:docs/plan.txt", "/home/kai/up": "link:..", "/tmp": "dir", "/tmp/a": "link:/tmp/b", "/tmp/b": "link:a", "/etc": "dir", "/etc/hosts": "file"}
+    for p in ["/home/kai/docs/plan.txt", "/home/kai/latest", "/home/kai/up/kai/docs", "/tmp/a", "/etc/hosts/x", "/home/bob", "/data/../etc/./hosts"]
+        if got := resolve(fs, p)
+            print("{p:<24} -> {got}")
+        else err
+            print("{p:<24} !! {err.msg}")
+
+@test fn plain_file()
+    fs := {"/a": "dir", "/a/b": "file"}
+    r := resolve(fs, "/a/b") else Fail(msg: "x").msg
+    assert_eq(r, "/a/b (0 links)")

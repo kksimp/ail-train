@@ -1,0 +1,52 @@
+## Dominators: a block dominates another when every path from entry passes through it; sets are
+## bit masks, refined as dom(n) = {n} plus the intersection of its predecessors' sets, repeated while any set shrinks.
+
+fn popcount(x int) int
+    mut v := x
+    mut c := 0
+    while v != 0
+        c += v & 1
+        v = v >> 1
+    c
+
+fn members(mask int, names List[str]) str
+    mut out := List[str]()
+    for i in 0..names.len()
+        if ((mask >> i) & 1) == 1
+            out.push(names[i])
+    out.join(" ")
+
+fn main()
+    names := ["entry", "a", "b", "c", "d", "e", "exit"]
+    edges := [[0, 1], [1, 2], [1, 3], [2, 4], [3, 4], [4, 1], [4, 5], [5, 6], [3, 6]]
+    n := names.len()
+    full := (1 << n) - 1
+    mut dom := List[int]()
+    for i in 0..n
+        dom.push(if i == 0 then 1 else full)
+    mut rounds := 0
+    mut changed := true
+    while changed
+        changed = false
+        rounds += 1
+        for v in 1..n
+            mut meet := full
+            for e in edges
+                if e[1] == v
+                    meet = meet & dom[e[0]]
+            updated := meet | (1 << v)
+            if updated != dom[v]
+                dom[v] = updated
+                changed = true
+    for v in 0..n
+        mut idom := "-"
+        mut best := 0
+        for d in 0..n
+            if d != v and ((dom[v] >> d) & 1) == 1 and popcount(dom[d]) > best
+                best = popcount(dom[d])
+                idom = names[d]
+        print("{names[v]:<6} dominated by: {members(dom[v], names):<18} idom {idom}")
+    print("stable after {rounds} rounds")
+
+@test fn counts_bits()
+    assert_eq(popcount(0b1011), 3)

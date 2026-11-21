@@ -1,0 +1,50 @@
+## Extent map: a file's block list is stored as extents (logical start, physical start, length) of
+## contiguous runs; lookups search the extents, and appending a block right after the last one just grows it.
+
+struct Extent
+    logical int
+    physical int
+    count int
+
+fn build(blocks List[int]) List[Extent]
+    mut out := List[Extent]()
+    for i, p in blocks.enumerate()
+        append(mut out, i, p)
+    out
+
+fn append(mut ex List[Extent], logical int, p int)
+    if not ex.is_empty()
+        last := ex[ex.len() - 1]
+        if last.physical + last.count == p and last.logical + last.count == logical
+            ex[ex.len() - 1].count += 1
+            return
+    ex.push(Extent(logical: logical, physical: p, count: 1))
+
+fn lookup(ex List[Extent], logical int) int
+    for e in ex
+        if logical >= e.logical and logical < e.logical + e.count
+            return e.physical + logical - e.logical
+    -1
+
+fn show(ex List[Extent])
+    for e in ex
+        print("    logical {e.logical:>2}..{e.logical + e.count - 1:<2} -> physical {e.physical}..{e.physical + e.count - 1}")
+
+fn main()
+    blocks := [100, 101, 102, 103, 200, 201, 57, 58, 59, 60, 61, 300]
+    mut ex := build(blocks)
+    print("{blocks.len()} blocks in {ex.len()} extents:")
+    show(ex)
+    for l in [0, 5, 9, 11, 12]
+        p := lookup(ex, l)
+        spot := if p < 0 then "past end of file" else "physical {p}"
+        print("block {l:>2} -> {spot}")
+    n := blocks.len()
+    append(mut ex, n, 301)
+    append(mut ex, n + 1, 302)
+    append(mut ex, n + 2, 400)
+    print("after appending 301, 302, 400: {ex.len()} extents")
+    show(ex)
+
+@test fn runs_merge()
+    assert_eq(build([5, 6, 7, 9]).len(), 2)

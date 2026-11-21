@@ -1,0 +1,5 @@
+16 points, 45 cells, 34 leaves, smallest cell 2
+box [0, 0, 16, 16]: 4 points (check 4), opened 15 of 45 cells
+box [32, 32, 48, 48]: 6 points (check 6), opened 15 of 45 cells
+box [0, 32, 64, 64]: 10 points (check 10), opened 27 of 45 cells
+box [20, 0, 30, 30]: 0 points (check 0), opened 4 of 45 cells

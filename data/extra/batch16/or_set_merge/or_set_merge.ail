@@ -1,0 +1,57 @@
+## Observed-remove set: every add gets a unique tag and a remove tombstones only the tags it has
+## seen, so after merging, an add made concurrently with a remove survives (add wins).
+
+struct OrSet
+    name str
+    count int
+    adds Map[str, str]
+    tombs Set[str]
+
+fn OrSet.add(mut self, item str)
+    self.count += 1
+    self.adds["{self.name}{self.count}"] = item
+
+fn OrSet.remove(mut self, item str)
+    for tag, it in self.adds
+        if it == item
+            self.tombs.add(tag)
+
+fn OrSet.merge(mut self, o OrSet)
+    for tag, it in o.adds
+        self.adds[tag] = it
+    for t in o.tombs
+        self.tombs.add(t)
+
+fn show(xs List[str]) str
+    inner := xs.join(", ")
+    "[{inner}]"
+
+fn OrSet.items(self) List[str]
+    mut out := Set[str]()
+    for tag, it in self.adds
+        if not self.tombs.contains(tag)
+            out.add(it)
+    out.sorted()
+
+fn main()
+    mut a := OrSet(name: "A", count: 0, adds: Map[str, str](), tombs: Set[str]())
+    mut b := OrSet(name: "B", count: 0, adds: Map[str, str](), tombs: Set[str]())
+    a.add("milk")
+    a.add("eggs")
+    b.merge(a)
+    print("synced: A {show(a.items())} B {show(b.items())}")
+    b.remove("milk")
+    a.add("milk")
+    b.add("bread")
+    a.remove("eggs")
+    print("apart:  A {show(a.items())} B {show(b.items())}")
+    a.merge(b)
+    b.merge(a)
+    print("merged: A {show(a.items())} B {show(b.items())}")
+    print("tags {a.adds.len()}, tombstones {a.tombs.len()}")
+
+@test fn remove_then_gone()
+    mut s := OrSet(name: "S", count: 0, adds: Map[str, str](), tombs: Set[str]())
+    s.add("x")
+    s.remove("x")
+    assert(s.items().is_empty())

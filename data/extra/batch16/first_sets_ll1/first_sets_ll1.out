@@ -1,0 +1,6 @@
+FIRST(E ) = { ( id }
+FIRST(E') = { + } (can be empty)
+FIRST(T ) = { ( id }
+FIRST(T') = { * } (can be empty)
+FIRST(F ) = { ( id }
+settled after 4 passes

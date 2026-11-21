@@ -1,0 +1,7 @@
+a: font=mono lang=en theme=dark
+b: lang=de theme=light zoom=110
+c: theme=sepia zoom=125
+(a+b)+c: lang=de theme=light zoom=125
+(c+a)+b: lang=de theme=light zoom=125
+b+(c+a): lang=de theme=light zoom=125
+all orders agree: true

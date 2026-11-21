@@ -1,0 +1,37 @@
+## Push gossip: every node that knows a rumour tells one peer picked by a seeded generator each round;
+## the informed count grows roughly exponentially at first and slows as most picks hit informed nodes.
+
+fn next_rand(mut seed List[int]) int
+    seed[0] = (seed[0] * 1103515245 + 12345) % 2147483648
+    seed[0] / 65536
+
+fn main()
+    n := 20
+    mut informed := List[bool]()
+    for i in 0..n
+        informed.push(i == 0)
+    mut seed := [42]
+    mut step := 0
+    mut wasted := 0
+    while informed.count(|x| x) < n and step < 30
+        step += 1
+        senders := [i for i in 0..n if informed[i]]
+        mut fresh := 0
+        for s in senders
+            mut peer := next_rand(mut seed) % (n - 1)
+            if peer >= s
+                peer += 1
+            if informed[peer]
+                wasted += 1
+            else
+                informed[peer] = true
+                fresh += 1
+        total := informed.count(|x| x)
+        bar := "#".repeat(total)
+        print("round {step:>2}: +{fresh:<2} {total:>2} {bar}")
+    print("all {n} nodes informed after {step} rounds, {wasted} messages hit informed nodes")
+
+@test fn rand_range()
+    mut seed := [1]
+    r := next_rand(mut seed)
+    assert(r >= 0 and r < 32768)

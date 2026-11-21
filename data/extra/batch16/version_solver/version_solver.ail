@@ -1,0 +1,50 @@
+## Version solving: packages are chosen in a fixed order, newest version first; a choice that breaks
+## a range declared by an already chosen package is undone, backtracking so that every range holds.
+
+struct Rule
+    pkg int
+    ver int
+    dep int
+    lo int
+    hi int
+
+fn consistent(chosen List[int], rules List[Rule]) bool
+    for r in rules
+        owner_ok := r.pkg < 0 or chosen[r.pkg] == r.ver
+        if owner_ok and chosen[r.dep] > 0
+            v := chosen[r.dep]
+            if v < r.lo or v > r.hi
+                return false
+    true
+
+fn solve(i int, mut chosen List[int], versions List[List[int]], rules List[Rule], mut tries List[int]) bool
+    if i == chosen.len()
+        return true
+    for v in versions[i]
+        chosen[i] = v
+        tries[0] += 1
+        if consistent(chosen, rules) and solve(i + 1, mut chosen, versions, rules, mut tries)
+            return true
+    chosen[i] = 0
+    false
+
+fn main()
+    names := ["web", "db", "log"]
+    versions := [[3, 2, 1], [2, 1], [3, 2, 1]]
+    rules := [Rule(pkg: -1, ver: 0, dep: 0, lo: 2, hi: 99), Rule(pkg: 0, ver: 3, dep: 1, lo: 2, hi: 99), Rule(pkg: 0, ver: 3, dep: 2, lo: 3, hi: 99), Rule(pkg: 0, ver: 2, dep: 2, lo: 2, hi: 99), Rule(pkg: 1, ver: 2, dep: 2, lo: 1, hi: 2), Rule(pkg: 1, ver: 1, dep: 2, lo: 1, hi: 1)]
+    for r in rules
+        owner := if r.pkg < 0 then "root" else "{names[r.pkg]} {r.ver}"
+        print("{owner:<6} needs {names[r.dep]} {r.lo} to {r.hi}")
+    mut chosen := [0, 0, 0]
+    mut tries := [0]
+    if solve(0, mut chosen, versions, rules, mut tries)
+        picks := [0, 1, 2].map(|i| "{names[i]} {chosen[i]}").join(", ")
+        print("solution: {picks}")
+    else
+        print("no solution")
+    print("versions tried: {tries[0]}")
+
+@test fn root_range()
+    rules := [Rule(pkg: -1, ver: 0, dep: 0, lo: 2, hi: 9)]
+    assert(not consistent([1, 0], rules))
+    assert(consistent([2, 0], rules))

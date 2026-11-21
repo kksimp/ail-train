@@ -1,0 +1,38 @@
+## Stack frame layout: each local is placed at the next offset that is a multiple of its
+## alignment and the frame is rounded to 16 bytes; sorting locals by alignment first saves padding.
+
+struct Local
+    name str
+    size int
+    align int
+
+fn round_up(n int, a int) int
+    (n + a - 1) / a * a
+
+fn layout(locals List[Local], show bool) int
+    mut off := 0
+    mut parts := List[str]()
+    for l in locals
+        off = round_up(off, l.align)
+        parts.push("{l.name}@{off}")
+        off += l.size
+    if show
+        shown := parts.join(" ")
+        print("  {shown}")
+    round_up(off, 16)
+
+fn main()
+    locals := [Local(name: "flag", size: 1, align: 1), Local(name: "count", size: 4, align: 4), Local(name: "ptr", size: 8, align: 8), Local(name: "ch", size: 2, align: 2), Local(name: "total", size: 8, align: 8), Local(name: "ok", size: 1, align: 1), Local(name: "buf", size: 12, align: 4), Local(name: "id", size: 4, align: 4)]
+    raw := locals.fold(0, |acc, l| acc + l.size)
+    print("declaration order:")
+    a := layout(locals, true)
+    print("  frame {a} bytes, padding {a - raw}")
+    sorted_locals := locals.sorted(by: |l| -l.align)
+    print("largest alignment first:")
+    b := layout(sorted_locals, true)
+    print("  frame {b} bytes, padding {b - raw}")
+    print("data bytes {raw}, saved {a - b}")
+
+@test fn rounding()
+    assert_eq(round_up(13, 8), 16)
+    assert_eq(round_up(16, 8), 16)

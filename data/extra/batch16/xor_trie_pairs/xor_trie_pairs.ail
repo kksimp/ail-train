@@ -1,0 +1,52 @@
+## Binary trie for maximum XOR: numbers are inserted bit by bit from the top; for each number the walk
+## takes the opposite bit whenever that branch exists, giving its best XOR partner in five steps.
+
+fn insert(mut kids List[List[int]], x int)
+    mut node := 0
+    mut b := 4
+    while b >= 0
+        bit := (x >> b) & 1
+        if kids[node][bit] < 0
+            kids.push([-1, -1])
+            kids[node][bit] = kids.len() - 1
+        node = kids[node][bit]
+        b -= 1
+
+fn best(kids List[List[int]], x int) int
+    mut node := 0
+    mut y := 0
+    mut b := 4
+    while b >= 0
+        bit := (x >> b) & 1
+        want := 1 - bit
+        if kids[node][want] >= 0
+            node = kids[node][want]
+            y = y | (want << b)
+        else
+            node = kids[node][bit]
+            y = y | (bit << b)
+        b -= 1
+    y
+
+fn main()
+    nums := [3, 10, 5, 25, 2, 8, 17, 30]
+    mut kids := [[-1, -1]]
+    for x in nums
+        insert(mut kids, x)
+    print("{nums.len()} numbers, {kids.len()} trie nodes")
+    mut top := 0
+    for x in nums
+        y := best(kids, x)
+        top = top.max(x ^ y)
+        print("{x:>2} ({x:05b}) pairs best with {y:>2} ({y:05b}): xor {x ^ y}")
+    mut brute := 0
+    for a in nums
+        for c in nums
+            brute = brute.max(a ^ c)
+    print("largest xor {top}, all pairs give {brute}")
+
+@test fn pairs()
+    mut kids := [[-1, -1]]
+    insert(mut kids, 1)
+    insert(mut kids, 30)
+    assert_eq(best(kids, 1), 30)

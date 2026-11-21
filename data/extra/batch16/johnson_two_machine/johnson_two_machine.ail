@@ -1,0 +1,41 @@
+## Johnson's rule: for jobs that pass a cutting machine and then a polishing machine, jobs faster on
+## the first go first by that time, the rest go last by falling second time, minimising the finish time.
+
+struct Job
+    name str
+    a int
+    b int
+
+fn makespan(jobs List[Job]) int
+    mut t1 := 0
+    mut t2 := 0
+    for j in jobs
+        t1 += j.a
+        t2 = t2.max(t1) + j.b
+    t2
+
+fn johnson(jobs List[Job]) List[Job]
+    front := jobs.filter(|j| j.a <= j.b).sorted(by: |j| j.a)
+    back := jobs.filter(|j| j.a > j.b).sorted(by: |j| -j.b)
+    mut out := front
+    out.extend(back)
+    out
+
+fn names(jobs List[Job]) str
+    jobs.map(|j| j.name).join(" ")
+
+fn main()
+    jobs := [Job(name: "A", a: 3, b: 6), Job(name: "B", a: 5, b: 2), Job(name: "C", a: 1, b: 2), Job(name: "D", a: 6, b: 6), Job(name: "E", a: 7, b: 5), Job(name: "F", a: 2, b: 4)]
+    best := johnson(jobs)
+    print("given order   {names(jobs)}: done at {makespan(jobs)}")
+    print("Johnson order {names(best)}: done at {makespan(best)}")
+    mut t1 := 0
+    mut t2 := 0
+    for j in best
+        start2 := t2.max(t1 + j.a)
+        t1 += j.a
+        t2 = start2 + j.b
+        print("  {j.name}: cut {t1 - j.a:>2}-{t1:<2} polish {start2:>2}-{t2}")
+
+@test fn single_job()
+    assert_eq(makespan([Job(name: "x", a: 2, b: 3)]), 5)

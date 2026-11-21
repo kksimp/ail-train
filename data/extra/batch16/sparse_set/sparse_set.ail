@@ -1,0 +1,52 @@
+## Sparse set: a dense list of members plus a sparse index table give constant-time add, remove,
+## membership and clear; removal swaps the last member into the hole, and stale table entries are harmless.
+
+struct SparseSet
+    dense List[int]
+    sparse List[int]
+
+fn SparseSet.make(cap int) SparseSet
+    mut sp := List[int]()
+    for i in 0..cap
+        sp.push(0)
+    SparseSet(dense: [], sparse: sp)
+
+fn SparseSet.has(self, x int) bool
+    i := self.sparse[x]
+    i < self.dense.len() and self.dense[i] == x
+
+fn SparseSet.add(mut self, x int)
+    if not self.has(x)
+        self.sparse[x] = self.dense.len()
+        self.dense.push(x)
+
+fn SparseSet.remove(mut self, x int)
+    if self.has(x)
+        i := self.sparse[x]
+        last := self.dense[self.dense.len() - 1]
+        self.dense[i] = last
+        self.sparse[last] = i
+        _ := self.dense.pop()
+
+fn main()
+    mut s := SparseSet.make(16)
+    for x in [5, 9, 2, 14, 9, 7]
+        s.add(x)
+    print("after adds    dense {s.dense}")
+    s.remove(9)
+    print("remove 9      dense {s.dense}")
+    s.remove(3)
+    s.remove(5)
+    print("remove 3, 5   dense {s.dense}")
+    print("has 14 {s.has(14)}, has 9 {s.has(9)}, has 5 {s.has(5)}")
+    print("sparse table  {s.sparse}")
+    s.dense = List[int]()
+    print("cleared: has 2 {s.has(2)} though sparse[2] holds {s.sparse[2]}")
+    s.add(2)
+    print("add 2 again   dense {s.dense}")
+
+@test fn add_twice()
+    mut s := SparseSet.make(4)
+    s.add(1)
+    s.add(1)
+    assert_eq(s.dense, [1])

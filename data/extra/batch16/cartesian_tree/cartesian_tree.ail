@@ -1,0 +1,54 @@
+## Cartesian tree: built in one pass with a stack, it is a heap on values and a search tree on
+## positions, so the minimum of any range is the lowest common ancestor of its two ends.
+
+fn build(xs List[int]) List[int]
+    mut parent := List[int]()
+    for x in xs
+        parent.push(-1)
+    mut stack := List[int]()
+    for i in 0..xs.len()
+        mut last := -1
+        while not stack.is_empty() and xs[stack[stack.len() - 1]] > xs[i]
+            last = stack.pop() else -1
+        if last >= 0
+            parent[last] = i
+        if not stack.is_empty()
+            parent[i] = stack[stack.len() - 1]
+        stack.push(i)
+    parent
+
+fn depth(parent List[int], i int) int
+    mut d := 0
+    mut c := i
+    while parent[c] >= 0
+        c = parent[c]
+        d += 1
+    d
+
+fn lca(parent List[int], a int, b int) int
+    mut x := a
+    mut y := b
+    while depth(parent, x) > depth(parent, y)
+        x = parent[x]
+    while depth(parent, y) > depth(parent, x)
+        y = parent[y]
+    while x != y
+        x = parent[x]
+        y = parent[y]
+    x
+
+fn main()
+    xs := [5, 2, 8, 6, 1, 9, 4, 7, 3]
+    parent := build(xs)
+    print("values  {xs}")
+    print("parents {parent}")
+    depths := [depth(parent, i) for i in 0..xs.len()]
+    print("depths  {depths}")
+    for q in [[0, 3], [2, 3], [5, 8], [6, 7], [2, 8]]
+        m := lca(parent, q[0], q[1])
+        brute := xs.slice(q[0], q[1] + 1).min() else 0
+        print("min of positions {q[0]}..{q[1]}: {xs[m]} at {m} (scan says {brute})")
+
+@test fn root_is_min()
+    p := build([3, 1, 2])
+    assert_eq(p, [1, -1, 1])

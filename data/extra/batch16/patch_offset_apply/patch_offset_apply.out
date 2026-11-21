@@ -1,0 +1,15 @@
+hunk at line 3: applied at line 4 (offset +1)
+hunk at line 8: applied at line 10 (offset +1)
+hunk at line 2: rejected, text not found
+ 1 # settings
+ 2 name = demo
+ 3 #
+ 4 [server]
+ 5 host = b
+ 6 tls = on
+ 7 port = 80
+ 8 #
+ 9 [db]
+10 user = app
+11 pool = 20
+12 retry = 1

@@ -1,0 +1,4 @@
+second 1: demand  9, shed none
+second 2: demand 15, shed export
+second 3: demand 16, shed reindex
+2 requests shed in total

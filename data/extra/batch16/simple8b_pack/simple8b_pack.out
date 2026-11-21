@@ -1,0 +1,5 @@
+selector  1: 30 values x  2 bits, payload 444444444444444
+selector  3: 15 values x  4 bits, payload aed164b82f73c95
+selector 11:  3 values x 20 bits, payload 311170003e8
+selector 12:  2 values x 30 bits, payload 1d6f34540000005
+50 values in 4 words (256 bits), round trip true

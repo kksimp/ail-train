@@ -1,0 +1,38 @@
+## Vector clocks: each process counts its own events in a vector, and a received message raises
+## every slot to the sender's value; comparing two vectors tells before, after or concurrent.
+
+fn relation(u List[int], v List[int]) str
+    mut le := true
+    mut ge := true
+    for i in 0..u.len()
+        if u[i] > v[i]
+            le = false
+        if u[i] < v[i]
+            ge = false
+    if le and ge then "same" elif le then "happened before" elif ge then "happened after" else "concurrent with"
+
+fn main()
+    procs := ["a", "b", "c"]
+    script := [["a", "local", "a1"], ["a", "send", "m1"], ["b", "recv", "m1"], ["b", "local", "b2"], ["c", "local", "c1"], ["b", "send", "m2"], ["c", "recv", "m2"], ["a", "local", "a3"], ["c", "local", "c3"]]
+    mut clocks := [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
+    mut msgs := Map[str, List[int]]()
+    mut stamp := Map[str, List[int]]()
+    for ev in script
+        p := procs.index_of(ev[0]) else 0
+        if ev[1] == "recv"
+            got := msgs[ev[2]]
+            for i in 0..3
+                clocks[p][i] = clocks[p][i].max(got[i])
+        clocks[p][p] += 1
+        if ev[1] == "send"
+            msgs[ev[2]] = clocks[p]
+        label := if ev[1] == "recv" then "{ev[0]}:recv {ev[2]}" else "{ev[0]}:{ev[2]}"
+        stamp[label] = clocks[p]
+        print("{label:<11} {clocks[p]}")
+    for pair in [["a:a1", "c:c3"], ["a:a3", "c:c3"], ["b:b2", "c:c1"], ["c:recv m2", "a:a1"]]
+        x := stamp[pair[0]]
+        y := stamp[pair[1]]
+        print("{pair[0]} {relation(x, y)} {pair[1]}")
+
+@test fn concurrent()
+    assert_eq(relation([1, 0], [0, 1]), "concurrent with")

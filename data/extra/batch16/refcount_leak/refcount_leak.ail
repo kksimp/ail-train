@@ -1,0 +1,37 @@
+## Reference counting: every object counts the references to it and is freed the moment its count
+## reaches zero, freeing what it points at in turn; two objects pointing at each other leak.
+
+fn release(name str, mut rc Map[str, int], kids Map[str, List[str]], mut freed List[str])
+    rc[name] -= 1
+    if rc[name] == 0
+        freed.push(name)
+        for k in kids.get_or(name, List[str]())
+            release(k, mut rc, kids, mut freed)
+
+fn main()
+    mut rc := Map[str, int]()
+    mut kids := Map[str, List[str]]()
+    links := [["root", "doc"], ["root", "cache"], ["root", "ring_a"], ["doc", "page1"], ["doc", "page2"], ["page1", "img"], ["cache", "img"], ["ring_a", "ring_b"], ["ring_b", "ring_a"]]
+    for l in links
+        kids.push(l[0], l[1])
+        rc[l[1]] += 1
+    counts := rc.keys().map(|k| "{k}={rc[k]}").join(" ")
+    print("counts: {counts}")
+    for name in ["doc", "cache", "ring_a"]
+        mut freed := List[str]()
+        release(name, mut rc, kids, mut freed)
+        list := if freed.is_empty() then "nothing" else freed.join(", ")
+        print("root drops {name}: freed {list}")
+    mut leaked := List[str]()
+    for k, v in rc
+        if v > 0
+            leaked.push("{k} (count {v})")
+    lost := leaked.join(", ")
+    print("leaked: {lost}")
+
+@test fn frees_chain()
+    mut rc := {"a": 1, "b": 1}
+    kids := {"a": ["b"]}
+    mut freed := List[str]()
+    release("a", mut rc, kids, mut freed)
+    assert_eq(freed, ["a", "b"])

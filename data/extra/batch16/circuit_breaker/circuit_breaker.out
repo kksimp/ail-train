@@ -1,0 +1,14 @@
+t=  0: ok                        now closed
+t=  5: failed (1 in a row)       now closed
+t=  8: failed (2 in a row)       now closed
+t=  9: failed, tripping          now open, retry at 39
+t= 12: rejected without calling  now open, retry at 39
+t= 20: rejected without calling  now open, retry at 39
+t= 42: trial failed              now open, retry at 72
+t= 45: rejected without calling  now open, retry at 72
+t= 80: trial succeeded           now closed
+t= 85: failed (1 in a row)       now closed
+t= 86: failed (2 in a row)       now closed
+t= 87: failed, tripping          now open, retry at 117
+t=130: trial succeeded           now closed
+t=131: ok                        now closed

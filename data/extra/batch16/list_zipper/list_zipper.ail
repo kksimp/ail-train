@@ -1,0 +1,54 @@
+## List zipper: a playlist is held as the songs before the cursor (nearest last), the current song and
+## the songs after it (nearest last), so moving, inserting and deleting at the cursor never shift the list.
+
+struct Zipper
+    before List[str]
+    focus str
+    after List[str]
+
+fn Zipper.from(xs List[str]) Zipper
+    Zipper(before: [], focus: xs[0], after: xs.slice(1).reversed())
+
+fn Zipper.forward(mut self)
+    if n := self.after.pop()
+        self.before.push(self.focus)
+        self.focus = n
+
+fn Zipper.back(mut self)
+    if p := self.before.pop()
+        self.after.push(self.focus)
+        self.focus = p
+
+fn Zipper.insert(mut self, song str)
+    self.before.push(self.focus)
+    self.focus = song
+
+fn Zipper.delete(mut self)
+    if n := self.after.pop()
+        self.focus = n
+    elif not self.before.is_empty()
+        self.focus = self.before.pop() else ""
+
+fn Zipper.show(self) str
+    a := self.before.join(" ")
+    b := self.after.reversed().join(" ")
+    "[{a}] <{self.focus}> [{b}]"
+
+fn main()
+    mut z := Zipper.from(["intro", "rain", "drift", "pulse", "outro"])
+    print("start      {z.show()}")
+    for op in ["next", "next", "insert", "prev", "delete", "next", "next", "next", "delete"]
+        if op == "next"
+            z.forward()
+        elif op == "prev"
+            z.back()
+        elif op == "insert"
+            z.insert("echo")
+        else
+            z.delete()
+        print("{op:<10} {z.show()}")
+
+@test fn moves()
+    mut z := Zipper.from(["a", "b"])
+    z.forward()
+    assert_eq(z.focus, "b")

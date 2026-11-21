@@ -1,0 +1,45 @@
+## Interval tree stabbing: bookings sorted by start form an implicit balanced tree in which each node
+## keeps the latest end below it; a time query skips subtrees ending too early or starting too late.
+
+fn build(starts List[int], ends List[int], mut maxe List[int], lo int, hi int) int
+    if lo >= hi
+        return -1
+    mid := (lo + hi) / 2
+    m := ends[mid].max(build(starts, ends, mut maxe, lo, mid)).max(build(starts, ends, mut maxe, mid + 1, hi))
+    maxe[mid] = m
+    m
+
+fn stab(starts List[int], ends List[int], maxe List[int], lo int, hi int, t int, mut out List[int], mut visits List[int])
+    if lo >= hi
+        return
+    mid := (lo + hi) / 2
+    visits[0] += 1
+    if maxe[mid] < t
+        return
+    stab(starts, ends, maxe, lo, mid, t, mut out, mut visits)
+    if starts[mid] <= t
+        if ends[mid] >= t
+            out.push(mid)
+        stab(starts, ends, maxe, mid + 1, hi, t, mut out, mut visits)
+
+fn main()
+    raw := [(540, 600), (555, 570), (600, 690), (615, 630), (660, 780), (700, 720), (720, 840), (780, 800), (810, 900), (870, 885), (900, 960), (930, 1020), (990, 1005), (1000, 1080)]
+    items := raw.sorted(by: |p| p.0)
+    starts := items.map(|p| p.0)
+    ends := items.map(|p| p.1)
+    n := items.len()
+    mut maxe := List[int]()
+    for i in 0..n
+        maxe.push(0)
+    _ := build(starts, ends, mut maxe, 0, n)
+    for t in [560, 625, 715, 850, 1001, 1100]
+        mut out := List[int]()
+        mut visits := [0]
+        stab(starts, ends, maxe, 0, n, t, mut out, mut visits)
+        spans := out.map(|i| "{starts[i]}-{ends[i]}").join(" ")
+        shown := if spans == "" then "none" else spans
+        print("t={t:>4}: {shown:<26} ({visits[0]} of {n} nodes visited)")
+
+@test fn subtree_max()
+    mut maxe := [0, 0, 0]
+    assert_eq(build([1, 2, 3], [9, 4, 5], mut maxe, 0, 3), 9)

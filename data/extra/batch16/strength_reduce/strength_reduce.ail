@@ -1,0 +1,64 @@
+## Strength reduction: multiplying, dividing or taking the remainder by a constant is rewritten
+## into shifts, masks and at most one add or subtract, then both forms are checked on sample values.
+
+fn log2(n int) int
+    mut k := 0
+    while (1 << k) < n
+        k += 1
+    k
+
+fn is_pow2(n int) bool
+    n > 0 and (n & (n - 1)) == 0
+
+fn low_bit(n int) int
+    mut k := 0
+    while ((n >> k) & 1) == 0
+        k += 1
+    k
+
+fn plan(op str, c int) List[int]
+    if op == "*" and is_pow2(c)
+        return [1, log2(c), 0]
+    if op == "*" and is_pow2(c - (1 << low_bit(c)))
+        lo := low_bit(c)
+        return [2, log2(c - (1 << lo)), lo]
+    if op == "*" and is_pow2(c + 1)
+        return [3, log2(c + 1), 0]
+    if op == "/" and is_pow2(c)
+        return [4, log2(c), 0]
+    if op == "%" and is_pow2(c)
+        return [5, c - 1, 0]
+    [0, 0, 0]
+
+fn text(p List[int], op str, c int) str
+    match p[0]
+        1 => "y << {p[1]}"
+        2 => "(y << {p[1]}) + (y << {p[2]})"
+        3 => "(y << {p[1]}) - y"
+        4 => "y >> {p[1]}"
+        5 => "y & {p[1]}"
+        _ => "y {op} {c}"
+
+fn run(p List[int], op str, c int, y int) int
+    match p[0]
+        1 => y << p[1]
+        2 => (y << p[1]) + (y << p[2])
+        3 => (y << p[1]) - y
+        4 => y >> p[1]
+        5 => y & p[1]
+        _ => if op == "*" then y * c elif op == "/" then y / c else y % c
+
+fn main()
+    cases := [("*", 8), ("*", 2), ("/", 4), ("%", 16), ("*", 10), ("*", 7), ("*", 12), ("*", 11)]
+    for op, c in cases
+        p := plan(op, c)
+        mut ok := true
+        for y in [37, 1000, 4095]
+            direct := if op == "*" then y * c elif op == "/" then y / c else y % c
+            if run(p, op, c, y) != direct
+                ok = false
+        verdict := if ok then "agrees" else "differs"
+        print("y {op} {c:<3} -> {text(p, op, c):<22} 37 gives {run(p, op, c, 37):>4}, {verdict}")
+
+@test fn ten_is_two_shifts()
+    assert_eq(plan("*", 10), [2, 3, 1])

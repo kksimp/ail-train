@@ -1,0 +1,55 @@
+## Incremental tri-colour marking: grey objects are scanned one per step while the program keeps
+## running; a pointer stored into a black object is lost unless an insertion barrier greys its target.
+
+enum Colour
+    White
+    Grey
+    Black
+
+fn letter(c Colour) str
+    match c
+        White => "w"
+        Grey => "g"
+        Black => "b"
+
+fn collect(barrier bool) List[str]
+    names := ["A", "B", "C", "D", "E", "F"]
+    mut refs := [[1, 2], [3], [4], List[int](), List[int](), List[int]()]
+    mut colour := List[Colour]()
+    for nm in names
+        colour.push(Colour.White)
+    colour[0] = Colour.Grey
+    mut work := [0]
+    mut step := 0
+    while o := work.pop()
+        colour[o] = Colour.Black
+        for r in refs[o]
+            if colour[r] == Colour.White
+                colour[r] = Colour.Grey
+                work.push(r)
+        step += 1
+        if step == 1
+            refs[0].push(4)
+            refs[2] = List[int]()
+            if barrier and colour[4] == Colour.White
+                colour[4] = Colour.Grey
+                work.push(4)
+        state := colour.map(|c| letter(c)).join("")
+        print("  step {step}: scanned {names[o]}, colours {state}")
+    mut freed := List[str]()
+    for i in 0..names.len()
+        if colour[i] == Colour.White
+            freed.push(names[i])
+    freed
+
+fn main()
+    for barrier in [false, true]
+        label := if barrier then "with insertion barrier" else "no barrier"
+        print("{label}:")
+        freed := collect(barrier)
+        gone := freed.join(", ")
+        bad := if freed.contains("E") then "E is freed while A points at it" else "only garbage freed"
+        print("  freed {gone}: {bad}")
+
+@test fn barrier_saves_e()
+    assert_eq(collect(true), ["F"])

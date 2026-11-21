@@ -1,0 +1,37 @@
+## Inlining budget: call sites are considered smallest callee first; a callee is inlined when it is
+## small, not recursive and the total code growth stays within budget, and the caller grows by its body.
+
+struct Site
+    caller str
+    callee str
+
+fn main()
+    mut size := {"main": 20, "parse": 14, "square": 3, "log_line": 9, "fact": 6, "render": 40}
+    calls := [Site(caller: "main", callee: "parse"), Site(caller: "main", callee: "square"), Site(caller: "main", callee: "render"), Site(caller: "parse", callee: "square"), Site(caller: "parse", callee: "log_line"), Site(caller: "main", callee: "log_line"), Site(caller: "main", callee: "fact"), Site(caller: "fact", callee: "fact"), Site(caller: "render", callee: "square")]
+    mut recursive := Set[str]()
+    for s in calls
+        if s.caller == s.callee
+            recursive.add(s.callee)
+    original := size
+    budget := 25
+    mut growth := 0
+    order := calls.sorted(by: |s| original[s.callee])
+    for s in order
+        body := size[s.callee]
+        if recursive.contains(s.callee)
+            print("{s.caller} -> {s.callee}: kept (recursive)")
+        elif body > 15
+            print("{s.caller} -> {s.callee}: kept (body {body} too big)")
+        elif growth + body - 1 > budget
+            print("{s.caller} -> {s.callee}: kept (budget, growth would be {growth + body - 1})")
+        else
+            growth += body - 1
+            size[s.caller] += body - 1
+            print("{s.caller} -> {s.callee}: inlined, growth {growth}")
+    for f, n in size
+        print("{f:<9} {original[f]:>2} -> {n:>2}")
+
+@test fn growth_counts_call()
+    mut size := {"a": 10, "b": 4}
+    size["a"] += size["b"] - 1
+    assert_eq(size["a"], 13)

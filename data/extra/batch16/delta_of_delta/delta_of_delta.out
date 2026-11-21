@@ -1,0 +1,4 @@
+first time stored whole (64 bits), first gap 60 (14 bits)
+  0:1  0:1  1:9  -2:9  1:9  0:1
+  20:9  -20:9  0:1  -60:9  60:9  2260:36
+14 timestamps: 181 bits instead of 896

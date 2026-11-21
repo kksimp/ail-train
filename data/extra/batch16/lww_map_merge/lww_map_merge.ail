@@ -1,0 +1,46 @@
+## Last-writer-wins map: every key holds a value with a timestamp and the replica that wrote it;
+## a merge keeps the entry with the larger (time, replica) pair, so any merge order gives the same map.
+
+struct Entry
+    ts int
+    node str
+    value str
+
+fn merge(a Map[str, Entry], b Map[str, Entry]) Map[str, Entry]
+    mut out := a
+    for k, e in b
+        if cur := out.get(k)
+            if (e.ts, e.node) > (cur.ts, cur.node)
+                out[k] = e
+        else
+            out[k] = e
+    out
+
+fn render(m Map[str, Entry]) str
+    mut parts := List[str]()
+    for k in m.keys().sorted()
+        e := m[k]
+        if e.value != ""
+            parts.push("{k}={e.value}")
+    parts.join(" ")
+
+fn main()
+    a := {"theme": Entry(ts: 5, node: "a", value: "dark"), "lang": Entry(ts: 2, node: "a", value: "en"), "font": Entry(ts: 7, node: "a", value: "mono")}
+    b := {"theme": Entry(ts: 6, node: "b", value: "light"), "lang": Entry(ts: 2, node: "b", value: "de"), "zoom": Entry(ts: 3, node: "b", value: "110")}
+    c := {"font": Entry(ts: 9, node: "c", value: ""), "zoom": Entry(ts: 4, node: "c", value: "125"), "theme": Entry(ts: 6, node: "a", value: "sepia")}
+    print("a: {render(a)}")
+    print("b: {render(b)}")
+    print("c: {render(c)}")
+    one := merge(merge(a, b), c)
+    two := merge(merge(c, a), b)
+    three := merge(b, merge(c, a))
+    print("(a+b)+c: {render(one)}")
+    print("(c+a)+b: {render(two)}")
+    print("b+(c+a): {render(three)}")
+    same := render(one) == render(two) and render(two) == render(three)
+    print("all orders agree: {same}")
+
+@test fn later_wins()
+    a := {"k": Entry(ts: 1, node: "a", value: "old")}
+    b := {"k": Entry(ts: 2, node: "b", value: "new")}
+    assert_eq(render(merge(a, b)), "k=new")

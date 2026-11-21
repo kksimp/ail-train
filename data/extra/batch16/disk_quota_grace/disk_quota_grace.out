@@ -1,0 +1,10 @@
+day  1   15 MB -> used  95: ok
+day  2   10 MB -> used 105: ok, over soft limit, 7 grace days left
+day  3   20 MB -> used 105: refused, would pass hard limit 120
+day  4    5 MB -> used 110: ok, over soft limit, 5 grace days left
+day  6    3 MB -> used 113: ok, over soft limit, 3 grace days left
+day  9    2 MB -> used 113: refused, grace ran out on day 9
+day 10  -30 MB -> used  83: ok
+day 11   25 MB -> used 108: ok, over soft limit, 7 grace days left
+day 12   10 MB -> used 118: ok, over soft limit, 6 grace days left
+day 19    2 MB -> used 118: refused, grace ran out on day 18

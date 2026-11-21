@@ -1,0 +1,46 @@
+## Hinted handoff: a key belongs to three nodes in a row on a ring of five; when one of them is down
+## the write goes to the next healthy node with a hint naming the owner, delivered once it recovers.
+
+fn home(key str) int
+    key.chars().fold(0, |acc, c| acc + c.code()) % 5
+
+fn main()
+    mut down := Set[int]()
+    down.add(2)
+    mut stored := Map[int, List[str]]()
+    mut hints := Map[int, List[str]]()
+    for key in ["cart:7", "user:42", "img:9", "sess:x"]
+        start := home(key)
+        mut wanted := List[int]()
+        for k in 0..3
+            wanted.push((start + k) % 5)
+        mut placed := List[str]()
+        mut missing := wanted.filter(|w| down.contains(w))
+        mut step := 0
+        while placed.len() < 3 and step < 5
+            node := (start + step) % 5
+            step += 1
+            if down.contains(node)
+                continue
+            if wanted.contains(node)
+                stored.push(node, key)
+                placed.push("n{node}")
+            elif not missing.is_empty()
+                owner := missing.pop() else 0
+                hints.push(node, "{key}>n{owner}")
+                placed.push("n{node}(hint for n{owner})")
+        shown := placed.join(" ")
+        print("{key:<8} home n{start}: {shown}")
+    down = Set[int]()
+    print("n2 recovers")
+    for node, hs in hints
+        for h in hs
+            parts := h.split(">n")
+            back_to := parts[1].to_int() else 0
+            stored.push(back_to, parts[0])
+            print("  n{node} hands {parts[0]} to n{back_to}")
+    keys := stored.get_or(2, List[str]()).join(", ")
+    print("n2 now holds: {keys}")
+
+@test fn ring_home()
+    assert(home("abc") < 5)

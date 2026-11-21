@@ -1,0 +1,10 @@
+create a     inode 1: links 1 opens 0
+link a b     inode 1: links 2 opens 0
+open a       inode 1: links 2 opens 1
+unlink a     inode 1: links 1 opens 1
+unlink b     inode 1: links 0 opens 1, nameless but open
+create c     inode 2: links 1 opens 0
+close b      inode 1: links 0 opens 0, data freed
+link c d     inode 2: links 2 opens 0
+unlink c     inode 2: links 1 opens 0
+names left: d; inodes in use: 1

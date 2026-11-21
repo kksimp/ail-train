@@ -1,0 +1,9 @@
+vertical x=3  crosses horizontal y=5 at (3, 5)
+vertical x=3  crosses horizontal y=2 at (3, 2)
+vertical x=3  crosses horizontal y=7 at (3, 7)
+vertical x=6  crosses horizontal y=7 at (6, 7)
+vertical x=6  crosses horizontal y=10 at (6, 10)
+vertical x=8  crosses horizontal y=2 at (8, 2)
+vertical x=11 crosses horizontal y=7 at (11, 7)
+vertical x=11 crosses horizontal y=10 at (11, 10)
+sweep found 8, checking every pair finds 8

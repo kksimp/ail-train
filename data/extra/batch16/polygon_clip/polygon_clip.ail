@@ -1,0 +1,56 @@
+## Polygon clipping: Sutherland-Hodgman clips a shape against a window one border at a time, keeping
+## inside corners and adding the point where an edge crosses the border; shoelace areas before and after.
+
+struct Pt
+    x float
+    y float
+
+fn inside(p Pt, side int) bool
+    match side
+        0 => p.x >= 0.0
+        1 => p.x <= 10.0
+        2 => p.y >= 0.0
+        _ => p.y <= 8.0
+
+fn cut(a Pt, b Pt, side int) Pt
+    if side < 2
+        c := if side == 0 then 0.0 else 10.0
+        t := (c - a.x) / (b.x - a.x)
+        return Pt(x: c, y: a.y + t * (b.y - a.y))
+    c := if side == 2 then 0.0 else 8.0
+    t := (c - a.y) / (b.y - a.y)
+    Pt(x: a.x + t * (b.x - a.x), y: c)
+
+fn clip(poly List[Pt], side int) List[Pt]
+    mut out := List[Pt]()
+    for i in 0..poly.len()
+        cur := poly[i]
+        prev := poly[(i + poly.len() - 1) % poly.len()]
+        if inside(cur, side)
+            if not inside(prev, side)
+                out.push(cut(prev, cur, side))
+            out.push(cur)
+        elif inside(prev, side)
+            out.push(cut(prev, cur, side))
+    out
+
+fn area(poly List[Pt]) float
+    mut s := 0.0
+    for i in 0..poly.len()
+        a := poly[i]
+        b := poly[(i + 1) % poly.len()]
+        s += a.x * b.y - b.x * a.y
+    s.abs() / 2.0
+
+fn main()
+    mut poly := [Pt(x: -2.0, y: 1.0), Pt(x: 5.0, y: 13.0), Pt(x: 12.0, y: 3.0), Pt(x: 4.0, y: -3.0)]
+    print("shape area {area(poly):.2}")
+    for side in 0..4
+        poly = clip(poly, side)
+        print("after border {side}: {poly.len()} corners, area {area(poly):.2}")
+    for p in poly
+        print("  ({p.x:.2}, {p.y:.2})")
+
+@test fn square_area()
+    sq := [Pt(x: 0.0, y: 0.0), Pt(x: 2.0, y: 0.0), Pt(x: 2.0, y: 2.0), Pt(x: 0.0, y: 2.0)]
+    assert_eq(area(sq), 4.0)

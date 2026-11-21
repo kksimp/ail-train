@@ -1,0 +1,9 @@
+W=1 R=1: R+W= 2 overlap no  -> STALE v1
+W=2 R=3: R+W= 5 overlap no  -> STALE v1
+W=3 R=3: R+W= 6 overlap yes -> sees v2
+W=3 R=2: R+W= 5 overlap no  -> STALE v1
+W=5 R=1: R+W= 6 overlap yes -> sees v2
+W=1 R=5: R+W= 6 overlap yes -> sees v2
+W=2 R=2: R+W= 4 overlap no  -> STALE v1
+W=4 R=2: R+W= 6 overlap yes -> sees v2
+rule: R + W > 5 guarantees a fresh read

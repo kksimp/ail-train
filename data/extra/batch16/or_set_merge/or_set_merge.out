@@ -1,0 +1,4 @@
+synced: A [eggs, milk] B [eggs, milk]
+apart:  A [milk] B [bread, eggs]
+merged: A [bread, milk] B [bread, milk]
+tags 4, tombstones 2

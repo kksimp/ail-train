@@ -1,0 +1,36 @@
+## Roaring containers: a set of integers is split into chunks of 256 by the high bits, and each chunk
+## picks the smallest form: a sorted array (2 bytes each), a 32-byte bitmap, or a list of runs (4 bytes each).
+
+fn runs(xs List[int]) int
+    mut count := 0
+    for i in 0..xs.len()
+        if i == 0 or xs[i] != xs[i - 1] + 1
+            count += 1
+    count
+
+fn main()
+    mut values := [3, 50, 51, 200]
+    for v in 256..512
+        if v % 7 != 0
+            values.push(v)
+    for v in 512..600
+        values.push(v)
+    for v in 700..760
+        values.push(v)
+    for v in [1030, 1100, 1101, 1102, 1103, 1279]
+        values.push(v)
+    mut chunks := Map[int, List[int]]()
+    for v in values
+        chunks.push(v >> 8, v)
+    mut total := 0
+    for key, xs in chunks
+        r := runs(xs)
+        sizes := [2 * xs.len(), 32, 4 * r]
+        best := sizes.min() else 0
+        kind := if best == sizes[0] then "array" elif best == sizes[1] then "bitmap" else "runs"
+        total += best
+        print("chunk {key}: {xs.len():>3} values, {r:>2} runs, array {sizes[0]:>3} B, bitmap 32 B, runs {sizes[2]:>3} B -> {kind}")
+    print("{values.len()} values in {total} bytes instead of {4 * values.len()}")
+
+@test fn count_runs()
+    assert_eq(runs([1, 2, 3, 7, 8, 10]), 3)

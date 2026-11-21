@@ -1,0 +1,9 @@
+leader term 3, log terms [1, 1, 2, 2, 3, 3, 3], commit index 2
+match indexes [7, 4, 4, 2, 1]:
+  index 4 is on 3 servers but has old term 2, not counted
+  index 3 is on 3 servers but has old term 2, not counted
+  commit index now 2
+match indexes [7, 6, 5, 4, 2]:
+  commit index now 5
+match indexes [7, 7, 7, 3, 6]:
+  commit index now 7

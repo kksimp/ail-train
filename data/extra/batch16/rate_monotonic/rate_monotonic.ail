@@ -1,0 +1,35 @@
+## Rate monotonic analysis: shorter periods get higher priority; utilisation under the Liu-Layland bound
+## n(2^(1/n) - 1) proves the set safe, and otherwise response-time iteration checks each deadline exactly.
+
+fn response(cs List[int], ts List[int], i int) int
+    mut r := cs[i]
+    mut prev := -1
+    while r != prev and r <= ts[i]
+        prev = r
+        mut next := cs[i]
+        for j in 0..i
+            next += (prev + ts[j] - 1) / ts[j] * cs[j]
+        r = next
+    r
+
+fn check(label str, cs List[int], ts List[int])
+    n := cs.len()
+    mut u := 0.0
+    for i in 0..n
+        u += cs[i].to_float() / ts[i].to_float()
+    two := 2.0
+    bound := n.to_float() * (two.pow(1.0 / n.to_float()) - 1.0)
+    verdict := if u <= bound then "safe by the bound" else "bound inconclusive"
+    print("{label}: utilisation {u:.3}, bound {bound:.3}, {verdict}")
+    for i in 0..n
+        r := response(cs, ts, i)
+        ok := if r <= ts[i] then "meets" else "MISSES"
+        print("  task C={cs[i]} T={ts[i]:<2} response {r:>2} {ok} its deadline")
+
+fn main()
+    check("set 1", [1, 2, 3], [4, 6, 12])
+    check("set 2", [2, 2, 3], [5, 7, 10])
+    check("set 3", [1, 1], [4, 5])
+
+@test fn top_priority_alone()
+    assert_eq(response([3, 1], [10, 20], 0), 3)

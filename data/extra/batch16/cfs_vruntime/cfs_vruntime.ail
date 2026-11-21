@@ -1,0 +1,30 @@
+## Fair scheduler by virtual runtime: the task with the least virtual runtime runs a 4 ms slice, and
+## its virtual time grows by the slice scaled by 1024 over its weight, so heavier tasks get more real time.
+
+struct Task
+    name str
+    weight int
+    vrun int
+    real int
+
+fn main()
+    mut tasks := [Task(name: "editor", weight: 3121, vrun: 0, real: 0), Task(name: "build", weight: 1024, vrun: 0, real: 0), Task(name: "backup", weight: 335, vrun: 0, real: 0)]
+    mut order := List[str]()
+    for slice in 0..24
+        mut i := 0
+        for j in 0..tasks.len()
+            if tasks[j].vrun < tasks[i].vrun
+                i = j
+        tasks[i].vrun += 4000 * 1024 / tasks[i].weight
+        tasks[i].real += 4
+        order.push(tasks[i].name.slice(0, 1))
+    seq := order.join("")
+    print("run order: {seq}")
+    total := tasks.fold(0, |acc, t| acc + t.real)
+    wsum := tasks.fold(0, |acc, t| acc + t.weight)
+    for t in tasks
+        fair := total * t.weight / wsum
+        print("{t.name:<7} weight {t.weight:>4}: ran {t.real:>2} ms (weight share {fair:>2} ms), vruntime {t.vrun} us")
+
+@test fn heavy_grows_slowly()
+    assert(4000 * 1024 / 3121 < 4000 * 1024 / 335)

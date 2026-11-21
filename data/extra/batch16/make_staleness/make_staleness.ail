@@ -1,0 +1,50 @@
+## Make-style rebuild: a target is rebuilt when it is missing or any prerequisite is newer, after its
+## own prerequisites are brought up to date; a rebuild stamps it with the current clock.
+
+fn build(t str, rules Map[str, List[str]], mut mtime Map[str, int], mut clock List[int], mut seen Set[str])
+    if not seen.add(t)
+        return
+    deps := rules.get_or(t, List[str]())
+    for d in deps
+        if rules.contains(d)
+            build(d, rules, mut mtime, mut clock, mut seen)
+    mine := mtime.get_or(t, -1)
+    mut why := ""
+    if mine < 0
+        why = "missing"
+    else
+        for d in deps
+            if why == "" and mtime.get_or(d, 0) > mine
+                why = "{d} is newer"
+    if why == ""
+        return
+    clock[0] += 1
+    mtime[t] = clock[0]
+    print("  rebuild {t:<7} ({why})")
+
+fn run(name str, rules Map[str, List[str]], mut mtime Map[str, int], mut clock List[int])
+    print("{name}:")
+    mut seen := Set[str]()
+    before := clock[0]
+    for t in ["app", "docs"]
+        build(t, rules, mut mtime, mut clock, mut seen)
+    if clock[0] == before
+        print("  nothing to do")
+
+fn main()
+    rules := {"app": ["main.o", "util.o"], "main.o": ["main.c", "util.h"], "util.o": ["util.c", "util.h"], "docs": ["readme.md"]}
+    mut mtime := {"main.c": 10, "util.c": 5, "util.h": 12, "main.o": 11, "util.o": 13, "app": 14, "readme.md": 3}
+    mut clock := [20]
+    run("first make", rules, mut mtime, mut clock)
+    run("second make", rules, mut mtime, mut clock)
+    mtime["util.c"] = 30
+    clock[0] = 30
+    run("after editing util.c", rules, mut mtime, mut clock)
+
+@test fn missing_target_builds()
+    rules := {"x": ["y"]}
+    mut mtime := {"y": 1}
+    mut clock := [5]
+    mut seen := Set[str]()
+    build("x", rules, mut mtime, mut clock, mut seen)
+    assert_eq(mtime["x"], 6)

@@ -1,0 +1,11 @@
+header  6 bytes align 1 -> offset  0, top 6
+vec    16 bytes align 8 -> offset  8, top 24
+mark at 24
+name    5 bytes align 1 -> offset 24, top 29
+tmp    12 bytes align 4 -> offset 32, top 44
+big    failed: no room for 24 bytes at 48
+reset to 24
+big    24 bytes align 8 -> offset 24, top 48
+tail   10 bytes align 2 -> offset 48, top 58
+last   failed: no room for 8 bytes at 64
+bytes used 58 of 64, padding added 5

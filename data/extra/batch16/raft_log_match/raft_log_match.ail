@@ -1,0 +1,42 @@
+## Raft log matching: the leader sends entries with the index and term just before them; a follower
+## without that entry rejects, the leader steps back one index, and on a match conflicting entries are replaced.
+
+fn sync(leader List[int], mut follower List[int]) int
+    mut next := leader.len() + 1
+    mut rounds := 0
+    while true
+        rounds += 1
+        prev := next - 1
+        prev_term := if prev == 0 then 0 else leader[prev - 1]
+        has := prev == 0 or (prev <= follower.len() and follower[prev - 1] == prev_term)
+        if not has
+            print("  prev index {prev} term {prev_term}: rejected")
+            next -= 1
+            continue
+        mut cut := -1
+        for idx in next..=leader.len()
+            if cut < 0 and idx <= follower.len() and follower[idx - 1] != leader[idx - 1]
+                cut = idx
+        if cut > 0
+            follower = follower.slice(0, cut - 1)
+        for idx in (follower.len() + 1)..=leader.len()
+            follower.push(leader[idx - 1])
+        note := if cut > 0 then "replaced from index {cut}" else "nothing to replace"
+        print("  prev index {prev} term {prev_term}: accepted, {note}")
+        break
+    rounds
+
+fn main()
+    leader := [1, 1, 1, 2, 3, 3, 3]
+    print("leader log {leader}")
+    for start in [[1, 1, 1, 2, 2, 2], [1, 1], [1, 1, 1, 2, 3]]
+        mut f := start
+        print("follower {start}:")
+        rounds := sync(leader, mut f)
+        same := if f == leader then "matches leader" else "differs"
+        print("  after {rounds} messages: {f} {same}")
+
+@test fn appends_missing()
+    mut f := [1]
+    _ := sync([1, 2], mut f)
+    assert_eq(f, [1, 2])

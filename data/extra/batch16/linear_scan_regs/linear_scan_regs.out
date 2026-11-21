@@ -1,0 +1,10 @@
+at  2: spill sum, give its register to tmp
+at  3: spill i, give its register to p
+i    [ 0,  9] -> stack slot
+sum  [ 1, 12] -> stack slot
+tmp  [ 2,  4] -> r1
+p    [ 3,  7] -> r0
+q    [ 5,  6] -> r1
+r    [ 8, 11] -> r1
+out  [10, 13] -> r0
+spills: 2

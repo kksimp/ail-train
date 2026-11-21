@@ -1,0 +1,9 @@
+r3 cy  | fn total(xs, lo)
+r1 ann |     t = 0
+r1 ann |     for x in xs
+r3 cy  |         if x > lo
+r2 bo  |             t = t + x
+r1 ann |     return t
+ann owns 3 lines
+bo owns 1 lines
+cy owns 2 lines

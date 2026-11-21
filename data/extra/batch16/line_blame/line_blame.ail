@@ -1,0 +1,50 @@
+## Line blame: each revision is matched against the one before by a longest common subsequence;
+## a matched line keeps the revision that wrote it, an unmatched line is credited to the new revision.
+
+fn carry(prev List[str], prev_blame List[int], cur List[str], rev int) List[int]
+    n := prev.len()
+    m := cur.len()
+    mut dp := List[List[int]]()
+    for i in 0..=n
+        mut row := List[int]()
+        for j in 0..=m
+            row.push(0)
+        dp.push(row)
+    mut i := n - 1
+    while i >= 0
+        mut j := m - 1
+        while j >= 0
+            dp[i][j] = if prev[i] == cur[j] then dp[i + 1][j + 1] + 1 else dp[i + 1][j].max(dp[i][j + 1])
+            j -= 1
+        i -= 1
+    mut blame := List[int]()
+    for k in 0..m
+        blame.push(rev)
+    mut a := 0
+    mut b := 0
+    while a < n and b < m
+        if prev[a] == cur[b]
+            blame[b] = prev_blame[a]
+            a += 1
+            b += 1
+        elif dp[a + 1][b] >= dp[a][b + 1]
+            a += 1
+        else
+            b += 1
+    blame
+
+fn main()
+    authors := ["ann", "bo", "cy"]
+    revs := [["fn total(xs)", "    t = 0", "    for x in xs", "        t = t + x", "    return t"], ["fn total(xs)", "    t = 0", "    for x in xs", "        if x > 0", "            t = t + x", "    return t"], ["fn total(xs, lo)", "    t = 0", "    for x in xs", "        if x > lo", "            t = t + x", "    return t"]]
+    mut blame := [0, 0, 0, 0, 0]
+    for r in 1..revs.len()
+        blame = carry(revs[r - 1], blame, revs[r], r)
+    last := revs[revs.len() - 1]
+    for k in 0..last.len()
+        print("r{blame[k] + 1} {authors[blame[k]]:<3} | {last[k]}")
+    for r in 0..authors.len()
+        owned := blame.count(|x| x == r)
+        print("{authors[r]} owns {owned} lines")
+
+@test fn unchanged_keeps_blame()
+    assert_eq(carry(["a", "b"], [0, 0], ["a", "c"], 1), [0, 1])

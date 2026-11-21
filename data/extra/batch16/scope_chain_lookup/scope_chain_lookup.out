@@ -1,0 +1,10 @@
+line  4: x -> line 1, 1 blocks out
+line  5: x shadows the one from line 1
+line  6: x -> line 5, 0 blocks out
+line  9: y -> line 2, 2 blocks out
+line 10: x -> line 5, 1 blocks out
+line 11: z declared twice in one block (first at line 8)
+line 13: z is not declared
+line 15: x -> line 1, 0 blocks out
+line 16: w is not declared
+names left at top level: 2

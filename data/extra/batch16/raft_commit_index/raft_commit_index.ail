@@ -1,0 +1,27 @@
+## Raft commit rule: the leader moves its commit index to the highest entry stored on a majority,
+## but only by counting entries of its own term; older-term entries commit along with them.
+
+fn advance(log List[int], term int, commit int, matched List[int]) int
+    majority := matched.len() / 2 + 1
+    mut n := log.len()
+    while n > commit
+        copies := matched.count(|m| m >= n)
+        if copies >= majority
+            if log[n - 1] == term
+                return n
+            print("  index {n} is on {copies} servers but has old term {log[n - 1]}, not counted")
+        n -= 1
+    commit
+
+fn main()
+    log := [1, 1, 2, 2, 3, 3, 3]
+    term := 3
+    mut commit := 2
+    print("leader term {term}, log terms {log}, commit index {commit}")
+    for matched in [[7, 4, 4, 2, 1], [7, 6, 5, 4, 2], [7, 7, 7, 3, 6]]
+        print("match indexes {matched}:")
+        commit = advance(log, term, commit, matched)
+        print("  commit index now {commit}")
+
+@test fn majority_of_five()
+    assert_eq(advance([1, 1, 1], 1, 0, [3, 3, 2, 0, 0]), 2)

@@ -1,0 +1,13 @@
+start: 17 instructions
+pass 1: 17 -> 12
+pass 2: 12 -> 10
+    load x
+    store y
+    L1:
+    push r2
+    pop r3
+    add 5
+    jmp L2
+    store z
+    L2:
+    ret

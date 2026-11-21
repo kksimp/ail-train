@@ -1,0 +1,16 @@
+12 blocks in 4 extents:
+    logical  0..3  -> physical 100..103
+    logical  4..5  -> physical 200..201
+    logical  6..10 -> physical 57..61
+    logical 11..11 -> physical 300..300
+block  0 -> physical 100
+block  5 -> physical 201
+block  9 -> physical 60
+block 11 -> physical 300
+block 12 -> past end of file
+after appending 301, 302, 400: 5 extents
+    logical  0..3  -> physical 100..103
+    logical  4..5  -> physical 200..201
+    logical  6..10 -> physical 57..61
+    logical 11..13 -> physical 300..302
+    logical 14..14 -> physical 400..400

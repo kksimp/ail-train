@@ -1,0 +1,6 @@
+clean build: cc_a MISS, cc_b MISS, cc_c MISS, link MISS, test MISS, docs MISS
+no change  : cc_a hit, cc_b hit, cc_c hit, link hit, test hit, docs hit
+edit b.c   : cc_a hit, cc_b MISS, cc_c hit, link MISS, test MISS, docs hit
+undo edit  : cc_a hit, cc_b hit, cc_c hit, link hit, test hit, docs hit
+edit header: cc_a hit, cc_b MISS, cc_c MISS, link MISS, test MISS, docs hit
+cache holds 13 entries

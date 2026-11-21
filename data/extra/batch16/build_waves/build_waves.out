@@ -1,0 +1,8 @@
+wave 0: fetch (slowest 4s)
+wave 1: codegen, lib (slowest 9s)
+wave 2: proto, docs (slowest 3s)
+wave 3: server, cli (slowest 5s)
+wave 4: tests (slowest 6s)
+one at a time: 32s
+wave by wave:  27s
+critical path: 24s

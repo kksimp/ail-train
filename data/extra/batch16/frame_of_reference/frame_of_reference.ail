@@ -1,0 +1,31 @@
+## Frame of reference: each block of eight integers stores its minimum once and every value as a
+## fixed-width offset from it, sized by the bits of the largest offset; tight blocks shrink a lot.
+
+fn bit_width(n int) int
+    mut v := n
+    mut w := 0
+    while v > 0
+        w += 1
+        v = v >> 1
+    w
+
+fn main()
+    blocks := [[1000, 1003, 1001, 1007, 1002, 1010, 1004, 1006], [5000, 5100, 5050, 5200, 5025, 5075, 5150, 5125], [7, 7, 7, 7, 7, 7, 7, 7], [0, 900000, 12, 5, 77, 1, 3, 2]]
+    mut raw_total := 0
+    mut packed_total := 0
+    for blk in blocks
+        base := blk.min() else 0
+        top := blk.max() else 0
+        width := bit_width(top - base)
+        offsets := blk.map(|v| v - base)
+        bits := 64 + 8 + width * blk.len()
+        raw := 64 * blk.len()
+        raw_total += raw
+        packed_total += bits
+        print("base {base:>4} width {width:>2} offsets {offsets}: {bits} bits vs {raw}")
+    pct := packed_total * 100 / raw_total
+    print("total {packed_total} bits vs {raw_total} ({pct}% of raw)")
+
+@test fn widths()
+    assert_eq(bit_width(0), 0)
+    assert_eq(bit_width(10), 4)

@@ -1,0 +1,5 @@
+multiples of 6: 30, of 10: 18
+both: 6 -> [0, 30, 60, 90, 120, 150]
+either: 42
+6 but not 10: 24, first ones [6, 12, 18, 24, 36, 42]
+word 0 of both in hex: 40000001

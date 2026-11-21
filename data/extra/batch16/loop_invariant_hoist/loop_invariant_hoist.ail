@@ -1,0 +1,41 @@
+## Loop-invariant code motion: a statement in a loop body moves before the loop when its variable
+## is assigned once in the loop and each operand is a constant, set outside, or already hoisted.
+
+fn is_number(s str) bool
+    s.to_int() != none
+
+fn main()
+    body := [["t1", "n", "*", "4"], ["i", "i", "+", "1"], ["t2", "t1", "+", "base"], ["x", "i", "*", "t2"], ["t3", "k", "+", "1"], ["k", "x", "+", "t3"], ["t4", "t2", "*", "2"], ["s", "s", "+", "t4"]]
+    mut defined := Map[str, int]()
+    for st in body
+        defined[st[0]] += 1
+    mut hoisted := List[int]()
+    mut moved := Set[str]()
+    mut changed := true
+    while changed
+        changed = false
+        for i, st in body.enumerate()
+            if hoisted.contains(i) or defined[st[0]] != 1
+                continue
+            mut ok := true
+            for opnd in [st[1], st[3]]
+                inside := defined.contains(opnd)
+                if not is_number(opnd) and inside and not moved.contains(opnd)
+                    ok = false
+            if ok
+                hoisted.push(i)
+                moved.add(st[0])
+                changed = true
+    print("before the loop:")
+    for i in hoisted
+        st := body[i]
+        print("    {st[0]} = {st[1]} {st[2]} {st[3]}")
+    print("loop body:")
+    for i, st in body.enumerate()
+        if not hoisted.contains(i)
+            print("    {st[0]} = {st[1]} {st[2]} {st[3]}")
+    print("{hoisted.len()} of {body.len()} statements hoisted")
+
+@test fn numbers()
+    assert(is_number("42"))
+    assert(not is_number("n"))

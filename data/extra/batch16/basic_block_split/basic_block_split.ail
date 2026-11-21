@@ -1,0 +1,46 @@
+## Basic blocks: leaders are the first instruction, every labelled jump target and every line after
+## a jump; each block runs from a leader to the next, and its last line decides its successors.
+
+fn label_of(line str) str
+    if line.starts_with("L") and line.contains(":")
+        return line.split(":")[0]
+    ""
+
+fn main()
+    code := ["i = 0", "s = 0", "L1: if i >= n goto L4", "t = i % 2", "if t == 0 goto L2", "s = s + i", "goto L3", "L2: s = s - i", "L3: i = i + 1", "goto L1", "L4: return s"]
+    n := code.len()
+    mut leader := List[bool]()
+    for line in code
+        leader.push(false)
+    leader[0] = true
+    for i in 0..n
+        if label_of(code[i]) != ""
+            leader[i] = true
+        if code[i].contains("goto") and i + 1 < n
+            leader[i + 1] = true
+    mut starts := List[int]()
+    mut owner := Map[str, int]()
+    for i in 0..n
+        if leader[i]
+            starts.push(i)
+        lab := label_of(code[i])
+        if lab != ""
+            owner[lab] = starts.len() - 1
+    for b in 0..starts.len()
+        stop := if b + 1 < starts.len() then starts[b + 1] else n
+        last := code[stop - 1]
+        words := last.split(" ")
+        mut succ := List[str]()
+        if last.contains("goto")
+            target := words[words.len() - 1]
+            succ.push("B{owner[target]}")
+        uncond := last.contains("goto") and not last.contains("if ")
+        if not uncond and not last.contains("return") and b + 1 < starts.len()
+            succ.push("B{b + 1}")
+        targets := if succ.is_empty() then "none" else succ.join(", ")
+        print("B{b}: lines {starts[b]}-{stop - 1} ({stop - starts[b]} instr), next: {targets}")
+    print("{starts.len()} blocks from {n} instructions")
+
+@test fn labels()
+    assert_eq(label_of("L7: x = 1"), "L7")
+    assert_eq(label_of("x = 1"), "")

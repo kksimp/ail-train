@@ -1,0 +1,2 @@
+overlapping: ship+rock, ship+gull, rock+gull, reef+boat
+y tests after the sweep: 6; every pair would be 28

@@ -1,0 +1,8 @@
+n2 asks in term 3: no: term 3 is older than 4
+n3 asks in term 4: no: log (2, 12) is behind (3, 7)
+n4 asks in term 4: no: log (3, 6) is behind (3, 7)
+n5 asks in term 4: yes
+n2 asks in term 4: no: already voted for n5 in term 4
+n5 asks in term 4: yes
+n3 asks in term 5: yes
+voter now in term 5, voted for n3

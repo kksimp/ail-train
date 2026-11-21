@@ -1,0 +1,47 @@
+## Status report: content ids of files in the last commit, the staging index and the working folder
+## are compared pairwise, giving staged changes, unstaged changes and untracked files like a status command.
+
+fn compare(older Map[str, int], newer Map[str, int], with_new bool) List[str]
+    mut out := List[str]()
+    mut paths := Set[str]()
+    for p in older.keys()
+        paths.add(p)
+    for p in newer.keys()
+        paths.add(p)
+    for p in paths.sorted()
+        a := older.get(p)
+        b := newer.get(p)
+        if a == none and with_new
+            out.push("new file:  {p}")
+        elif a != none and b == none
+            out.push("deleted:   {p}")
+        elif a != none and b != none and a != b
+            out.push("modified:  {p}")
+    out
+
+fn section(title str, items List[str])
+    if items.is_empty()
+        return
+    print("{title}:")
+    for it in items
+        print("    {it}")
+
+fn main()
+    head := {"README": 11, "main.c": 20, "util.c": 30, "old.txt": 40}
+    index := {"README": 11, "main.c": 21, "util.c": 30, "notes.md": 50}
+    work := {"README": 12, "main.c": 21, "notes.md": 50, "scratch.log": 60, "todo.txt": 70}
+    staged := compare(head, index, true)
+    unstaged := compare(index, work, false)
+    mut untracked := List[str]()
+    for p in work.keys().sorted()
+        if not index.contains(p)
+            untracked.push(p)
+    section("changes to be committed", staged)
+    section("changes not staged", unstaged)
+    section("untracked files", untracked)
+    print("{staged.len()} staged, {unstaged.len()} unstaged, {untracked.len()} untracked")
+
+@test fn detects_modify()
+    older := {"a": 1}
+    newer := {"a": 2}
+    assert_eq(compare(older, newer, true), ["modified:  a"])

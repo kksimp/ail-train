@@ -1,0 +1,45 @@
+## Patch with offsets: each hunk names the line where its old text should start; when the file
+## has moved, nearby lines are searched outward (0, +1, -1, +2, ...) before the hunk is rejected.
+
+struct Hunk
+    at int
+    old List[str]
+    new List[str]
+
+fn matches(lines List[str], start int, old List[str]) bool
+    if start < 0 or start + old.len() > lines.len()
+        return false
+    for k in 0..old.len()
+        if lines[start + k] != old[k]
+            return false
+    true
+
+fn signed(n int) str
+    if n > 0 then "+{n}" else "{n}"
+
+fn main()
+    mut lines := ["# settings", "name = demo", "#", "[server]", "host = a", "port = 80", "#", "[db]", "user = app", "pool = 5", "retry = 1"]
+    hunks := [Hunk(at: 3, old: ["[server]", "host = a"], new: ["[server]", "host = b", "tls = on"]), Hunk(at: 8, old: ["user = app", "pool = 5"], new: ["user = app", "pool = 20"]), Hunk(at: 2, old: ["[cache]", "size = 1"], new: ["[cache]", "size = 2"])]
+    mut delta := 0
+    for h in hunks
+        guess := h.at - 1 + delta
+        mut placed := -1
+        for dist in 0..4
+            for sign in [1, -1]
+                if placed < 0 and matches(lines, guess + sign * dist, h.old)
+                    placed = guess + sign * dist
+        if placed < 0
+            print("hunk at line {h.at}: rejected, text not found")
+            continue
+        mut out := lines.slice(0, placed)
+        out.extend(h.new)
+        out.extend(lines.slice(placed + h.old.len()))
+        lines = out
+        print("hunk at line {h.at}: applied at line {placed + 1} (offset {signed(placed - guess)})")
+        delta += h.new.len() - h.old.len()
+    for i, l in lines.enumerate()
+        print("{i + 1:>2} {l}")
+
+@test fn sign_text()
+    assert_eq(signed(2), "+2")
+    assert_eq(signed(-1), "-1")

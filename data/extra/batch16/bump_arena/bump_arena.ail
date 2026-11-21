@@ -1,0 +1,49 @@
+## Bump arena: allocation rounds the top up to the requested alignment and moves it past the
+## object; a mark saves the top and a reset drops everything after it at once, with no per-object free.
+
+struct Arena
+    cap int
+    top int
+    marks List[int]
+    padding int
+
+fn Arena.alloc(mut self, size int, align int) int ! str
+    start := (self.top + align - 1) / align * align
+    if start + size > self.cap
+        return "no room for {size} bytes at {start}"
+    self.padding += start - self.top
+    self.top = start + size
+    start
+
+fn Arena.mark(mut self)
+    self.marks.push(self.top)
+
+fn Arena.reset(mut self)
+    self.top = self.marks.pop() else 0
+
+fn take(mut a Arena, name str, size int, align int)
+    if off := a.alloc(size, align)
+        print("{name:<6} {size:>2} bytes align {align} -> offset {off:>2}, top {a.top}")
+    else err
+        print("{name:<6} failed: {err}")
+
+fn main()
+    mut a := Arena(cap: 64, top: 0, marks: [], padding: 0)
+    take(mut a, "header", 6, 1)
+    take(mut a, "vec", 16, 8)
+    a.mark()
+    print("mark at {a.top}")
+    take(mut a, "name", 5, 1)
+    take(mut a, "tmp", 12, 4)
+    take(mut a, "big", 24, 8)
+    a.reset()
+    print("reset to {a.top}")
+    take(mut a, "big", 24, 8)
+    take(mut a, "tail", 10, 2)
+    take(mut a, "last", 8, 8)
+    print("bytes used {a.top} of {a.cap}, padding added {a.padding}")
+
+@test fn aligns_up()
+    mut a := Arena(cap: 32, top: 3, marks: [], padding: 0)
+    off := a.alloc(4, 8) else 0
+    assert_eq(off, 8)

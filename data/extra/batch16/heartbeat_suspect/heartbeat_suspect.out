@@ -1,0 +1,6 @@
+t=15: A alive   silent  5/20 | B alive   silent  3/10 | C alive   silent  5/20 | D alive   silent  0/10
+t=25: A alive   silent  5/20 | B SUSPECT silent 13/10 | C alive   silent  5/20 | D alive   silent  7/10
+t=35: A alive   silent  5/20 | B alive   silent  1/36 | C alive   silent  5/20 | D SUSPECT silent 17/10
+t=55: A alive   silent  5/20 | B alive   silent  9/36 | C SUSPECT silent 25/20 | D alive   silent  6/44
+t=75: A alive   silent  5/20 | B alive   silent 29/36 | C SUSPECT silent 45/20 | D alive   silent 26/44
+t=90: A alive   silent 10/20 | B SUSPECT silent 44/36 | C SUSPECT silent 60/20 | D alive   silent 41/44

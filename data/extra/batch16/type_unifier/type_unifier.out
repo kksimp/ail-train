@@ -1,0 +1,5 @@
+Fn[a, Int] ~ Fn[Bool, b]: ok, a = Bool, b = Int
+List[a] ~ List[List[Int]]: ok, a = List[Int]
+a ~ List[a]: fails, a occurs inside List[a]
+Pair[Int, a] ~ Pair[Bool, Int]: fails, Int vs Bool
+Pair[a, b] ~ Pair[b, Int]: ok, a = Int, b = Int

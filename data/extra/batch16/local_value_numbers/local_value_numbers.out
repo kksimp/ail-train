@@ -1,0 +1,9 @@
+a = b + c ; v2
+d = a    ; reuses v2 (0+1)
+e = b - c ; v3
+b = a * 2 ; v5
+f = b + c ; v6
+g = c - b ; v7
+h = b    ; reuses v5 (2*4)
+k = e - g ; v8
+2 computations replaced by copies

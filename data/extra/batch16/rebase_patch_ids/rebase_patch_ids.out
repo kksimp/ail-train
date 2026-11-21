@@ -1,0 +1,6 @@
+t1' replayed on u3 (patch id 217630)
+t2 skipped: same change already upstream (patch id 462037)
+t3' replayed on t1' (patch id 612063)
+t4 skipped: same change already upstream (patch id 682252)
+t5' replayed on t3' (patch id 458276)
+3 commits replayed, new tip t5'

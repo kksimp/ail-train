@@ -1,0 +1,57 @@
+## Union-find with rollback: union by rank without path compression changes at most two entries per
+## union, which are pushed on a history stack; rolling back to a checkpoint undoes unions in reverse.
+
+struct Dsu
+    parent List[int]
+    rank List[int]
+    history List[List[int]]
+    groups int
+
+fn Dsu.find(self, x int) int
+    mut r := x
+    while self.parent[r] != r
+        r = self.parent[r]
+    r
+
+fn Dsu.union(mut self, a int, b int)
+    mut ra := self.find(a)
+    mut rb := self.find(b)
+    if ra == rb
+        return
+    if self.rank[ra] < self.rank[rb]
+        t := ra
+        ra = rb
+        rb = t
+    bumped := if self.rank[ra] == self.rank[rb] then 1 else 0
+    self.parent[rb] = ra
+    self.rank[ra] += bumped
+    self.history.push([rb, ra, bumped])
+    self.groups -= 1
+
+fn Dsu.rollback(mut self, mark int)
+    while self.history.len() > mark
+        h := self.history.pop() else [0, 0, 0]
+        self.parent[h[0]] = h[0]
+        self.rank[h[1]] -= h[2]
+        self.groups += 1
+
+fn main()
+    n := 8
+    mut d := Dsu(parent: [i for i in 0..n], rank: [0 for k in 0..n], history: [], groups: n)
+    for e in [[0, 1], [2, 3], [1, 2]]
+        d.union(e[0], e[1])
+    print("base links: {d.groups} groups")
+    for plan in [[[4, 5], [5, 6], [6, 7]], [[3, 4], [0, 7]], [[4, 7], [7, 4]]]
+        mark := d.history.len()
+        for e in plan
+            d.union(e[0], e[1])
+        joined := d.find(0) == d.find(7)
+        print("try {plan}: {d.groups} groups, 0 and 7 connected {joined}")
+        d.rollback(mark)
+    print("after rollbacks: {d.groups} groups, parents {d.parent}")
+
+@test fn undo_restores()
+    mut d := Dsu(parent: [0, 1], rank: [0, 0], history: [], groups: 2)
+    d.union(0, 1)
+    d.rollback(0)
+    assert_eq(d.parent, [0, 1])

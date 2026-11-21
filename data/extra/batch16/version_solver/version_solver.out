@@ -1,0 +1,8 @@
+root   needs web 2 to 99
+web 3  needs db 2 to 99
+web 3  needs log 3 to 99
+web 2  needs log 2 to 99
+db 2   needs log 1 to 2
+db 1   needs log 1 to 1
+solution: web 2, db 2, log 2
+versions tried: 10

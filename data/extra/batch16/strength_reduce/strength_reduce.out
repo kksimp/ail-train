@@ -1,0 +1,8 @@
+y * 8   -> y << 3                 37 gives  296, agrees
+y * 2   -> y << 1                 37 gives   74, agrees
+y / 4   -> y >> 2                 37 gives    9, agrees
+y % 16  -> y & 15                 37 gives    5, agrees
+y * 10  -> (y << 3) + (y << 1)    37 gives  370, agrees
+y * 7   -> (y << 3) - y           37 gives  259, agrees
+y * 12  -> (y << 3) + (y << 2)    37 gives  444, agrees
+y * 11  -> y * 11                 37 gives  407, agrees

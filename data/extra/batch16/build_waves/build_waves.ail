@@ -1,0 +1,38 @@
+## Build waves: each task's wave is one more than the latest wave of its prerequisites; running wave
+## by wave costs the slowest task of every wave, more than the critical path when tasks could overlap.
+
+struct Task
+    name str
+    secs int
+    deps List[int]
+
+fn main()
+    tasks := [Task(name: "fetch", secs: 4, deps: []), Task(name: "codegen", secs: 2, deps: [0]), Task(name: "lib", secs: 9, deps: [0]), Task(name: "proto", secs: 3, deps: [1]), Task(name: "server", secs: 5, deps: [2, 3]), Task(name: "cli", secs: 2, deps: [3]), Task(name: "tests", secs: 6, deps: [4, 5]), Task(name: "docs", secs: 1, deps: [1])]
+    n := tasks.len()
+    mut wave := List[int]()
+    mut finish := List[int]()
+    for i in 0..n
+        mut w := 0
+        mut ready := 0
+        for d in tasks[i].deps
+            w = w.max(wave[d] + 1)
+            ready = ready.max(finish[d])
+        wave.push(w)
+        finish.push(ready + tasks[i].secs)
+    top := wave.max() else 0
+    mut wave_total := 0
+    for w in 0..=top
+        members := [m for m in 0..n if wave[m] == w]
+        slowest := members.fold(0, |acc, k| acc.max(tasks[k].secs))
+        wave_total += slowest
+        names := members.map(|k| tasks[k].name).join(", ")
+        print("wave {w}: {names} (slowest {slowest}s)")
+    serial := tasks.fold(0, |acc, t| acc + t.secs)
+    critical := finish.max() else 0
+    print("one at a time: {serial}s")
+    print("wave by wave:  {wave_total}s")
+    print("critical path: {critical}s")
+
+@test fn serial_sum()
+    ts := [Task(name: "a", secs: 2, deps: []), Task(name: "b", secs: 3, deps: [0])]
+    assert_eq(ts.fold(0, |acc, t| acc + t.secs), 5)

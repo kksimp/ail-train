@@ -1,0 +1,33 @@
+## Copy propagation: after a copy like a = x, later reads of a are replaced by x as long as neither a nor x
+## is assigned again; each assignment kills the copies that mention its target.
+
+fn main()
+    code := [["a", "x"], ["b", "a", "+", "1"], ["c", "a"], ["d", "c", "*", "b"], ["x", "5"], ["e", "a", "+", "c"], ["a", "2"], ["f", "c", "+", "a"], ["g", "b"], ["h", "g", "-", "d"]]
+    mut copies := Map[str, str]()
+    mut replaced := 0
+    for st in code
+        mut ops := st.slice(1)
+        for k in 0..ops.len()
+            if k != 1 or ops.len() == 1
+                if src := copies.get(ops[k])
+                    ops[k] = src
+                    replaced += 1
+        dst := st[0]
+        mut dead := List[str]()
+        for key, src in copies
+            if key == dst or src == dst
+                dead.push(key)
+        for key in dead
+            copies.remove(key)
+        is_var := ops.len() == 1 and (ops[0].to_int() == none)
+        if is_var and ops[0] != dst
+            copies[dst] = ops[0]
+        before := st.slice(1).join(" ")
+        after := ops.join(" ")
+        note := if before == after then "" else "   (was {before})"
+        print("{dst} = {after}{note}")
+    print("{replaced} reads replaced; live copies at the end: {copies.len()}")
+
+@test fn literal_check()
+    assert("5".to_int() != none)
+    assert("x".to_int() == none)
