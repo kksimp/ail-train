@@ -1,0 +1,20 @@
+## Referee rota: matches are assigned referees who are not from either team and have the
+## fewest games so far (then alphabetical), and loads are printed.
+
+fn main()
+    refs := [("Ali", "Rovers"), ("Bea", "United"), ("Cem", "City"), ("Dot", "Athletic")]
+    matches := [("Rovers", "United"), ("City", "Athletic"), ("Rovers", "City"), ("United", "Athletic"), ("Rovers", "Athletic"), ("United", "City")]
+    mut games := Map[str, int]()
+    for r in refs
+        games[r.0] = 0
+    for m in matches
+        home, away := m
+        free := refs.filter(|r| r.1 != home and r.1 != away).map(|r| r.0)
+        pick := free.min(by: |n| (games[n], n)) else ""
+        games[pick] += 1
+        print("{home} v {away}: {pick}")
+    for r in refs
+        print("{r.0}: {games[r.0]}")
+
+@test fn neutral()
+    assert("City" != "Rovers")

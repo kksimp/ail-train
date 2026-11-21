@@ -1,0 +1,7 @@
+price 150 paid 500: change 350 = 1x200 1x100 1x50
+price 85 paid 100: change 15 = 1x10 1x5
+price 65 paid 200: change 135 = 1x100 1x20 1x10 1x5
+price 120 paid 200: no exact change, refused
+price 35 paid 100: no exact change, refused
+price 45 paid 50: change 5 = 1x5
+stock 200:0 100:0 50:0 20:2 10:0 5:1

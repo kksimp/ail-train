@@ -1,0 +1,25 @@
+## Moving boxes: items are packed into 20 kg boxes with first-fit decreasing, and each box's
+## contents and weight are printed.
+
+fn main()
+    items := [("books", 12), ("plates", 9), ("lamp", 4), ("pans", 7), ("shoes", 5), ("toys", 6), ("files", 11), ("rug", 8), ("vase", 3)]
+    ordered := items.sorted(by: |i| (-i.1, i.0))
+    mut boxes := List[List[(str, int)]]()
+    mut loads := List[int]()
+    for it in ordered
+        mut placed := false
+        for b in 0..boxes.len()
+            if loads[b] + it.1 <= 20
+                boxes[b].push(it)
+                loads[b] += it.1
+                placed = true
+                break
+        if not placed
+            boxes.push([it])
+            loads.push(it.1)
+    for b in 0..boxes.len()
+        shown := boxes[b].map(|i| i.0).join(", ")
+        print("box {b + 1} ({loads[b]} kg): {shown}")
+
+@test fn fits()
+    assert(12 + 8 <= 20)

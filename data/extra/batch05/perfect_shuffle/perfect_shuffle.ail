@@ -1,0 +1,23 @@
+## Perfect shuffle: counts how many out-shuffles (riffle with the top card staying on top)
+## return decks of various even sizes to their original order.
+
+fn out_shuffle(deck List[int]) List[int]
+    half := deck.len() / 2
+    mut out := List[int]()
+    for i in 0..half
+        out.push(deck[i])
+        out.push(deck[half + i])
+    out
+
+fn main()
+    for n in [2, 4, 8, 10, 12, 20, 52]
+        start := [i for i in 0..n]
+        mut deck := out_shuffle(start)
+        mut count := 1
+        while deck != start
+            deck = out_shuffle(deck)
+            count += 1
+        print("{n} cards: {count} shuffles")
+
+@test fn eight()
+    assert_eq(out_shuffle([0, 1, 2, 3]), [0, 2, 1, 3])

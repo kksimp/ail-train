@@ -1,0 +1,35 @@
+## Scrabble score: scores words with standard letter values, doubling or tripling for a
+## few marked squares, and picks the best word from a rack-built list.
+
+fn letter_value(c char) int
+    if "aeioulnstr".contains(c)
+        return 1
+    if "dg".contains(c)
+        return 2
+    if "bcmp".contains(c)
+        return 3
+    if "fhvwy".contains(c)
+        return 4
+    if c == 'k'
+        return 5
+    if "jx".contains(c)
+        return 8
+    10
+
+fn score(w str, double_at int, word_mult int) int
+    mut s := 0
+    for i, c in w.chars().enumerate()
+        v := letter_value(c)
+        gained := if i == double_at then v * 2 else v
+        s += gained
+    s * word_mult
+
+fn main()
+    for w in ["quiz", "jazz", "oxen", "rhythm", "cabbage"]
+        print("{w}: {score(w, -1, 1)}")
+    plays := [("quiz", 0, 1), ("jazz", -1, 2), ("oxen", 1, 3)]
+    best := plays.max(by: |p| score(p.0, p.1, p.2)) else plays[0]
+    print("best play: {best.0} for {score(best.0, best.1, best.2)}")
+
+@test fn cab()
+    assert_eq(score("cab", -1, 1), 7)

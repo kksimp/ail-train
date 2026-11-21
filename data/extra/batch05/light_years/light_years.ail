@@ -1,0 +1,15 @@
+## Light travel: light-travel times from the Sun to the planets using average distances in
+## millions of km, printed as minutes and seconds, plus the ratio to Earth's.
+
+fn main()
+    planets := [("Mercury", 57.9), ("Venus", 108.2), ("Earth", 149.6), ("Mars", 227.9), ("Jupiter", 778.6), ("Saturn", 1433.5), ("Uranus", 2872.5), ("Neptune", 4495.1)]
+    c := 299792.458
+    earth := 149.6
+    for p in planets
+        name, mkm := p
+        secs := (mkm * 1000000.0 / c).round().to_int()
+        ratio := mkm / earth
+        print("{name:<8} {secs / 60:>3}m {secs % 60:02}s  x{ratio:.2}")
+
+@test fn earth_light()
+    assert_eq((149.6 * 1000000.0 / 299792.458).round().to_int(), 499)

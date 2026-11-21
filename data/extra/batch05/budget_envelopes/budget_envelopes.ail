@@ -1,0 +1,22 @@
+## Budget envelopes: a monthly budget split into envelopes; spending is taken from each
+## envelope and any overspend is covered from a buffer envelope, with a final report.
+
+fn main()
+    mut env := {"food": 40000, "transport": 12000, "fun": 8000, "buffer": 10000}
+    spends := [("food", 12500), ("fun", 4500), ("transport", 6000), ("fun", 5200), ("food", 30100), ("transport", 7000)]
+    for s in spends
+        name, cents := s
+        if env[name] >= cents
+            env[name] -= cents
+            print("{name} -{cents}: ok, {env[name]} left")
+        else
+            short := cents - env[name]
+            env[name] = 0
+            env["buffer"] -= short
+            buffer := env["buffer"]
+            print("{name} -{cents}: short {short}, buffer now {buffer}")
+    for name in ["food", "transport", "fun", "buffer"]
+        print("{name}: {env[name] / 100}.{env[name] % 100:02}")
+
+@test fn cover()
+    assert_eq(5200 - 3500, 1700)

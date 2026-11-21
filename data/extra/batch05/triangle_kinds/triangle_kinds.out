@@ -1,0 +1,8 @@
+3 4 5: scalene, right
+2 2 2: equilateral, acute
+5 5 8: isosceles, obtuse
+1 2 3: invalid
+7 8 9: scalene, acute
+6 6 1: isosceles, acute
+5 12 13: scalene, right
+0 1 1: invalid

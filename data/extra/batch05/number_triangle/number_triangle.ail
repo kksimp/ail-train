@@ -1,0 +1,25 @@
+## Number triangle: finds the maximum top-to-bottom path sum in a number triangle by
+## working up from the bottom row, and prints the path taken.
+
+fn main()
+    tri := [[3], [7, 4], [2, 4, 6], [8, 5, 9, 3], [1, 6, 2, 8, 4]]
+    mut best := tri
+    mut r := tri.len() - 2
+    while r >= 0
+        for c in 0..tri[r].len()
+            left := best[r + 1][c]
+            right := best[r + 1][c + 1]
+            larger := if left >= right then left else right
+            best[r][c] = tri[r][c] + larger
+        r -= 1
+    mut path := List[int]()
+    mut c := 0
+    for row in 0..tri.len()
+        path.push(tri[row][c])
+        if row + 1 < tri.len() and best[row + 1][c + 1] > best[row + 1][c]
+            c += 1
+    shown := path.map(|x| "{x}").join(" + ")
+    print("max {best[0][0]} = {shown}")
+
+@test fn sum()
+    assert_eq(3 + 7 + 4 + 9 + 2, 25)

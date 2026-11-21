@@ -1,0 +1,29 @@
+## Bit flags: file permissions stored as bit flags; grants and revokes are applied with
+## bitwise operators and each state is printed as rwx letters and a number.
+
+fn show(p int) str
+    letters := ["r", "w", "x"]
+    mut out := ""
+    for i in 0..3
+        bit := 1 << (2 - i)
+        mark := if (p & bit) != 0 then letters[i] else "-"
+        out = "{out}{mark}"
+    out
+
+fn main()
+    r := 4
+    w := 2
+    x := 1
+    mut perm := r | w
+    print("start  {show(perm)} {perm}")
+    perm = perm | x
+    print("+x     {show(perm)} {perm}")
+    perm = perm & (~w)
+    print("-w     {show(perm)} {perm}")
+    perm = perm ^ r
+    print("^r     {show(perm)} {perm}")
+    for v in 0..8
+        print("{v} = {show(v)}")
+
+@test fn full()
+    assert_eq(show(7), "rwx")

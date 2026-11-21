@@ -1,0 +1,25 @@
+## Clock angles: the smaller angle between the hour and minute hands for several times,
+## and every minute of the day when the hands are exactly opposite.
+
+fn angle_tenths(h int, m int) int
+    hour := (h % 12) * 300 + m * 5
+    minute := m * 60
+    mut d := (hour - minute).abs()
+    if d > 1800
+        d = 3600 - d
+    d
+
+fn main()
+    for t in [(3, 0), (9, 45), (12, 30), (6, 0), (2, 20), (11, 59)]
+        a := angle_tenths(t.0, t.1)
+        print("{t.0}:{t.1:02} -> {a / 10}.{a % 10} degrees")
+    mut opposite := List[str]()
+    for h in 0..12
+        for m in 0..60
+            if angle_tenths(h, m) == 1800
+                opposite.push("{h}:{m:02}")
+    shown := opposite.join(" ")
+    print("exactly opposite: {shown}")
+
+@test fn three()
+    assert_eq(angle_tenths(3, 0), 900)

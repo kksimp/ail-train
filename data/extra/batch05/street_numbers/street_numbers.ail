@@ -1,0 +1,22 @@
+## Street numbers: houses on the odd side and even side of a street; for a list of house
+## numbers prints which side, the neighbours, and the house opposite.
+
+fn info(n int, last int) str
+    side := if n % 2 == 1 then "odd" else "even"
+    mut nbrs := List[str]()
+    if n - 2 >= 1
+        nbrs.push("{n - 2}")
+    if n + 2 <= last
+        nbrs.push("{n + 2}")
+    opposite := if n % 2 == 1 then n + 1 else n - 1
+    across := if opposite >= 1 and opposite <= last then "{opposite}" else "none"
+    shown := nbrs.join(" and ")
+    "{side} side, next to {shown}, opposite {across}"
+
+fn main()
+    last := 24
+    for n in [1, 2, 7, 12, 23, 24]
+        print("{n}: {info(n, last)}")
+
+@test fn odd()
+    assert(info(5, 10).starts_with("odd"))

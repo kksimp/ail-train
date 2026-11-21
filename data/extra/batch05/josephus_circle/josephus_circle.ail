@@ -1,0 +1,24 @@
+## Josephus circle: people stand in a circle and every k-th one leaves; prints the order of
+## leaving and the survivor, checked against the recurrence formula.
+
+fn survivor(n int, k int) int
+    mut pos := 0
+    for m in 2..=n
+        pos = (pos + k) % m
+    pos + 1
+
+fn main()
+    for pair in [(7, 3), (10, 2), (12, 5)]
+        n, k := pair
+        mut ring := [i for i in 1..=n]
+        mut idx := 0
+        mut order := List[int]()
+        while ring.len() > 1
+            idx = (idx + k - 1) % ring.len()
+            order.push(ring[idx])
+            ring.remove_at(idx)
+        shown := order.map(|x| "{x}").join(" ")
+        print("n={n} k={k}: out {shown}; survivor {ring[0]} (formula {survivor(n, k)})")
+
+@test fn classic()
+    assert_eq(survivor(41, 3), 31)
