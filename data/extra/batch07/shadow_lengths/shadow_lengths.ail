@@ -1,0 +1,18 @@
+## Shadows: shadow lengths of a 2 m pole, a 9 m tree and a 31 m tower as the sun's elevation
+## changes through the morning, with "no shadow length" when the sun is down.
+
+fn main()
+    things := [("pole", 2.0), ("tree", 9.0), ("tower", 31.0)]
+    for elev in [0.0, 5.0, 15.0, 30.0, 45.0, 60.0, 75.0]
+        if elev <= 0.0
+            print("{elev:>4.0} deg: sun down")
+            continue
+        rad := elev * 3.141592653589793 / 180.0
+        slope := rad.tan()
+        parts := things.map(|t| "{t.0} {t.1 / slope:.1} m")
+        shown := parts.join(", ")
+        print("{elev:>4.0} deg: {shown}")
+
+@test fn flat()
+    zero := 0.0
+    assert_eq(zero.tan(), 0.0)

@@ -1,0 +1,4 @@
+start at depot 4 (fuel 15, cost 15)
+fuel 9 < cost 10: no start works
+start at depot 5 (fuel 15, cost 15)
+start at depot 2 (fuel 21, cost 19)

@@ -1,0 +1,31 @@
+## Product of others: for each position, the product of all other numbers, built from prefix
+## and suffix products without division, checked against division where no zero appears.
+
+fn others(xs List[int]) List[int]
+    n := xs.len()
+    mut out := [1 for k in 0..n]
+    mut left := 1
+    for i in 0..n
+        out[i] = left
+        left *= xs[i]
+    mut right := 1
+    mut i := n
+    while i > 0
+        i -= 1
+        out[i] *= right
+        right *= xs[i]
+    out
+
+fn main()
+    for xs in [[1, 2, 3, 4], [2, 5, 7], [3, 0, 4, 2], [0, 0, 5], [-1, 2, -3, 4]]
+        o := others(xs)
+        a := xs.map(|x| "{x}").join(" ")
+        b := o.map(|x| "{x}").join(" ")
+        mut whole := 1
+        for x in xs
+            whole *= x
+        check := if xs.contains(0) then "has zero" elif o.all(|x| whole % x == 0) then "matches division" else "?"
+        print("[{a}] -> [{b}] ({check})")
+
+@test fn small()
+    assert_eq(others([2, 3]), [3, 2])

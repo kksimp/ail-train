@@ -1,0 +1,33 @@
+## Abundance: classifies numbers as deficient, perfect or abundant by the sum of their proper
+## divisors (found up to the square root), and counts each class up to 100.
+
+fn divisor_sum(n int) int
+    if n == 1
+        return 0
+    mut s := 1
+    mut d := 2
+    while d * d <= n
+        if n % d == 0
+            s += d
+            if d * d != n
+                s += n / d
+        d += 1
+    s
+
+fn kind(n int) str
+    s := divisor_sum(n)
+    if s == n then "perfect" elif s > n then "abundant" else "deficient"
+
+fn main()
+    for n in [6, 12, 28, 35, 496, 945, 8128]
+        print("{n}: divisors sum to {divisor_sum(n)}, {kind(n)}")
+    mut counts := Map[str, int]()
+    for n in 1..=100
+        counts[kind(n)] += 1
+    low := counts["deficient"]
+    exact := counts["perfect"]
+    high := counts["abundant"]
+    print("1..100: {low} deficient, {exact} perfect, {high} abundant")
+
+@test fn six()
+    assert_eq(kind(6), "perfect")

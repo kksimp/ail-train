@@ -1,0 +1,8 @@
+6: divisors sum to 6, perfect
+12: divisors sum to 16, abundant
+28: divisors sum to 28, perfect
+35: divisors sum to 13, deficient
+496: divisors sum to 496, perfect
+945: divisors sum to 975, abundant
+8128: divisors sum to 8128, perfect
+1..100: 76 deficient, 2 perfect, 22 abundant

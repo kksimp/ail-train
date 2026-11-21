@@ -1,0 +1,35 @@
+## Bit reversal: reverses the low k bits of numbers, as used to order samples for a fast
+## Fourier transform, and prints the reordering of 0..15.
+
+fn reverse_bits(x int, k int) int
+    mut r := 0
+    mut v := x
+    for _ in 0..k
+        r = (r << 1) | (v & 1)
+        v = v >> 1
+    r
+
+fn binary(x int, k int) str
+    mut s := ""
+    mut i := k
+    while i > 0
+        i -= 1
+        bit := (x >> i) & 1
+        s = "{s}{bit}"
+    s
+
+fn main()
+    for x in [1, 6, 11, 13]
+        r := reverse_bits(x, 4)
+        print("{x:>2} {binary(x, 4)} -> {binary(r, 4)} {r:>2}")
+    order := [reverse_bits(i, 4) for i in 0..16].map(|v| "{v}").join(" ")
+    print("FFT order: {order}")
+    mut fixed := List[int]()
+    for i in 0..16
+        if reverse_bits(i, 4) == i
+            fixed.push(i)
+    shown := fixed.map(|v| "{v}").join(" ")
+    print("unchanged: {shown}")
+
+@test fn one()
+    assert_eq(reverse_bits(1, 3), 4)

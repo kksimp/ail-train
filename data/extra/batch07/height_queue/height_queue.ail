@@ -1,0 +1,22 @@
+## Height queue: rebuilds a queue from (height, taller-or-equal people in front) pairs by
+## placing the tallest first and inserting each person at their count.
+
+fn main()
+    people := [(7, 0), (4, 4), (7, 1), (5, 0), (6, 1), (5, 2)]
+    ordered := people.sorted(by: |p| (-p.0, p.1))
+    mut queue := List[(int, int)]()
+    for p in ordered
+        queue.insert(p.1, p)
+    shown := queue.map(|p| "[{p.0},{p.1}]").join(" ")
+    print(shown)
+    mut ok := true
+    for i, p in queue.enumerate()
+        ahead := queue[0..i].filter(|q| q.0 >= p.0).len()
+        if ahead != p.1
+            ok = false
+    print("all counts match: {ok}")
+
+@test fn ins()
+    mut q := [1, 3]
+    q.insert(1, 2)
+    assert_eq(q, [1, 2, 3])
