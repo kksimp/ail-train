@@ -1,0 +1,47 @@
+## Parcel scans: a `Scan` enum carries a `Place` enum (depot code, locker number, door), and nested
+## patterns like `At(Locker(n))` and `Done(Place.Door)` turn each parcel's last scan into a status.
+
+enum Place
+    Depot(code str)
+    Locker(n int)
+    Door
+
+enum Scan
+    At(place Place)
+    Out(van int)
+    Done(place Place)
+
+fn say(s Scan) str
+    match s
+        At(Depot(code)) => "sorted at depot {code}"
+        At(Locker(n)) => "waiting in locker {n}"
+        At(Place.Door) => "left at the door, unsigned"
+        Out(v) => "out for delivery on van {v}"
+        Done(Place.Door) => "delivered to the door"
+        Done(Locker(n)) => "collected from locker {n}"
+        Done(Depot(_)) => "collected at the depot"
+
+fn finished(s Scan) bool
+    match s
+        Done(_) => true
+        _ => false
+
+fn main()
+    parcels := [
+        ("P1", [Scan.At(place: Place.Depot(code: "LHR2")), Scan.Out(van: 14), Scan.Done(place: Place.Door)]),
+        ("P2", [Scan.At(place: Place.Depot(code: "MAN1")), Scan.At(place: Place.Locker(n: 31)), Scan.Done(place: Place.Locker(n: 31))]),
+        ("P3", [Scan.At(place: Place.Depot(code: "BRS1")), Scan.Out(van: 9)]),
+        ("P4", [Scan.At(place: Place.Depot(code: "LHR2")), Scan.At(place: Place.Locker(n: 7))]),
+        ("P5", [Scan.At(place: Place.Depot(code: "GLA3")), Scan.Out(van: 2), Scan.At(place: Place.Door)]),
+    ]
+    mut done := 0
+    for p in parcels
+        id, scans := p
+        last := scans.last() else Scan.Out(van: 0)
+        if finished(last)
+            done += 1
+        print("{id} ({scans.len()} scans): {say(last)}")
+    print("{done} of {parcels.len()} parcels finished")
+
+@test fn locker_text()
+    assert_eq(say(Scan.At(place: Place.Locker(n: 4))), "waiting in locker 4")

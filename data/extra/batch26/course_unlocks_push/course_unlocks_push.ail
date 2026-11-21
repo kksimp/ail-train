@@ -1,0 +1,30 @@
+## Course unlocks: prerequisite pairs build two list-valued maps with `m.push(k, x)`, one from a
+## course to what it unlocks and one to what it needs; a student's passed set shows what is open now.
+
+fn main()
+    pairs := [("Stats 2", "Stats 1"), ("ML", "Stats 2"), ("ML", "Linear Algebra"), ("Data Viz", "Stats 1"), ("Graphics", "Linear Algebra"), ("Robotics", "ML"), ("Robotics", "Mechanics")]
+    mut unlocks := Map[str, List[str]]()
+    mut needs := Map[str, List[str]]()
+    for p in pairs
+        course, pre := p
+        unlocks.push(pre, course)
+        needs.push(course, pre)
+    for pre, cs in unlocks
+        shown := cs.join(", ")
+        print("{pre} unlocks {shown}")
+    passed := {"Stats 1", "Linear Algebra"}
+    mut open := List[str]()
+    for course, pres in needs
+        if not passed.contains(course) and pres.all(|p| passed.contains(p))
+            open.push(course)
+    listed := open.sorted().join(", ")
+    print("with Stats 1 and Linear Algebra: {listed}")
+    ranked := unlocks.keys().sorted(by: |k| (-unlocks[k].len(), k))
+    top_two := ranked.take(2).join(" and ")
+    print("open the most: {top_two}")
+
+@test fn push_appends()
+    mut m := Map[str, List[int]]()
+    m.push("a", 1)
+    m.push("a", 2)
+    assert_eq(m["a"], [1, 2])

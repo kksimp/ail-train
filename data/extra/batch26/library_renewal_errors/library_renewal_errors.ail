@@ -1,0 +1,45 @@
+## Library renewals: renewing a loan adds 14 days or fails with an `error enum` (not on loan,
+## renewal limit of two, reserved by another reader); `assert_err` in the test checks the variant.
+
+error enum RenewError
+    NotOnLoan(id int) "book {id} is not on loan"
+    Limit(times int) "already renewed {times} times"
+    Reserved(by str) "reserved by {by}"
+
+struct Loan
+    id int
+    due int
+    renewed int
+
+fn renew(mut loans List[Loan], holds Map[int, str], id int) int ! RenewError
+    for i in 0..loans.len()
+        if loans[i].id == id
+            if loans[i].renewed >= 2
+                return RenewError.Limit(times: loans[i].renewed)
+            if who := holds.get(id)
+                return RenewError.Reserved(by: who)
+            loans[i].renewed += 1
+            loans[i].due += 14
+            return loans[i].due
+    return RenewError.NotOnLoan(id: id)
+
+fn main()
+    mut loans := [Loan(id: 101, due: 20, renewed: 0), Loan(id: 102, due: 25, renewed: 2), Loan(id: 103, due: 18, renewed: 1)]
+    holds := {103: "Priya"}
+    mut refusals := [0, 0, 0]
+    for id in [101, 101, 102, 103, 104, 101]
+        due := renew(mut loans, holds, id) else err
+            print("renew {id}: refused, {err}")
+            match err
+                NotOnLoan => refusals[0] += 1
+                Limit => refusals[1] += 1
+                Reserved => refusals[2] += 1
+            continue
+        print("renew {id}: now due day {due}")
+    print("refused (not on loan, limit, reserved): {refusals}")
+    latest := loans.map(|l| l.due).max() else 0
+    print("latest due day: {latest}")
+
+@test fn unknown_book()
+    mut ls := [Loan(id: 1, due: 5, renewed: 0)]
+    assert_err(renew(mut ls, Map[int, str](), 9), RenewError.NotOnLoan)

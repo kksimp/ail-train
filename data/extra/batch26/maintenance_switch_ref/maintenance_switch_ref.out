@@ -1,0 +1,6 @@
+api: 200 ok
+web: 413 upload of 35 MB too large
+web: 503 down for maintenance
+api: 200 ok
+web: 200 ok
+start-of-day copy: maintenance false, limit 20 MB

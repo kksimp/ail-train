@@ -1,0 +1,51 @@
+## Thermostat commands: an enum of set-to, boost, away and off commands, each applied by a
+## `match` inside a `mut self` method that changes the heater's state and returns what it did.
+
+enum Cmd
+    SetTo(tenths int)
+    Boost(mins int)
+    Away(days int)
+    Off
+
+struct Heater
+    target int
+    boost int
+    away int
+    on bool
+
+fn Heater.run(mut self, c Cmd) str
+    match c
+        SetTo(t) =>
+            self.target = t
+            self.on = true
+            "target {t / 10}.{t % 10} C"
+        Boost(m) =>
+            self.boost += m
+            "boost for {self.boost} min"
+        Away(d) =>
+            self.away = d
+            self.target = 120
+            "away {d} days, holding 12.0 C"
+        Off =>
+            self.on = false
+            self.boost = 0
+            "heating off"
+
+fn main()
+    cmds := [Cmd.SetTo(tenths: 205), Cmd.Boost(mins: 30), Cmd.Boost(mins: 15), Cmd.SetTo(tenths: 190), Cmd.Away(days: 3), Cmd.Off]
+    mut h := Heater(target: 160, boost: 0, away: 0, on: false)
+    for i, c in cmds.enumerate()
+        msg := h.run(c)
+        print("{i + 1}. {msg}")
+    print(h)
+    mut asked := 0
+    for c in cmds
+        match c
+            Boost(m) => asked += m
+            _ => continue
+    print("boost minutes asked for: {asked}")
+
+@test fn boost_adds_up()
+    mut h := Heater(target: 0, boost: 5, away: 0, on: true)
+    msg := h.run(Cmd.Boost(mins: 10))
+    assert_eq(msg, "boost for 15 min")

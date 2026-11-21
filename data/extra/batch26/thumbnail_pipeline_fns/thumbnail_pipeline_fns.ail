@@ -1,0 +1,38 @@
+## Thumbnail pipeline: image widths go through a list of named stages, each holding a function
+## value of type `fn(int) int` (halve, cap, round down to a multiple of 8, floor of 64), run in order.
+
+struct Stage
+    name str
+    f fn(int) int
+
+fn halve(w int) int
+    w / 2
+
+fn cap_1024(w int) int
+    w.min(1024)
+
+fn to_mult8(w int) int
+    w / 8 * 8
+
+fn at_least_64(w int) int
+    w.max(64)
+
+fn run(stages List[Stage], w int) int
+    mut acc := w
+    for s in stages
+        g := s.f
+        acc = g(acc)
+    acc
+
+fn main()
+    thumb := [Stage(name: "halve", f: halve), Stage(name: "halve", f: halve), Stage(name: "multiple of 8", f: to_mult8), Stage(name: "at least 64", f: at_least_64)]
+    preview := [Stage(name: "cap 1024", f: cap_1024), Stage(name: "multiple of 8", f: to_mult8)]
+    for p in [("thumb", thumb), ("preview", preview)]
+        label, stages := p
+        steps := stages.map(|s| s.name).join(" > ")
+        print("{label}: {steps}")
+        outs := [run(stages, w) for w in [4000, 1366, 333, 150]]
+        print("  4000, 1366, 333, 150 -> {outs}")
+
+@test fn rounds_down()
+    assert_eq(to_mult8(15), 8)

@@ -1,0 +1,33 @@
+## Freezer alarm: an endless generator simulates a freezer's half-hourly temperature (tenths of a
+## degree) as a seeded random walk; `take`, `find`, `any` and `fold` read a day of it lazily against -18.0 C.
+
+fn temps(seed int) Seq[int]
+    mut x := seed
+    mut t := -190
+    while true
+        x = (x * 75 + 74) % 65537
+        t += x % 7 - 3
+        yield t
+
+fn tenths(v int) str
+    sign := if v < 0 then "-" else ""
+    a := v.abs()
+    "{sign}{a / 10}.{a % 10}"
+
+fn main()
+    for unit in [("chest", 11), ("upright", 99), ("display", 2024)]
+        name, seed := unit
+        coldest := temps(seed).take(48).fold(0, |m, v| m.min(v))
+        warmest := temps(seed).take(48).fold(-1000, |m, v| m.max(v))
+        warm := temps(seed).take(48).any(|v| v > -180)
+        print("{name:<8} coldest {tenths(coldest)} C, warmest {tenths(warmest)} C")
+        if warm
+            first := temps(seed).take(48).enumerate().find(|p| p.1 > -180)?.0 else 0
+            mins := first * 30
+            print("  alarm at {mins / 60:02}:{mins % 60:02}")
+        else
+            print("  no alarm today")
+
+@test fn starts_near_minus_19()
+    first := temps(11).take(1).collect()
+    assert_eq(first, [-190])

@@ -1,0 +1,34 @@
+## Gauge nested optional: rain gauges report `List[int?]` where `none` is a missed report, so the
+## latest entry is an `int??`; peeling it once tells "never reported" from "last report missing".
+
+fn latest(xs List[int?]) int??
+    xs.last()
+
+fn describe(name str, xs List[int?]) str
+    if r := latest(xs)
+        v := r else return "{name}: last report missing"
+        return "{name}: {v} mm"
+    "{name}: never reported"
+
+fn present_total(xs List[int?]) int
+    mut acc := 0
+    for x in xs
+        if v := x
+            acc += v
+    acc
+
+fn main()
+    north := [5, none, 2]
+    south := [4, none]
+    west := [6, none, none, 7]
+    east := List[int?]()
+    gauges := [("north", north), ("south", south), ("west", west), ("east", east)]
+    for g in gauges
+        name, xs := g
+        got := xs.count(|x| x != none)
+        print("{describe(name, xs)} ({got} of {xs.len()} reports, {present_total(xs)} mm in all)")
+    missing := gauges.map(|g| g.1.count(|x| x == none)).sum()
+    print("missed reports: {missing}")
+
+@test fn empty_gauge()
+    assert_eq(describe("a", List[int?]()), "a: never reported")

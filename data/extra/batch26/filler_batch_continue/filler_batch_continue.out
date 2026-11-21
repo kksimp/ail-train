@@ -1,0 +1,6 @@
+batch 1 ok, mean 504 g
+batch 2 rejected: reading 0 g
+batch 3 ok, mean 510 g
+batch 4 rejected: reading 1200 g
+batch 5 ok, mean 500 g
+kept 3, rejected 2, mean of kept 504 g

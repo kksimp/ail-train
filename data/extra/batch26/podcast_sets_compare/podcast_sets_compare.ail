@@ -1,0 +1,24 @@
+## Podcast sets: two listeners' subscriptions as sets; `intersect` finds shared shows, `difference`
+## gives each one's suggestions from the other, `union` the combined size and `is_subset` a family plan check.
+
+fn show(s Set[str]) str
+    s.sorted().join(", ")
+
+fn main()
+    ana := {"Tech Weekly", "Cooking Hour", "History Now", "Space Talk", "Daily Brief"}
+    ben := {"Daily Brief", "Space Talk", "True Crime Files", "Garden Chat"}
+    shared := ana.intersect(ben)
+    print("both follow: {show(shared)}")
+    print("suggest to Ben: {show(ana.difference(ben))}")
+    print("suggest to Ana: {show(ben.difference(ana))}")
+    either := ana.union(ben)
+    print("{shared.len()} of {either.len()} shows overlap")
+    family := {"Daily Brief", "Space Talk"}
+    print("family plan fits Ana: {family.is_subset(ana)}, Ben: {family.is_subset(ben)}")
+    kids := {"Garden Chat", "Space Talk"}
+    print("kids plan fits Ana: {kids.is_subset(ana)}, Ben: {kids.is_subset(ben)}")
+
+@test fn subset()
+    a := {1}
+    b := {1, 2}
+    assert(a.is_subset(b))

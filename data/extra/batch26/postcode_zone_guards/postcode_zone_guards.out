@@ -1,0 +1,13 @@
+SW1A 1AA  mainland               3.95
+BT7 1NN   Northern Ireland       6.95
+HS2 9AB   Highlands and Islands  8.95
+JE2 3XP   Channel Islands        10.95
+M1 1AE    mainland               3.95
+KW15 1HR  Highlands and Islands  8.95
+IM1 2AA   Isle of Man            7.95
+EH1 1YZ   mainland               3.95
+mainland: 11.85
+Northern Ireland: 6.95
+Highlands and Islands: 17.90
+Channel Islands: 10.95
+Isle of Man: 7.95

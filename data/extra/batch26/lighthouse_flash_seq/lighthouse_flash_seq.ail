@@ -1,0 +1,30 @@
+## Lighthouse flashes: an endless generator yields the seconds a light is on for a group-flashing
+## character such as Fl(3) 15s; two lights are drawn for 30 seconds and their shared flash seconds found.
+
+fn flashes(group int, period int) Seq[int]
+    mut start := 0
+    while true
+        for k in 0..group
+            yield start + k * 2
+        start += period
+
+fn mark(on List[int], t int) str
+    if on.contains(t) then "*" else "."
+
+fn strip(on List[int], n int) str
+    marks := [mark(on, t) for t in 0..n]
+    marks.join("")
+
+fn main()
+    a := flashes(3, 15).take_while(|t| t < 60).collect()
+    b := flashes(2, 10).take_while(|t| t < 60).collect()
+    print("Fl(3) 15s  {strip(a, 30)}")
+    print("Fl(2) 10s  {strip(b, 30)}")
+    both := a.filter(|t| b.contains(t))
+    print("flash together at {both}")
+    print("flashes per minute: {a.len()} and {b.len()}")
+    later := flashes(3, 15).skip(5).take(3).collect()
+    print("sixth to eighth flash of the first light: {later}")
+
+@test fn two_flash_group()
+    assert_eq(flashes(2, 10).take(4).collect(), [0, 2, 10, 12])

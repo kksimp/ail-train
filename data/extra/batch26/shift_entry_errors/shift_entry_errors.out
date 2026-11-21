@@ -1,0 +1,8 @@
+Mon: 8h30
+Tue: 7h30
+skipped line 3: bad start 9
+skipped line 4: ends before it starts
+Fri: 8h15
+skipped line 6: expected a day and times
+skipped line 7: bad end 25:00
+worked 24h15, fix lines [3, 4, 6, 7]

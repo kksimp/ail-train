@@ -1,0 +1,46 @@
+## Bounded backlog: a generic `Backlog[T]` holds at most `cap` waiting items and refuses more when
+## full, counting refusals; a help desk queues ticket titles and a sensor hub queues alarm codes.
+
+struct Backlog[T]
+    cap int
+    items List[T]
+    refused int
+
+fn Backlog.make(cap int) Self
+    Backlog(cap: cap, items: [], refused: 0)
+
+fn Backlog[T].offer(mut self, x T) bool
+    if self.items.len() >= self.cap
+        self.refused += 1
+        return false
+    self.items.push(x)
+    true
+
+fn Backlog[T].take(mut self) T?
+    if self.items.is_empty()
+        return none
+    first := self.items[0]
+    self.items = self.items.slice(1)
+    first
+
+fn main()
+    mut desk := Backlog[str].make(3)
+    for t in ["printer jam", "vpn down", "new laptop", "password reset", "broken chair"]
+        ok := desk.offer(t)
+        status := if ok then "queued" else "refused"
+        print("{t}: {status}")
+    if first := desk.take()
+        print("working on {first}")
+    again := desk.offer("broken chair")
+    print("retry broken chair: {again}, waiting {desk.items.len()}, refused {desk.refused}")
+    mut hub := Backlog[int].make(2)
+    for code in [401, 402, 517, 610]
+        kept := hub.offer(code)
+        if not kept
+            print("alarm {code} dropped")
+    print("alarms kept {hub.items}, dropped {hub.refused}")
+
+@test fn refuses_when_full()
+    mut b := Backlog[int].make(1)
+    assert(b.offer(1))
+    assert_eq(b.offer(2), false)

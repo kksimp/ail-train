@@ -1,0 +1,6 @@
+config 1: db.local:5432
+config 2: cache.local:443
+config 3: rejected (1 keys)
+config 4: rejected (2 keys)
+config 5: mail.local:587
+3 usable, 2 on secure ports

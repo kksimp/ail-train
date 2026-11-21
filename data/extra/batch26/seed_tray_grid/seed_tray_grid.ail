@@ -1,0 +1,35 @@
+## Seed tray: a 4 x 6 tray of seedling heights in a `Grid` (0 means no sprout yet); row and
+## column germination counts, the tallest seedling's cell, and the cells to resow.
+
+fn main()
+    tray := Grid.from([
+        [12, 0, 15, 9, 0, 11],
+        [14, 13, 0, 10, 12, 0],
+        [0, 0, 8, 11, 13, 15],
+        [16, 12, 14, 0, 9, 10],
+    ])
+    for r in 0..tray.rows
+        row := tray.row(r)
+        up := row.count(|h| h > 0)
+        tall := row.max() else 0
+        print("row {r + 1}: {up}/{tray.cols} sprouted, tallest {tall} mm")
+    cols := [[tray[r, c] for r in 0..tray.rows].count(|h| h > 0) for c in 0..tray.cols]
+    print("per column: {cols}")
+    mut resow := List[str]()
+    mut best := 0
+    mut spot := "none"
+    for r in 0..tray.rows
+        for c in 0..tray.cols
+            if tray[r, c] == 0
+                resow.push("r{r + 1}c{c + 1}")
+            elif tray[r, c] > best
+                best = tray[r, c]
+                spot = "r{r + 1}c{c + 1}"
+    sprouted := tray.rows * tray.cols - resow.len()
+    print("germination {sprouted} of {tray.rows * tray.cols}, tallest {best} mm at {spot}")
+    gaps := resow.join(" ")
+    print("resow: {gaps}")
+
+@test fn grid_size()
+    g := Grid.fill(2, 3, 0)
+    assert_eq(g.cols, 3)

@@ -1,0 +1,29 @@
+## Museum repeat visits: member scans over three days; `Set.add` returning false spots re-entries
+## the same day and returning members across days, and `intersect` finds members who came every day.
+
+fn main()
+    days := [[101, 102, 103, 101, 104], [102, 105, 101, 105, 106], [107, 101, 102, 108, 103]]
+    mut ever := Set[int]()
+    mut per_day := List[Set[int]]()
+    for d, scans in days.enumerate()
+        mut today := Set[int]()
+        mut fresh := 0
+        mut back := 0
+        mut again := 0
+        for id in scans
+            if not today.add(id)
+                again += 1
+            elif ever.add(id)
+                fresh += 1
+            else
+                back += 1
+        per_day.push(today)
+        print("day {d + 1}: {fresh} new, {back} returning, {again} re-entries")
+    every := per_day[0].intersect(per_day[1]).intersect(per_day[2])
+    print("came every day: {every.sorted()}")
+    print("{ever.len()} different members visited")
+
+@test fn add_reports_new()
+    mut s := Set[int]()
+    assert(s.add(1))
+    assert(not s.add(1))

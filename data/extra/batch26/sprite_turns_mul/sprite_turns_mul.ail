@@ -1,0 +1,45 @@
+## Sprite turns: a 2x2 integer matrix `Turn` with `Mul` composes quarter turns and mirror flips of
+## a sprite's corner points; repeated quarter turns are multiplied until the identity comes back.
+
+struct Turn
+    a int
+    b int
+    c int
+    d int
+
+struct Pt
+    x int
+    y int
+
+impl Mul for Turn
+    fn mul(self, o Turn) Turn
+        Turn(a: a * o.a + b * o.c, b: a * o.b + b * o.d, c: c * o.a + d * o.c, d: c * o.b + d * o.d)
+
+fn Turn.apply(self, p Pt) Pt
+    Pt(x: self.a * p.x + self.b * p.y, y: self.c * p.x + self.d * p.y)
+
+fn show(t Turn, pts List[Pt]) str
+    moved := pts.map(|p| t.apply(p))
+    moved.map(|p| "({p.x}, {p.y})").join(" ")
+
+fn main()
+    arrow := [Pt(x: 2, y: 0), Pt(x: 0, y: 1), Pt(x: 0, y: -1)]
+    quarter := Turn(a: 0, b: -1, c: 1, d: 0)
+    flip := Turn(a: -1, b: 0, c: 0, d: 1)
+    ident := Turn(a: 1, b: 0, c: 0, d: 1)
+    moves := [("as drawn", ident), ("quarter", quarter), ("half", quarter * quarter), ("flip", flip), ("flip, then quarter", quarter * flip)]
+    for m in moves
+        name, t := m
+        print("{name:<18} {show(t, arrow)}")
+    mut acc := quarter
+    mut k := 1
+    while acc != ident
+        acc = acc * quarter
+        k += 1
+    print("quarter turns until back: {k}")
+    twice := flip * flip
+    print("flip twice is identity: {twice == ident}")
+
+@test fn four_quarters()
+    q := Turn(a: 0, b: -1, c: 1, d: 0)
+    assert_eq(q * q * q * q, Turn(a: 1, b: 0, c: 0, d: 1))

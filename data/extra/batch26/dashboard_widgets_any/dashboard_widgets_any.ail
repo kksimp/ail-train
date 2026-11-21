@@ -1,0 +1,57 @@
+## Dashboard widgets: gauge and sparkline structs implement a `Widget` trait with a
+## default `alert` method; `render(w any Widget)` takes any of them and draws one line per widget.
+
+trait Widget
+    fn title(self) str
+    fn body(self) str
+    fn alert(self) bool
+        false
+
+struct Gauge
+    label str
+    pct int
+
+struct Sparkline
+    label str
+    points List[int]
+
+fn level(v int) str
+    match v
+        0..=2 => "_"
+        3..=5 => "."
+        6..=7 => "-"
+        _ => "^"
+
+impl Widget for Gauge
+    fn title(self) str
+        label
+    fn body(self) str
+        filled := pct / 10
+        bar := "#".repeat(filled)
+        rest := ".".repeat(10 - filled)
+        "{bar}{rest} {pct}%"
+    fn alert(self) bool
+        pct > 70
+
+impl Widget for Sparkline
+    fn title(self) str
+        label
+    fn body(self) str
+        points.map(level).join("")
+
+fn render(w any Widget) str
+    flag := if w.alert() then " !" else ""
+    "[{w.title():<9}] {w.body()}{flag}"
+
+fn main()
+    mut board := List[any Widget]()
+    board.push(Gauge(label: "disk", pct: 73))
+    board.push(Sparkline(label: "signups", points: [3, 5, 2, 8, 9, 4, 1, 6]))
+    board.push(Gauge(label: "cpu", pct: 18))
+    for w in board
+        print(render(w))
+    alerts := board.count(|w| w.alert())
+    print("{board.len()} widgets, {alerts} alert")
+
+@test fn gauge_line()
+    assert_eq(render(Gauge(label: "x", pct: 50)), "[x        ] #####..... 50%")

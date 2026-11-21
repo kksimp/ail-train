@@ -1,0 +1,36 @@
+## Vacuum positions: a robot vacuum's position struct is matched with struct patterns such as
+## `Pos(x: 0, y: 0)` for the dock and `Pos(x: 0, y)` for the west wall, plus a guard for the diagonal.
+
+struct Pos
+    x int
+    y int
+
+fn zone_of(p Pos) str
+    match p
+        Pos(x: 0, y: 0) => "on the dock"
+        Pos(x: 0, y) => "against the west wall at y {y}"
+        Pos(x, y: 0) => "against the south wall at x {x}"
+        Pos(x, y) if x == y => "on the diagonal at {x}"
+        _ => "open floor"
+
+fn step(p Pos, m str) Pos
+    match m
+        "N" => Pos(x: p.x, y: p.y + 1)
+        "S" => Pos(x: p.x, y: p.y - 1)
+        "E" => Pos(x: p.x + 1, y: p.y)
+        "W" => Pos(x: p.x - 1, y: p.y)
+        _ => p
+
+fn main()
+    mut p := Pos(x: 0, y: 0)
+    mut walls := 0
+    for m in ["E", "E", "N", "N", "N", "W", "W", "S", "S", "S"]
+        p = step(p, m)
+        z := zone_of(p)
+        if z.starts_with("against")
+            walls += 1
+        print("{m} -> ({p.x}, {p.y}) {z}")
+    print("touched a wall {walls} times")
+
+@test fn diagonal()
+    assert_eq(zone_of(Pos(x: 3, y: 3)), "on the diagonal at 3")

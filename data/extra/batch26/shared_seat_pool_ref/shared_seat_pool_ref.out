@@ -1,0 +1,9 @@
+box office sells 3: ok, its pool has 7 left
+website    sells 4: ok, its pool has 3 left
+kiosk      sells 3: ok, its pool has 1 left
+box office sells 2: ok, its pool has 1 left
+website    sells 2: refused, its pool has 1 left
+kiosk      sells 2: refused, its pool has 1 left
+box office sells 1: ok, its pool has 0 left
+shared pool sold 10, left 0
+kiosk pool sold 3, left 1

@@ -1,0 +1,38 @@
+## Maintenance switch: an API and a web service hold the same `ref Settings`, so turning on
+## maintenance through one turns it on for both; a plain struct copy taken at the start keeps the old values.
+
+struct Settings
+    maintenance bool
+    max_upload int
+
+struct Service
+    name str
+    cfg ref Settings
+
+fn handle(s Service, mb int) str
+    if s.cfg.maintenance
+        return "{s.name}: 503 down for maintenance"
+    if mb > s.cfg.max_upload
+        return "{s.name}: 413 upload of {mb} MB too large"
+    "{s.name}: 200 ok"
+
+fn main()
+    cfg := ref Settings(maintenance: false, max_upload: 20)
+    api := Service(name: "api", cfg: cfg)
+    web := Service(name: "web", cfg: cfg)
+    before := Settings(maintenance: cfg.maintenance, max_upload: cfg.max_upload)
+    print(handle(api, 5))
+    print(handle(web, 35))
+    api.cfg.maintenance = true
+    print(handle(web, 5))
+    cfg.maintenance = false
+    cfg.max_upload = 50
+    print(handle(api, 35))
+    print(handle(web, 35))
+    print("start-of-day copy: maintenance {before.maintenance}, limit {before.max_upload} MB")
+
+@test fn switch_seen_by_service()
+    c := ref Settings(maintenance: false, max_upload: 1)
+    s := Service(name: "x", cfg: c)
+    c.maintenance = true
+    assert_eq(handle(s, 0), "x: 503 down for maintenance")

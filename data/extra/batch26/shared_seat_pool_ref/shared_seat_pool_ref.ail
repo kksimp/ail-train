@@ -1,0 +1,35 @@
+## Shared seat pool: the box office and the website hold the same `ref Pool`, so a sale at either
+## shrinks one shared count, while the kiosk has its own separate pool; refused sales are reported.
+
+struct Pool
+    left int
+    sold int
+
+struct Desk
+    name str
+    pool ref Pool
+
+fn sell(d Desk, n int) bool
+    if d.pool.left < n
+        return false
+    d.pool.left -= n
+    d.pool.sold += n
+    true
+
+fn main()
+    shared := ref Pool(left: 10, sold: 0)
+    desks := [Desk(name: "box office", pool: shared), Desk(name: "website", pool: shared), Desk(name: "kiosk", pool: ref Pool(left: 4, sold: 0))]
+    sales := [(0, 3), (1, 4), (2, 3), (0, 2), (1, 2), (2, 2), (0, 1)]
+    for s in sales
+        i, n := s
+        d := desks[i]
+        verdict := if sell(d, n) then "ok" else "refused"
+        print("{d.name:<10} sells {n}: {verdict}, its pool has {d.pool.left} left")
+    print("shared pool sold {shared.sold}, left {shared.left}")
+    print("kiosk pool sold {desks[2].pool.sold}, left {desks[2].pool.left}")
+
+@test fn sale_shows_through_ref()
+    p := ref Pool(left: 1, sold: 0)
+    a := Desk(name: "a", pool: p)
+    assert(sell(a, 1))
+    assert_eq(p.left, 0)

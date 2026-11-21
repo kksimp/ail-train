@@ -1,0 +1,44 @@
+## Recipe card import: `qty` fails with text (`int ! str`), and `?` inside the `Item ! Fail` reader
+## passes that text on as a `Fail`, so each bad card reports one message through `err.msg`.
+
+struct Item
+    name str
+    grams int
+
+fn qty(text str) int ! str
+    n := text.to_int() else return "'{text}' is not a whole number"
+    if n <= 0
+        return "quantity must be positive"
+    n
+
+fn read_line(line str) Item ! Fail
+    parts := line.split(" g ")
+    if parts.len() != 2
+        return Fail(msg: "expected 'N g name' in '{line}'")
+    g := qty(parts[0].trim())?
+    Item(name: parts[1].trim(), grams: g)
+
+fn read_card(lines List[str]) List[Item] ! Fail
+    mut out := List[Item]()
+    for l in lines
+        out.push(read_line(l)?)
+    out
+
+fn main()
+    cards := [
+        ("shortbread", ["200 g flour", "50 g sugar", "120 g butter"]),
+        ("risotto", ["300 g rice", "x g peas"]),
+        ("bread", ["500 g flour", "250 water"]),
+        ("brine", ["0 g salt"]),
+    ]
+    for c in cards
+        name, lines := c
+        items := read_card(lines) else err
+            print("{name}: rejected, {err.msg}")
+            continue
+        total := items.map(|i| i.grams).sum()
+        heaviest := items.max(by: |i| i.grams) else Item(name: "-", grams: 0)
+        print("{name}: {items.len()} items, {total} g, mostly {heaviest.name}")
+
+@test fn word_quantity()
+    assert_err(read_line("five g oats"))

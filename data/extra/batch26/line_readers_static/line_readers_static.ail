@@ -1,0 +1,60 @@
+## Line readers: a `Readable` trait with a static `read(text) Self?`, so one generic `read_all[T]`
+## calls `T.read` to turn config lines into coordinates or numeric spans, reporting lines it skips.
+
+trait Readable
+    fn read(text str) Self?
+    fn show(self) str
+
+struct Coord
+    x int
+    y int
+
+struct Span
+    lo int
+    hi int
+
+impl Readable for Coord
+    fn read(text str) Self?
+        parts := text.split(",")
+        if parts.len() != 2
+            return none
+        a := parts[0].trim().to_int() else return none
+        b := parts[1].trim().to_int() else return none
+        Coord(x: a, y: b)
+    fn show(self) str
+        "({x}, {y})"
+
+impl Readable for Span
+    fn read(text str) Self?
+        parts := text.split("-")
+        a := parts[0].trim().to_int() else return none
+        b := parts[1].trim().to_int() else return none
+        if a > b
+            return none
+        Span(lo: a, hi: b)
+    fn show(self) str
+        "{lo}..{hi}"
+
+fn read_all[T Readable](lines List[str]) List[T]
+    mut out := List[T]()
+    for l in lines
+        if v := T.read(l)
+            out.push(v)
+        else
+            print("  skipped '{l}'")
+    out
+
+fn main()
+    print("coordinates:")
+    pts := read_all[Coord](["3,4", "x,1", "10, -2", "7"])
+    shown := pts.map(|p| p.show()).join(" ")
+    print("  read {shown}")
+    print("spans:")
+    spans := read_all[Span](["10-20", "5-3", "40-45", "a-b"])
+    joined := spans.map(|s| s.show()).join(" ")
+    width := spans.map(|s| s.hi - s.lo).sum()
+    print("  read {joined}, total width {width}")
+
+@test fn reads_coord()
+    c := Coord.read("1, 2") else Coord(x: 0, y: 0)
+    assert_eq(c.y, 2)

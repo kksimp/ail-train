@@ -1,0 +1,35 @@
+## Tutor room chain: a drop-in desk finds the first free tutor for a subject with
+## `first()?.name else "nobody"`, then the room with `get(...) else`, and uses `find` for the first busy one.
+
+struct Tutor
+    name str
+    subject str
+    free bool
+
+fn main()
+    tutors := [
+        Tutor(name: "Ines", subject: "maths", free: true),
+        Tutor(name: "Omar", subject: "maths", free: false),
+        Tutor(name: "Kofi", subject: "physics", free: true),
+        Tutor(name: "Lena", subject: "chemistry", free: false),
+        Tutor(name: "Tom", subject: "physics", free: true),
+    ]
+    rooms := {"Ines": "B12", "Kofi": "A7", "Omar": "C3"}
+    mut helped := 0
+    for subj in ["maths", "physics", "chemistry", "history"]
+        avail := tutors.filter(|t| t.subject == subj and t.free)
+        who := avail.first()?.name else "nobody"
+        room := rooms.get(who) else "-"
+        if who != "nobody"
+            helped += 1
+        print("{subj:<10} {who:<7} room {room} ({avail.len()} free)")
+    print("subjects covered: {helped} of 4")
+    if busy := tutors.find(|t| not t.free)
+        print("first busy tutor: {busy.name}")
+    spare := rooms.get_or("Tom", "staff room")
+    print("Tom meets students in the {spare}")
+
+@test fn nobody_free()
+    xs := List[Tutor]()
+    who := xs.first()?.name else "nobody"
+    assert_eq(who, "nobody")

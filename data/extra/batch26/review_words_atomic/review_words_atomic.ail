@@ -1,0 +1,29 @@
+## Review words: product reviews are counted in a `par for` loop that adds to shared `Atomic`
+## counters (total words, long reviews); a parallel comprehension gives the per-review counts in order.
+
+fn main()
+    reviews := [
+        "great battery life and a bright screen",
+        "too heavy",
+        "the hinge creaked after a week but support replaced it fast",
+        "fine",
+        "sound is clear and loud enough for a small room",
+    ]
+    total := Atomic(0)
+    long := Atomic(0)
+    par for i in 0..reviews.len()
+        n := reviews[i].words().len()
+        total.add(n)
+        if n >= 6
+            long.add(1)
+    counts := [r.words().len() par for r in reviews]
+    print("words per review: {counts}")
+    print("total words {total.load()}, long reviews {long.load()}")
+    print("matches a plain sum: {total.load() == counts.sum()}")
+    shortest := counts.min() else 0
+    print("shortest review has {shortest} word")
+
+@test fn atomic_add()
+    a := Atomic(0)
+    a.add(5)
+    assert_eq(a.load(), 5)

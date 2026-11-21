@@ -1,0 +1,28 @@
+## Rack bin search: boxes go into the first rack bin (aisle by aisle, level by level) with enough
+## free volume; a labelled `break search` leaves both loops at once, and a box that fits nowhere is reported.
+
+fn place(mut space List[List[int]], need int) str
+    mut spot := "nowhere"
+    search: for a in 0..space.len()
+        for l in 0..space[a].len()
+            if space[a][l] >= need
+                space[a][l] -= need
+                spot = "aisle {a + 1} level {l + 1}"
+                break search
+    spot
+
+fn main()
+    mut space := [[0, 4, 2, 6], [3, 1, 8, 0], [5, 9, 2, 7]]
+    boxes := [("TV", 7), ("lamp", 2), ("rug", 9), ("piano", 12), ("vase", 6)]
+    for b in boxes
+        name, need := b
+        spot := place(mut space, need)
+        print("{name} ({need}): {spot}")
+    for i, aisle in space.enumerate()
+        print("aisle {i + 1} free: {aisle}")
+    left := space.map(|a| a.sum()).sum()
+    print("free volume left: {left}")
+
+@test fn second_level()
+    mut s := [[1, 5]]
+    assert_eq(place(mut s, 3), "aisle 1 level 2")

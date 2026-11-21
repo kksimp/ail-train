@@ -1,0 +1,48 @@
+## Lift car invariant: a lift car keeps its floor within the shaft and its load within capacity as
+## struct `invariant`s, checked after every `mut self` method; boarding over capacity is refused instead.
+
+struct Car
+    floor int
+    top int
+    load int
+    cap int
+    invariant floor >= 0 and floor <= top
+    invariant load >= 0 and load <= cap
+
+fn Car.board(mut self, kg int) bool
+    if self.load + kg > self.cap
+        return false
+    self.load += kg
+    true
+
+fn Car.leave(mut self, kg int)
+    self.load = (self.load - kg).max(0)
+
+fn Car.go(mut self, target int) int
+    requires target >= 0
+    t := target.min(self.top)
+    d := (t - self.floor).abs()
+    self.floor = t
+    d
+
+fn main()
+    mut car := Car(floor: 0, top: 10, load: 0, cap: 320)
+    mut travelled := 0
+    steps := [("in", 80), ("in", 75), ("in", 90), ("in", 100), ("go", 7), ("out", 75), ("in", 100), ("go", 12), ("out", 300), ("go", 0)]
+    for s in steps
+        op, n := s
+        if op == "in"
+            ok := car.board(n)
+            note := if ok then "boards" else "refused"
+            print("{n} kg {note}, load {car.load}/{car.cap}")
+        elif op == "out"
+            car.leave(n)
+            print("{n} kg leaves, load {car.load}")
+        else
+            travelled += car.go(n)
+            print("to floor {car.floor} (asked {n})")
+    print("travelled {travelled} floors")
+
+@test fn over_capacity()
+    mut c := Car(floor: 0, top: 5, load: 0, cap: 100)
+    assert(not c.board(101))

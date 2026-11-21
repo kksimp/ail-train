@@ -1,0 +1,35 @@
+## Wave window maximum: the highest wave in every 3-hour window from hourly heights (decimetres),
+## using a `Deque` of indexes kept in falling height order so each hour is pushed and popped once.
+
+fn drop_lower(mut q Deque[int], heights List[int], h int)
+    while not q.is_empty() and heights[(q.last() else 0)] <= h
+        _ := q.pop_back()
+
+fn window_max(heights List[int], k int) List[int]
+    mut q := Deque[int]()
+    mut out := List[int]()
+    for i, h in heights.enumerate()
+        drop_lower(mut q, heights, h)
+        q.push_back(i)
+        if (q.first() else 0) <= i - k
+            _ := q.pop_front()
+        if i >= k - 1
+            out.push(heights[(q.first() else 0)])
+    out
+
+fn main()
+    heights := [12, 15, 11, 9, 18, 14, 13, 7, 6, 10, 16, 12]
+    maxes := window_max(heights, 3)
+    print("hourly heights: {heights}")
+    print("3-hour maxima:  {maxes}")
+    mut calm := List[str]()
+    for i, m in maxes.enumerate()
+        if m < 15
+            calm.push("{i:02}:00-{i + 3:02}:00")
+    shown := calm.join(", ")
+    print("small boats may go out: {shown}")
+    worst := maxes.max() else 0
+    print("worst window peak {worst} dm")
+
+@test fn window_of_two()
+    assert_eq(window_max([1, 3, 2, 0], 2), [3, 3, 2])

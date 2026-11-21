@@ -1,0 +1,40 @@
+## Allotment plots: a `Map[(int, int), str]` keyed by (row, column) tuples holds each plot's tenant;
+## a new tenant gets the first vacant plot next to a friend if there is one, else the first vacant plot.
+
+fn vacant(plots Map[(int, int), str], rows int, cols int) List[List[int]]
+    mut out := List[List[int]]()
+    for r in 1..=rows
+        for c in 1..=cols
+            if not plots.contains((r, c))
+                out.push([r, c])
+    out
+
+fn main()
+    mut plots := Map[(int, int), str]()
+    holders := [(1, 1, "Ada"), (1, 2, "Ben"), (1, 4, "Cara"), (2, 1, "Dev"), (2, 3, "Eve"), (3, 2, "Finn"), (3, 3, "Gus"), (3, 4, "Hal")]
+    for h in holders
+        r, c, name := h
+        plots[(r, c)] = name
+    open_now := vacant(plots, 3, 4).len()
+    print("{plots.len()} of 12 plots taken, {open_now} vacant")
+    for req in [("Ines", "Eve"), ("Jon", "Ada"), ("Kim", "Hal")]
+        who, friend := req
+        free := vacant(plots, 3, 4)
+        mut pick := free[0]
+        mut found := false
+        for f in free
+            for h in holders
+                fr, fc, name := h
+                if not found and name == friend and (f[0] - fr).abs() + (f[1] - fc).abs() == 1
+                    pick = f
+                    found = true
+        plots[(pick[0], pick[1])] = who
+        how := if found then "next to" else "away from"
+        print("{who} gets plot {pick[0]}-{pick[1]}, {how} {friend}")
+    left := vacant(plots, 3, 4).map(|p| "{p[0]}-{p[1]}").join(", ")
+    print("still vacant: {left}")
+
+@test fn tuple_key()
+    mut m := Map[(int, int), str]()
+    m[(1, 2)] = "x"
+    assert(m.contains((1, 2)))

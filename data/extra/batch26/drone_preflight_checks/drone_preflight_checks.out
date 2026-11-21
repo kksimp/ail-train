@@ -1,0 +1,6 @@
+09:00: ready false
+  first failure: wind 38 (allowed 0-35)
+  near a limit: gps sats, prop hours
+11:00: ready true
+  near a limit: gps sats, prop hours
+09:00 wind still 38

@@ -1,0 +1,29 @@
+## Tyre tread: depths in tenths of a millimetre are judged by a `match` on integer ranges (under
+## 1.6 mm is illegal), each car's four tyres are listed, and a car passes only if none is illegal.
+
+fn verdict(mm10 int) str
+    match mm10
+        0..=15 => "illegal"
+        16..=29 => "replace soon"
+        30..=59 => "fine"
+        60..=80 => "nearly new"
+        _ => "recheck"
+
+fn mm(v int) str
+    "{v / 10}.{v % 10}"
+
+fn main()
+    cars := [("KX19 ABC", [72, 70, 31, 29]), ("LM65 XYZ", [15, 40, 41, 39]), ("PR70 DEF", [88, 65, 66, 64])]
+    mut passed := 0
+    for c in cars
+        plate, tyres := c
+        parts := tyres.map(|t| "{mm(t)} {verdict(t)}")
+        shown := parts.join(" | ")
+        print("{plate}: {shown}")
+        if not tyres.any(|t| verdict(t) == "illegal")
+            passed += 1
+    worst := cars.flat_map(|c| c.1).min() else 0
+    print("{passed} of {cars.len()} cars pass, shallowest tread {mm(worst)} mm")
+
+@test fn legal_limit()
+    assert_eq(verdict(16), "replace soon")

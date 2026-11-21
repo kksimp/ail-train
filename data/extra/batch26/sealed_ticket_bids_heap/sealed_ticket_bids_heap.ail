@@ -1,0 +1,31 @@
+## Sealed ticket bids: bids go into a largest-first `Heap`; the top three bidders win the three
+## tickets and all pay the same price, the highest losing bid, which `peek` reads after the winners pop.
+
+struct Bid
+    amount int
+    name str
+
+impl Ord for Bid
+
+fn main()
+    bids := [Bid(amount: 120, name: "Ama"), Bid(amount: 95, name: "Raj"), Bid(amount: 150, name: "Liu"), Bid(amount: 80, name: "Sven"), Bid(amount: 110, name: "Noor"), Bid(amount: 101, name: "Kai")]
+    mut h := Heap[Bid](max_first: true)
+    for b in bids
+        h.push(b)
+    mut winners := List[Bid]()
+    for _ in 0..3
+        if b := h.pop()
+            winners.push(b)
+    price := h.peek()?.amount else 0
+    for w in winners
+        print("{w.name} wins a ticket: bid {w.amount}, pays {price}, saves {w.amount - price}")
+    print("price set by the best losing bid: {price}")
+    print("revenue {price * winners.len()}, {h.len()} bidders miss out")
+    order := Heap.from_max(bids.map(|b| b.amount)).to_sorted()
+    print("all bids high to low: {order}")
+
+@test fn max_first_pop()
+    mut h := Heap[int](max_first: true)
+    h.push(3)
+    h.push(9)
+    assert_eq(h.pop() else 0, 9)

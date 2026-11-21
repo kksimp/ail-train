@@ -1,0 +1,32 @@
+## Ad rotation: screen ads wait in a `Deque`; each impression shows the front ad and sends it to
+## the back while it has paid showings left, an urgent sponsor jumps in with `push_front`, then a house banner.
+
+struct Ad
+    name str
+    left int
+
+fn main()
+    mut q := Deque[Ad]()
+    q.push_back(Ad(name: "Bikes", left: 3))
+    q.push_back(Ad(name: "Coffee", left: 1))
+    q.push_back(Ad(name: "Dentist", left: 2))
+    mut shown := Map[str, int]()
+    for slot in 1..=8
+        if slot == 4
+            q.push_front(Ad(name: "Festival", left: 1))
+        mut ad := q.pop_front() else
+            print("{slot}: house banner")
+            continue
+        ad.left -= 1
+        shown[ad.name] += 1
+        print("{slot}: {ad.name} ({ad.left} left)")
+        if ad.left > 0
+            q.push_back(ad)
+    for name, n in shown
+        print("{name} shown {n} times")
+
+@test fn front_first()
+    mut d := Deque[int]()
+    d.push_back(1)
+    d.push_front(0)
+    assert_eq(d.pop_front() else 9, 0)

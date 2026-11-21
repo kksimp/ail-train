@@ -1,0 +1,45 @@
+## Shift entry errors: each timesheet line "Day HH:MM-HH:MM" becomes minutes worked or an
+## `error struct BadEntry "line {n}: {why}"` carrying the line number and reason, printed and skipped.
+
+error struct BadEntry "line {n}: {why}"
+    n int
+    why str
+
+fn minutes(t str) int?
+    parts := t.split(":")
+    if parts.len() != 2
+        return none
+    h := parts[0].to_int() else return none
+    m := parts[1].to_int() else return none
+    if h > 23 or m > 59
+        return none
+    h * 60 + m
+
+fn shift(n int, line str) int ! BadEntry
+    parts := line.split(" ")
+    if parts.len() != 2
+        return BadEntry(n: n, why: "expected a day and times")
+    times := parts[1].split("-")
+    if times.len() != 2
+        return BadEntry(n: n, why: "no dash in {parts[1]}")
+    a := minutes(times[0]) else return BadEntry(n: n, why: "bad start {times[0]}")
+    b := minutes(times[1]) else return BadEntry(n: n, why: "bad end {times[1]}")
+    if b <= a
+        return BadEntry(n: n, why: "ends before it starts")
+    b - a
+
+fn main()
+    lines := ["Mon 09:00-17:30", "Tue 08:45-16:15", "Wed 9-17", "Thu 13:00-12:00", "Fri 07:30-15:45", "Sat", "Sun 10:00-25:00"]
+    mut total := 0
+    mut bad := List[int]()
+    for i, l in lines.enumerate()
+        m := shift(i + 1, l) else err
+            print("skipped {err}")
+            bad.push(err.n)
+            continue
+        total += m
+        print("{l.slice(0, 3)}: {m / 60}h{m % 60:02}")
+    print("worked {total / 60}h{total % 60:02}, fix lines {bad}")
+
+@test fn backwards_shift()
+    assert_err(shift(1, "Mon 10:00-09:00"))

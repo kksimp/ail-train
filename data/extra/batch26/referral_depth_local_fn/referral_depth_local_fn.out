@@ -1,0 +1,14 @@
+ann: depth 0
+bea: depth 1
+cal: depth 1
+dov: depth 2
+eli: depth 3
+fay: depth 2
+gus: depth 4
+longest chain: gus <- eli <- dov <- bea <- ann
+ann referred 2
+bea referred 1
+dov referred 1
+cal referred 1
+eli referred 1
+everyone traces back to ann

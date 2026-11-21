@@ -1,0 +1,28 @@
+## Team split: players sorted by skill are dealt round-robin into teams by `deal`, whose `requires`
+## checks the team count and whose `ensures` promise the right number of teams and that nobody is lost.
+
+fn deal(names List[str], teams int) List[List[str]]
+    requires teams > 0 and teams <= names.len()
+    ensures result.len() == teams
+    ensures result.map(|t| t.len()).sum() == names.len()
+    mut out := [List[str]() for _ in 0..teams]
+    for i, n in names.enumerate()
+        out[i % teams].push(n)
+    out
+
+fn main()
+    skill := {"Ava": 9, "Ben": 4, "Cal": 7, "Dia": 8, "Eli": 3, "Fin": 6, "Gia": 5, "Hal": 2, "Ivy": 7}
+    order := skill.keys().sorted(by: |k| (-skill[k], k))
+    shown := order.join(" ")
+    print("draft order: {shown}")
+    teams := deal(order, 3)
+    for i, t in teams.enumerate()
+        total := t.map(|n| skill[n]).sum()
+        names := t.join(", ")
+        print("team {i + 1}: {names} (skill {total})")
+    totals := teams.map(|t| t.map(|n| skill[n]).sum())
+    gap := (totals.max() else 0) - (totals.min() else 0)
+    print("strongest minus weakest: {gap}")
+
+@test fn team_count()
+    assert_eq(deal(["a", "b", "c"], 2).len(), 2)

@@ -1,0 +1,37 @@
+## Hike trails: `max(by:)` and `min(by:)` pick the longest, shortest, steepest and gentlest trail
+## (metres climbed per km), and a filter plus `sorted(by:)` lists family trails under 9 km and 40 m/km.
+
+struct Trail
+    name str
+    km10 int
+    climb int
+
+fn steep(t Trail) int
+    t.climb * 10 / t.km10
+
+fn km(t Trail) str
+    "{t.km10 / 10}.{t.km10 % 10} km"
+
+fn main()
+    trails := [
+        Trail(name: "Ridge Loop", km10: 124, climb: 680),
+        Trail(name: "Lake Path", km10: 58, climb: 40),
+        Trail(name: "Fern Gully", km10: 87, climb: 310),
+        Trail(name: "Summit Push", km10: 152, climb: 1240),
+        Trail(name: "Mill Run", km10: 43, climb: 95),
+    ]
+    none_t := Trail(name: "-", km10: 1, climb: 0)
+    long := trails.max(by: |t| t.km10) else none_t
+    short := trails.min(by: |t| t.km10) else none_t
+    steepest := trails.max(by: |t| steep(t)) else none_t
+    gentle := trails.min(by: |t| steep(t)) else none_t
+    print("longest   {long.name}, {km(long)}")
+    print("shortest  {short.name}, {km(short)}")
+    print("steepest  {steepest.name}, {steep(steepest)} m/km")
+    print("gentlest  {gentle.name}, {steep(gentle)} m/km")
+    family := trails.filter(|t| t.km10 <= 90 and steep(t) <= 40).sorted(by: |t| t.name)
+    for t in family
+        print("family: {t.name} {km(t)}, {t.climb} m up")
+
+@test fn steepness()
+    assert_eq(steep(Trail(name: "x", km10: 20, climb: 100)), 50)

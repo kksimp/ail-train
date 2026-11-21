@@ -1,0 +1,30 @@
+## Signup email equality: `impl Eq for Email` compares trimmed, lower-cased addresses, so `==`
+## treats "Ana@Mail.com" and "ana@mail.com" as one; a sign-up list keeps each person's first entry.
+
+struct Email
+    addr str
+
+impl Eq for Email
+    fn eq(self, o Email) bool
+        addr.trim().to_lower() == o.addr.trim().to_lower()
+
+fn main()
+    raw := ["Ana@Mail.com", "bo@site.org", "ana@mail.com", " BO@site.org", "cy@site.org", "Cy@Site.org", "dee@mail.com"]
+    mut kept := List[Email]()
+    mut dropped := 0
+    for r in raw
+        e := Email(addr: r)
+        if kept.any(|k| k == e)
+            print("duplicate: '{r}'")
+            dropped += 1
+            continue
+        kept.push(e)
+    shown := kept.map(|k| k.addr).join(", ")
+    print("mailing list: {shown}")
+    print("{kept.len()} kept, {dropped} duplicates")
+    a := Email(addr: "Zed@x.io")
+    b := Email(addr: "zed@x.org")
+    print("Zed@x.io vs zed@x.org same: {a == b}")
+
+@test fn case_and_space_ignored()
+    assert(Email(addr: "A@b.c ") == Email(addr: "a@B.C"))

@@ -1,0 +1,6 @@
++ red wash    -> rgb(200, 0, 0), brightness 59
++ blue wash   -> rgb(200, 0, 180), brightness 80
++ amber spot  -> rgb(255, 80, 180), brightness 143
++ white spot  -> rgb(255, 170, 255), brightness 205
+through gel -> rgb(255, 110, 155), brightness 158
+blackout -> rgb(0, 0, 0)

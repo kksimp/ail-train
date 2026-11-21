@@ -1,0 +1,24 @@
+## Pledge texts: charity pledges arrive as "PLEDGE 20" text messages; `strip_prefix ... else` skips
+## other texts, and `total += amount.to_int() else` with a block skips unreadable amounts.
+
+fn main()
+    texts := ["PLEDGE 20", "PLEDGE 5", "pledge ten", "PLEDGE 50", "STOP", "PLEDGE -5", "PLEDGE 1O", "PLEDGE 15"]
+    mut total := 0
+    mut pledges := 0
+    for t in texts
+        amount := t.strip_prefix("PLEDGE ") else
+            print("ignored '{t}'")
+            continue
+        if amount.starts_with("-")
+            print("refused negative pledge {amount}")
+            continue
+        total += amount.to_int() else
+            print("unreadable amount '{amount}'")
+            continue
+        pledges += 1
+        print("pledge of {amount}, running total {total}")
+    print("{pledges} pledges, {total} pounds, {texts.len() - pledges} texts not counted")
+
+@test fn prefix_stripped()
+    got := "PLEDGE 9".strip_prefix("PLEDGE ") else ""
+    assert_eq(got, "9")

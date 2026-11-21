@@ -1,0 +1,10 @@
+1. Critical since minute 20: login errors
+2. Critical since minute 55: checkout down
+3. Major    since minute 10: slow search
+4. Major    since minute 40: emails delayed
+5. Minor    since minute  5: broken footer link
+6. Minor    since minute 30: typo on pricing page
+Critical: 2
+Major: 2
+Minor: 2
+critical before minor: true

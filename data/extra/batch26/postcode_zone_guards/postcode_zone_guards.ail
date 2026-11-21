@@ -1,0 +1,33 @@
+## Postcode zones: a `match` made only of guarded `_ if ...starts_with(...)` arms and a final `_`
+## puts UK postcodes into shipping zones; a second string `match` prices each zone and a map sums them.
+
+fn zone(pc str) str
+    p := pc.trim().to_upper()
+    match p
+        _ if p.starts_with("BT") => "Northern Ireland"
+        _ if p.starts_with("HS") or p.starts_with("ZE") or p.starts_with("KW") => "Highlands and Islands"
+        _ if p.starts_with("JE") or p.starts_with("GY") => "Channel Islands"
+        _ if p.starts_with("IM") => "Isle of Man"
+        _ => "mainland"
+
+fn rate(z str) int
+    match z
+        "Northern Ireland" => 695
+        "Highlands and Islands" => 895
+        "Channel Islands" => 1095
+        "Isle of Man" => 795
+        _ => 395
+
+fn main()
+    orders := ["sw1a 1aa", "BT7 1NN", "HS2 9AB", "JE2 3XP", "M1 1AE", "KW15 1HR", "IM1 2AA", "EH1 1YZ"]
+    mut by_zone := Map[str, int]()
+    for o in orders
+        z := zone(o)
+        r := rate(z)
+        by_zone[z] += r
+        print("{o.to_upper():<9} {z:<22} {r / 100}.{r % 100:02}")
+    for z, cents in by_zone
+        print("{z}: {cents / 100}.{cents % 100:02}")
+
+@test fn channel_islands()
+    assert_eq(zone(" je2 3xp"), "Channel Islands")

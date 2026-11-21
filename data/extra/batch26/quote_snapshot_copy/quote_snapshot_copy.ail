@@ -1,0 +1,39 @@
+## Quote snapshot: `quote := cart` copies the whole cart, lists included, so later edits to the
+## cart leave the saved quote alone; a function's own `mut` copy of its parameter changes nothing outside.
+
+struct Cart
+    items List[str]
+    cents List[int]
+    coupon int
+
+fn Cart.total(self) int
+    (self.cents.sum() - self.coupon).max(0)
+
+fn money(c int) str
+    "{c / 100}.{c % 100:02}"
+
+fn with_staff_discount(c Cart) int
+    mut trial := c
+    trial.coupon += trial.cents.sum() / 10
+    trial.total()
+
+fn main()
+    mut cart := Cart(items: ["kettle", "toaster"], cents: [3499, 2999], coupon: 0)
+    quote := cart
+    cart.items.push("mug set")
+    cart.cents.push(1250)
+    cart.cents[0] = 2999
+    cart.coupon = 500
+    saved := quote.items.join(", ")
+    now := cart.items.join(", ")
+    print("quote: {saved} = {money(quote.total())}")
+    print("cart:  {now} = {money(cart.total())}")
+    print("cart costs {money(cart.total() - quote.total())} more than quoted")
+    print("staff price would be {money(with_staff_discount(cart))}")
+    print("cart coupon still {money(cart.coupon)}")
+
+@test fn copy_is_independent()
+    a := Cart(items: [], cents: [100], coupon: 0)
+    mut b := a
+    b.coupon = 5
+    assert_eq(a.coupon, 0)

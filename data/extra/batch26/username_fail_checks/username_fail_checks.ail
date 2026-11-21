@@ -1,0 +1,35 @@
+## Username checks: `clean` returns the trimmed, lower-cased name or fails with the standard
+## `Fail(msg: ...)` for length, first letter or a bad character; a set then catches names already taken.
+
+fn clean(raw str) str ! Fail
+    name := raw.trim().to_lower()
+    if name.len() < 3
+        return Fail(msg: "too short")
+    if name.len() > 12
+        return Fail(msg: "too long ({name.len()} chars)")
+    first := name.char_at(0) else ' '
+    if not first.is_alpha()
+        return Fail(msg: "must start with a letter")
+    for c in name.chars()
+        if not (c.is_alnum() or c == '_')
+            return Fail(msg: "bad character '{c}'")
+    name
+
+fn main()
+    raws := ["  Mira_K ", "jo", "Zed99", "9lives", "anna.b", "ThisNameIsWayTooLong", "ZED99", "sam"]
+    mut taken := Set[str]()
+    mut refused := 0
+    for r in raws
+        name := clean(r) else err
+            print("refused '{r}': {err.msg}")
+            refused += 1
+            continue
+        if not taken.add(name)
+            print("refused '{r}': {name} is taken")
+            refused += 1
+            continue
+        print("welcome {name}")
+    print("{taken.len()} accounts made, {refused} refused")
+
+@test fn trims_and_lowers()
+    assert_eq(clean(" Bob ") else "x", "bob")

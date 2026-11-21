@@ -1,0 +1,36 @@
+## Print jams: an outer `jobs: while` loop takes print jobs and an inner `while` feeds sheets; a jam
+## on every seventh sheet cancels the rest of that job with `continue jobs`, and the next job starts.
+
+fn main()
+    queue := [("report", 5), ("photos", 9), ("letter", 2), ("manual", 12)]
+    mut sheet := 0
+    mut i := 0
+    mut finished := List[str]()
+    mut cancelled := List[str]()
+    jobs: while i < queue.len()
+        name, pages := queue[i]
+        i += 1
+        mut p := 0
+        while p < pages
+            sheet += 1
+            if sheet % 7 == 0
+                print("jam on sheet {sheet}, {name} page {p + 1}: job cancelled")
+                cancelled.push(name)
+                continue jobs
+            p += 1
+        finished.push(name)
+        print("{name}: all {pages} pages printed")
+    done := finished.join(", ")
+    lost := cancelled.join(", ")
+    print("finished: {done}; cancelled: {lost}; {sheet} sheets fed")
+
+@test fn labelled_while()
+    mut n := 0
+    outer: while n < 10
+        n += 1
+        mut k := 0
+        while k < 3
+            k += 1
+            if n == 2
+                break outer
+    assert_eq(n, 2)

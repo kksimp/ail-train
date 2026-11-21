@@ -1,0 +1,6 @@
+Liu wins a ticket: bid 150, pays 101, saves 49
+Ama wins a ticket: bid 120, pays 101, saves 19
+Noor wins a ticket: bid 110, pays 101, saves 9
+price set by the best losing bid: 101
+revenue 303, 3 bidders miss out
+all bids high to low: [150, 120, 110, 101, 95, 80]

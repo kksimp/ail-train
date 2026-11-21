@@ -1,0 +1,6 @@
+duplicate: 'ana@mail.com'
+duplicate: ' BO@site.org'
+duplicate: 'Cy@Site.org'
+mailing list: Ana@Mail.com, bo@site.org, cy@site.org, dee@mail.com
+4 kept, 3 duplicates
+Zed@x.io vs zed@x.org same: false

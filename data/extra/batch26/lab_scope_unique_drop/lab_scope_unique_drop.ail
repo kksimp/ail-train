@@ -1,0 +1,32 @@
+## Lab microscopes: each scope is a `unique struct` that is never copied; handing it in takes it with
+## `move`, and its `Drop` puts it back on the shelf when it goes away, while a `defer` closes the lab.
+
+unique struct Scope
+    id int
+    user str
+
+impl Drop for Scope
+    fn drop(mut self)
+        print("scope {id} back on the shelf")
+
+fn hand_in(move s Scope)
+    print("{s.user} hands in scope {s.id}")
+
+fn quick_look(id int, who str)
+    s := Scope(id: id, user: who)
+    print("{s.user} borrows scope {s.id} for a quick look")
+
+fn main()
+    defer print("lab closed")
+    a := Scope(id: 1, user: "Rosa")
+    b := Scope(id: 2, user: "Tariq")
+    print("checked out scopes {a.id} and {b.id}")
+    hand_in(move a)
+    print("Tariq still working")
+    quick_look(3, "Mei")
+    hand_in(move b)
+    print("all scopes returned")
+
+@test fn fields_readable()
+    s := Scope(id: 9, user: "x")
+    assert_eq(s.id, 9)

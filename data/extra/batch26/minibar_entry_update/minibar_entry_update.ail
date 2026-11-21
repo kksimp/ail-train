@@ -1,0 +1,29 @@
+## Minibar entries: `rooms[r].water -= 1` changes a map entry in place, but `mut it := rooms[102]`
+## is a copy that changes nothing until it is stored back with `rooms[102] = it`.
+
+struct Bar
+    water int
+    snacks int
+
+fn main()
+    mut rooms := {101: Bar(water: 2, snacks: 3), 102: Bar(water: 2, snacks: 3), 103: Bar(water: 2, snacks: 3)}
+    taken := [(101, "water"), (102, "snacks"), (101, "water"), (103, "water"), (101, "snacks")]
+    for t in taken
+        room, kind := t
+        if kind == "water"
+            rooms[room].water -= 1
+        else
+            rooms[room].snacks -= 1
+    for room, bar in rooms
+        charge := (2 - bar.water) * 250 + (3 - bar.snacks) * 400
+        print("room {room}: water {bar.water}, snacks {bar.snacks}, charge {charge / 100}.{charge % 100:02}")
+    mut it := rooms[102]
+    it.snacks = 3
+    print("restocked copy has {it.snacks} snacks, room 102 still {rooms[102].snacks}")
+    rooms[102] = it
+    print("after storing it back room 102 has {rooms[102].snacks}")
+
+@test fn in_place_entry()
+    mut m := {1: Bar(water: 2, snacks: 0)}
+    m[1].water -= 1
+    assert_eq(m[1].water, 1)

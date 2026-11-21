@@ -1,0 +1,29 @@
+## Darkroom defer: a printing session turns the safelight off with `defer` however it ends, and
+## each exposure's `defer` sends the print to the wash even when an overexposed one returns early.
+
+fn expose(n int, secs int) bool
+    print("  print {n}: expose {secs} s")
+    defer print("  print {n}: into the wash")
+    if secs > 20
+        print("  print {n}: overexposed, binned")
+        return false
+    true
+
+fn session(name str, times List[int]) int
+    print("{name}: safelight on")
+    defer print("{name}: safelight off")
+    mut kept := 0
+    for i, t in times.enumerate()
+        if expose(i + 1, t)
+            kept += 1
+    kept
+
+fn main()
+    defer print("darkroom locked")
+    a := session("contact sheet", [8])
+    print("kept {a}")
+    b := session("enlargement", [15, 25])
+    print("kept {b}")
+
+@test fn overexposed()
+    assert_eq(expose(1, 30), false)

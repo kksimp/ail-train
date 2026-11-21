@@ -1,0 +1,9 @@
+pledge of 20, running total 20
+pledge of 5, running total 25
+ignored 'pledge ten'
+pledge of 50, running total 75
+ignored 'STOP'
+refused negative pledge -5
+unreadable amount '1O'
+pledge of 15, running total 90
+4 pledges, 90 pounds, 4 texts not counted
