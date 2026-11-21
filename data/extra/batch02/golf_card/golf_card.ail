@@ -14,10 +14,10 @@ fn main()
     strokes := [4, 2, 6, 7, 3, 3, 3, 5, 4]
     mut names := Map[str, int]()
     for i, pair in zip(pars, strokes).enumerate()
-        par, got := pair
-        n := name_of(got - par)
+        target, got := pair
+        n := name_of(got - target)
         names[n] += 1
-        print("hole {i + 1}: par {par}, {got} strokes, {n}")
+        print("hole {i + 1}: par {target}, {got} strokes, {n}")
     total := strokes.sum()
     diff := total - pars.sum()
     shown := if diff > 0 then "+{diff}" elif diff == 0 then "E" else "{diff}"
