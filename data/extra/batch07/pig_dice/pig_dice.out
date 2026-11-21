@@ -1,0 +1,10 @@
+P1 holds 20 -> 20
+P1 holds 20 -> 40
+P2 holds 16 -> 16
+P2 holds 19 -> 35
+P2 holds 15 -> 50
+P1 holds 20 -> 60
+P1 holds 20 -> 80
+P2 holds 17 -> 67
+P2 holds 17 -> 84
+P1 wins 100 to 84 after 15 turns

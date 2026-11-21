@@ -1,0 +1,29 @@
+## Run rate: in a 50-over chase, prints the current and required run rates after each
+## five-over block, and whether the chase is ahead of or behind the required pace.
+
+fn overs_text(balls int) str
+    "{balls / 6}.{balls % 6}"
+
+fn main()
+    target := 287
+    blocks := [31, 24, 42, 28, 19, 33, 37, 22, 26, 22]
+    mut runs := 0
+    mut balls := 0
+    for b in blocks
+        runs += b
+        balls += 30
+        left := 300 - balls
+        need := target - runs
+        current := runs.to_float() * 6.0 / balls.to_float()
+        if need <= 0
+            print("{overs_text(balls)} overs: {runs} - target reached")
+            break
+        if left == 0
+            print("{overs_text(balls)} overs: {runs} - lost by {need - 1} runs")
+            break
+        required := need.to_float() * 6.0 / left.to_float()
+        pace := if current >= required then "ahead" else "behind"
+        print("{overs_text(balls)} overs: {runs}, rate {current:.2}, need {need} at {required:.2}, {pace}")
+
+@test fn overs()
+    assert_eq(overs_text(45), "7.3")

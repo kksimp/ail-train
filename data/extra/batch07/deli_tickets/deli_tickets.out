@@ -1,0 +1,13 @@
+ticket 96 taken, 1 waiting
+ticket 97 taken, 2 waiting
+now serving 96, 1 waiting
+ticket 98 taken, 2 waiting
+ticket 99 taken, 3 waiting
+ticket 1 taken, 4 waiting
+now serving 97, 3 waiting
+now serving 98, 2 waiting
+ticket 2 taken, 3 waiting
+now serving 99, 2 waiting
+now serving 1, 1 waiting
+now serving 2, 0 waiting
+no one waiting

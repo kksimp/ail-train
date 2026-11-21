@@ -1,0 +1,45 @@
+## Shortest tour: a courier starts and ends at the depot and visits every drop once; all
+## orders are tried (small n) to find the shortest round trip by road distance.
+
+fn permutations(xs List[int]) List[List[int]]
+    if xs.len() <= 1
+        return [xs]
+    mut out := List[List[int]]()
+    for i in 0..xs.len()
+        mut rest := xs
+        first := rest[i]
+        rest.remove_at(i)
+        for p in permutations(rest)
+            mut q := [first]
+            q.extend(p)
+            out.push(q)
+    out
+
+fn main()
+    names := ["Depot", "Mill", "Farm", "Inn", "Quay", "Croft"]
+    dist := [
+        [0, 12, 19, 8, 14, 22],
+        [12, 0, 9, 15, 20, 11],
+        [19, 9, 0, 13, 25, 7],
+        [8, 15, 13, 0, 10, 16],
+        [14, 20, 25, 10, 0, 18],
+        [22, 11, 7, 16, 18, 0],
+    ]
+    mut best := 1000000
+    mut best_order := List[int]()
+    mut tried := 0
+    for p in permutations([1, 2, 3, 4, 5])
+        tried += 1
+        mut total := dist[0][p[0]]
+        for i in 1..p.len()
+            total += dist[p[i - 1]][p[i]]
+        total += dist[p[p.len() - 1]][0]
+        if total < best
+            best = total
+            best_order = p
+    route := best_order.map(|i| names[i]).join(" > ")
+    print("{tried} orders tried")
+    print("best: Depot > {route} > Depot = {best} km")
+
+@test fn perms()
+    assert_eq(permutations([1, 2, 3]).len(), 6)

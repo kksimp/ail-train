@@ -1,0 +1,41 @@
+## Task assignment: four workers and four jobs with time costs; every one-to-one assignment
+## is tried to find the lowest total time, and the greedy row-by-row choice is compared.
+
+fn perms(n int) List[List[int]]
+    if n == 0
+        return [List[int]()]
+    mut out := List[List[int]]()
+    for p in perms(n - 1)
+        for pos in 0..=p.len()
+            mut q := p
+            q.insert(pos, n - 1)
+            out.push(q)
+    out
+
+fn main()
+    workers := ["Ann", "Bo", "Cal", "Dee"]
+    jobs := ["wiring", "plumbing", "painting", "tiling"]
+    cost := [[9, 2, 7, 8], [6, 4, 3, 7], [5, 8, 1, 8], [7, 6, 9, 4]]
+    mut best := 1000
+    mut best_p := List[int]()
+    for p in perms(4)
+        total := [cost[0][p[0]], cost[1][p[1]], cost[2][p[2]], cost[3][p[3]]].sum()
+        if total < best
+            best = total
+            best_p = p
+    for w in 0..4
+        print("{workers[w]} -> {jobs[best_p[w]]} ({cost[w][best_p[w]]} h)")
+    print("best total {best} h")
+    mut taken := Set[int]()
+    mut greedy := 0
+    for w in 0..4
+        mut pick := -1
+        for j in 0..4
+            if not taken.contains(j) and (pick < 0 or cost[w][j] < cost[w][pick])
+                pick = j
+        taken.add(pick)
+        greedy += cost[w][pick]
+    print("greedy total {greedy} h")
+
+@test fn count()
+    assert_eq(perms(3).len(), 6)

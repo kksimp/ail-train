@@ -1,0 +1,23 @@
+## Ski jump scoring: distance points (60 at the K point, 1.8 per metre either side) plus
+## style marks with the highest and lowest of five judges dropped.
+
+fn jump_score(dist float, k float, marks List[float]) float
+    distance_pts := 60.0 + (dist - k) * 1.8
+    sorted_marks := marks.sorted()
+    style := sorted_marks[1] + sorted_marks[2] + sorted_marks[3]
+    distance_pts + style
+
+fn main()
+    k := 120.0
+    jumps := [("Aho", 124.5, [18.0, 18.5, 17.5, 18.0, 19.0]), ("Berg", 131.0, [17.0, 17.5, 16.5, 17.5, 18.0]), ("Cruz", 117.5, [18.5, 19.0, 18.5, 19.5, 18.0]), ("Dahl", 109.0, [16.0, 15.5, 16.5, 16.0, 17.0])]
+    mut results := List[(str, float)]()
+    for j in jumps
+        name, dist, marks := j
+        s := jump_score(dist, k, marks)
+        results.push((name, s))
+        print("{name}: {dist:.1} m, {s:.1} points")
+    winner := results.max(by: |r| r.1) else ("", 0.0)
+    print("winner {winner.0}")
+
+@test fn at_k()
+    assert_eq(jump_score(120.0, 120.0, [0.0, 0.0, 0.0, 0.0, 0.0]), 60.0)

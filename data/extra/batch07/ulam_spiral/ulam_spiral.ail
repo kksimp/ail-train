@@ -1,0 +1,46 @@
+## Ulam spiral: writes 1..121 in a square spiral from the centre outwards and marks primes
+## with '#', showing the diagonal lines primes tend to form.
+
+fn is_prime(n int) bool
+    if n < 2
+        return false
+    mut d := 2
+    while d * d <= n
+        if n % d == 0
+            return false
+        d += 1
+    true
+
+fn mark(v int) str
+    if is_prime(v) then "#" else "."
+
+fn main()
+    size := 11
+    mut grid := [[0 for c in 0..size] for r in 0..size]
+    mut x := size / 2
+    mut y := size / 2
+    mut n := 1
+    grid[y][x] = n
+    mut step := 1
+    dirs := [(1, 0), (0, -1), (-1, 0), (0, 1)]
+    mut d := 0
+    while n < size * size
+        for rep in 0..2
+            for k in 0..step
+                if n >= size * size
+                    break
+                x += dirs[d].0
+                y += dirs[d].1
+                n += 1
+                grid[y][x] = n
+            d = (d + 1) % 4
+        step += 1
+    mut count := 0
+    for row in grid
+        line := row.map(mark).join("")
+        count += row.filter(|v| is_prime(v)).len()
+        print(line)
+    print("{count} primes up to {size * size}")
+
+@test fn primes()
+    assert(is_prime(97) and not is_prime(91))
