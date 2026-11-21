@@ -1,0 +1,39 @@
+## Template fill: replaces <name> placeholders in a template with values from a map, leaves
+## unknown placeholders as they are, and lists which ones were missing.
+
+fn fill(template str, values Map[str, str]) (str, List[str])
+    cs := template.chars()
+    mut out := ""
+    mut missing := List[str]()
+    mut i := 0
+    while i < cs.len()
+        if cs[i] == '<'
+            mut j := i + 1
+            while j < cs.len() and cs[j] != '>'
+                j += 1
+            if j < cs.len()
+                name := template.slice(i + 1, j)
+                if v := values.get(name)
+                    out = "{out}{v}"
+                else
+                    out = "{out}<{name}>"
+                    if not missing.contains(name)
+                        missing.push(name)
+                i = j + 1
+                continue
+        out = "{out}{cs[i]}"
+        i += 1
+    (out, missing)
+
+fn main()
+    values := {"name": "Rosa", "day": "Friday", "time": "10:30", "room": "B2"}
+    for t in ["Hi <name>, see you <day> at <time>.", "Room <room>, bring <item> and <item>.", "No placeholders here.", "Broken <name"]
+        text, missing := fill(t, values)
+        print(text)
+        if not missing.is_empty()
+            print("  missing: {missing}")
+
+@test fn unknown_kept()
+    text, missing := fill("<x>", Map[str, str]())
+    assert_eq(text, "<x>")
+    assert_eq(missing, ["x"])

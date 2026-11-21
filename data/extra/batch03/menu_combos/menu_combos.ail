@@ -1,0 +1,21 @@
+## Menu combos: every starter, main and dessert combination under a budget, built with
+## nested loops over three lists, and printed cheapest first.
+
+fn main()
+    starters := [("soup", 450), ("salad", 550), ("bread", 320)]
+    mains := [("pasta", 1100), ("fish", 1500), ("curry", 1250)]
+    desserts := [("sorbet", 400), ("tart", 600)]
+    budget := 2000
+    mut combos := List[(str, int)]()
+    for s in starters
+        for m in mains
+            for d in desserts
+                price := s.1 + m.1 + d.1
+                if price <= budget
+                    combos.push(("{s.0} + {m.0} + {d.0}", price))
+    for c in combos.sorted(by: |c| c.1)
+        print("{c.1 / 100}.{c.1 % 100:02}  {c.0}")
+    print("{combos.len()} of {starters.len() * mains.len() * desserts.len()} fit {budget / 100}.00")
+
+@test fn sum_three()
+    assert_eq(450 + 1100 + 400, 1950)

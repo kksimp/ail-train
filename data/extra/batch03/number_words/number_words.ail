@@ -1,0 +1,36 @@
+## Number words: spells whole numbers below one million in English words, with hyphens for
+## 21 to 99 and "and" after hundreds in the British style.
+
+fn below_hundred(n int) str
+    ones := ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen"]
+    tens := ["", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"]
+    if n < 20
+        return ones[n]
+    if n % 10 == 0
+        return tens[n / 10]
+    "{tens[n / 10]}-{ones[n % 10]}"
+
+fn below_thousand(n int) str
+    if n < 100
+        return below_hundred(n)
+    head := "{below_hundred(n / 100)} hundred"
+    if n % 100 == 0
+        return head
+    "{head} and {below_hundred(n % 100)}"
+
+fn words(n int) str
+    if n < 1000
+        return below_thousand(n)
+    head := "{below_thousand(n / 1000)} thousand"
+    rest := n % 1000
+    if rest == 0
+        return head
+    joiner := if rest < 100 then " and " else " "
+    "{head}{joiner}{below_thousand(rest)}"
+
+fn main()
+    for n in [0, 7, 13, 40, 42, 100, 115, 999, 1000, 1005, 2024, 90210, 500000, 999999]
+        print("{n:>6}: {words(n)}")
+
+@test fn teens()
+    assert_eq(words(19), "nineteen")

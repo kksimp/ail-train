@@ -1,0 +1,33 @@
+## Shift cracker: breaks a Caesar shift by trying all 26 shifts and scoring each result by
+## how many of the most common English letters it contains.
+
+fn shift_text(text str, k int) str
+    mut out := ""
+    for c in text.chars()
+        if c.is_lower()
+            code := (c.code() - 97 + k) % 26 + 97
+            ch := char.from_code(code) else c
+            out = "{out}{ch}"
+        else
+            out = "{out}{c}"
+    out
+
+fn score(text str) int
+    common := "etaoinshr"
+    text.chars().filter(|c| common.contains(c)).len()
+
+fn main()
+    secret := shift_text("meet me by the old oak tree at seven", 11)
+    print("cipher: {secret}")
+    mut best_k := 0
+    mut best_score := -1
+    for k in 0..26
+        s := score(shift_text(secret, k))
+        if s > best_score
+            best_score = s
+            best_k = k
+    print("best shift back: {best_k} (score {best_score})")
+    print("plain: {shift_text(secret, best_k)}")
+
+@test fn round_trip()
+    assert_eq(shift_text(shift_text("abc xyz", 3), 23), "abc xyz")

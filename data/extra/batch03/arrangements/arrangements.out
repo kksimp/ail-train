@@ -1,0 +1,5 @@
+abc: 6 orders: abc acb bac bca cab cba
+abcd: 24 orders, 24 distinct
+aab: 6 orders, 3 distinct
+noon: 24 orders, 6 distinct
+level: 120 orders, 30 distinct

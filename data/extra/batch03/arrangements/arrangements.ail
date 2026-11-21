@@ -1,0 +1,28 @@
+## Arrangements: every ordering of a few letters by recursive swapping, in lexicographic
+## order after sorting, and the count of distinct orderings when letters repeat.
+
+fn permute(items List[char], k int, mut out List[str])
+    if k == items.len()
+        out.push(items.join(""))
+        return
+    mut xs := items
+    for i in k..xs.len()
+        xs.swap(k, i)
+        permute(xs, k + 1, mut out)
+        xs.swap(k, i)
+
+fn all_orders(word str) List[str]
+    mut out := List[str]()
+    permute(word.chars(), 0, mut out)
+    out.sorted()
+
+fn main()
+    abc := all_orders("abc")
+    print("abc: {abc.len()} orders: {abc.join(" ")}")
+    for w in ["abcd", "aab", "noon", "level"]
+        orders := all_orders(w)
+        distinct := orders.counts().len()
+        print("{w}: {orders.len()} orders, {distinct} distinct")
+
+@test fn two_letters()
+    assert_eq(all_orders("ba"), ["ab", "ba"])

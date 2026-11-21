@@ -1,0 +1,42 @@
+## Morse text: encodes words to Morse code with a table, separating letters with spaces and
+## words with " / ", and decodes it back through a reversed map.
+
+fn table() Map[char, str]
+    letters := "abcdefghijklmnopqrstuvwxyz".chars()
+    codes := [".-", "-...", "-.-.", "-..", ".", "..-.", "--.", "....", "..", ".---", "-.-", ".-..", "--", "-.", "---", ".--.", "--.-", ".-.", "...", "-", "..-", "...-", ".--", "-..-", "-.--", "--.."]
+    mut m := Map[char, str]()
+    for i in 0..26
+        m[letters[i]] = codes[i]
+    m
+
+fn encode(text str, t Map[char, str]) str
+    mut words := List[str]()
+    for w in text.to_lower().split(" ")
+        mut codes := List[str]()
+        for c in w.chars()
+            codes.push(t.get(c) else "?")
+        words.push(codes.join(" "))
+    words.join(" / ")
+
+fn decode(morse str, t Map[char, str]) str
+    mut back := Map[str, char]()
+    for k in t.keys()
+        back[t[k]] = k
+    mut words := List[str]()
+    for w in morse.split(" / ")
+        mut word := ""
+        for code in w.split(" ")
+            ch := back.get(code) else '?'
+            word = "{word}{ch}"
+        words.push(word)
+    words.join(" ")
+
+fn main()
+    t := table()
+    for msg in ["SOS", "hello world", "ail is here"]
+        m := encode(msg, t)
+        print("{msg} -> {m}")
+        print("  back: {decode(m, t)}")
+
+@test fn single_letter()
+    assert_eq(encode("e", table()), ".")

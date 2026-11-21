@@ -1,0 +1,25 @@
+## Disc tower: the Tower of Hanoi solved recursively, printing the moves for three discs,
+## the move counts for more discs, and checking the count is 2^n - 1.
+
+fn moves(n int, from str, to str, spare str, mut out List[str])
+    if n == 0
+        return
+    moves(n - 1, from, spare, to, mut out)
+    out.push("disc {n}: {from} -> {to}")
+    moves(n - 1, spare, to, from, mut out)
+
+fn main()
+    mut out := List[str]()
+    moves(3, "A", "C", "B", mut out)
+    for m in out
+        print(m)
+    for n in [1, 5, 10, 16]
+        mut all_moves := List[str]()
+        moves(n, "A", "C", "B", mut all_moves)
+        expected := (1 << n) - 1
+        print("{n} discs: {all_moves.len()} moves, formula {expected}")
+
+@test fn one_disc()
+    mut out := List[str]()
+    moves(1, "L", "R", "M", mut out)
+    assert_eq(out, ["disc 1: L -> R"])

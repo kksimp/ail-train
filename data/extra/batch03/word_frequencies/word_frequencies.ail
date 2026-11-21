@@ -1,0 +1,27 @@
+## Word frequencies: counts words in a paragraph ignoring case and punctuation, skips a few
+## stop words, and prints the top words with a bar, ties broken alphabetically.
+
+fn clean_words(text str) List[str]
+    mut out := List[str]()
+    for raw in text.to_lower().split(" ")
+        mut w := ""
+        for c in raw.chars()
+            if c.is_alpha() or c == '\''
+                w = "{w}{c}"
+        if w != ""
+            out.push(w)
+    out
+
+fn main()
+    text := "The river ran fast. The river ran cold, and the boats on the river ran with it. Cold water, fast water: the river never rests."
+    stop := ["the", "and", "on", "with", "it"]
+    ws := clean_words(text).filter(|w| not stop.contains(w))
+    counts := ws.counts()
+    ranked := counts.keys().sorted(by: |w| (-counts[w], w))
+    for w in ranked.take(5)
+        bar := "#".repeat(counts[w])
+        print("{w:<7} {counts[w]} {bar}")
+    print("{ws.len()} words, {counts.len()} different")
+
+@test fn strips_punctuation()
+    assert_eq(clean_words("Hi, there!"), ["hi", "there"])

@@ -1,0 +1,31 @@
+## No double ones: binary strings of length n with no two 1s next to each other, listed for
+## small n by recursion and counted for larger n, where the counts follow Fibonacci.
+
+fn build(n int, prefix str, last_one bool, mut out List[str])
+    if prefix.len() == n
+        out.push(prefix)
+        return
+    build(n, "{prefix}0", false, mut out)
+    if not last_one
+        build(n, "{prefix}1", true, mut out)
+
+fn count(n int) int
+    mut ends0 := 1
+    mut ends1 := 1
+    for _ in 1..n
+        new0 := ends0 + ends1
+        ends1 = ends0
+        ends0 = new0
+    ends0 + ends1
+
+fn main()
+    mut out := List[str]()
+    build(4, "", false, mut out)
+    print("length 4: {out.len()}: {out.join(" ")}")
+    print([count(n) for n in 1..=12])
+    print("length 60: {count(60)}")
+
+@test fn three()
+    mut out := List[str]()
+    build(3, "", false, mut out)
+    assert_eq(out.len(), count(3))

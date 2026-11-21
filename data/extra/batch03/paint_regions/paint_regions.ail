@@ -1,0 +1,39 @@
+## Paint regions: flood fill with an explicit stack labels each connected region of equal
+## letters on a grid (four-way), and reports region counts and sizes per letter.
+
+fn regions(grid List[str]) List[(char, int)]
+    g := grid.map(|r| r.chars())
+    rows := g.len()
+    cols := g[0].len()
+    mut seen := [[false for c in 0..cols] for r in 0..rows]
+    mut out := List[(char, int)]()
+    for r in 0..rows
+        for c in 0..cols
+            if seen[r][c]
+                continue
+            letter := g[r][c]
+            mut stack := [(r, c)]
+            seen[r][c] = true
+            mut size := 0
+            while true
+                cell := stack.pop() else break
+                cr, cc := cell
+                size += 1
+                for d in [(0, 1), (1, 0), (0, -1), (-1, 0)]
+                    nr := cr + d.0
+                    nc := cc + d.1
+                    if nr >= 0 and nr < rows and nc >= 0 and nc < cols and not seen[nr][nc] and g[nr][nc] == letter
+                        seen[nr][nc] = true
+                        stack.push((nr, nc))
+            out.push((letter, size))
+    out
+
+fn main()
+    grid := ["AABBB", "AABCC", "DDBCC", "DAAAC", "DDDAA"]
+    rs := regions(grid)
+    for r in rs
+        print("{r.0}: {r.1} cells")
+    print("{rs.len()} regions")
+
+@test fn one_region()
+    assert_eq(regions(["xx", "xx"]), [('x', 4)])

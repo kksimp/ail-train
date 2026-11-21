@@ -1,0 +1,43 @@
+## Subset targets: which totals can be made from a set of weights (each used at most once),
+## using a boolean table, plus one subset for each of a few targets.
+
+fn reachable(ws List[int]) List[bool]
+    total := ws.sum()
+    mut can := [false for _ in 0..=total]
+    can[0] = true
+    for w in ws
+        mut t := total
+        while t >= w
+            if can[t - w]
+                can[t] = true
+            t -= 1
+    can
+
+fn find_subset(ws List[int], target int) List[int]?
+    if target == 0
+        return List[int]()
+    if ws.is_empty() or target < 0
+        return none
+    first := ws[0]
+    rest := ws.slice(1)
+    if with_first := find_subset(rest, target - first)
+        mut out := [first]
+        out.extend(with_first)
+        return out
+    find_subset(rest, target)
+
+fn main()
+    ws := [3, 5, 9, 14, 20]
+    can := reachable(ws)
+    missing := [t for t in 0..can.len() if not can[t]]
+    print("totals 0..{ws.sum()}: {can.filter(|c| c).len()} reachable")
+    print("cannot make: {missing.take(12)}")
+    for target in [17, 26, 30, 50, 4]
+        if s := find_subset(ws, target)
+            sum_text := s.map(|x| "{x}").join(" + ")
+            print("{target} = {sum_text}")
+        else
+            print("{target}: impossible")
+
+@test fn zero_is_empty()
+    assert_eq(find_subset([1, 2], 0), List[int]())

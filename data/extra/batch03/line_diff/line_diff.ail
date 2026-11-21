@@ -1,0 +1,42 @@
+## Line diff: compares two versions of a short text line by line using a longest common
+## subsequence table, printing kept lines with two spaces, removed with "-" and added with "+".
+
+fn diff(a List[str], b List[str]) List[str]
+    n := a.len()
+    m := b.len()
+    mut t := [[0 for _ in 0..=m] for row in 0..=n]
+    mut i := n - 1
+    while i >= 0
+        mut j := m - 1
+        while j >= 0
+            t[i][j] = if a[i] == b[j] then t[i + 1][j + 1] + 1 else t[i + 1][j].max(t[i][j + 1])
+            j -= 1
+        i -= 1
+    mut out := List[str]()
+    mut x := 0
+    mut y := 0
+    while x < n and y < m
+        if a[x] == b[y]
+            out.push("  {a[x]}")
+            x += 1
+            y += 1
+        elif t[x + 1][y] >= t[x][y + 1]
+            out.push("- {a[x]}")
+            x += 1
+        else
+            out.push("+ {b[y]}")
+            y += 1
+    for k in x..n
+        out.push("- {a[k]}")
+    for k in y..m
+        out.push("+ {b[k]}")
+    out
+
+fn main()
+    before := ["buy milk", "walk dog", "call mum", "fix bike", "read book"]
+    after := ["buy milk", "call mum", "fix bike tyre", "read book", "water plants"]
+    for line in diff(before, after)
+        print(line)
+
+@test fn identical()
+    assert_eq(diff(["a"], ["a"]), ["  a"])

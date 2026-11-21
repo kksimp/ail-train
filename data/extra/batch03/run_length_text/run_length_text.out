@@ -1,0 +1,5 @@
+"aaabccdddd" -> "3ab2c4d" (10 to 7), round trip true
+"abc" -> "abc" (3 to 3), round trip true
+"wwwwwwwwwwwwbx" -> "12wbx" (14 to 5), round trip true
+"zzzzzzzzzzzzzzzzzzzzzzzzzzzzzz" -> "30z" (30 to 3), round trip true
+"" -> "" (0 to 0), round trip true

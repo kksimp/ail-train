@@ -1,0 +1,11 @@
+disc 1: A -> C
+disc 2: A -> B
+disc 1: C -> B
+disc 3: A -> C
+disc 1: B -> A
+disc 2: B -> C
+disc 1: A -> C
+1 discs: 1 moves, formula 1
+5 discs: 31 moves, formula 31
+10 discs: 1023 moves, formula 1023
+16 discs: 65535 moves, formula 65535
