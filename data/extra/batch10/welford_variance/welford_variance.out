@@ -1,0 +1,4 @@
+shift            0.0: naive    30.0000, two-pass 30.0000, Welford 30.0000
+shift         1000.0: naive    30.0000, two-pass 30.0000, Welford 30.0000
+shift      1000000.0: naive    30.0000, two-pass 30.0000, Welford 30.0000
+shift   1000000000.0: naive  -170.6667, two-pass 30.0000, Welford 30.0000

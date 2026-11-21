@@ -1,0 +1,13 @@
+Euler 10 steps: y(1) = 2.5937424601, error 0.1245393684
+Euler 20 steps: y(1) = 2.6532977051, error 0.0649841233  error ratio 1.92
+Euler 40 steps: y(1) = 2.6850638384, error 0.0332179901  error ratio 1.96
+Euler 80 steps: y(1) = 2.7014849408, error 0.0167968877  error ratio 1.98
+Heun  10 steps: y(1) = 2.7140808466, error 0.0042009819
+Heun  20 steps: y(1) = 2.7171910544, error 0.0010907741  error ratio 3.85
+Heun  40 steps: y(1) = 2.7180039444, error 0.0002778841  error ratio 3.93
+Heun  80 steps: y(1) = 2.7182117011, error 0.0000701274  error ratio 3.96
+RK4   10 steps: y(1) = 2.7182797441, error 0.0000020843
+RK4   20 steps: y(1) = 2.7182816927, error 0.0000001358  error ratio 15.35
+RK4   40 steps: y(1) = 2.7182818198, error 0.0000000087  error ratio 15.67
+RK4   80 steps: y(1) = 2.7182818279, error 0.0000000005  error ratio 15.83
+exact e = 2.7182818285

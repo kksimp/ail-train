@@ -1,0 +1,43 @@
+## Kolakoski sequence: the only sequence of 1s and 2s, starting 1, 2, 2, that is its own run
+## length encoding; it is grown by reading itself, and the share of 1s hovers near one half.
+
+fn kolakoski(count int) List[int]
+    mut s := [1, 2, 2]
+    mut i := 2
+    while s.len() < count
+        next := 3 - s[s.len() - 1]
+        for _ in 0..s[i]
+            s.push(next)
+        i += 1
+    s.take(count)
+
+fn run_lengths(xs List[int]) List[int]
+    mut out := List[int]()
+    mut run := 1
+    for i in 1..xs.len()
+        if xs[i] == xs[i - 1]
+            run += 1
+        else
+            out.push(run)
+            run = 1
+    out.push(run)
+    out
+
+fn main()
+    s := kolakoski(40)
+    shown := s.join("")
+    print("first 40: {shown}")
+    runs := run_lengths(s)
+    whole := runs.len() - 1
+    same := runs.take(whole) == s.take(whole)
+    run_text := runs.join("")
+    print("run lengths: {run_text}")
+    print("complete runs repeat the sequence: {same}")
+    for n in [100, 1000, 10000, 100000]
+        k := kolakoski(n)
+        ones := k.count(|x| x == 1)
+        share := ones.to_float() / n.to_float()
+        print("first {n:>6}: {ones} ones, share {share:.4}")
+
+@test fn start()
+    assert_eq(kolakoski(10), [1, 2, 2, 1, 1, 2, 1, 2, 2, 1])

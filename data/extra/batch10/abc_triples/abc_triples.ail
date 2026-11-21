@@ -1,0 +1,36 @@
+## abc triples: coprime a + b = c where the radical of abc (product of its distinct primes) is
+## smaller than c; quality ln c / ln rad(abc) above 1 marks them, and they are rare.
+
+fn gcd(a int, b int) int
+    if b == 0 then a else gcd(b, a % b)
+
+fn radicals(limit int) List[int]
+    mut rad := [1 for i in 0..=limit]
+    for p in 2..=limit
+        if rad[p] == 1
+            mut m := p
+            while m <= limit
+                rad[m] *= p
+                m += p
+    rad
+
+fn main()
+    limit := 1000
+    rad := radicals(limit)
+    mut hits := List[List[int]]()
+    for c in 3..=limit
+        for a in 1..((c + 1) / 2)
+            b := c - a
+            if gcd(a, b) == 1
+                r := rad[a] * rad[b] * rad[c]
+                if r < c
+                    hits.push([a, b, c, r])
+    print("{hits.len()} abc triples with c <= {limit}")
+    best := hits.sorted(by: |h| -(h[2].to_float().ln() / h[3].to_float().ln()))
+    for h in best.take(6)
+        q := h[2].to_float().ln() / h[3].to_float().ln()
+        print("{h[0]:>3} + {h[1]:>3} = {h[2]:>4}  rad {h[3]:>3}  quality {q:.4}")
+
+@test fn first()
+    rad := radicals(9)
+    assert_eq(rad[1] * rad[8] * rad[9], 6)

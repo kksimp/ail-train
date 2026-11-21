@@ -1,0 +1,36 @@
+## Welch's t-test: compares two sample means without assuming equal variances; t is the mean gap
+## over the combined standard error and the Welch-Satterthwaite formula gives the degrees of freedom.
+
+struct Sample
+    name str
+    values List[float]
+
+fn Sample.mean(self) float
+    self.values.fold(0.0, |acc, v| acc + v) / self.values.len().to_float()
+
+fn Sample.variance(self) float
+    m := self.mean()
+    self.values.fold(0.0, |acc, v| acc + (v - m) * (v - m)) / (self.values.len() - 1).to_float()
+
+fn welch(a Sample, b Sample) List[float]
+    va := a.variance() / a.values.len().to_float()
+    vb := b.variance() / b.values.len().to_float()
+    t := (a.mean() - b.mean()) / (va + vb).sqrt()
+    df := (va + vb) * (va + vb) / (va * va / (a.values.len() - 1).to_float() + vb * vb / (b.values.len() - 1).to_float())
+    [t, df]
+
+fn main()
+    old := Sample(name: "old bulbs", values: [812.0, 798.0, 830.0, 805.0, 790.0, 821.0, 809.0, 815.0])
+    fresh := Sample(name: "new bulbs", values: [845.0, 902.0, 830.0, 868.0, 915.0, 851.0])
+    same := Sample(name: "rerun", values: [801.0, 826.0, 812.0, 795.0, 818.0, 807.0, 822.0])
+    for s in [old, fresh, same]
+        print("{s.name:<9}: n {s.values.len()}, mean {s.mean():.2}, sd {s.variance().sqrt():.2}")
+    for pair in [[old, fresh], [old, same]]
+        r := welch(pair[0], pair[1])
+        verdict := if r[0].abs() > 2.2 then "a real difference" else "no clear difference"
+        print("{pair[0].name} vs {pair[1].name}: t = {r[0]:.3}, df = {r[1]:.1} -> {verdict}")
+
+@test fn mean()
+    s := Sample(name: "x", values: [1.0, 2.0, 3.0])
+    assert_eq(s.mean(), 2.0)
+    assert_eq(s.variance(), 1.0)

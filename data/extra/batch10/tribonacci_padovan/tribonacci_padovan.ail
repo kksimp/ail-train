@@ -1,0 +1,28 @@
+## Linear recurrences: one function grows any sequence where each term is the sum of earlier terms
+## at fixed lags; Tribonacci (lags 1, 2, 3) and Padovan (lags 2, 3) ratios approach their cubic roots.
+
+fn grow(start List[int], lags List[int], count int) List[int]
+    mut xs := start
+    while xs.len() < count
+        n := xs.len()
+        xs.push(lags.fold(0, |acc, l| acc + xs[n - l]))
+    xs
+
+fn report(name str, xs List[int], a float, b float, c float)
+    n := xs.len()
+    ratio := xs[n - 1].to_float() / xs[n - 2].to_float()
+    residual := ratio * ratio * ratio - (a * ratio * ratio + b * ratio + c)
+    print("{name}: {xs.take(15)}")
+    print("    ratio after {n} terms {ratio:.9}, cubic residual {residual.abs() < 0.000001}")
+
+fn main()
+    trib := grow([0, 0, 1], [1, 2, 3], 40)
+    pad := grow([1, 1, 1], [2, 3], 80)
+    perrin := grow([3, 0, 2], [2, 3], 80)
+    report("Tribonacci", trib, 1.0, 1.0, 1.0)
+    report("Padovan", pad, 0.0, 1.0, 1.0)
+    report("Perrin", perrin, 0.0, 1.0, 1.0)
+    print("Padovan and Perrin share the plastic ratio, about 1.324718")
+
+@test fn tribonacci_start()
+    assert_eq(grow([0, 0, 1], [1, 2, 3], 8), [0, 0, 1, 1, 2, 4, 7, 13])

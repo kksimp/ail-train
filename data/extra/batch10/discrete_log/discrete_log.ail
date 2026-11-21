@@ -1,0 +1,46 @@
+## Discrete logarithm: finds x with g^x = h mod p by baby-step giant-step, storing g^j for
+## j < m in a Map and stepping h by g^-m, so about 2 sqrt(p) multiplications replace p.
+
+fn pow_mod(b int, e int, m int) int
+    mut result := 1
+    mut base := b % m
+    mut exp := e
+    while exp > 0
+        if exp % 2 == 1
+            result = result * base % m
+        base = base * base % m
+        exp = exp / 2
+    result
+
+fn bsgs(g int, h int, p int) int?
+    mut m := 1
+    while m * m < p
+        m += 1
+    mut baby := Map[int, int]()
+    mut v := 1
+    for j in 0..m
+        if not baby.contains(v)
+            baby[v] = j
+        v = v * g % p
+    giant := pow_mod(g, p - 1 - m, p)
+    mut y := h % p
+    for i in 0..m
+        if j := baby.get(y)
+            return i * m + j
+        y = y * giant % p
+    none
+
+fn main()
+    cases := [[3, 13, 17], [2, 1000, 1019], [5, 123456, 1000003], [2, 7, 7919], [4, 3, 7]]
+    for cs in cases
+        g := cs[0]
+        h := cs[1]
+        p := cs[2]
+        if x := bsgs(g, h, p)
+            print("{g}^x = {h} mod {p}: x = {x}, check {pow_mod(g, x, p)}")
+        else
+            print("{g}^x = {h} mod {p}: no solution")
+
+@test fn small()
+    x := bsgs(3, 13, 17) else -1
+    assert_eq(pow_mod(3, x, 17), 13)

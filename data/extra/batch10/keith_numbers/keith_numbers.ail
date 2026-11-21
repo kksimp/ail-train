@@ -1,0 +1,29 @@
+## Keith numbers: a d-digit number that turns up in the sequence that starts with its own digits
+## and continues with the sum of the last d terms, like 197: 1, 9, 7, 17, 33, 57, 107, 197.
+
+fn keith_run(n int) List[int]
+    mut seq := [(c.to_digit(10) else 0) for c in "{n}".chars()]
+    d := seq.len()
+    while seq[seq.len() - 1] < n
+        mut s := 0
+        for i in (seq.len() - d)..seq.len()
+            s += seq[i]
+        seq.push(s)
+    seq
+
+fn is_keith(n int) bool
+    n >= 10 and keith_run(n)[keith_run(n).len() - 1] == n
+
+fn main()
+    found := [n for n in 10..100000 if is_keith(n)]
+    print("{found.len()} Keith numbers below 100000:")
+    for chunk in found.chunks(8)
+        print("  {chunk}")
+    for n in [197, 742, 7385, 198]
+        run := keith_run(n)
+        verdict := if run[run.len() - 1] == n then "Keith" else "not Keith"
+        print("{n}: {run} -> {verdict}")
+
+@test fn fourteen()
+    assert(is_keith(14))
+    assert(not is_keith(15))

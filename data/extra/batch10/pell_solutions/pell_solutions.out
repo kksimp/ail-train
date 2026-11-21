@@ -1,0 +1,7 @@
+D =  2: x =     3, y =    2 after 2 convergents; next 17, 12
+D =  3: x =     2, y =    1 after 2 convergents; next 7, 4
+D =  5: x =     9, y =    4 after 2 convergents; next 161, 72
+D =  7: x =     8, y =    3 after 4 convergents; next 127, 48
+D = 13: x =   649, y =  180 after 10 convergents; next 842401, 233640
+D = 19: x =   170, y =   39 after 6 convergents; next 57799, 13260
+D = 29: x =  9801, y = 1820 after 10 convergents; next 192119201, 35675640

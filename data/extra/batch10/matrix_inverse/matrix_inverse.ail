@@ -1,0 +1,52 @@
+## Matrix inverse: Gauss-Jordan elimination on [A | I] with partial pivoting turns A into I and
+## I into the inverse; scaled by the determinant the inverse's entries are whole numbers.
+
+fn invert(a0 List[List[float]]) List[List[float]]
+    n := a0.len()
+    mut a := List[List[float]]()
+    for i in 0..n
+        mut row := a0[i]
+        for j in 0..n
+            row.push(if i == j then 1.0 else 0.0)
+        a.push(row)
+    for col in 0..n
+        mut best := col
+        for r in (col + 1)..n
+            if a[r][col].abs() > a[best][col].abs()
+                best = r
+        a.swap(col, best)
+        p := a[col][col]
+        for c in 0..(2 * n)
+            a[col][c] = a[col][c] / p
+        for r in 0..n
+            if r != col
+                f := a[r][col]
+                for c in 0..(2 * n)
+                    a[r][c] -= f * a[col][c]
+    [a[i].slice(n) for i in 0..n]
+
+fn det3(m List[List[float]]) float
+    m[0][0] * (m[1][1] * m[2][2] - m[1][2] * m[2][1]) - m[0][1] * (m[1][0] * m[2][2] - m[1][2] * m[2][0]) + m[0][2] * (m[1][0] * m[2][1] - m[1][1] * m[2][0])
+
+fn main()
+    for a in [[[2.0, 1.0, 1.0], [1.0, 3.0, 2.0], [1.0, 0.0, 0.0]], [[0.0, 1.0, 2.0], [1.0, 0.0, 3.0], [4.0, -3.0, 8.0]], [[3.0, 2.0, 0.0], [1.0, -1.0, 0.0], [0.0, 5.0, 1.0]]]
+        inv := invert(a)
+        d := det3(a)
+        print("det {d.round().to_int()}, det x inverse:")
+        for row in inv
+            whole := [(v * d).round().to_int() for v in row]
+            print("    {whole}")
+        mut worst := 0.0
+        for i in 0..3
+            for j in 0..3
+                mut s := 0.0
+                for k in 0..3
+                    s += a[i][k] * inv[k][j]
+                target := if i == j then 1.0 else 0.0
+                if (s - target).abs() > worst
+                    worst = (s - target).abs()
+        print("    A x inverse is the identity: {worst < 0.000000001}")
+
+@test fn two()
+    inv := invert([[2.0, 0.0], [0.0, 4.0]])
+    assert_eq(inv[1][1], 0.25)

@@ -1,0 +1,5 @@
+L-shape   area  22.0, centroid (2.091, 2.591), corner average (2.667, 3.000)
+triangle  area  27.0, centroid (4.000, 2.000), corner average (4.000, 2.000)
+kite      area  17.5, centroid (1.000, 3.333), corner average (0.750, 3.250)
+trapezium area  32.0, centroid (4.542, 1.833), corner average (4.500, 2.000)
+L-shape as two rectangles: (2.091, 2.591)

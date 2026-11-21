@@ -1,0 +1,47 @@
+## Divisor functions: sigma_k(n), the sum of the k-th powers of n's divisors, from the prime
+## factorisation as a product of (p^(k(a+1)) - 1) / (p^k - 1), checked against a direct sum.
+
+fn ipow(b int, e int) int
+    mut r := 1
+    for _ in 0..e
+        r *= b
+    r
+
+fn sigma(n int, k int) int
+    mut x := n
+    mut total := 1
+    mut p := 2
+    while x > 1
+        if x % p == 0
+            mut a := 0
+            while x % p == 0
+                x = x / p
+                a += 1
+            if k == 0
+                total *= a + 1
+            else
+                total *= (ipow(p, k * (a + 1)) - 1) / (ipow(p, k) - 1)
+        p += 1
+    total
+
+fn direct(n int, k int) int
+    mut s := 0
+    for d in 1..=n
+        if n % d == 0
+            s += ipow(d, k)
+    s
+
+fn main()
+    print("     n  sigma0  sigma1    sigma2  agrees")
+    for n in [12, 28, 60, 100, 360, 496, 945]
+        s0 := sigma(n, 0)
+        s1 := sigma(n, 1)
+        s2 := sigma(n, 2)
+        ok := s0 == direct(n, 0) and s1 == direct(n, 1) and s2 == direct(n, 2)
+        print("{n:>6} {s0:>7} {s1:>7} {s2:>9}  {ok}")
+    a := sigma(12, 1)
+    b := sigma(35, 1)
+    print("sigma1(12) * sigma1(35) = {a * b}, sigma1(420) = {sigma(420, 1)}")
+
+@test fn perfect()
+    assert_eq(sigma(28, 1), 56)

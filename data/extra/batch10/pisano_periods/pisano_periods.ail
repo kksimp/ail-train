@@ -1,0 +1,31 @@
+## Pisano periods: Fibonacci numbers modulo m repeat with a period pi(m), found by walking pairs
+## until (0, 1) returns; the last digit repeats every 60 terms and the last two every 300.
+
+fn pisano(m int) int
+    mut a := 0
+    mut b := 1
+    mut k := 0
+    while true
+        next := (a + b) % m
+        a = b
+        b = next
+        k += 1
+        if a == 0 and b == 1
+            break
+    k
+
+fn main()
+    mut row := List[str]()
+    for m in 2..=12
+        row.push("{m}:{pisano(m)}")
+    shown := row.join(", ")
+    print("periods {shown}")
+    print("last digit repeats every {pisano(10)}, last two digits every {pisano(100)}")
+    for p in [11, 19, 29, 31, 7, 13, 17]
+        per := pisano(p)
+        rule := if p % 5 == 1 or p % 5 == 4 then "divides p - 1" else "divides 2(p + 1)"
+        holds := if p % 5 == 1 or p % 5 == 4 then (p - 1) % per == 0 else (2 * (p + 1)) % per == 0
+        print("p = {p:>2}: period {per:>2}, {rule}: {holds}")
+
+@test fn ten()
+    assert_eq(pisano(10), 60)

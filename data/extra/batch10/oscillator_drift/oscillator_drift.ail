@@ -1,0 +1,44 @@
+## Oscillator drift: a spring x'' = -x stepped with plain Euler gains energy every step and spirals
+## outward, while semi-implicit (symplectic) Euler keeps the energy within a small band forever.
+
+struct State
+    x float
+    v float
+
+fn State.energy(self) float
+    (self.x * self.x + self.v * self.v) / 2.0
+
+fn State.explicit(mut self, h float)
+    nx := self.x + h * self.v
+    nv := self.v - h * self.x
+    self.x = nx
+    self.v = nv
+
+fn State.symplectic(mut self, h float)
+    self.v -= h * self.x
+    self.x += h * self.v
+
+fn main()
+    h := 0.1
+    mut a := State(x: 1.0, v: 0.0)
+    mut b := State(x: 1.0, v: 0.0)
+    mut lo := b.energy()
+    mut hi := b.energy()
+    print("start energy {a.energy():.4}")
+    for step in 1..=500
+        a.explicit(h)
+        b.symplectic(h)
+        e := b.energy()
+        if e < lo
+            lo = e
+        if e > hi
+            hi = e
+        if step % 100 == 0
+            t := step.to_float() * h
+            print("t {t:>4.0}: explicit energy {a.energy():>9.4}, symplectic energy {e:.4}")
+    print("symplectic energy stayed between {lo:.4} and {hi:.4}")
+
+@test fn one_step()
+    mut s := State(x: 1.0, v: 0.0)
+    s.explicit(0.5)
+    assert_eq(s.energy(), 0.625)

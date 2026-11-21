@@ -1,0 +1,40 @@
+## Fermat factoring: an odd n is a^2 - b^2 = (a - b)(a + b); starting from a = ceil(sqrt n), raise
+## a until a^2 - n is a perfect square; factors close to sqrt(n) are found in very few steps.
+
+fn isqrt(v int) int
+    mut y := v.to_float().sqrt().to_int()
+    while (y + 1) * (y + 1) <= v
+        y += 1
+    while y * y > v
+        y -= 1
+    y
+
+struct Split
+    small int
+    large int
+    steps int
+
+fn fermat(n int) Split
+    mut a := isqrt(n)
+    if a * a < n
+        a += 1
+    mut steps := 1
+    while a <= n
+        b2 := a * a - n
+
+        b := isqrt(b2)
+        if b * b == b2
+            return Split(small: a - b, large: a + b, steps: steps)
+        a += 1
+        steps += 1
+    Split(small: 1, large: n, steps: steps)
+
+fn main()
+    for n in [5959, 8051, 1342127, 2027651281, 23757, 1000001, 97]
+        s := fermat(n)
+        kind := if s.small == 1 then "prime" else "composite"
+        print("{n:>10} = {s.small} x {s.large} after {s.steps} steps ({kind})")
+
+@test fn close_factors()
+    s := fermat(5959)
+    assert_eq([s.small, s.large, s.steps], [59, 101, 3])

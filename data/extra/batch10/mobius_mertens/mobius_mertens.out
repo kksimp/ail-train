@@ -1,0 +1,8 @@
+mu(1..20) = [1, -1, -1, 0, -1, 1, -1, 0, 0, 1, -1, 0, -1, 1, 1, 0, -1, 0, -1, 0]
+M(20) = -3, M(40) = 0, M(60) = -1, M(80) = -4, M(100) = 1
+61 of 1..100 are square-free
+sum of mu(d) over divisors of 1: 1
+sum of mu(d) over divisors of 12: 0
+sum of mu(d) over divisors of 30: 0
+sum of mu(d) over divisors of 97: 0
+sum of mu(d) over divisors of 360: 0

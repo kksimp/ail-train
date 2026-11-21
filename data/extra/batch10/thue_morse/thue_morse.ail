@@ -1,0 +1,44 @@
+## Thue-Morse: t(n) is the parity of the 1 bits of n; as a picking order A B B A B A A B it shares
+## turns fairly, and splitting 0..15 by it gives equal sums of 0th to 3rd powers (Prouhet).
+
+fn bit_parity(n int) int
+    mut x := n
+    mut ones := 0
+    while x > 0
+        ones += (x & 1)
+        x = x >> 1
+    ones % 2
+
+fn picker(b int) str
+    if b == 0 then "A" else "B"
+
+fn power_sum(xs List[int], k int) int
+    mut total := 0
+    for x in xs
+        mut p := 1
+        for _ in 0..k
+            p *= x
+        total += p
+    total
+
+fn main()
+    bits := [bit_parity(n) for n in 0..32]
+    shown := bits.join("")
+    print("t(0..31) = {shown}")
+    mut doubled := [0]
+    while doubled.len() < 32
+        flipped := doubled.map(|b| 1 - b)
+        doubled.extend(flipped)
+    print("by doubling with complement, same: {doubled == bits}")
+    order := [picker(b) for b in bits.take(8)]
+    turns := order.join(" ")
+    print("picking order: {turns}")
+    group_a := [n for n in 0..16 if bit_parity(n) == 0]
+    group_b := [n for n in 0..16 if bit_parity(n) == 1]
+    print("A = {group_a}")
+    print("B = {group_b}")
+    for k in 0..=4
+        print("sum of k = {k} powers: {power_sum(group_a, k)} vs {power_sum(group_b, k)}")
+
+@test fn parity()
+    assert_eq([bit_parity(n) for n in 0..8], [0, 1, 1, 0, 1, 0, 0, 1])

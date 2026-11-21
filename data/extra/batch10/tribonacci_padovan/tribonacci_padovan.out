@@ -1,0 +1,7 @@
+Tribonacci: [0, 0, 1, 1, 2, 4, 7, 13, 24, 44, 81, 149, 274, 504, 927]
+    ratio after 40 terms 1.839286755, cubic residual true
+Padovan: [1, 1, 1, 2, 2, 3, 4, 5, 7, 9, 12, 16, 21, 28, 37]
+    ratio after 80 terms 1.324717957, cubic residual true
+Perrin: [3, 0, 2, 3, 2, 5, 5, 7, 10, 12, 17, 22, 29, 39, 51]
+    ratio after 80 terms 1.324717957, cubic residual true
+Padovan and Perrin share the plastic ratio, about 1.324718

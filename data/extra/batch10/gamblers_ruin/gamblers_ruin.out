@@ -1,0 +1,9 @@
+p 0.50, start 10 of 100: exact 0.1000, simulated 0.1000
+p 0.50, start 50 of 100: exact 0.5000, simulated 0.5000
+p 0.49, start 10 of 100: exact 0.0092, simulated 0.0050
+p 0.49, start 50 of 100: exact 0.1192, simulated 0.1250
+p 0.47, start 10 of 100: exact 0.0000, simulated 0.0000
+p 0.47, start 50 of 100: exact 0.0025, simulated 0.0025
+p 0.40, start 10 of 100: exact 0.0000, simulated 0.0000
+p 0.40, start 50 of 100: exact 0.0000, simulated 0.0000
+fair game expected rounds from 10 to 0 or 100: 900

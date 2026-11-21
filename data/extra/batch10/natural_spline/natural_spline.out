@@ -1,0 +1,6 @@
+curvatures at the knots: 0.0000, -0.6727, -1.0193, -0.9252, -0.2510, 0.0000
+x 0.350: spline 0.34271, sin 0.34290, error 0.00019
+x 1.000: spline 0.84072, sin 0.84147, error 0.00075
+x 1.571: spline 0.99993, sin 1.00000, error 0.00007
+x 2.500: spline 0.59569, sin 0.59847, error 0.00278
+x 3.200: spline -0.04971, sin -0.05837, error 0.00866

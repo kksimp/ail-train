@@ -1,0 +1,58 @@
+## Stern-Brocot tree: every reduced fraction is reached from 1/1 by a unique path of left and
+## right steps, each node being the mediant of its two bounds; the path is decoded back too.
+
+enum Dir
+    Left
+    Right
+
+struct Frac
+    p int
+    q int
+
+fn mediant(a Frac, b Frac) Frac
+    Frac(p: a.p + b.p, q: a.q + b.q)
+
+fn path_to(p int, q int) List[Dir]
+    mut lo := Frac(p: 0, q: 1)
+    mut hi := Frac(p: 1, q: 0)
+    mut steps := List[Dir]()
+    while true
+        m := mediant(lo, hi)
+        if m.p == p and m.q == q
+            break
+        if p * m.q < m.p * q
+            steps.push(Dir.Left)
+            hi = m
+        else
+            steps.push(Dir.Right)
+            lo = m
+    steps
+
+fn follow(steps List[Dir]) Frac
+    mut lo := Frac(p: 0, q: 1)
+    mut hi := Frac(p: 1, q: 0)
+    for s in steps
+        m := mediant(lo, hi)
+        match s
+            Left => hi = m
+            Right => lo = m
+    mediant(lo, hi)
+
+fn letter(s Dir) str
+    match s
+        Left => "L"
+        Right => "R"
+
+fn letters(steps List[Dir]) str
+    out := [letter(s) for s in steps]
+    if out.is_empty() then "(root)" else out.join("")
+
+fn main()
+    for f in [(1, 1), (3, 7), (5, 8), (22, 7), (355, 113), (13, 21)]
+        p, q := f
+        steps := path_to(p, q)
+        back := follow(steps)
+        print("{p}/{q}: {letters(steps)} ({steps.len()} steps), decodes to {back.p}/{back.q}")
+
+@test fn three_sevenths()
+    assert_eq(letters(path_to(3, 7)), "LLRR")

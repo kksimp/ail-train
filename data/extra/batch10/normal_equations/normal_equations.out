@@ -1,0 +1,11 @@
+h(t) = 1.900 + 23.293 t + -4.957 t^2
+gravity estimate 9.91 m/s^2, launch speed 23.29 m/s
+t 0.0: measured   1.9, fitted   1.90
+t 0.5: measured  12.3, fitted  12.31
+t 1.0: measured  20.2, fitted  20.24
+t 1.5: measured  25.8, fitted  25.69
+t 2.0: measured  28.6, fitted  28.66
+t 2.5: measured  29.1, fitted  29.15
+t 3.0: measured  27.2, fitted  27.16
+sum of squared errors 0.0214
+highest at t = 2.349 s

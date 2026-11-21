@@ -1,0 +1,49 @@
+## Spearman's rank correlation: replaces values by their ranks (ties get the average rank) and
+## takes Pearson's r of the ranks; it catches a monotone but curved link that Pearson's r understates.
+
+fn ranks(values List[int]) List[float]
+    order := [i for i in 0..values.len()].sorted(by: |i| values[i])
+    mut r := [0.0 for i in 0..values.len()]
+    mut i := 0
+    while i < order.len()
+        mut j := i
+        while j + 1 < order.len() and values[order[j + 1]] == values[order[i]]
+            j += 1
+        for k in i..=j
+            r[order[k]] = (i + j + 2).to_float() / 2.0
+        i = j + 1
+    r
+
+fn pearson(x List[float], y List[float]) float
+    n := x.len().to_float()
+    mut mx := 0.0
+    mut my := 0.0
+    for i in 0..x.len()
+        mx += x[i]
+        my += y[i]
+    mx = mx / n
+    my = my / n
+    mut sxy := 0.0
+    mut sxx := 0.0
+    mut syy := 0.0
+    for i in 0..x.len()
+        sxy += (x[i] - mx) * (y[i] - my)
+        sxx += (x[i] - mx) * (x[i] - mx)
+        syy += (y[i] - my) * (y[i] - my)
+    sxy / (sxx * syy).sqrt()
+
+fn main()
+    hours := [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    skill := [2, 3, 5, 9, 15, 24, 39, 60, 98, 150]
+    noisy := [3, 1, 4, 4, 9, 7, 12, 10, 15, 14]
+    hf := hours.map(|v| v.to_float())
+    for pair in [("skill", skill), ("noisy", noisy)]
+        name, ys := pair
+        yf := ys.map(|v| v.to_float())
+        rp := pearson(hf, yf)
+        rs := pearson(ranks(hours), ranks(ys))
+        print("hours vs {name}: Pearson {rp:.4}, Spearman {rs:.4}")
+    print("ranks of noisy: {ranks(noisy)}")
+
+@test fn tie()
+    assert_eq(ranks([10, 20, 10]), [1.5, 3.0, 1.5])

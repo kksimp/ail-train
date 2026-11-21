@@ -1,0 +1,39 @@
+## Narayana numbers: N(n, k) = C(n, k) C(n, k-1) / n counts the balanced bracket strings of n
+## pairs with exactly k peaks ("()" pairs side by side); each row adds up to a Catalan number.
+
+fn binom(n int, k int) int
+    mut r := 1
+    for i in 0..k
+        r = r * (n - i) / (i + 1)
+    r
+
+fn narayana(n int, k int) int
+    binom(n, k) * binom(n, k - 1) / n
+
+fn gen(open int, close int, n int, s str, mut out List[str])
+    if s.len() == 2 * n
+        out.push(s)
+        return
+    if open < n
+        gen(open + 1, close, n, "{s}(", mut out)
+    if close < open
+        gen(open, close + 1, n, "{s})", mut out)
+
+fn main()
+    for n in 1..=7
+        row := [narayana(n, k) for k in 1..=n]
+        mut strings := List[str]()
+        gen(0, 0, n, "", mut strings)
+        mut by_peaks := [0 for i in 0..=n]
+        for s in strings
+            by_peaks[s.count("()")] += 1
+        agree := by_peaks.slice(1) == row
+        print("n = {n}: {row} sum {row.sum()}, matches counted peaks: {agree}")
+    mut three := List[str]()
+    gen(0, 0, 3, "", mut three)
+    for s in three
+        peaks := s.count("()")
+        print("{s} has {peaks} peaks")
+
+@test fn row_four()
+    assert_eq([narayana(4, k) for k in 1..=4], [1, 6, 6, 1])

@@ -1,0 +1,35 @@
+## Pollard's rho: iterates x -> x^2 + c mod n with a tortoise and a hare; the gcd of their
+## difference with n soon reveals a factor, retrying with the next c when it finds only n.
+
+fn gcd(a int, b int) int
+    if b == 0 then a else gcd(b, a % b)
+
+fn rho(n int) List[int]
+    mut c := 1
+    while c < 50
+        mut x := 2
+        mut y := 2
+        mut d := 1
+        mut steps := 0
+        while d == 1
+            x = (x * x + c) % n
+            y = (y * y + c) % n
+            y = (y * y + c) % n
+            d = gcd((x - y).abs(), n)
+            steps += 1
+        if d != n
+            return [d, steps, c]
+        c += 1
+    [n, 0, 0]
+
+fn main()
+    for n in [8051, 10403, 455459, 1022117, 1999005997, 2147483649]
+        if n % 2 == 0
+            print("{n} is even")
+            continue
+        r := rho(n)
+        f := r[0]
+        print("{n}: factor {f} x {n / f} in {r[1]} steps (c = {r[2]})")
+
+@test fn classic()
+    assert_eq(rho(8051), [97, 3, 1])

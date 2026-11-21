@@ -1,0 +1,26 @@
+## Harmonic growth: H(n) = 1 + 1/2 + ... + 1/n grows without bound but only like ln n + 0.5772
+## (the Euler-Mascheroni constant); the gap to that estimate shrinks like 1/(2n).
+
+fn main()
+    gamma := 0.5772156649015329
+    mut h := 0.0
+    mut n := 0
+    mut target := 1.0
+    mut firsts := List[str]()
+    marks := [10, 100, 1000, 10000, 100000]
+    while n < 100000
+        n += 1
+        h += 1.0 / n.to_float()
+        if h > target and target <= 10.0
+            firsts.push("{target.to_int()}:{n}")
+            target += 1.0
+        if marks.contains(n)
+            nf := n.to_float()
+            est := nf.ln() + gamma
+            gap := h - est
+            print("H({n:>6}) = {h:.6}, ln n + gamma = {est:.6}, gap {gap:.7}, 1/(2n) {0.5 / nf:.7}")
+    shown := firsts.join(", ")
+    print("first n with H(n) above k: {shown}")
+
+@test fn small()
+    assert_eq(1.0 + 1.0 / 2.0 + 1.0 / 4.0, 1.75)

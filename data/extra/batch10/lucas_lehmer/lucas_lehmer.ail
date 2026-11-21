@@ -1,0 +1,34 @@
+## Lucas-Lehmer: the Mersenne number 2^p - 1 is prime exactly when s, starting at 4 and
+## replaced by s^2 - 2 mod M a total of p - 2 times, ends at 0; composites get a small factor.
+
+fn lucas_lehmer(p int) bool
+    m := (1 << p) - 1
+    mut s := 4
+    for _ in 0..(p - 2)
+        s = ((s * s - 2) % m + m) % m
+
+    s == 0
+
+fn smallest_factor(n int) int
+    mut d := 2
+    while d * d <= n
+        if n % d == 0
+            return d
+        d += 1
+    n
+
+fn main()
+    mut primes := List[int]()
+    for p in [3, 5, 7, 11, 13, 17, 19, 23, 29, 31]
+        m := (1 << p) - 1
+        if lucas_lehmer(p)
+            primes.push(p)
+            print("M{p} = {m} is prime")
+        else
+            f := smallest_factor(m)
+            print("M{p} = {m} = {f} x {m / f}")
+    print("Mersenne prime exponents found: {primes}")
+
+@test fn small()
+    assert(lucas_lehmer(7))
+    assert(not lucas_lehmer(11))

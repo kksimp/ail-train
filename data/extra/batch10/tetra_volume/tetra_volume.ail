@@ -1,0 +1,40 @@
+## Tetrahedron volume: with 3-D integer vectors (subtraction from `impl Sub`), the scalar triple
+## product a . (b x c) is six times a tetrahedron's volume; zero means the four points are coplanar.
+
+struct V3
+    x int
+    y int
+    z int
+
+impl Sub for V3
+    fn sub(self, o V3) V3
+        V3(x: x - o.x, y: y - o.y, z: z - o.z)
+
+fn V3.cross(self, o V3) V3
+    V3(x: self.y * o.z - self.z * o.y, y: self.z * o.x - self.x * o.z, z: self.x * o.y - self.y * o.x)
+
+fn V3.dot(self, o V3) int
+    self.x * o.x + self.y * o.y + self.z * o.z
+
+fn six_volume(p List[V3]) int
+    a := p[1] - p[0]
+    b := p[2] - p[0]
+    c := p[3] - p[0]
+    a.dot(b.cross(c))
+
+fn main()
+    solids := [[V3(x: 0, y: 0, z: 0), V3(x: 1, y: 0, z: 0), V3(x: 0, y: 1, z: 0), V3(x: 0, y: 0, z: 1)], [V3(x: 1, y: 2, z: 3), V3(x: 4, y: 0, z: 1), V3(x: 2, y: 5, z: 0), V3(x: 3, y: 3, z: 6)], [V3(x: 0, y: 0, z: 0), V3(x: 2, y: 2, z: 2), V3(x: 1, y: 3, z: 5), V3(x: 3, y: 1, z: -1)], [V3(x: 2, y: 0, z: 0), V3(x: 0, y: 3, z: 0), V3(x: 0, y: 0, z: 4), V3(x: 0, y: 0, z: 0)]]
+    for i, p in solids.enumerate()
+        six := six_volume(p)
+        vol := six.abs().to_float() / 6.0
+        note := if six == 0 then "coplanar" elif six > 0 then "right-handed" else "left-handed"
+        print("solid {i + 1}: triple product {six}, volume {vol:.4} ({note})")
+    a := V3(x: 1, y: 2, z: 3) - V3(x: 0, y: 0, z: 0)
+    b := V3(x: 4, y: 5, z: 6) - V3(x: 0, y: 0, z: 0)
+    n := a.cross(b)
+    area := n.dot(n).to_float().sqrt() / 2.0
+    print("triangle (0,0,0) (1,2,3) (4,5,6): normal {n.x} {n.y} {n.z}, area {area:.4}")
+
+@test fn unit_cube_corner()
+    p := [V3(x: 0, y: 0, z: 0), V3(x: 1, y: 0, z: 0), V3(x: 0, y: 1, z: 0), V3(x: 0, y: 0, z: 1)]
+    assert_eq(six_volume(p), 1)

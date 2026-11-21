@@ -1,0 +1,37 @@
+## Eigenvalues of 2x2 matrices: roots of x^2 - trace x + det from the discriminant, giving two
+## real values with eigenvectors, one repeated value, or a complex pair for rotations.
+
+enum Spectrum
+    Real(a float, b float)
+    Repeated(v float)
+    Complex(re float, im float)
+
+fn spectrum(m List[List[float]]) Spectrum
+    t := m[0][0] + m[1][1]
+    d := m[0][0] * m[1][1] - m[0][1] * m[1][0]
+    disc := t * t - 4.0 * d
+    if disc > 0.0
+        r := disc.sqrt()
+        return Spectrum.Real(a: (t + r) / 2.0, b: (t - r) / 2.0)
+    if disc == 0.0
+        return Spectrum.Repeated(v: t / 2.0)
+    Spectrum.Complex(re: t / 2.0, im: (-disc).sqrt() / 2.0)
+
+fn vector_for(m List[List[float]], lam float) str
+    x := if m[0][1] != 0.0 then m[0][1] else lam - m[1][1]
+    y := if m[0][1] != 0.0 then lam - m[0][0] else m[1][0]
+    n := (x * x + y * y).sqrt()
+    "({x / n:.4}, {y / n:.4})"
+
+fn main()
+    mats := [[[2.0, 1.0], [1.0, 2.0]], [[1.0, 2.0], [3.0, 4.0]], [[1.0, 1.0], [1.0, 0.0]], [[4.0, 1.0], [0.0, 4.0]], [[0.0, -1.0], [1.0, 0.0]], [[3.0, -2.0], [4.0, -1.0]]]
+    for m in mats
+        print("{m}:")
+        match spectrum(m)
+            Real(a, b) => print("    {a:.4} with {vector_for(m, a)}, {b:.4} with {vector_for(m, b)}")
+            Repeated(v) => print("    {v:.4} twice")
+            Complex(re, im) => print("    {re:.4} +- {im:.4}i")
+
+@test fn symmetric()
+    s := spectrum([[2.0, 1.0], [1.0, 2.0]])
+    assert_eq(s, Spectrum.Real(a: 3.0, b: 1.0))

@@ -1,0 +1,40 @@
+## Zeckendorf sums: every positive integer is a sum of non-consecutive Fibonacci numbers in one
+## way; the greedy choice of the largest Fibonacci number that fits finds it, shown as a 0/1 code.
+
+fn fibs_upto(n int) List[int]
+    mut fs := [1, 2]
+    while fs[fs.len() - 1] + fs[fs.len() - 2] <= n
+        fs.push(fs[fs.len() - 1] + fs[fs.len() - 2])
+    fs
+
+fn zeckendorf(n int) List[int]
+    fs := fibs_upto(n)
+    mut rest := n
+    mut parts := List[int]()
+    for f in fs.reversed()
+        if f <= rest
+            parts.push(f)
+            rest -= f
+    parts
+
+fn code(n int) str
+    fs := fibs_upto(n)
+    parts := zeckendorf(n)
+    mut bits := List[str]()
+    for f in fs.reversed()
+        bits.push(if parts.contains(f) then "1" else "0")
+    bits.join("")
+
+fn main()
+    for n in [10, 17, 64, 100, 777, 1000]
+        parts := zeckendorf(n)
+        shown := parts.join(" + ")
+        print("{n:>4} = {shown:<24} code {code(n)}")
+    mut ok := 0
+    for n in 1..=500
+        if not code(n).contains("11")
+            ok += 1
+    print("codes without two adjacent 1s for 1..500: {ok}")
+
+@test fn hundred()
+    assert_eq(zeckendorf(100), [89, 8, 3])

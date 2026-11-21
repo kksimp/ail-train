@@ -1,0 +1,52 @@
+## Segment crossing: orientation tests (the sign of a cross product) decide whether two segments
+## cross, touch at an end or run along each other; proper crossings get an exact fractional point.
+
+enum Turn
+    Left
+    Right
+    Straight
+
+fn turn(ax int, ay int, bx int, b_y int, cx int, cy int) Turn
+    v := (bx - ax) * (cy - ay) - (b_y - ay) * (cx - ax)
+    if v > 0 then Turn.Left elif v < 0 then Turn.Right else Turn.Straight
+
+fn on_segment(ax int, ay int, bx int, b_y int, px int, py int) bool
+    px >= ax.min(bx) and px <= ax.max(bx) and py >= ay.min(b_y) and py <= ay.max(b_y)
+
+fn gcd(a int, b int) int
+    if b == 0 then a.abs() else gcd(b, a % b)
+
+fn frac(n int, d int) str
+    g := gcd(n, d)
+    sn := if d < 0 then -n / g else n / g
+    sd := if d < 0 then -d / g else d / g
+    if sd == 1 then "{sn}" else "{sn}/{sd}"
+
+fn classify(s List[int]) str
+    d1 := turn(s[4], s[5], s[6], s[7], s[0], s[1])
+    d2 := turn(s[4], s[5], s[6], s[7], s[2], s[3])
+    d3 := turn(s[0], s[1], s[2], s[3], s[4], s[5])
+    d4 := turn(s[0], s[1], s[2], s[3], s[6], s[7])
+    if d1 != d2 and d3 != d4 and d1 != Turn.Straight and d2 != Turn.Straight and d3 != Turn.Straight and d4 != Turn.Straight
+        rx := s[2] - s[0]
+        ry := s[3] - s[1]
+        qx := s[6] - s[4]
+        qy := s[7] - s[5]
+        den := rx * qy - ry * qx
+        tn := (s[4] - s[0]) * qy - (s[5] - s[1]) * qx
+        return "cross at ({frac(s[0] * den + tn * rx, den)}, {frac(s[1] * den + tn * ry, den)})"
+    if d1 == Turn.Straight and d2 == Turn.Straight
+        if on_segment(s[0], s[1], s[2], s[3], s[4], s[5]) or on_segment(s[0], s[1], s[2], s[3], s[6], s[7]) or on_segment(s[4], s[5], s[6], s[7], s[0], s[1])
+            return "overlap on one line"
+        return "same line, apart"
+    if (d1 == Turn.Straight and on_segment(s[4], s[5], s[6], s[7], s[0], s[1])) or (d2 == Turn.Straight and on_segment(s[4], s[5], s[6], s[7], s[2], s[3])) or (d3 == Turn.Straight and on_segment(s[0], s[1], s[2], s[3], s[4], s[5])) or (d4 == Turn.Straight and on_segment(s[0], s[1], s[2], s[3], s[6], s[7]))
+        return "touch at an end"
+    "no contact"
+
+fn main()
+    cases := [[0, 0, 4, 4, 0, 4, 4, 0], [0, 0, 5, 1, 1, 3, 4, -2], [0, 0, 2, 2, 2, 2, 5, 0], [0, 0, 4, 0, 2, 0, 6, 0], [0, 0, 1, 0, 2, 0, 3, 0], [0, 0, 3, 3, 4, 0, 5, 2], [1, 1, 7, 2, 3, 0, 3, 5]]
+    for s in cases
+        print("({s[0]},{s[1]})-({s[2]},{s[3]}) with ({s[4]},{s[5]})-({s[6]},{s[7]}): {classify(s)}")
+
+@test fn turns()
+    assert_eq(turn(0, 0, 1, 0, 1, 1), Turn.Left)

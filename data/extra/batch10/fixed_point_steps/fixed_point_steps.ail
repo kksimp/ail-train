@@ -1,0 +1,48 @@
+## Fixed-point iteration: x <- cos x creeps to the Dottie number 0.739085...; Aitken's delta-squared
+## extrapolation of three iterates, repeated (Steffensen's method), gets there in far fewer steps.
+
+fn plain(start float) List[float]
+    mut x := start
+    mut steps := 0
+    while steps < 1000
+        next := x.cos()
+        steps += 1
+        if (next - x).abs() < 0.0000000001
+            x = next
+            break
+        x = next
+    [x, steps.to_float()]
+
+fn steffensen(start float) List[float]
+    mut x := start
+    mut steps := 0
+    while steps < 100
+        a := x.cos()
+        b := a.cos()
+        den := b - 2.0 * a + x
+        if den == 0.0
+            break
+        next := x - (a - x) * (a - x) / den
+        steps += 1
+        if (next - x).abs() < 0.0000000001
+            x = next
+            break
+        x = next
+    [x, steps.to_float()]
+
+fn main()
+    for start in [0.0, 1.0, 3.0]
+        p := plain(start)
+        s := steffensen(start)
+        print("start {start:.1}: plain {p[0]:.10} in {p[1].to_int()} steps, Steffensen {s[0]:.10} in {s[1].to_int()} steps")
+    mut x := 1.0
+    mut row := List[str]()
+    for _ in 0..8
+        x = x.cos()
+        row.push("{x:.5}")
+    shown := row.join(" ")
+    print("first iterates from 1: {shown}")
+
+@test fn dottie()
+    p := plain(1.0)
+    assert((p[0] - p[0].cos()).abs() < 0.000000001)

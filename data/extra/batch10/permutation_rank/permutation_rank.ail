@@ -1,0 +1,41 @@
+## Permutation rank: the position of an ordering in lexicographic order, from its Lehmer code
+## read in the factorial number system, and the reverse: the k-th ordering built digit by digit.
+
+fn rank(perm List[int]) int
+    n := perm.len()
+    mut r := 0
+    for i in 0..n
+        mut smaller := 0
+        for j in (i + 1)..n
+            if perm[j] < perm[i]
+                smaller += 1
+        r = r * (n - i) + smaller
+    r
+
+fn unrank(k int, n int) List[int]
+    mut pool := [i for i in 0..n]
+    mut fact := 1
+    for i in 1..n
+        fact *= i
+    mut rest := k
+    mut out := List[int]()
+    for i in 0..n
+        idx := rest / fact
+        rest = rest % fact
+        out.push(pool[idx])
+        pool.remove_at(idx)
+        if n - 1 - i > 0
+            fact = fact / (n - 1 - i)
+    out
+
+fn main()
+    for p in [[0, 1, 2, 3], [3, 2, 1, 0], [1, 0, 3, 2], [2, 0, 3, 1]]
+        print("{p} has rank {rank(p)}")
+    for k in [0, 5, 17, 23]
+        print("rank {k:>2} of 4 items: {unrank(k, 4)}")
+    m := unrank(999999, 10)
+    shown := m.join("")
+    print("millionth ordering of 0..9: {shown}, rank back {rank(m)}")
+
+@test fn round_trip()
+    assert_eq(rank(unrank(1234, 7)), 1234)

@@ -1,0 +1,40 @@
+## ODE steppers: y' = y from y(0) = 1 to t = 1 with Euler, Heun and classical Runge-Kutta steps;
+## halving the step cuts the error by about 2, 4 and 16 times, showing orders 1, 2 and 4.
+
+fn step(method int, y float, h float) float
+    match method
+        0 => y + h * y
+        1 =>
+            k1 := y
+            k2 := y + h * k1
+            y + h * (k1 + k2) / 2.0
+        _ =>
+            k1 := y
+            k2 := y + h / 2.0 * k1
+            k3 := y + h / 2.0 * k2
+            k4 := y + h * k3
+            y + h * (k1 + 2.0 * k2 + 2.0 * k3 + k4) / 6.0
+
+fn solve(method int, n int) float
+    h := 1.0 / n.to_float()
+    mut y := 1.0
+    for _ in 0..n
+        y = step(method, y, h)
+    y
+
+fn main()
+    one := 1.0
+    e := one.exp()
+    names := ["Euler", "Heun", "RK4"]
+    for m in 0..3
+        mut prev := 0.0
+        for n in [10, 20, 40, 80]
+            err := (solve(m, n) - e).abs()
+            ratio := if prev > 0.0 then prev / err else 0.0
+            note := if prev > 0.0 then "  error ratio {ratio:.2}" else ""
+            print("{names[m]:<5} {n:>2} steps: y(1) = {solve(m, n):.10}, error {err:.10}{note}")
+            prev = err
+    print("exact e = {e:.10}")
+
+@test fn euler_one_step()
+    assert_eq(solve(0, 1), 2.0)

@@ -1,0 +1,46 @@
+## Smith numbers: composites whose digit sum equals the total digit sum of their prime factors
+## counted with repetition, like 22 = 2 x 11 (2 + 2 = 2 + 1 + 1); primes are left out.
+
+fn digit_sum(n int) int
+    mut x := n
+    mut s := 0
+    while x > 0
+        s += x % 10
+        x = x / 10
+    s
+
+fn factors(n int) List[int]
+    mut out := List[int]()
+    mut x := n
+    mut p := 2
+    while p * p <= x
+        while x % p == 0
+            out.push(p)
+            x = x / p
+        p += 1
+    if x > 1
+        out.push(x)
+    out
+
+fn is_smith(n int) bool
+    fs := factors(n)
+    if fs.len() < 2
+        return false
+    fs.fold(0, |acc, p| acc + digit_sum(p)) == digit_sum(n)
+
+fn main()
+    small := [n for n in 2..300 if is_smith(n)]
+    print("Smith numbers below 300: {small}")
+    for n in [4937775, 666, 9985]
+        fs := factors(n)
+        shown := fs.join(" x ")
+        print("{n} = {shown}: digit sums {digit_sum(n)} and {fs.fold(0, |acc, p| acc + digit_sum(p))}")
+    mut count := 0
+    for n in 2..10000
+        if is_smith(n)
+            count += 1
+    print("{count} Smith numbers below 10000")
+
+@test fn twenty_two()
+    assert(is_smith(22))
+    assert(not is_smith(23))

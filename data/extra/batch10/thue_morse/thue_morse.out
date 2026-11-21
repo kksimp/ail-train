@@ -1,0 +1,10 @@
+t(0..31) = 01101001100101101001011001101001
+by doubling with complement, same: true
+picking order: A B B A B A A B
+A = [0, 3, 5, 6, 9, 10, 12, 15]
+B = [1, 2, 4, 7, 8, 11, 13, 14]
+sum of k = 0 powers: 8 vs 8
+sum of k = 1 powers: 60 vs 60
+sum of k = 2 powers: 620 vs 620
+sum of k = 3 powers: 7200 vs 7200
+sum of k = 4 powers: 89924 vs 88388

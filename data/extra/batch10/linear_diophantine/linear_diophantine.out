@@ -1,0 +1,5 @@
+7x + 11y = 100: 1 non-negative: (8, 4)
+15x + 21y = 300: 3 non-negative: (6, 10) (13, 5) (20, 0)
+6x + 9y = 100: no solutions: gcd 3 does not divide 100
+12x + 20y = 400: 7 non-negative: (0, 20) (5, 17) (10, 14) (15, 11) (20, 8) (25, 5) (30, 2)
+3x + 5y = 7: 0 non-negative: none

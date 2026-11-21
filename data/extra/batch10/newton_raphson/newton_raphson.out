@@ -1,0 +1,9 @@
+x^3 - 2x - 5 = 0  root 2.094551481542 after 5 steps, f(root) tiny: true
+x^2 = 2           root 1.414213562373 after 6 steps, f(root) tiny: true
+x^3 = 10          root 2.154434690032 after 5 steps, f(root) tiny: true
+cos x = x         root 0.739085133215 after 5 steps, f(root) tiny: true
+    step 0: 2.000000000000000
+    step 1: 2.100000000000000
+    step 2: 2.094568121104185
+    step 3: 2.094551481698199
+    step 4: 2.094551481542327

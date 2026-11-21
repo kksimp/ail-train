@@ -1,0 +1,10 @@
+n = 1: D =    0, brute force    0, of    1 orderings
+n = 2: D =    1, brute force    1, of    2 orderings
+n = 3: D =    2, brute force    2, of    6 orderings
+n = 4: D =    9, brute force    9, of   24 orderings
+n = 5: D =   44, brute force   44, of  120 orderings
+n = 6: D =  265, brute force  265, of  720 orderings
+n = 7: D = 1854, brute force 1854, of 5040 orderings
+D(10) = 1334961, share 0.367879464
+D(15) = 481066515734, share 0.367879441
+1/e = 0.367879441

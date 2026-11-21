@@ -1,0 +1,45 @@
+## Perrin sequence: P(0) = 3, P(1) = 0, P(2) = 2 and P(n) = P(n-2) + P(n-3); every prime n divides
+## P(n), computed here modulo n, and no composite below the first pseudoprime 271441 does.
+
+fn perrin_mod(n int) int
+    mut a := 3 % n
+    mut b := 0
+    mut c := 2 % n
+    for _ in 0..n
+        next := (a + b) % n
+        a = b
+        b = c
+        c = next
+    a
+
+fn is_prime(n int) bool
+    if n < 2
+        return false
+    mut d := 2
+    while d * d <= n
+        if n % d == 0
+            return false
+        d += 1
+    true
+
+fn main()
+    mut terms := [3, 0, 2]
+    while terms.len() < 20
+        k := terms.len()
+        terms.push(terms[k - 2] + terms[k - 3])
+    print("P(0..19) = {terms}")
+    mut hits := List[int]()
+    mut mismatches := 0
+    for n in 2..=400
+        divides := perrin_mod(n) == 0
+        if divides
+            hits.push(n)
+        if divides != is_prime(n)
+            mismatches += 1
+    print("n <= 400 dividing P(n): {hits.len()}, first {hits.take(12)}")
+    print("disagreements with trial division: {mismatches}")
+    for n in [9, 25, 91, 341, 561]
+        print("P({n}) mod {n} = {perrin_mod(n)}")
+
+@test fn seven()
+    assert_eq(perrin_mod(7), 0)

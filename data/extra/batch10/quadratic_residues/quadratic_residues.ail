@@ -1,0 +1,35 @@
+## Quadratic residues: the squares modulo a prime p, and the Legendre symbol from Euler's
+## criterion a^((p-1)/2) mod p, checked against the rules for -1 (p mod 4) and 2 (p mod 8).
+
+fn pow_mod(b int, e int, m int) int
+    mut result := 1
+    mut base := b % m
+    mut exp := e
+    while exp > 0
+        if exp % 2 == 1
+            result = result * base % m
+        base = base * base % m
+        exp = exp / 2
+    result
+
+fn legendre(a int, p int) int
+    r := pow_mod(((a % p) + p) % p, (p - 1) / 2, p)
+    if r == p - 1 then -1 else r
+
+fn main()
+    for p in [7, 11, 13, 17, 23, 29]
+        mut squares := Set[int]()
+        for x in 1..p
+            squares.add(x * x % p)
+        res := squares.sorted()
+        minus := legendre(-1, p)
+        two := legendre(2, p)
+        rule_minus := if p % 4 == 1 then 1 else -1
+        rule_two := if p % 8 == 1 or p % 8 == 7 then 1 else -1
+        ok := minus == rule_minus and two == rule_two
+        print("p = {p:>2}: residues {res}")
+        print("        (-1|p) = {minus}, (2|p) = {two}, rules agree: {ok}")
+
+@test fn symbols()
+    assert_eq(legendre(2, 7), 1)
+    assert_eq(legendre(3, 7), -1)

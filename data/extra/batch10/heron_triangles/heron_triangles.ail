@@ -1,0 +1,37 @@
+## Heronian triangles: integer sides and integer area; Heron's formula as 16A^2 = (a+b+c)(-a+b+c)
+## (a-b+c)(a+b-c) keeps everything in integers, and the area is whole when that is (4A)^2.
+
+fn isqrt(v int) int
+    mut y := v.to_float().sqrt().to_int()
+    while (y + 1) * (y + 1) <= v
+        y += 1
+    while y * y > v
+        y -= 1
+    y
+
+fn area(a int, b int, c int) int?
+    p := (a + b + c) * (-a + b + c) * (a - b + c) * (a + b - c)
+    if p <= 0
+        return none
+    r := isqrt(p)
+    if r * r != p or r % 4 != 0
+        return none
+    r / 4
+
+fn main()
+    mut found := List[List[int]]()
+    for c in 1..=30
+        for b in 1..=c
+            for a in 1..=b
+                if ar := area(a, b, c)
+                    found.push([a, b, c, ar])
+    by_perimeter := found.sorted(by: |t| (t[0] + t[1] + t[2], t[2]))
+    print("{found.len()} Heronian triangles with sides up to 30; smallest perimeters:")
+    for t in by_perimeter.take(8)
+        right := if t[0] * t[0] + t[1] * t[1] == t[2] * t[2] then " (right)" else ""
+        print("    {t[0]}, {t[1]}, {t[2]}: perimeter {t[0] + t[1] + t[2]}, area {t[3]}{right}")
+    same := found.filter(|t| t[3] == t[0] + t[1] + t[2])
+    print("area equal to perimeter: {same.map(|t| t.take(3))}")
+
+@test fn classic()
+    assert_eq(area(13, 14, 15) else 0, 84)

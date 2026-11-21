@@ -1,0 +1,9 @@
+periods 2:3, 3:8, 4:6, 5:20, 6:24, 7:16, 8:12, 9:24, 10:60, 11:10, 12:24
+last digit repeats every 60, last two digits every 300
+p = 11: period 10, divides p - 1: true
+p = 19: period 18, divides p - 1: true
+p = 29: period 14, divides p - 1: true
+p = 31: period 30, divides p - 1: true
+p =  7: period 16, divides 2(p + 1): true
+p = 13: period 28, divides 2(p + 1): true
+p = 17: period 36, divides 2(p + 1): true

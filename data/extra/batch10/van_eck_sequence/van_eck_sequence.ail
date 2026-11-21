@@ -1,0 +1,29 @@
+## Van Eck sequence: each term says how many steps back the previous term last appeared, or 0 if
+## it is new; a Map from value to its last position makes each step constant time.
+
+fn van_eck(count int) List[int]
+    mut seq := [0]
+    mut last := Map[int, int]()
+    for n in 0..(count - 1)
+        v := seq[n]
+        if p := last.get(v)
+            seq.push(n - p)
+        else
+            seq.push(0)
+        last[v] = n
+    seq
+
+fn main()
+    seq := van_eck(1000)
+    print("first 25: {seq.take(25)}")
+    zeros := seq.count(|x| x == 0)
+    print("zeros in the first 1000 terms: {zeros}")
+    top := seq.max() else 0
+    print("largest of the first 1000: {top}")
+
+    for target in [5, 10, 20, 50]
+        idx := seq.index_of(target) else -1
+        print("{target} first appears at position {idx}")
+
+@test fn start()
+    assert_eq(van_eck(10), [0, 0, 1, 0, 2, 0, 2, 2, 1, 6])

@@ -1,0 +1,62 @@
+## Closest pair: divide and conquer splits points by x, solves each half, then checks only a thin
+## strip around the split sorted by y; it finds the same pair as checking every pair, with fewer checks.
+
+struct P
+    x int
+    y int
+
+fn d2(a P, b P) int
+    (a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y)
+
+fn brute(ps List[P], mut checks List[int]) int
+    mut best := -1
+    for i in 0..ps.len()
+        for j in (i + 1)..ps.len()
+            checks[0] += 1
+            d := d2(ps[i], ps[j])
+            if best < 0 or d < best
+                best = d
+    best
+
+fn split(ps List[P], mut checks List[int]) int
+    if ps.len() <= 3
+        return brute(ps, mut checks)
+    mid := ps.len() / 2
+    midx := ps[mid].x
+    left := split(ps.slice(0, mid), mut checks)
+    right := split(ps.slice(mid), mut checks)
+    mut best := left.min(right)
+    strip := ps.filter(|p| (p.x - midx) * (p.x - midx) < best).sorted(by: |p| p.y)
+    for i in 0..strip.len()
+        mut j := i + 1
+        while j < strip.len() and (strip[j].y - strip[i].y) * (strip[j].y - strip[i].y) < best
+            checks[0] += 1
+            best = best.min(d2(strip[i], strip[j]))
+            j += 1
+    best
+
+fn main()
+    mut seed := 4242
+    mut pts := List[P]()
+    for _ in 0..60
+        seed = (seed * 1103515245 + 12345) % 2147483648
+        x := (seed / 65536) % 1000
+        seed = (seed * 1103515245 + 12345) % 2147483648
+        y := (seed / 65536) % 1000
+        pts.push(P(x: x, y: y))
+    sorted_pts := pts.sorted(by: |p| (p.x, p.y))
+    mut c1 := [0]
+    mut c2 := [0]
+    a := brute(pts, mut c1)
+    b := split(sorted_pts, mut c2)
+    dist := a.to_float().sqrt()
+    print("60 points: closest squared distance {a} (distance {dist:.3})")
+    print("every pair: {c1[0]} checks; divide and conquer: {b} after {c2[0]} checks")
+    for i in 0..pts.len()
+        for j in (i + 1)..pts.len()
+            if d2(pts[i], pts[j]) == a
+                print("pair ({pts[i].x}, {pts[i].y}) and ({pts[j].x}, {pts[j].y})")
+
+@test fn tiny()
+    mut c := [0]
+    assert_eq(brute([P(x: 0, y: 0), P(x: 3, y: 4), P(x: 1, y: 1)], mut c), 2)

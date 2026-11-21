@@ -1,0 +1,34 @@
+## Vampire numbers: n = x * y where the two fangs x and y have half as many digits as n, are not
+## both multiples of 10, and use exactly n's digits between them, like 1260 = 21 x 60.
+
+fn sorted_digits(n int) str
+    "{n}".chars().sorted().join("")
+
+fn fangs(lo int, hi int) Map[int, List[str]]
+    mut found := Map[int, List[str]]()
+    for x in lo..hi
+        for y in x..hi
+            n := x * y
+            if n < lo * hi or n >= hi * hi
+                continue
+            if x % 10 == 0 and y % 10 == 0
+                continue
+            if sorted_digits(n) == sorted_digits(x * hi + y)
+                found.push(n, "{x} x {y}")
+    found
+
+fn main()
+    four := fangs(10, 100)
+    for n in four.keys().sorted()
+        shown := four[n].join(", ")
+        print("{n} = {shown}")
+    six := fangs(100, 1000)
+    keys := six.keys().sorted()
+    print("{keys.len()} six-digit vampires, the first {keys.take(5)}")
+    for n in keys
+        if six[n].len() > 1
+            shown := six[n].join(" = ")
+            print("{n} has two pairs of fangs: {shown}")
+
+@test fn first()
+    assert_eq(sorted_digits(1260), sorted_digits(2160))

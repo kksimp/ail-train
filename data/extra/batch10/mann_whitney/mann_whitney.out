@@ -1,0 +1,4 @@
+ranks: [6.0, 2.0, 10.5, 4.5, 1.0, 8.0, 3.0, 4.5, 13.0, 9.0, 15.0, 12.0, 7.0, 14.0, 10.5]
+coffee rank sum 39.5, U1 = 3.5, U2 = 52.5
+mean U 28.0, sd 8.641, z = -2.835
+the groups differ at the 5% level

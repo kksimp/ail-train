@@ -1,0 +1,41 @@
+## Coupon collector: expected draws to see all n kinds is n times the n-th harmonic number;
+## a seeded linear congruential generator plays the game many times to compare.
+
+fn expected(n int) float
+    mut h := 0.0
+    for k in 1..=n
+        h += 1.0 / k.to_float()
+    n.to_float() * h
+
+struct Rng
+    seed int
+
+fn Rng.below(mut self, n int) int
+    self.seed = (self.seed * 1103515245 + 12345) % 2147483648
+    (self.seed / 65536) % n
+
+fn trial(mut rng Rng, n int) int
+    mut seen := Set[int]()
+    mut draws := 0
+    while seen.len() < n
+        seen.add(rng.below(n))
+        draws += 1
+    draws
+
+fn main()
+    mut rng := Rng(seed: 2024)
+    for n in [2, 6, 10, 20]
+        runs := 2000
+        mut total := 0
+        mut most := 0
+        for _ in 0..runs
+            d := trial(mut rng, n)
+            total += d
+            if d > most
+                most = d
+        avg := total.to_float() / runs.to_float()
+        print("{n:>2} kinds: expected {expected(n):.2}, simulated {avg:.2}, worst run {most}")
+    print("collecting 50 kinds takes about {expected(50):.1} draws")
+
+@test fn two_kinds()
+    assert_eq(expected(2), 3.0)

@@ -1,0 +1,27 @@
+## Golomb's sequence: the non-decreasing sequence where n appears exactly a(n) times, from
+## a(n) = 1 + a(n - a(a(n - 1))); it grows like phi^(2 - phi) n^(phi - 1) with phi the golden ratio.
+
+fn golomb(count int) List[int]
+    mut a := [0, 1]
+    for n in 2..=count
+        a.push(1 + a[n - a[a[n - 1]]])
+    a
+
+fn main()
+    a := golomb(10000)
+    print("a(1..30) = {a.slice(1, 31)}")
+    mut ok := true
+    for v in 1..=20
+        times := a.slice(1).count(|x| x == v)
+        if times != a[v]
+            ok = false
+    print("each of 1..20 appears a(n) times: {ok}")
+    five := 5.0
+    phi := (1.0 + five.sqrt()) / 2.0
+    for n in [10, 100, 1000, 10000]
+        nf := n.to_float()
+        est := phi.pow(2.0 - phi) * nf.pow(phi - 1.0)
+        print("a({n}) = {a[n]}, estimate {est:.1}")
+
+@test fn start()
+    assert_eq(golomb(10).slice(1), [1, 2, 2, 3, 3, 4, 4, 4, 5, 5])

@@ -1,0 +1,35 @@
+## Taylor sine: sin and cos from their power series after reducing the angle into -pi..pi, adding
+## terms until they fall below 1e-16; the number of terms grows with the angle's size.
+
+fn reduce(x float) float
+    tau := 6.283185307179586
+    mut r := x
+    while r > 3.141592653589793
+        r -= tau
+    while r < -3.141592653589793
+        r += tau
+    r
+
+fn series(x float, start int) List[float]
+    mut term := if start == 0 then 1.0 else x
+    mut total := term
+    mut k := start
+    mut terms := 1
+    while term.abs() > 0.0000000000000001
+        term = -term * x * x / ((k + 1) * (k + 2)).to_float()
+        total += term
+        k += 2
+        terms += 1
+    [total, terms.to_float()]
+
+fn main()
+    for deg in [0.0, 30.0, 45.0, 90.0, 135.0, 300.0, 1000.0]
+        x := reduce(deg * 3.141592653589793 / 180.0)
+        s := series(x, 1)
+        c := series(x, 0)
+        raw := deg * 3.141592653589793 / 180.0
+        close := (s[0] - raw.sin()).abs() < 0.000000000001 and (c[0] - raw.cos()).abs() < 0.000000000001
+        print("{deg:>6.1} deg: sin {s[0]:>9.6} ({s[1].to_int():>2} terms), cos {c[0]:>9.6} ({c[1].to_int():>2} terms), matches built-in: {close}")
+
+@test fn zero()
+    assert_eq(series(0.0, 1)[0], 0.0)

@@ -1,0 +1,42 @@
+## De Bruijn sequences: a cyclic string over k symbols in which every length-n word appears exactly
+## once, built by joining Lyndon words in order (the FKM algorithm); every window is then checked.
+
+fn build(t int, p int, n int, k int, mut a List[int], mut out List[int])
+    if t > n
+        if n % p == 0
+            for i in 1..=p
+                out.push(a[i])
+        return
+    a[t] = a[t - p]
+    build(t + 1, p, n, k, mut a, mut out)
+    for j in (a[t - p] + 1)..k
+        a[t] = j
+        build(t + 1, t, n, k, mut a, mut out)
+
+fn de_bruijn(k int, n int) List[int]
+    mut a := [0 for i in 0..=n]
+    mut out := List[int]()
+    build(1, 1, n, k, mut a, mut out)
+    out
+
+fn distinct_windows(seq List[int], n int) int
+    mut seen := Set[str]()
+    for i in 0..seq.len()
+        mut w := List[int]()
+        for j in 0..n
+            w.push(seq[(i + j) % seq.len()])
+        seen.add(w.join(""))
+    seen.len()
+
+fn main()
+    for kn in [[2, 3], [2, 4], [3, 2], [3, 3], [4, 2]]
+        k := kn[0]
+        n := kn[1]
+        s := de_bruijn(k, n)
+        text := s.join("")
+        print("B({k}, {n}) length {s.len()}: {text}, distinct windows {distinct_windows(s, n)}")
+    code := de_bruijn(10, 3)
+    print("a 3-digit keypad needs {code.len() + 2} presses instead of {3 * 1000}")
+
+@test fn binary_three()
+    assert_eq(de_bruijn(2, 3), [0, 0, 0, 1, 0, 1, 1, 1])

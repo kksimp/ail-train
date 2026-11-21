@@ -1,0 +1,14 @@
+1 beads, 2 colours: Burnside    2, brute force    2
+2 beads, 2 colours: Burnside    3, brute force    3
+3 beads, 2 colours: Burnside    4, brute force    4
+4 beads, 2 colours: Burnside    6, brute force    6
+5 beads, 2 colours: Burnside    8, brute force    8
+6 beads, 2 colours: Burnside   14, brute force   14
+7 beads, 2 colours: Burnside   20, brute force   20
+8 beads, 2 colours: Burnside   36, brute force   36
+1 beads, 3 colours: Burnside    3, brute force    3
+2 beads, 3 colours: Burnside    6, brute force    6
+3 beads, 3 colours: Burnside   11, brute force   11
+4 beads, 3 colours: Burnside   24, brute force   24
+5 beads, 3 colours: Burnside   51, brute force   51
+6 beads, 3 colours: Burnside  130, brute force  130

@@ -1,0 +1,40 @@
+## Linear Diophantine: a*x + b*y = c has integer solutions only when gcd(a, b) divides c; from
+## one Bezout solution the rest step by b/g and a/g, and the non-negative ones are listed.
+
+fn ext_gcd(a int, b int) List[int]
+    if b == 0
+        return [a, 1, 0]
+    r := ext_gcd(b, a % b)
+    [r[0], r[2], r[1] - (a / b) * r[2]]
+
+fn solve(a int, b int, c int) List[List[int]] ! str
+    g := ext_gcd(a, b)
+    if c % g[0] != 0
+        return "no solutions: gcd {g[0]} does not divide {c}"
+    step := b / g[0]
+    x0 := g[1] * (c / g[0])
+    mut x := ((x0 % step) + step) % step
+    mut out := List[List[int]]()
+    while a * x <= c
+        out.push([x, (c - a * x) / b])
+        x += step
+    out
+
+fn main()
+    problems := [[7, 11, 100], [15, 21, 300], [6, 9, 100], [12, 20, 400], [3, 5, 7]]
+    for pr in problems
+        a := pr[0]
+        b := pr[1]
+        c := pr[2]
+        if sols := solve(a, b, c)
+            mut shown := List[str]()
+            for s in sols
+                shown.push("({s[0]}, {s[1]})")
+            text := if shown.is_empty() then "none" else shown.join(" ")
+            print("{a}x + {b}y = {c}: {sols.len()} non-negative: {text}")
+        else err
+            print("{a}x + {b}y = {c}: {err}")
+
+@test fn stamps()
+    sols := solve(3, 5, 7) else []
+    assert_eq(sols, [])

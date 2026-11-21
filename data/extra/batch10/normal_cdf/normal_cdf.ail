@@ -1,0 +1,29 @@
+## Normal distribution: the bell curve's cumulative chance from a numeric erf (Abramowitz and
+## Stegun 7.1.26); gives the 68-95-99.7 rule and the share of adults in a height range.
+
+fn erf(x float) float
+    sign := if x < 0.0 then -1.0 else 1.0
+    ax := x.abs()
+    t := 1.0 / (1.0 + 0.3275911 * ax)
+    poly := ((((1.061405429 * t - 1.453152027) * t + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t
+    sign * (1.0 - poly * (-ax * ax).exp())
+
+fn cdf(z float) float
+    two := 2.0
+    0.5 * (1.0 + erf(z / two.sqrt()))
+
+fn main()
+    for k in [1.0, 2.0, 3.0]
+        inside := cdf(k) - cdf(-k)
+        print("within {k:.0} sd: {inside * 100.0:.2}%")
+    for z in [-1.645, 0.0, 1.282, 1.96, 2.576]
+        print("P(Z < {z:>6.3}) = {cdf(z):.4}")
+    mean := 170.0
+    sd := 7.5
+    lo := 160.0
+    hi := 185.0
+    share := cdf((hi - mean) / sd) - cdf((lo - mean) / sd)
+    print("heights mean {mean:.0} cm, sd {sd:.1}: between {lo:.0} and {hi:.0} cm {share * 100.0:.1}%")
+
+@test fn middle()
+    assert((cdf(0.0) - 0.5).abs() < 0.000001)

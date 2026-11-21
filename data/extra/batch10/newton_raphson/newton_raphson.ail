@@ -1,0 +1,43 @@
+## Newton-Raphson: x <- x - f(x) / f'(x) roughly doubles the correct digits each step; shown on
+## Wallis's cubic x^3 - 2x - 5, square and cube roots, and cos x = x, with the step count.
+
+fn f(kind int, x float) float
+    match kind
+        0 => x * x * x - 2.0 * x - 5.0
+        1 => x * x - 2.0
+        2 => x * x * x - 10.0
+        _ => x.cos() - x
+
+fn df(kind int, x float) float
+    match kind
+        0 => 3.0 * x * x - 2.0
+        1 => 2.0 * x
+        2 => 3.0 * x * x
+        _ => -x.sin() - 1.0
+
+fn newton(kind int, start float, mut trail List[float]) float
+    mut x := start
+    for _ in 0..50
+        trail.push(x)
+        next := x - f(kind, x) / df(kind, x)
+        if (next - x).abs() < 0.000000000001
+            return next
+        x = next
+    x
+
+fn main()
+    names := ["x^3 - 2x - 5 = 0", "x^2 = 2", "x^3 = 10", "cos x = x"]
+    starts := [2.0, 1.0, 2.0, 1.0]
+    for k in 0..4
+        mut trail := List[float]()
+        root := newton(k, starts[k], mut trail)
+        print("{names[k]:<17} root {root:.12} after {trail.len()} steps, f(root) tiny: {f(k, root).abs() < 0.000000001}")
+    mut trail := List[float]()
+    _ := newton(0, 2.0, mut trail)
+    for i, x in trail.enumerate()
+        print("    step {i}: {x:.15}")
+
+@test fn sqrt_two()
+    mut t := List[float]()
+    r := newton(1, 1.0, mut t)
+    assert((r * r - 2.0).abs() < 0.000000001)

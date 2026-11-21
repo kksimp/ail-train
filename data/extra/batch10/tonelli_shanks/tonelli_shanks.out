@@ -1,0 +1,7 @@
+x^2 = 10 mod 13: x = 6 or 7, check 10
+x^2 = 2 mod 17: x = 6 or 11, check 2
+x^2 = 5 mod 41: x = 13 or 28, check 5
+x^2 = 3 mod 41: no root, 3 is not a square mod 41
+x^2 = 99 mod 113: x = 41 or 72, check 99
+x^2 = 1000 mod 1000003: x = 57862 or 942141, check 1000
+x^2 = 123456 mod 1000003: x = 298589 or 701414, check 123456
