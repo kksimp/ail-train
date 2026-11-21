@@ -1,0 +1,25 @@
+## Delivery slots: two-hour slots with a van capacity; orders ask for a preferred slot and
+## are moved to the next free slot when theirs is full, or turned away after the last one.
+
+fn main()
+    slots := ["08-10", "10-12", "12-14", "14-16", "16-18"]
+    capacity := 2
+    mut load := [0 for _ in 0..slots.len()]
+    orders := [("A1", 0), ("A2", 0), ("A3", 0), ("B1", 3), ("B2", 3), ("A4", 1), ("C1", 4), ("C2", 4), ("C3", 3), ("C4", 4)]
+    mut turned_away := List[str]()
+    for o in orders
+        id, want := o
+        mut s := want
+        while s < slots.len() and load[s] >= capacity
+            s += 1
+        if s == slots.len()
+            turned_away.push(id)
+            continue
+        load[s] += 1
+        moved := if s == want then "" else " (moved from {slots[want]})"
+        print("{id} -> {slots[s]}{moved}")
+    print("load: {load}")
+    print("turned away: {turned_away}")
+
+@test fn list_fill()
+    assert_eq([0 for _ in 0..3], [0, 0, 0])

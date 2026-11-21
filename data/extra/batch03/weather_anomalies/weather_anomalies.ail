@@ -1,0 +1,22 @@
+## Weather anomalies: compares each day's temperature (tenths of a degree) with the mean of
+## the previous seven days and flags days more than 3 degrees away.
+
+fn show(t int) str
+    sign := if t < 0 then "-" else ""
+    a := t.abs()
+    "{sign}{a / 10}.{a % 10}"
+
+fn main()
+    temps := [112, 118, 121, 115, 109, 117, 120, 158, 119, 113, 71, 116, 122, 125, 89, 121]
+    mut flagged := 0
+    for i in 7..temps.len()
+        window := temps.slice(i - 7, i)
+        mean := window.sum() / 7
+        diff := temps[i] - mean
+        if diff.abs() > 30
+            flagged += 1
+            print("day {i + 1}: {show(temps[i])} vs mean {show(mean)} ({show(diff)})")
+    print("{flagged} unusual days of {temps.len() - 7} checked")
+
+@test fn negative_display()
+    assert_eq(show(-35), "-3.5")

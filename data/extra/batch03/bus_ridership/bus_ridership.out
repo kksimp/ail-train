@@ -1,0 +1,9 @@
+Depot     +12  -0   on board 12
+Market    +25  -3   on board 34
+School    +35  -8   on board 61  over capacity
+Hospital  +6   -21  on board 46
+Park      +9   -4   on board 51
+Station   +14  -22  on board 43
+Harbour   +0   -43  on board  0
+busiest after School with 61
+total trips: 101

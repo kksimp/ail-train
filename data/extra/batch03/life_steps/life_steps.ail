@@ -1,0 +1,52 @@
+## Life steps: Conway's Game of Life on a small grid with dead edges; runs a glider for
+## four generations and prints each, then checks it moved one cell diagonally.
+
+fn neighbours(g List[List[bool]], r int, c int) int
+    mut n := 0
+    for dr in -1..=1
+        for dc in -1..=1
+            rr := r + dr
+            cc := c + dc
+            if (dr != 0 or dc != 0) and rr >= 0 and rr < g.len() and cc >= 0 and cc < g[0].len() and g[rr][cc]
+                n += 1
+    n
+
+fn advance(g List[List[bool]]) List[List[bool]]
+    mut out := g
+    for r in 0..g.len()
+        for c in 0..g[0].len()
+            n := neighbours(g, r, c)
+            out[r][c] = n == 3 or (g[r][c] and n == 2)
+    out
+
+fn cell(x bool) str
+    if x then "#" else "."
+
+fn show(g List[List[bool]])
+    for row in g
+        print(row.map(cell).join(""))
+
+fn live(g List[List[bool]]) List[(int, int)]
+    mut out := List[(int, int)]()
+    for r in 0..g.len()
+        for c in 0..g[0].len()
+            if g[r][c]
+                out.push((r, c))
+    out
+
+fn main()
+    mut g := [[false for c in 0..7] for r in 0..6]
+    for cell in [(0, 1), (1, 2), (2, 0), (2, 1), (2, 2)]
+        r, c := cell
+        g[r][c] = true
+    start := live(g)
+    for gen in 1..=4
+        g = advance(g)
+        print("generation {gen}:")
+        show(g)
+    moved := start.map(|p| (p.0 + 1, p.1 + 1))
+    print("moved diagonally: {live(g) == moved}")
+
+@test fn lonely_cell_dies()
+    g := [[false, false, false], [false, true, false], [false, false, false]]
+    assert(live(advance(g)).is_empty())

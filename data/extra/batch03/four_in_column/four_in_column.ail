@@ -1,0 +1,43 @@
+## Four in a column: drops discs into a 7-column, 6-row grid, refusing full columns, and
+## checks after each drop for four in a row in any direction from the new disc.
+
+fn count_dir(g List[List[char]], r int, c int, dr int, dc int, p char) int
+    mut n := 0
+    mut rr := r + dr
+    mut cc := c + dc
+    while rr >= 0 and rr < 6 and cc >= 0 and cc < 7 and g[rr][cc] == p
+        n += 1
+        rr += dr
+        cc += dc
+    n
+
+fn wins_at(g List[List[char]], r int, c int) bool
+    p := g[r][c]
+    dirs := [(0, 1), (1, 0), (1, 1), (1, -1)]
+    dirs.any(|d| 1 + count_dir(g, r, c, d.0, d.1, p) + count_dir(g, r, c, -d.0, -d.1, p) >= 4)
+
+fn main()
+    mut g := [['.' for c in 0..7] for r in 0..6]
+    drops := [3, 4, 3, 4, 2, 2, 1, 6, 0]
+    mut player := 'R'
+    for i, col in drops.enumerate()
+        mut row := -1
+        for r in 0..6
+            if g[r][col] == '.'
+                row = r
+        if row < 0
+            print("column {col} is full")
+            continue
+        g[row][col] = player
+        if wins_at(g, row, col)
+            print("move {i + 1}: {player} wins in column {col}")
+            break
+        player = if player == 'R' then 'Y' else 'R'
+    for line in g.slice(3)
+        print(line.map(|ch| "{ch}").join(""))
+
+@test fn vertical()
+    mut g := [['.' for c in 0..7] for r in 0..6]
+    for r in 2..6
+        g[r][0] = 'Y'
+    assert(wins_at(g, 2, 0))

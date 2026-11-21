@@ -1,0 +1,21 @@
+## Bus ridership: boardings and alightings at each stop of a route; tracks the load on
+## board, the busiest segment, and warns if the load ever passes the bus's 60 seats.
+
+fn main()
+    stops := [("Depot", 12, 0), ("Market", 25, 3), ("School", 35, 8), ("Hospital", 6, 21), ("Park", 9, 4), ("Station", 14, 22), ("Harbour", 0, 43)]
+    mut load := 0
+    mut busiest := ("", 0)
+    for s in stops
+        name, on, off := s
+        load = load + on - off
+        flag := if load > 60 then "  over capacity" else ""
+        print("{name:<9} +{on:<3} -{off:<3} on board {load:>2}{flag}")
+        if load > busiest.1
+            busiest = (name, load)
+    print("busiest after {busiest.0} with {busiest.1}")
+    print("total trips: {stops.map(|s| s.1).sum()}")
+
+@test fn tuple_update()
+    mut b := ("", 0)
+    b = ("x", 3)
+    assert_eq(b.1, 3)

@@ -1,0 +1,38 @@
+## Lift requests: a lift serves floor requests by sweeping in its current direction and only
+## turning when nothing is left ahead (the elevator algorithm); prints the visit order.
+
+fn serve(start int, going_up bool, requests List[int]) List[int]
+    mut pending := requests.sorted()
+    mut at := start
+    mut up := going_up
+    mut visits := List[int]()
+    while not pending.is_empty()
+        ahead := if up then pending.filter(|f| f >= at) else pending.filter(|f| f <= at).reversed()
+        if ahead.is_empty()
+            up = not up
+            continue
+        target := ahead[0]
+        visits.push(target)
+        at = target
+        i := pending.index_of(target) else 0
+        pending.remove_at(i)
+    visits
+
+fn travel(start int, visits List[int]) int
+    mut total := 0
+    mut at := start
+    for v in visits
+        total += (v - at).abs()
+        at = v
+    total
+
+fn main()
+    requests := [7, 2, 9, 4, 12, 1]
+    for setup in [(5, true), (5, false), (0, true)]
+        start, up := setup
+        visits := serve(start, up, requests)
+        heading := if up then "up" else "down"
+        print("from {start} {heading}: {visits}, {travel(start, visits)} floors")
+
+@test fn sweeps_up_first()
+    assert_eq(serve(3, true, [1, 5]), [5, 1])

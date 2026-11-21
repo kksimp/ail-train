@@ -1,0 +1,31 @@
+## Mine counts: turns a minefield of `*` and `.` into the numbered board a player sees,
+## where each empty square shows how many of its eight neighbours hold mines.
+
+fn annotate(field List[str]) List[str]
+    g := field.map(|row| row.chars())
+    mut out := List[str]()
+    for r in 0..g.len()
+        mut line := ""
+        for c in 0..g[r].len()
+            if g[r][c] == '*'
+                line += "*"
+                continue
+            mut n := 0
+            for rr in (r - 1).max(0)..=(r + 1).min(g.len() - 1)
+                for cc in (c - 1).max(0)..=(c + 1).min(g[r].len() - 1)
+                    if g[rr][cc] == '*'
+                        n += 1
+            line += (if n == 0 then "." else "{n}")
+        out.push(line)
+    out
+
+fn main()
+    field := ["*...*", ".....", "..*..", "**...", "....*"]
+    board := annotate(field)
+    for i in 0..field.len()
+        print("{field[i]}   {board[i]}")
+    mines := field.map(|row| row.chars().filter(|c| c == '*').len()).sum()
+    print("mines: {mines}")
+
+@test fn single_mine()
+    assert_eq(annotate([".*."]), ["1*1"])

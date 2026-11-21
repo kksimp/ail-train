@@ -1,0 +1,42 @@
+## Noughts winner: reads finished noughts-and-crosses boards as three strings and reports
+## the winner, a draw, or an impossible board (wrong move counts or two winners).
+
+fn lines() List[List[int]]
+    [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]]
+
+fn wins(cells List[char], p char) bool
+    lines().any(|l| cells[l[0]] == p and cells[l[1]] == p and cells[l[2]] == p)
+
+fn verdict(rows List[str]) str
+    cells := rows.join("").chars()
+    xs := cells.filter(|c| c == 'X').len()
+    os := cells.filter(|c| c == 'O').len()
+    if xs != os and xs != os + 1
+        return "impossible counts"
+    x_won := wins(cells, 'X')
+    o_won := wins(cells, 'O')
+    if x_won and o_won
+        return "impossible, both won"
+    if x_won
+        return "X wins"
+    if o_won
+        return "O wins"
+    if cells.contains('.')
+        return "still going"
+    "draw"
+
+fn main()
+    boards := [
+        ["XXX", "OO.", "..."],
+        ["XOX", "XOO", "OXX"],
+        ["XO.", "XO.", ".O."],
+        ["XXX", "OOO", "..."],
+        ["XX.", "...", "..."],
+        ["X..", ".O.", "..."],
+        ["OXX", "XOO", "XXO"],
+    ]
+    for b in boards
+        print("{b.join("/")}: {verdict(b)}")
+
+@test fn diagonal()
+    assert_eq(verdict(["XO.", "OX.", "..X"]), "X wins")
