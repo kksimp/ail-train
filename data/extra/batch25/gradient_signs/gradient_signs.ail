@@ -1,0 +1,35 @@
+## Road gradients: each stretch of a route profile climbs rise / run, shown as a percentage and as
+## "1 in N"; stretches of 10% or more get a steep-hill warning sign and 20% or more a very-steep one.
+
+struct Point
+    at int
+    height int
+
+fn sign(pct float) str
+    if pct.abs() >= 20.0 then "very steep" elif pct.abs() >= 10.0 then "steep" else ""
+
+fn main()
+    route := [Point(at: 0, height: 120), Point(at: 400, height: 136), Point(at: 650, height: 166), Point(at: 800, height: 199), Point(at: 1200, height: 211), Point(at: 1500, height: 181), Point(at: 1700, height: 141), Point(at: 2300, height: 129)]
+    mut steepest := 0.0
+    mut warn := 0
+    for w in route.windows(2)
+        a := w[0]
+        b := w[1]
+        run := b.at - a.at
+        rise := b.height - a.height
+        pct := rise.to_float() / run.to_float() * 100.0
+        one_in := if rise == 0 then 0 else run / rise.abs()
+        s := sign(pct)
+        if s != ""
+            warn += 1
+        if pct.abs() > steepest.abs()
+            steepest = pct
+        label := "{a.at}-{b.at} m"
+        row := "{label:<12} {rise:>4} m  {pct:>6.1}%  1 in {one_in:<3} {s}"
+        print(row.trim_end())
+    total := route[route.len() - 1].height - route[0].height
+    print("net change {total} m, steepest {steepest:.1}%, {warn} warning signs")
+
+@test fn signs()
+    assert_eq(sign(-12.0), "steep")
+    assert_eq(sign(22.0), "very steep")

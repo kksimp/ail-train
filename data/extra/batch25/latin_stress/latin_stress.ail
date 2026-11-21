@@ -1,0 +1,39 @@
+## Latin stress: a syllable is heavy with a long vowel, a diphthong (ae, au, oe) or a closing consonant;
+## two-syllable words stress the first, longer ones the penult when it is heavy and the antepenult when not.
+
+fn heavy(s str) bool
+    cs := s.chars()
+    last := cs[cs.len() - 1]
+    long_vowel := cs.any(|c| "āēīōū".contains(c))
+    closed := not "aeiouāēīōū".contains(last)
+    long_vowel or closed or s.contains("ae") or s.contains("au") or s.contains("oe")
+
+fn weight(s str) str
+    if heavy(s) then "H" else "L"
+
+fn stress_index(sylls List[str]) int
+    n := sylls.len()
+    if n < 3
+        return 0
+    if heavy(sylls[n - 2]) then n - 2 else n - 3
+
+fn main()
+    words := ["a.mī.cus", "do.mi.nus", "ma.gis.ter", "fe.nes.tra", "in.su.la", "ro.sa", "pa.tri.a", "ar.bo.rem", "a.gri.co.la", "for.tū.na", "cae.lum", "Ro.mā.nus"]
+    mut penult := 0
+    for w in words
+        sylls := w.split(".")
+        weights := sylls.map(|s| weight(s)).join("")
+        at := stress_index(sylls)
+        if at == sylls.len() - 2
+            penult += 1
+        mut shown := List[str]()
+        for i, s in sylls.enumerate()
+            piece := if i == at then "'{s}" else s
+            shown.push(piece)
+        marked := shown.join("")
+        print("{w:<11} {weights:<4} {marked}")
+    print("penult stressed in {penult} of {words.len()}")
+
+@test fn antepenult()
+    assert_eq(stress_index(["do", "mi", "nus"]), 0)
+    assert_eq(stress_index(["a", "mī", "cus"]), 1)

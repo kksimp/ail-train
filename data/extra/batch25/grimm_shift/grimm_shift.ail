@@ -1,0 +1,45 @@
+## Grimm's law as ordered sound rules: voiceless stops become fricatives, then voiced stops lose voice,
+## then aspirates lose aspiration; run in the reverse order each rule feeds the next and bh ends up as f.
+
+fn segments(w str) List[str]
+    cs := w.chars()
+    mut out := List[str]()
+    mut i := 0
+    while i < cs.len()
+        c := cs[i]
+        if i + 1 < cs.len() and cs[i + 1] == 'h' and (c == 'b' or c == 'd' or c == 'g')
+            out.push("{c}h")
+            i += 2
+        else
+            out.push("{c}")
+            i += 1
+    out
+
+fn pick(s str, from List[str], to List[str]) str
+    if i := from.index_of(s)
+        return to[i]
+    s
+
+fn shift(w str, natural bool) str
+    rules := [[["p", "t", "k"], ["f", "þ", "h"]], [["b", "d", "g"], ["p", "t", "k"]], [["bh", "dh", "gh"], ["b", "d", "g"]]]
+    mut segs := segments(w)
+    for step in 0..3
+        r := if natural then rules[step] else rules[2 - step]
+        segs = segs.map(|s| pick(s, r[0], r[1]))
+    segs.join("")
+
+fn main()
+    words := ["pater", "treyes", "kerd", "dekm", "bhrater", "genu", "yugom", "dhur", "pod", "ghans"]
+    mut differ := 0
+    for w in words
+        good := shift(w, true)
+        bad := shift(w, false)
+        note := if good == bad then "" else ", feeding order gives {bad}"
+        if good != bad
+            differ += 1
+        print("{w:<8} -> {good}{note}")
+    print("{differ} of {words.len()} words depend on the rule order")
+
+@test fn foot()
+    assert_eq(shift("pod", true), "fot")
+    assert_eq(segments("bhrater").len(), 6)

@@ -1,0 +1,58 @@
+## Copeland's method: every pair of candidates is a head-to-head contest decided by the ranked ballots;
+## a candidate scores 1 per win and a half per tie, a Condorcet winner beats everyone, and a rock-paper-scissors cycle has none.
+
+struct Ballot
+    count int
+    order List[str]
+
+fn duel(ballots List[Ballot], a str, b str) int
+    mut margin := 0
+    for bl in ballots
+        ia := bl.order.index_of(a) else 99
+        ib := bl.order.index_of(b) else 99
+        if ia < ib
+            margin += bl.count
+        elif ib < ia
+            margin -= bl.count
+    margin
+
+fn half_text(h int) str
+    tail := if h % 2 == 1 then ".5" else ""
+    "{h / 2}{tail}"
+
+fn report(title str, cands List[str], ballots List[Ballot])
+    mut halves := List[int]()
+    mut winner := ""
+    for a in cands
+        mut score := 0
+        mut beaten := 0
+        for b in cands
+            if a != b
+                m := duel(ballots, a, b)
+                if m > 0
+                    score += 2
+                    beaten += 1
+                elif m == 0
+                    score += 1
+        halves.push(score)
+        if beaten == cands.len() - 1
+            winner = a
+    idx := [k for k in 0..cands.len()]
+    parts := idx.sorted(by: |k| -halves[k]).map(|k| "{cands[k]} {half_text(halves[k])}")
+    found := if winner == "" then "no Condorcet winner" else "Condorcet winner {winner}"
+    shown := parts.join(", ")
+    print("{title}: {shown}; {found}")
+
+fn main()
+    lunch := [Ballot(count: 4, order: ["pizza", "curry", "salad"]), Ballot(count: 3, order: ["curry", "salad", "pizza"]), Ballot(count: 2, order: ["salad", "curry", "pizza"])]
+    report("lunch", ["pizza", "curry", "salad"], lunch)
+    cycle := [Ballot(count: 3, order: ["rock", "scissors", "paper"]), Ballot(count: 3, order: ["paper", "rock", "scissors"]), Ballot(count: 3, order: ["scissors", "paper", "rock"])]
+    report("cycle", ["rock", "paper", "scissors"], cycle)
+    trip := [Ballot(count: 5, order: ["lake", "hills", "city", "coast"]), Ballot(count: 4, order: ["coast", "city", "hills", "lake"]), Ballot(count: 3, order: ["city", "hills", "coast", "lake"]), Ballot(count: 2, order: ["hills", "lake", "city", "coast"]), Ballot(count: 2, order: ["hills", "coast", "lake", "city"])]
+    report("trip", ["lake", "hills", "city", "coast"], trip)
+    m := duel(lunch, "pizza", "curry")
+    print("pizza against curry: margin {m}")
+
+@test fn margin()
+    b := [Ballot(count: 2, order: ["x", "y"]), Ballot(count: 1, order: ["y", "x"])]
+    assert_eq(duel(b, "x", "y"), 1)

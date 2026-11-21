@@ -1,0 +1,31 @@
+## Compass points: a bearing in degrees falls in one of 16 sectors 22.5 degrees wide centred on N, NNE,
+## NE and so on; the back bearing is 180 degrees round, and military mils divide the circle into 6400.
+
+fn point(deg float) str
+    names := ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"]
+    i := ((deg + 11.25) / 22.5).floor().to_int() % 16
+    names[i]
+
+fn back(deg float) float
+    if deg >= 180.0 then deg - 180.0 else deg + 180.0
+
+fn main()
+    legs := [("harbour to lighthouse", 7.0), ("lighthouse to bay", 58.0), ("bay to ridge", 100.5), ("ridge to tarn", 147.0), ("tarn to farm", 200.0), ("farm to mill", 260.0), ("mill to church", 301.0), ("church to harbour", 349.0)]
+    mut counts := Map[str, int]()
+    for l in legs
+        name, deg := l
+        p := point(deg)
+        counts[p.slice(0, 1)] += 1
+        mils := deg * 6400.0 / 360.0
+        b := back(deg)
+        print("{name:<22} {deg:>5.1} {p:<3} back {b:>5.1} {point(b):<3} {mils:>6.0} mils")
+    mut parts := List[str]()
+    for k, v in counts
+        parts.push("{k} {v}")
+    summary := parts.join(", ")
+    print("first letters: {summary}")
+
+@test fn sectors()
+    assert_eq(point(11.0), "N")
+    assert_eq(point(12.0), "NNE")
+    assert_eq(point(355.0), "N")

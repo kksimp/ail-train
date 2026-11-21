@@ -1,0 +1,4 @@
+lunch: curry 2, salad 1, pizza 0; Condorcet winner curry
+cycle: rock 1, paper 1, scissors 1; no Condorcet winner
+trip: hills 3, lake 1, city 1, coast 1; Condorcet winner hills
+pizza against curry: margin -1

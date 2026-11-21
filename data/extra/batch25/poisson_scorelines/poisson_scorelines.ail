@@ -1,0 +1,41 @@
+## Match odds from expected goals: each side's goals follow a Poisson law, P(k) = e^-l l^k / k! built up as
+## P(k) = P(k-1) l / k; multiplying the two gives every scoreline, summed into home win, draw, away win and over 2.5 goals.
+
+fn poisson(l float, n int) List[float]
+    mut ps := [(-l).exp()]
+    for k in 1..=n
+        ps.push(ps[k - 1] * l / k.to_float())
+    ps
+
+fn main()
+    home := poisson(1.6, 5)
+    away := poisson(1.1, 5)
+    mut win := 0.0
+    mut draw := 0.0
+    mut lose := 0.0
+    mut over := 0.0
+    mut best := (0, 0)
+    print("home goals down, away goals across, 0 to 5")
+    for h in 0..6
+        mut cells := List[str]()
+        for a in 0..6
+            p := home[h] * away[a] * 100.0
+            cells.push("{p:>5.1}")
+            if h > a
+                win += p
+            elif h == a
+                draw += p
+            else
+                lose += p
+            if h + a > 2
+                over += p
+            if p > home[best.0] * away[best.1] * 100.0
+                best = (h, a)
+        row := cells.join(" ")
+        print("{h}  {row}")
+    print("home {win:.1}%  draw {draw:.1}%  away {lose:.1}%  over 2.5 goals {over:.1}%")
+    print("most likely score {best.0}-{best.1}")
+
+@test fn sums_to_one()
+    ps := poisson(2.0, 30)
+    assert((ps.fold(0.0, |a, p| a + p) - 1.0).abs() < 0.000001)

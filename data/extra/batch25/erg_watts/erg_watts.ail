@@ -1,0 +1,32 @@
+## Rowing machine power: watts = 2.80 / pace^3 with pace in seconds per metre (the 500 m split / 500), so
+## halving the split needs eight times the power; the cube root turns a watt target back into a split, and 4 splits make a 2k time.
+
+fn split_secs(s str) float
+    parts := s.split(":")
+    mins := parts[0].to_int() else 0
+    rest := parts[1].to_float() else 0.0
+    mins.to_float() * 60.0 + rest
+
+fn show(t float) str
+    tenths := (t * 10.0 + 0.5).floor().to_int()
+    m := tenths / 600
+    s := tenths % 600
+    raw := "{s / 10}"
+    sec := raw.pad_left(2, '0')
+    "{m}:{sec}.{s % 10}"
+
+fn watts(split float) float
+    pace := split / 500.0
+    2.8 / (pace * pace * pace)
+
+fn main()
+    for s in ["2:30.0", "2:00.0", "1:52.5", "1:45.0", "1:38.2", "1:30.0"]
+        t := split_secs(s)
+        print("split {s}  {watts(t):>6.1} W  2k in {show(t * 4.0)}")
+    for w in [100.0, 200.0, 300.0, 400.0]
+        pace := (2.8 / w).cbrt()
+        print("{w:.0} W needs a split of {show(pace * 500.0)}")
+
+@test fn two_minutes()
+    assert((watts(120.0) - 202.546296).abs() < 0.0001)
+    assert_eq(show(105.0), "1:45.0")

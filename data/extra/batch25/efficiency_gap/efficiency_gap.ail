@@ -1,0 +1,34 @@
+## Efficiency gap: in each district every vote for the loser is wasted, and so is every winning vote beyond
+## the half plus one needed; the difference in the two parties' wasted votes over all votes measures a map's tilt.
+
+fn main()
+    districts := [(62000, 38000), (35000, 65000), (36000, 64000), (34000, 66000), (71000, 29000), (38000, 62000), (37000, 63000)]
+    mut waste_a := 0
+    mut waste_b := 0
+    mut seats_a := 0
+    mut votes_a := 0
+    mut total := 0
+    for i, d in districts.enumerate()
+        a, b := d
+        need := (a + b) / 2 + 1
+        wa := if a > b then a - need else a
+        wb := if b > a then b - need else b
+        if a > b
+            seats_a += 1
+        waste_a += wa
+        waste_b += wb
+        votes_a += a
+        total += a + b
+        winner := if a > b then "A" else "B"
+        print("district {i + 1}: A {a:>6,} B {b:>6,} won by {winner}, wasted A {wa:>6,} B {wb:>6,}")
+    gap := (waste_a - waste_b).to_float() / total.to_float() * 100.0
+    share := votes_a.to_float() / total.to_float() * 100.0
+    favours := if gap > 0.0 then "B" else "A"
+    print("party A: {share:.1}% of votes, {seats_a} of {districts.len()} seats")
+    print("efficiency gap {gap.abs():.1}% in favour of {favours}")
+
+@test fn wasted()
+    a := 60
+    b := 40
+    need := (a + b) / 2 + 1
+    assert_eq(a - need, 9)

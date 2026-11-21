@@ -1,0 +1,29 @@
+## Ordered dithering: a grey level becomes a dot when it beats the threshold from a 4x4 Bayer matrix tiled
+## over the image, so a smooth ramp turns into a pattern of dots whose density follows the brightness.
+
+fn main()
+    bayer := [[0, 8, 2, 10], [12, 4, 14, 6], [3, 11, 1, 9], [15, 7, 13, 5]]
+    rows := 8
+    cols := 32
+    mut on := 0
+    mut level_sum := 0
+    for y in 0..rows
+        mut line := List[str]()
+        for x in 0..cols
+            v := (x * 255 / (cols - 1) + y * 12).min(255)
+            level_sum += v
+            if v > bayer[y % 4][x % 4] * 16 + 8
+                line.push("#")
+                on += 1
+            else
+                line.push(".")
+        print(line.join(""))
+    total := rows * cols
+    ink := on * 100 / total
+    mean := level_sum * 100 / (total * 255)
+    print("{on} of {total} dots on ({ink}%), mean brightness {mean}%")
+
+@test fn threshold()
+    bayer := [[0, 8], [12, 4]]
+    assert(128 > bayer[0][1] * 16 + 8)
+    assert(not (128 > bayer[1][0] * 16 + 8))

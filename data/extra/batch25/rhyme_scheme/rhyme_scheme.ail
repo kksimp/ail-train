@@ -1,0 +1,42 @@
+## Rhyme scheme: a line's rhyme key is its end word from the last vowel group on (skipping a silent final
+## e); keys get letters in order of first use, and the letter string names the form (limerick, sonnets, quatrains).
+
+fn is_vowel(c char) bool
+    "aeiouy".contains(c)
+
+fn rhyme_key(word str) str
+    cs := word.to_lower().chars()
+    n := cs.len()
+    mut stop := n
+    if n > 2 and cs[n - 1] == 'e' and not is_vowel(cs[n - 2])
+        stop = n - 1
+    mut i := stop - 1
+    while i > 0 and not is_vowel(cs[i])
+        i -= 1
+    while i > 0 and is_vowel(cs[i - 1])
+        i -= 1
+    cs.slice(i).join("")
+
+fn scheme(ends List[str]) str
+    mut keys := List[str]()
+    mut out := List[str]()
+    for w in ends
+        k := rhyme_key(w)
+        if keys.index_of(k) == none
+            keys.push(k)
+        idx := keys.index_of(k) else 0
+        letter := char.from_code(65 + idx) else '?'
+        out.push("{letter}")
+    out.join("")
+
+fn main()
+    forms := {"AABBA": "limerick", "ABAB": "alternate quatrain", "AABB": "couplets", "ABBA": "envelope quatrain", "ABABCDCDEFEFGG": "Shakespearean sonnet", "ABBAABBACDECDE": "Petrarchan sonnet"}
+    poems := [["tree", "bee", "day", "way", "see"], ["night", "tree", "bright", "free"], ["cat", "hat", "dog", "log"], ["moon", "sing", "ring", "soon"], ["day", "temperate", "May", "date", "shines", "dimmed", "declines", "untrimmed", "fade", "owest", "shade", "growest", "see", "thee"], ["hand", "free", "tree", "land", "stand", "see", "glee", "band", "bright", "shore", "rain", "night", "more", "plain"], ["rose", "blue", "sweet", "true"]]
+    for p in poems
+        s := scheme(p)
+        name := forms.get_or(s, "no named form")
+        print("{p.len():>2} lines {s:<15} {name}")
+
+@test fn keys()
+    assert_eq(rhyme_key("fade"), "ade")
+    assert_eq(scheme(["day", "May", "night"]), "AAB")

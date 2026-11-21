@@ -1,0 +1,38 @@
+## Regnal years: a document dated by the calendar is redated as "the Nth year of the reign of" the
+## monarch reigning then, where each regnal year starts on the anniversary of the accession day.
+
+struct Monarch
+    name str
+    acceded int
+
+fn ordinal(n int) str
+    suffix := if n % 100 >= 11 and n % 100 <= 13 then "th" elif n % 10 == 1 then "st" elif n % 10 == 2 then "nd" elif n % 10 == 3 then "rd" else "th"
+    "{n}{suffix}"
+
+fn regnal(date int, monarchs List[Monarch]) str ! Fail
+    mut current := -1
+    for i, mo in monarchs.enumerate()
+        if mo.acceded <= date
+            current = i
+    if current < 0
+        return Fail(msg: "before the first recorded accession")
+    m := monarchs[current]
+    mut year := date / 10000 - m.acceded / 10000
+    if date % 10000 >= m.acceded % 10000
+        year += 1
+    "the {ordinal(year)} year of {m.name}"
+
+fn main()
+    monarchs := [Monarch(name: "Queen Mab", acceded: 16030324), Monarch(name: "King Oberon", acceded: 16250327), Monarch(name: "Queen Titania", acceded: 16490130), Monarch(name: "King Puck", acceded: 16600529)]
+    docs := [16030401, 16040323, 16040324, 16241231, 16250327, 16480101, 16500130, 16611111, 15991225]
+    for d in docs
+        shown := "{d / 10000}-{(d / 100 % 100):02}-{(d % 100):02}"
+        if r := regnal(d, monarchs)
+            print("{shown}: {r}")
+        else err
+            print("{shown}: {err.msg}")
+
+@test fn anniversary()
+    ms := [Monarch(name: "X", acceded: 20000615)]
+    assert_eq(regnal(20010614, ms)?, "the 1st year of X")
+    assert_eq(regnal(20010615, ms)?, "the 2nd year of X")

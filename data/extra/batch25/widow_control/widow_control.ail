@@ -1,0 +1,46 @@
+## Widows and orphans: paragraphs flow onto pages of 10 lines; a lone first line left at a page foot (orphan)
+## pushes the paragraph to the next page, and a lone last line at a page top (widow) pulls one more line over with it.
+
+fn main()
+    page := 10
+    paras := [6, 3, 2, 4, 5, 3, 8, 4]
+    mut used := 0
+    mut pg := 1
+    mut fixes := 0
+    for i, n in paras.enumerate()
+        mut left := n
+        mut pieces := List[str]()
+        while left > 0
+            room := page - used
+            if left <= room
+                pieces.push("p{pg}:{left}")
+                used += left
+                left = 0
+            else
+                mut take := room
+                if take == 1 or (left == 2 and take > 0)
+                    take = 0
+                    fixes += 1
+                elif left - take == 1
+                    take -= 1
+                    fixes += 1
+                    if take == 1
+                        take = 0
+                if take > 0
+                    pieces.push("p{pg}:{take}")
+                left -= take
+                pg += 1
+                used = 0
+            if used == page
+                pg += 1
+                used = 0
+        shown := pieces.join(" ")
+        print("paragraph {i + 1} ({n} lines): {shown}")
+    last := if used == 0 then pg - 1 else pg
+    print("{last} pages, {fixes} widow or orphan fixes")
+
+@test fn pull_one()
+    left := 5
+    room := 4
+    take := if left - room == 1 then room - 1 else room
+    assert_eq(take, 3)

@@ -1,0 +1,30 @@
+## ISO paper sizes: each A or B size is the one before cut in half across its long side (rounded down
+## to whole mm), keeping the ratio near root 2; a C envelope is the geometric mean of the A and B sizes, so A fits in C fits in B.
+
+fn halve(s List[int]) List[int]
+    [s[1] / 2, s[0]]
+
+fn main()
+    mut a := [841, 1189]
+    mut b := [1000, 1414]
+    two := 2.0
+    root2 := two.sqrt()
+    print("size  A (mm)       B (mm)       C (mm)     A ratio")
+    for n in 0..8
+        cw := ((a[0] * b[0]).to_float().sqrt() + 0.5).floor().to_int()
+        ch := ((a[1] * b[1]).to_float().sqrt() + 0.5).floor().to_int()
+        ratio := a[1].to_float() / a[0].to_float()
+        aa := "{a[0]}x{a[1]}"
+        bb := "{b[0]}x{b[1]}"
+        cc := "{cw}x{ch}"
+        print("{n:>4}  {aa:<12} {bb:<12} {cc:<10} {ratio:.4}")
+        a = halve(a)
+        b = halve(b)
+    sheets := 1 << 4
+    print("root 2 is {root2:.4}; an A0 sheet holds {sheets} A4 sheets")
+
+@test fn a4()
+    mut s := [841, 1189]
+    for i in 0..4
+        s = halve(s)
+    assert_eq(s, [210, 297])

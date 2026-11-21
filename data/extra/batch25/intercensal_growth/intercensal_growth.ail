@@ -1,0 +1,34 @@
+## Intercensal growth: between two censuses t years apart the yearly rate is (P2 / P1)^(1/t) - 1, which
+## estimates the population in any year between them, and a positive rate gives the doubling time ln 2 / ln(1 + r).
+
+struct Count
+    year int
+    people int
+
+fn rate(a Count, b Count) float
+    ratio := b.people.to_float() / a.people.to_float()
+    ratio.pow(1.0 / (b.year - a.year).to_float()) - 1.0
+
+fn main()
+    counts := [Count(year: 1901, people: 412300), Count(year: 1911, people: 468900), Count(year: 1921, people: 455200), Count(year: 1931, people: 512800), Count(year: 1951, people: 640400)]
+    two := 2.0
+    for w in counts.windows(2)
+        r := rate(w[0], w[1])
+        pct := r * 100.0
+        growth := 1.0 + r
+        years := two.ln() / growth.ln()
+        note := if r > 0.0 then "doubles in {years:.0} years" else "shrinking"
+        print("{w[0].year}-{w[1].year}: {pct:>6.3}% a year, {note}")
+    for y in [1906, 1916, 1941]
+        mut i := 0
+        while counts[i + 1].year < y
+            i += 1
+        a := counts[i]
+        base := 1.0 + rate(a, counts[i + 1])
+        est := a.people.to_float() * base.pow((y - a.year).to_float())
+        rounded := (est / 100.0 + 0.5).floor().to_int() * 100
+        print("estimate for {y}: {rounded}")
+
+@test fn steady()
+    r := rate(Count(year: 0, people: 100), Count(year: 2, people: 121))
+    assert((r - 0.1).abs() < 0.000001)

@@ -1,0 +1,36 @@
+## Maidenhead locators: longitude + 180 and latitude + 90 are cut into 18 x 18 fields (letters A-R),
+## 10 x 10 squares (digits) and 24 x 24 subsquares (letters a-x), giving a six-character grid square for radio contacts.
+
+fn letter(base int, i int) str
+    c := char.from_code(base + i) else '?'
+    "{c}"
+
+fn locator(lat float, lon float) str
+    x := lon + 180.0
+    y := lat + 90.0
+    fx := (x / 20.0).floor()
+    fy := (y / 10.0).floor()
+    rx := x - fx * 20.0
+    ry := y - fy * 10.0
+    sx := (rx / 2.0).floor()
+    sy := ry.floor()
+    ux := ((rx - sx * 2.0) * 12.0).floor()
+    uy := ((ry - sy) * 24.0).floor()
+    "{letter(65, fx.to_int())}{letter(65, fy.to_int())}{sx.to_int()}{sy.to_int()}{letter(97, ux.to_int())}{letter(97, uy.to_int())}"
+
+fn centre(loc str) List[float]
+    cs := loc.chars()
+    lon := (cs[0].code() - 65).to_float() * 20.0 + (cs[2].code() - 48).to_float() * 2.0 + ((cs[4].code() - 97).to_float() + 0.5) / 12.0 - 180.0
+    lat := (cs[1].code() - 65).to_float() * 10.0 + (cs[3].code() - 48).to_float() + ((cs[5].code() - 97).to_float() + 0.5) / 24.0 - 90.0
+    [lat, lon]
+
+fn main()
+    places := [("London", 51.5074, -0.1278), ("Tokyo", 35.6762, 139.6503), ("New York", 40.7128, -74.006), ("Sydney", -33.8688, 151.2093), ("Cape Town", -33.9249, 18.4241), ("Reykjavik", 64.1466, -21.9426)]
+    for p in places
+        name, lat, lon := p
+        loc := locator(lat, lon)
+        c := centre(loc)
+        print("{name:<10} {lat:>8.4} {lon:>9.4} -> {loc}, centre {c[0]:.3} {c[1]:.3}")
+
+@test fn london()
+    assert_eq(locator(51.5074, -0.1278), "IO91wm")

@@ -1,0 +1,29 @@
+## UTM zones: the zone is floor((longitude + 180) / 6) + 1, with the wide zone 32V over western Norway and
+## the Svalbard zones 31X to 37X as exceptions; the band letter steps every 8 degrees from C at 80 S, and X covers 72 to 84 N.
+
+fn zone(lat float, lon float) str ! Fail
+    if lat < -80.0 or lat >= 84.0
+        return Fail(msg: "polar, use UPS")
+    bands := "CDEFGHJKLMNPQRSTUVWX"
+    bi := ((lat + 80.0) / 8.0).floor().to_int().min(19)
+    band := bands.char_at(bi) else '?'
+    mut z := ((lon + 180.0) / 6.0).floor().to_int() + 1
+    if band == 'V' and lon >= 3.0 and lon < 12.0
+        z = 32
+    if band == 'X' and lon >= 0.0 and lon < 42.0
+        z = if lon < 9.0 then 31 elif lon < 21.0 then 33 elif lon < 33.0 then 35 else 37
+    "{z}{band}"
+
+fn main()
+    places := [("Bergen", 60.39, 5.32), ("Oslo", 59.91, 10.75), ("Longyearbyen", 78.22, 15.65), ("London", 51.51, -0.13), ("Nairobi", -1.29, 36.82), ("Quito", -0.18, -78.47), ("Auckland", -36.85, 174.76), ("South Pole", -90.0, 0.0), ("Alert", 82.5, -62.3)]
+    for p in places
+        name, lat, lon := p
+        if z := zone(lat, lon)
+            zn := z.slice(0, z.len() - 1).to_int() else 0
+            print("{name:<13} {z:<4} central meridian {zn * 6 - 183}")
+        else err
+            print("{name:<13} {err.msg}")
+
+@test fn norway()
+    assert_eq(zone(60.39, 5.32)?, "32V")
+    assert_eq(zone(51.51, -0.13)?, "30U")

@@ -1,0 +1,15 @@
+ 1 Rosa Lind    gen 0  child -   self
+ 2 Peter Lind   gen 1  child 1   father
+ 3 Ana Costa    gen 1  child 1   mother
+ 4 Hugo Lind    gen 2  child 2   father's father
+ 5 Marta Berg   gen 2  child 2   father's mother
+ 7 Ines Duarte  gen 2  child 3   mother's mother
+ 9 Clara Holm   gen 3  child 4   father's father's mother
+10 Olof Berg    gen 3  child 5   father's mother's father
+14 Rui Duarte   gen 3  child 7   mother's mother's father
+15 Lucia Ramos  gen 3  child 7   mother's mother's mother
+29 Teresa Vaz   gen 4  child 14  mother's mother's father's mother
+generation 1: 2 of 2 ancestors known
+generation 2: 3 of 4 ancestors known
+generation 3: 4 of 8 ancestors known
+generation 4: 1 of 16 ancestors known

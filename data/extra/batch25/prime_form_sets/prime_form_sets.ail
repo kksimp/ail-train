@@ -1,0 +1,40 @@
+## Prime form of a pitch-class set: every rotation of the set and of its inversion is moved to start on 0,
+## and the one most packed to the left (smallest last element, then next to last, Rahn's rule) is the prime form.
+
+fn transpose_rotations(pcs List[int]) List[List[int]]
+    s := pcs.sorted()
+    n := s.len()
+    mut out := List[List[int]]()
+    for k in 0..n
+        mut rot := List[int]()
+        for j in 0..n
+            rot.push((s[(k + j) % n] - s[k] + 12) % 12)
+        out.push(rot)
+    out
+
+fn prime(pcs List[int]) List[int]
+    inverted := pcs.map(|p| (12 - p) % 12)
+    mut cands := transpose_rotations(pcs)
+    cands.extend(transpose_rotations(inverted))
+    mut best := cands[0]
+    for c in cands
+        if c.reversed() < best.reversed()
+            best = c
+    best
+
+fn main()
+    sets := [("C major", [0, 4, 7]), ("C minor", [0, 3, 7]), ("G7", [7, 11, 2, 5]), ("chromatic", [3, 4, 5]), ("whole tone", [0, 2, 4, 6, 8, 10]), ("Viennese", [0, 1, 6]), ("all-interval", [4, 5, 8, 10]), ("pentatonic", [1, 3, 6, 8, 10]), ("B half dim", [11, 2, 5, 9])]
+    mut seen := Map[str, str]()
+    for s in sets
+        name, pcs := s
+        p := prime(pcs)
+        key := p.map(|x| "{x}").join(",")
+        shared := seen.get(key) else ""
+        note := if shared == "" then "" else ", same class as {shared}"
+        if shared == ""
+            seen[key] = name
+        print("{name:<12} {pcs} -> ({key}){note}")
+
+@test fn triads()
+    assert_eq(prime([0, 4, 7]), [0, 3, 7])
+    assert_eq(prime([7, 11, 2, 5]), [0, 2, 5, 8])

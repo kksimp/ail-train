@@ -1,0 +1,37 @@
+## RGB to CMYK for print: black K = 1 - max(r, g, b), and each ink is (1 - channel - K) / (1 - K); the total
+## ink coverage is summed and checked against a 240% newsprint limit, and the inks are turned back into RGB.
+
+struct Cmyk
+    c float
+    m float
+    y float
+    k float
+
+fn pct(x float) int
+    (x * 100.0 + 0.5).floor().to_int()
+
+fn to_cmyk(r int, g int, b int) Cmyk
+    top := r.max(g).max(b)
+    if top == 0
+        return Cmyk(c: 0.0, m: 0.0, y: 0.0, k: 1.0)
+    k := 1.0 - top.to_float() / 255.0
+    rf := r.to_float() / 255.0
+    gf := g.to_float() / 255.0
+    bf := b.to_float() / 255.0
+    Cmyk(c: (1.0 - rf - k) / (1.0 - k), m: (1.0 - gf - k) / (1.0 - k), y: (1.0 - bf - k) / (1.0 - k), k: k)
+
+fn back(x Cmyk) List[int]
+    [x.c, x.m, x.y].map(|v| (255.0 * (1.0 - v) * (1.0 - x.k) + 0.5).floor().to_int())
+
+fn main()
+    colours := [("tomato", 255, 99, 71), ("navy", 0, 0, 128), ("olive", 128, 128, 0), ("teal", 0, 128, 128), ("black", 0, 0, 0), ("plum", 142, 69, 133), ("mustard", 225, 173, 1), ("slate", 47, 79, 79)]
+    for col in colours
+        name, r, g, b := col
+        x := to_cmyk(r, g, b)
+        ink := pct(x.c) + pct(x.m) + pct(x.y) + pct(x.k)
+        flag := if ink > 240 then " too heavy for newsprint" else ""
+        print("{name:<8} C{pct(x.c):>3} M{pct(x.m):>3} Y{pct(x.y):>3} K{pct(x.k):>3}  ink {ink}%  back {back(x)}{flag}")
+
+@test fn pure_red()
+    x := to_cmyk(255, 0, 0)
+    assert_eq([pct(x.c), pct(x.m), pct(x.y), pct(x.k)], [0, 100, 100, 0])

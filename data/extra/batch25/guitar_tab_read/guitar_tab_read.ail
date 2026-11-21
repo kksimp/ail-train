@@ -1,0 +1,34 @@
+## Guitar tab reader: six text lines, high e at the top, hold a fret digit where a string is played;
+## each column with digits becomes the notes open-string MIDI number + fret, named with octaves, chords together.
+
+fn note_name(m int) str
+    names := ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
+    "{names[m % 12]}{m / 12 - 1}"
+
+fn main()
+    tab := ["e|-------3-----0---|", "B|-------0---1-----|", "G|---0---0-2-------|", "D|-2-----0---------|", "A|-------2-------3-|", "E|-------3---------|"]
+    tuning := [64, 59, 55, 50, 45, 40]
+    rows := tab.map(|t| t.chars())
+    width := rows[0].len()
+    mut lowest := 200
+    mut highest := 0
+    mut events := 0
+    for col in 2..width
+        mut notes := List[int]()
+        for s in 0..6
+            if f := rows[s][col].to_digit(10)
+                notes.push(tuning[s] + f)
+        if notes.is_empty()
+            continue
+        events += 1
+        notes.sort()
+        lowest = lowest.min(notes[0])
+        highest = highest.max(notes[notes.len() - 1])
+        names := notes.map(|m| note_name(m)).join(" ")
+        kind := if notes.len() > 1 then "chord" else "note"
+        print("column {col:>2}: {kind} {names}")
+    print("{events} events, range {note_name(lowest)} to {note_name(highest)}")
+
+@test fn open_strings()
+    assert_eq(note_name(40), "E2")
+    assert_eq(note_name(64 + 3), "G4")

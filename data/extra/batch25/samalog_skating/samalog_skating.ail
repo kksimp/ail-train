@@ -1,0 +1,59 @@
+## Speed skating all-round score (samalog): each time is cut to its 500 m equivalent, seconds x 500 / distance,
+## truncated to thousandths, and the four results are added; the lowest total wins, worked in whole thousandths.
+
+struct Skater
+    name str
+    times List[str]
+
+fn hundredths(t str) int
+    mut mins := 0
+    mut rest := t
+    if t.contains(":")
+        parts := t.split(":")
+        mins = parts[0].to_int() else 0
+        rest = parts[1]
+    secs := rest.split(".")
+    whole := secs[0].to_int() else 0
+    frac := secs[1].to_int() else 0
+    (mins * 60 + whole) * 100 + frac
+
+fn leg_points(t str, distance int) int
+    hundredths(t) * 10 * 500 / distance
+
+fn thousandths(points int) str
+    whole := points / 1000
+    frac := points % 1000
+    mut pad := ""
+    if frac < 10
+        pad = "00"
+    elif frac < 100
+        pad = "0"
+    "{whole}.{pad}{frac}"
+
+fn main()
+    distances := [500, 5000, 1500, 10000]
+    skaters := [Skater(name: "Anke", times: ["36.85", "6:21.40", "1:46.95", "13:12.80"]), Skater(name: "Bram", times: ["35.90", "6:30.10", "1:45.20", "13:30.55"]), Skater(name: "Cees", times: ["37.40", "6:15.05", "1:48.10", "12:58.30"])]
+    print("skater  500m    5000m   1500m   10000m  total")
+    mut best_name := ""
+    mut best := 0
+    mut second := 0
+    for s in skaters
+        mut row := List[str]()
+        mut total := 0
+        for i in 0..4
+            p := leg_points(s.times[i], distances[i])
+            total += p
+            row.push(thousandths(p))
+        cells := row.join("  ")
+        print("{s.name:<6}  {cells}  {thousandths(total)}")
+        if best_name == "" or total < best
+            second = best
+            best = total
+            best_name = s.name
+        elif second == 0 or total < second
+            second = total
+    print("champion {best_name}, ahead by {thousandths(second - best)} points")
+
+@test fn legs()
+    assert_eq(leg_points("1:46.30", 1500), 35433)
+    assert_eq(thousandths(35045), "35.045")

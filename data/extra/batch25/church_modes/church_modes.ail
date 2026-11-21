@@ -1,0 +1,40 @@
+## Church modes: the seven rotations of the major step pattern W W H W W W H built on a melody's final
+## note; every mode whose scale holds all the melody's notes is a candidate, so short tunes can stay ambiguous.
+
+fn pc(note str) int
+    base := {'C': 0, 'D': 2, 'E': 4, 'F': 5, 'G': 7, 'A': 9, 'B': 11}
+    cs := note.chars()
+    mut p := base.get_or(cs[0], 0)
+    if cs.len() > 1
+        p += if cs[1] == '#' then 1 else 11
+    p % 12
+
+fn mode_scale(final int, m int) Set[int]
+    steps := [2, 2, 1, 2, 2, 2, 1]
+    mut s := Set[int]()
+    mut p := final
+    for i in 0..7
+        s.add(p)
+        p = (p + steps[(m + i) % 7]) % 12
+    s
+
+fn main()
+    modes := ["Ionian", "Dorian", "Phrygian", "Lydian", "Mixolydian", "Aeolian", "Locrian"]
+    tunes := ["D F E D G A B A D", "E F G E D C D E", "F A C B A G F", "G B D F E D G", "A C E D C B A", "D F# A G F# E D", "G Bb D C Bb A G E F G", "B D F E D C B"]
+    for t in tunes
+        notes := t.split(" ")
+        final := pc(notes[notes.len() - 1])
+        mut used := Set[int]()
+        for n in notes
+            used.add(pc(n))
+        mut fits := List[str]()
+        for m in 0..7
+            if used.is_subset(mode_scale(final, m))
+                fits.push(modes[m])
+        last := notes[notes.len() - 1]
+        shown := fits.join(" or ")
+        print("{t:<22} final {last:<2} {shown}")
+
+@test fn dorian()
+    assert(mode_scale(2, 1).contains(11))
+    assert(not mode_scale(2, 5).contains(11))

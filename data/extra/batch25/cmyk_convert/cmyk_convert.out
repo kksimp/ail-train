@@ -1,0 +1,8 @@
+tomato   C  0 M 61 Y 72 K  0  ink 133%  back [255, 99, 71]
+navy     C100 M100 Y  0 K 50  ink 250%  back [0, 0, 128] too heavy for newsprint
+olive    C  0 M  0 Y100 K 50  ink 150%  back [128, 128, 0]
+teal     C100 M  0 Y  0 K 50  ink 150%  back [0, 128, 128]
+black    C  0 M  0 Y  0 K100  ink 100%  back [0, 0, 0]
+plum     C  0 M 51 Y  6 K 44  ink 101%  back [142, 69, 133]
+mustard  C  0 M 23 Y100 K 12  ink 135%  back [225, 173, 1]
+slate    C 41 M  0 Y  0 K 69  ink 110%  back [47, 79, 79]

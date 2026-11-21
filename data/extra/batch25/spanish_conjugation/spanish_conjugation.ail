@@ -1,0 +1,35 @@
+## Spanish present tense: the infinitive's -ar, -er or -ir picks six endings, and stem-changing verbs turn
+## the last e of the stem into ie or the last o into ue in every person except nosotros and vosotros.
+
+struct Verb
+    inf str
+    change str
+
+fn conjugate(v Verb, person int) str
+    endings := {"ar": ["o", "as", "a", "amos", "áis", "an"], "er": ["o", "es", "e", "emos", "éis", "en"], "ir": ["o", "es", "e", "imos", "ís", "en"]}
+    n := v.inf.len()
+    mut stem := v.inf.slice(0, n - 2)
+    group := v.inf.slice(n - 2)
+    if v.change != "" and person != 3 and person != 4
+        target := if v.change == "ie" then "e" else "o"
+        if i := stem.rfind(target)
+            before := stem.slice(0, i)
+            after := stem.slice(i + 1)
+            stem = "{before}{v.change}{after}"
+    "{stem}{endings[group][person]}"
+
+fn main()
+    verbs := [Verb(inf: "hablar", change: ""), Verb(inf: "comer", change: ""), Verb(inf: "vivir", change: ""), Verb(inf: "pensar", change: "ie"), Verb(inf: "querer", change: "ie"), Verb(inf: "preferir", change: "ie"), Verb(inf: "dormir", change: "ue"), Verb(inf: "contar", change: "ue")]
+    mut changed := 0
+    for v in verbs
+        forms := [conjugate(v, p) for p in 0..6]
+        if v.change != ""
+            changed += 4
+        shown := forms.join(", ")
+        print("{v.inf:<9} {shown}")
+    print("{changed} forms with a changed stem")
+
+@test fn duermo()
+    v := Verb(inf: "dormir", change: "ue")
+    assert_eq(conjugate(v, 0), "duermo")
+    assert_eq(conjugate(v, 3), "dormimos")

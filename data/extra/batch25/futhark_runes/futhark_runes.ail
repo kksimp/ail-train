@@ -1,0 +1,42 @@
+## Elder Futhark transliteration: Latin letters map to runes one by one, with th, ng and ei taken as
+## single runes first and c, k and q sharing one; reading the runes back shows what the spelling lost.
+
+fn to_runes(word str, m Map[str, str]) str
+    cs := word.to_lower().chars()
+    mut out := List[str]()
+    mut i := 0
+    while i < cs.len()
+        if i + 1 < cs.len()
+            pair := "{cs[i]}{cs[i + 1]}"
+            if m.contains(pair)
+                out.push(m[pair])
+                i += 2
+                continue
+        one := "{cs[i]}"
+        out.push(m.get_or(one, one))
+        i += 1
+    out.join("")
+
+fn from_runes(text str, back Map[str, str]) str
+    text.chars().map(|c| back.get_or("{c}", "?")).join("")
+
+fn main()
+    pairs := [("f", "ᚠ"), ("u", "ᚢ"), ("th", "ᚦ"), ("a", "ᚨ"), ("r", "ᚱ"), ("k", "ᚲ"), ("g", "ᚷ"), ("w", "ᚹ"), ("h", "ᚺ"), ("n", "ᚾ"), ("i", "ᛁ"), ("j", "ᛃ"), ("ei", "ᛇ"), ("p", "ᛈ"), ("z", "ᛉ"), ("s", "ᛊ"), ("t", "ᛏ"), ("b", "ᛒ"), ("e", "ᛖ"), ("m", "ᛗ"), ("l", "ᛚ"), ("ng", "ᛜ"), ("o", "ᛟ"), ("d", "ᛞ"), ("c", "ᚲ"), ("q", "ᚲ"), ("v", "ᚹ"), ("y", "ᛃ"), ("x", "ᚲᛊ")]
+    mut m := Map[str, str]()
+    mut back := Map[str, str]()
+    for p in pairs
+        latin, rune := p
+        m[latin] = rune
+        if not back.contains(rune)
+            back[rune] = latin
+    for w in ["Thor", "Freya", "King", "Odin", "Heimdall", "Quick", "Viking", "Alex"]
+        r := to_runes(w, m)
+        print("{w:<9} {r:<9} back: {from_runes(r, back)}")
+    print("{back.len()} distinct runes used")
+
+@test fn thing()
+    mut m := Map[str, str]()
+    m["th"] = "ᚦ"
+    m["i"] = "ᛁ"
+    m["ng"] = "ᛜ"
+    assert_eq(to_runes("thing", m), "ᚦᛁᛜ")

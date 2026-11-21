@@ -1,0 +1,8 @@
+stanza 1: night river stone bread window hands
+stanza 2: hands night window river bread stone
+stanza 3: stone hands bread night river window
+stanza 4: window stone river hands night bread
+stanza 5: bread window night stone hands river
+stanza 6: river bread hands window stone night
+stanza 7 would repeat stanza 1: true
+spirals with period n up to 12: [1, 2, 3, 5, 6, 9, 11]

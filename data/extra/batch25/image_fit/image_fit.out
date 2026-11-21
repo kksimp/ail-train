@@ -1,0 +1,10 @@
+1600x900 into 400x300:
+  Fill 400x300 | Contain 400x225 pad 0,37 | Cover 533x300 crop 133x0 | Keep 1600x900 crop 1200x600 | ScaleDown 400x225 pad 0,37
+600x800 into 400x300:
+  Fill 400x300 | Contain 225x300 pad 87,0 | Cover 400x533 crop 0x233 | Keep 600x800 crop 200x500 | ScaleDown 225x300 pad 87,0
+300x200 into 400x300:
+  Fill 400x300 | Contain 400x267 pad 0,16 | Cover 450x300 crop 50x0 | Keep 300x200 pad 50,50 | ScaleDown 300x200 pad 50,50
+400x300 into 400x300:
+  Fill 400x300 | Contain 400x300 pad 0,0 | Cover 400x300 pad 0,0 | Keep 400x300 pad 0,0 | ScaleDown 400x300 pad 0,0
+250x600 into 400x300:
+  Fill 400x300 | Contain 125x300 pad 137,0 | Cover 400x960 crop 0x660 | Keep 250x600 crop 0x300 | ScaleDown 125x300 pad 137,0

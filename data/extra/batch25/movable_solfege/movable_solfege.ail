@@ -1,0 +1,31 @@
+## Movable-do solfege: each note's distance in semitones above the key's tonic picks a chromatic syllable
+## (do di re ri mi fa fi sol si la li ti), so a tune sings the same in every key, unlike fixed do where C is always do.
+
+fn pitch(note str) int
+    base := {'C': 0, 'D': 2, 'E': 4, 'F': 5, 'G': 7, 'A': 9, 'B': 11}
+    cs := note.chars()
+    mut p := base.get_or(cs[0], 0)
+    if cs.len() > 1 and cs[1] == '#'
+        p += 1
+    elif cs.len() > 1 and cs[1] == 'b'
+        p += 11
+    p % 12
+
+fn sing(tune List[str], tonic int) str
+    syllables := ["do", "di", "re", "ri", "mi", "fa", "fi", "sol", "si", "la", "li", "ti"]
+    tune.map(|n| syllables[(pitch(n) - tonic + 12) % 12]).join(" ")
+
+fn main()
+    in_d := ["D", "D", "A", "A", "B", "B", "A", "G", "G", "F#", "F#", "E", "E", "D"]
+    in_f := ["F", "F", "C", "C", "D", "D", "C", "Bb", "Bb", "A", "A", "G", "G", "F"]
+    blues := ["C", "Eb", "F", "F#", "G", "Bb", "C"]
+    a := sing(in_d, pitch("D"))
+    b := sing(in_f, pitch("F"))
+    print("D major, movable: {a}")
+    print("F major, movable: {b}")
+    print("same syllables in both keys: {a == b}")
+    print("D major, fixed do: {sing(in_d, 0)}")
+    print("C blues scale: {sing(blues, 0)}")
+
+@test fn sharp_four()
+    assert_eq(sing(["F#", "Bb"], 0), "fi li")

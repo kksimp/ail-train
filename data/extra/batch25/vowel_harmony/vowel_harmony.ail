@@ -1,0 +1,41 @@
+## Turkish vowel harmony: a suffix copies the stem's last vowel, front or back for the plural -ler/-lar,
+## and front/back plus rounding for the question particle mi/mı/mu/mü; the locative -de hardens to -te after a voiceless consonant.
+
+fn last_vowel(word str) char
+    mut v := 'e'
+    for c in word.chars()
+        if "aeıioöuü".contains(c)
+            v = c
+    v
+
+fn two_way(v char) str
+    if "eiöü".contains(v) then "e" else "a"
+
+fn four_way(v char) str
+    match v
+        'e' | 'i' => "i"
+        'a' | 'ı' => "ı"
+        'o' | 'u' => "u"
+        _ => "ü"
+
+fn locative(word str) str
+    cs := word.chars()
+    last := cs[cs.len() - 1]
+    first := if "çfhkpsşt".contains(last) then "t" else "d"
+    vowel := two_way(last_vowel(word))
+    "{word}{first}{vowel}"
+
+fn main()
+    words := ["ev", "kitap", "göz", "okul", "köprü", "masa", "kalem", "ağaç", "kız", "gün"]
+    mut fronts := 0
+    for w in words
+        v := last_vowel(w)
+        h := two_way(v)
+        if h == "e"
+            fronts += 1
+        print("{w}: plural {w}l{h}r, locative {locative(w)}, question {w} m{four_way(v)}")
+    print("{fronts} front stems, {words.len() - fronts} back stems")
+
+@test fn hardening()
+    assert_eq(locative("kitap"), "kitapta")
+    assert_eq(four_way(last_vowel("köprü")), "ü")

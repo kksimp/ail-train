@@ -1,0 +1,28 @@
+## Dewey shelving: a call number's hundreds digit names its main class, and the shelf order compares the
+## class numbers as decimals (digit by digit after the point) and then the author letters, so 005.133 comes before 005.2.
+
+struct Book
+    title str
+    class str
+    author str
+
+fn main_class(class str) str
+    names := ["General works", "Philosophy", "Religion", "Social sciences", "Language", "Science", "Technology", "Arts", "Literature", "History"]
+    d := class.char_at(0) else '0'
+    names[(d.to_digit(10) else 0)]
+
+fn main()
+    books := [Book(title: "Learning Python", class: "005.133", author: "LUT"), Book(title: "Brief History of Time", class: "523.1", author: "HAW"), Book(title: "The Second World War", class: "940.53", author: "BEE"), Book(title: "Data Structures", class: "005.73", author: "WIR"), Book(title: "Football Tactics", class: "796.334", author: "WIL"), Book(title: "Indian Cooking", class: "641.5954", author: "JAF"), Book(title: "Beloved", class: "813.54", author: "MOR"), Book(title: "Networks", class: "302.23", author: "CAS"), Book(title: "Compilers", class: "005.453", author: "AHO"), Book(title: "Cosmos", class: "523.1", author: "SAG"), Book(title: "Ethics", class: "170", author: "SIN"), Book(title: "Usability", class: "005.2", author: "NIE")]
+    shelf := books.sorted(by: |b| (b.class, b.author))
+    for b in shelf
+        call := "{b.class} {b.author}"
+        print("{call:<13} {b.title:<22} {main_class(b.class)}")
+    mut counts := Map[str, int]()
+    for b in shelf
+        counts[main_class(b.class)] += 1
+    busiest := counts.keys().sorted(by: |k| -counts[k])[0]
+    print("{counts.len()} main classes used; busiest: {busiest} ({counts[busiest]} books)")
+
+@test fn decimal_order()
+    assert("005.133" < "005.2")
+    assert_eq(main_class("813.54"), "Literature")

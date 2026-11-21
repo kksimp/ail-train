@@ -1,0 +1,54 @@
+## Cousin names: walking each person's parent links up to their nearest shared ancestor gives the steps
+## a and b; direct lines are (grand)parents, one step on one side is aunt/uncle or niece/nephew, else cousin degree min - 1, removed |a - b| times.
+
+fn ancestors(p str, parent Map[str, str]) List[str]
+    mut line := [p]
+    mut cur := p
+    while parent.contains(cur)
+        cur = parent[cur]
+        line.push(cur)
+    line
+
+fn greats(n int) str
+    if n <= 0
+        return ""
+    "great-".repeat(n)
+
+fn name(a int, b int) str
+    ordinals := ["", "first", "second", "third", "fourth"]
+    if a == 0 and b == 0
+        return "same person"
+    if a == 0
+        return if b == 1 then "parent" else "{greats(b - 2)}grandparent"
+    if b == 0
+        return if a == 1 then "child" else "{greats(a - 2)}grandchild"
+    if a == 1 and b == 1
+        return "sibling"
+    if a == 1
+        return if b == 2 then "aunt or uncle" else "{greats(b - 3)}grand-aunt or uncle"
+    if b == 1
+        return if a == 2 then "niece or nephew" else "{greats(a - 3)}grand-niece or nephew"
+    removed := (a - b).abs()
+    tail := if removed == 0 then "" elif removed == 1 then " once removed" elif removed == 2 then " twice removed" else " {removed} times removed"
+    "{ordinals[a.min(b) - 1]} cousin{tail}"
+
+fn main()
+    parent := {"Bo": "Al", "Cy": "Al", "Di": "Bo", "Ed": "Cy", "Fay": "Di", "Gus": "Ed", "Hal": "Fay", "Ivo": "Gus", "Jo": "Bo", "Kit": "Hal"}
+    pairs := [("Di", "Ed"), ("Fay", "Gus"), ("Fay", "Ed"), ("Hal", "Gus"), ("Di", "Jo"), ("Bo", "Gus"), ("Al", "Kit"), ("Kit", "Ivo"), ("Jo", "Hal")]
+    for pr in pairs
+        x, y := pr
+        ax := ancestors(x, parent)
+        ay := ancestors(y, parent)
+        mut a := -1
+        mut b := -1
+        for i, anc in ax.enumerate()
+            if a < 0
+                if j := ay.index_of(anc)
+                    a = i
+                    b = j
+        print("{y} is {x}'s {name(b, a)} ({a} up, {b} up)")
+
+@test fn cousins()
+    assert_eq(name(2, 2), "first cousin")
+    assert_eq(name(3, 2), "first cousin once removed")
+    assert_eq(name(0, 4), "great-great-grandparent")

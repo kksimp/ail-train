@@ -1,0 +1,45 @@
+## D8 flow directions: water in each cell of an elevation grid runs to the neighbour with the steepest drop
+## (diagonal drops divided by root 2); visiting cells from highest to lowest then adds up how many cells drain through each one.
+
+fn main()
+    elev := [[50, 48, 46, 45, 47, 52], [47, 44, 40, 38, 41, 49], [45, 40, 35, 30, 36, 44], [44, 38, 31, 25, 29, 40], [46, 41, 34, 22, 30, 42]]
+    rows := elev.len()
+    cols := elev[0].len()
+    moves := [(0, 1, "→"), (1, 1, "↘"), (1, 0, "↓"), (1, -1, "↙"), (0, -1, "←"), (-1, -1, "↖"), (-1, 0, "↑"), (-1, 1, "↗")]
+    two := 2.0
+    diag := two.sqrt()
+    mut target := List[int]()
+    for r in 0..rows
+        mut line := List[str]()
+        for c in 0..cols
+            mut best := -1
+            mut best_slope := 0.0
+            mut arrow := "o"
+            for m in moves
+                dr, dc, sym := m
+                nr := r + dr
+                nc := c + dc
+                if nr >= 0 and nr < rows and nc >= 0 and nc < cols
+                    drop := (elev[r][c] - elev[nr][nc]).to_float()
+                    slope := if dr != 0 and dc != 0 then drop / diag else drop
+                    if slope > best_slope
+                        best_slope = slope
+                        best = nr * cols + nc
+                        arrow = sym
+            target.push(best)
+            line.push(arrow)
+        print(line.join(" "))
+    cells := [k for k in 0..rows * cols]
+    order := cells.sorted(by: |k| -elev[k / cols][k % cols])
+    mut acc := [1 for j in 0..rows * cols]
+    for i in order
+        if target[i] >= 0
+            acc[target[i]] += acc[i]
+    for r in 0..rows
+        print(acc.slice(r * cols, r * cols + cols).map(|a| "{a:>3}").join(""))
+    outlet := order[order.len() - 1]
+    print("outlet at row {outlet / cols}, column {outlet % cols} drains {acc[outlet]} cells")
+
+@test fn diagonal_weaker()
+    two := 2.0
+    assert(4.0 / two.sqrt() < 3.0)

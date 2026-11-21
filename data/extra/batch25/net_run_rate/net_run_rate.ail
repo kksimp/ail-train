@@ -1,0 +1,51 @@
+## Cricket net run rate: runs scored per over faced minus runs conceded per over bowled over a tournament;
+## overs are written as overs.balls (47.3 is 47.5 overs), and a side bowled out counts its full 50 overs.
+
+struct Side
+    name str
+    points int
+    scored int
+    faced int
+    conceded int
+    bowled int
+
+fn balls(overs str, all_out bool) int
+    if all_out
+        return 300
+    parts := overs.split(".")
+    whole := parts[0].to_int() else 0
+    mut extra := 0
+    if parts.len() > 1
+        extra = parts[1].to_int() else 0
+    whole * 6 + extra
+
+fn Side.nrr(self) float
+    self.scored.to_float() * 6.0 / self.faced.to_float() - self.conceded.to_float() * 6.0 / self.bowled.to_float()
+
+fn main()
+    names := ["Lions", "Tigers", "Eagles", "Sharks"]
+    matches := [(0, 1, 268, "50", false, 240, "48.2", true), (2, 3, 301, "50", false, 255, "44.1", true), (0, 2, 230, "49.4", true, 231, "46.5", false), (1, 3, 199, "41.3", true, 200, "38", false), (0, 3, 275, "50", false, 276, "49.5", false), (1, 2, 288, "50", false, 250, "50", false)]
+    mut table := names.map(|n| Side(name: n, points: 0, scored: 0, faced: 0, conceded: 0, bowled: 0))
+    for m in matches
+        a, b, ra, oa, outa, rb, ob, outb := m
+        ba := balls(oa, outa)
+        bb := balls(ob, outb)
+        table[a].scored += ra
+        table[a].faced += ba
+        table[a].conceded += rb
+        table[a].bowled += bb
+        table[b].scored += rb
+        table[b].faced += bb
+        table[b].conceded += ra
+        table[b].bowled += ba
+        if ra > rb
+            table[a].points += 2
+        else
+            table[b].points += 2
+    ranked := table.sorted(by: |s| (-s.points, -(s.nrr() * 1000000.0).to_int()))
+    for i, s in ranked.enumerate()
+        print("{i + 1}. {s.name:<7} {s.points} pts  NRR {s.nrr():>6.3}")
+
+@test fn overs()
+    assert_eq(balls("47.3", false), 285)
+    assert_eq(balls("12", true), 300)

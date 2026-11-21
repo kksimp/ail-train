@@ -1,0 +1,41 @@
+## Ahnentafel numbering: the subject is 1, the father of n is 2n and the mother 2n + 1, so the generation
+## is the bit length minus one and the binary digits after the leading 1 spell the path (0 father, 1 mother).
+
+fn generation(n int) int
+    mut g := 0
+    mut x := n
+    while x > 1
+        x = x / 2
+        g += 1
+    g
+
+fn relation(n int) str
+    mut steps := List[str]()
+    mut x := n
+    while x > 1
+        step := if x % 2 == 0 then "father" else "mother"
+        steps.insert(0, step)
+        x = x / 2
+    if steps.is_empty()
+        return "self"
+    last := steps.pop() else ""
+    mut parts := steps.map(|s| "{s}'s")
+    parts.push(last)
+    parts.join(" ")
+
+fn main()
+    known := [(1, "Rosa Lind"), (2, "Peter Lind"), (3, "Ana Costa"), (4, "Hugo Lind"), (5, "Marta Berg"), (7, "Ines Duarte"), (9, "Clara Holm"), (10, "Olof Berg"), (14, "Rui Duarte"), (15, "Lucia Ramos"), (29, "Teresa Vaz")]
+    for k in known
+        n, name := k
+        child := if n == 1 then "-" else "{n / 2}"
+        print("{n:>2} {name:<12} gen {generation(n)}  child {child:<2}  {relation(n)}")
+    mut found := [0, 0, 0, 0, 0]
+    for k in known
+        found[generation(k.0)] += 1
+    for g in 1..5
+        slots := 1 << g
+        print("generation {g}: {found[g]} of {slots} ancestors known")
+
+@test fn paths()
+    assert_eq(relation(13), "mother's father's mother")
+    assert_eq(generation(13), 3)

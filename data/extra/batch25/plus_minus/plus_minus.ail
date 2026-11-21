@@ -1,0 +1,35 @@
+## Plus-minus from a game log: substitutions change who is on court, and every basket adds its points to
+## each home player on court when the home side scores and takes them off when the visitors score.
+
+fn main()
+    roster := ["Ana", "Bea", "Cleo", "Dina", "Eva", "Fay", "Gia"]
+    mut on := {"Ana", "Bea", "Cleo", "Dina", "Eva"}
+    mut pm := Map[str, int]()
+    mut minutes_on := Map[str, int]()
+    for r in roster
+        pm[r] = 0
+    log := ["H 2", "V 3", "H 2", "sub Eva Fay", "V 2", "V 2", "H 3", "sub Ana Gia", "H 2", "V 3", "sub Fay Eva", "H 2", "H 1", "V 2", "sub Gia Ana", "H 3", "V 2"]
+    mut home := 0
+    mut away := 0
+    for e in log
+        w := e.split(" ")
+        if w[0] == "sub"
+            on.remove(w[1])
+            on.add(w[2])
+            continue
+        pts := w[1].to_int() else 0
+        sign := if w[0] == "H" then 1 else -1
+        if sign > 0
+            home += pts
+        else
+            away += pts
+        for p in roster
+            if on.contains(p)
+                pm[p] += sign * pts
+                minutes_on[p] += 1
+    for p in roster.sorted(by: |p| -pm[p])
+        print("{p:<5} {pm[p]:>3}  on court for {minutes_on.get_or(p, 0)} scores")
+    print("final {home}-{away}")
+
+@test fn sum_matches()
+    assert_eq(5 * (17 - 14), 15)

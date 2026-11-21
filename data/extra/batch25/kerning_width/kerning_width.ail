@@ -1,0 +1,33 @@
+## Kerning: a word's width in font units is the sum of each letter's advance plus the kerning value of
+## each adjacent pair (AV, To, Ty pull letters closer); from the width comes the size in px and the largest size fitting a box.
+
+fn width(word str, adv Map[char, int], kern Map[str, int]) List[int]
+    cs := word.chars()
+    mut plain := 0
+    mut kerned := 0
+    for i in 0..cs.len()
+        a := adv.get_or(cs[i], 600)
+        plain += a
+        kerned += a
+        if i + 1 < cs.len()
+            kerned += kern.get_or("{cs[i]}{cs[i + 1]}", 0)
+    [plain, kerned]
+
+fn main()
+    adv := {'A': 667, 'V': 667, 'W': 944, 'T': 611, 'Y': 667, 'L': 556, 'o': 556, 'a': 556, 'y': 500, 'e': 556, 'r': 333, 'v': 500, 'P': 667, 'g': 556, 'l': 222}
+    kern := {"AV": -80, "VA": -80, "AW": -60, "WA": -60, "To": -70, "Ta": -70, "Ty": -60, "LT": -90, "LY": -100, "Yo": -90, "Pa": -40, "Tr": -50, "Va": -60, "ay": -20}
+    words := ["AVATAR", "Toyota", "WAVY", "LYTTLE", "Paley", "Travel", "Vegan"]
+    box := 300
+    for w in words
+        sizes := width(w, adv, kern)
+        plain := sizes[0]
+        kerned := sizes[1]
+        saved := (plain - kerned).to_float() / plain.to_float() * 100.0
+        px := kerned.to_float() * 24.0 / 1000.0
+        fit := box * 1000 / kerned
+        print("{w:<7} {plain:>5} -> {kerned:>5} units ({saved:.1}% tighter), {px:.1} px at 24, fits {box} px up to {fit} px")
+
+@test fn pair()
+    adv := {'A': 667, 'V': 667}
+    kern := {"AV": -80}
+    assert_eq(width("AV", adv, kern), [1334, 1254])

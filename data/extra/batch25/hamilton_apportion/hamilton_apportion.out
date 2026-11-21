@@ -1,0 +1,6 @@
+house 10: [4, 4, 1, 1]
+house 11: [4, 4, 2, 1]
+house 12: [5, 5, 1, 1] <- Crane loses a seat
+house 13: [5, 5, 2, 1]
+house 14: [6, 5, 2, 1]
+populations [6000, 6000, 2000, 1000]

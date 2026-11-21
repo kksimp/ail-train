@@ -1,0 +1,42 @@
+## Constituent order: glossed sentences tag each phrase as subject, verb or object; the order of the
+## tags is counted per language and the most common one names its type (SOV, SVO, VSO, VOS) and verb position.
+
+struct Sentence
+    lang str
+    text str
+
+fn order(text str) str
+    mut tags := List[str]()
+    for chunk in text.split(" ")
+        parts := chunk.split("/")
+        if parts.len() == 2
+            tags.push(parts[1])
+    tags.join("")
+
+fn position(o str) str
+    if o.starts_with("V") then "verb-initial" elif o.ends_with("V") then "verb-final" else "verb-medial"
+
+fn main()
+    data := [Sentence(lang: "English", text: "the_dog/S chased/V the_cat/O"), Sentence(lang: "English", text: "Mary/S reads/V books/O"), Sentence(lang: "Japanese", text: "Taroo-ga/S hon-o/O yonda/V"), Sentence(lang: "Japanese", text: "neko-ga/S sakana-o/O tabeta/V"), Sentence(lang: "Irish", text: "chonaic/V Seán/S an_madra/O"), Sentence(lang: "Irish", text: "léann/V Máire/S leabhair/O"), Sentence(lang: "Malagasy", text: "mamaky/V boky/O ny_mpianatra/S"), Sentence(lang: "Turkish", text: "Ali/S elmayı/O yedi/V"), Sentence(lang: "Turkish", text: "elmayı/O Ali/S yedi/V"), Sentence(lang: "Turkish", text: "kız/S kitabı/O okudu/V")]
+    mut langs := List[str]()
+    mut counts := Map[str, int]()
+    for s in data
+        if not langs.contains(s.lang)
+            langs.push(s.lang)
+        counts["{s.lang} {order(s.text)}"] += 1
+    for l in langs
+        mut best := ""
+        mut most := 0
+        mut seen := 0
+        for key, n in counts
+            if key.starts_with("{l} ")
+                seen += 1
+                if n > most
+                    most = n
+                    best = key.slice(l.len() + 1)
+        total := data.filter(|s| s.lang == l).len()
+        print("{l:<9} {best} ({most} of {total} sentences, {seen} orders seen), {position(best)}")
+
+@test fn sov()
+    assert_eq(order("Taroo-ga/S hon-o/O yonda/V"), "SOV")
+    assert_eq(position("VOS"), "verb-initial")

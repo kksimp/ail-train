@@ -1,0 +1,26 @@
+## Archival finding aid: reference codes like MS7/2/3 place each unit under its parent (fonds, series,
+## file, item); units are sorted by the numbers in their codes, printed as an indented tree, and item counts roll up to every level.
+
+struct Unit
+    code str
+    title str
+    items int
+
+fn key(code str) List[int]
+    code.split("/").slice(1).map(|p| p.to_int() else 0)
+
+fn main()
+    levels := ["fonds", "series", "file", "item"]
+    units := [Unit(code: "MS7", title: "Harrow Mill papers", items: 0), Unit(code: "MS7/2", title: "Correspondence", items: 0), Unit(code: "MS7/1", title: "Accounts", items: 0), Unit(code: "MS7/1/1", title: "Wage books 1880-1899", items: 14), Unit(code: "MS7/1/2", title: "Ledgers of sales", items: 9), Unit(code: "MS7/2/1", title: "Letters from agents", items: 120), Unit(code: "MS7/2/10", title: "Letters to the bank", items: 33), Unit(code: "MS7/2/2", title: "Union letters", items: 41), Unit(code: "MS7/3", title: "Photographs", items: 0), Unit(code: "MS7/3/1", title: "Mill floor 1902", items: 1), Unit(code: "MS7/1/1/4", title: "Wage book 1884", items: 1)]
+    sorted_units := units.sorted(by: |u| key(u.code))
+    for u in sorted_units
+        depth := u.code.count("/")
+        prefix := "{u.code}/"
+        total := units.filter(|v| v.code == u.code or v.code.starts_with(prefix)).fold(0, |a, v| a + v.items)
+        indent := "  ".repeat(depth)
+        print("{indent}{u.code} [{levels[depth]}] {u.title} ({total} items)")
+    print("{units.len()} units described")
+
+@test fn ordering()
+    assert(key("MS7/2/2") < key("MS7/2/10"))
+    assert_eq(key("MS7"), List[int]())

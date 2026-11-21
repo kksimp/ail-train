@@ -1,0 +1,43 @@
+## Guitar chord finder: from the low string up, strings are muted until one can play the root within the
+## first four frets; after that every string takes its lowest fret (0 to 4) that sounds a chord tone, giving shapes like x32010.
+
+fn tones(name str) List[int]
+    roots := {'C': 0, 'D': 2, 'E': 4, 'F': 5, 'G': 7, 'A': 9, 'B': 11}
+    cs := name.chars()
+    root := roots.get_or(cs[0], 0)
+    suffix := name.slice(1)
+    shape := match suffix
+        "m" => [0, 3, 7]
+        "7" => [0, 4, 7, 10]
+        "m7" => [0, 3, 7, 10]
+        "maj7" => [0, 4, 7, 11]
+        _ => [0, 4, 7]
+    shape.map(|i| (root + i) % 12)
+
+fn finger(name str) str
+    tuning := [40, 45, 50, 55, 59, 64]
+    chord := tones(name)
+    mut bass := false
+    mut out := List[str]()
+    for s in tuning
+        mut pick := -1
+        for f in 0..5
+            p := (s + f) % 12
+            if pick < 0 and ((bass and chord.contains(p)) or p == chord[0])
+                pick = f
+        if pick >= 0
+            bass = true
+            out.push("{pick}")
+        else
+            out.push("x")
+    out.join("")
+
+fn main()
+    for c in ["C", "G", "D", "Am", "Em", "E", "A7", "D7", "Cmaj7", "F"]
+        shape := finger(c)
+        fretted := shape.chars().count(|ch| ch != 'x' and ch != '0')
+        print("{c:<6} {shape}  ({fretted} fretted)")
+
+@test fn open_c()
+    assert_eq(finger("C"), "x32010")
+    assert_eq(finger("G"), "320003")

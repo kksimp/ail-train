@@ -1,0 +1,33 @@
+## Hamilton's largest-remainder method: each state gets the whole part of its quota (people x seats /
+## total), and leftover seats go to the largest remainders; growing the house can cost a state a seat (the Alabama paradox).
+
+fn hamilton(people List[int], house int) List[int]
+    total := people.sum()
+    mut seats := people.map(|p| p * house / total)
+    rems := people.map(|p| p * house % total)
+    left := house - seats.sum()
+    order := [i for i in 0..people.len()].sorted(by: |i| -rems[i])
+    for k in 0..left
+        seats[order[k]] += 1
+    seats
+
+fn main()
+    names := ["Avon", "Bale", "Crane", "Dorn"]
+    people := [6000, 6000, 2000, 1000]
+    mut prev := List[int]()
+    for house in 10..=14
+        seats := hamilton(people, house)
+        mut notes := List[str]()
+        if not prev.is_empty()
+            for i in 0..names.len()
+                if seats[i] < prev[i]
+                    notes.push("{names[i]} loses a seat")
+        joined := notes.join(", ")
+        note := if notes.is_empty() then "" else " <- {joined}"
+        print("house {house}: {seats}{note}")
+        prev = seats
+    print("populations {people}")
+
+@test fn small()
+    assert_eq(hamilton([6000, 6000, 2000], 10), [4, 4, 2])
+    assert_eq(hamilton([6000, 6000, 2000], 11), [5, 5, 1])

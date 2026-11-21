@@ -1,0 +1,43 @@
+## Babylonian numbers: base-60 digits drawn as < for each ten and Y for each one, a whole number split by
+## repeated division, the reciprocals of regular numbers as finite sexagesimal fractions, and the YBC 7289 value of root 2.
+
+fn wedges(d int) str
+    if d == 0
+        return "."
+    tens := "<".repeat(d / 10)
+    ones := "Y".repeat(d % 10)
+    "{tens}{ones}"
+
+fn digits60(n int) List[int]
+    mut ds := List[int]()
+    mut x := n
+    while x > 0
+        ds.insert(0, x % 60)
+        x = x / 60
+    ds
+
+fn reciprocal(n int) str
+    mut parts := List[str]()
+    mut rem := 1
+    while rem != 0 and parts.len() < 6
+        rem = rem * 60
+        parts.push("{rem / n}")
+        rem = rem % n
+    body := parts.join(",")
+    "0;{body}"
+
+fn main()
+    for n in [75, 3600, 4000, 424000]
+        ds := digits60(n)
+        shown := ds.map(|d| wedges(d)).join(" ")
+        print("{n} = {ds} = {shown}")
+    for n in [2, 8, 9, 16, 27, 45]
+        print("1/{n} = {reciprocal(n)}")
+    v := 1.0 + 24.0 / 60.0 + 51.0 / 3600.0 + 10.0 / 216000.0
+    two := 2.0
+    gap := (two.sqrt() - v) * 1000000.0
+    print("1;24,51,10 = {v:.8}, below root 2 by {gap:.3} millionths")
+
+@test fn hour()
+    assert_eq(digits60(3661), [1, 1, 1])
+    assert_eq(reciprocal(8), "0;7,30")

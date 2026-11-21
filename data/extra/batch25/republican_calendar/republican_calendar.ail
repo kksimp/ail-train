@@ -1,0 +1,49 @@
+## French Republican calendar: years start on 22 September 1792, twelve months of 30 days and five
+## extra days (six after the leap years III, VII and XI), counted from a day number for the Gregorian date until the 1806 return.
+
+fn day_number(y int, m int, d int) int
+    a := (14 - m) / 12
+    yy := y + 4800 - a
+    mm := m + 12 * a - 3
+    d + (153 * mm + 2) / 5 + 365 * yy + yy / 4 - yy / 100 + yy / 400 - 32045
+
+fn roman(n int) str
+    vals := [10, 9, 5, 4, 1]
+    syms := ["X", "IX", "V", "IV", "I"]
+    mut out := List[str]()
+    mut x := n
+    for i in 0..vals.len()
+        while x >= vals[i]
+            out.push(syms[i])
+            x -= vals[i]
+    out.join("")
+
+fn republican(y int, m int, d int) str ! Fail
+    months := ["Vendémiaire", "Brumaire", "Frimaire", "Nivôse", "Pluviôse", "Ventôse", "Germinal", "Floréal", "Prairial", "Messidor", "Thermidor", "Fructidor"]
+    mut left := day_number(y, m, d) - day_number(1792, 9, 22)
+    if left < 0 or day_number(y, m, d) >= day_number(1806, 1, 1)
+        return Fail(msg: "outside the Republican calendar")
+    mut year := 1
+    while true
+        length := if year == 3 or year == 7 or year == 11 then 366 else 365
+        if left < length
+            break
+        left -= length
+        year += 1
+    if left >= 360
+        return "jour complémentaire {left - 359}, year {roman(year)}"
+    "{left % 30 + 1} {months[left / 30]} year {roman(year)}"
+
+fn main()
+    dates := [(1792, 9, 22), (1793, 9, 21), (1794, 7, 27), (1795, 10, 5), (1799, 11, 9), (1804, 12, 2), (1805, 12, 31), (1806, 1, 1), (1789, 7, 14)]
+    for t in dates
+        y, m, d := t
+        shown := "{y}-{m:02}-{d:02}"
+        if r := republican(y, m, d)
+            print("{shown}: {r}")
+        else err
+            print("{shown}: {err.msg}")
+
+@test fn thermidor()
+    assert_eq(republican(1794, 7, 27)?, "9 Thermidor year II")
+    assert_eq(roman(14), "XIV")

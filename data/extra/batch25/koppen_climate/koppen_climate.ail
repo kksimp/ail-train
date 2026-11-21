@@ -1,0 +1,44 @@
+## Koppen climate classes (simplified): polar when the warmest month is under 10 C, dry when yearly rain is
+## below 20 x mean temperature + 140 mm, tropical when the coldest month is 18 C or more, else temperate (C) or continental (D) with dry-season and summer-heat letters.
+
+struct Station
+    name str
+    temp List[float]
+    rain List[int]
+
+fn classify(s Station) str
+    warm := s.temp.max() else 0.0
+    cold := s.temp.min() else 0.0
+    mean := s.temp.fold(0.0, |a, t| a + t) / 12.0
+    total := s.rain.sum()
+    if warm < 10.0
+        return if warm > 0.0 then "ET" else "EF"
+    limit := 20.0 * mean + 140.0
+    if total.to_float() < limit
+        return if total.to_float() < limit / 2.0 then "BW" else "BS"
+    driest := s.rain.min() else 0
+    if cold >= 18.0
+        return if driest >= 60 then "Af" elif driest * 25 >= 2500 - total then "Am" else "Aw"
+    group := if cold > -3.0 then "C" else "D"
+    summer := s.rain.slice(3, 9)
+    winter := [s.rain[0], s.rain[1], s.rain[2], s.rain[9], s.rain[10], s.rain[11]]
+    dry_summer := summer.min() else 0
+    dry_winter := winter.min() else 0
+    wet_summer := summer.max() else 0
+    wet_winter := winter.max() else 0
+    season := if dry_summer < 40 and dry_summer * 3 < wet_winter then "s" elif dry_winter * 10 < wet_summer then "w" else "f"
+    warm_months := s.temp.count(|t| t >= 10.0)
+    heat := if warm >= 22.0 then "a" elif warm_months >= 4 then "b" else "c"
+    "{group}{season}{heat}"
+
+fn main()
+    stations := [Station(name: "Equatoria", temp: [27.0, 27.5, 28.0, 28.0, 28.0, 27.5, 27.0, 27.0, 27.0, 27.0, 26.5, 26.5], rain: [240, 160, 180, 180, 170, 160, 160, 170, 170, 190, 250, 280]), Station(name: "Dunesville", temp: [14.0, 16.0, 19.0, 23.0, 26.0, 28.0, 29.0, 28.5, 26.5, 23.5, 19.0, 15.0], rain: [5, 4, 3, 1, 1, 0, 0, 0, 0, 1, 3, 5]), Station(name: "Olive Bay", temp: [8.0, 9.0, 11.0, 14.0, 18.0, 22.0, 25.0, 25.0, 22.0, 17.0, 12.0, 9.0], rain: [80, 75, 65, 60, 35, 20, 10, 20, 70, 110, 110, 95]), Station(name: "Fogmoor", temp: [5.0, 5.5, 7.0, 9.0, 12.0, 15.0, 17.0, 17.0, 14.5, 11.0, 7.5, 5.5], rain: [55, 40, 42, 44, 49, 45, 45, 50, 49, 69, 59, 55]), Station(name: "Birchgrad", temp: [-9.0, -8.0, -2.5, 6.0, 13.0, 17.0, 19.0, 17.0, 11.0, 5.0, -1.0, -6.0], rain: [50, 40, 38, 36, 50, 80, 90, 80, 65, 60, 55, 50]), Station(name: "Ice Point", temp: [-27.0, -28.0, -24.0, -16.0, -4.0, 4.0, 8.0, 7.0, 2.0, -7.0, -15.0, -23.0], rain: [20, 18, 22, 28, 27, 35, 59, 70, 46, 36, 25, 18]), Station(name: "Monsoon Ford", temp: [-4.0, -1.0, 6.0, 14.0, 20.0, 25.0, 26.5, 25.5, 20.5, 13.0, 4.5, -2.0], rain: [3, 5, 9, 26, 29, 70, 180, 160, 50, 20, 9, 3]), Station(name: "Savanna Gate", temp: [29.0, 28.5, 29.0, 29.5, 28.0, 26.0, 25.5, 26.5, 28.5, 30.0, 30.5, 30.0], rain: [420, 360, 320, 100, 20, 2, 1, 3, 15, 70, 140, 250])]
+    for s in stations
+        total := s.rain.sum()
+        warm := s.temp.max() else 0.0
+        cold := s.temp.min() else 0.0
+        print("{s.name:<13} {total:>5} mm, {cold:>5.1} to {warm:>4.1} C -> {classify(s)}")
+
+@test fn tundra()
+    s := Station(name: "t", temp: [-20.0, -20.0, -15.0, -10.0, -2.0, 3.0, 6.0, 5.0, 1.0, -5.0, -12.0, -18.0], rain: [20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20])
+    assert_eq(classify(s), "ET")

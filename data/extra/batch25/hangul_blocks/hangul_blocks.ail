@@ -1,0 +1,36 @@
+## Hangul blocks: every syllable is one code point, 0xAC00 + (initial * 21 + vowel) * 28 + final, so
+## division and remainder take a block apart into its jamo indexes and romanise it, and the formula builds one back.
+
+fn romanise(word str) str
+    initials := ["g", "kk", "n", "d", "tt", "r", "m", "b", "pp", "s", "ss", "", "j", "jj", "ch", "k", "t", "p", "h"]
+    vowels := ["a", "ae", "ya", "yae", "eo", "e", "yeo", "ye", "o", "wa", "wae", "oe", "yo", "u", "wo", "we", "wi", "yu", "eu", "ui", "i"]
+    finals := ["", "k", "k", "k", "n", "n", "n", "t", "l", "k", "m", "p", "l", "l", "p", "l", "m", "p", "p", "t", "t", "ng", "t", "t", "k", "t", "p", "t"]
+    mut parts := List[str]()
+    for c in word.chars()
+        s := c.code() - 0xAC00
+        l := s / (21 * 28)
+        v := s % (21 * 28) / 28
+        t := s % 28
+        parts.push("{initials[l]}{vowels[v]}{finals[t]}")
+    parts.join("-")
+
+fn jamo(word str) str
+    mut parts := List[str]()
+    for c in word.chars()
+        s := c.code() - 0xAC00
+        parts.push("({s / 588},{s % 588 / 28},{s % 28})")
+    parts.join(" ")
+
+fn compose(l int, v int, t int) char
+    char.from_code(0xAC00 + (l * 21 + v) * 28 + t) else '?'
+
+fn main()
+    for w in ["한국어", "서울", "김치", "사랑", "음악", "바다"]
+        print("{w}: {romanise(w)} {jamo(w)}")
+    built := [compose(18, 0, 4), compose(0, 8, 8)].join("")
+    print("built from (18,0,4) (0,8,8): {built}")
+    print("blocks in all: {19 * 21 * 28}")
+
+@test fn han()
+    assert_eq(compose(18, 0, 4), '한')
+    assert_eq(romanise("바다"), "ba-da")

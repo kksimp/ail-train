@@ -1,0 +1,26 @@
+## Harmonic series: partial n of a 110 Hz string sounds at n * 110 Hz; each is placed on the nearest
+## equal-tempered note (MIDI 69 + 12 log2(f / 440)) and its cents off that note show why the 7th and 11th sound out of tune.
+
+fn log2(x float) float
+    two := 2.0
+    x.ln() / two.ln()
+
+fn tidy(x float) float
+    if x.abs() < 0.05 then 0.0 else x
+
+fn main()
+    names := ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
+    mut far := List[int]()
+    for n in 1..=16
+        f := 110.0 * n.to_float()
+        semis := 12.0 * log2(f / 440.0)
+        m := (semis + 69.0 + 0.5).floor().to_int()
+        dev := tidy(100.0 * semis - 100.0 * (m - 69).to_float())
+        if dev.abs() > 15.0
+            far.push(n)
+        octave := m / 12 - 1
+        print("{n:>2} {f:>7.1} Hz  {names[m % 12]}{octave:<3} {dev:>6.1} cents")
+    print("partials more than 15 cents off: {far}")
+
+@test fn octave_exact()
+    assert(tidy(1200.0 * log2(2.0) - 1200.0) == 0.0)

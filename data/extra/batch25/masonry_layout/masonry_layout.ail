@@ -1,0 +1,43 @@
+## Masonry layout: cards of different heights go one by one into whichever column is currently shortest
+## (leftmost on ties), giving x and y for each card; the result is compared with dealing cards round-robin.
+
+struct Card
+    name str
+    height int
+
+fn place(cards List[Card], cols int, gap int) List[int]
+    mut tops := List[int]()
+    for i in 0..cols
+        tops.push(0)
+    for c in cards
+        mut k := 0
+        for i in 1..cols
+            if tops[i] < tops[k]
+                k = i
+        tops[k] += c.height + gap
+    tops
+
+fn main()
+    cards := [Card(name: "sunset", height: 220), Card(name: "quote", height: 120), Card(name: "map", height: 340), Card(name: "portrait", height: 400), Card(name: "note", height: 90), Card(name: "chart", height: 260), Card(name: "poster", height: 380), Card(name: "ticket", height: 140), Card(name: "sketch", height: 200)]
+    cols := 3
+    gap := 20
+    mut tops := [0, 0, 0]
+    for c in cards
+        mut k := 0
+        for i in 1..cols
+            if tops[i] < tops[k]
+                k = i
+        print("{c.name:<9} column {k + 1} at x={k * 320:>3} y={tops[k]:>3}")
+        tops[k] += c.height + gap
+    mut robin := [0, 0, 0]
+    for i, c in cards.enumerate()
+        robin[i % cols] += c.height + gap
+    best := place(cards, cols, gap)
+    tall_best := best.max() else 0
+    tall_robin := robin.max() else 0
+    print("shortest-first heights {best}, tallest {tall_best}")
+    print("round-robin heights {robin}, tallest {tall_robin}")
+
+@test fn two_cols()
+    cs := [Card(name: "a", height: 100), Card(name: "b", height: 50), Card(name: "c", height: 30)]
+    assert_eq(place(cs, 2, 0), [100, 80])

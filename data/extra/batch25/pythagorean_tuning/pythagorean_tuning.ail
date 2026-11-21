@@ -1,0 +1,33 @@
+## Pythagorean tuning: twelve notes from stacking pure 3/2 fifths and halving back into one octave, kept
+## as exact fractions; each note's cents against equal temperament, and the comma 3^12 / 2^19 left over.
+
+struct Note
+    name str
+    num int
+    den int
+
+fn cents(num int, den int) float
+    two := 2.0
+    r := num.to_float() / den.to_float()
+    1200.0 * r.ln() / two.ln()
+
+fn main()
+    names := ["C", "G", "D", "A", "E", "B", "F#", "C#", "G#", "D#", "A#", "E#"]
+    mut notes := List[Note]()
+    mut num := 1
+    mut den := 1
+    for name in names
+        notes.push(Note(name: name, num: num, den: den))
+        num = num * 3
+        den = den * 2
+        while num >= 2 * den
+            den = den * 2
+    for n in notes.sorted(by: |n| (cents(n.num, n.den) * 1000.0).to_int())
+        c := cents(n.num, n.den)
+        step := (c / 100.0 + 0.5).floor() * 100.0
+        print("{n.name:<3} {n.num:>6}/{n.den:<6} {c:>8.2} cents, {c - step:>6.2} from equal")
+    comma := cents(531441, 524288)
+    print("twelve fifths overshoot seven octaves by {comma:.2} cents")
+
+@test fn fifth()
+    assert((cents(3, 2) - 701.955).abs() < 0.001)

@@ -1,0 +1,11 @@
+display  36px x 120% = 43.2 px -> 48 px (6 rows)
+heading  24px x 125% = 30.0 px -> 32 px (4 rows)
+subhead  20px x 140% = 28.0 px -> 32 px (4 rows)
+body     16px x 150% = 24.0 px -> 24 px (3 rows)
+caption  13px x 160% = 20.8 px -> 24 px (3 rows)
+  display  x1 starts at y = 0
+  body     x4 starts at y = 48
+  heading  x2 starts at y = 144
+  body     x6 starts at y = 208
+  caption  x2 starts at y = 352
+page column ends at y = 400, on grid: true

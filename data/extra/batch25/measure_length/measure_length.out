@@ -1,0 +1,8 @@
+phone         320px at 16px:  40 chars, too narrow  (66 chars at 9.7px)
+tablet        600px at 16px:  75 chars, comfortable (66 chars at 18.2px)
+article       680px at 18px:  75 chars, comfortable (66 chars at 20.6px)
+desktop       960px at 16px: 120 chars, too wide    (66 chars at 29.1px)
+sidebar       280px at 14px:  40 chars, too narrow  (66 chars at 8.5px)
+wide hero    1200px at 20px: 120 chars, too wide    (66 chars at 36.4px)
+print column  450px at 10px:  90 chars, too wide    (66 chars at 13.6px)
+2 of 7 layouts read comfortably; 66 chars at 16px needs 528px

@@ -1,0 +1,34 @@
+## Metre scanning: a line's stress pattern (1 stressed, 0 not) is matched against repeating iambs,
+## trochees, anapaests and dactyls; the best-fitting foot and the number of feet name the metre.
+
+fn fit(stress str, foot str) int
+    s := stress.chars()
+    f := foot.chars()
+    mut hits := 0
+    for i in 0..s.len()
+        if s[i] == f[i % f.len()]
+            hits += 1
+    hits
+
+fn main()
+    feet := [("iambic", "01"), ("trochaic", "10"), ("anapaestic", "001"), ("dactylic", "100")]
+    counts := ["", "monometer", "dimeter", "trimeter", "tetrameter", "pentameter", "hexameter"]
+    lines := [("Shall I compare thee to a summer's day", "0101010101"), ("Tyger Tyger burning bright", "1010101"), ("Twas the night before Christmas and all through the house", "001001001001"), ("This is the forest primeval the murmuring pines and the hemlocks", "10010010010010010"), ("Because I could not stop for Death", "01010101"), ("Double double toil and trouble", "10101010"), ("The Assyrian came down like the wolf on the fold", "001001001001")]
+    for l in lines
+        text, stress := l
+        mut best := 0
+        mut best_hits := -1
+        for i, f in feet.enumerate()
+            h := fit(stress, f.1)
+            if h > best_hits
+                best = i
+                best_hits = h
+        name, pat := feet[best]
+        size := pat.len()
+        n := (stress.len() + size - 1) / size
+        print("{text}")
+        print("    {stress} {name} {counts[n]} ({best_hits}/{stress.len()})")
+
+@test fn iambs()
+    assert_eq(fit("0101", "01"), 4)
+    assert_eq(fit("0101", "10"), 0)

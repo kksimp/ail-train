@@ -1,0 +1,30 @@
+## Swimming points: a swim is worth 1000 x (base time / swim time)^3, truncated, so a swim at the base
+## time scores 1000 and each percent slower costs about 3 percent; times like 1:52.45 are read as hundredths.
+
+fn hundredths(t str) int
+    mut mins := 0
+    mut rest := t
+    if t.contains(":")
+        parts := t.split(":")
+        mins = parts[0].to_int() else 0
+        rest = parts[1]
+    secs := rest.split(".")
+    mins * 6000 + (secs[0].to_int() else 0) * 100 + (secs[1].to_int() else 0)
+
+fn points(base str, swim str) int
+    r := hundredths(base).to_float() / hundredths(swim).to_float()
+    (1000.0 * r * r * r).floor().to_int()
+
+fn main()
+    bases := {"50 free": "20.91", "100 back": "51.60", "200 fly": "1:50.34", "400 IM": "4:02.50"}
+    swims := [("Nora", "50 free", "23.45"), ("Teo", "100 back", "55.10"), ("Ines", "200 fly", "2:01.88"), ("Mats", "400 IM", "4:21.07"), ("Pia", "50 free", "24.02"), ("Ravi", "200 fly", "1:58.40"), ("Sol", "100 back", "1:02.30")]
+    ranked := swims.sorted(by: |s| -points(bases[s.1], s.2))
+    for s in ranked
+        name, event, time := s
+        print("{name:<5} {event:<9} {time:>8}  {points(bases[event], time):>4} points")
+    slow := points("1:00.00", "1:00.60")
+    print("a swim 1% over the base scores {slow}")
+
+@test fn base()
+    assert_eq(points("20.91", "20.91"), 1000)
+    assert_eq(hundredths("1:52.45"), 11245)

@@ -1,0 +1,30 @@
+## Dynasty timeline: rulers' reigns as year ranges, sorted by start; overlapping reigns are co-regencies,
+## gaps between the latest end so far and the next start are interregna, and the longest and mean reigns are reported.
+
+struct Reign
+    name str
+    start int
+    end int
+
+fn main()
+    reigns := [Reign(name: "Oswin I", start: 1012, end: 1049), Reign(name: "Edda", start: 1049, end: 1061), Reign(name: "Oswin II", start: 1058, end: 1090), Reign(name: "Harald", start: 1094, end: 1101), Reign(name: "Maud", start: 1101, end: 1135), Reign(name: "Aelric", start: 1130, end: 1132), Reign(name: "Tobin", start: 1139, end: 1175)].sorted(by: |r| r.start)
+    mut latest := reigns[0].end
+    mut gaps := 0
+    for i in 1..reigns.len()
+        r := reigns[i]
+        if r.start < latest
+            print("co-regency: {r.name} joined in {r.start}, {latest - r.start} years of overlap")
+        elif r.start > latest
+            gaps += r.start - latest
+            print("interregnum {latest}-{r.start} before {r.name}")
+        latest = latest.max(r.end)
+    longest := reigns.sorted(by: |r| r.start - r.end)[0]
+    lengths := reigns.map(|r| r.end - r.start)
+    mean := lengths.sum().to_float() / lengths.len().to_float()
+    print("longest reign: {longest.name}, {longest.end - longest.start} years")
+    print("mean reign {mean:.1} years; dynasty {reigns[0].start}-{latest}, {gaps} years without a ruler")
+
+@test fn overlap()
+    a := Reign(name: "a", start: 1, end: 10)
+    b := Reign(name: "b", start: 8, end: 12)
+    assert_eq(a.end - b.start, 2)

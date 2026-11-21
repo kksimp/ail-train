@@ -1,0 +1,18 @@
+## Lexical density: the share of content words (nouns, verbs, adjectives, adverbs) among all words, found
+## by removing a list of function words; written registers run denser than talk, and the longest content word is shown.
+
+fn main()
+    function_words := {"a", "an", "the", "and", "or", "but", "of", "to", "in", "on", "at", "for", "with", "by", "from", "is", "are", "was", "were", "be", "been", "it", "i", "you", "he", "she", "we", "they", "that", "this", "so", "do", "did", "not", "just", "then", "there", "what", "my", "your", "its", "will", "shall", "any", "all", "as", "if", "me", "oh", "well", "yeah", "like"}
+    texts := [("news", "Heavy rainfall flooded several coastal towns overnight and emergency crews evacuated hundreds of residents"), ("chat", "oh well I did not think that it was there so I just went in and it was like what"), ("legal", "The tenant shall maintain the premises in good repair and shall not sublet any part without written consent"), ("recipe", "Whisk the eggs with sugar until pale then fold in sifted flour and bake for twenty minutes"), ("poem", "So we will go no more a roving so late into the night")]
+    for t in texts
+        label, text := t
+        words := text.to_lower().words()
+        content := words.filter(|w| not function_words.contains(w))
+        density := content.len().to_float() / words.len().to_float() * 100.0
+        longest := content.sorted(by: |w| -w.len())[0]
+        print("{label:<7} {content.len():>2}/{words.len():<2} words = {density:>5.1}% content, longest {longest}")
+
+@test fn half()
+    words := ["the", "cat"]
+    stop := {"the"}
+    assert_eq(words.filter(|w| not stop.contains(w)).len(), 1)
