@@ -79,6 +79,9 @@ def program_for(fam, user, answer_code, answer_text=""):
     prompt = code_of(user[user.index("```"):])
     body = answer_code.rstrip("\n")
     lines = body.split("\n")
+    if lines and lines[0].startswith("fn "):  # the whole function came back: keep its body only
+        lines = lines[1:]
+    lines = [l for l in lines if l.strip() != MARK]
     if lines and not lines[0].startswith(" "):  # the model dropped the indent: put it back
         lines = ["    " + l if l.strip() else l for l in lines]
     return prompt.replace("    " + MARK, "\n".join(lines))
