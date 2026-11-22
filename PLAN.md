@@ -219,6 +219,13 @@ report in the thread and its checkboxes updated here.
   injected, kept only when `ail check` fails; the answer is the corrected line) and `function` (one missing function
   from its signature). One epoch (run 1 overfit in its second). Later (run 3): a simplify family from pairs of correct
   agent trials of one task (longer to shorter, same output), then preference training on compiler results.
+- **Run 2 (2026-11-22)**, sequence 3072, LR 5e-5, warmup 100 updates, 6,232 iterations (~0.4 epoch). A first try at
+  1e-4 with a 19-update warmup went to NaN; then one stop when another project's work filled memory and one Metal
+  out-of-memory at 3072, both resumed from checkpoints. Validation 1.025, 0.591, 0.543, 0.518 (still falling). Quick
+  eval, 218 items, pass@1 final weights vs base + one-line prompt: all 32.7 / 11.5, fixline 100 / 0, fix 83.3 / 73.8,
+  cursor 25.0 / 0, complete 12.9 / 10.8, function 10.8 / 3.2, port 2.1 / 0, write 0 / 0. fixline is easy (one known
+  mistake per item); cursor, complete and function are the families to grow. Next run: train longer (validation had
+  not levelled off), harder fixline items (two mistakes, no line hint), and a memory margin for 3072.
 - **M2 (plan).** `tools/build_data.py` as in 5.4; Mac job against ail 0.2.0. Done when: manifest counts
   reported, every kept item passed `ail check`, and the deterministic rebuild matches.
 - **M3 Fresh eval tasks** (separate lane, must not read `data/`). 12-20 tasks in agentbench format, AIL reference
