@@ -207,6 +207,12 @@ report in the thread and its checkboxes updated here.
   (32 corpus programs, 28 mistakes). Deterministic rebuild matched. Gaps: fix is ~1% of tokens against a 25% target
   (only 3 drafts sit close enough to a correct final), change is one task. A later build should add fix items made by
   injecting the drafts' known mistakes into checked programs.
+- **Run 2 data (2026-11-22).** Kaleb: the model is for autocompletion and error fixing in ail-edit, plus small
+  functions on request; whole-program families stay because they teach the language. New families from every checked
+  program: `cursor` (fill in the middle: the rest of a line or 1 to 5 lines), `fixline` (one draft-style mistake
+  injected, kept only when `ail check` fails; the answer is the corrected line) and `function` (one missing function
+  from its signature). One epoch (run 1 overfit in its second). Later (run 3): a simplify family from pairs of correct
+  agent trials of one task (longer to shorter, same output), then preference training on compiler results.
 - **M2 (plan).** `tools/build_data.py` as in 5.4; Mac job against ail 0.2.0. Done when: manifest counts
   reported, every kept item passed `ail check`, and the deterministic rebuild matches.
 - **M3 Fresh eval tasks** (separate lane, must not read `data/`). 12-20 tasks in agentbench format, AIL reference
