@@ -4,7 +4,7 @@
 #   RESUME=~/ail-train-work/runs/train-STAMP tools/train.sh    # continue a stopped run from its last checkpoint
 # Reads BASE_MODEL from the untracked config.local (D6). Optional environment: EPOCHS (default 1; run 1 overfit in its second epoch), NUM_LAYERS
 # (default 16), SEQ (default 2048), LR (default 1e-4), ACCUM (gradient accumulation, default 8), EVAL_EVERY (default
-# 400 optimizer steps), SWAP_ABORT_MB (default 2048).
+# 400 optimizer steps), SWAP_ABORT_MB (default 2048), MAX_ITERS (cap on iterations, to end by a set time).
 # Writes ~/ail-train-work/runs/train-STAMP/{adapter.yaml,lora.log,adapter/,val.txt,summary.txt}. Keeps the Mac awake
 # with caffeinate. Stops on a swap blow-up or when validation loss rises at two evaluations in a row (PLAN.md 6); the
 # adapter checkpoints stay, so a stopped run can be resumed or the best checkpoint used. bash 3.2 compatible.
@@ -34,6 +34,8 @@ eval_every="${EVAL_EVERY:-400}"; swap_abort="${SWAP_ABORT_MB:-2048}"
 items="$(wc -l < "$data/train.jsonl" | tr -d ' ')"
 # mlx-lm counts one iteration per batch (batch 1); with accumulation the optimizer steps every ACCUM iterations.
 iters=$((epochs * items))
+# MAX_ITERS caps a run to fit a night; mlx-lm shuffles the batches, so a capped epoch is a random subset.
+if [ -n "${MAX_ITERS:-}" ] && [ "$MAX_ITERS" -lt "$iters" ]; then iters="$MAX_ITERS"; fi
 # The learning-rate schedule advances once per optimizer update (every ACCUM iterations), not per iteration.
 warmup=$((iters / accum / 50))
 adapter="adapter"
