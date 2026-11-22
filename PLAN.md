@@ -31,6 +31,7 @@ other languages; teach through docs, diagnostics and auto-fix).
 | D10 | The M1 preflight measures three candidate sizes, about 1.5B, 3B and 4B, each at the D9 sequence length; the base is picked from the measured numbers (2026-11-20). D1's order still holds unless that card says otherwise. | Kaleb |
 | D12 | D9 replaced (2026-11-21, after the M1 measurements): a one-line system prompt on every example, sequence cap 2048. The core card was ~80% of every example's tokens; with it only ~1.5B at 8 layers fit and an epoch would take days. Evaluation arms may still put the card in the prompt. | Kaleb |
 | D13 | First run base (2026-11-21): the ~1.5B code-trained instruct candidate (Apache-2.0), LoRA on 16 layers. ~3B only after its result (D1). | Kaleb |
+| D14 | From 2026-11-22 all training runs on the Windows PC's RTX 3070 (8 GB VRAM), not the Mac. The autocomplete model still deploys on the 8 GB Mac, so its weights come back as MLX (or GGUF). Heavy training of the ~1.5B for autocompletion; a second, larger model for whole programs, under a licence compatible with AGPL-3.0, trainable on the 3070. | Kaleb |
 | D11 | Grow the training set to about 3,000 distinct compiler-checked programs (2026-11-20). Project threads write them in batches under `data/extra/`; the Mac checks each with `tools/check_extra/run.sh`; only passing programs are kept. No paid service. | Kaleb |
 
 Open (ask Kaleb with a tappable card when reached): which concrete base model (section 4), whether a published
@@ -44,6 +45,12 @@ adapter is wanted at all (licence, section 4), whether the eval report goes on t
   gradient checkpointing the expected peak is 3-4 GB. Measure it in the preflight; abort above 6 GB or on swap.
 - ~3B at 4 bits: ~2 GB weights, expected peak 5-6 GB at sequence 1024. Only after D1's first result.
 - 7B and above: does not fit.
+- **PC** (Windows, RTX 3070 8 GB, D14). All training from 2026-11-22. Inside WSL2 Ubuntu, not native Windows: the
+  CUDA driver passes through from Windows, the Linux wheels of torch, bitsandbytes and triton are the supported path,
+  the scripts stay bash like the Mac's, and `ail` builds there as on ail-linux. Stack: Unsloth over transformers,
+  peft and TRL (fallback `--engine hf`: plain transformers + peft). Cap: 7.6 GB VRAM peak (the Windows desktop holds
+  the rest). The ~1.5B trains in bf16 (no quantisation, LoRA on every linear layer of every block); a ~7-9B trains
+  as QLoRA (4-bit NF4 base). Entry: `tools\pc\run.ps1 setup|preflight|build|train|eval|export`.
 - **ail-linux / ail-win** VMs: used only to re-check data on the other hosts if needed (`ail check` agrees on all three
   hosts by the parity rule). No training there.
 - Speed is unknown until measured. Planning figure: a few hundred tokens per second, so ~1M training tokens is about an
@@ -226,6 +233,10 @@ report in the thread and its checkboxes updated here.
   cursor 25.0 / 0, complete 12.9 / 10.8, function 10.8 / 3.2, port 2.1 / 0, write 0 / 0. fixline is easy (one known
   mistake per item); cursor, complete and function are the families to grow. Next run: train longer (validation had
   not levelled off), harder fixline items (two mistakes, no line hint), and a memory margin for 3072.
+- **PC move (D14, 2026-11-22).** Ported to CUDA in `tools/pc/`. Order: `setup`, `build` (cap 4096 now that the GPU
+  holds it), `preflight` (peak VRAM and tok/s for the ~1.5B at rank 16/64/128 and sequence 3072/4096, and for the big
+  model at 4 bits), a short A/B of rank 16 vs 64 (ChatGPT note: higher rank on all linear layers), then the long runs
+  after Kaleb's go. Export: merge in bf16, then `tools/import_mlx.sh` on the Mac (or GGUF from llama.cpp).
 - **M2 (plan).** `tools/build_data.py` as in 5.4; Mac job against ail 0.2.0. Done when: manifest counts
   reported, every kept item passed `ail check`, and the deterministic rebuild matches.
 - **M3 Fresh eval tasks** (separate lane, must not read `data/`). 12-20 tasks in agentbench format, AIL reference
@@ -252,7 +263,10 @@ data/extra/              programs written for training (drills); checked on the 
 tools/preflight.sh       M1: measures each candidate base (tools/preflight/ holds its Python steps)
 tools/build_data.py      M2: the data builder; tools/build_data.sh runs it on the Mac twice and compares
 tools/local_agent.py     M4 (to write)
-tools/eval_quick.py      M5: quick eval of one arm (tools/eval_quick.sh: ARM=A, A0 or C)
+tools/eval_quick.py      M5: quick eval of one arm (tools/eval_quick.sh: ARM=A, A0, C or M; --backend hf on the PC)
+tools/pc/                D14: run.ps1 (Windows entry: WSL2 setup, copy, keep awake) and run.sh (setup, preflight,
+                         build, train, eval, export); train.py (LoRA/QLoRA on CUDA), export.py (merge for MLX/GGUF)
+tools/import_mlx.sh      on the Mac: a merged model from the PC to 4-bit MLX
 config.local             untracked: base model id, paths (D6)
 ```
 

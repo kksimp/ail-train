@@ -8,7 +8,8 @@ passes when its program passes `ail check` and `ail run` prints what the referen
 `cursor` the model's text is put back where the prompt marks it; `fixline` replaces the line it names; for `fix` the
 answer is the whole fixed program. Writes
 OUT/answers.jsonl (every sample with its verdict) and OUT/summary.json and prints a table: compile rate, pass@1 (mean
-over samples) and pass@k (any sample) per family. Runs on the Mac only.
+over samples) and pass@k (any sample) per family. --backend mlx (default) runs on the Mac; --backend hf runs on the PC's
+CUDA GPU with transformers and peft (tools/pc/run.sh eval; --load-4bit for the big model).
 """
 
 import argparse
@@ -110,6 +111,57 @@ def compile_and_run(ail, src):
         shutil.rmtree(tmp, ignore_errors=True)
 
 
+def mlx_generator(args):
+    """Samples one by one with mlx-lm (the Mac)."""
+    import mlx.core as mx
+    from mlx_lm import generate, load
+    from mlx_lm.sample_utils import make_sampler
+
+    model, tok = load(args.model, adapter_path=args.adapter or None)
+    sampler = make_sampler(temp=args.temp)
+
+    def gen(msgs, seed):
+        prompt = tok.apply_chat_template(msgs, add_generation_prompt=True)
+        out = []
+        for s in range(args.samples):
+            mx.random.seed(seed + s)
+            out.append(generate(model, tok, prompt, max_tokens=args.max_tokens, sampler=sampler, verbose=False))
+        return out
+    return gen
+
+
+def hf_generator(args):
+    """All samples of an item in one batch with transformers (the PC's CUDA GPU)."""
+    import torch
+    from transformers import AutoModelForCausalLM, AutoTokenizer
+
+    q = None
+    if args.load_4bit:
+        from transformers import BitsAndBytesConfig
+        q = BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_quant_type="nf4", bnb_4bit_use_double_quant=True,
+                               bnb_4bit_compute_dtype=torch.bfloat16)
+    tok = AutoTokenizer.from_pretrained(args.model)
+    model = AutoModelForCausalLM.from_pretrained(args.model, torch_dtype=torch.bfloat16, quantization_config=q,
+                                                 device_map={"": 0})
+    if args.adapter:
+        from peft import PeftModel
+        model = PeftModel.from_pretrained(model, args.adapter)
+    model.eval()
+
+    def gen(msgs, seed):
+        ids = tok.apply_chat_template(msgs, add_generation_prompt=True, return_tensors="pt", enable_thinking=False)
+        if not torch.is_tensor(ids):
+            ids = ids["input_ids"]
+        ids = ids.to(model.device)
+        torch.manual_seed(seed)
+        with torch.no_grad():
+            out = model.generate(ids, attention_mask=torch.ones_like(ids), do_sample=args.temp > 0,
+                                 temperature=args.temp or None, top_p=1.0, max_new_tokens=args.max_tokens,
+                                 num_return_sequences=args.samples, pad_token_id=tok.pad_token_id or tok.eos_token_id)
+        return [tok.decode(o[ids.shape[1]:], skip_special_tokens=True) for o in out]
+    return gen
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--ail", required=True)
@@ -122,11 +174,9 @@ def main():
     ap.add_argument("--temp", type=float, default=0.2)
     ap.add_argument("--max-tokens", type=int, default=1024)
     ap.add_argument("--limit", type=int, default=0)
+    ap.add_argument("--backend", default="mlx", choices=["mlx", "hf"])
+    ap.add_argument("--load-4bit", action="store_true")
     args = ap.parse_args()
-
-    import mlx.core as mx
-    from mlx_lm import generate, load
-    from mlx_lm.sample_utils import make_sampler
 
     ail = os.path.join(os.path.abspath(args.ail), "ail")
     if args.system == "short":
@@ -138,8 +188,7 @@ def main():
     rows = [json.loads(l) for l in open(args.data, encoding="utf-8")]
     if args.limit:
         rows = rows[:args.limit]
-    model, tok = load(args.model, adapter_path=args.adapter or None)
-    sampler = make_sampler(temp=args.temp)
+    gen = (hf_generator if args.backend == "hf" else mlx_generator)(args)
     os.makedirs(args.out, exist_ok=True)
 
     results = []
@@ -154,12 +203,9 @@ def main():
             if not ok or want is None:
                 results.append({"i": i, "family": fam, "skip": "reference fails: " + err[:200]})
                 continue
-            prompt = tok.apply_chat_template([{"role": "system", "content": system},
-                                              {"role": "user", "content": user}], add_generation_prompt=True)
+            texts = gen([{"role": "system", "content": system}, {"role": "user", "content": user}], 1000 * i)
             verdicts = []
-            for s in range(args.samples):
-                mx.random.seed(1000 * i + s)
-                text = generate(model, tok, prompt, max_tokens=args.max_tokens, sampler=sampler, verbose=False)
+            for s, text in enumerate(texts):
                 src = program_for(fam, user, code_of(text), text)
                 compiled, got, err = compile_and_run(ail, src)
                 passed = compiled and got == want
