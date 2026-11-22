@@ -13,7 +13,7 @@ die() { echo "build_data: $*" >&2; exit 2; }
 [ -f "$root/config.local" ] && . "$root/config.local"
 ail_root="${AIL_ROOT:-$work/ail-pinned}"
 [ -x "$ail_root/ail" ] || die "no ail at $ail_root (set AIL_ROOT in config.local)"
-if pgrep -f "mac-gate.sh" >/dev/null 2>&1; then die "the AIL Mac gate is running; try again after it finishes"; fi
+if pgrep -f "mac-gate[.]sh" >/dev/null 2>&1; then die "the AIL Mac gate is running; try again after it finishes"; fi
 venv="$work/venv"
 if [ ! -x "$venv/bin/python" ]; then
     py=""

@@ -44,7 +44,7 @@ swap_used_mb() { sysctl -n vm.swapusage | sed -n 's/.*used = \([0-9.]*\)M.*/\1/p
 free_disk_gb() { df -k "$HOME" | awk 'NR==2 {printf "%d", $4 / 1048576}'; }
 
 guard() {
-    if pgrep -f "mac-gate.sh" >/dev/null 2>&1; then die "the AIL Mac gate is running; try again after it finishes"; fi
+    if pgrep -f "mac-gate[.]sh" >/dev/null 2>&1; then die "the AIL Mac gate is running; try again after it finishes"; fi
     local l
     l="$(load1)"
     awk -v l="$l" 'BEGIN { exit !(l < 8) }' || die "load average is $l (needs < 8)"

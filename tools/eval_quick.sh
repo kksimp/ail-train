@@ -15,8 +15,8 @@ die() { echo "eval_quick: $*" >&2; exit 2; }
 ail_root="${AIL_ROOT:-$work/ail-pinned}"
 arm="${ARM:-}"
 case "$arm" in A) system=core ;; A0|C) system=short ;; *) die "set ARM=A, A0 or C" ;; esac
-if pgrep -f "mlx_lm.lora" >/dev/null 2>&1; then die "a training run is going; wait for it"; fi
-if pgrep -f "mac-gate.sh" >/dev/null 2>&1; then die "the AIL Mac gate is running"; fi
+if pgrep -f "mlx_lm[.]lora" >/dev/null 2>&1; then die "a training run is going; wait for it"; fi
+if pgrep -f "mac-gate[.]sh" >/dev/null 2>&1; then die "the AIL Mac gate is running"; fi
 [ -s "$root/data/build/quick-eval.jsonl" ] || die "no data/build/quick-eval.jsonl; run tools/build_data.sh"
 vpy="$work/venv/bin/python"
 export HF_HOME="$work/hf" HF_HUB_DISABLE_TELEMETRY=1
