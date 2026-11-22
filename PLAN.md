@@ -207,6 +207,12 @@ report in the thread and its checkboxes updated here.
   (32 corpus programs, 28 mistakes). Deterministic rebuild matched. Gaps: fix is ~1% of tokens against a 25% target
   (only 3 drafts sit close enough to a correct final), change is one task. A later build should add fix items made by
   injecting the drafts' known mistakes into checked programs.
+- **Run 1 quick eval (2026-11-22)**, 119 items, 3 samples at temperature 0.2, pass = compiles and prints the reference
+  output. pass@1: base + one-line prompt 17.4%, base + core card 12.6%, run 1 final weights 30.3%, run 1
+  best-validation checkpoint 26.6%. Final weights per family: complete 21.5%, fix 100% (the mistakes carry the
+  compiler's own fix hint), port 4.8%, write 0% (a fifth of whole programs hit the 1024-token answer cap). Lower
+  validation loss did not mean better scores, so later runs score the final weights first. The base model's complete
+  answers often repeat the signature; the eval now strips it so the base is not penalised for format alone.
 - **Run 2 data (2026-11-22).** Kaleb: the model is for autocompletion and error fixing in ail-edit, plus small
   functions on request; whole-program families stay because they teach the language. New families from every checked
   program: `cursor` (fill in the middle: the rest of a line or 1 to 5 lines), `fixline` (one draft-style mistake

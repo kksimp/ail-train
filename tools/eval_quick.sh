@@ -4,7 +4,7 @@
 #   ARM=A0 tools/eval_quick.sh    # base model, the one-line prompt the training used
 #   ARM=C tools/eval_quick.sh     # base model + the newest run's adapter, the one-line prompt (arm C)
 # Optional environment: ADAPTER (an adapter folder; default the newest ~/ail-train-work/runs/train-*/adapter*),
-# SAMPLES (default 3), LIMIT (first N items, for a smoke test). Reads AIL_ROOT and BASE_MODEL from config.local.
+# SAMPLES (default 3), MAX_GEN (answer token cap, default 1536; 1024 cut off a fifth of whole programs), LIMIT (first N items, for a smoke test). Reads AIL_ROOT and BASE_MODEL from config.local.
 # Output: ~/ail-train-work/runs/eval-ARM-STAMP/{answers.jsonl,summary.json}. Not while a training run or gate runs.
 set -u
 root="$(cd "$(dirname "$0")/.." && pwd)"
@@ -31,5 +31,5 @@ fi
 out="$work/runs/eval-$arm-$(date -u +%Y%m%dT%H%M%SZ)"
 # shellcheck disable=SC2086
 caffeinate -i "$vpy" "$root/tools/eval_quick.py" --ail "$ail_root" --model "$mdir" $adapter_args --system "$system" \
-    --out "$out" --samples "${SAMPLES:-3}" ${LIMIT:+--limit $LIMIT}
+    --out "$out" --samples "${SAMPLES:-3}" --max-tokens "${MAX_GEN:-1536}" ${LIMIT:+--limit $LIMIT}
 echo "results: $out"
