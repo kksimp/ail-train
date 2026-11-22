@@ -40,6 +40,8 @@ def code_of(text):
 
 
 def family(user):
+    if user.startswith("This AIL program needs the function"):
+        return "function"
     if user.startswith("Fill in the AIL code at"):
         return "cursor"
     if user.rstrip().endswith("Give the corrected line."):
@@ -54,6 +56,8 @@ def family(user):
 
 
 def program_for(fam, user, answer_code, answer_text=""):
+    if fam == "function":  # top-level names resolve in any order, so the function goes at the end
+        return code_of(user[user.index("```"):]).rstrip("\n") + "\n\n" + answer_code
     if fam == "cursor":
         prompt = user[user.index("```ail\n") + 7:user.rindex("\n```")]
         # A run of lines starts at a line start and ends with its own newline; the rest of a line has none.

@@ -9,7 +9,8 @@ source and split, token totals, every dropped item with its reason, the ail comm
 same inputs give byte-identical output. Compiler results are cached by content under ~/ail-train-work/build-cache.
 
 Families (PLAN.md 5.2): write, port, fix, change, complete, explain; since run 2 also cursor (fill in the middle:
-the rest of a line or a run of lines) and fixline (one injected mistake from the drafts; the answer is the line). Splits are by group (one program, one mistake,
+the rest of a line or a run of lines) fixline (one injected mistake from the drafts; the answer is the line) and function (write one missing
+function from its signature and the program around it). Splits are by group (one program, one mistake,
 one agent task), so no program appears in two splits. quick-eval holds 10% of corpus programs and 10% of mistakes;
 valid holds 5% of the other groups except the agent tasks. Train items whose program shares more than 30% of its
 token 8-grams with a quick-eval program are dropped (5.3 rule 5).
@@ -221,6 +222,34 @@ def task_seeds(ail_root):
 
 
 # ---------------------------------------------------------------- helpers
+
+
+def function_cut(src, key):
+    """Remove one whole top-level function (not main, not a test): (program without it, signature, function) or None.
+    AIL resolves top-level names in any order, so the function can be written back anywhere in the file."""
+    lines = src.split("\n")
+    cands = []
+    i = 0
+    while i < len(lines):
+        m = re.match(r"^fn ([A-Za-z_][A-Za-z0-9_]*)\(", lines[i])
+        if m:
+            j = i + 1
+            while j < len(lines) and (lines[j].startswith(" ") or lines[j].strip() == ""):
+                j += 1
+            k = j
+            while k > i + 1 and lines[k - 1].strip() == "":
+                k -= 1
+            is_test = i > 0 and lines[i - 1].strip().startswith("@test")
+            if m.group(1) != "main" and not is_test and 3 <= k - (i + 1) <= 25:
+                cands.append((i, k, j))
+            i = j
+        else:
+            i += 1
+    if not cands:
+        return None
+    i, k, j = sorted(cands, key=lambda c: sha(key, "function", str(c[0])))[0]
+    rest = "\n".join(lines[:i] + lines[j:]).rstrip("\n") + "\n"
+    return rest, lines[i].strip(), "\n".join(lines[i:k])
 
 
 def complete_cut(src, key):
@@ -457,6 +486,12 @@ def main():
                         "This AIL program fails `ail check`:\n\n{}\n\n```\n{}\n```\n\nGive the corrected line.".format(
                             fence(bad, "main.ail"), c["out"].strip()),
                         "Line {}:\n```ail\n{}\n```".format(n, orig))
+        fc = function_cut(src, g) if source != "cases" else None
+        if fc:
+            rest, sig, fn_src = fc
+            add("function:" + g, g, "function", source, src,
+                "This AIL program needs the function `{}`, which is missing. Write it.\n\n{}".format(sig, fence(rest)),
+                fence(fn_src))
         cut = complete_cut(src, g)
         if cut:
             prompt, fn, body = cut
