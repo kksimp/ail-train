@@ -4,9 +4,9 @@
 #   RESUME=~/ail-train-work/runs/train-STAMP tools/train.sh    # continue a stopped run from its last checkpoint
 # Reads BASE_MODEL from the untracked config.local (D6). Optional environment: EPOCHS (default 1; run 1 overfit in its second epoch), NUM_LAYERS
 # (default 16), SEQ (default 2048), LR (default 1e-4), ACCUM (gradient accumulation, default 8), EVAL_EVERY (default
-# 400 optimizer steps), SWAP_ABORT_MB (default 2048), MAX_ITERS (cap on iterations, to end by a set time).
+# 400 optimizer steps), SWAP_ABORT_MB (default 2048), WARMUP_MIN (default 100 updates), MAX_ITERS (cap on iterations, to end by a set time).
 # Writes ~/ail-train-work/runs/train-STAMP/{adapter.yaml,lora.log,adapter/,val.txt,summary.txt}. Keeps the Mac awake
-# with caffeinate. Stops on a swap blow-up or when validation loss rises at two evaluations in a row (PLAN.md 6); the
+# with caffeinate. Stops on a swap blow-up, a NaN train loss, or when validation loss rises at two evaluations in a row (PLAN.md 6); the
 # adapter checkpoints stay, so a stopped run can be resumed or the best checkpoint used. bash 3.2 compatible.
 set -u
 root="$(cd "$(dirname "$0")/.." && pwd)"
@@ -38,6 +38,9 @@ iters=$((epochs * items))
 if [ -n "${MAX_ITERS:-}" ] && [ "$MAX_ITERS" -lt "$iters" ]; then iters="$MAX_ITERS"; fi
 # The learning-rate schedule advances once per optimizer update (every ACCUM iterations), not per iteration.
 warmup=$((iters / accum / 50))
+# Run 2 (warmup 19 updates at 1e-4) went to NaN by iteration 500: never warm up over fewer than WARMUP_MIN updates.
+warmup_min="${WARMUP_MIN:-100}"
+[ "$warmup" -lt "$warmup_min" ] && warmup="$warmup_min"
 adapter="adapter"
 if [ -n "${RESUME:-}" ]; then
     run="$RESUME"
@@ -85,7 +88,7 @@ lr_schedule:
   arguments: [$lr, $((iters / accum - warmup)), 1.0e-6]
 steps_per_report: 50
 steps_per_eval: $((eval_every * accum))
-save_every: $((eval_every * accum))
+save_every: $((eval_every * accum / 4))
 adapter_path: "$run/$adapter"
 max_seq_length: $seq
 grad_checkpoint: true
@@ -115,6 +118,9 @@ while kill -0 "$pid" 2>/dev/null; do
     s="$(swap_mb)"
     if [ $((s - swap0)) -gt "$swap_abort" ]; then why="swap grew by $((s - swap0)) MB"; break; fi
     if pgrep -f "mac-gate.sh" >/dev/null 2>&1; then why="the AIL Mac gate started"; break; fi
+    if sed 's/\x1b\[[0-9;]*m//g' "$run/lora.log" | awk '$1 ~ /^[0-9]+$/ && tolower($2) == "nan" {f=1} END {exit !f}'; then
+        why="train loss is NaN"; break
+    fi
     # Validation rows look like "  400    val 0.554    11.36s" (colour codes stripped).
     sed 's/\x1b\[[0-9;]*m//g' "$run/lora.log" | awk '$2 == "val" {print $1, $3}' > "$run/val.txt"
     if [ "$(wc -l < "$run/val.txt")" -ge 3 ] && tail -3 "$run/val.txt" | awk 'NR==1{a=$2} NR==2{b=$2} NR==3{c=$2} END{exit !(b > a && c > b)}'; then
