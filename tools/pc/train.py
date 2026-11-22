@@ -9,9 +9,10 @@ assistant answer only (as `mask_prompt` on the Mac): the prompt is the chat temp
 every token after it is learned, the end-of-turn token included. --layers N puts LoRA on the last N blocks (0 = all);
 --targets all is every linear layer of a block (attention and MLP).
 
-Writes RUN_DIR/{log.jsonl,checkpoint-*/,adapter-final/,result.json}. Stops on a NaN loss and when validation loss
-rises at two evaluations in a row (PLAN.md 6); the final adapter is saved either way (run 1 showed the final weights
-scoring better than the best-validation ones). --resume continues from the newest checkpoint with its optimizer,
+Writes RUN_DIR/{log.jsonl,checkpoint-*/,adapter-final/,adapter-best/,result.json}. Stops on a NaN loss and when
+validation loss rises at two evaluations in a row (PLAN.md 6); the final adapter is saved either way (run 1 showed the
+final weights scoring better than the best-validation ones), and adapter-best is a copy of the lowest-validation
+checkpoint's adapter (the final one when there was no evaluation), which run.sh eval and export use by default. --resume continues from the newest checkpoint with its optimizer,
 schedule and data order. --smoke N trains N steps on the longest items and writes RUN_DIR/smoke.json (peak VRAM, tok/s).
 """
 
@@ -20,6 +21,7 @@ import inspect
 import json
 import math
 import os
+import shutil
 import sys
 import time
 
@@ -240,10 +242,20 @@ def main():
     final = os.path.join(args.out, "adapter-final")
     model.save_pretrained(final)
     tok.save_pretrained(final)
+    # adapter-best: the lowest-validation checkpoint's adapter (checkpoints rotate away; this copy stays).
+    best_dir = os.path.join(args.out, "adapter-best")
+    src = trainer.state.best_model_checkpoint
+    src = src if src and os.path.isdir(src) else final
+    shutil.rmtree(best_dir, ignore_errors=True)
+    os.makedirs(best_dir)
+    for name in os.listdir(src):
+        if name.startswith("adapter_"):
+            shutil.copy2(os.path.join(src, name), best_dir)
+    tok.save_pretrained(best_dir)
     vals = [round(v, 4) for v in guard.vals]
     result = {"stopped": guard.why or "finished", "steps": trainer.state.global_step, "hours": round(secs / 3600, 2),
               "peak_gb": round(peak, 2), "val": vals, "best_val": min(vals) if vals else None,
-              "best_checkpoint": trainer.state.best_model_checkpoint, "train_items": len(train),
+              "best_checkpoint": trainer.state.best_model_checkpoint, "adapter_best_from": src, "train_items": len(train),
               "train_tokens": tokens, "epochs_done": round(trainer.state.epoch or 0, 3)}
     json.dump(result, open(os.path.join(args.out, "result.json"), "w"), indent=1)
     with open(os.path.join(args.out, "summary.txt"), "a") as f:

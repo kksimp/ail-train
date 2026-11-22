@@ -9,6 +9,7 @@
 # Optional environment, train: EPOCHS, MAX_STEPS, LR, RANK, ALPHA, LAYERS (0 = all), TARGETS (all | attn | a,b,c),
 #   SEQ, BATCH, ACCUM, EVAL_EVERY (optimizer steps), RESUME=1 (continue the newest run of that model), ENGINE
 #   (unsloth | hf). build: MAX_TOKENS (default 4096), JOBS. eval: SAMPLES, MAX_GEN, LIMIT, RUN (a run folder).
+#   eval and export: ADAPTER=best (default: adapter-best, the lowest-validation checkpoint) or ADAPTER=final.
 # Work folder: ~/ail-train-work/{venv,hf,ail-pinned,runs,export}. Runs: runs/train-small-STAMP/{summary.txt,log.jsonl,
 #   adapter-final/,checkpoint-*/}. Keeps 20 GB of disk free and stops on NaN loss or validation rising twice.
 set -u
@@ -71,6 +72,22 @@ setup() {
     git -C "$ail_root" fetch -q origin && git -C "$ail_root" checkout -q "$pin" || die "could not check out ail $pin"
     (cd "$ail_root" && ./ail doctor) || die "ail doctor failed"
     echo "setup done; free disk $(free_gb) GB"
+}
+
+# The adapter of a run that eval and export use: ADAPTER=best (default) is adapter-best, or for runs from before it
+# existed the best checkpoint named in result.json; ADAPTER=final is adapter-final. Empty when there is none.
+adapter_of() {
+    local run="$1"
+    if [ "${ADAPTER:-best}" = final ]; then
+        [ -d "$run/adapter-final" ] && echo "$run/adapter-final"
+        return 0
+    fi
+    if [ -d "$run/adapter-best" ]; then echo "$run/adapter-best"; return 0; fi
+    local b=""
+    [ -f "$run/result.json" ] && b="$("$vpy" -c 'import json, sys; print(json.load(open(sys.argv[1])).get("best_checkpoint") or "")' "$run/result.json")"
+    if [ -n "$b" ] && [ -f "$b/adapter_config.json" ]; then echo "$b"; return 0; fi
+    [ -d "$run/adapter-final" ] && echo "$run/adapter-final"
+    return 0
 }
 
 guard() {
@@ -185,8 +202,10 @@ eval)
     adapter_args=""; arm="A0"
     if [ "$extra" != base ]; then
         run="${RUN:-$(ls -d "$work"/runs/train-"$which"-* 2>/dev/null | sort | tail -1)}"
-        [ -d "$run/adapter-final" ] || die "no finished adapter in ${run:-?}"
-        adapter_args="--adapter $run/adapter-final"; arm="C"
+        adapter="$(adapter_of "$run")"
+        [ -n "$adapter" ] || die "no finished adapter in ${run:-?}"
+        echo "adapter: $adapter"
+        adapter_args="--adapter $adapter"; arm="C-${ADAPTER:-best}"
     fi
     q=""; [ "$which" = big ] && q="--load-4bit"
     out="$work/runs/eval-$which-$arm-$(date -u +%Y%m%dT%H%M%SZ)"
@@ -200,9 +219,11 @@ export)
     guard
     mdir="$(fetch "$(model_for "$which")")" || exit 2
     run="${RUN:-$(ls -d "$work"/runs/train-"$which"-* 2>/dev/null | sort | tail -1)}"
-    [ -d "$run/adapter-final" ] || die "no finished adapter in ${run:-?}"
-    out="$work/export/$which-$(basename "$run")"
-    "$vpy" "$root/tools/pc/export.py" --model "$mdir" --adapter "$run/adapter-final" --out "$out/merged" || die "merge failed"
+    adapter="$(adapter_of "$run")"
+    [ -n "$adapter" ] || die "no finished adapter in ${run:-?}"
+    echo "adapter: $adapter"
+    out="$work/export/$which-$(basename "$run")-${ADAPTER:-best}"
+    "$vpy" "$root/tools/pc/export.py" --model "$mdir" --adapter "$adapter" --out "$out/merged" || die "merge failed"
     # GGUF through llama.cpp (MIT), built once in ~/ail-train-work/llama.cpp.
     lc="$work/llama.cpp"
     if [ ! -x "$lc/build/bin/llama-quantize" ]; then
