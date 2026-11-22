@@ -20,7 +20,7 @@ data="$root/data/build"
 [ -s "$data/train.jsonl" ] && [ -s "$data/valid.jsonl" ] || die "no built data; run tools/build_data.sh first"
 vpy="$work/venv/bin/python"
 [ -x "$vpy" ] || die "no venv; run tools/preflight.sh or tools/build_data.sh first"
-if pgrep -f "mac-gate.sh" >/dev/null 2>&1; then die "the AIL Mac gate is running"; fi
+if pgrep -f "mac-gate[.]sh" >/dev/null 2>&1; then die "the AIL Mac gate is running"; fi
 l="$(sysctl -n vm.loadavg | awk '{print $2}')"
 awk -v l="$l" 'BEGIN { exit !(l < 8) }' || die "load average is $l (needs < 8)"
 [ "$(df -k "$HOME" | awk 'NR==2 {printf "%d", $4 / 1048576}')" -ge 20 ] || die "less than 20 GB free"
@@ -42,6 +42,7 @@ warmup=$((iters / accum / 50))
 warmup_min="${WARMUP_MIN:-100}"
 [ "$warmup" -lt "$warmup_min" ] && warmup="$warmup_min"
 adapter="adapter"
+seed=0
 if [ -n "${RESUME:-}" ]; then
     run="$RESUME"
     [ -f "$run/adapter.yaml" ] || die "no run at $run"
@@ -63,6 +64,7 @@ if [ -n "${RESUME:-}" ]; then
     resume_line="resume_adapter_file: \"$last\""
     iters=$((iters - done_iters))
     warmup=0   # the optimizer and schedule restart; decay over what is left
+    seed="$done_iters"   # mlx-lm restarts the data order on resume: a new seed keeps the first items from repeating
     echo "resuming after $done_iters iterations from $last"
 else
     run="$work/runs/train-$(date -u +%Y%m%dT%H%M%SZ)"
@@ -74,7 +76,7 @@ model: "$mdir"
 train: true
 fine_tune_type: lora
 data: "$data"
-seed: 0
+seed: $seed
 num_layers: $layers
 batch_size: 1
 grad_accumulation_steps: $accum
@@ -117,7 +119,7 @@ while kill -0 "$pid" 2>/dev/null; do
     sleep 30
     s="$(swap_mb)"
     if [ $((s - swap0)) -gt "$swap_abort" ]; then why="swap grew by $((s - swap0)) MB"; break; fi
-    if pgrep -f "mac-gate.sh" >/dev/null 2>&1; then why="the AIL Mac gate started"; break; fi
+    if pgrep -f "mac-gate[.]sh" >/dev/null 2>&1; then why="the AIL Mac gate started"; break; fi
     if sed 's/\x1b\[[0-9;]*m//g' "$run/lora.log" | awk '$1 ~ /^[0-9]+$/ && tolower($2) == "nan" {f=1} END {exit !f}'; then
         why="train loss is NaN"; break
     fi
