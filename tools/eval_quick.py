@@ -4,8 +4,9 @@ Usage: python tools/eval_quick.py --ail AIL_ROOT --model MODEL_DIR [--adapter AD
                                   --out OUT_DIR [--samples 3] [--temp 0.2] [--max-tokens 1024] [--limit N]
 
 Each quick-eval row holds a task and its reference answer, which passed the compiler when the data was built. An answer
-passes when its program passes `ail check` and `ail run` prints what the reference program prints. For `complete` the
-model's body is put back where the prompt marks it; for `fix` the answer is the whole fixed program. Writes
+passes when its program passes `ail check` and `ail run` prints what the reference program prints. For `complete` and
+`cursor` the model's text is put back where the prompt marks it; `fixline` replaces the line it names; for `fix` the
+answer is the whole fixed program. Writes
 OUT/answers.jsonl (every sample with its verdict) and OUT/summary.json and prints a table: compile rate, pass@1 (mean
 over samples) and pass@k (any sample) per family. Runs on the Mac only.
 """
@@ -22,7 +23,9 @@ import time
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FENCE = re.compile(r"```[A-Za-z]*[^\n]*\n(.*?)```", re.S)
-MARK = "⟨BODY⟩"
+MARK = "\u27e8BODY\u27e9"
+FILL = "\u27e8FILL\u27e9"
+LINE = re.compile(r"Line (\d+):")
 
 
 def read(path):
@@ -37,6 +40,10 @@ def code_of(text):
 
 
 def family(user):
+    if user.startswith("Fill in the AIL code at"):
+        return "cursor"
+    if user.rstrip().endswith("Give the corrected line."):
+        return "fixline"
     if user.startswith("Write the body of"):
         return "complete"
     if user.startswith("This AIL program fails"):
@@ -46,7 +53,23 @@ def family(user):
     return "write"
 
 
-def program_for(fam, user, answer_code):
+def program_for(fam, user, answer_code, answer_text=""):
+    if fam == "cursor":
+        prompt = user[user.index("```ail\n") + 7:user.rindex("\n```")]
+        # A run of lines starts at a line start and ends with its own newline; the rest of a line has none.
+        middle = answer_code if ("\n" + FILL) in prompt or prompt.startswith(FILL) else answer_code.rstrip("\n")
+        return prompt.replace(FILL, middle, 1)
+    if fam == "fixline":
+        m = LINE.search(answer_text)
+        if not m:
+            return ""
+        bad = code_of(user[user.index("```"):])
+        lines = bad.rstrip("\n").split("\n")
+        n = int(m.group(1))
+        if not 1 <= n <= len(lines):
+            return ""
+        lines[n - 1] = answer_code.rstrip("\n").split("\n")[0]
+        return "\n".join(lines) + "\n"
     if fam != "complete":
         return answer_code
     prompt = code_of(user[user.index("```"):])
@@ -119,7 +142,7 @@ def main():
             user = row["messages"][1]["content"]
             ref_answer = row["messages"][2]["content"]
             fam = family(user)
-            ref_src = program_for(fam, user, code_of(ref_answer))
+            ref_src = program_for(fam, user, code_of(ref_answer), ref_answer)
             ok, want, err = compile_and_run(ail, ref_src)
             if not ok or want is None:
                 results.append({"i": i, "family": fam, "skip": "reference fails: " + err[:200]})
@@ -130,7 +153,7 @@ def main():
             for s in range(args.samples):
                 mx.random.seed(1000 * i + s)
                 text = generate(model, tok, prompt, max_tokens=args.max_tokens, sampler=sampler, verbose=False)
-                src = program_for(fam, user, code_of(text))
+                src = program_for(fam, user, code_of(text), text)
                 compiled, got, err = compile_and_run(ail, src)
                 passed = compiled and got == want
                 verdicts.append({"compiled": compiled, "passed": passed})

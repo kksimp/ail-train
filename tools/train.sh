@@ -2,7 +2,7 @@
 # M5: the first LoRA training run on the Mac. Run from the repository root after tools/build_data.sh:
 #   tools/train.sh                 # a new run
 #   RESUME=~/ail-train-work/runs/train-STAMP tools/train.sh    # continue a stopped run from its last checkpoint
-# Reads BASE_MODEL from the untracked config.local (D6). Optional environment: EPOCHS (default 2), NUM_LAYERS
+# Reads BASE_MODEL from the untracked config.local (D6). Optional environment: EPOCHS (default 1; run 1 overfit in its second epoch), NUM_LAYERS
 # (default 16), SEQ (default 2048), LR (default 1e-4), ACCUM (gradient accumulation, default 8), EVAL_EVERY (default
 # 400 optimizer steps), SWAP_ABORT_MB (default 2048).
 # Writes ~/ail-train-work/runs/train-STAMP/{adapter.yaml,lora.log,adapter/,val.txt,summary.txt}. Keeps the Mac awake
@@ -29,7 +29,7 @@ export HF_HUB_DISABLE_TELEMETRY=1
 mdir="$("$vpy" -c 'import sys; from huggingface_hub import snapshot_download; print(snapshot_download(sys.argv[1]))' "$BASE_MODEL" 2>/dev/null | tail -1)"
 [ -d "$mdir" ] || die "could not find or fetch $BASE_MODEL"
 
-epochs="${EPOCHS:-2}"; layers="${NUM_LAYERS:-16}"; seq="${SEQ:-2048}"; lr="${LR:-1e-4}"; accum="${ACCUM:-8}"
+epochs="${EPOCHS:-1}"; layers="${NUM_LAYERS:-16}"; seq="${SEQ:-2048}"; lr="${LR:-1e-4}"; accum="${ACCUM:-8}"
 eval_every="${EVAL_EVERY:-400}"; swap_abort="${SWAP_ABORT_MB:-2048}"
 items="$(wc -l < "$data/train.jsonl" | tr -d ' ')"
 # mlx-lm counts one iteration per batch (batch 1); with accumulation the optimizer steps every ACCUM iterations.

@@ -8,7 +8,8 @@ Writes OUT/{train,valid,quick-eval}.jsonl (chat format for mlx_lm.lora) and OUT/
 source and split, token totals, every dropped item with its reason, the ail commit, the seed). Deterministic: the
 same inputs give byte-identical output. Compiler results are cached by content under ~/ail-train-work/build-cache.
 
-Families (PLAN.md 5.2): write, port, fix, change, complete, explain. Splits are by group (one program, one mistake,
+Families (PLAN.md 5.2): write, port, fix, change, complete, explain; since run 2 also cursor (fill in the middle:
+the rest of a line or a run of lines) and fixline (one injected mistake from the drafts; the answer is the line). Splits are by group (one program, one mistake,
 one agent task), so no program appears in two splits. quick-eval holds 10% of corpus programs and 10% of mistakes;
 valid holds 5% of the other groups except the agent tasks. Train items whose program shares more than 30% of its
 token 8-grams with a quick-eval program are dropped (5.3 rule 5).
@@ -251,6 +252,84 @@ def complete_cut(src, key):
     return prompt, name, body
 
 
+# Mistakes the agent drafts made (data/raw/draft-error-lines.txt) and names from other languages, as one-line edits.
+# Each is (name, regex on one line, replacement). An injected item is kept only when `ail check` then fails.
+MUTATIONS = [
+    ("to_lower", r"\.to_lower\(", ".lower("),
+    ("to_upper", r"\.to_upper\(", ".upper("),
+    ("to_int", r"\.to_int\(", ".parse_int("),
+    ("trim", r"\.trim\(\)", ".strip()"),
+    ("len", r"\.len\(\)", ".length()"),
+    ("starts_with", r"\.starts_with\(", ".startswith("),
+    ("ends_with", r"\.ends_with\(", ".endswith("),
+    ("push", r"\.push\(", ".append("),
+    ("contains", r"\.contains\(", ".includes("),
+    ("try", r"\)\?$", ")"),
+    ("elif", r"^(\s*)elif ", r"\1else if "),
+    ("and", r"^(\s*(?:if|elif|while) .*) and ", r"\1 && "),
+    ("or", r"^(\s*(?:if|elif|while) .*) or ", r"\1 || "),
+    ("not", r"^(\s*(?:if|elif|while) )not ", r"\1!"),
+    ("true", r"\btrue\b", "True"),
+    ("param_colon", r"^(fn [A-Za-z_][A-Za-z0-9_.]*\()([a-z_][a-z0-9_]*) ([A-Z])", r"\1\2: \3"),
+    ("arrow", r"^(fn [^\n]*\)) ([A-Z][A-Za-z0-9_\[\], ?!]*)$", r"\1 -> \2"),
+    ("interp", r"\"\{([a-z_][a-z0-9_]*)\}", r'"${\1}'),
+    ("bind", r"^(\s*)([a-z_][a-z0-9_]*) := ", r"\1\2 = "),
+    ("mut_arg", r"\(mut ([a-z_][a-z0-9_]*)\)", r"(\1)"),
+]
+
+
+def inject(src, key):
+    """One mutated variant of SRC: (mutated source, 1-based line number, original line), or None."""
+    lines = src.split("\n")
+    cands = []
+    for name, pat, rep in MUTATIONS:
+        rx = re.compile(pat)
+        for i, line in enumerate(lines):
+            if line.lstrip().startswith("#") or not rx.search(line):
+                continue
+            new = rx.sub(rep, line, count=1)
+            if new != line:
+                cands.append((sha(key, name, str(i)), i, new))
+    if not cands:
+        return None
+    _, i, new = sorted(cands)[0]
+    out = list(lines)
+    out[i] = new
+    return "\n".join(out), i + 1, lines[i]
+
+
+def cursor_cuts(src, key):
+    """Up to two fill-in-the-middle cuts inside function bodies: the rest of one line, and a run of 1 to 5 lines.
+    Returns [(kind, prefix, middle, suffix)]."""
+    lines = src.split("\n")
+    body = [i for i, l in enumerate(lines) if l.startswith("    ") and l.strip() and not l.strip().startswith("#")]
+    if not body:
+        return []
+    out = []
+    i = sorted(body, key=lambda j: sha(key, "line", str(j)))[0]
+    line = lines[i]
+    indent = len(line) - len(line.lstrip())
+    stops = [m.start() for m in re.finditer(r"[ (.,\[]", line[indent:])]
+    stops = [indent + k + 1 for k in stops if indent + k + 1 < len(line)]
+    if stops:
+        cut = sorted(stops, key=lambda k: sha(key, "col", str(k)))[0]
+        prefix = "\n".join(lines[:i] + [line[:cut]])
+        suffix = "\n".join(lines[i + 1:])
+        out.append(("line", prefix, line[cut:], "\n" + suffix))
+    starts = sorted(body, key=lambda j: sha(key, "block", str(j)))
+    for j in starts[:5]:
+        n = 1 + int(sha(key, "n", str(j))[:2], 16) % 5
+        run = [k for k in range(j, min(j + n, len(lines))) if k in set(body)]
+        if run and run == list(range(j, j + len(run))):
+            k = j + len(run)
+            prefix = "\n".join(lines[:j]) + "\n"
+            middle = "\n".join(lines[j:k]) + "\n"
+            suffix = "\n".join(lines[k:])
+            out.append(("block", prefix, middle, suffix))
+            break
+    return out
+
+
 def grams(text, n=8):
     toks = re.findall(r"[A-Za-z_][A-Za-z0-9_]*|\d+|\S", text)
     return {" ".join(toks[i:i + n]) for i in range(max(0, len(toks) - n + 1))}
@@ -312,6 +391,12 @@ def main():
         jobs.append(("check:" + g, files, ["check", "--no-fix"], name + ".ail"))
         if out is not None:
             jobs.append(("run:" + g, files, ["run"], name + ".ail"))
+    injected = {}
+    for g, source, name, src, _, _ in progs:
+        v = inject(src, g)
+        if v:
+            injected[g] = v
+            jobs.append(("inject:" + g, {"main.ail": v[0]}, ["check", "--no-fix"], "main.ail"))
     for g, name, bad, fixed, _ in mistakes:
         jobs.append(("check:" + g, {"main.ail": bad}, ["check", "--no-fix"], "main.ail"))
         jobs.append(("fixed:" + g, {"main.ail": fixed}, ["check", "--no-fix"], "main.ail"))
@@ -331,7 +416,9 @@ def main():
                       "messages": [{"role": "system", "content": system}, {"role": "user", "content": user},
                                    {"role": "assistant", "content": assistant}]})
 
-    # 2. Programs: write, port, complete.
+    diag_lines = {}  # rule -> first diagnostic line seen, for the explain family
+
+    # 2. Programs: write, port, complete, cursor (fill in the middle) and fixline (an injected mistake).
     for g, source, name, src, py, out in progs + cases:
         c = res["check:" + g]
         if c["rc"] != 0:
@@ -350,6 +437,26 @@ def main():
             if py is not None:
                 add("port:" + g, g, "port", source, src,
                     "Port this Python program to AIL.\n\n```python\n{}\n```".format(py.rstrip("\n")), fence(src))
+        if source != "cases":
+            cuts = cursor_cuts(src, g)
+            # One cut per program keeps the epoch near one night on the Mac; alternate the kind by hash.
+            cuts = sorted(cuts, key=lambda c: sha(g, "kind", c[0]))[:1]
+            for kind, prefix, middle, suffix in cuts:
+                add("cursor-{}:{}".format(kind, g), g, "cursor", source, src,
+                    "Fill in the AIL code at \u27e8FILL\u27e9.\n\n```ail\n{}\u27e8FILL\u27e9{}\n```".format(prefix, suffix),
+                    "```ail\n{}\n```".format(middle.rstrip("\n")) if kind == "block" else "```ail\n{}\n```".format(middle))
+            if g in injected:
+                bad, n, orig = injected[g]
+                c = res["inject:" + g]
+                if c["rc"] == 0:
+                    drop("inject:" + g, "injected mistake still passes check")
+                else:
+                    for r in RULE.findall(c["out"]):
+                        diag_lines.setdefault(r, first_error_line(c["out"], r))
+                    add("fixline:" + g, g, "fixline", source, src,
+                        "This AIL program fails `ail check`:\n\n{}\n\n```\n{}\n```\n\nGive the corrected line.".format(
+                            fence(bad, "main.ail"), c["out"].strip()),
+                        "Line {}:\n```ail\n{}\n```".format(n, orig))
         cut = complete_cut(src, g)
         if cut:
             prompt, fn, body = cut
@@ -358,7 +465,6 @@ def main():
                     fn, fence(prompt)), fence(body))
 
     # 3. Mistakes: fix.
-    diag_lines = {}  # rule -> first diagnostic line seen
     for g, name, bad, fixed, rules in mistakes:
         c, f = res["check:" + g], res["fixed:" + g]
         if c["rc"] == 0:
