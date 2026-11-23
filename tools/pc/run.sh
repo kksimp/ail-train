@@ -209,8 +209,11 @@ eval)
     fi
     q=""; [ "$which" = big ] && q="--load-4bit"
     out="$work/runs/eval-$which-$arm-$(date -u +%Y%m%dT%H%M%SZ)"
+    # No expandable_segments for eval: generating on the longest prompt with the big model and its adapter needs a
+    # little over 8 GB, and growing a segment then fails in WSL ("CUDA driver error: device not ready ... Failed to
+    # create GPU mapping"); the classic allocator lets the driver spill the overflow to shared memory instead.
     # shellcheck disable=SC2086
-    "$vpy" "$root/tools/eval_quick.py" --backend hf --ail "$ail_root" --model "$mdir" $adapter_args $q --system short \
+    env -u PYTORCH_CUDA_ALLOC_CONF "$vpy" "$root/tools/eval_quick.py" --backend hf --ail "$ail_root" --model "$mdir" $adapter_args $q --system short \
         --out "$out" --samples "${SAMPLES:-3}" --max-tokens "${MAX_GEN:-1536}" ${LIMIT:+--limit $LIMIT}
     echo "results: $out"
     ;;
