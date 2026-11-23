@@ -77,7 +77,7 @@ What the table says:
 The PC scores the same 218 items with a different stack (transformers + PEFT on CUDA, adapter unmerged; the ~7B base
 loaded at 4 bits with bitsandbytes NF4). pass@1 in percent (compile rate in brackets).
 
-| Family | ~1.5B base, bf16 | ~1.5B PC best, bf16 | ~1.5B PC final, bf16 | ~7B base, NF4 || ~7B step 800, NF4 |
+| Family | ~1.5B base, bf16 | ~1.5B PC best, bf16 | ~1.5B PC final, bf16 | ~7B base, NF4 | ~7B step 800, NF4 |
 |---|---|---|---|---|---|
 | fixline | 0 (0) | 100 (100) | 100 (100) | 0 (0) | 96.9 (96.9) |
 | fix | 38.1 (38.1) | 91.7 (91.7) | 96.4 (96.4) | 83.3 (86.9) | 84.5 (86.9) |
