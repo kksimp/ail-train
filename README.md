@@ -6,6 +6,7 @@ Teaching a small local model the AIL language with LoRA on Apple Silicon (MLX), 
 agent-unfamiliarity gap, and to back an optional local helper in ail-edit.
 
 - [PLAN.md](PLAN.md): goals, decisions, data, recipe, evaluation, milestones.
+- [RESULTS.md](RESULTS.md): before-and-after scores of the trained models.
 - [CONTEXT.md](CONTEXT.md): AIL, the benchmark history, machines and rules, for a project starting cold.
 - [data/raw/MANIFEST.md](data/raw/MANIFEST.md): the committed raw data.
 
