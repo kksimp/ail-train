@@ -96,7 +96,7 @@ loaded at 4 bits with bitsandbytes NF4). pass@1 in percent (compile rate in brac
 - **The ~7B step 800 scores 51.7 on both machines** (PC: NF4 base + adapter; Mac: merged, 4-bit MLX), up from 14.4
   untrained: training adds about 37 points.
 - **The ~7B final weights (step 1968) beat step 800 on the PC**, 53.8 against 51.7, mostly in fix (+8.4), complete
-  (+4.3) and port (+6.3), although their validation loss was higher (0.144 against 0.139). The Mac score of the final
+  (+4.3) and port (+6.3), with function down 3.2, although their validation loss was higher (0.144 against 0.139). The Mac score of the final
   weights goes in the ~7B section when it is in.
 
 ## The runs
