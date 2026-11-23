@@ -72,6 +72,30 @@ What the table says:
 - **Whole programs are the gap.** write is still 0 and port 8; the compile rate for write rose from 0 to 15%, so the
   model is learning the syntax but not yet whole working programs. This is the job of the ~7B model.
 
+## PC cross-check
+
+The PC scores the same 218 items with a different stack (transformers + PEFT on CUDA, adapter unmerged; the ~7B base
+loaded at 4 bits with bitsandbytes NF4). pass@1 in percent (compile rate in brackets).
+
+| Family | ~1.5B base, bf16 | ~1.5B PC best, bf16 | ~1.5B PC final, bf16 | ~7B base, NF4 |
+|---|---|---|---|---|
+| fixline | 0 (0) | 100 (100) | 100 (100) | 0 (0) |
+| fix | 38.1 (38.1) | 91.7 (91.7) | 96.4 (96.4) | 83.3 (86.9) |
+| cursor | 0 (1.0) | 56.2 (92.7) | 56.2 (96.9) | 3.1 (4.2) |
+| complete | 7.5 (12.9) | 20.4 (65.6) | 23.7 (76.3) | 12.9 (20.4) |
+| function | 0 (11.8) | 23.7 (77.4) | 22.6 (79.6) | 9.7 (28.0) |
+| port | 0 (0) | 11.5 (26.0) | 10.4 (31.2) | 0 (0) |
+| write | 0 (0) | 0 (17.7) | 0 (26.0) | 0 (0) |
+| **All** | **6.0** (8.6) | **42.7** (66.8) | **43.4** (71.9) | **14.4** (18.7) |
+| pass@3, all | 9.6 | 45.9 | 44.5 | 15.1 |
+| Eval time | 62 min | 129 min | 122 min | 75 min |
+
+- **The trained ~1.5B agrees across machines** (42.7 PC bf16 against 41.6 Mac 4-bit and 44.8 Mac 8-bit).
+- **Untrained bases are setup-sensitive**: the ~1.5B base scores 6.0 on the PC and 11.5 on the Mac. Compare a base with
+  its trained model on the same machine only.
+- **The untrained ~7B scores 14.4**, so training lifts it by about 37 points (51.7 on the Mac at step 800).
+- The PC's ~7B step 800 and final scores are still running; they go here when they land.
+
 ## The runs
 
 | | Run 2 | PC run 1 |
