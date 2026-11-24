@@ -2,13 +2,14 @@
 # ail-train on the PC, inside WSL2 Ubuntu. Started by tools/pc/run.ps1 (Windows); can also be run directly in WSL from
 # ~/ail-train-work/ail-train:   bash tools/pc/run.sh TASK [small|big] [EXTRA]
 #
-# Tasks: setup | preflight | build | train small|big | eval small|big [base] | export small|big
+# Tasks: setup | preflight | build | train small|big | eval small|big [base] | evalloop small|big | export small|big
 # config.local (untracked, D6) at the repository root sets the models; no model name is written in a committed file:
 #   BASE_MODEL="org/name"   # the autocomplete model, original bf16 weights (not an MLX build)
 #   BIG_MODEL="org/name"    # the whole-program model, original weights (loaded at 4 bits for training)
 # Optional environment, train: EPOCHS, MAX_STEPS, LR, RANK, ALPHA, LAYERS (0 = all), TARGETS (all | attn | a,b,c),
 #   SEQ, BATCH, ACCUM, EVAL_EVERY (optimizer steps), RESUME=1 (continue the newest run of that model), ENGINE
-#   (unsloth | hf). build: MAX_TOKENS (default 4096), JOBS. eval: SAMPLES, MAX_GEN, LIMIT, RUN (a run folder).
+#   (unsloth | hf). build: MAX_TOKENS (default 4096), JOBS. eval: SAMPLES, MAX_GEN, LIMIT, RUN (a run folder);
+#   evalloop also ROUNDS (default 3) and FAMILIES (a,b).
 #   eval and export: ADAPTER=best (default: adapter-best, the lowest-validation checkpoint) or ADAPTER=final.
 # Work folder: ~/ail-train-work/{venv,hf,ail-pinned,runs,export}. Runs: runs/train-small-STAMP/{summary.txt,log.jsonl,
 #   adapter-final/,checkpoint-*/}. Keeps 20 GB of disk free and stops on NaN loss or validation rising twice.
@@ -215,6 +216,24 @@ eval)
     # shellcheck disable=SC2086
     env -u PYTORCH_CUDA_ALLOC_CONF "$vpy" "$root/tools/eval_quick.py" --backend hf --ail "$ail_root" --model "$mdir" $adapter_args $q --system short \
         --out "$out" --samples "${SAMPLES:-3}" --max-tokens "${MAX_GEN:-1536}" ${LIMIT:+--limit $LIMIT}
+    echo "results: $out"
+    ;;
+
+evalloop)
+    # Arm B: eval as above plus up to ROUNDS (default 3) `ail check` correction rounds per sample (tools/eval_loop.py).
+    guard
+    [ -s "$root/data/build/quick-eval.jsonl" ] || die "no data/build/quick-eval.jsonl; run build first"
+    mdir="$(fetch "$(model_for "$which")")" || exit 2
+    run="${RUN:-$(ls -d "$work"/runs/train-"$which"-* 2>/dev/null | sort | tail -1)}"
+    adapter="$(adapter_of "$run")"
+    [ -n "$adapter" ] || die "no finished adapter in ${run:-?}"
+    echo "adapter: $adapter"
+    q=""; [ "$which" = big ] && q="--load-4bit"
+    out="$work/runs/evalloop-$which-${ADAPTER:-best}-$(date -u +%Y%m%dT%H%M%SZ)"
+    # shellcheck disable=SC2086
+    env -u PYTORCH_CUDA_ALLOC_CONF "$vpy" "$root/tools/eval_loop.py" --ail "$ail_root" --model "$mdir" --adapter "$adapter" $q \
+        --out "$out" --rounds "${ROUNDS:-3}" --samples "${SAMPLES:-3}" --max-tokens "${MAX_GEN:-1536}" \
+        ${LIMIT:+--limit $LIMIT} ${FAMILIES:+--families $FAMILIES}
     echo "results: $out"
     ;;
 

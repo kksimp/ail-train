@@ -15,7 +15,9 @@ What training does for a small model writing AIL, before and after, on the same 
 | ~7B, PC run 1, final weights (step 1968), 4-bit | **52.4%** |
 
 Training took the small model from about one task in nine to almost one in two, and the compile rate from 18% to 73%.
-The ~7B reaches one in two at 4 bits and is the first model to port Python programs at a useful rate (33%).
+The ~7B reaches one in two at 4 bits and is the first model to port Python programs at a useful rate (33%). Given up
+to 3 rounds of `ail check` feedback it rises from 53.8% to 56.4% (PC), with whole programs still at 0
+([arm B](#7b-with-compiler-feedback-arm-b)).
 
 These are the Mac reference numbers: every model is copied from the PC over the shared drive and scored on the Mac with
 MLX, so all rows share one machine, one sampler and one compiler.
@@ -168,6 +170,55 @@ best-validation checkpoint, step 800 of 1,968 (val 0.139), and the final weights
   program that prints exactly the right output.
 - On the Mac the ~7B (4.3 GB at 4 bits) runs about 3x slower than the ~1.5B, fine for on-request work but slow for
   as-you-type completion.
+
+## ~7B with compiler feedback (arm B)
+
+Everything above is one shot: the model answers once and is scored. Arm B (2026-11-24) asks whether AIL's compiler
+can steer the model to a working program. Same ~7B final weights (PC, NF4), same 218 items, prompt, seeds, 3 samples at
+temperature 0.2 and the same pass rule. The only change: a sample whose program fails `ail check` gets up to 3
+correction rounds. Each round sees the task, its current complete program, the exact `ail check` output and the
+number of rounds left, and answers with a whole program. It never sees the expected output, the reference, a test or
+any documentation, and it has no other tool. A program that passes `ail check` gets no more rounds, even if it then
+fails at run time. Round 0 is arm A rerun in the same process (53.8%, as in the PC cross-check), so the arms are
+paired. Script: `tools/eval_loop.py` (`tools\pc\run.ps1 evalloop big`, `ADAPTER=final`).
+
+| Family | Compile, A → B | pass@1, A → B | pass@3, A → B | Failed compiles: compile / pass in the end | Error recurrence | Tokens per sample, A → B | Seconds per sample, A → B |
+|---|---|---|---|---|---|---|---|
+| fixline | 96.9 → 100 | 96.9 → **100** | 96.9 → 100 | 100 / 100 | 57.1 | 1,099 → 1,543 | 1.7 → 11.9 |
+| fix | 92.9 → 98.8 | 92.9 → **96.4** | 92.9 → 96.4 | 83.3 / 50.0 | 25.0 | 236 → 310 | 1.6 → 2.7 |
+| cursor | 96.9 → 96.9 | 70.8 → 70.8 | 71.9 → 71.9 | 0 / 0 | 66.7 | 995 → 1,102 | 1.4 → 1.8 |
+| complete | 88.2 → 96.8 | 43.0 → 44.1 | 48.4 → 48.4 | 72.7 / 9.1 | 29.2 | 998 → 1,645 | 3.5 → 19.7 |
+| function | 82.8 → 94.6 | 43.0 → **46.2** | 51.6 → 58.1 | 68.8 / 18.8 | 56.2 | 1,038 → 2,060 | 5.2 → 35.6 |
+| port | 39.6 → 55.2 | 34.4 → **41.7** | 40.6 → 53.1 | 25.9 / 12.1 | 81.2 | 1,516 → 6,154 | 28.6 → 169.0 |
+| write | 29.2 → 52.1 | 0 → 0 | 0 → 0 | 32.4 / 0 | 81.5 | 829 → 4,667 | 26.4 → 157.6 |
+| **All** | **74.8 → 84.6** | **53.8 → 56.4** | **56.9 → 60.6** | 38.8 / 10.3 | 74.4 | 971 → 2,543 | 10.0 → 58.2 |
+
+Compile and pass in percent of samples (pass@3 of items). "Failed compiles": of the samples whose first program failed
+`ail check` (165 of 654), the share that compiled after the rounds and the share that printed the right output. Error
+recurrence: correction rounds whose program still fails with a diagnostic rule ID the round before also had.
+
+- **Compiler feedback adds 2.6 points overall** (53.8 to 56.4) and 10 points of compile rate, at 2.6x the tokens and
+  5.8x the time per sample. Against the thresholds Kaleb set before the run (final exact output 0-5%: feedback alone
+  is not enough; 10-20%: meaningful recovery), whole programs land in the first band (write 0%), and of the samples
+  that failed to compile at first 10.3% end correct, the low edge of meaningful.
+- **Port gains the most**: pass@1 34.4 to 41.7 and pass@3 40.6 to 53.1.
+- **write stays at 0.** Its compile rate rises from 29 to 52%, but none of the 50 compiling programs prints the right
+  output (11 of them fail at run time). The missing piece for whole programs is behaviour, not syntax.
+- **Wins come early or not at all.** Of 369 passing samples, 352 pass at round 0 and 9, 3 and 5 in rounds 1 to 3, so it
+  does not get lucky on the third try; it converges in one round or stays stuck.
+- **Stuck samples repeat themselves.** Of the 44 write samples still failing after 3 rounds, 41 kept one rule ID in all
+  four revisions, 18 kept the same set and 8 resubmitted an identical program every time (port: 35 and 15 of 43). 45% of
+  all correction rounds returned an unchanged program. The most common write diagnostics: `expr.name.1` (unknown
+  name, 75 revisions), `type.coll.2` (43), `trait.op.3` (27), `std.use.2` (23), `expr.call.2` (21).
+
+What it means: the compiler loop works as a repair channel for surface errors (names, collection types, imports), and
+the trained model reads the diagnostics. It does not yet make a 7B write a whole correct program. That needs
+whole-program training data and probably training on correction transcripts like these, so the model learns to change
+its program when a diagnostic repeats. This compares AIL with and without its own feedback loop; it says nothing about
+AIL against another language.
+
+Run: PC, 2026-11-24 03:26 to 14:07 UTC (641 minutes). Every revision is saved on the share in
+`ail-train/pc-evals/7b-final-bnb4-armB/` (`revisions.jsonl`, `summary.json`, `console.log`).
 
 ## Reproducing a row
 

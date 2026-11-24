@@ -6,6 +6,7 @@
 #   powershell -ExecutionPolicy Bypass -File tools\pc\run.ps1 train small  # LoRA on the autocomplete model
 #   powershell -ExecutionPolicy Bypass -File tools\pc\run.ps1 train big    # QLoRA on the whole-program model
 #   powershell -ExecutionPolicy Bypass -File tools\pc\run.ps1 eval small   # quick eval of the newest run (or: eval small base)
+#   powershell -ExecutionPolicy Bypass -File tools\pc\run.ps1 evalloop big # eval + up to 3 ail check correction rounds
 #   powershell -ExecutionPolicy Bypass -File tools\pc\run.ps1 export small # merged weights + GGUF for the Mac
 #
 # Everything runs inside WSL2 Ubuntu (tools/pc/run.sh); this file only sets WSL up, copies this checkout into the
@@ -19,7 +20,7 @@ $distro = "Ubuntu-24.04"
 
 function Die($m) { Write-Host "run.ps1: $m" -ForegroundColor Red; exit 2 }
 
-if ($Task -eq "help") { Get-Content $PSCommandPath | Select-Object -First 14; exit 0 }
+if ($Task -eq "help") { Get-Content $PSCommandPath | Select-Object -First 15; exit 0 }
 if (-not (Get-Command nvidia-smi -ErrorAction SilentlyContinue)) { Die "no nvidia-smi: install the current NVIDIA Game Ready or Studio driver first" }
 
 # 1. WSL2 and the Ubuntu distribution (first run only; needs an administrator prompt and maybe a reboot).
