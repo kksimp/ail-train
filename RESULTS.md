@@ -77,25 +77,27 @@ What the table says:
 The PC scores the same 218 items with a different stack (transformers + PEFT on CUDA, adapter unmerged; the ~7B base
 loaded at 4 bits with bitsandbytes NF4). pass@1 in percent (compile rate in brackets).
 
-| Family | ~1.5B base, bf16 | ~1.5B PC best, bf16 | ~1.5B PC final, bf16 | ~7B base, NF4 | ~7B step 800, NF4 |
-|---|---|---|---|---|---|
-| fixline | 0 (0) | 100 (100) | 100 (100) | 0 (0) | 96.9 (96.9) |
-| fix | 38.1 (38.1) | 91.7 (91.7) | 96.4 (96.4) | 83.3 (86.9) | 84.5 (86.9) |
-| cursor | 0 (1.0) | 56.2 (92.7) | 56.2 (96.9) | 3.1 (4.2) | 70.8 (92.7) |
-| complete | 7.5 (12.9) | 20.4 (65.6) | 23.7 (76.3) | 12.9 (20.4) | 38.7 (74.2) |
-| function | 0 (11.8) | 23.7 (77.4) | 22.6 (79.6) | 9.7 (28.0) | 46.2 (92.5) |
-| port | 0 (0) | 11.5 (26.0) | 10.4 (31.2) | 0 (0) | 28.1 (36.5) |
-| write | 0 (0) | 0 (17.7) | 0 (26.0) | 0 (0) | 0 (18.8) |
-| **All** | **6.0** (8.6) | **42.7** (66.8) | **43.4** (71.9) | **14.4** (18.7) | **51.7** (70.8) |
-| pass@3, all | 9.6 | 45.9 | 44.5 | 15.1 | 54.1 |
-| Eval time | 62 min | 129 min | 122 min | 75 min | 148 min |
+| Family | ~1.5B base, bf16 | ~1.5B PC best, bf16 | ~1.5B PC final, bf16 | ~7B base, NF4 | ~7B step 800, NF4 | ~7B final, NF4 |
+|---|---|---|---|---|---|---|
+| fixline | 0 (0) | 100 (100) | 100 (100) | 0 (0) | 96.9 (96.9) | 96.9 (96.9) |
+| fix | 38.1 (38.1) | 91.7 (91.7) | 96.4 (96.4) | 83.3 (86.9) | 84.5 (86.9) | 92.9 (92.9) |
+| cursor | 0 (1.0) | 56.2 (92.7) | 56.2 (96.9) | 3.1 (4.2) | 70.8 (92.7) | 70.8 (96.9) |
+| complete | 7.5 (12.9) | 20.4 (65.6) | 23.7 (76.3) | 12.9 (20.4) | 38.7 (74.2) | 43.0 (88.2) |
+| function | 0 (11.8) | 23.7 (77.4) | 22.6 (79.6) | 9.7 (28.0) | 46.2 (92.5) | 43.0 (82.8) |
+| port | 0 (0) | 11.5 (26.0) | 10.4 (31.2) | 0 (0) | 28.1 (36.5) | 34.4 (39.6) |
+| write | 0 (0) | 0 (17.7) | 0 (26.0) | 0 (0) | 0 (18.8) | 0 (29.2) |
+| **All** | **6.0** (8.6) | **42.7** (66.8) | **43.4** (71.9) | **14.4** (18.7) | **51.7** (70.8) | **53.8** (74.8) |
+| pass@3, all | 9.6 | 45.9 | 44.5 | 15.1 | 54.1 | 56.9 |
+| Eval time | 62 min | 129 min | 122 min | 75 min | 148 min | 122 min |
 
 - **The trained ~1.5B agrees across machines** (42.7 PC bf16 against 41.6 Mac 4-bit and 44.8 Mac 8-bit).
 - **Untrained bases are setup-sensitive**: the ~1.5B base scores 6.0 on the PC and 11.5 on the Mac. Compare a base with
   its trained model on the same machine only.
 - **The ~7B step 800 scores 51.7 on both machines** (PC: NF4 base + adapter; Mac: merged, 4-bit MLX), up from 14.4
   untrained: training adds about 37 points.
-- The PC's ~7B final score is still running; it goes here when it lands.
+- **The ~7B final weights (step 1968) beat step 800 on the PC**, 53.8 against 51.7, mostly in fix (+8.4), complete
+  (+4.3) and port (+6.3), with function down 3.2, although their validation loss was higher (0.144 against 0.139). The Mac score of the final
+  weights goes in the ~7B section when it is in.
 
 ## The runs
 
