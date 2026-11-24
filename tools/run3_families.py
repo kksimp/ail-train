@@ -456,7 +456,13 @@ def apply_edits(src, edits):
 
 def mutate(src, key, n):
     """N line edits from REPAIR_MUTATIONS on distinct lines, chosen by hash; None when fewer than N are possible."""
-    cands = sorted(edit_cands(src, REPAIR_MUTATIONS), key=lambda c: sha(key, c[0], str(c[1])))
+    # Kind first, then line: a kind that fits almost every line (renaming a binding) must not crowd out the
+    # rarer, more telling ones (invented methods, int/float, optionals).
+    by_kind = {}
+    for c in edit_cands(src, REPAIR_MUTATIONS):
+        by_kind.setdefault(c[0], []).append(c)
+    cands = [sorted(v, key=lambda c: sha(key, c[0], str(c[1])))[0]
+             for k, v in sorted(by_kind.items(), key=lambda kv: sha(key, "kind", kv[0]))]
     picked, lines_used, names_used = [], set(), set()
     for c in cands:
         if c[1] in lines_used or c[0] in names_used:

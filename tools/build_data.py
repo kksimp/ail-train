@@ -684,6 +684,7 @@ def main():
     # Run 3: dev-spec programs (quick-eval corpus programs and valid programs) are held out the same way.
     for it in dev:
         eval_prog.setdefault(it["group"], it["prog"])
+    qe_set = set(eval_groups)
     for g in sorted(set(eval_groups) | {it["group"] for it in dev}):
         for h in grams(eval_prog.get(g, "")):
             index.setdefault(h, set()).add(g)
@@ -693,13 +694,17 @@ def main():
             gs = grams(it["prog"])
             if gs:
                 counts = {}
+                # valid items are held out against quick-eval only, as before run 3 (so valid.jsonl stays as it
+                # was); train items against quick-eval and dev-spec programs.
+                allowed = qe_set if it["split"] == "valid" else None
                 for h in gs:
                     for g in index.get(h, ()):
-                        counts[g] = counts.get(g, 0) + 1
+                        if allowed is None or g in allowed:
+                            counts[g] = counts.get(g, 0) + 1
                 worst = max(counts.values()) if counts else 0
                 if worst / len(gs) > 0.30:
                     near = {g for g, c in counts.items() if c / len(gs) > 0.30}
-                    drop(it["id"], "near-duplicate of a quick-eval program" if near & set(eval_groups)
+                    drop(it["id"], "near-duplicate of a quick-eval program" if near & qe_set
                          else "near-duplicate of a dev-spec program")
                     continue
         kept.append(it)

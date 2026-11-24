@@ -130,6 +130,8 @@ def main():
     ap.add_argument("--limit", type=int, default=0)
     ap.add_argument("--families", default="", help="comma list; default every family")
     ap.add_argument("--load-4bit", action="store_true")
+    ap.add_argument("--resume", action="store_true",
+                    help="keep the items OUT/revisions.jsonl already holds in full and continue after them")
     args = ap.parse_args()
 
     ail = os.path.join(os.path.abspath(args.ail), "ail")
@@ -143,11 +145,26 @@ def main():
 
     samples = []
     t_all = time.time()
-    with open(os.path.join(args.out, "revisions.jsonl"), "w", encoding="utf-8") as out:
+    rpath = os.path.join(args.out, "revisions.jsonl")
+    done = {}  # --resume: item -> its records, for items with every sample written
+    if args.resume and os.path.isfile(rpath):
+        for line in open(rpath, encoding="utf-8"):
+            try:
+                rec = json.loads(line)
+            except ValueError:
+                break
+            done.setdefault(rec["i"], []).append(rec)
+        done = {i: v for i, v in done.items() if len(v) == args.samples}
+    with open(rpath, "w", encoding="utf-8") as out:
         for i, row in enumerate(rows):
             user = row["messages"][1]["content"]
             fam = family(user)
             if only and fam not in only:
+                continue
+            if i in done:
+                for rec in done[i]:
+                    out.write(json.dumps(rec, ensure_ascii=False) + "\n")
+                    samples.append(rec)
                 continue
             ref_src = program_for(fam, user, code_of(row["messages"][2]["content"]), row["messages"][2]["content"])
             ok, want, err = compile_and_run(ail, ref_src)
