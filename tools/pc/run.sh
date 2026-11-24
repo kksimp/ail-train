@@ -9,7 +9,8 @@
 # Optional environment, train: EPOCHS, MAX_STEPS, LR, RANK, ALPHA, LAYERS (0 = all), TARGETS (all | attn | a,b,c),
 #   SEQ, BATCH, ACCUM, EVAL_EVERY (optimizer steps), RESUME=1 (continue the newest run of that model), ENGINE
 #   (unsloth | hf). build: MAX_TOKENS (default 4096), JOBS. eval: SAMPLES, MAX_GEN, LIMIT, RUN (a run folder);
-#   evalloop also ROUNDS (default 3) and FAMILIES (a,b).
+#   evalloop also ROUNDS (default 3) and FAMILIES (a,b). eval and evalloop: DATA (a .jsonl in the quick-eval
+#   format, default data/build/quick-eval.jsonl, e.g. data/build/dev-spec.jsonl) and OUT (the results folder).
 #   eval and export: ADAPTER=best (default: adapter-best, the lowest-validation checkpoint) or ADAPTER=final.
 # Work folder: ~/ail-train-work/{venv,hf,ail-pinned,runs,export}. Runs: runs/train-small-STAMP/{summary.txt,log.jsonl,
 #   adapter-final/,checkpoint-*/}. Keeps 20 GB of disk free and stops on NaN loss or validation rising twice.
@@ -149,15 +150,23 @@ build)
     [ -x "$ail_root/ail" ] || die "no ail at $ail_root; run setup"
     tok="$(fetch "$(model_for small)")" || exit 2
     args="--ail $ail_root --system ${SYSTEM:-short} --max-tokens ${MAX_TOKENS:-4096} --jobs ${JOBS:-6} --tokenizer $tok"
+    # Build twice into staging folders; data/build is replaced only when both builds match and the held-out splits
+    # (quick-eval, valid) are byte-identical to data/splits.sha256. The previous data/build is kept in build-prev.
+    rm -rf "$work/build-new" "$work/build-again"
     # shellcheck disable=SC2086
-    "$vpy" "$root/tools/build_data.py" $args --out "$root/data/build" || die "build failed"
-    rm -rf "$work/build-again"
+    "$vpy" "$root/tools/build_data.py" $args --out "$work/build-new" || die "build failed"
+    (cd "$work/build-new" && sed 's#  build/#  #' "$root/data/splits.sha256" | sha256sum --quiet -c -) \
+        || die "quick-eval.jsonl or valid.jsonl differs from data/splits.sha256: the held-out splits must not change"
     # shellcheck disable=SC2086
     "$vpy" "$root/tools/build_data.py" $args --out "$work/build-again" >/dev/null || die "second build failed"
-    for f in train.jsonl valid.jsonl quick-eval.jsonl manifest.json; do
-        cmp -s "$root/data/build/$f" "$work/build-again/$f" || die "the rebuild differs in $f: the builder is not deterministic"
+    for f in train.jsonl valid.jsonl quick-eval.jsonl dev-spec.jsonl manifest.json; do
+        cmp -s "$work/build-new/$f" "$work/build-again/$f" || die "the rebuild differs in $f: the builder is not deterministic"
     done
-    echo "deterministic: both builds match; built: $root/data/build"
+    if [ -s "$root/data/build/train.jsonl" ]; then
+        rm -rf "$work/build-prev" && cp -a "$root/data/build" "$work/build-prev"
+    fi
+    mkdir -p "$root/data/build" && cp "$work/build-new"/* "$root/data/build/" && rm -rf "$work/build-again"
+    echo "deterministic: both builds match; held-out splits unchanged; built: $root/data/build (previous: $work/build-prev)"
     ;;
 
 train)
@@ -198,7 +207,8 @@ train)
 
 eval)
     guard
-    [ -s "$root/data/build/quick-eval.jsonl" ] || die "no data/build/quick-eval.jsonl; run build first"
+    data="${DATA:-$root/data/build/quick-eval.jsonl}"
+    [ -s "$data" ] || die "no $data; run build first"
     mdir="$(fetch "$(model_for "$which")")" || exit 2
     adapter_args=""; arm="A0"
     if [ "$extra" != base ]; then
@@ -209,30 +219,33 @@ eval)
         adapter_args="--adapter $adapter"; arm="C-${ADAPTER:-best}"
     fi
     q=""; [ "$which" = big ] && q="--load-4bit"
-    out="$work/runs/eval-$which-$arm-$(date -u +%Y%m%dT%H%M%SZ)"
+    tag=""; [ -n "${DATA:-}" ] && tag="-$(basename "$data" .jsonl)"
+    out="${OUT:-$work/runs/eval-$which-$arm$tag-$(date -u +%Y%m%dT%H%M%SZ)}"
     # No expandable_segments for eval: generating on the longest prompt with the big model and its adapter needs a
     # little over 8 GB, and growing a segment then fails in WSL ("CUDA driver error: device not ready ... Failed to
     # create GPU mapping"); the classic allocator lets the driver spill the overflow to shared memory instead.
     # shellcheck disable=SC2086
     env -u PYTORCH_CUDA_ALLOC_CONF "$vpy" "$root/tools/eval_quick.py" --backend hf --ail "$ail_root" --model "$mdir" $adapter_args $q --system short \
-        --out "$out" --samples "${SAMPLES:-3}" --max-tokens "${MAX_GEN:-1536}" ${LIMIT:+--limit $LIMIT}
+        --data "$data" --out "$out" --samples "${SAMPLES:-3}" --max-tokens "${MAX_GEN:-1536}" ${LIMIT:+--limit $LIMIT}
     echo "results: $out"
     ;;
 
 evalloop)
     # Arm B: eval as above plus up to ROUNDS (default 3) `ail check` correction rounds per sample (tools/eval_loop.py).
     guard
-    [ -s "$root/data/build/quick-eval.jsonl" ] || die "no data/build/quick-eval.jsonl; run build first"
+    data="${DATA:-$root/data/build/quick-eval.jsonl}"
+    [ -s "$data" ] || die "no $data; run build first"
     mdir="$(fetch "$(model_for "$which")")" || exit 2
     run="${RUN:-$(ls -d "$work"/runs/train-"$which"-* 2>/dev/null | sort | tail -1)}"
     adapter="$(adapter_of "$run")"
     [ -n "$adapter" ] || die "no finished adapter in ${run:-?}"
     echo "adapter: $adapter"
     q=""; [ "$which" = big ] && q="--load-4bit"
-    out="$work/runs/evalloop-$which-${ADAPTER:-best}-$(date -u +%Y%m%dT%H%M%SZ)"
+    tag=""; [ -n "${DATA:-}" ] && tag="-$(basename "$data" .jsonl)"
+    out="${OUT:-$work/runs/evalloop-$which-${ADAPTER:-best}$tag-$(date -u +%Y%m%dT%H%M%SZ)}"
     # shellcheck disable=SC2086
     env -u PYTORCH_CUDA_ALLOC_CONF "$vpy" "$root/tools/eval_loop.py" --ail "$ail_root" --model "$mdir" --adapter "$adapter" $q \
-        --out "$out" --rounds "${ROUNDS:-3}" --samples "${SAMPLES:-3}" --max-tokens "${MAX_GEN:-1536}" \
+        --data "$data" --out "$out" --rounds "${ROUNDS:-3}" --samples "${SAMPLES:-3}" --max-tokens "${MAX_GEN:-1536}" \
         ${LIMIT:+--limit $LIMIT} ${FAMILIES:+--families $FAMILIES}
     echo "results: $out"
     ;;

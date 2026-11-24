@@ -14,6 +14,12 @@ function from its signature and the program around it). Splits are by group (one
 one agent task), so no program appears in two splits. quick-eval holds 10% of corpus programs and 10% of mistakes;
 valid holds 5% of the other groups except the agent tasks. Train items whose program shares more than 30% of its
 token 8-grams with a quick-eval program are dropped (5.3 rule 5).
+
+Run 3: `spec` is the write task plus the exact output the program must print (programs with a short .out), train
+split only; a train program with a spec item keeps its header-only write item for a hash-picked 20%. The spec items of
+held-out programs go to OUT/dev-spec.jsonl (every quick-eval corpus program plus hash-picked valid programs, 100 in
+all), a whole-program dev benchmark; train.jsonl, valid.jsonl and quick-eval.jsonl never hold them, and quick-eval and
+valid stay byte-identical to data/splits.sha256 (tools/pc/run.sh build checks it).
 """
 
 import argparse
@@ -34,6 +40,11 @@ CACHE = os.path.join(os.path.expanduser("~"), "ail-train-work", "build-cache")
 SHORT_SYSTEM = os.path.join(ROOT, "tools", "preflight", "short-system.txt")
 RULE = re.compile(r"error\[([a-z][a-z0-9_]*(?:\.[a-z0-9_]+)+)\]")
 SKIP_CASE_EXT = {".args", ".err", ".trap", ".stderr", ".rules", ".test", ".stdin", ".txt"}
+# spec (run 3): the write task plus the exact output, for programs whose output is short enough to state in the task.
+SPEC_SOURCES = {"corpus", "examples", "drills", "extra"}
+SPEC_MAX_LINES, SPEC_MAX_CHARS = 60, 2000
+SPEC_KEEP_WRITE_PCT = 20  # train programs with a spec item keep their header-only write item this often (hash-picked)
+DEV_SPEC_ITEMS = 100  # dev-spec.jsonl: every quick-eval corpus program plus hash-picked valid programs
 
 
 def sha(*parts):
@@ -364,6 +375,11 @@ def grams(text, n=8):
     return {" ".join(toks[i:i + n]) for i in range(max(0, len(toks) - n + 1))}
 
 
+def spec_task(task, out):
+    """A write task made well-posed: the task text plus the exact output the program must print."""
+    return "{}\n\nIt must print exactly:\n\n```\n{}```".format(task, out if out.endswith("\n") else out + "\n")
+
+
 def pick(group, seed, pct):
     return int(sha(str(seed), group)[:8], 16) % 1000 < pct * 10
 
@@ -460,6 +476,9 @@ def main():
             task = header_text(src)
             if task:
                 add("write:" + g, g, "write", source, src, task, fence(src))
+                if (source in SPEC_SOURCES and out is not None and out.count("\n") <= SPEC_MAX_LINES
+                        and len(out) <= SPEC_MAX_CHARS):
+                    add("spec:" + g, g, "spec", source, src, spec_task(task, out), fence(src))
             elif out is not None:
                 add("write:" + g, g, "write", source, src,
                     "Write an AIL program that prints exactly:\n\n```\n{}```".format(out), fence(src))
@@ -606,6 +625,28 @@ def main():
     for it in items:
         it["split"] = split_of(it)
 
+    # 7b. spec items train only. Their non-train twins go to dev-spec.jsonl (every quick-eval corpus program plus
+    # hash-picked valid programs), so valid.jsonl and quick-eval.jsonl stay as they were. A train program with a spec
+    # item keeps its header-only write item only for a hash-picked SPEC_KEEP_WRITE_PCT%.
+    spec_groups = {it["group"] for it in items if it["family"] == "spec" and it["split"] == "train"}
+    dev_cands = [it for it in items if it["family"] == "spec" and it["split"] != "train"]
+    rest = []
+    for it in items:
+        if it["family"] == "spec" and it["split"] != "train":
+            continue
+        if (it["family"] == "write" and it["split"] == "train" and it["group"] in spec_groups
+                and not pick(it["group"], args.seed + 2, SPEC_KEEP_WRITE_PCT)):
+            drop(it["id"], "write replaced by spec")
+            continue
+        rest.append(it)
+    items = rest
+    dev = [it for it in dev_cands if it["split"] == "quick-eval" and it["group"].startswith("corpus/")]
+    more = sorted((it for it in dev_cands if it["split"] == "valid"), key=lambda it: sha(str(args.seed), "dev-spec",
+                                                                                          it["group"]))
+    dev += more[:max(0, DEV_SPEC_ITEMS - len(dev))]
+    for it in dev:
+        it["split"] = "dev-spec"
+
     # 8. Near-duplicate filter against quick-eval programs.
     index = {}
     eval_groups = sorted({it["group"] for it in items if it["split"] == "quick-eval"})
@@ -647,7 +688,7 @@ def main():
         return len(ids)
 
     final = []
-    for it in kept:
+    for it in kept + dev:
         n = length(it["messages"])
         if n > args.max_tokens:
             drop(it["id"], "longer than {} tokens".format(args.max_tokens))
@@ -673,7 +714,7 @@ def main():
     }
     for d in dropped:
         manifest["dropped_counts"][d["reason"]] = manifest["dropped_counts"].get(d["reason"], 0) + 1
-    for split in ("train", "valid", "quick-eval"):
+    for split in ("train", "valid", "quick-eval", "dev-spec"):
         rows = sorted((it for it in final if it["split"] == split), key=lambda it: it["id"])
         with open(os.path.join(args.out, split + ".jsonl"), "w", encoding="utf-8") as f:
             for it in rows:
