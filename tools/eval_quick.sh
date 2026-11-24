@@ -3,6 +3,7 @@
 #   ARM=A tools/eval_quick.sh     # base model, core card as the system prompt (PLAN.md 7, arm A)
 #   ARM=A0 tools/eval_quick.sh    # base model, the one-line prompt the training used
 #   ARM=C tools/eval_quick.sh     # base model + the newest run's adapter, the one-line prompt (arm C)
+#   MODEL_DIR=~/ail-train-work/mlx/NAME-4bit ARM=M tools/eval_quick.sh   # a model trained on the PC (tools/import_mlx.sh)
 # Optional environment: ADAPTER (an adapter folder; default the newest ~/ail-train-work/runs/train-*/adapter*),
 # SAMPLES (default 3), MAX_GEN (answer token cap, default 1536; 1024 cut off a fifth of whole programs), LIMIT (first N items, for a smoke test). Reads AIL_ROOT and BASE_MODEL from config.local.
 # Output: ~/ail-train-work/runs/eval-ARM-STAMP/{answers.jsonl,summary.json}. Not while a training run or gate runs.
@@ -11,17 +12,22 @@ root="$(cd "$(dirname "$0")/.." && pwd)"
 work="$HOME/ail-train-work"
 die() { echo "eval_quick: $*" >&2; exit 2; }
 [ -f "$root/config.local" ] && . "$root/config.local"
-[ -n "${BASE_MODEL:-}" ] || die "config.local sets no BASE_MODEL"
+[ -n "${BASE_MODEL:-}" ] || [ -n "${MODEL_DIR:-}" ] || die "config.local sets no BASE_MODEL"
 ail_root="${AIL_ROOT:-$work/ail-pinned}"
 arm="${ARM:-}"
-case "$arm" in A) system=core ;; A0|C) system=short ;; *) die "set ARM=A, A0 or C" ;; esac
+case "$arm" in A) system=core ;; A0|C|M) system=short ;; *) die "set ARM=A, A0, C or M" ;; esac
 if pgrep -f "mlx_lm[.]lora" >/dev/null 2>&1; then die "a training run is going; wait for it"; fi
 if pgrep -f "mac-gate[.]sh" >/dev/null 2>&1; then die "the AIL Mac gate is running"; fi
 [ -s "$root/data/build/quick-eval.jsonl" ] || die "no data/build/quick-eval.jsonl; run tools/build_data.sh"
 vpy="$work/venv/bin/python"
 export HF_HOME="$work/hf" HF_HUB_DISABLE_TELEMETRY=1
-mdir="$("$vpy" -c 'import sys; from huggingface_hub import snapshot_download; print(snapshot_download(sys.argv[1]))' "$BASE_MODEL" 2>/dev/null | tail -1)"
-[ -d "$mdir" ] || die "could not find $BASE_MODEL"
+if [ "$arm" = "M" ]; then
+    mdir="${MODEL_DIR:-}"
+    [ -f "$mdir/config.json" ] || die "ARM=M needs MODEL_DIR (a converted MLX model)"
+else
+    mdir="$("$vpy" -c 'import sys; from huggingface_hub import snapshot_download; print(snapshot_download(sys.argv[1]))' "$BASE_MODEL" 2>/dev/null | tail -1)"
+    [ -d "$mdir" ] || die "could not find $BASE_MODEL"
+fi
 adapter_args=""
 if [ "$arm" = "C" ]; then
     adapter="${ADAPTER:-$(ls -d "$work"/runs/train-*/adapter* 2>/dev/null | sort | tail -1)}"

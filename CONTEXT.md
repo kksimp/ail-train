@@ -58,7 +58,8 @@ baseline behaviour this project should beat, at a fraction of the size. The Pyth
 
 | Machine | Use | Notes |
 |---|---|---|
-| Mac (M2 MacBook Pro, 8 GB, Apple Silicon) | all training and MLX inference; `ail check` for data validation | Repos under `/Users/macintosh/Documents/Projects/` (ail is there). Work dir for this project: `~/ail-train-work/` (durable, not /tmp). `/Volumes/mac.apk` is a slow USB stick: never use it. bash 3.2, no `date +%s.%N`. |
+| Mac (M2 MacBook Pro, 8 GB, Apple Silicon) | MLX inference and the deployed model (training moved to the PC, D14); `ail check` for data validation | Repos under `/Users/macintosh/Documents/Projects/` (ail is there). Work dir for this project: `~/ail-train-work/` (durable, not /tmp). `/Volumes/mac.apk` is a slow USB stick: never use it. bash 3.2, no `date +%s.%N`. |
+| Windows PC (RTX 3070, 8 GB VRAM) | all training from 2026-11-22 (D14), inside WSL2 Ubuntu | `tools\pc\run.ps1` from the Windows checkout copies the repo to `~/ail-train-work/ail-train` in WSL and runs `tools/pc/run.sh` there; work dir `~/ail-train-work/` in WSL. Claude is being installed there. |
 | ail-linux (192.168.4.145) | optional cross-host `ail check` | VM on Kaleb's TrueNAS box, user kaleb, key `~/.ssh/ail_lanes`; shares the host with ail-win, so run jobs there serially |
 | ail-win (192.168.4.148) | optional | PowerShell 5.1 |
 
