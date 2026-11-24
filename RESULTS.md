@@ -12,6 +12,7 @@ What training does for a small model writing AIL, before and after, on the same 
 | ~1.5B, PC run 1 (rank 64, sequence 4096), 4-bit | **41.6%** |
 | ~1.5B, PC run 1, 8-bit | **44.8%** |
 | ~7B, PC run 1 (QLoRA rank 32, step 800), 4-bit | **51.7%** |
+| ~7B, PC run 1, final weights (step 1968), 4-bit | **52.4%** |
 
 Training took the small model from about one task in nine to almost one in two, and the compile rate from 18% to 73%.
 The ~7B reaches one in two at 4 bits and is the first model to port Python programs at a useful rate (33%).
@@ -141,24 +142,27 @@ Published numbers measure different tasks with different scoring, so these are f
 ## ~7B: the whole-program model
 
 pass@1 in percent (compile rate in brackets), 4-bit. The ~7B was trained on the PC (PLAN.md D15) with QLoRA; this is its
-best-validation checkpoint, step 800 of 1,968 (val 0.139; the second epoch did not improve it). The untrained ~7B and the
-final weights are scored on the PC, which decides whether the final weights are worth a Mac run.
+best-validation checkpoint, step 800 of 1,968 (val 0.139), and the final weights at step 1,968 (val 0.144). The untrained
+~7B is scored on the PC only (14.4%, see the PC cross-check).
 
-| Family | ~1.5B PC best, 4-bit | ~1.5B PC best, 8-bit | ~7B step 800, 4-bit |
-|---|---|---|---|
-| fixline | 100 (100) | 100 (100) | 96.9 (96.9) |
-| fix | 91.7 (91.7) | 97.6 (97.6) | 94.0 (95.2) |
-| cursor | 51.0 (77.1) | 59.4 (93.8) | **64.6** (87.5) |
-| complete | 24.7 (71.0) | 25.8 (82.8) | **36.6** (79.6) |
-| function | 20.4 (69.9) | 22.6 (83.9) | **40.9** (94.6) |
-| port | 8.3 (21.9) | 13.5 (28.1) | **33.3** (44.8) |
-| write | 0 (14.6) | 0 (28.1) | 0 (27.1) |
-| **All** | 41.6 (63.1) | 44.8 (72.9) | **51.7** (74.6) |
-| pass@3, all | 44.0 | 47.2 | 56.4 |
-| Eval time | 66 min | 88 min | 215 min |
+| Family | ~1.5B PC best, 4-bit | ~1.5B PC best, 8-bit | ~7B step 800, 4-bit | ~7B final, 4-bit |
+|---|---|---|---|---|
+| fixline | 100 (100) | 100 (100) | 96.9 (96.9) | 96.9 (96.9) |
+| fix | 91.7 (91.7) | 97.6 (97.6) | 94.0 (95.2) | 92.9 (92.9) |
+| cursor | 51.0 (77.1) | 59.4 (93.8) | **64.6** (87.5) | 63.5 (91.7) |
+| complete | 24.7 (71.0) | 25.8 (82.8) | **36.6** (79.6) | **40.9** (86.0) |
+| function | 20.4 (69.9) | 22.6 (83.9) | **40.9** (94.6) | 38.7 (87.1) |
+| port | 8.3 (21.9) | 13.5 (28.1) | **33.3** (44.8) | **38.5** (43.8) |
+| write | 0 (14.6) | 0 (28.1) | 0 (27.1) | 0 (41.7) |
+| **All** | 41.6 (63.1) | 44.8 (72.9) | **51.7** (74.6) | **52.4** (76.8) |
+| pass@3, all | 44.0 | 47.2 | 56.4 | 56.9 |
+| Eval time | 66 min | 88 min | 215 min | 222 min |
 
 - **The ~7B doubles function writing** (41 vs 20 to 23) and **quadruples porting** (33 vs 8 to 14), the whole-program
   work it was trained for. It is also the best autocomplete (cursor 65).
+- **Final weights vs step 800 on the Mac: 52.4 vs 51.7**, close to the PC's gap (53.8 vs 51.7). The final weights
+  complete and port better (+4.3, +5.2) and fix a little worse; function and cursor dip by about 1 to 2 points. Despite
+  the higher validation loss, the final weights are the ~7B to use.
 - **Error fixing is a tie**: the small model at 8-bit already fixes as well or better.
 - **write is still 0 for every model.** Compile rates of 15 to 28% show the models produce valid AIL, but not yet a whole
   program that prints exactly the right output.
@@ -188,3 +192,4 @@ Each run writes `~/ail-train-work/runs/eval-ARM-STAMP/summary.json`. The rows ab
 | ~1.5B PC best, 8-bit | `eval-M-20261123T074559Z` |
 | ~1.5B PC final, 4-bit | `eval-M-20261123T091553Z` |
 | ~7B step 800, 4-bit | `eval-M-20261123T101920Z` |
+| ~7B final, 4-bit | `eval-M-20261123T231410Z` |
