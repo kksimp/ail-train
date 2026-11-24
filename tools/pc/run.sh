@@ -10,7 +10,8 @@
 #   SEQ, BATCH, ACCUM, EVAL_EVERY (optimizer steps), RESUME=1 (continue the newest run of that model), ENGINE
 #   (unsloth | hf). build: MAX_TOKENS (default 4096), JOBS. eval: SAMPLES, MAX_GEN, LIMIT, RUN (a run folder);
 #   evalloop also ROUNDS (default 3) and FAMILIES (a,b). eval and evalloop: DATA (a .jsonl in the quick-eval
-#   format, default data/build/quick-eval.jsonl, e.g. data/build/dev-spec.jsonl) and OUT (the results folder).
+#   format, default data/build/quick-eval.jsonl, e.g. data/build/dev-spec.jsonl) and OUT (the results folder);
+#   eval also RESUME_EVAL=1 (with OUT: keep the finished items of OUT/answers.jsonl and continue).
 #   eval and export: ADAPTER=best (default: adapter-best, the lowest-validation checkpoint) or ADAPTER=final.
 # Work folder: ~/ail-train-work/{venv,hf,ail-pinned,runs,export}. Runs: runs/train-small-STAMP/{summary.txt,log.jsonl,
 #   adapter-final/,checkpoint-*/}. Keeps 20 GB of disk free and stops on NaN loss or validation rising twice.
@@ -226,7 +227,8 @@ eval)
     # create GPU mapping"); the classic allocator lets the driver spill the overflow to shared memory instead.
     # shellcheck disable=SC2086
     env -u PYTORCH_CUDA_ALLOC_CONF "$vpy" "$root/tools/eval_quick.py" --backend hf --ail "$ail_root" --model "$mdir" $adapter_args $q --system short \
-        --data "$data" --out "$out" --samples "${SAMPLES:-3}" --max-tokens "${MAX_GEN:-1536}" ${LIMIT:+--limit $LIMIT}
+        --data "$data" --out "$out" --samples "${SAMPLES:-3}" --max-tokens "${MAX_GEN:-1536}" ${LIMIT:+--limit $LIMIT} \
+        ${RESUME_EVAL:+--resume}
     echo "results: $out"
     ;;
 

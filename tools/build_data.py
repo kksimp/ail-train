@@ -45,6 +45,12 @@ SPEC_SOURCES = {"corpus", "examples", "drills", "extra"}
 SPEC_MAX_LINES, SPEC_MAX_CHARS = 60, 2000
 SPEC_KEEP_WRITE_PCT = 20  # train programs with a spec item keep their header-only write item this often (hash-picked)
 DEV_SPEC_ITEMS = 100  # dev-spec.jsonl: every quick-eval corpus program plus hash-picked valid programs
+TRAIN_ONLY = ("apps/", "repair/", "behave/")  # run 3 group prefixes: never valid or quick-eval
+TRIM_FIRST = ("repair-mut", "behave-mut")  # sources trimmed (by hash) when train is over --max-train-tokens
+
+
+def spec_ok(out):
+    return out.count("\n") <= SPEC_MAX_LINES and len(out) <= SPEC_MAX_CHARS
 
 
 def sha(*parts):
@@ -403,7 +409,22 @@ def main():
     ap.add_argument("--max-tokens", type=int, default=2048)
     ap.add_argument("--jobs", type=int, default=4)
     ap.add_argument("--seed", type=int, default=20261121)
+    ap.add_argument("--apps", default=os.path.join(os.path.expanduser("~"), "ail-train-work", "apps"))
+    ap.add_argument("--harvest", default=os.path.join(os.path.expanduser("~"), "ail-train-work", "harvest"))
+    ap.add_argument("--max-train-tokens", type=int, default=26000000)
+    ap.add_argument("--no-run3", action="store_true", help="leave out the run 3 families (apps, repair, behave)")
     args = ap.parse_args()
+
+    def split_of_group(g):
+        if g.startswith(TRAIN_ONLY):
+            return "train"
+        if g.startswith("corpus/") and pick(g, args.seed, 10):
+            return "quick-eval"
+        if g.startswith("mistakes/") and pick(g, args.seed, 10):
+            return "quick-eval"
+        if g.startswith(("task/", "rule/")):
+            return "train"
+        return "valid" if pick(g, args.seed + 1, 5) else "train"
 
     ail_root = os.path.abspath(args.ail)
     want = read(os.path.join(ROOT, ".ail-version")).strip()
@@ -611,16 +632,22 @@ def main():
         add("explain:" + r, "rule/" + r, "explain", "explain", "",
             "Explain this AIL diagnostic and how to fix it:\n\n```\n{}\n```".format(diag_lines[r]), text)
 
+    # 6b. Run 3 families (tools/run3_build.py): real app code, repair and behave items, all train-only.
+    run3_notes = []
+    run3_stats = {}
+    if not args.no_run3:
+        import run3_build
+
+        run3_stats = run3_build.build({
+            "comp": comp, "res": res, "progs": progs, "drafts": drafts, "trials": trials, "seed": args.seed,
+            "ail_root": ail_root, "apps_dir": args.apps, "apps_lock": os.path.join(ROOT, "data", "apps.lock"),
+            "harvest_dir": args.harvest, "cache": CACHE, "train_group": lambda g: split_of_group(g) == "train",
+            "spec_ok": spec_ok, "spec_task": spec_task, "header_text": header_text, "add": add, "drop": drop,
+            "notes": run3_notes})
+
     # 7. Splits by group.
     def split_of(it):
-        g = it["group"]
-        if g.startswith("corpus/") and pick(g, args.seed, 10):
-            return "quick-eval"
-        if g.startswith("mistakes/") and pick(g, args.seed, 10):
-            return "quick-eval"
-        if g.startswith(("task/", "rule/")):
-            return "train"
-        return "valid" if pick(g, args.seed + 1, 5) else "train"
+        return split_of_group(it["group"])
 
     for it in items:
         it["split"] = split_of(it)
@@ -654,7 +681,10 @@ def main():
     for it in items:
         if it["split"] == "quick-eval" and it["prog"]:
             eval_prog.setdefault(it["group"], it["prog"])
-    for g in eval_groups:
+    # Run 3: dev-spec programs (quick-eval corpus programs and valid programs) are held out the same way.
+    for it in dev:
+        eval_prog.setdefault(it["group"], it["prog"])
+    for g in sorted(set(eval_groups) | {it["group"] for it in dev}):
         for h in grams(eval_prog.get(g, "")):
             index.setdefault(h, set()).add(g)
     kept = []
@@ -668,7 +698,9 @@ def main():
                         counts[g] = counts.get(g, 0) + 1
                 worst = max(counts.values()) if counts else 0
                 if worst / len(gs) > 0.30:
-                    drop(it["id"], "near-duplicate of a quick-eval program")
+                    near = {g for g, c in counts.items() if c / len(gs) > 0.30}
+                    drop(it["id"], "near-duplicate of a quick-eval program" if near & set(eval_groups)
+                         else "near-duplicate of a dev-spec program")
                     continue
         kept.append(it)
 
@@ -695,6 +727,18 @@ def main():
             continue
         it["tokens"] = n
         final.append(it)
+    # Token cap on train: trim repair-mut, then behave-mut (by hash) until train fits --max-train-tokens.
+    total = sum(it["tokens"] for it in final if it["split"] == "train")
+    for src in TRIM_FIRST:
+        if total <= args.max_train_tokens:
+            break
+        for it in sorted((x for x in final if x["source"] == src), key=lambda x: sha(str(args.seed), "trim", x["id"])):
+            if total <= args.max_train_tokens:
+                break
+            it["trimmed"] = True
+            total -= it["tokens"]
+            drop(it["id"], "over the train token cap")
+    final = [it for it in final if not it.get("trimmed")]
 
     # 10. Write.
     os.makedirs(args.out, exist_ok=True)
@@ -711,6 +755,10 @@ def main():
         "dropped_counts": {},
         "dropped": sorted(dropped, key=lambda d: (d["reason"], d["id"])),
         "quick_eval_groups": eval_groups,
+        "dev_spec_groups": sorted(it["group"] for it in final if it["split"] == "dev-spec"),
+        "max_train_tokens": args.max_train_tokens,
+        "run3": run3_stats,
+        "run3_notes": run3_notes,
     }
     for d in dropped:
         manifest["dropped_counts"][d["reason"]] = manifest["dropped_counts"].get(d["reason"], 0) + 1

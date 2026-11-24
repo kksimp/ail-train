@@ -176,6 +176,8 @@ def main():
     ap.add_argument("--limit", type=int, default=0)
     ap.add_argument("--backend", default="mlx", choices=["mlx", "hf"])
     ap.add_argument("--load-4bit", action="store_true")
+    ap.add_argument("--resume", action="store_true",
+                    help="keep the items OUT/answers.jsonl already holds in full and continue after them")
     args = ap.parse_args()
 
     ail = os.path.join(os.path.abspath(args.ail), "ail")
@@ -193,8 +195,24 @@ def main():
 
     results = []
     t0 = time.time()
-    with open(os.path.join(args.out, "answers.jsonl"), "w", encoding="utf-8") as out:
+    done = {}  # --resume: item -> its answer rows, for items with every sample written
+    apath = os.path.join(args.out, "answers.jsonl")
+    if args.resume and os.path.isfile(apath):
+        for line in open(apath, encoding="utf-8"):
+            try:
+                a = json.loads(line)
+            except ValueError:
+                break
+            done.setdefault(a["i"], []).append(a)
+        done = {i: v for i, v in done.items() if len(v) == args.samples}
+    with open(apath, "w", encoding="utf-8") as out:
         for i, row in enumerate(rows):
+            if i in done:
+                for a in done[i]:
+                    out.write(json.dumps(a, ensure_ascii=False) + "\n")
+                results.append({"i": i, "family": done[i][0]["family"],
+                                "verdicts": [{"compiled": a["compiled"], "passed": a["passed"]} for a in done[i]]})
+                continue
             user = row["messages"][1]["content"]
             ref_answer = row["messages"][2]["content"]
             fam = family(user)
