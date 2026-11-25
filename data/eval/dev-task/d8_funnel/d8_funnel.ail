@@ -1,0 +1,92 @@
+## conversion funnel: how many users reach each ordered step
+error enum LineError
+    Format "bad format"
+    Time "bad time"
+    User "bad user"
+    Step "bad step"
+
+struct Ev
+    ts int
+    user str
+    step str
+
+fn made_of(s str, lo int, hi int, digits bool) bool
+    if s.len() < lo or s.len() > hi
+        return false
+    for ch in s.chars()
+        c := ch.code()
+        is_digit := c >= 48 and c <= 57
+        is_low := c >= 97 and c <= 122
+        if not (is_low or (digits and is_digit))
+            return false
+    true
+
+fn all_digits(s str) bool
+    if s.len() < 1 or s.len() > 6
+        return false
+    for ch in s.chars()
+        if ch.code() < 48 or ch.code() > 57
+            return false
+    true
+
+fn funnel_steps(line str) List[str]?
+    rest := line.strip_prefix("funnel: ") else return none
+    steps := rest.split(",")
+    if steps.len() < 2 or steps.len() > 5
+        return none
+    mut seen := Set[str]()
+    for s in steps
+        if not made_of(s, 1, 10, false)
+            return none
+        if not seen.add(s)
+            return none
+    steps
+
+fn parse(line str) Ev ! LineError
+    f := line.split(" ")
+    if f.len() != 3
+        return Format
+    if not all_digits(f[0])
+        return Time
+    if not made_of(f[1], 1, 8, true)
+        return User
+    if not made_of(f[2], 1, 10, false)
+        return Step
+    Ev(ts: f[0].to_int() else 0, user: f[1], step: f[2])
+
+fn pct(a int, b int) int
+    if b == 0
+        return 0
+    (a * 200 + b) / (2 * b)
+
+fn main()
+    mut lines := io.read_all().split("\n")
+    if (lines.last() else "x") == ""
+        lines.pop()
+    steps := funnel_steps(lines.first() else "") else
+        print("bad funnel")
+        return
+    mut events := List[Ev]()
+    for k in 1..lines.len()
+        if lines[k].is_empty()
+            continue
+        e := parse(lines[k]) else err
+            print("line {k + 1}: {err}")
+            continue
+        events.push(e)
+    mut prog := Map[str, int]()
+    for e in events.sorted(by: |e| e.ts)
+        p := prog.get(e.user) else 0
+        if p < steps.len() and e.step == steps[p]
+            prog[e.user] = p + 1
+        else
+            prog[e.user] = p
+    mut counts := List[int]()
+    for k in 0..steps.len()
+        counts.push(prog.values().filter(|p| p > k).len())
+    print("step\tusers\tof_first\tof_prev")
+    for k in 0..steps.len()
+        prev := if k == 0 then "-" else "{pct(counts[k], counts[k - 1])}%"
+        print("{steps[k]}\t{counts[k]}\t{pct(counts[k], counts[0])}%\t{prev}")
+    print("users: {prog.len()}")
+    print("completed: {counts[steps.len() - 1]}")

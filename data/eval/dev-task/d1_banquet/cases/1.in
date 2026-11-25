@@ -1,0 +1,10 @@
+tables 3 8
+group ann 4
+group bob 3
+apart ann cy
+group cy 5
+group dan 3
+group eve 9
+apart bob bob
+group fay 2
+group ann 1

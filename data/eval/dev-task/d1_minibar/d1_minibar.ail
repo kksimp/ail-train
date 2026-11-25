@@ -1,0 +1,22 @@
+## d1_minibar: bill each hotel room for the minibar items taken.
+fn main()
+    prices := {"water": 3, "soda": 4, "juice": 5, "beer": 7, "wine": 22, "chocolate": 6}
+    mut totals := Map[str, int]()
+    mut skipped := 0
+    for line in io.read_all().lines()
+        if line.trim().is_empty()
+            continue
+        w := line.words()
+        qty := if w.len() == 3 then (w[2].to_int() else 0) else 0
+        if qty <= 0 or not prices.contains(w[1])
+            skipped += 1
+            continue
+        totals[w[0]] += prices[w[1]] * qty
+    if totals.is_empty()
+        print("no charges")
+    else
+        for room in totals.keys().sorted()
+            print("{room}: {totals[room]}")
+        print("total: {totals.values().sum()}")
+    if skipped > 0
+        print("skipped: {skipped}")

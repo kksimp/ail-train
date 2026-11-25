@@ -1,0 +1,41 @@
+## Bus headway report per route from arrival times.
+fn mins(s str) int
+    t := s.split(":")
+    if t.len() != 2 or t[0].len() != 2 or t[1].len() != 2
+        return -1
+    h := t[0].to_int() else 99
+    m := t[1].to_int() else 99
+    if h < 0 or h > 23 or m < 0 or m > 59
+        return -1
+    h * 60 + m
+
+fn clock(m int) str
+    "{m / 60:0>2}:{m % 60:0>2}"
+
+fn report(route str, ts List[int])
+    if ts.len() < 2
+        print("{route} n={ts.len()} no headway")
+        return
+    gaps := [ts[i] - ts[i - 1] for i in 1..ts.len()]
+    hi := gaps.max() else 0
+    lo := gaps.min() else 0
+    i := gaps.index_of(hi) else 0
+    avg := (gaps.sum() * 2 + gaps.len()) / (2 * gaps.len())
+    print("{route} n={ts.len()} min={lo} max={hi} avg={avg} longest={clock(ts[i])}-{clock(ts[i + 1])}")
+
+fn main()
+    mut by := Map[str, List[int]]()
+    mut k := 0
+    while true
+        line := io.read_line() else break
+        k += 1
+        w := line.words()
+        if w.is_empty()
+            continue
+        m := if w.len() == 2 then mins(w[1]) else -1
+        if m < 0
+            print("line {k}: bad")
+            continue
+        by.push(w[0], m)
+    for route, times in by
+        report(route, times.sorted())

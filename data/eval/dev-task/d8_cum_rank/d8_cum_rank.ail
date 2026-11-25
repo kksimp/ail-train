@@ -1,0 +1,30 @@
+## cumulative percent rank of each distinct integer score
+fn is_score(w str) bool
+    digits := if w.starts_with("-") then w.slice(1) else w
+    if digits.is_empty()
+        return false
+    for ch in digits.chars()
+        if ch.code() < 48 or ch.code() > 57
+            return false
+    true
+
+fn main()
+    mut xs := List[int]()
+    for w in io.read_all().words()
+        if not is_score(w)
+            print("bad value: {w}")
+            return
+        xs.push(w.to_int() else 0)
+    if xs.is_empty()
+        print("no data")
+        return
+    n := xs.len()
+    mut counts := Map[int, int]()
+    for x in xs
+        counts[x] += 1
+    print("n: {n}")
+    mut cum := 0
+    for v in counts.keys().sorted()
+        cum += counts[v]
+        pct := (cum * 200 + n) / (2 * n)
+        print("{v}\t{counts[v]}\t{cum}\t{pct}%")

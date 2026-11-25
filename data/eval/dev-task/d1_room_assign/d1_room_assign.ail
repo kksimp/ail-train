@@ -1,0 +1,47 @@
+## d1_room_assign: assign hotel rooms by type and price the stay by nights.
+fn number(s str) int?
+    if s.is_empty() or s.len() > 6 or not s.chars().all(|c| c.is_digit())
+        return none
+    s.to_int()
+
+fn main()
+    mut stock := Map[str, int]()
+    mut rates := Map[str, int]()
+    mut used := Map[str, int]()
+    mut order := List[str]()
+    mut revenue := 0
+    mut k := 0
+    for line in io.read_all().lines()
+        k += 1
+        w := line.words()
+        if w.is_empty()
+            continue
+        cmd := w[0]
+        n := if w.len() >= 3 then number(w[w.len() - 1]) else none
+        v := n else 0
+        shape_ok := (w.len() == 3 and (cmd == "inventory" or cmd == "rate")) or (w.len() == 4 and cmd == "book" and v > 0)
+        if n == none or not shape_ok
+            print("line {k}: bad line")
+        elif cmd == "inventory"
+            if not stock.contains(w[1])
+                order.push(w[1])
+            stock[w[1]] = v
+        elif cmd == "rate"
+            rates[w[1]] = v
+        else
+            guest := w[1]
+            t := w[2]
+            if not stock.contains(t) or not rates.contains(t)
+                print("line {k}: unknown type {t}")
+            elif (used.get(t) else 0) >= stock[t]
+                print("{guest}: no {t} room free")
+            else
+                used[t] += 1
+                gross := v * rates[t]
+                cost := if v >= 7 then gross - gross / 10 else gross
+                revenue += cost
+                print("{guest}: {t}-{used[t]}, {v} nights, {cost}")
+    for t in order
+        u := used.get(t) else 0
+        print("{t}: {u}/{stock[t]}")
+    print("revenue: {revenue}")

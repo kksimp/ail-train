@@ -1,0 +1,14 @@
+table x 3
+arrive a 3
+arrive b 3
+arrive c 1
+arrive d 3
+leave b
+leave a
+arrive e 1
+table y 1
+table z 007
+leave
+leave d
+leave c
+table w 9999999

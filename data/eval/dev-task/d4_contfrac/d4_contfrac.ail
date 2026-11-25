@@ -1,0 +1,59 @@
+## Continued fractions: expansion of A/B by Euclid's algorithm with floor division, plus convergents.
+fn parse_int(s str) int?
+    v := s.to_int() else return none
+    if v.abs() > 1000000000
+        return none
+    v
+
+fn expansion(a0 int, b0 int) List[int]
+    mut a := a0
+    mut b := b0
+    if b < 0
+        a = -a
+        b = -b
+    mut out := List[int]()
+    while b != 0
+        mut q := a / b
+        mut r := a % b
+        if r < 0
+            q -= 1
+            r += b
+        out.push(q)
+        a = b
+        b = r
+    out
+
+fn convergents(terms List[int]) List[str]
+    mut h1 := 1
+    mut h2 := 0
+    mut k1 := 0
+    mut k2 := 1
+    mut out := List[str]()
+    for q in terms
+        h := q * h1 + h2
+        k := q * k1 + k2
+        out.push("{h}/{k}")
+        h2 = h1
+        h1 = h
+        k2 = k1
+        k1 = k
+    out
+
+fn main()
+    while line := io.read_line()
+        t := line.trim()
+        if t.is_empty()
+            continue
+        parts := t.split("/")
+        a := parse_int(parts[0]) else -2000000000
+        b := parse_int(parts.skip(1).first() else "") else -2000000000
+        if parts.len() != 2 or a == -2000000000 or b == -2000000000
+            print("{t}: invalid")
+        elif b == 0
+            print("{t}: zero denominator")
+        else
+            terms := expansion(a, b)
+            rest := terms.skip(1).join(", ")
+            shape := if terms.len() == 1 then "[{terms[0]}]" else "[{terms[0]}; {rest}]"
+            print("{a}/{b} = {shape}")
+            print("  convergents: {convergents(terms).join(" ")}")

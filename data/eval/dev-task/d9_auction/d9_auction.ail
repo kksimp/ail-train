@@ -1,0 +1,30 @@
+## English auction: each bid must beat the high bid by the increment.
+fn main()
+    lines := io.read_all().lines()
+    if lines.is_empty()
+        print("no auction")
+        return
+    head := lines[0].words()
+    reserve := head[0].to_int() else 0
+    step := head[1].to_int() else 0
+    mut who := ""
+    mut best := 0
+    for i in 1..lines.len()
+        w := lines[i].words()
+        if w.is_empty()
+            continue
+        if w.len() != 2 or (w[1].to_int() else 0) <= 0
+            print("line {i + 1}: malformed")
+            continue
+        amount := w[1].to_int() else 0
+        need := if who.is_empty() then reserve else best + step
+        if amount >= need and w[0] != who
+            who = w[0]
+            best = amount
+            print("{w[0]} {amount} accepted")
+        else
+            print("{w[0]} {amount} rejected")
+    if who.is_empty()
+        print("no sale")
+    else
+        print("winner {who} at {best}")

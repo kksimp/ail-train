@@ -1,0 +1,11 @@
+line 7: duplicate project web
+line 8: unknown project api
+line 9: insufficient budget
+line 10: insufficient budget
+line 11: refund exceeds spend
+line 13: unknown command
+line 14: bad amount
+months: 2
+web budget=100000 spent=80000 left=20000 used=80% WARN runway=0
+app budget=50000 spent=55000 left=-5000 used=110% OVER runway=0
+projects: 2 budget=150000 spent=135000

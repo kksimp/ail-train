@@ -1,0 +1,9 @@
+ann 40 rejected
+bob 50 accepted
+cy 52 rejected
+cy 60 accepted
+ann 60 rejected
+dee 65 accepted
+bob 64 rejected
+ann 100 accepted
+winner ann at 100

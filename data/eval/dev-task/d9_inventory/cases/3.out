@@ -1,0 +1,12 @@
+day 1: demand 3 sold 3 lost 0 stock 17
+line 3: bad demand
+line 5: bad demand
+day 2: demand 4 sold 4 lost 0 stock 13
+day 3: demand 6 sold 6 lost 0 stock 7
+day 4: demand 0 sold 0 lost 0 stock 7
+day 5: demand 7 sold 7 lost 0 stock 0
+  ordered 15 arriving day 6
+  received 15
+day 6: demand 2 sold 2 lost 0 stock 13
+total sold 22 lost 0 orders 1
+final stock 13

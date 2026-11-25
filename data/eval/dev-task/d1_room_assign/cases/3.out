@@ -1,0 +1,12 @@
+line 2: unknown type double
+ann: double-1, 10 nights, 1080
+bo: no double room free
+bo: double-2, 7 nights, 756
+cy: double-3, 30 nights, 3240
+di: no double room free
+line 11: bad line
+line 12: bad line
+fy: no twin room free
+double: 3/3
+twin: 0/0
+revenue: 5076

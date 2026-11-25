@@ -1,0 +1,8 @@
+inventory a 1
+rate a 15
+book p a 7
+book q a 1
+rate a 1000000
+rate a 999999
+inventory b 2 3
+book x a 1 1

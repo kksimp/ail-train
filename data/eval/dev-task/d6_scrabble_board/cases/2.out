@@ -1,0 +1,13 @@
+KNIGHTS 8 1 H: 101
+KNIGHTS 8 10 H: rejected (out of bounds)
+word 8 8 H: rejected (bad format)
+HELLO 8 7 V: rejected (conflict at 8 7)
+SPARK 8 7 V: 11
+AB 0 1 H: rejected (out of bounds)
+X 5 5 H: 16
+X 5 5 V: rejected (no new tiles)
+ABC 3 3 X: rejected (bad format)
+ABC 3: rejected (bad format)
+ABC -3 3 H: rejected (bad format)
+ABC 1000 3 H: rejected (bad format)
+total=128 moves=3

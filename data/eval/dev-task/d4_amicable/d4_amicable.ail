@@ -1,0 +1,25 @@
+## Amicable pairs up to N, using a divisor-sum sieve.
+fn main()
+    top := 50000
+    mut sig := [0 for i in 0..top + 1]
+    for d in 1..=top / 2
+        mut j := d * 2
+        while j <= top
+            sig[j] += d
+            j += d
+    while line := io.read_line()
+        t := line.trim()
+        n := t.to_int() else 0
+        if t.is_empty()
+            continue
+        if n < 1 or n > top or t.starts_with("-")
+            print("{t}: invalid")
+            continue
+        mut pairs := List[str]()
+        for a in 2..=n
+            b := sig[a]
+            if b > a and b <= n and sig[b] == a
+                pairs.push("  {a} {b}")
+        print("N={n}: {pairs.len()}")
+        for p in pairs
+            print(p)

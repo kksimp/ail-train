@@ -1,0 +1,12 @@
+0: invalid
+-5: invalid
+50001: invalid
+abc: invalid
+12.5: invalid
++9: invalid
+N=6232: 4
+  220 284
+  1184 1210
+  2620 2924
+  5020 5564
+N=1: 0

@@ -1,0 +1,129 @@
+## Decides refund requests under a category and condition policy, then totals the outcomes.
+enum Category
+    Electronics
+    Clothing
+    Grocery
+    Software
+    Unknown
+
+enum Condition
+    Sealed
+    Opened
+    Defective
+
+struct Request
+    id str
+    cat Category
+    paid int
+    days int
+    cond Condition
+
+enum Decision
+    Cash(cents int)
+    Credit(cents int)
+    Review(cents int)
+    Reject(why str)
+
+fn num(s str) int?
+    if s.starts_with("-") or s.starts_with("+")
+        return none
+    s.to_int()
+
+fn category(s str) Category
+    match s
+        "electronics" => Category.Electronics
+        "clothing" => Category.Clothing
+        "grocery" => Category.Grocery
+        "software" => Category.Software
+        _ => Category.Unknown
+
+fn condition(s str) Condition?
+    match s
+        "sealed" => Condition.Sealed
+        "opened" => Condition.Opened
+        "defective" => Condition.Defective
+        _ => none
+
+fn parse(line str) Request?
+    f := line.split(",")
+    if f.len() != 5 or f[0].is_empty()
+        return none
+    paid := num(f[2])?
+    days := num(f[3])?
+    cond := condition(f[4])?
+    if paid < 1
+        return none
+    Request(id: f[0], cat: category(f[1]), paid: paid, days: days, cond: cond)
+
+fn window(c Category) int
+    match c
+        Electronics => 30
+        Clothing => 60
+        Grocery => 7
+        Software => 14
+        Unknown => 0
+
+fn settle(cents int, cash bool) Decision
+    if cents > 50000
+        Decision.Review(cents: cents)
+    elif cash
+        Decision.Cash(cents: cents)
+    else
+        Decision.Credit(cents: cents)
+
+fn decide(r Request) Decision
+    if r.cat == Category.Unknown
+        return Decision.Reject(why: "unknown category")
+    w := window(r.cat)
+    if r.cond == Condition.Defective
+        if r.days > 2 * w
+            return Decision.Reject(why: "window expired")
+        return settle(r.paid, true)
+    if r.days > w
+        return Decision.Reject(why: "window expired")
+    if r.cond == Condition.Sealed
+        return settle(r.paid, r.days * 2 <= w)
+    pct := match r.cat
+        Electronics => 15
+        Clothing => 10
+        _ => return Decision.Reject(why: "opened {r.cat.name().to_lower()}")
+    settle(r.paid - r.paid * pct / 100, r.days * 2 <= w)
+
+fn main()
+    mut cash := 0
+    mut credit := 0
+    mut approved := 0
+    mut reviews := 0
+    mut review_sum := 0
+    mut rejected := 0
+    mut bad := 0
+    mut k := 0
+    for line in io.read_all().lines()
+        k += 1
+        if line.is_empty()
+            continue
+        r := parse(line) else
+            print("line {k}: malformed request")
+            bad += 1
+            continue
+        d := decide(r)
+        match d
+            Cash(c) =>
+                print("{r.id} APPROVE cash {c}")
+                approved += 1
+                cash += c
+            Credit(c) =>
+                print("{r.id} APPROVE credit {c}")
+                approved += 1
+                credit += c
+            Review(c) =>
+                print("{r.id} REVIEW {c}")
+                reviews += 1
+                review_sum += c
+            Reject(why) =>
+                print("{r.id} REJECT {why}")
+                rejected += 1
+    print("approved: {approved} cash={cash} credit={credit}")
+    print("review: {reviews} amount={review_sum}")
+    print("rejected: {rejected}")
+    print("malformed: {bad}")

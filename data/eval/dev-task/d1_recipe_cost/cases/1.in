@@ -1,0 +1,16 @@
+price flour 250 1000
+price egg 30 1
+price milk 120 1000
+recipe pancakes 4
+use flour 300
+use egg 2
+use milk 450
+use butter 20
+recipe crepes 6
+use flour 250
+use milk 500
+use milk 3
+recipe tea 1
+price butter 900 500
+oops
+use salt 5

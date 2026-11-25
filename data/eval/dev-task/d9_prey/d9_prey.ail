@@ -1,0 +1,17 @@
+## Integer predator-prey model with extinction check.
+fn main()
+    f := (io.read_all().lines().first() else "").words().map(|w| w.to_int() else -1)
+    if f.len() != 3 or f.any(|x| x < 0) or f[2] > 30
+        print("invalid input")
+        return
+    mut prey := f[0]
+    mut pred := f[1]
+    for t in 1..=f[2]
+        eaten := (prey * pred / 200).min(prey)
+        prey = prey + prey / 10 - eaten
+        pred = pred + eaten / 4 - pred / 5
+        print("step {t}: prey {prey} pred {pred}")
+        if prey == 0 or pred == 0
+            who := if prey == 0 and pred == 0 then "both" elif prey == 0 then "prey" else "predators"
+            print("{who} extinct")
+            break

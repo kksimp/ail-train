@@ -1,0 +1,20 @@
+funnel: land,signup,trial,paid
+1 u1 land
+2 u1 signup
+3 u1 trial
+4 u1 paid
+1 u2 land
+2 u2 signup
+3 u2 land
+1 u3 land
+000005 u3 signup
+5 u3 signup
+6 u3 trial
+7 u4 paid
+8 u4 land
+
+9 u4 land
+12345678 u5 land
+1 U5 land
+1 u5 land 1
+x u6 land

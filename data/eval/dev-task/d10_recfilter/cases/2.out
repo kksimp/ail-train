@@ -1,0 +1,13 @@
+1: 2 a1,a5
+2: 1 a3
+3: 1 a2
+4: 3 a1,a3,a5
+5: 2 a2,a3
+6: error: bad query
+7: error: bad query
+8: error: bad query
+9: error: unknown field colour
+10: error: unknown field shade
+11: error: bad query
+12: 3 a1,a3,a5
+13: 2 a2,a3

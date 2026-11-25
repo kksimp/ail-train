@@ -1,0 +1,13 @@
+name age city score
+alice 34 oslo 90
+bob 25 bergen 72
+carol 41 oslo 85
+dave 19 tromso 60
+erin 34 bergen 100
+
+age > 30
+city = oslo and score >= 90
+city = oslo or city = bergen and age < 30
+name ~ a
+score < 50
+age = 34 and city != oslo

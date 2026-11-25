@@ -1,0 +1,14 @@
+[^a-z]*[a-z]* 123abc
+[^a-z]*[a-z]* abc123
+[^ab]c ac
+[^ab]c xc
+[^ab]c
+.*
+.
+.. a
+^a ^a
+a^ a^
+a] a]
+]a ]a
+[a^] ^
+[a^b]+ ^

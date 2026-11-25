@@ -1,0 +1,60 @@
+## Counts the atoms of chemical formulas with nested parentheses.
+fn read_num(cs List[char], i int) (int, int)
+    mut j := i
+    mut n := 0
+    while j < cs.len() and cs[j].is_digit()
+        n = n * 10 + (cs[j].to_digit(10) else 0)
+        j += 1
+    if j == i
+        return (1, j)
+    if n == 0 or j - i > 3
+        return (-1, j)
+    (n, j)
+
+fn parse(f str) Map[str, int]?
+    cs := f.chars()
+    mut stack := List[Map[str, int]]()
+    stack.push(Map[str, int]())
+    mut i := 0
+    while i < cs.len()
+        c := cs[i]
+        if c.is_upper()
+            mut sym := "{c}"
+            i += 1
+            if i < cs.len() and cs[i].is_lower()
+                sym = "{sym}{cs[i]}"
+                i += 1
+            n, j := read_num(cs, i)
+            if n < 0
+                return none
+            i = j
+            stack[stack.len() - 1][sym] += n
+        elif c == '('
+            stack.push(Map[str, int]())
+            i += 1
+        elif c == ')'
+            if stack.len() < 2
+                return none
+            inner := stack.pop() else return none
+            m, j2 := read_num(cs, i + 1)
+            if m < 0 or inner.is_empty()
+                return none
+            i = j2
+            for sym, cnt in inner
+                stack[stack.len() - 1][sym] += cnt * m
+        else
+            return none
+    if stack.len() != 1 or stack[0].is_empty()
+        return none
+    stack[0]
+
+fn main()
+    for line in io.read_all().lines()
+        f := line.trim()
+        if f.is_empty()
+            continue
+        counts := parse(f) else
+            print("{f}: invalid")
+            continue
+        parts := ["{s}={counts[s]}" for s in counts.keys().sorted()]
+        print("{f}: {parts.join(" ")} total={counts.values().sum()}")

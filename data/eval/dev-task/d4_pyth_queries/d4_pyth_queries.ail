@@ -1,0 +1,107 @@
+## Pythagorean triple queries: primitive lists, perimeter and leg lookups, with per-line error reports.
+struct Triple
+    a int
+    b int
+    c int
+
+enum Cmd
+    Prim(n int)
+    Perim(p int)
+    Leg(a int)
+
+error enum CmdError
+    Unknown "unknown command"
+    BadArg "bad argument"
+
+fn gcd(a int, b int) int
+    mut x := a
+    mut y := b
+    while y != 0
+        t := x % y
+        x = y
+        y = t
+    x
+
+fn isqrt(v int) int
+    mut x := v.to_float().sqrt().to_int()
+    while x * x > v
+        x -= 1
+    while (x + 1) * (x + 1) <= v
+        x += 1
+    x
+
+fn arg(parts List[str], hi int) int ! CmdError
+    if parts.len() != 2
+        return BadArg
+    n := parts[1].to_int() else return BadArg
+    if n < 1 or n > hi
+        return BadArg
+    n
+
+fn parse(line str) Cmd ! CmdError
+    parts := line.words()
+    name := parts[0]
+    if name == "primitive"
+        return Prim(n: arg(parts, 300)?)
+    if name == "perimeter"
+        return Perim(p: arg(parts, 1000)?)
+    if name == "leg"
+        return Leg(a: arg(parts, 500)?)
+    return Unknown
+
+fn all_triples(n int) List[Triple]
+    mut out := List[Triple]()
+    for a in 1..n
+        for b in a + 1..=n
+            c2 := a * a + b * b
+            if c2 > n * n
+                break
+            c := isqrt(c2)
+            if c * c == c2
+                out.push(Triple(a: a, b: b, c: c))
+    out
+
+fn leg_triples(a int) List[Triple]
+    mut out := List[Triple]()
+    for d in 1..a
+        e := a * a / d
+        if a * a % d == 0 and (e - d) % 2 == 0
+            other := (e - d) / 2
+            out.push(Triple(a: other.min(a), b: other.max(a), c: (e + d) / 2))
+    out.sorted(by: |t| t.c)
+
+fn show(t Triple) str
+    "  {t.a} {t.b} {t.c}"
+
+fn run(cmd Cmd)
+    match cmd
+        Prim(n) =>
+            all := all_triples(n)
+            prim := all.filter(|t| gcd(t.a, t.b) == 1).sorted(by: |t| (t.c, t.a))
+            print("primitive {n}:")
+            for t in prim
+                print(show(t))
+            print("  count: primitive {prim.len()}, all {all.len()}")
+        Perim(p) =>
+            hits := all_triples(p).filter(|t| t.a + t.b + t.c == p)
+            print("perimeter {p}:")
+            for t in hits
+                print("{show(t)} x{gcd(t.a, t.b)}")
+            print("  count: {hits.len()}")
+        Leg(a) =>
+            hits := leg_triples(a)
+            print("leg {a}:")
+            for t in hits
+                print(show(t))
+            print("  count: {hits.len()}")
+
+fn main()
+    lines := io.read_all().lines()
+    for k in 0..lines.len()
+        t := lines[k].trim()
+        if t.is_empty() or t.starts_with("#")
+            continue
+        cmd := parse(t) else err
+            print("line {k + 1}: {err}")
+            continue
+        run(cmd)

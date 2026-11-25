@@ -1,0 +1,10 @@
+only,five,fields
+,electronics,100,1,sealed
+x,electronics,0,1,sealed
+x,electronics,100,-1,sealed
+x,electronics,100,1,used
+x,Electronics,100,1,sealed
+x,electronics,+100,1,sealed
+x,electronics,100,1,sealed,extra
+x,electronics, 100,1,sealed
+y,electronics,100,1,sealed

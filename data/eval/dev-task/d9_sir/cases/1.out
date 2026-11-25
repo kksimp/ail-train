@@ -1,0 +1,17 @@
+day 0: S=990 I=10 R=0
+day 1: S=985 I=13 R=2
+day 2: S=978 I=18 R=4
+day 3: S=968 I=25 R=7
+day 4: S=954 I=34 R=12
+day 5: S=935 I=47 R=18
+day 6: S=909 I=64 R=27
+day 7: S=875 I=86 R=39
+day 8: S=830 I=114 R=56
+day 9: S=774 I=148 R=78
+day 10: S=706 I=187 R=107
+day 11: S=627 I=229 R=144
+day 12: S=541 I=270 R=189
+day 13: S=454 I=303 R=243
+day 14: S=372 I=325 R=303
+peak infected 325 at day 14
+still active

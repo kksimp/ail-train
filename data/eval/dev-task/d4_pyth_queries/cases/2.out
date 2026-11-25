@@ -1,0 +1,21 @@
+leg 5:
+  5 12 13
+  count: 1
+leg 1:
+  count: 0
+perimeter 12:
+  3 4 5 x1
+  count: 1
+perimeter 7:
+  count: 0
+primitive 5:
+  3 4 5
+  count: primitive 1, all 1
+primitive 1:
+  count: primitive 0, all 0
+leg 21:
+  20 21 29
+  21 28 35
+  21 72 75
+  21 220 221
+  count: 4

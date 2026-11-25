@@ -684,8 +684,18 @@ def main():
     # Run 3: dev-spec programs (quick-eval corpus programs and valid programs) are held out the same way.
     for it in dev:
         eval_prog.setdefault(it["group"], it["prog"])
+    # Held-out dev-task programs and specs (data/eval/dev-task, eval only): train items near them are dropped too.
+    dt_root = os.path.join(ROOT, "data", "eval", "dev-task")
+    dt_groups = []
+    for name in sorted(os.listdir(dt_root)) if os.path.isdir(dt_root) else []:
+        d = os.path.join(dt_root, name)
+        if os.path.isfile(os.path.join(d, name + ".ail")):
+            for part in (name + ".ail", "spec.md"):
+                g = "dev-task:{}/{}".format(name, part)
+                eval_prog[g] = read(os.path.join(d, part))
+                dt_groups.append(g)
     qe_set = set(eval_groups)
-    for g in sorted(set(eval_groups) | {it["group"] for it in dev}):
+    for g in sorted(set(eval_groups) | {it["group"] for it in dev} | set(dt_groups)):
         for h in grams(eval_prog.get(g, "")):
             index.setdefault(h, set()).add(g)
     kept = []
@@ -705,9 +715,16 @@ def main():
                 if worst / len(gs) > 0.30:
                     near = {g for g, c in counts.items() if c / len(gs) > 0.30}
                     drop(it["id"], "near-duplicate of a quick-eval program" if near & qe_set
-                         else "near-duplicate of a dev-spec program")
+                         else ("near-duplicate of a dev-task program or spec" if any(
+                             g.startswith("dev-task:") for g in near) else "near-duplicate of a dev-spec program"))
                     continue
         kept.append(it)
+    # Guard: no dev-task spec or program may appear verbatim in any kept item.
+    for g in dt_groups:
+        needle = eval_prog[g].strip()
+        for it in kept:
+            if needle and any(needle in m["content"] for m in it["messages"]):
+                sys.exit("dev-task leak: {} appears in {}".format(g, it["id"]))
 
     # 9. Token lengths.
     tok = None

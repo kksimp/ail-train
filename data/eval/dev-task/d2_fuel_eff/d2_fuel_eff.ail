@@ -1,0 +1,22 @@
+## Fuel efficiency per vehicle in litres per 100 km.
+fn main()
+    mut km := Map[str, int]()
+    mut lit := Map[str, int]()
+    while true
+        line := io.read_line() else break
+        w := line.words()
+        if w.len() != 3
+            continue
+        l := w[1].to_int() else -1
+        d := w[2].to_int() else -1
+        if l < 0 or d < 0
+            continue
+        km[w[0]] += d
+        lit[w[0]] += l
+    for v, dist in km
+        used := lit[v]
+        if dist == 0
+            print("{v} {dist} {used} n/a")
+        else
+            t := (used * 2000 + dist) / (2 * dist)
+            print("{v} {dist} {used} {t / 10}.{t % 10}")

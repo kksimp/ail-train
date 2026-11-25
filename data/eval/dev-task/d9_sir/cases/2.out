@@ -1,0 +1,15 @@
+day 0: S=40 I=4 R=0
+day 1: S=38 I=4 R=2
+day 2: S=36 I=4 R=4
+day 3: S=34 I=4 R=6
+day 4: S=32 I=4 R=8
+day 5: S=30 I=4 R=10
+day 6: S=28 I=4 R=12
+day 7: S=26 I=4 R=14
+day 8: S=25 I=3 R=16
+day 9: S=24 I=3 R=17
+day 10: S=23 I=3 R=18
+day 11: S=22 I=3 R=19
+day 12: S=21 I=3 R=20
+peak infected 4 at day 0
+still active

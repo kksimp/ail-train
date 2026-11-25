@@ -1,0 +1,20 @@
+## Mastermind feedback pegs for a series of guesses.
+fn main()
+    lines := io.read_all().lines()
+    if lines.is_empty()
+        return
+    secret := lines[0].trim().chars()
+    for k in 1..lines.len()
+        guess := lines[k].trim()
+        if guess.is_empty()
+            continue
+        g := guess.chars()
+        if g.len() != 4 or not g.all(|c| "ABCDEF".contains(c))
+            print("{guess} invalid")
+            continue
+        black := [i for i in 0..4 if g[i] == secret[i]].len()
+        mut total := 0
+        for c in "ABCDEF".chars()
+            total += secret.count(|x| x == c).min(g.count(|x| x == c))
+        tail := if black == 4 then " solved" else ""
+        print("{guess} {black} {total - black}{tail}")

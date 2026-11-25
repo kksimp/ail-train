@@ -1,0 +1,7 @@
+A T: blackjack 21
+A 2 3 4 5: 15 hard
+A A K: 12 hard
+8 8 A: 17 hard
+2 2 2 A: 17 soft
+A 9 A: 21 soft
+1 2: invalid

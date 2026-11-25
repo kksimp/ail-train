@@ -1,0 +1,26 @@
+## Ride fares by zone crossings with a city-centre surcharge.
+fn zone(s str) int
+    if s.len() == 1 then (s.to_int() else 0) else 0
+
+fn money(c int) str
+    "{c / 100}.{c % 100:0>2}"
+
+fn main()
+    mut total := 0
+    mut k := 0
+    while true
+        line := io.read_line() else break
+        k += 1
+        w := line.words()
+        if w.is_empty()
+            continue
+        if w.len() != 2 or zone(w[0]) == 0 or zone(w[1]) == 0
+            print("line {k}: bad")
+            continue
+        a := zone(w[0])
+        b := zone(w[1])
+        x := (a - b).abs()
+        fare := 240 + 110 * x + (if a == 1 or b == 1 then 50 else 0)
+        total += fare
+        print("{a}->{b} x{x} {money(fare)}")
+    print("total {money(total)}")

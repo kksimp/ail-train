@@ -1,0 +1,5 @@
+BE 14 14 V: 8
+AT 1 1 H: 6
+AT 1 1 H: rejected (no new tiles)
+OUTDOES 6 2 H: 62
+total=76 moves=3

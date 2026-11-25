@@ -1,0 +1,30 @@
+## Check domino chains and total their pips.
+fn pips(t str) (int, int)?
+    cs := t.chars()
+    if cs.len() != 3 or cs[1] != '-'
+        return none
+    a := cs[0].to_digit(10) else return none
+    b := cs[2].to_digit(10) else return none
+    if a > 6 or b > 6
+        return none
+    (a, b)
+
+fn main()
+    for line in io.read_all().lines()
+        tiles := line.words()
+        if tiles.is_empty()
+            continue
+        ps := tiles.map(|t| pips(t))
+        if ps.any(|p| p == none)
+            print("invalid")
+            continue
+        mut total := 0
+        mut bad := 0
+        mut prev := -1
+        for i, t in tiles.enumerate()
+            a, b := pips(t) else (0, 0)
+            total += a + b
+            if i > 0 and a != prev and bad == 0
+                bad = i + 1
+            prev = b
+        print(if bad > 0 then "broken at {bad}" else "valid {total}")

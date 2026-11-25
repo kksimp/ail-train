@@ -1,0 +1,35 @@
+## comm: merge-compare two sorted blocks into three columns
+fn emit(col int, text str, opt str)
+    if opt.contains("{col}")
+        return
+    mut tabs := 0
+    for c in 1..col
+        if not opt.contains("{c}")
+            tabs += 1
+    pad := "\t".repeat(tabs)
+    print("{pad}{text}")
+
+fn main()
+    mut lines := io.read_all().split("\n")
+    if (lines.last() else "x") == ""
+        lines.pop()
+    if lines.is_empty()
+        return
+    opt := lines[0]
+    data := lines[1..]
+    cut := data.index_of("---") else data.len()
+    a := data[0..cut]
+    b := if cut < data.len() then data[cut + 1..] else List[str]()
+    mut i := 0
+    mut j := 0
+    while i < a.len() or j < b.len()
+        if j >= b.len() or (i < a.len() and a[i] < b[j])
+            emit(1, a[i], opt)
+            i += 1
+        elif i >= a.len() or b[j] < a[i]
+            emit(2, b[j], opt)
+            j += 1
+        else
+            emit(3, a[i], opt)
+            i += 1
+            j += 1

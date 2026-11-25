@@ -1,0 +1,90 @@
+## S-expression integer calculator: one expression per input line.
+enum Node
+    Num(v int)
+    Call(op str, args List[Node])
+
+error enum EvalError
+    Syntax "syntax error"
+    Arity "bad arity"
+    DivZero "division by zero"
+
+fn tokenize(s str) List[str]
+    mut out := List[str]()
+    mut cur := List[char]()
+    for c in s.chars()
+        if c == '(' or c == ')' or c.is_space()
+            if not cur.is_empty()
+                out.push(cur.join(""))
+                cur.clear()
+            if not c.is_space()
+                out.push("{c}")
+        else
+            cur.push(c)
+    if not cur.is_empty()
+        out.push(cur.join(""))
+    out
+
+fn is_op(t str) bool
+    ["+", "-", "*", "/", "min", "max"].contains(t)
+
+fn parse(t List[str], mut pos int) Node ! EvalError
+    if pos >= t.len()
+        return Syntax
+    tok := t[pos]
+    pos += 1
+    if tok == "("
+        if pos >= t.len() or not is_op(t[pos])
+            return Syntax
+        op := t[pos]
+        pos += 1
+        mut args := List[Node]()
+        while pos < t.len() and t[pos] != ")"
+            args.push(parse(t, mut pos)?)
+        if pos >= t.len()
+            return Syntax
+        pos += 1
+        return Call(op: op, args: args)
+    v := tok.to_int() else return Syntax
+    Num(v: v)
+
+fn apply(op str, v List[int]) int ! EvalError
+    if v.is_empty() or (op == "/" and v.len() != 2)
+        return Arity
+    match op
+        "+" => v.sum()
+        "*" => v.fold(1, |a, x| a * x)
+        "min" => v.min() else 0
+        "max" => v.max() else 0
+        "/" =>
+            if v[1] == 0
+                return DivZero
+            v[0] / v[1]
+        _ => if v.len() == 1 then -v[0] else v[0] - v[1..].sum()
+
+fn eval(n Node) int ! EvalError
+    match n
+        Num(v) => v
+        Call(op, args) =>
+            mut vals := List[int]()
+            for a in args
+                vals.push(eval(a)?)
+            apply(op, vals)
+
+fn run(line str) int ! EvalError
+    toks := tokenize(line)
+    mut pos := 0
+    root := parse(toks, mut pos)?
+    if pos != toks.len()
+        return Syntax
+    eval(root)?
+
+fn main()
+    mut n := 0
+    for line in io.read_all().lines()
+        n += 1
+        if line.trim().is_empty()
+            continue
+        v := run(line) else err
+            print("{n}: error: {err}")
+            continue
+        print("{n}: {v}")

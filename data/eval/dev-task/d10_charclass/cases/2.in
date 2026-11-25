@@ -1,0 +1,16 @@
+[abc x
+[] x
+[^] x
+*a a
+a** a
+a*? a
+[z-a] z
+a?* a
+abc
+
+x ?
+[a-]* a-a-
+[-a]* -a-a
+[a-a]b ab
+[a-c-e]+ a
+[]a] a

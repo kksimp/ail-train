@@ -1,0 +1,122 @@
+## Printer spooler: prioritised jobs, one non-preemptive printer, ten pages per tick.
+struct Job
+    id str
+    prio int
+    pages int
+
+enum Cmd
+    Submit(job Job)
+    Cancel(id str)
+    Tick
+    Status
+
+struct Spool
+    queue List[Job]
+    cur List[Job]
+    seen Set[str]
+    done int
+    cancelled int
+
+fn num(s str) int?
+    if s.is_empty() or not s.chars().all(|c| c.is_digit())
+        return none
+    s.to_int()
+
+fn parse(line str) Cmd ! str
+    w := line.words()
+    n := w.len()
+    match w[0]
+        "submit" =>
+            if n != 4
+                return "bad arguments"
+            p := num(w[2]) else 0
+            if p < 1 or p > 9
+                return "bad priority"
+            q := num(w[3]) else 0
+            if q < 1
+                return "bad pages"
+            Cmd.Submit(Job(id: w[1], prio: p, pages: q))
+        "cancel" =>
+            if n != 2
+                return "bad arguments"
+            Cmd.Cancel(w[1])
+        "tick" =>
+            if n != 1
+                return "bad arguments"
+            Cmd.Tick
+        "status" =>
+            if n != 1
+                return "bad arguments"
+            Cmd.Status
+        _ => return "unknown command"
+
+fn Spool.ordered(self) List[Job]
+    self.queue.sorted(by: |j| -j.prio)
+
+fn Spool.submit(mut self, j Job) ! Fail
+    if not self.seen.add(j.id)
+        return Fail(msg: "duplicate job {j.id}")
+    self.queue.push(j)
+
+fn Spool.cancel(mut self, id str) ! Fail
+    if self.cur.len() == 1 and self.cur[0].id == id
+        self.cur.clear()
+        self.cancelled += 1
+        print("cancelled {id} (printing)")
+    elif self.queue.any(|j| j.id == id)
+        self.queue = self.queue.filter(|j| j.id != id)
+        self.cancelled += 1
+        print("cancelled {id}")
+    elif self.seen.contains(id)
+        return Fail(msg: "job {id} not active")
+    else
+        return Fail(msg: "unknown job {id}")
+
+fn Spool.tick(mut self)
+    mut budget := 10
+    while budget > 0
+        if self.cur.is_empty()
+            order := self.ordered()
+            if order.is_empty()
+                break
+            best := order[0]
+            self.queue = self.queue.filter(|j| j.id != best.id)
+            self.cur.push(best)
+            print("  start {best.id}")
+        n := self.cur[0].pages.min(budget)
+        self.cur[0].pages -= n
+        budget -= n
+        if self.cur[0].pages == 0
+            print("  done {self.cur[0].id}")
+            self.cur.clear()
+            self.done += 1
+    print("tick: {10 - budget} pages")
+
+fn Spool.status(self)
+    printing := if self.cur.is_empty() then "none" else "{self.cur[0].id} ({self.cur[0].pages} left)"
+    print("printing: {printing}")
+    items := self.ordered().map(|j| "{j.id}:{j.prio}:{j.pages}")
+    waiting := if items.is_empty() then "none" else items.join(" ")
+    print("queued: {waiting}")
+    print("finished {self.done} cancelled {self.cancelled}")
+
+fn main()
+    mut sp := Spool(queue: [], cur: [], seen: Set[str](), done: 0, cancelled: 0)
+    lines := io.read_all().lines()
+    for i in 0..lines.len()
+        line := lines[i].trim()
+        if line.is_empty() or line.starts_with("#")
+            continue
+        cmd := parse(line) else err
+            print("error line {i + 1}: {err}")
+            continue
+        match cmd
+            Submit(job) =>
+                sp.submit(job) else err
+                    print("error line {i + 1}: {err.msg}")
+            Cancel(id) =>
+                sp.cancel(id) else err
+                    print("error line {i + 1}: {err.msg}")
+            Tick => sp.tick()
+            Status => sp.status()
+    print("summary: finished {sp.done} cancelled {sp.cancelled} pending {sp.queue.len() + sp.cur.len()}")

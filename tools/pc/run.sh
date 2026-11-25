@@ -14,6 +14,7 @@
 #   RESUME_EVAL=1 (with OUT: keep the finished items of OUT/answers.jsonl or revisions.jsonl and continue).
 #   BACKEND=server: generate through a running llama-server (`run.sh serve big`: GGUF of the merged model, SLOTS,
 #   CTX per slot, PORT) with WORKERS items in flight; `run.sh serve-stop` ends it. export: QUANTS (default Q4_K_M).
+#   devtask small|big: the held-out data/eval/dev-task set on the running server (OUT, ROUNDS, SAMPLES, MAX_GEN).
 #   eval and export: ADAPTER=best (default: adapter-best, the lowest-validation checkpoint) or ADAPTER=final.
 # Work folder: ~/ail-train-work/{venv,hf,ail-pinned,runs,export}. Runs: runs/train-small-STAMP/{summary.txt,log.jsonl,
 #   adapter-final/,checkpoint-*/}. Keeps 20 GB of disk free and stops on NaN loss or validation rising twice.
@@ -177,8 +178,14 @@ build)
     rm -rf "$work/build-new" "$work/build-again"
     # shellcheck disable=SC2086
     "$vpy" "$root/tools/build_data.py" $args --out "$work/build-new" || die "build failed"
-    (cd "$work/build-new" && sed 's#  build/#  #' "$root/data/splits.sha256" | sha256sum --quiet -c -) \
+    (cd "$work/build-new" && grep '  build/' "$root/data/splits.sha256" | sed 's#  build/#  #' | sha256sum --quiet -c -) \
         || die "quick-eval.jsonl or valid.jsonl differs from data/splits.sha256: the held-out splits must not change"
+    # The held-out dev-task set (data/eval/dev-task, eval only): its manifest matches splits.sha256 and its files.
+    if grep -q '  eval/' "$root/data/splits.sha256"; then
+        (cd "$root/data" && grep '  eval/' splits.sha256 | sha256sum --quiet -c - \
+            && cd eval/dev-task && sha256sum --quiet -c MANIFEST.sha256) \
+            || die "data/eval/dev-task differs from data/splits.sha256 or its MANIFEST: the held-out set must not change"
+    fi
     # shellcheck disable=SC2086
     "$vpy" "$root/tools/build_data.py" $args --out "$work/build-again" >/dev/null || die "second build failed"
     for f in train.jsonl valid.jsonl quick-eval.jsonl dev-spec.jsonl manifest.json; do
@@ -300,6 +307,18 @@ export)
     rm -f "$out/model-bf16.gguf"
     ls -lh "$out" "$out/merged"
     echo "export: $out (merged/ for MLX on the Mac: tools/import_mlx.sh; model-*.gguf for llama.cpp)"
+    ;;
+
+devtask)
+    # Held-out input-driven tasks (data/eval/dev-task) on a running llama-server (`run.sh serve`): spec + 2 example
+    # cases as the prompt, pass = clean check and exact stdout on every case. ROUNDS (default 0) adds the compiler loop.
+    guard
+    mdir="$(fetch "$(model_for "$which")")" || exit 2
+    out="${OUT:-$work/runs/devtask-$which-r${ROUNDS:-0}-$(date -u +%Y%m%dT%H%M%SZ)}"
+    "$vpy" "$root/tools/eval_devtask.py" --ail "$ail_root" --model "$mdir" --out "$out" --rounds "${ROUNDS:-0}" \
+        --samples "${SAMPLES:-3}" --max-tokens "${MAX_GEN:-1536}" --server-url "http://127.0.0.1:${PORT:-8080}" \
+        --workers "${WORKERS:-8}"
+    echo "results: $out"
     ;;
 
 serve)

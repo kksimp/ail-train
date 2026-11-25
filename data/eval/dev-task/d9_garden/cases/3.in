@@ -1,0 +1,19 @@
+2 3
+plant 1 1
+plant 1 1
+plant 0 1
+plant 3 1
+plant 1 4
+plant 1
+plant 1 x
+plant 1 -1
+water 2
+water 9 9
+dig 1 1
+day now
+show me
+plant 2 3
+
+water 2 3
+day
+show

@@ -1,0 +1,9 @@
+x:
+   odd: 1
+  y: 2
+no colon here
+: nokey
+x:
+    deep: 3
+  ok: 4
+    z: 5

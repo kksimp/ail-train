@@ -1,0 +1,116 @@
+## Scrabble: score word placements using the board's premium squares.
+enum Premium
+    TripleWord
+    DoubleWord
+    TripleLetter
+    DoubleLetter
+    Plain
+
+error enum PlaceError
+    BadFormat "bad format"
+    OutOfBounds "out of bounds"
+    Conflict(row int, col int) "conflict at {row} {col}"
+    NoNewTiles "no new tiles"
+
+struct Placement
+    word str
+    row int
+    col int
+    across bool
+
+struct Board
+    tiles Map[(int, int), char]
+
+fn letter_value(c char) int
+    match c
+        'D' | 'G' => 2
+        'B' | 'C' | 'M' | 'P' => 3
+        'F' | 'H' | 'V' | 'W' | 'Y' => 4
+        'K' => 5
+        'J' | 'X' => 8
+        'Q' | 'Z' => 10
+        _ => 1
+
+fn premium(r int, c int) Premium
+    edge := [1, 8, 15]
+    diag := [2, 3, 4, 5, 8, 11, 12, 13, 14]
+    lat := [2, 6, 10, 14]
+    if edge.contains(r) and edge.contains(c) and not (r == 8 and c == 8)
+        return TripleWord
+    if diag.contains(r) and (r == c or r + c == 16)
+        return DoubleWord
+    if lat.contains(r) and lat.contains(c)
+        return TripleLetter
+    if (edge.contains(r) and (c == 4 or c == 12)) or (edge.contains(c) and (r == 4 or r == 12))
+        return DoubleLetter
+    Plain
+
+fn digits(s str) bool
+    s.len() <= 3 and s.chars().all(|c| c >= '0' and c <= '9')
+
+fn parse(line str) Placement ! PlaceError
+    f := line.words()
+    if f.len() != 4 or not digits(f[1]) or not digits(f[2]) or (f[3] != "H" and f[3] != "V")
+        return BadFormat
+    if not f[0].chars().all(|c| c >= 'A' and c <= 'Z')
+        return BadFormat
+    Placement(word: f[0], row: f[1].to_int() else 0, col: f[2].to_int() else 0, across: f[3] == "H")
+
+fn Placement.at(self, i int) (int, int)
+    if self.across then (self.row, self.col + i) else (self.row + i, self.col)
+
+fn Board.score(self, p Placement) int ! PlaceError
+    letters := p.word.chars()
+    last := p.at(letters.len() - 1)
+    if p.row < 1 or p.col < 1 or last.0 > 15 or last.1 > 15
+        return OutOfBounds
+    mut sum := 0
+    mut mult := 1
+    mut fresh := 0
+    for i, ch in letters.enumerate()
+        pos := p.at(i)
+        have := self.tiles.get(pos) else '.'
+        if have != '.' and have != ch
+            return Conflict(row: pos.0, col: pos.1)
+        v := letter_value(ch)
+        if have != '.'
+            sum += v
+            continue
+        fresh += 1
+        match premium(pos.0, pos.1)
+            TripleWord =>
+                mult *= 3
+                sum += v
+            DoubleWord =>
+                mult *= 2
+                sum += v
+            TripleLetter => sum += v * 3
+            DoubleLetter => sum += v * 2
+            Plain => sum += v
+    if fresh == 0
+        return NoNewTiles
+    sum * mult + (if fresh == 7 then 50 else 0)
+
+fn Board.place(mut self, p Placement)
+    for i, ch in p.word.chars().enumerate()
+        self.tiles[p.at(i)] = ch
+
+fn main()
+    mut board := Board(tiles: {})
+    mut total := 0
+    mut moves := 0
+    for line in io.read_all().lines()
+        if line.trim().is_empty()
+            continue
+        text := line.words().join(" ")
+        p := parse(line) else err
+            print("{text}: rejected ({err})")
+            continue
+        pts := board.score(p) else err
+            print("{text}: rejected ({err})")
+            continue
+        board.place(p)
+        total += pts
+        moves += 1
+        print("{text}: {pts}")
+    print("total={total} moves={moves}")

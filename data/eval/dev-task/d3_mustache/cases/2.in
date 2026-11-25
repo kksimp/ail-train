@@ -1,0 +1,19 @@
+admin=yes
+guest=
+user=kim
+---
+Welcome {{user}}
+{{#if admin}}
+  admin panel
+  {{#unless guest}}
+    no guest access for {{user}}
+  {{else}}
+    guest access
+  {{/if}}
+{{else}}
+  plain user
+{{/if}}
+{{#unless admin}}
+hidden {{nothing_here}}
+{{/if}}
+bye

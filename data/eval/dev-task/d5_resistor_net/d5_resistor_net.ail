@@ -1,0 +1,85 @@
+## Evaluates nested series/parallel resistor networks in milliohms.
+struct Res
+    r int
+    depth int
+    leaves int
+
+error struct ParseErr "{why} at column {col}"
+    why str
+    col int
+
+struct Parser
+    cs List[char]
+    pos int
+
+fn parallel(a int, b int) int
+    (a * b * 2 + a + b) / (2 * (a + b))
+
+fn Parser.skip(mut self)
+    while self.pos < self.cs.len() and self.cs[self.pos] == ' '
+        self.pos += 1
+
+fn Parser.peek(self) char
+    if self.pos < self.cs.len()
+        self.cs[self.pos]
+    else
+        '#'
+
+fn Parser.number(mut self) Res ! ParseErr
+    self.skip()
+    start := self.pos
+    mut v := 0
+    while self.peek().is_digit()
+        v = (v * 10 + (self.peek().to_digit(10) else 0)).min(10000001)
+        self.pos += 1
+    if self.pos == start
+        return ParseErr(why: "expected value", col: start + 1)
+    if v < 1 or v > 10000000
+        return ParseErr(why: "out of range", col: start + 1)
+    Res(r: v, depth: 0, leaves: 1)
+
+fn Parser.expr(mut self) Res ! ParseErr
+    self.skip()
+    kind := self.peek()
+    if kind != 'S' and kind != 'P'
+        return self.number()
+    self.pos += 1
+    self.skip()
+    if self.peek() != '('
+        return ParseErr(why: "expected '('", col: self.pos + 1)
+    self.pos += 1
+    first := self.expr()?
+    mut r := first.r
+    mut depth := first.depth
+    mut leaves := first.leaves
+    while true
+        self.skip()
+        c := self.peek()
+        if c == ')'
+            self.pos += 1
+            break
+        if c != ','
+            return ParseErr(why: "expected ',' or ')'", col: self.pos + 1)
+        self.pos += 1
+        nxt := self.expr()?
+        r = if kind == 'S' then r + nxt.r else parallel(r, nxt.r)
+        depth = depth.max(nxt.depth)
+        leaves += nxt.leaves
+    Res(r: r, depth: depth + 1, leaves: leaves)
+
+fn evaluate(line str) Res ! ParseErr
+    mut p := Parser(cs: line.chars(), pos: 0)
+    res := p.expr()?
+    p.skip()
+    if p.pos < p.cs.len()
+        return ParseErr(why: "trailing input", col: p.pos + 1)
+    res
+
+fn main()
+    for k, line in io.read_all().lines().enumerate()
+        if line.trim().is_empty()
+            continue
+        res := evaluate(line) else err
+            print("line {k + 1}: error: {err}")
+            continue
+        print("line {k + 1}: {res.r / 1000}.{res.r % 1000:0>3} ohm depth={res.depth} leaves={res.leaves}")

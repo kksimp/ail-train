@@ -1,0 +1,9 @@
+AB 1 8 H: 12
+CAT 15 15 V: rejected (out of bounds)
+ZOO 15 13 H: 36
+JAM 2 6 H: 28
+QI 2 2 V: 22
+YAK 4 1 V: 14
+ZAP 2 2 H: rejected (conflict at 2 2)
+EX 8 14 H: 27
+total=139 moves=6

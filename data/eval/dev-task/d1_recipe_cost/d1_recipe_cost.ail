@@ -1,0 +1,65 @@
+## d1_recipe_cost: cost each recipe from an ingredient price list.
+struct Use
+    item str
+    qty int
+
+struct Recipe
+    name str
+    servings int
+    uses List[Use]
+
+fn number(s str) int?
+    if s.is_empty() or s.len() > 6 or not s.chars().all(|c| c.is_digit())
+        return none
+    s.to_int()
+
+fn money(c int) str
+    "{c / 100}.{c % 100:0>2}"
+
+fn ceil_div(a int, b int) int
+    (a + b - 1) / b
+
+fn main()
+    mut cents := Map[str, int]()
+    mut per := Map[str, int]()
+    mut recipes := List[Recipe]()
+    mut k := 0
+    for line in io.read_all().lines()
+        k += 1
+        w := line.words()
+        if w.is_empty()
+            continue
+        last := (if w.len() >= 3 then number(w[w.len() - 1]) else none) else 0
+        if w[0] == "price" and w.len() == 4 and number(w[2]) != none and last > 0
+            cents[w[1]] = number(w[2]) else 0
+            per[w[1]] = last
+        elif w[0] == "recipe" and w.len() == 3 and last > 0
+            recipes.push(Recipe(name: w[1], servings: last, uses: []))
+        elif w[0] == "use" and w.len() == 3 and last > 0
+            if recipes.is_empty()
+                print("line {k}: no recipe")
+            else
+                recipes[recipes.len() - 1].uses.push(Use(item: w[1], qty: last))
+        else
+            print("line {k}: bad line")
+    mut best_name := ""
+    mut best := -1
+    for r in recipes
+        mut total := 0
+        mut missing := List[str]()
+        for u in r.uses
+            if cents.contains(u.item)
+                total += ceil_div(u.qty * cents[u.item], per[u.item])
+            elif not missing.contains(u.item)
+                missing.push(u.item)
+        if not missing.is_empty()
+            names := missing.join(", ")
+            print("{r.name}: missing {names}")
+            continue
+        ps := ceil_div(total, r.servings)
+        print("{r.name}: total {money(total)}, per serving {money(ps)}")
+        if ps > best
+            best = ps
+            best_name = r.name
+    if best >= 0
+        print("most expensive per serving: {best_name}")

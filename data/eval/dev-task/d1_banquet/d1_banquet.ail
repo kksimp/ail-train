@@ -1,0 +1,62 @@
+## d1_banquet: seat banquet groups at tables, largest group first, keeping some groups apart.
+struct Group
+    name str
+    size int
+
+fn number(s str) int?
+    if s.is_empty() or s.len() > 6 or not s.chars().all(|c| c.is_digit())
+        return none
+    s.to_int()
+
+fn label(gs List[Group], sep str) str
+    gs.map(|g| "{g.name}({g.size})").join(sep)
+
+fn main()
+    mut count := 0
+    mut cap := 0
+    mut groups := List[Group]()
+    mut apart := Set[(str, str)]()
+    mut k := 0
+    for line in io.read_all().lines()
+        k += 1
+        w := line.words()
+        if w.is_empty()
+            continue
+        a := (if w.len() == 3 then number(w[1]) else none) else 0
+        b := (if w.len() == 3 then number(w[2]) else none) else 0
+        if cap == 0
+            if w[0] != "tables" or a < 1 or a > 12 or b < 1 or b > 1000
+                print("error: no tables line")
+                return
+            count = a
+            cap = b
+        elif w[0] == "group" and w.len() == 3 and b > 0 and not groups.any(|g| g.name == w[1])
+            groups.push(Group(name: w[1], size: b))
+        elif w[0] == "apart" and w.len() == 3 and w[1] != w[2]
+            apart.add((w[1], w[2]))
+            apart.add((w[2], w[1]))
+        else
+            print("line {k}: bad line")
+    if cap == 0
+        print("error: no tables line")
+        return
+    mut tables := [List[Group]() for i in 0..count]
+    mut unseated := List[Group]()
+    for g in groups.sorted(by: |g| -g.size)
+        mut placed := false
+        for t in 0..count
+            used := tables[t].map(|x| x.size).sum()
+            clash := tables[t].any(|x| apart.contains((x.name, g.name)))
+            if not placed and used + g.size <= cap and not clash
+                tables[t].push(g)
+                placed = true
+        if not placed
+            unseated.push(g)
+    for t in 0..count
+        used := tables[t].map(|x| x.size).sum()
+        names := if tables[t].is_empty() then "-" else label(tables[t], " ")
+        print("Table {t + 1} ({used}/{cap}): {names}")
+    left := if unseated.is_empty() then "none" else label(unseated, ", ")
+    print("Unseated: {left}")
+    total := groups.map(|g| g.size).sum()
+    print("Seated: {total - unseated.map(|g| g.size).sum()} of {total} guests")

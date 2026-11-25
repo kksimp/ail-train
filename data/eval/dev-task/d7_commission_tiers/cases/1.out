@@ -1,0 +1,7 @@
+error: line 5: bad sale
+cy total=$70000.00 commission=$6100.00
+ann total=$13000.00 commission=$740.00
+bob total=$6000.00 commission=$300.00
+dee total=$0.00 commission=$0.00
+reps: 4
+payout: $7140.00

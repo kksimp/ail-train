@@ -1,0 +1,116 @@
+## Replays a project budget log and reports spend, status and runway.
+struct Project
+    name str
+    budget int
+    spent int
+
+struct Book
+    projects List[Project]
+    months int
+
+enum Cmd
+    Budget(name str, cents int)
+    Spend(name str, cents int)
+    Refund(name str, cents int)
+    Realloc(src str, dst str, cents int)
+    Month
+
+error enum Bad
+    Unknown "unknown command"
+    Args "bad arguments"
+    Amount "bad amount"
+    Dup(name str) "duplicate project {name}"
+    NoProj(name str) "unknown project {name}"
+    Same "same project"
+    Short "insufficient budget"
+    TooMuch "refund exceeds spend"
+
+fn amount(s str) int ! Bad
+    if s.starts_with("-") or s.starts_with("+")
+        return Amount
+    n := s.to_int() else return Amount
+    if n < 1
+        return Amount
+    n
+
+fn parse(line str) Cmd ! Bad
+    w := line.split(" ")
+    cmd := w[0]
+    expect := match cmd
+        "MONTH" => 1
+        "BUDGET" | "SPEND" | "REFUND" => 3
+        "REALLOC" => 4
+        _ => return Unknown
+    if w.len() != expect
+        return Args
+    match cmd
+        "MONTH" => Cmd.Month
+        "BUDGET" => Cmd.Budget(name: w[1], cents: amount(w[2])?)
+        "SPEND" => Cmd.Spend(name: w[1], cents: amount(w[2])?)
+        "REFUND" => Cmd.Refund(name: w[1], cents: amount(w[2])?)
+        _ => Cmd.Realloc(src: w[1], dst: w[2], cents: amount(w[3])?)
+
+fn Book.find(self, name str) int ! Bad
+    for i in 0..projects.len()
+        if projects[i].name == name
+            return i
+    return NoProj(name: name)
+
+fn Book.apply(mut self, c Cmd) ! Bad
+    match c
+        Month => self.months += 1
+        Budget(name, cents) =>
+            for p in projects
+                if p.name == name
+                    return Dup(name: name)
+            self.projects.push(Project(name: name, budget: cents, spent: 0))
+        Spend(name, cents) =>
+            i := self.find(name)?
+            self.projects[i].spent += cents
+        Refund(name, cents) =>
+            i := self.find(name)?
+            if cents > projects[i].spent
+                return TooMuch
+            self.projects[i].spent -= cents
+        Realloc(src, dst, cents) =>
+            a := self.find(src)?
+            b := self.find(dst)?
+            if a == b
+                return Same
+            if projects[a].budget - cents < projects[a].spent.max(1)
+                return Short
+            self.projects[a].budget -= cents
+            self.projects[b].budget += cents
+
+fn runway(p Project, months int) str
+    left := p.budget - p.spent
+    avg := p.spent / months.max(1)
+    if avg == 0
+        "inf"
+    elif left <= 0
+        "0"
+    else
+        "{left / avg}"
+
+fn main()
+    mut book := Book(projects: [], months: 0)
+    mut k := 0
+    for line in io.read_all().lines()
+        k += 1
+        if line.is_empty()
+            continue
+        c := parse(line) else err
+            print("line {k}: {err}")
+            continue
+        book.apply(c) else err
+            print("line {k}: {err}")
+    print("months: {book.months}")
+    mut tb := 0
+    mut ts := 0
+    for p in book.projects
+        pct := p.spent * 100 / p.budget
+        status := if p.spent > p.budget then "OVER" elif pct >= 80 then "WARN" else "OK"
+        print("{p.name} budget={p.budget} spent={p.spent} left={p.budget - p.spent} used={pct}% {status} runway={runway(p, book.months)}")
+        tb += p.budget
+        ts += p.spent
+    print("projects: {book.projects.len()} budget={tb} spent={ts}")

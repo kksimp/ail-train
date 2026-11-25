@@ -1,0 +1,14 @@
+day 1: demand 8 sold 8 lost 0 stock 22
+day 2: demand 9 sold 9 lost 0 stock 13
+  ordered 40 arriving day 4
+day 3: demand 7 sold 7 lost 0 stock 6
+  received 40
+day 4: demand 12 sold 12 lost 0 stock 34
+day 5: demand 10 sold 10 lost 0 stock 24
+day 6: demand 15 sold 15 lost 0 stock 9
+  ordered 40 arriving day 8
+day 7: demand 6 sold 6 lost 0 stock 3
+  received 40
+day 8: demand 11 sold 11 lost 0 stock 32
+total sold 78 lost 0 orders 2
+final stock 32

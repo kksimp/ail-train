@@ -1,0 +1,31 @@
+## uniq: collapse runs of adjacent equal lines, with options c d u i
+struct Group
+    text str
+    key str
+    n int
+
+fn main()
+    mut lines := io.read_all().split("\n")
+    if (lines.last() else "x") == ""
+        lines.pop()
+    if lines.is_empty()
+        return
+    opt := lines[0]
+    fold := opt.contains("i")
+    mut groups := List[Group]()
+    for line in lines[1..]
+        key := if fold then line.to_lower() else line
+        last := groups.len() - 1
+        if last >= 0 and groups[last].key == key
+            groups[last].n += 1
+        else
+            groups.push(Group(text: line, key: key, n: 1))
+    for g in groups
+        if opt.contains("d") and g.n < 2
+            continue
+        if opt.contains("u") and g.n != 1
+            continue
+        if opt.contains("c")
+            print("{g.n:>4} {g.text}")
+        else
+            print(g.text)

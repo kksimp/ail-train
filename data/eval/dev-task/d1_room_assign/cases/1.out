@@ -1,0 +1,11 @@
+ann: single-1, 3 nights, 240
+bob: suite-1, 7 nights, 1260
+cy: no suite room free
+dee: single-2, 1 nights, 80
+eve: no single room free
+line 11: unknown type villa
+line 12: bad line
+line 13: bad line
+single: 2/2
+suite: 1/1
+revenue: 1580

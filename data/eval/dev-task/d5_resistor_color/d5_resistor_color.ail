@@ -1,0 +1,37 @@
+## Decodes four-band resistor colour codes into ohms and tolerance.
+fn digit(c str) int
+    ["black", "brown", "red", "orange", "yellow", "green", "blue", "violet", "grey", "white"].index_of(c) else -1
+
+fn factor(c str) int
+    if c == "gold"
+        return 10
+    if c == "silver"
+        return 1
+    m := digit(c)
+    mut f := if m < 0 then 0 else 100
+    for i in 0..m
+        f *= 10
+    f
+
+fn tolerance(c str) str
+    match c
+        "brown" => "1"
+        "red" => "2"
+        "green" => "0.5"
+        "blue" => "0.25"
+        "violet" => "0.1"
+        "grey" => "0.05"
+        "gold" => "5"
+        "silver" => "10"
+        _ => ""
+
+fn main()
+    for k, line in io.read_all().lines().enumerate()
+        w := line.words()
+        if w.is_empty()
+            continue
+        if w.len() != 4 or digit(w[0]) < 0 or digit(w[1]) < 0 or factor(w[2]) == 0 or tolerance(w[3]) == ""
+            print("{k + 1}: invalid")
+            continue
+        v := (digit(w[0]) * 10 + digit(w[1])) * factor(w[2])
+        print("{k + 1}: {v / 100}.{v % 100:0>2} ohm +/-{tolerance(w[3])}%")

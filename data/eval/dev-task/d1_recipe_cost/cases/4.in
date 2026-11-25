@@ -1,0 +1,8 @@
+price rice 199 1000
+recipe bowl 3
+use rice 1
+recipe big 1
+use rice 000500
+use rice 1234567
+use rice x
+recipe

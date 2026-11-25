@@ -1,0 +1,8 @@
+line 11: bad format
+line 15: bad step
+step	users	of_first	of_prev
+view	5	100%	-
+cart	3	60%	60%
+pay	1	20%	33%
+users: 5
+completed: 1

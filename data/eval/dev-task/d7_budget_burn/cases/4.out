@@ -1,0 +1,6 @@
+months: 6
+alpha budget=500000 spent=180000 left=320000 used=36% OK runway=10
+Alpha budget=10 spent=0 left=10 used=0% OK runway=inf
+beta budget=250000 spent=250000 left=0 used=100% WARN runway=0
+gamma budget=190000 spent=7 left=189993 used=0% OK runway=189993
+projects: 4 budget=940010 spent=430007

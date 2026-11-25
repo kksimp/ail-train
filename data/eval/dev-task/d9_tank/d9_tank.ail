@@ -1,0 +1,23 @@
+## Water tank: fill then drain each step, tracking overflow and shortfall.
+fn main()
+    lines := io.read_all().lines().filter(|l| not l.trim().is_empty())
+    if lines.is_empty()
+        print("no data")
+        return
+    head := lines[0].words()
+    size := head[0].to_int() else 0
+    mut level := head[1].to_int() else 0
+    mut over := 0
+    mut short := 0
+    for i in 1..lines.len()
+        w := lines[i].words()
+        level += w[0].to_int() else 0
+        if level > size
+            over += level - size
+            level = size
+        level -= w[1].to_int() else 0
+        if level < 0
+            short -= level
+            level = 0
+        print("step {i}: {level}")
+    print("overflow {over} shortfall {short}")

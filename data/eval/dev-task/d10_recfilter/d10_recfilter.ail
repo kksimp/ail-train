@@ -1,0 +1,61 @@
+## Boolean filter queries over whitespace-separated records.
+fn holds(a str, op str, b str) bool
+    if op == "~"
+        return a.contains(b)
+    num := a.to_int() != none and b.to_int() != none
+    lt := if num then (a.to_int() else 0) < (b.to_int() else 0) else a < b
+    eq := if num then (a.to_int() else 0) == (b.to_int() else 0) else a == b
+    match op
+        "=" => eq
+        "!=" => not eq
+        "<" => lt
+        "<=" => lt or eq
+        ">" => not lt and not eq
+        _ => not lt
+
+fn check(t List[str], fields List[str]) str
+    if t.len() % 4 != 3
+        return "bad query"
+    for k in 0..t.len()
+        if k % 4 == 3 and t[k] != "and" and t[k] != "or"
+            return "bad query"
+        if k % 4 == 1 and not ["=", "!=", "<", "<=", ">", ">=", "~"].contains(t[k])
+            return "bad query"
+    for k in 0..t.len() / 4 + 1
+        if not fields.contains(t[4 * k])
+            return "unknown field {t[4 * k]}"
+    ""
+
+fn main()
+    lines := io.read_all().lines()
+    if lines.is_empty()
+        return
+    fields := lines[0].words()
+    mut recs := List[List[str]]()
+    mut q := 0
+    mut i := 1
+    while i < lines.len() and not lines[i].trim().is_empty()
+        if lines[i].words().len() == fields.len()
+            recs.push(lines[i].words())
+        i += 1
+    for line in lines.slice(i)
+        t := line.words()
+        if t.is_empty()
+            continue
+        q += 1
+        msg := check(t, fields)
+        if msg != ""
+            print("{q}: error: {msg}")
+            continue
+        mut names := List[str]()
+        for r in recs
+            mut any_and := false
+            mut all_and := true
+            for k in 0..t.len() / 4 + 1
+                all_and = all_and and holds(r[(fields.index_of(t[4 * k]) else 0)], t[4 * k + 1], t[4 * k + 2])
+                if 4 * k + 3 >= t.len() or t[4 * k + 3] == "or"
+                    any_and = any_and or all_and
+                    all_and = true
+            if any_and
+                names.push(r[0])
+        print("{q}: {names.len()}{if names.is_empty() then "" else " {names.join(",")}"}")

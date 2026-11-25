@@ -1,0 +1,10 @@
+a*a*a*a*a*b aaaaaaaaaaaaaaaaaaaaaaaa
+[a-z]*[0-9]? hello5
+[a-z]*[0-9]? hello55
+[a-z][a-z]?[a-z]?[a-z]? abcd
+[a-z][a-z]?[a-z]?[a-z]? abcde
+x?x?x?xxx xxx
+x?x?x?xxx xx
+.?.?. ab
+[A-Z][a-z]* Hello world
+[A-Z][a-z]*. Hello.

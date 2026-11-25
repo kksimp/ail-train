@@ -1,0 +1,8 @@
+12a: invalid
+-5: invalid
+-0: invalid
++7: invalid
+3.5: invalid
+1_0: invalid
+99999999999999999: 99999999999999999 -> 153 -> 9 steps=2
+1 2: invalid

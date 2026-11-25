@@ -1,0 +1,16 @@
+error line 3: cell occupied
+error line 4: out of range
+error line 5: out of range
+error line 6: out of range
+error line 7: bad arguments
+error line 8: bad arguments
+error line 9: bad arguments
+error line 10: bad arguments
+error line 11: out of range
+error line 12: unknown command
+error line 13: bad arguments
+error line 14: bad arguments
+day 1: grew 1 died 0
+1..
+..2
+summary: blooms 0 dead 0 alive 2

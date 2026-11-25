@@ -1,0 +1,15 @@
+R1 APPROVE cash 20000
+R2 APPROVE cash 17000
+R3 APPROVE credit 5999
+R4 REJECT opened grocery
+R5 APPROVE cash 4900
+R6 REJECT window expired
+R7 REJECT unknown category
+R8 REVIEW 90000
+line 9: malformed request
+R10 REJECT window expired
+R11 REJECT opened software
+approved: 4 cash=41900 credit=5999
+review: 1 amount=90000
+rejected: 5
+malformed: 1

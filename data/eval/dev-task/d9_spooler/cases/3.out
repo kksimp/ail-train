@@ -1,0 +1,16 @@
+error line 1: bad priority
+error line 2: bad priority
+error line 3: bad pages
+error line 4: bad pages
+error line 5: bad arguments
+error line 6: bad arguments
+error line 7: unknown command
+error line 8: bad arguments
+error line 9: bad arguments
+error line 10: bad arguments
+error line 11: bad arguments
+error line 14: duplicate job x
+  start x
+  done x
+tick: 5 pages
+summary: finished 1 cancelled 0 pending 0

@@ -1,0 +1,23 @@
+## Battleship: hit, miss, repeat and sunk results for a shot list.
+fn main()
+    lines := io.read_all().lines()
+    mut board := Set[str]()
+    for c in "ABCDEFGHIJ".chars()
+        for r in 1..=10
+            board.add("{c}{r}")
+    fleet := (lines.first() else "").words()
+    mut shot := Set[str]()
+    mut left := fleet.len()
+    for k in 1..lines.len()
+        s := lines[k].trim()
+        if s.is_empty()
+            continue
+        if not board.contains(s)
+            print("{s}: invalid")
+        elif not shot.add(s)
+            print("{s}: repeat")
+        elif fleet.contains(s)
+            left -= 1
+            print("{s}: {if left == 0 then "hit, fleet sunk" else "hit"}")
+        else
+            print("{s}: miss")

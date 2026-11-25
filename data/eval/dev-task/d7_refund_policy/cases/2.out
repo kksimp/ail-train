@@ -1,0 +1,17 @@
+a APPROVE cash 30000
+b APPROVE credit 30000
+c APPROVE credit 30000
+d REJECT window expired
+e APPROVE cash 30000
+f REJECT window expired
+g APPROVE cash 100
+h APPROVE credit 100
+i APPROVE credit 100
+j REJECT window expired
+k REVIEW 60001
+l APPROVE cash 50000
+m APPROVE cash 284
+approved: 9 cash=110384 credit=60200
+review: 1 amount=60001
+rejected: 3
+malformed: 0

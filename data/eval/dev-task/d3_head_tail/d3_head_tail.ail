@@ -1,0 +1,23 @@
+## head/tail: print the lines chosen by a list of line ranges
+fn selected(spec str, i int, n int) bool
+    if spec.starts_with("t")
+        return i > n - (spec.slice(1).to_int() else 0)
+    if not spec.contains("-")
+        return i == (spec.to_int() else 0)
+    ends := spec.split("-")
+    lo := ends[0].to_int() else 1
+    hi := ends[1].to_int() else n
+    i >= lo and i <= hi
+
+fn main()
+    mut lines := io.read_all().split("\n")
+    if (lines.last() else "x") == ""
+        lines.pop()
+    if lines.is_empty()
+        return
+    specs := lines[0].split(",")
+    data := lines[1..]
+    n := data.len()
+    for i in 1..=n
+        if specs.any(|s| selected(s, i, n))
+            print(data[i - 1])

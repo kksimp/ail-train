@@ -1,0 +1,14 @@
+abc abc
+a.c axc
+a.c ac
+[a-c]x bx
+[a-c]x dx
+[^0-9]* hello
+[^0-9]* he1lo
+ab*c ac
+ab*c abbbc
+colou?r color
+colou?r colour
+colou?r colouur
+[0-9]*.[0-9] 12.5
+.* anything at all

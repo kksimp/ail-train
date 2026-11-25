@@ -1,0 +1,11 @@
+
+  tables 2 10
+apart x y
+group x 5
+group y 5
+group z 6
+group w 5
+group v 000
+group u 4
+tables 1 1
+group q

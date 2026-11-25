@@ -1,0 +1,8 @@
+ann accrued=60 taken=20 balance=40
+bob accrued=336 taken=10 balance=240 CAPPED
+cy accrued=1336 taken=0 balance=240 CAPPED
+dee accrued=30 taken=40 balance=-10 OVERDRAWN
+error: line 6: bad record
+fay accrued=144 taken=200 balance=-56 OVERDRAWN
+employees: 5
+total balance: 454

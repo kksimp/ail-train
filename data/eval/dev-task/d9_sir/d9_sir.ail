@@ -1,0 +1,31 @@
+## Integer SIR epidemic: susceptible, infected, recovered counts day by day.
+fn main()
+    f := (io.read_all().lines().first() else "").words().map(|w| w.to_int() else -1)
+    if f.len() != 6 or f.any(|x| x < 0) or f[3] > 100 or f[4] > 100 or f[5] > 30 or f[0] + f[1] + f[2] == 0
+        print("invalid input")
+        return
+    mut s := f[0]
+    mut i := f[1]
+    mut r := f[2]
+    n := s + i + r
+    print("day 0: S={s} I={i} R={r}")
+    mut peak := i
+    mut peak_day := 0
+    mut end_day := if i == 0 then 0 else -1
+    for d in 1..=f[5]
+        infected := s * i * f[3] / (n * 100)
+        recovered := i * f[4] / 100
+        s -= infected
+        i += infected - recovered
+        r += recovered
+        print("day {d}: S={s} I={i} R={r}")
+        if i > peak
+            peak = i
+            peak_day = d
+        if i == 0 and end_day < 0
+            end_day = d
+    print("peak infected {peak} at day {peak_day}")
+    if end_day < 0
+        print("still active")
+    else
+        print("ended on day {end_day}")
