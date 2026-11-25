@@ -1,0 +1,11 @@
+loc A
+loc A B 1
+pick o1 A 0
+pick o1 A x
+
+pick o1 A 5
+ship o1
+pick o1 A -3
+pick  A 3
+loc A B1
+pick o2 A 2

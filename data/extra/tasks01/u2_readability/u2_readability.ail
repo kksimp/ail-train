@@ -1,0 +1,53 @@
+## Integer Flesch-style readability score: words, sentences, syllables, score and level.
+fn syllables(tok str) int
+    mut count := 0
+    mut prev := false
+    mut letters := 0
+    for c in tok.to_lower().chars()
+        if c >= 'a' and c <= 'z'
+            letters += 1
+            v := "aeiouy".contains(c)
+            if v and not prev
+                count += 1
+            prev = v
+    if letters == 0
+        return 0
+    count.max(1)
+
+fn level(score int) str
+    if score >= 90
+        "very easy"
+    elif score >= 60
+        "standard"
+    elif score >= 30
+        "difficult"
+    else
+        "very difficult"
+
+fn main()
+    text := io.read_all().replace("!", ".").replace("?", ".")
+    mut w := 0
+    mut s := 0
+    mut y := 0
+    for piece in text.split(".")
+        mut n := 0
+        for tok in piece.words()
+            k := syllables(tok)
+            if k > 0
+                n += 1
+                y += k
+        w += n
+        if n > 0
+            s += 1
+    if w == 0
+        print("no words")
+        return
+    a := w * 100 / s
+    b := y * 100 / w
+    milli := 206835 - a * 1015 / 100 - b * 846
+    score := if milli < 0 then 0 else milli / 1000
+    print("words={w}")
+    print("sentences={s}")
+    print("syllables={y}")
+    print("score={score}")
+    print("level={level(score)}")

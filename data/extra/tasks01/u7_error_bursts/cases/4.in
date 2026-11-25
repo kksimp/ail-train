@@ -1,0 +1,13 @@
+window 5 threshold 2
+1 ERROR a
+2 ERROR b
+3 ERROR
+20 ERROR c y z
+21 WARN w
+22 ERROR d
+10 ERROR late
+xx ERROR q
+30
+30 ERROR e
+30 ERROR f
+40 error g

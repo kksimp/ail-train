@@ -1,0 +1,14 @@
+id,n
+1,x
+
+dups
+dups n extra
+dups n:alpha
+dups n:
+dups :digits
+dups n,
+dups z
+dups n,z
+dups n:digits,z
+find n
+dups n

@@ -1,0 +1,61 @@
+## Finds each word of a list in a letter grid, in 8 directions, first match wins.
+## Grid lines come first, then a blank line, then the words.
+struct Dir
+    name str
+    dr int
+    dc int
+
+fn dirs() List[Dir]
+    [Dir(name: "E", dr: 0, dc: 1), Dir(name: "SE", dr: 1, dc: 1),
+     Dir(name: "S", dr: 1, dc: 0), Dir(name: "SW", dr: 1, dc: -1),
+     Dir(name: "W", dr: 0, dc: -1), Dir(name: "NW", dr: -1, dc: -1),
+     Dir(name: "N", dr: -1, dc: 0), Dir(name: "NE", dr: -1, dc: 1)]
+
+fn matches(grid List[List[char]], w List[char], r int, c int, d Dir) bool
+    rows := grid.len()
+    cols := grid[0].len()
+    for k in 0..w.len()
+        rr := r + d.dr * k
+        cc := c + d.dc * k
+        if rr < 0 or rr >= rows or cc < 0 or cc >= cols
+            return false
+        if grid[rr][cc] != w[k]
+            return false
+    true
+
+fn find(grid List[List[char]], word str) str?
+    w := word.chars()
+    for r in 0..grid.len()
+        for c in 0..grid[0].len()
+            for d in dirs()
+                if matches(grid, w, r, c, d)
+                    return "{r + 1},{c + 1} {d.name}"
+    none
+
+fn valid(grid List[List[char]]) bool
+    if grid.is_empty()
+        return false
+    for row in grid
+        if row.len() != grid[0].len()
+            return false
+        for ch in row
+            if ch < 'a' or ch > 'z'
+                return false
+    true
+
+fn main()
+    lines := io.read_all().split("\n")
+    mut grid := List[List[char]]()
+    mut i := 0
+    while i < lines.len() and not lines[i].trim().is_empty()
+        grid.push(lines[i].trim().chars())
+        i += 1
+    if not valid(grid)
+        print("invalid grid")
+        return
+    for k in i..lines.len()
+        word := lines[k].trim()
+        if word.is_empty()
+            continue
+        res := find(grid, word) else "not found"
+        print("{word}: {res}")

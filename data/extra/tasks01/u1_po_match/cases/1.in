@@ -1,0 +1,6 @@
+po p1 bolt 100 10
+recv p1 bolt 60
+inv i1 p1 bolt 50 10
+inv i2 p1 bolt 50 10
+inv i3 p1 bolt 10 11
+inv i4 p2 nut 1 1

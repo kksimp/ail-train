@@ -1,0 +1,24 @@
+## Applies the Atbash cipher to every non-empty line and prints `TEXT|COUNT|SUM` with a weighted checksum.
+fn mirror(c char) char
+    if c >= 'A' and c <= 'Z'
+        char.from_code(155 - c.code()) else c
+    elif c >= 'a' and c <= 'z'
+        char.from_code(219 - c.code()) else c
+    else
+        c
+
+fn is_ascii_letter(c char) bool
+    (c >= 'A' and c <= 'Z') or (c >= 'a' and c <= 'z')
+
+fn main()
+    for line in io.read_all().lines()
+        if line.is_empty()
+            continue
+        out := line.chars().map(|c| mirror(c))
+        mut count := 0
+        mut total := 0
+        for c in out
+            if is_ascii_letter(c)
+                count += 1
+                total += (c.to_upper().code() - 64) * count
+        print("{out.join("")}|{count}|{total % 97}")

@@ -1,0 +1,13 @@
+lot r1 b 4 100
+lot r1 a 2 100
+lot r2 c 9 105
+lot r3 d 1 107
+lot r3 e 1 108
+lot r4 f 1 99
+asof 100
+sell r1 3
+asof 101
+sell r1 3
+sell r3 1
+sell r3 1
+sell r3 1

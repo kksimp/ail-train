@@ -1,0 +1,7 @@
+window 10 threshold 3
+1 ERROR a
+2 INFO ok
+4 ERROR b
+9 ERROR c
+12 ERROR d
+30 ERROR e

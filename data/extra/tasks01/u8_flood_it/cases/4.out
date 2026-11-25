@@ -1,0 +1,7 @@
+move 1 colour 1 region 4
+invalid move 2
+invalid move 3
+move 4 colour 2 region 6
+move 5 colour 3 region 7
+move 6 colour 0 region 10
+not flooded

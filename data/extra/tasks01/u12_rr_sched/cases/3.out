@@ -1,0 +1,8 @@
+0-2 Y
+10-13 X
+13-17 W
+17-19 W
+X finish=13 turnaround=3 wait=0
+Y finish=2 turnaround=2 wait=0
+W finish=19 turnaround=8 wait=2
+ignored 3

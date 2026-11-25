@@ -1,0 +1,8 @@
+k,v
+x,1
+y,
+z,3
+
+select k order v
+select k where v > 0
+select v where k = y

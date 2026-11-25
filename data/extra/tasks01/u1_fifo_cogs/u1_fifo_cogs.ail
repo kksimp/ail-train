@@ -1,0 +1,63 @@
+## FIFO cost of goods sold: sales consume the oldest purchase lots first and are costed at each lot's price.
+## A sale larger than the stock is refused. Prints what is left in stock and the total COGS.
+struct Lot
+    qty int
+    unit int
+
+fn digits(s str) int?
+    if s.is_empty()
+        return none
+    for c in s.chars()
+        if not c.is_digit()
+            return none
+    s.to_int()
+
+fn main()
+    mut lines := io.read_all().split("\n")
+    if (lines.last() else "x") == ""
+        lines.pop()
+    mut lots := Map[str, List[Lot]]()
+    mut out := List[str]()
+    mut total := 0
+    for k in 0..lines.len()
+        line := lines[k]
+        if line.is_empty()
+            continue
+        f := line.split(" ")
+        if f[0] == "buy" and f.len() == 4 and not f[1].is_empty()
+            q := digits(f[2]) else 0
+            u := digits(f[3]) else -1
+            if q >= 1 and u >= 0
+                lots.push(f[1], Lot(qty: q, unit: u))
+                continue
+        elif f[0] == "sell" and f.len() == 3 and not f[1].is_empty()
+            q := digits(f[2]) else 0
+            if q >= 1
+                have := lots.get(f[1]) else List[Lot]()
+                if have.map(|l| l.qty).sum() < q
+                    out.push("short {f[1]}")
+                    continue
+                mut rest := have
+                mut need := q
+                mut cogs := 0
+                while need > 0
+                    take := need.min(rest[0].qty)
+                    cogs += take * rest[0].unit
+                    need -= take
+                    if take == rest[0].qty
+                        rest.remove_at(0)
+                    else
+                        rest[0].qty -= take
+                lots[f[1]] = rest
+                total += cogs
+                out.push("sold {f[1]} {q} cogs {cogs}")
+                continue
+        out.push("bad {k + 1}")
+    for sku in lots.keys().sorted()
+        ls := lots[sku]
+        q := ls.map(|l| l.qty).sum()
+        if q > 0
+            v := ls.map(|l| l.qty * l.unit).sum()
+            out.push("stock {sku} {q} {v}")
+    out.push("cogs {total}")
+    print(out.join("\n"))

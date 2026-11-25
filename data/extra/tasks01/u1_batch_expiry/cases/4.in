@@ -1,0 +1,14 @@
+lot a
+lot a x 0 5
+lot a x 1 -5
+lot a x 1 5
+lot a x 2 6
+asof
+asof -1
+asof 1 2
+sell a 0
+sell a
+throw a 1
+
+lot  y 1 1
+asof 20

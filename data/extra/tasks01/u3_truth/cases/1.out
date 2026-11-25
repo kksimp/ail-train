@@ -1,0 +1,14 @@
+expr: a & b
+a b | f
+0 0 | 0
+0 1 | 0
+1 0 | 0
+1 1 | 1
+contingent
+expr: !a | b
+a b | f
+0 0 | 1
+0 1 | 1
+1 0 | 0
+1 1 | 1
+contingent

@@ -1,0 +1,39 @@
+## Follows arrow cells from the top-left corner; reports exit, dead end or a loop.
+fn main()
+    mut g := List[List[char]]()
+    for l in io.read_all().lines()
+        if l != ""
+            g.push(l.chars())
+    if g.is_empty()
+        print("empty")
+        return
+    rows := g.len()
+    cols := g[0].len()
+    mut seen := Map[(int, int), int]()
+    mut r := 0
+    mut c := 0
+    mut moves := 0
+    while true
+        seen[(r, c)] = moves
+        mut dr := 0
+        mut dc := 0
+        match g[r][c]
+            '^' => dr = -1
+            'v' => dr = 1
+            '<' => dc = -1
+            '>' => dc = 1
+            _ =>
+                print("stuck at {r},{c} after {moves} moves")
+                return
+        nr := r + dr
+        nc := c + dc
+        if nr < 0 or nr >= rows or nc < 0 or nc >= cols
+            print("exit after {moves + 1} moves")
+            return
+        if seen.contains((nr, nc))
+            len := moves + 1 - seen[(nr, nc)]
+            print("loop of length {len} entered at {nr},{nc} after {moves + 1} moves")
+            return
+        r = nr
+        c = nc
+        moves += 1

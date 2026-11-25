@@ -1,0 +1,11 @@
+lot a x 5 3
+lot a y 5 3
+lot a w 5 1
+sell a 6
+sell a 20
+asof 2
+sell a 6
+sell a 5
+sell a 1
+sell b 1
+asof 3

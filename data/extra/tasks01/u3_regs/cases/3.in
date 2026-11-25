@@ -1,0 +1,4 @@
+# loop forever
+set a 1
+inc b
+jnz a 1

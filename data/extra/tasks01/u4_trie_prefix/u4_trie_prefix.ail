@@ -1,0 +1,96 @@
+## Trie with per-node pass-through counts: add/del words, count words by
+## prefix, and find the longest common prefix of the words under a prefix.
+struct Trie
+    kids List[Map[str, int]]
+    pass_count List[int]
+    ends List[int]
+
+fn Trie.new_node(mut self) int
+    self.kids.push(Map[str, int]())
+    self.pass_count.push(0)
+    self.ends.push(0)
+    self.kids.len() - 1
+
+fn Trie.walk(self, word str) int
+    mut n := 0
+    for ch in word.chars()
+        key := "{ch}"
+        nxt := self.kids[n].get(key) else return -1
+        n = nxt
+    n
+
+fn Trie.add(mut self, word str)
+    mut n := 0
+    for ch in word.chars()
+        key := "{ch}"
+        mut nxt := self.kids[n].get(key) else -1
+        if nxt == -1
+            nxt = self.new_node()
+            self.kids[n][key] = nxt
+        n = nxt
+        self.pass_count[n] += 1
+    self.ends[n] += 1
+
+fn Trie.del(mut self, word str) bool
+    end := self.walk(word)
+    if end == -1 or self.ends[end] == 0
+        return false
+    mut n := 0
+    for ch in word.chars()
+        n = self.kids[n][("{ch}")]
+        self.pass_count[n] -= 1
+    self.ends[n] -= 1
+    true
+
+fn Trie.longest(self, start int, prefix str) str
+    mut n := start
+    mut parts := [prefix]
+    while self.ends[n] == 0
+        mut live := List[str]()
+        for k, v in self.kids[n]
+            if self.pass_count[v] > 0
+                live.push(k)
+        if live.len() != 1
+            break
+        parts.push(live[0])
+        n = self.kids[n][live[0]]
+    parts.join("")
+
+fn valid(s str) bool
+    if s.is_empty()
+        return false
+    for ch in s.chars()
+        if ch < 'a' or ch > 'z'
+            return false
+    true
+
+fn main()
+    mut t := Trie(kids: [], pass_count: [], ends: [])
+    _ := t.new_node()
+    for line in io.read_all().lines()
+        w := line.words()
+        if w.is_empty()
+            continue
+        cmd := w[0]
+        known := cmd == "add" or cmd == "del" or cmd == "has" or cmd == "count" or cmd == "longest"
+        if not known or w.len() != 2 or not valid(w[1])
+            print("error")
+            continue
+        word := w[1]
+        if cmd == "add"
+            t.add(word)
+            print("ok")
+        elif cmd == "del"
+            print(if t.del(word) then "ok" else "missing")
+        elif cmd == "has"
+            n := t.walk(word)
+            print(if n == -1 then 0 else t.ends[n])
+        elif cmd == "count"
+            n := t.walk(word)
+            print(if n == -1 then 0 else t.pass_count[n])
+        else
+            n := t.walk(word)
+            if n == -1 or t.pass_count[n] == 0
+                print("none")
+            else
+                print(t.longest(n, word))

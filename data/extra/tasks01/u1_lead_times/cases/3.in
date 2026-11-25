@@ -1,0 +1,10 @@
+po a p1 0
+po a p2 0
+po a p3 0
+po b q1 5
+recv p1 1
+recv p2 2
+recv p3 2
+recv q1 5
+po b q2 6
+po c r1 9

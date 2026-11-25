@@ -1,0 +1,11 @@
+mkdir B
+mkdir a
+touch Z
+touch b
+mkdir _u
+mkdir 10
+mkdir 9
+ls
+cd B
+ls
+ls /a/

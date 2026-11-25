@@ -1,0 +1,90 @@
+## Doubly linked list editor: a circular list in index arrays with a sentinel
+## node 0 and a cursor; ins/del/left/right/home/end/show/rshow commands.
+struct Editor
+    prev List[int]
+    next List[int]
+    val List[str]
+    cur int
+
+fn Editor.insert_before_cursor(mut self, w str)
+    self.prev.push(0)
+    self.next.push(0)
+    self.val.push(w)
+    n := self.val.len() - 1
+    p := self.prev[self.cur]
+    self.next[p] = n
+    self.prev[n] = p
+    self.next[n] = self.cur
+    self.prev[self.cur] = n
+
+fn Editor.delete_at_cursor(mut self) str?
+    if self.cur == 0
+        return none
+    c := self.cur
+    p := self.prev[c]
+    n := self.next[c]
+    self.next[p] = n
+    self.prev[n] = p
+    self.cur = n
+    self.val[c]
+
+fn Editor.left(mut self) bool
+    if self.prev[self.cur] == 0
+        return false
+    self.cur = self.prev[self.cur]
+    true
+
+fn Editor.right(mut self) bool
+    if self.cur == 0
+        return false
+    self.cur = self.next[self.cur]
+    true
+
+fn Editor.show(self) str
+    mut out := List[str]()
+    mut n := self.next[0]
+    while n != 0
+        out.push(if n == self.cur then "[{self.val[n]}]" else self.val[n])
+        n = self.next[n]
+    if self.cur == 0
+        out.push("|")
+    out.join(" ")
+
+fn Editor.rshow(self) str
+    mut out := List[str]()
+    mut n := self.prev[0]
+    while n != 0
+        out.push(self.val[n])
+        n = self.prev[n]
+    if out.is_empty()
+        return "empty"
+    out.join(" ")
+
+fn main()
+    mut e := Editor(prev: [0], next: [0], val: [""], cur: 0)
+    for line in io.read_all().lines()
+        w := line.words()
+        if w.is_empty()
+            continue
+        cmd := w[0]
+        if cmd == "ins" and w.len() == 2
+            e.insert_before_cursor(w[1])
+            print("ok")
+        elif cmd == "del" and w.len() == 1
+            print(e.delete_at_cursor() else "nothing")
+        elif cmd == "left" and w.len() == 1
+            print(if e.left() then "ok" else "edge")
+        elif cmd == "right" and w.len() == 1
+            print(if e.right() then "ok" else "edge")
+        elif cmd == "home" and w.len() == 1
+            e.cur = e.next[0]
+            print("ok")
+        elif cmd == "end" and w.len() == 1
+            e.cur = 0
+            print("ok")
+        elif cmd == "show" and w.len() == 1
+            print(e.show())
+        elif cmd == "rshow" and w.len() == 1
+            print(e.rshow())
+        else
+            print("error")

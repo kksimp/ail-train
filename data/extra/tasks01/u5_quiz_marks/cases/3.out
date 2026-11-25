@@ -1,0 +1,10 @@
+1 ann 32 8/0/0
+1 fay 32 8/0/0
+3 ivy 28 7/0/1
+4 bob 27 7/1/0
+5 cat 2 2/6/0
+5 eve 2 2/6/0
+7 dan 0 0/0/8
+correct per question: 5 5 4 4 4 5 4 3
+mean: 17.6
+invalid: 3

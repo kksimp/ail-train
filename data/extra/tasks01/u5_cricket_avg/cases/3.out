@@ -1,0 +1,6 @@
+kit inns=2 no=2 runs=195 hs=120* avg=- 50=1 100=1
+sam inns=3 no=1 runs=200 hs=100 avg=100.00 50=0 100=2
+lee inns=3 no=1 runs=99 hs=50 avg=49.50 50=1 100=0
+raj inns=3 no=0 runs=100 hs=34 avg=33.33 50=0 100=0
+bo inns=1 no=0 runs=7 hs=7 avg=7.00 50=0 100=0
+mo inns=1 no=0 runs=7 hs=7 avg=7.00 50=0 100=0

@@ -1,0 +1,9 @@
+set a 007
+incr a 1
+incr a -108
+set b x
+rename b a
+del a
+set a -
+incr a 1
+incr a -

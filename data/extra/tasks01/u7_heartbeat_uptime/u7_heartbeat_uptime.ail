@@ -1,0 +1,64 @@
+## Compute downtime periods and uptime percentage from heartbeat lines.
+## A beat is expected every I seconds; longer gaps are downtime.
+
+fn all_digits(s str) bool
+    if s.is_empty()
+        return false
+    for ch in s.chars()
+        if ch.code() < 48 or ch.code() > 57
+            return false
+    true
+
+fn main()
+    mut lines := []
+    for l in io.read_all().lines()
+        if not l.is_empty()
+            lines.push(l)
+    h := (lines.first() else "").split(" ")
+    if h.len() != 2 or h[0] != "interval" or not all_digits(h[1])
+        print("error: bad header")
+        return
+    gap := h[1].to_int() else 0
+    if gap < 1
+        print("error: bad header")
+        return
+    mut beats := List[int]()
+    mut end := -1
+    mut bad := 0
+    for l in lines.skip(1)
+        f := l.split(" ")
+        if f.len() != 2 or not (f[0] == "beat" or f[0] == "end") or not all_digits(f[1])
+            bad += 1
+            continue
+        t := f[1].to_int() else 0
+        last := beats.last() else -1
+        if f[0] == "beat"
+            if end >= 0 or t <= last
+                bad += 1
+                continue
+            beats.push(t)
+        else
+            if end >= 0 or beats.is_empty() or t < last
+                bad += 1
+                continue
+            end = t
+    print("beats: {beats.len()}")
+    if not beats.is_empty()
+        mut down := 0
+        for i in 1..beats.len()
+            a := beats[i - 1]
+            b := beats[i]
+            if b - a > gap
+                print("down {a + gap} {b}")
+                down += b - a - gap
+        lastb := beats[beats.len() - 1]
+        if end >= 0 and end - lastb > gap
+            print("down {lastb + gap} {end}")
+            down += end - lastb - gap
+        finish := if end >= 0 then end else lastb
+        obs := finish - beats[0]
+        pct := if obs == 0 then 100 else (obs - down) * 100 / obs
+        print("downtime: {down}")
+        print("observed: {obs}")
+        print("uptime: {pct}%")
+    print("malformed: {bad}")

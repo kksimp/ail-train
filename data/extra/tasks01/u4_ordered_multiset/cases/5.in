@@ -1,0 +1,19 @@
+add 4
+add 1
+add 3
+add 1
+add 2
+add 5
+kth 1
+kth 2
+kth 3
+kth 4
+kth 5
+kth 6
+floor 3
+ceil 3
+floor 100
+ceil 100
+remove 1
+rank 3
+size

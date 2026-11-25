@@ -1,0 +1,11 @@
+memory 100 strategy best
+alloc A 10
+alloc B 20
+alloc C 10
+alloc D 30
+free B
+free D
+alloc E 15
+alloc F 5
+alloc E 1
+free Z

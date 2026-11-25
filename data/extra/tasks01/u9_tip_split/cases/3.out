@@ -1,0 +1,11 @@
+bill 1: tip 0.00 total 0.00
+person 1: 0.00
+person 2: 0.00
+bill 2: tip 0.01 total 0.02
+person 1: 0.02
+bill 3: tip 0.02 total 0.05
+person 1: 0.01
+person 2: 0.01
+person 3: 0.01
+person 4: 0.01
+person 5: 0.01

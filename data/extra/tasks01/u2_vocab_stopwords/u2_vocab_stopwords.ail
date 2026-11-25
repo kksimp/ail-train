@@ -1,0 +1,36 @@
+## Builds a word-frequency vocabulary, dropping the stop words listed on the first line.
+fn words_of(text str) List[str]
+    mut out := List[str]()
+    mut cur := List[char]()
+    for c in "{text}\n".to_lower().chars()
+        if c >= 'a' and c <= 'z'
+            cur.push(c)
+        else
+            if not cur.is_empty()
+                out.push(cur.join(""))
+            cur = List[char]()
+    out
+
+fn main()
+    lines := io.read_all().lines()
+    if lines.is_empty()
+        print("no input")
+        return
+    mut stops := Set[str]()
+    for s in lines[0].split(",")
+        t := s.trim().to_lower()
+        if not t.is_empty()
+            stops.add(t)
+    rest := lines.slice(1).join("\n")
+    mut counts := Map[str, int]()
+    mut stopped := 0
+    mut total := 0
+    for w in words_of(rest)
+        if stops.contains(w)
+            stopped += 1
+        else
+            counts[w] += 1
+            total += 1
+    for w in counts.keys().sorted(by: |k| (-counts[k], k))
+        print("{w} {counts[w]}")
+    print("total={total} unique={counts.len()} stopped={stopped}")

@@ -1,0 +1,59 @@
+## Aggregates weighted points into B x B buckets and prints the bucket sums.
+fn ints(words List[str]) List[int]?
+    mut out := List[int]()
+    for w in words
+        out.push(w.to_int()?)
+    out
+
+fn main()
+    lines := io.read_all().lines()
+    hv := ints((lines.first() else "").words()) else
+        print("error: bad header")
+        return
+    if hv.len() != 3 or hv[0] < 1 or hv[1] < 1 or hv[2] < 1
+        print("error: bad header")
+        return
+    w := hv[0]
+    h := hv[1]
+    b := hv[2]
+    rows := (h + b - 1) / b
+    cols := (w + b - 1) / b
+    mut g := [[0 for c in 0..cols] for r in 0..rows]
+    mut ignored := 0
+    mut bad := 0
+    mut total := 0
+    for k in 1..lines.len()
+        toks := lines[k].words()
+        if toks.is_empty()
+            continue
+        if toks.len() < 2 or toks.len() > 3
+            bad += 1
+            continue
+        v := ints(toks) else
+            bad += 1
+            continue
+        wt := if v.len() == 3 then v[2] else 1
+        if wt < 1
+            bad += 1
+            continue
+        if v[0] < 0 or v[0] >= w or v[1] < 0 or v[1] >= h
+            ignored += 1
+            continue
+        g[v[1] / b][v[0] / b] += wt
+        total += wt
+    mut best := 0
+    for row in g
+        for x in row
+            best = best.max(x)
+    wd := "{best}".len()
+    for row in g
+        print([x.to_str().pad_left(wd, ' ') for x in row].join(" "))
+    print("total {total} ignored {ignored} bad {bad}")
+    if total == 0
+        print("hottest none")
+        return
+    for r in 0..rows
+        for c in 0..cols
+            if g[r][c] == best
+                print("hottest {r},{c} {best}")
+                return

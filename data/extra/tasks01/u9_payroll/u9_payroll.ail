@@ -1,0 +1,50 @@
+## Computes payroll deductions (pension, two-band income tax, capped social charge) in integer cents, rounding half up.
+## Prints bad lines first, then a tab-separated table with a TOTAL row.
+fn money(c int) str
+    "{c / 100}.{c % 100:0>2}"
+
+struct Pay
+    gross int
+    pension int
+    tax int
+    social int
+    net int
+
+fn compute(gross int) Pay
+    pension := (gross * 5 + 50) / 100
+    taxable := gross - pension
+    low := taxable.min(200000)
+    high := taxable - low
+    tax := (low * 10 + 50) / 100 + (high * 20 + 50) / 100
+    social := (gross.min(600000) * 62 + 500) / 1000
+    Pay(gross: gross, pension: pension, tax: tax, social: social, net: gross - pension - tax - social)
+
+fn row(label str, p Pay) str
+    "{label}\t{money(p.gross)}\t{money(p.pension)}\t{money(p.tax)}\t{money(p.social)}\t{money(p.net)}"
+
+fn main()
+    mut names := List[str]()
+    mut pays := List[Pay]()
+    mut total := Pay(gross: 0, pension: 0, tax: 0, social: 0, net: 0)
+    mut k := 0
+    for line in io.read_all().lines()
+        k += 1
+        w := line.words()
+        if w.is_empty()
+            continue
+        g := (w.skip(1).first() else "x").to_int() else -1
+        if w.len() != 2 or g < 0 or g > 10000000
+            print("line {k}: bad record")
+            continue
+        p := compute(g)
+        names.push(w[0])
+        pays.push(p)
+        total.gross += p.gross
+        total.pension += p.pension
+        total.tax += p.tax
+        total.social += p.social
+        total.net += p.net
+    print("name\tgross\tpension\ttax\tsocial\tnet")
+    for i in 0..names.len()
+        print(row(names[i], pays[i]))
+    print(row("TOTAL", total))

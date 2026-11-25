@@ -1,0 +1,65 @@
+## Reports price changes as signed percentages computed in basis points with round-half-away-from-zero.
+## Sorted by change descending (ties by name), items with a zero old price listed last as n/a.
+fn money(c int) str
+    "{c / 100}.{c % 100:0>2}"
+
+struct Item
+    name str
+    old int
+    new int
+
+fn change_bps(it Item) int
+    d := it.new - it.old
+    a := d.abs() * 10000
+    mut q := a / it.old
+    if (a % it.old) * 2 >= it.old
+        q += 1
+    if d < 0 then -q else q
+
+fn percent(bps int) str
+    a := bps.abs()
+    sign := if bps > 0 then "+" elif bps < 0 then "-" else ""
+    "{sign}{a / 100}.{a % 100:0>2}%"
+
+fn parse(line str) Item?
+    w := line.words()
+    if w.len() != 3
+        return none
+    old := w[1].to_int() else return none
+    new := w[2].to_int() else return none
+    if old < 0 or old > 1000000000 or new < 0 or new > 1000000000
+        return none
+    Item(name: w[0], old: old, new: new)
+
+fn sort_key(it Item) (int, int, str)
+    if it.old == 0
+        return (1, 0, it.name)
+    (0, -change_bps(it), it.name)
+
+fn main()
+    mut items := List[Item]()
+    mut k := 0
+    for line in io.read_all().lines()
+        k += 1
+        if line.trim().is_empty()
+            continue
+        it := parse(line) else
+            print("line {k}: bad line")
+            continue
+        items.push(it)
+    mut up := 0
+    mut down := 0
+    mut same := 0
+    mut na := 0
+    for it in items.sorted(by: |x| sort_key(x))
+        text := if it.old == 0 then "n/a" else percent(change_bps(it))
+        print("{it.name} {money(it.old)} -> {money(it.new)} {text}")
+        if it.old == 0
+            na += 1
+        elif it.new > it.old
+            up += 1
+        elif it.new < it.old
+            down += 1
+        else
+            same += 1
+    print("up {up}, down {down}, same {same}, n/a {na}")

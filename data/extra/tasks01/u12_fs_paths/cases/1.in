@@ -1,0 +1,8 @@
+mkdir a
+mkdir a/b
+touch a/f.txt
+cd a
+pwd
+ls
+ls ..
+cd ../zzz

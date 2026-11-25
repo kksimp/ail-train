@@ -1,0 +1,60 @@
+## Builds a process tree from `PID PPID NAME` lines and prints it depth first with
+## indentation; reports ignored lines, tree depth and processes in parent cycles.
+struct Tree
+    names Map[int, str]
+    parent Map[int, int]
+    kids Map[int, List[int]]
+
+fn walk(t Tree, p int, d int, mut out List[str], mut seen Set[int]) int
+    seen.add(p)
+    out.push("{"  ".repeat(d)}{p} {t.names[p]}")
+    mut deepest := d + 1
+    mut cs := t.kids.get(p) else List[int]()
+    cs.sort()
+    for c in cs
+        deepest = deepest.max(walk(t, c, d + 1, mut out, mut seen))
+    deepest
+
+fn main()
+    mut t := Tree(names: Map[int, str](), parent: Map[int, int](), kids: Map[int, List[int]]())
+    mut ignored := 0
+    for raw in io.read_all().lines()
+        if raw.trim().is_empty()
+            continue
+        w := raw.words()
+        if w.len() < 3
+            ignored += 1
+            continue
+        pid := w[0].to_int() else
+            ignored += 1
+            continue
+        ppid := w[1].to_int() else
+            ignored += 1
+            continue
+        if pid < 0 or ppid < 0 or t.names.contains(pid)
+            ignored += 1
+            continue
+        t.names[pid] = w.skip(2).join(" ")
+        t.parent[pid] = ppid
+    for pid, pp in t.parent
+        if pp != 0 and pp != pid and t.names.contains(pp)
+            t.kids.push(pp, pid)
+    mut roots := List[int]()
+    for pid, pp in t.parent
+        if pp == 0 or not t.names.contains(pp)
+            roots.push(pid)
+    roots.sort()
+    mut out := List[str]()
+    mut seen := Set[int]()
+    mut depth := 0
+    for r in roots
+        depth = depth.max(walk(t, r, 0, mut out, mut seen))
+    mut orph := List[int]()
+    for pid in t.names.keys()
+        if not seen.contains(pid)
+            orph.push(pid)
+    orph.sort()
+    if not orph.is_empty()
+        out.push("orphans: {orph.join(" ")}")
+    out.push("processes={t.names.len()} depth={depth} ignored={ignored}")
+    print(out.join("\n"))

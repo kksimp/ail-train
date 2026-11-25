@@ -1,0 +1,41 @@
+## American Soundex: prints the code of every word on every non-empty input line.
+fn digit_of(c char) str
+    if "BFPV".contains(c)
+        "1"
+    elif "CGJKQSXZ".contains(c)
+        "2"
+    elif "DT".contains(c)
+        "3"
+    elif c == 'L'
+        "4"
+    elif "MN".contains(c)
+        "5"
+    elif c == 'R'
+        "6"
+    else
+        ""
+
+fn is_ascii_letter(c char) bool
+    (c >= 'A' and c <= 'Z') or (c >= 'a' and c <= 'z')
+
+fn soundex(word str) str
+    letters := [c.to_upper() for c in word.chars() if is_ascii_letter(c)]
+    if letters.is_empty()
+        return "----"
+    mut out := "{letters[0]}"
+    mut prev := digit_of(letters[0])
+    for i in 1..letters.len()
+        c := letters[i]
+        if c == 'H' or c == 'W'
+            continue
+        d := digit_of(c)
+        if d != "" and d != prev
+            out = "{out}{d}"
+        prev = d
+    "{out}000".slice(0, 4)
+
+fn main()
+    for line in io.read_all().lines()
+        if line.is_empty()
+            continue
+        print(line.words().map(|w| soundex(w)).join(" "))

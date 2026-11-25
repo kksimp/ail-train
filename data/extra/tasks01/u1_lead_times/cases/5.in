@@ -1,0 +1,15 @@
+po z a1 10
+po z a2 10
+po z a3 10
+po m b1 0
+po m b2 0
+po m b3 2
+recv a1 14
+recv a2 15
+recv a3 20
+recv b1 1
+recv b2 2
+recv b3 5
+po q c1 0
+recv c1 0
+po q c2 1

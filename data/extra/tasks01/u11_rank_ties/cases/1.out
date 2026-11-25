@@ -1,0 +1,20 @@
+> rank score standard
+1 a 90
+1 c 90
+3 b 85
+4 d 70
+> rank score dense asc
+1 d 70
+2 b 85
+3 a 90
+3 c 90
+> rank score dense
+1 a 90
+1 c 90
+2 b 85
+3 d 70
+> rank score standard asc
+1 d 70
+2 b 85
+3 a 90
+3 c 90

@@ -1,0 +1,116 @@
+## Mini query language over a small table: select, where, order (stable, optional desc).
+fn is_num(rows List[List[str]], i int) bool
+    if rows.is_empty()
+        return false
+    for r in rows
+        if r[i].to_int() == none
+            return false
+    true
+
+fn cmp(a str, b str, num bool) int
+    if num
+        x := a.to_int() else 0
+        y := b.to_int() else 0
+        return if x < y then -1 elif x > y then 1 else 0
+    if a < b then -1 elif a > b then 1 else 0
+
+fn holds(c int, op str) bool
+    match op
+        "=" => c == 0
+        "!=" => c != 0
+        "<" => c < 0
+        ">" => c > 0
+        "<=" => c <= 0
+        _ => c >= 0
+
+fn exec(h List[str], rows List[List[str]], q str) List[str] ! str
+    t := q.words()
+    if t.len() < 2 or t[0] != "select"
+        return "error: bad query"
+    mut pos := 2
+    mut wcol := ""
+    mut wop := ""
+    mut wval := ""
+    mut has_where := false
+    if pos < t.len() and t[pos] == "where"
+        if pos + 3 >= t.len()
+            return "error: bad query"
+        wcol = t[pos + 1]
+        wop = t[pos + 2]
+        wval = t[pos + 3]
+        if not ["=", "!=", "<", ">", "<=", ">="].contains(wop)
+            return "error: bad query"
+        has_where = true
+        pos += 4
+    mut ocol := ""
+    mut has_order := false
+    mut desc := false
+    if pos < t.len() and t[pos] == "order"
+        if pos + 1 >= t.len()
+            return "error: bad query"
+        ocol = t[pos + 1]
+        has_order = true
+        pos += 2
+        if pos < t.len() and t[pos] == "desc"
+            desc = true
+            pos += 1
+    if pos != t.len()
+        return "error: bad query"
+    names := if t[1] == "*" then h else t[1].split(",")
+    mut idxs := List[int]()
+    for n in names
+        i := h.index_of(n) else return "error: unknown column {n}"
+        idxs.push(i)
+    mut wi := 0
+    mut wnum := false
+    if has_where
+        wi = h.index_of(wcol) else return "error: unknown column {wcol}"
+        wnum = is_num(rows, wi)
+        if wnum and wval.to_int() == none
+            return "error: bad value {wval}"
+    mut oi := 0
+    mut onum := false
+    if has_order
+        oi = h.index_of(ocol) else return "error: unknown column {ocol}"
+        onum = is_num(rows, oi)
+    mut sel := List[List[str]]()
+    for r in rows
+        if not has_where or holds(cmp(r[wi], wval, wnum), wop)
+            sel.push(r)
+    if has_order
+        mut out := List[List[str]]()
+        for r in sel
+            mut at := out.len()
+            for j in 0..out.len()
+                c := cmp(out[j][oi], r[oi], onum)
+                d := if desc then -c else c
+                if d > 0
+                    at = j
+                    break
+            out.insert(at, r)
+        sel = out
+    mut res := List[str]()
+    for r in sel
+        res.push([r[i] for i in idxs].join(","))
+    res.push("({sel.len()} rows)")
+    res
+
+fn main()
+    lines := io.read_all().lines()
+    if lines.is_empty()
+        return
+    h := lines[0].split(",")
+    mut rows := List[List[str]]()
+    mut k := 1
+    while k < lines.len() and lines[k] != ""
+        rows.push(lines[k].split(","))
+        k += 1
+    for j in k..lines.len()
+        q := lines[j].trim()
+        if q.is_empty()
+            continue
+        print("> {q}")
+        out := exec(h, rows, q) else err
+            [err]
+        for l in out
+            print(l)

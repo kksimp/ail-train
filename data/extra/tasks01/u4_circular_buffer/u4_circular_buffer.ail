@@ -1,0 +1,77 @@
+## Fixed-capacity circular buffer (head index + count) that overwrites its
+## oldest value when full; driven by push/pop/peek/dump/size/sum commands.
+struct Ring
+    buf List[int]
+    head int
+    count int
+
+fn Ring.cap(self) int
+    self.buf.len()
+
+fn Ring.at(self, i int) int
+    self.buf[(self.head + i) % self.cap()]
+
+fn Ring.push(mut self, x int) int?
+    if self.count == self.cap()
+        old := self.buf[self.head]
+        self.buf[self.head] = x
+        self.head = (self.head + 1) % self.cap()
+        return old
+    self.buf[(self.head + self.count) % self.cap()] = x
+    self.count += 1
+    none
+
+fn Ring.pop(mut self) int?
+    if self.count == 0
+        return none
+    v := self.buf[self.head]
+    self.head = (self.head + 1) % self.cap()
+    self.count -= 1
+    v
+
+fn num(w List[str], i int) int?
+    if i >= w.len()
+        return none
+    w[i].to_int()
+
+fn main()
+    lines := io.read_all().lines()
+    cap := (lines.first()?.trim().to_int() else 0)
+    if lines.is_empty() or cap < 1 or cap > 100
+        print("bad capacity")
+        return
+    mut r := Ring(buf: [0 for i in 0..cap], head: 0, count: 0)
+    for k in 1..lines.len()
+        w := lines[k].words()
+        if w.is_empty()
+            continue
+        cmd := w[0]
+        if cmd == "push" and w.len() == 2 and num(w, 1) != none
+            x := num(w, 1) else 0
+            old := r.push(x)
+            if old == none
+                print("ok")
+            else
+                o := old else 0
+                print("overwrote {o}")
+        elif cmd == "pop" and w.len() == 1
+            v := r.pop() else
+                print("empty")
+                continue
+            print(v)
+        elif cmd == "peek" and w.len() == 1
+            if r.count == 0
+                print("empty")
+            else
+                print(r.at(0))
+        elif cmd == "dump" and w.len() == 1
+            if r.count == 0
+                print("empty")
+            else
+                print([r.at(i) for i in 0..r.count].join(" "))
+        elif cmd == "size" and w.len() == 1
+            print(r.count)
+        elif cmd == "sum" and w.len() == 1
+            print([r.at(i) for i in 0..r.count].sum())
+        else
+            print("error")

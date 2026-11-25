@@ -1,0 +1,7 @@
+ins
+ins a b
+del now
+jump
+left right
+ins ok
+show

@@ -1,0 +1,44 @@
+## Running totals (or running maxima) of an integer column per key, in table order.
+fn exec(h List[str], rows List[List[str]], q str) List[str] ! str
+    t := q.words()
+    if t.len() != 4 or not (t[0] == "running" or t[0] == "runmax") or t[2] != "by"
+        return "error: bad query"
+    vi := h.index_of(t[1]) else return "error: unknown column {t[1]}"
+    ki := h.index_of(t[3]) else return "error: unknown column {t[3]}"
+    mut state := Map[str, int]()
+    mut out := List[str]()
+    mut skipped := 0
+    for r in rows
+        v := r[vi].to_int() else
+            skipped += 1
+            continue
+        k := r[ki]
+        cur := state.get(k) else v
+        next := if not state.contains(k) then v elif t[0] == "running" then cur + v else cur.max(v)
+        state[k] = next
+        out.push("{r[0]} {k}: {v} -> {next}")
+    if skipped > 0
+        out.push("(skipped {skipped})")
+    if out.is_empty()
+        out.push("(none)")
+    out
+
+fn main()
+    lines := io.read_all().lines()
+    if lines.is_empty()
+        return
+    h := lines[0].split(",")
+    mut rows := List[List[str]]()
+    mut k := 1
+    while k < lines.len() and lines[k] != ""
+        rows.push(lines[k].split(","))
+        k += 1
+    for j in k..lines.len()
+        q := lines[j].trim()
+        if q.is_empty()
+            continue
+        print("> {q}")
+        out := exec(h, rows, q) else err
+            [err]
+        for l in out
+            print(l)

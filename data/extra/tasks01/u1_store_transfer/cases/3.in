@@ -1,0 +1,12 @@
+stock a X 5
+stock b X 1
+stock a Y 2
+transfer t1 a b X 5
+transfer t2 a b Y 3
+transfer t3 a c Y 2
+transfer t4 b a X 1
+receive t1
+receive t9
+transfer t5 b a X 6
+receive t5
+receive t3

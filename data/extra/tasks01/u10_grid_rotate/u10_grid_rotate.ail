@@ -1,0 +1,49 @@
+## Applies rotate/flip commands (R L H V) to a character grid read from stdin.
+## The grid ends at the first empty line; the commands follow.
+fn rotate_cw(g List[List[char]]) List[List[char]]
+    rows := g.len()
+    mut out := List[List[char]]()
+    for c in 0..g[0].len()
+        mut row := List[char]()
+        for r in 0..rows
+            row.push(g[rows - 1 - r][c])
+        out.push(row)
+    out
+
+fn rotate_ccw(g List[List[char]]) List[List[char]]
+    rows := g.len()
+    w := g[0].len()
+    mut out := List[List[char]]()
+    for c in 0..w
+        mut row := List[char]()
+        for r in 0..rows
+            row.push(g[r][w - 1 - c])
+        out.push(row)
+    out
+
+fn mirror(g List[List[char]]) List[List[char]]
+    [row.reversed() for row in g]
+
+fn main()
+    lines := io.read_all().lines()
+    mut grid := List[List[char]]()
+    mut i := 0
+    while i < lines.len() and lines[i] != ""
+        grid.push(lines[i].chars())
+        i += 1
+    for k in i + 1..lines.len()
+        c := lines[k].trim()
+        if c == ""
+            continue
+        if c != "R" and c != "L" and c != "H" and c != "V"
+            print("error: bad command {c}")
+            return
+        if grid.is_empty()
+            continue
+        match c
+            "R" => grid = rotate_cw(grid)
+            "L" => grid = rotate_ccw(grid)
+            "H" => grid = mirror(grid)
+            _ => grid = grid.reversed()
+    for row in grid
+        print(row.join(""))

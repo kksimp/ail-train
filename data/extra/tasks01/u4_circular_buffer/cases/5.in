@@ -1,0 +1,17 @@
+4
+push a
+push
+push 1 2
+bogus
+push 5
+push 6
+push 7
+push 8
+push 9
+push 10
+dump
+sum
+pop
+pop
+push 11
+dump

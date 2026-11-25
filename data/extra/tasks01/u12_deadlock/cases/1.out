@@ -1,0 +1,3 @@
+deadlock 1: A B C
+blocked: D
+status=deadlock groups=1 deadlocked=3 blocked=1 ignored=0

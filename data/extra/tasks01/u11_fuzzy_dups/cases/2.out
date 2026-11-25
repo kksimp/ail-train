@@ -1,0 +1,12 @@
+> dups first,last
+group 1: a1, a2
+group 2: a5, a6
+(2 groups, 4 records)
+> dups last,zip:digits
+group 1: a1, a3
+(1 groups, 2 records)
+> dups first,last,zip:digits
+(no duplicates)
+> dups zip:digits
+group 1: a1, a3, a4
+(1 groups, 3 records)

@@ -1,0 +1,11 @@
+buy X 3 50
+buy Y 2 700
+buy X 3 55
+buy X 4 0
+sell X 3
+sell X 4
+sell Y 2
+sell Y 1
+sell Z 1
+buy Y 1 999
+sell X 3

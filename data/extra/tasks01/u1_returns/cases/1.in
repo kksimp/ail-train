@@ -1,0 +1,5 @@
+sale o1 A 3 250
+return o1 A 2
+return o1 A 2
+return o1 A 1 damaged
+return o2 A 1

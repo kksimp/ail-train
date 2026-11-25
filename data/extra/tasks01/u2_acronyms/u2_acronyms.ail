@@ -1,0 +1,38 @@
+## Extracts acronyms (2-6 upper-case letters) with counts and first line numbers.
+fn runs_of(line str) List[str]
+    mut out := List[str]()
+    mut cur := List[char]()
+    for c in "{line} ".chars()
+        if c.is_alpha()
+            cur.push(c)
+        else
+            if not cur.is_empty()
+                out.push(cur.join(""))
+            cur = List[char]()
+    out
+
+fn is_acronym(r str) bool
+    if r.len() < 2 or r.len() > 6
+        return false
+    for c in r.chars()
+        if not c.is_upper()
+            return false
+    true
+
+fn main()
+    mut count := Map[str, int]()
+    mut first := Map[str, int]()
+    mut total := 0
+    for i, line in io.read_all().lines().enumerate()
+        for r in runs_of(line)
+            if is_acronym(r)
+                if not count.contains(r)
+                    first[r] = i + 1
+                count[r] += 1
+                total += 1
+    if count.is_empty()
+        print("no acronyms")
+        return
+    for r in count.keys()
+        print("{r} {count[r]} {first[r]}")
+    print("total={total} distinct={count.len()}")

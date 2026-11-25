@@ -1,0 +1,12 @@
+window 3
+10 k1 one
+9 k1 early
+zz k1
+11 
+12 k2 a b c
+12 k2 dup
+13 k1 again
+ 5 q
+14 k1 after
+14 k1
+14 k3

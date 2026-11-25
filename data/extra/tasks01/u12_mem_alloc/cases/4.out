@@ -1,0 +1,14 @@
+alloc A 64 -> 0
+free A -> ok
+free A -> unknown
+? bogus cmd here
+? alloc B 0
+? alloc C x
+alloc D 65 -> fail
+alloc E 16 -> 0
+alloc F 16 -> 16
+free E -> ok
+free F -> ok
+layout
+0-63 free
+largest free=64

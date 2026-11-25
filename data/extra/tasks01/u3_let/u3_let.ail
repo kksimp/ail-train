@@ -1,0 +1,157 @@
+## Arithmetic with let-bindings: a left-to-right evaluating parser that reports the first error of each line.
+struct Interp
+    toks List[str]
+    pos int
+    names List[str]
+    vals List[int]
+    err str
+
+fn is_name(t str) bool
+    if t.is_empty() or t == "let" or t == "in"
+        return false
+    t.chars().all(|c| c.is_lower())
+
+fn Interp.peek(self) str
+    if self.pos < self.toks.len()
+        return self.toks[self.pos]
+    ""
+
+fn Interp.fail(mut self, msg str)
+    if self.err.is_empty()
+        self.err = msg
+    self.pos = self.toks.len()
+
+fn Interp.check(mut self, v int) int
+    if v.abs() > 1000000000000
+        self.fail("overflow")
+        return 0
+    v
+
+fn Interp.parse_expr(mut self) int
+    if self.peek() == "let"
+        self.pos += 1
+        name := self.peek()
+        if not is_name(name)
+            self.fail("syntax")
+            return 0
+        self.pos += 1
+        if self.peek() != "="
+            self.fail("syntax")
+            return 0
+        self.pos += 1
+        v := self.parse_expr()
+        if not self.err.is_empty()
+            return 0
+        if self.peek() != "in"
+            self.fail("syntax")
+            return 0
+        self.pos += 1
+        self.names.push(name)
+        self.vals.push(v)
+        r := self.parse_expr()
+        self.names.pop()
+        self.vals.pop()
+        return r
+    self.parse_sum()
+
+fn Interp.parse_sum(mut self) int
+    mut v := self.parse_term()
+    while self.peek() == "+" or self.peek() == "-"
+        op := self.peek()
+        self.pos += 1
+        r := self.parse_term()
+        if not self.err.is_empty()
+            return 0
+        v = self.check(if op == "+" then v + r else v - r)
+    v
+
+fn Interp.parse_term(mut self) int
+    mut v := self.parse_unary()
+    while self.peek() == "*" or self.peek() == "/" or self.peek() == "%"
+        op := self.peek()
+        self.pos += 1
+        r := self.parse_unary()
+        if not self.err.is_empty()
+            return 0
+        if op == "*"
+            v = self.check(v * r)
+        elif r == 0
+            self.fail("division by zero")
+            return 0
+        elif op == "/"
+            v = v / r
+        else
+            v = v % r
+    v
+
+fn Interp.parse_unary(mut self) int
+    if self.peek() == "-"
+        self.pos += 1
+        return -self.parse_unary()
+    self.parse_atom()
+
+fn Interp.parse_atom(mut self) int
+    t := self.peek()
+    if not t.is_empty() and t.chars().all(|c| c.is_digit())
+        self.pos += 1
+        return t.to_int() else 0
+    if t == "("
+        self.pos += 1
+        v := self.parse_expr()
+        if self.peek() == ")"
+            self.pos += 1
+        else
+            self.fail("syntax")
+        return v
+    if is_name(t)
+        self.pos += 1
+        mut i := self.names.len() - 1
+        while i >= 0
+            if self.names[i] == t
+                return self.vals[i]
+            i -= 1
+        self.fail("unbound {t}")
+        return 0
+    self.fail("syntax")
+    0
+
+## Splits a line into tokens; none when a character is not allowed or an integer is too long.
+fn tokenize(line str) List[str]?
+    cs := line.chars()
+    mut toks := List[str]()
+    mut i := 0
+    while i < cs.len()
+        c := cs[i]
+        if c == ' '
+            i += 1
+        elif c.is_digit() or c.is_lower()
+            mut j := i
+            while j < cs.len() and (if c.is_digit() then cs[j].is_digit() else cs[j].is_lower())
+                j += 1
+            if c.is_digit() and j - i > 6
+                return none
+            toks.push(cs.slice(i, j).join(""))
+            i = j
+        elif "+-*/%()=".contains(c)
+            toks.push("{c}")
+            i += 1
+        else
+            return none
+    toks
+
+fn main()
+    for raw in io.read_all().lines()
+        line := raw.trim()
+        if line.is_empty()
+            continue
+        toks := tokenize(line) else
+            print("error: syntax")
+            continue
+        mut p := Interp(toks: toks, pos: 0, names: [], vals: [], err: "")
+        v := p.parse_expr()
+        if p.err.is_empty() and p.pos != toks.len()
+            p.err = "syntax"
+        if p.err.is_empty()
+            print(v)
+        else
+            print("error: {p.err}")

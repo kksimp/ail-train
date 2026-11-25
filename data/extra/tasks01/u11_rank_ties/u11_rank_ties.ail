@@ -1,0 +1,46 @@
+## Ranks rows by an integer column with ties: standard (1,2,2,4) or dense (1,2,2,3) ranking.
+fn exec(h List[str], rows List[List[str]], q str) List[str] ! str
+    t := q.words()
+    if t.len() < 3 or t.len() > 4 or t[0] != "rank" or not (t[2] == "standard" or t[2] == "dense")
+        return "error: bad query"
+    if t.len() == 4 and t[3] != "asc"
+        return "error: bad query"
+    vi := h.index_of(t[1]) else return "error: unknown column {t[1]}"
+    asc := t.len() == 4
+    mut items := List[(int, int)]()
+    for n in 0..rows.len()
+        v := rows[n][vi].to_int() else continue
+        items.push((v, n))
+    if items.is_empty()
+        return ["(none)"]
+    sorted := items.sorted(by: |p| (if asc then p.0 else -p.0, p.1))
+    mut out := List[str]()
+    mut rank := 0
+    mut prev := 0
+    for pos in 0..sorted.len()
+        v := sorted[pos].0
+        if pos == 0 or v != prev
+            rank = if t[2] == "standard" then pos + 1 else rank + 1
+            prev = v
+        out.push("{rank} {rows[sorted[pos].1][0]} {v}")
+    out
+
+fn main()
+    lines := io.read_all().lines()
+    if lines.is_empty()
+        return
+    h := lines[0].split(",")
+    mut rows := List[List[str]]()
+    mut k := 1
+    while k < lines.len() and lines[k] != ""
+        rows.push(lines[k].split(","))
+        k += 1
+    for j in k..lines.len()
+        q := lines[j].trim()
+        if q.is_empty()
+            continue
+        print("> {q}")
+        out := exec(h, rows, q) else err
+            [err]
+        for l in out
+            print(l)

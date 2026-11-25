@@ -1,0 +1,16 @@
+mkdir /x/y
+mkdir x
+mkdir x
+touch x
+touch x/f
+touch x/f
+mkdir x/f
+cd x/f
+ls x/f
+ls x/f/..
+ls nothing
+ls
+cd x/.
+cd ..
+cd ..
+pwd

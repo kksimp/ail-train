@@ -1,0 +1,13 @@
+price W 1 1000
+price W 12 900
+price W 24 850
+price W 48 800
+price Z 6 77
+buy W 11
+buy W 12
+buy W 23
+buy W 24
+buy W 100
+buy Z 5
+buy Z 6
+buy Z 7

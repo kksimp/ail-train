@@ -1,0 +1,7 @@
+unpack 000
+unpack 0017
+unpack 18
+
+PACK READ
+hello world
+has 3 READ extra

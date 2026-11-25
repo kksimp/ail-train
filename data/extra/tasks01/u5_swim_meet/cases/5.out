@@ -1,0 +1,21 @@
+== 200im ==
+1 ra R 2:10.00 pts=4
+1 su S 2:10.00 pts=4
+1 ty T 2:10.00 pts=4
+1 ul U 2:10.00 pts=4
+1 vi V 2:10.00 pts=4
+1 wu W 2:10.00 pts=4
+1 xi X 2:10.00 pts=4
+1 yan Y 2:10.00 pts=4
+1 zed Z 2:10.00 pts=4
+== teams ==
+R 4
+S 4
+T 4
+U 4
+V 4
+W 4
+X 4
+Y 4
+Z 4
+malformed: 2

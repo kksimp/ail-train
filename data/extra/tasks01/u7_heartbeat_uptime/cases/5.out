@@ -1,0 +1,7 @@
+beats: 6
+down 400 500
+down 600 601
+downtime: 101
+observed: 594
+uptime: 82%
+malformed: 0

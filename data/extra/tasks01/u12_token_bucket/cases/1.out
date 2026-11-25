@@ -1,0 +1,7 @@
+0 a 1 allow left=2
+0 a 2 allow left=0
+0 a 1 deny left=0
+2 a 1 allow left=1
+2 b 1 allow left=2
+a allowed=3 denied=1
+b allowed=1 denied=0

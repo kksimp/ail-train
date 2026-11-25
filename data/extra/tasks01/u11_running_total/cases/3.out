@@ -1,0 +1,16 @@
+> running v k
+error: bad query
+> running v by
+error: bad query
+> running v on k
+error: bad query
+> running v by z
+error: unknown column z
+> running z by k
+error: unknown column z
+> walk v by k
+error: bad query
+> running v by k extra
+error: bad query
+> runmax z by z
+error: unknown column z

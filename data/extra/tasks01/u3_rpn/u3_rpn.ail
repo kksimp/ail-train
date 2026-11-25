@@ -1,0 +1,48 @@
+## RPN calculator with variables: one expression per line, prints the stack or the first error.
+fn is_name(s str) bool
+    if s.is_empty()
+        return false
+    s.chars().all(|c| c.is_lower())
+
+fn eval(line str, mut vars Map[str, int]) str
+    mut st := List[int]()
+    for tok in line.words()
+        if v := tok.to_int()
+            st.push(v)
+            continue
+        if tok == "+" or tok == "-" or tok == "*" or tok == "/" or tok == "%"
+            b := st.pop() else return "error: stack underflow"
+            a := st.pop() else return "error: stack underflow"
+            if tok == "+"
+                st.push(a + b)
+            elif tok == "-"
+                st.push(a - b)
+            elif tok == "*"
+                st.push(a * b)
+            else
+                if b == 0
+                    return "error: division by zero"
+                if tok == "/"
+                    st.push(a / b)
+                else
+                    st.push(a % b)
+            continue
+        if is_name(tok)
+            x := vars.get(tok) else return "error: unknown variable {tok}"
+            st.push(x)
+            continue
+        if tok.starts_with("=") and is_name(tok.slice(1))
+            x := st.pop() else return "error: stack underflow"
+            vars[tok.slice(1)] = x
+            continue
+        return "error: bad token {tok}"
+    if st.is_empty()
+        return "(empty)"
+    st.join(" ")
+
+fn main()
+    mut vars := Map[str, int]()
+    for line in io.read_all().lines()
+        if line.trim().is_empty()
+            continue
+        print(eval(line, mut vars))

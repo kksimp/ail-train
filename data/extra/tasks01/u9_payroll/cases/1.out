@@ -1,0 +1,4 @@
+line 2: bad record
+name	gross	pension	tax	social	net
+ann	2500.00	125.00	275.00	155.00	1945.00
+TOTAL	2500.00	125.00	275.00	155.00	1945.00

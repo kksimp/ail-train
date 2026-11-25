@@ -1,0 +1,5 @@
+cache 8 2 8 policy fifo
+5 x -3 0x10 7.5
+
+100 100 100
+abc

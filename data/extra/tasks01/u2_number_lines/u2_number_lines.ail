@@ -1,0 +1,23 @@
+## Numbers the non-blank lines of the input; blank-line runs collapse to one empty line.
+fn is_blank(line str) bool
+    for c in line.chars()
+        if c != ' ' and c != '\t'
+            return false
+    true
+
+fn main()
+    mut n := 0
+    mut pending := false
+    mut started := false
+    for line in io.read_all().lines()
+        if is_blank(line)
+            if started
+                pending = true
+        else
+            if pending
+                print("")
+                pending = false
+            n += 1
+            print("{n:>4}  {line}")
+            started = true
+    print("-- {n} numbered lines")

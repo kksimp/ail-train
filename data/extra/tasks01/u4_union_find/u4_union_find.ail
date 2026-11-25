@@ -1,0 +1,69 @@
+## Union-find (path halving, union by size) driven by union/find/size/count/largest
+## commands; the first input line gives the number of elements.
+struct Dsu
+    parent List[int]
+    size List[int]
+    sets int
+
+fn Dsu.root(mut self, x int) int
+    mut v := x
+    while self.parent[v] != v
+        self.parent[v] = self.parent[self.parent[v]]
+        v = self.parent[v]
+    v
+
+fn Dsu.union(mut self, a int, b int) bool
+    mut ra := self.root(a)
+    mut rb := self.root(b)
+    if ra == rb
+        return false
+    if self.size[ra] < self.size[rb]
+        t := ra
+        ra = rb
+        rb = t
+    self.parent[rb] = ra
+    self.size[ra] += self.size[rb]
+    self.sets -= 1
+    true
+
+fn elem(w List[str], i int, n int) int?
+    if i >= w.len()
+        return none
+    v := w[i].to_int() else return none
+    if v < 0 or v >= n
+        return none
+    v
+
+fn main()
+    lines := io.read_all().lines()
+    n := (lines.first()?.trim().to_int() else 0)
+    if lines.is_empty() or n < 1 or n > 1000
+        print("bad header")
+        return
+    mut d := Dsu(parent: [i for i in 0..n], size: [1 for i in 0..n], sets: n)
+    for k in 1..lines.len()
+        w := lines[k].words()
+        if w.is_empty()
+            continue
+        cmd := w[0]
+        if (cmd == "union" or cmd == "find") and w.len() == 3 and elem(w, 1, n) != none and elem(w, 2, n) != none
+            a := elem(w, 1, n) else 0
+            b := elem(w, 2, n) else 0
+            if cmd == "union"
+                print(if d.union(a, b) then "merged" else "same")
+            else
+                print(if d.root(a) == d.root(b) then "yes" else "no")
+        elif cmd == "size" and w.len() == 2 and elem(w, 1, n) != none
+            a := elem(w, 1, n) else 0
+            r := d.root(a)
+            print(d.size[r])
+        elif cmd == "count" and w.len() == 1
+            print(d.sets)
+        elif cmd == "largest" and w.len() == 1
+            mut best := 0
+            for i in 0..n
+                if d.parent[i] == i and d.size[i] > best
+                    best = d.size[i]
+            print(best)
+        else
+            print("error")

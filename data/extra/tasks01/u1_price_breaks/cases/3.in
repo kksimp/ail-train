@@ -1,0 +1,11 @@
+buy A 1
+price A 5 100
+buy A 4
+buy A 5
+price A 5 90
+price A 2 120
+buy A 3
+buy A 5
+price B 1 0
+buy B 99
+buy A 6

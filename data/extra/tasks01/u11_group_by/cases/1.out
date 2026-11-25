@@ -1,0 +1,16 @@
+> count city
+oslo 2
+paris 1
+rome 2
+> sum amt city
+oslo 12
+paris 3
+rome 10
+(skipped 1)
+> count kind
+a 3
+b 2
+> sum amt kind byvalue
+a 22
+b 3
+(skipped 1)

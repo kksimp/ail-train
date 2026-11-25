@@ -1,0 +1,83 @@
+## Finds duplicate records under fuzzy key rules: text normalisation or digits only, per key column.
+fn is_ascii_letter(c char) bool
+    (c >= 'a' and c <= 'z') or (c >= 'A' and c <= 'Z')
+
+fn is_digit(c char) bool
+    c >= '0' and c <= '9'
+
+fn norm_text(s str) str
+    mut kept := List[char]()
+    for c in s.chars()
+        if is_ascii_letter(c)
+            kept.push(c.to_lower())
+        elif is_digit(c) or c == ' '
+            kept.push(c)
+    kept.join("").words().join(" ")
+
+fn norm_digits(s str) str
+    s.chars().filter(|c| is_digit(c)).join("")
+
+struct Item
+    col int
+    digits bool
+
+fn exec(h List[str], rows List[List[str]], q str) List[str] ! str
+    t := q.words()
+    if t.len() != 2 or t[0] != "dups"
+        return "error: bad query"
+    mut names := List[str]()
+    mut flags := List[bool]()
+    for it in t[1].split(",")
+        if it.is_empty()
+            return "error: bad query"
+        if it.contains(":")
+            parts := it.split(":", 2)
+            if parts[1] != "digits" or parts[0].is_empty()
+                return "error: bad query"
+            names.push(parts[0])
+            flags.push(true)
+        else
+            names.push(it)
+            flags.push(false)
+    mut items := List[Item]()
+    for j in 0..names.len()
+        i := h.index_of(names[j]) else return "error: unknown column {names[j]}"
+        items.push(Item(col: i, digits: flags[j]))
+    mut groups := Map[str, List[str]]()
+    for r in rows
+        parts := items.map(|it| if it.digits then norm_digits(r[it.col]) else norm_text(r[it.col]))
+        if parts.any(|p| p.is_empty())
+            continue
+        groups.push(parts.join("|"), r[0])
+    mut out := List[str]()
+    mut n := 0
+    mut recs := 0
+    for key, ids in groups
+        if ids.len() >= 2
+            n += 1
+            recs += ids.len()
+            out.push("group {n}: {ids.join(", ")}")
+    if n == 0
+        return ["(no duplicates)"]
+    out.push("({n} groups, {recs} records)")
+    out
+
+fn main()
+    lines := io.read_all().lines()
+    if lines.is_empty()
+        return
+    h := lines[0].split(",")
+    mut rows := List[List[str]]()
+    mut k := 1
+    while k < lines.len() and lines[k] != ""
+        rows.push(lines[k].split(","))
+        k += 1
+    for j in k..lines.len()
+        q := lines[j].trim()
+        if q.is_empty()
+            continue
+        print("> {q}")
+        out := exec(h, rows, q) else err
+            [err]
+        for l in out
+            print(l)

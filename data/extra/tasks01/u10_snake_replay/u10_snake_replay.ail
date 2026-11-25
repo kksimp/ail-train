@@ -1,0 +1,61 @@
+## Replays a snake game (moves string, food queue) and prints the final board.
+struct Cell
+    x int
+    y int
+
+fn parse_cells(line str) List[Cell]
+    mut out := List[Cell]()
+    for w in line.words()
+        p := w.split(",")
+        out.push(Cell(x: p[0].to_int() else 0, y: p[1].to_int() else 0))
+    out
+
+fn main()
+    lines := io.read_all().split("\n")
+    wh := (lines[0]).words()
+    w := wh[0].to_int() else 1
+    h := wh[1].to_int() else 1
+    mut snake := parse_cells(lines[1])
+    food := parse_cells(if lines.len() > 2 then lines[2] else "")
+    moves := (if lines.len() > 3 then lines[3] else "").trim().chars()
+    mut next_food := 0
+    mut score := 0
+    mut result := "alive"
+    for k in 0..moves.len()
+        step := k + 1
+        mut dx := 0
+        mut dy := 0
+        match moves[k]
+            'U' => dy = -1
+            'D' => dy = 1
+            'L' => dx = -1
+            'R' => dx = 1
+            _ =>
+                result = "over bad move at step {step}"
+                break
+        nx := snake[0].x + dx
+        ny := snake[0].y + dy
+        if nx < 0 or nx >= w or ny < 0 or ny >= h
+            result = "over wall at step {step}"
+            break
+        head := Cell(x: nx, y: ny)
+        if next_food < food.len() and food[next_food] == head
+            next_food += 1
+            score += 1
+            snake.insert(0, head)
+        else
+            mut body := snake.slice(0, snake.len() - 1)
+            if body.contains(head)
+                result = "over self at step {step}"
+                break
+            body.insert(0, head)
+            snake = body
+    print("result {result}")
+    print("length {snake.len()} score {score}")
+    mut grid := [['.' for c in 0..w] for r in 0..h]
+    if next_food < food.len()
+        grid[food[next_food].y][food[next_food].x] = '*'
+    for i in 0..snake.len()
+        grid[snake[i].y][snake[i].x] = if i == 0 then 'H' else 'o'
+    for row in grid
+        print(row.join(""))

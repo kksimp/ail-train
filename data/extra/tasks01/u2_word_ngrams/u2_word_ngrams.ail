@@ -1,0 +1,30 @@
+## Counts word n-grams (N from the first input line) and prints the five most frequent.
+## Words are lower-cased whitespace tokens; ties are broken by n-gram text.
+fn collect_words(lines List[str]) List[str]
+    mut words := List[str]()
+    for k in 1..lines.len()
+        for w in lines[k].words()
+            words.push(w.to_lower())
+    words
+
+fn main()
+    lines := io.read_all().lines()
+    if lines.is_empty()
+        print("no input")
+        return
+    n := lines[0].trim().to_int() else 0
+    if n < 1 or n > 3
+        print("bad n")
+        return
+    words := collect_words(lines)
+    mut counts := Map[str, int]()
+    mut total := 0
+    if words.len() >= n
+        for i in 0..=(words.len() - n)
+            gram := words.slice(i, i + n).join(" ")
+            counts[gram] += 1
+            total += 1
+    ranked := counts.keys().sorted(by: |g| (-counts[g], g))
+    for g in ranked.take(5)
+        print("{counts[g]} {g}")
+    print("distinct={counts.len()} total={total}")

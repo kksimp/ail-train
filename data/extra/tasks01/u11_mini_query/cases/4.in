@@ -1,0 +1,14 @@
+id,score,tag
+1,9,a
+2,9,b
+3,7,c
+4,9,d
+5,12,e
+6,7,f
+
+   select id order score desc
+select tag,id where score != 9 order id desc
+select id where tag > c order score
+select id,score order score
+
+select score where score < 10 order tag desc

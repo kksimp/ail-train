@@ -1,0 +1,5 @@
+1 init
+  7 cron
+  20 sshd
+    21 sshd: user
+processes=4 depth=3 ignored=0

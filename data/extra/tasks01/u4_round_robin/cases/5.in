@@ -1,0 +1,16 @@
+5
+add a 0
+add a 1001
+add a
+add a b
+run -1
+run x
+run
+sleep 3
+add job 7
+run 1
+status
+add t 1
+run 3
+status
+clock

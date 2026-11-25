@@ -1,0 +1,72 @@
+## Checks digit assignments for A+B=C letter-addition puzzles, one per line.
+## Reports the first failing rule: malformed, conflict, missing, duplicate, leading zero, wrong sum.
+fn upper_word(w str) bool
+    if w.is_empty()
+        return false
+    for ch in w.chars()
+        if ch < 'A' or ch > 'Z'
+            return false
+    true
+
+fn value(w str, asg Map[char, int]) int
+    mut n := 0
+    for ch in w.chars()
+        n = n * 10 + asg[ch]
+    n
+
+fn check(line str) str
+    parts := line.split(" ")
+    if parts.len() < 2
+        return "malformed"
+    puz := parts[0]
+    if puz.count("+") != 1 or puz.count("=") != 1
+        return "malformed"
+    halves := puz.split("=")
+    sides := halves[0].split("+")
+    if sides.len() != 2
+        return "malformed"
+    words := [sides[0], sides[1], halves[1]]
+    for w in words
+        if not upper_word(w)
+            return "malformed"
+    mut asg := Map[char, int]()
+    mut order := List[char]()
+    mut dup := List[char]()
+    for k in 1..parts.len()
+        cs := parts[k].chars()
+        if cs.len() != 3 or cs[1] != '=' or cs[0] < 'A' or cs[0] > 'Z'
+            return "malformed"
+        d := cs[2].to_digit(10) else return "malformed"
+        if asg.contains(cs[0]) and dup.is_empty()
+            dup.push(cs[0])
+        if not asg.contains(cs[0])
+            order.push(cs[0])
+        asg[cs[0]] = d
+    if not dup.is_empty()
+        return "conflict {dup[0]}"
+    for w in words
+        for ch in w.chars()
+            if not asg.contains(ch)
+                return "missing {ch}"
+    for dig in 0..=9
+        mut users := 0
+        for ch in order
+            if asg[ch] == dig
+                users += 1
+        if users > 1
+            return "duplicate digit {dig}"
+    for w in words
+        if w.len() > 1 and asg[w.chars()[0]] == 0
+            return "leading zero {w}"
+    x := value(words[0], asg)
+    y := value(words[1], asg)
+    z := value(words[2], asg)
+    if x + y == z
+        return "ok"
+    "wrong {x} + {y} != {z}"
+
+fn main()
+    for raw in io.read_all().lines()
+        line := raw.trim()
+        if not line.is_empty()
+            print(check(line))

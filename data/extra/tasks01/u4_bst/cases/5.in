@@ -1,0 +1,19 @@
+insert 10
+insert 5
+insert 15
+insert 12
+insert 18
+insert 11
+insert 13
+delete 10
+inorder
+height
+delete 12
+inorder
+delete 15
+inorder
+delete 99
+delete 5
+inorder
+min
+height

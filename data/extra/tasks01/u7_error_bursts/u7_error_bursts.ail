@@ -1,0 +1,67 @@
+## Find bursts of ERROR lines: at least K errors inside a window of W seconds.
+## Greedy scan from the first unused error; malformed lines are counted.
+
+fn all_digits(s str) bool
+    if s.is_empty()
+        return false
+    for ch in s.chars()
+        if ch.code() < 48 or ch.code() > 57
+            return false
+    true
+
+struct Config
+    w int
+    k int
+
+fn parse_header(lines List[str]) Config?
+    if lines.is_empty()
+        return none
+    h := lines[0].split(" ")
+    if h.len() != 4 or h[0] != "window" or h[2] != "threshold"
+        return none
+    if not all_digits(h[1]) or not all_digits(h[3])
+        return none
+    w := h[1].to_int() else 0
+    k := h[3].to_int() else 0
+    if w < 1 or k < 1
+        return none
+    Config(w: w, k: k)
+
+fn main()
+    mut lines := []
+    for l in io.read_all().lines()
+        if not l.is_empty()
+            lines.push(l)
+    cfg := parse_header(lines) else
+        print("error: bad header")
+        return
+    mut errs := List[int]()
+    mut bad := 0
+    mut last := 0
+    for l in lines.skip(1)
+        f := l.split(" ", 3)
+        if f.len() < 2 or not all_digits(f[0])
+            bad += 1
+            continue
+        ts := f[0].to_int() else 0
+        if ts < last
+            bad += 1
+            continue
+        last = ts
+        if f[1] == "ERROR"
+            errs.push(ts)
+    mut bursts := 0
+    mut i := 0
+    while i < errs.len()
+        t := errs[i]
+        mut j := i
+        while j < errs.len() and errs[j] <= t + cfg.w - 1
+            j += 1
+        if j - i >= cfg.k
+            print("burst {t} {errs[j - 1]} {j - i}")
+            bursts += 1
+            i = j
+        else
+            i += 1
+    print("bursts: {bursts}")
+    print("malformed: {bad}")

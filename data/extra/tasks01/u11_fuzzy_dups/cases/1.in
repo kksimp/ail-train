@@ -1,0 +1,10 @@
+id,name,phone
+1,J. Smith,555-0101
+2,j smith,(555) 0101
+3,Ann Lee,555-0199
+4,ANN  LEE,5550199
+5,Bob,555-0101
+
+dups name,phone:digits
+dups name
+dups phone:digits

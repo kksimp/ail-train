@@ -1,0 +1,11 @@
+top paths:
+2 /v
+2 /x
+2 /y
+status:
+1xx 1
+2xx 3
+3xx 1
+4xx 1
+5xx 2
+malformed: 0

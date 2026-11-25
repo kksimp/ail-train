@@ -1,0 +1,16 @@
+0 set=0 miss
+16 set=1 miss
+32 set=2 miss
+48 set=3 miss
+64 set=0 miss
+0 set=0 hit
+128 set=0 miss
+64 set=0 miss
+0 set=0 miss
+16 set=1 hit
+200 set=0 miss
+201 set=0 hit
+202 set=0 hit
+203 set=0 hit
+16 set=1 hit
+hits=6 misses=9 ratio=40.00 skipped=0

@@ -1,0 +1,12 @@
+stock A 0
+stock A -2
+stok A 1
+order o1 A
+order o1 A 3 4
+stock A 4
+order o1 A 1x
+restock
+order  A 1
+order q A 3
+restock A 01
+restock Z 2

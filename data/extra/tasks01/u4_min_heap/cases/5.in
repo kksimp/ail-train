@@ -1,0 +1,11 @@
+push 50
+push 40
+push 30
+push 20
+push 10
+push 60
+push 5
+push 5
+drain
+peek
+size

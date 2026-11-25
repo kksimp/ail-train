@@ -1,0 +1,31 @@
+## Falling sand: 'o' grains fall down, then diagonally, through '.' cells for N steps.
+fn main()
+    lines := io.read_all().lines()
+    head := (lines.first() else "").trim()
+    steps := head.to_int() else -1
+    if steps < 0
+        print("error: bad steps")
+        return
+    mut g := List[List[char]]()
+    for k in 1..lines.len()
+        if lines[k] != ""
+            g.push(lines[k].chars())
+    rows := g.len()
+    offsets := [0, -1, 1]
+    for _ in 0..steps
+        for r in 0..rows - 1
+            y := rows - 2 - r
+            for c in 0..g[y].len()
+                if g[y][c] != 'o'
+                    continue
+                for dc in offsets
+                    nc := c + dc
+                    if nc >= 0 and nc < g[y].len() and g[y + 1][nc] == '.'
+                        g[y][c] = '.'
+                        g[y + 1][nc] = 'o'
+                        break
+    mut sand := 0
+    for row in g
+        print(row.join(""))
+        sand += row.count(|ch| ch == 'o')
+    print("sand {sand}")

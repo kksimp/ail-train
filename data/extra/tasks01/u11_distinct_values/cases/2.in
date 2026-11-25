@@ -1,0 +1,14 @@
+name,team,score
+ann,red,9
+bob,blue,10
+cy,red,-3
+dee,blue,9
+eve,green,2
+fay,red,10
+
+distinct team
+distinct team sorted
+distinct score
+distinct score sorted
+distinct name sorted
+distinct *

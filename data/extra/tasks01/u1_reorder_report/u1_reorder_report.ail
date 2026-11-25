@@ -1,0 +1,50 @@
+## Reorder point report: an item needs ordering when on-hand stock is at or below daily use * lead time + safety.
+## Lists the items most short first, with the quantity needed to reach the target level.
+fn digits(s str) int?
+    if s.is_empty()
+        return none
+    for c in s.chars()
+        if not c.is_digit()
+            return none
+    s.to_int()
+
+struct Item
+    onhand int
+    point int
+    target int
+
+fn parse(f List[str]) Item?
+    if f.len() != 7 or f[1].is_empty()
+        return none
+    onhand := digits(f[2])?
+    daily := digits(f[3])?
+    lead := digits(f[4])?
+    safety := digits(f[5])?
+    target := digits(f[6])?
+    Item(onhand: onhand, point: daily * lead + safety, target: target)
+
+fn main()
+    mut lines := io.read_all().split("\n")
+    if (lines.last() else "x") == ""
+        lines.pop()
+    mut items := Map[str, Item]()
+    mut out := List[str]()
+    for k in 0..lines.len()
+        line := lines[k]
+        if line.is_empty()
+            continue
+        f := line.split(" ")
+        if f[0] == "item"
+            if it := parse(f)
+                items[f[1]] = it
+                continue
+        out.push("bad {k + 1}")
+    mut rows := List[(int, str, int, int, int)]()
+    for name, it in items
+        if it.onhand <= it.point
+            rows.push((it.onhand - it.point, name, it.onhand, it.point, (it.target - it.onhand).max(0)))
+    rows.sort()
+    for r in rows
+        out.push("{r.1} onhand {r.2} point {r.3} short {-r.0} order {r.4}")
+    out.push("reorder {rows.len()} of {items.len()}")
+    print(out.join("\n"))

@@ -1,0 +1,33 @@
+## Counts N-queens placements for each board size read from stdin.
+## Entries outside 1..9 or not integers are reported as invalid.
+fn safe(cols List[int], r int, c int) bool
+    for i in 0..r
+        d := cols[i] - c
+        if d == 0 or d == r - i or d == i - r
+            return false
+    true
+
+fn place(mut cols List[int], r int, n int) int
+    if r == n
+        return 1
+    mut total := 0
+    for c in 0..n
+        if safe(cols, r, c)
+            cols.push(c)
+            total += place(mut cols, r + 1, n)
+            cols.pop()
+    total
+
+fn main()
+    for raw in io.read_all().lines()
+        line := raw.trim()
+        if line.is_empty()
+            continue
+        n := line.to_int() else
+            print("invalid: {line}")
+            continue
+        if n < 1 or n > 9
+            print("invalid: {line}")
+            continue
+        mut cols := List[int]()
+        print("{n}: {place(mut cols, 0, n)}")

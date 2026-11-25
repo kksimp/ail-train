@@ -1,0 +1,5 @@
+memory 100 strategy first
+alloc A 30
+alloc B 50
+free A
+alloc C 40

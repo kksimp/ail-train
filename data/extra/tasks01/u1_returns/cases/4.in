@@ -1,0 +1,13 @@
+sale o1 A 3 250
+sale o1 A 9 1
+sale o1 B 1
+sale o1 B 0 5
+sale o1 B 1 -5
+return o1 A 1 broken
+return o1 A
+return o1 A 0
+return o1 A 1 damaged extra
+
+refund o1 A 1
+return o1 A 3
+return o1 A 1

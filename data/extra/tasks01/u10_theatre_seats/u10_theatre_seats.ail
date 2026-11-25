@@ -1,0 +1,53 @@
+## Seats groups in a theatre map: first row with a long enough free run, leftmost run.
+## Returns the start column of the leftmost run of `size` free seats in a row, or none.
+fn find_run(row List[char], size int) int?
+    mut run := 0
+    for c in 0..row.len()
+        if row[c] == '.'
+            run += 1
+        else
+            run = 0
+        if run == size
+            return c - size + 1
+    none
+
+fn main()
+    lines := io.read_all().lines()
+    mut g := List[List[char]]()
+    mut i := 0
+    while i < lines.len() and lines[i] != ""
+        g.push(lines[i].chars())
+        i += 1
+    mut k := 0
+    for n in i + 1..lines.len()
+        t := lines[n].trim()
+        if t == ""
+            continue
+        k += 1
+        mut size := 0
+        mut valid := true
+        for ch in t.chars()
+            if not ch.is_digit()
+                valid = false
+        if valid
+            size = t.to_int() else 0
+            if size < 1
+                valid = false
+        if not valid
+            print("group {k}: invalid")
+            continue
+        mut placed := false
+        for r in 0..g.len()
+            start := find_run(g[r], size) else continue
+            for c in start..start + size
+                g[r][c] = 'o'
+            print("group {k}: row {r} seats {start}-{start + size - 1}")
+            placed = true
+            break
+        if not placed
+            print("group {k}: none")
+    mut free := 0
+    for row in g
+        print(row.join(""))
+        free += row.count(|ch| ch == '.')
+    print("free {free}")

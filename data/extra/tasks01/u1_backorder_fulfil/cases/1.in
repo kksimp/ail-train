@@ -1,0 +1,4 @@
+stock A 5
+order o1 A 8
+restock A 2
+order o2 B 1

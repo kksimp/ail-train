@@ -1,0 +1,11 @@
+tiny (SL)
+year 1: depreciation 0.00 book 1.00
+year 2: depreciation 0.00 book 1.00
+tiny2 (SL)
+year 1: depreciation 0.04 book 0.06
+year 2: depreciation 0.03 book 0.03
+year 3: depreciation 0.03 book 0.00
+full (DB 100%)
+year 1: depreciation 50.00 book 0.00
+year 2: depreciation 0.00 book 0.00
+year 3: depreciation 0.00 book 0.00

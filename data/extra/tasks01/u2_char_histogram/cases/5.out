@@ -1,0 +1,8 @@
+upper      0
+lower      6 ##############
+digit      1 ###
+space      3 #######
+newline    5 ############
+punct      9 ####################
+other      1 ###
+total=25

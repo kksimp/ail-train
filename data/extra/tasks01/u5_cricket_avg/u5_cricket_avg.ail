@@ -1,0 +1,65 @@
+## Cricket batting averages: innings, not outs, high score, integer-rounded average, fifties and hundreds.
+struct Stat
+    inns int
+    no int
+    runs int
+    hs int
+    hsno bool
+    fifties int
+    tons int
+
+struct Row
+    key int
+    runs int
+    name str
+    stat Stat
+    avg str
+
+fn dg(s str, lo int, hi int) bool
+    s.len() >= lo and s.len() <= hi and s.chars().all(|c| c.is_digit())
+
+fn main()
+    mut st := Map[str, Stat]()
+    mut bad := 0
+    for line in io.read_all().lines()
+        f := line.words()
+        if f.is_empty()
+            continue
+        if f.len() != 2
+            bad += 1
+            continue
+        not_out := f[1].ends_with("*")
+        s := if not_out then f[1].slice(0, f[1].len() - 1) else f[1]
+        if not dg(s, 1, 3)
+            bad += 1
+            continue
+        r := s.to_int() else 0
+        mut p := st.get(f[0]) else Stat(inns: 0, no: 0, runs: 0, hs: -1, hsno: false, fifties: 0, tons: 0)
+        p.inns += 1
+        if not_out
+            p.no += 1
+        p.runs += r
+        if r > p.hs
+            p.hs = r
+            p.hsno = not_out
+        if r >= 100
+            p.tons += 1
+        elif r >= 50
+            p.fifties += 1
+        st[f[0]] = p
+    mut rows := List[Row]()
+    for n, p in st
+        d := p.inns - p.no
+        if d == 0
+            rows.push(Row(key: 1000000000000, runs: p.runs, name: n, stat: p, avg: "-"))
+        else
+            v := (p.runs * 200 + d) / (2 * d)
+            rows.push(Row(key: v, runs: p.runs, name: n, stat: p, avg: "{v / 100}.{(v % 100):02}"))
+    if rows.is_empty()
+        print("no innings")
+    for r in rows.sorted(by: |r| (-r.key, -r.runs, r.name))
+        p := r.stat
+        star := if p.hsno then "*" else ""
+        print("{r.name} inns={p.inns} no={p.no} runs={p.runs} hs={p.hs}{star} avg={r.avg} 50={p.fifties} 100={p.tons}")
+    if bad > 0
+        print("invalid: {bad}")

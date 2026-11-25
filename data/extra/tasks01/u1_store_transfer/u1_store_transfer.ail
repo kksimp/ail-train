@@ -1,0 +1,68 @@
+## Stock transfer between stores: shipments leave the source shelves at once and reach the destination on receive.
+## Prints each decision, then the shelves and the shipments still in transit.
+struct Ship
+    from str
+    to str
+    sku str
+    qty int
+    done bool
+
+fn digits(s str) int
+    if s.is_empty()
+        return 0
+    for c in s.chars()
+        if not c.is_digit()
+            return 0
+    n := s.to_int() else 0
+    n
+
+fn main()
+    mut lines := io.read_all().split("\n")
+    if (lines.last() else "x") == ""
+        lines.pop()
+    mut out := List[str]()
+    mut shelf := Map[(str, str), int]()
+    mut ships := Map[str, Ship]()
+    mut order := List[str]()
+    for k in 0..lines.len()
+        line := lines[k]
+        if line.is_empty()
+            continue
+        f := line.split(" ")
+        if f[0] == "stock" and f.len() == 4 and not f[1].is_empty() and not f[2].is_empty() and digits(f[3]) >= 1
+            shelf[(f[1], f[2])] += digits(f[3])
+        elif f[0] == "transfer" and f.len() == 6 and not f[1].is_empty() and not f[2].is_empty() and not f[3].is_empty() and not f[4].is_empty() and digits(f[5]) >= 1 and not ships.contains(f[1])
+            id := f[1]
+            q := digits(f[5])
+            have := shelf.get((f[2], f[4])) else 0
+            if f[2] == f[3]
+                out.push("reject {id} same")
+            elif have < q
+                out.push("reject {id} short")
+            else
+                shelf[(f[2], f[4])] = have - q
+                ships[id] = Ship(from: f[2], to: f[3], sku: f[4], qty: q, done: false)
+                order.push(id)
+                out.push("ship {id}")
+        elif f[0] == "receive" and f.len() == 2 and not f[1].is_empty()
+            id := f[1]
+            if not ships.contains(id)
+                out.push("reject {id} unknown")
+            elif ships[id].done
+                out.push("reject {id} done")
+            else
+                s := ships[id]
+                ships[id].done = true
+                shelf[(s.to, s.sku)] += s.qty
+                out.push("arrived {id}")
+        else
+            out.push("bad {k + 1}")
+    for key in shelf.keys().sorted()
+        if shelf[key] > 0
+            out.push("shelf {key.0} {key.1} {shelf[key]}")
+    for id in order
+        s := ships[id]
+        if not s.done
+            out.push("transit {id} {s.from} {s.to} {s.sku} {s.qty}")
+    if not out.is_empty()
+        print(out.join("\n"))

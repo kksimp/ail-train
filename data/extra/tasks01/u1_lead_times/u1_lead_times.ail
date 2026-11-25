@@ -1,0 +1,54 @@
+## Supplier lead-time report: days from order to receipt per purchase order, summarised per supplier
+## (count, open orders, mean to one decimal, shortest, longest).
+struct Po
+    sup str
+    day int
+    got int
+
+fn digits(s str) int
+    if s.is_empty()
+        return -1
+    for c in s.chars()
+        if not c.is_digit()
+            return -1
+    s.to_int() else -1
+
+fn main()
+    mut lines := io.read_all().split("\n")
+    if (lines.last() else "x") == ""
+        lines.pop()
+    mut out := List[str]()
+    mut pos := Map[str, Po]()
+    for k in 0..lines.len()
+        line := lines[k]
+        if line.is_empty()
+            continue
+        f := line.split(" ")
+        if f[0] == "po" and f.len() == 4 and not f[1].is_empty() and not f[2].is_empty() and digits(f[3]) >= 0 and not pos.contains(f[2])
+            pos[f[2]] = Po(sup: f[1], day: digits(f[3]), got: -1)
+        elif f[0] == "recv" and f.len() == 3 and digits(f[2]) >= 0 and pos.contains(f[1])
+            p := pos[f[1]]
+            if p.got < 0 and digits(f[2]) >= p.day
+                pos[f[1]].got = digits(f[2])
+            else
+                out.push("bad {k + 1}")
+        else
+            out.push("bad {k + 1}")
+    mut leads := Map[str, List[int]]()
+    mut open := Map[str, int]()
+    for id, p in pos
+        if p.got >= 0
+            leads.push(p.sup, p.got - p.day)
+            open[p.sup] += 0
+        else
+            open[p.sup] += 1
+    for s in open.keys().sorted()
+        ls := leads.get(s) else List[int]()
+        if ls.is_empty()
+            out.push("{s} received 0 open {open[s]} avg - min - max -")
+        else
+            n := ls.len()
+            t := (20 * ls.sum() + n) / (2 * n)
+            out.push("{s} received {n} open {open[s]} avg {t / 10}.{t % 10} min {ls.min() else 0} max {ls.max() else 0}")
+    if not out.is_empty()
+        print(out.join("\n"))

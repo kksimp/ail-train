@@ -1,0 +1,58 @@
+## Price list with quantity breaks: a purchase is priced at the highest break not above its quantity.
+## Also shows the next break up, and the grand total of everything priced.
+fn digits(s str, lo int) int
+    if s.is_empty()
+        return lo - 1
+    for c in s.chars()
+        if not c.is_digit()
+            return lo - 1
+    n := s.to_int() else lo - 1
+    if n >= lo then n else lo - 1
+
+fn main()
+    mut lines := io.read_all().split("\n")
+    if (lines.last() else "x") == ""
+        lines.pop()
+    mut tiers := Map[(str, int), int]()
+    mut out := List[str]()
+    mut total := 0
+    for k in 0..lines.len()
+        line := lines[k]
+        if line.is_empty()
+            continue
+        f := line.split(" ")
+        if f[0] == "price" and f.len() == 4 and not f[1].is_empty()
+            m := digits(f[2], 1)
+            u := digits(f[3], 0)
+            if m >= 1 and u >= 0
+                tiers[(f[1], m)] = u
+                continue
+        elif f[0] == "buy" and f.len() == 3 and not f[1].is_empty()
+            q := digits(f[2], 1)
+            if q >= 1
+                mut best := 0
+                mut up := 0
+                mut next_min := 0
+                mut next_unit := 0
+                for key, unit in tiers
+                    if key.0 != f[1]
+                        continue
+                    if key.1 <= q
+                        if key.1 > best
+                            best = key.1
+                            up = unit
+                    elif next_min == 0 or key.1 < next_min
+                        next_min = key.1
+                        next_unit = unit
+                if best == 0
+                    out.push("{f[1]} {q} no price")
+                    continue
+                mut s := "{f[1]} {q} @ {up} = {q * up}"
+                if next_min > 0
+                    s = "{s} next {next_min} @ {next_unit}"
+                total += q * up
+                out.push(s)
+                continue
+        out.push("bad {k + 1}")
+    out.push("total {total}")
+    print(out.join("\n"))

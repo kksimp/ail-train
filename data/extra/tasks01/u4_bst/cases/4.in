@@ -1,0 +1,15 @@
+insert x
+insert
+insert 1 2
+delete 1.5
+bogus
+inorder extra
+insert 1
+insert 2
+insert 3
+insert 4
+insert 5
+height
+delete 1
+height
+inorder

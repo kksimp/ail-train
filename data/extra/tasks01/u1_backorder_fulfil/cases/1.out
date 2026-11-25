@@ -1,0 +1,7 @@
+o1 shipped 5 backorder 3
+fill o1 2
+o2 shipped 0 backorder 1
+on-hand A 0
+on-hand B 0
+open o1 A 1
+open o2 B 1

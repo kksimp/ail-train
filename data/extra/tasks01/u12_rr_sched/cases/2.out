@@ -1,0 +1,15 @@
+0-3 P1
+3-6 P2
+6-9 P3
+9-12 P4
+12-15 P1
+15-16 P2
+16-19 P3
+19-21 P4
+21-23 P1
+23-26 P3
+P1 finish=23 turnaround=23 wait=15
+P2 finish=16 turnaround=15 wait=11
+P3 finish=26 turnaround=24 wait=15
+P4 finish=21 turnaround=18 wait=13
+ignored 0

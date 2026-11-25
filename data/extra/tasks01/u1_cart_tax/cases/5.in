@@ -1,0 +1,12 @@
+tax book 0
+tax food 800
+tax std 2100
+tax luxury 10000
+item novel book 1299 2
+item bread food 249 3
+item soup food 175 7
+item radio std 4950 1
+item watch luxury 99999 1
+item pen std 1 9
+item mug std 333 3
+item pen2 std 1 5

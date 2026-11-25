@@ -1,0 +1,8 @@
+bin A-1
+  S4 12
+bin R-10
+  S1 2
+  S3 8
+bin R-9
+  S2 1
+lines 4 units 23

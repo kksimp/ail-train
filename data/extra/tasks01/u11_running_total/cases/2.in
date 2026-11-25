@@ -1,0 +1,14 @@
+id,day,store,sales
+1,mon,n,100
+2,mon,s,50
+3,tue,n,70
+4,tue,s,-20
+5,wed,n,0
+6,wed,s,90
+7,thu,n,-10
+8,thu,s,5
+
+running sales by store
+runmax sales by store
+running sales by day
+runmax sales by day

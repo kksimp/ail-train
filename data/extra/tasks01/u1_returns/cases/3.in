@@ -1,0 +1,10 @@
+sale 1 X 5 1000
+sale 1 Y 2 0
+sale 2 X 1 999
+return 1 X 2
+return 1 X 3 damaged
+return 1 X 1
+return 1 Y 2
+return 2 X 1
+return 2 Y 1
+return 1 Y 1

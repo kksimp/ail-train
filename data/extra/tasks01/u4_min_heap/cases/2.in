@@ -1,0 +1,12 @@
+push 9
+push 3
+push 7
+push 1
+push 8
+push 2
+size
+pop
+pop
+peek
+drain
+size

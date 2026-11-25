@@ -1,0 +1,34 @@
+## For each `K N` query, lists the K distinct digits from 1..9 that sum to N.
+## Sets are printed in increasing order, lexicographically.
+fn gen(k int, n int, start int, mut cur List[int], mut out List[str])
+    if k == 0
+        if n == 0
+            out.push(cur.join(" "))
+        return
+    for d in start..=9
+        if d > n
+            break
+        cur.push(d)
+        gen(k - 1, n - d, d + 1, mut cur, mut out)
+        cur.pop()
+
+fn main()
+    for raw in io.read_all().lines()
+        line := raw.trim()
+        if line.is_empty()
+            continue
+        parts := line.split(" ")
+        if parts.len() != 2
+            print("invalid: {line}")
+            continue
+        k := parts[0].to_int() else -1
+        n := parts[1].to_int() else -1
+        if k < 0 or n < 0
+            print("invalid: {line}")
+            continue
+        mut cur := List[int]()
+        mut out := List[str]()
+        gen(k, n, 1, mut cur, mut out)
+        print("{k} {n}: {out.len()}")
+        for s in out
+            print(s)

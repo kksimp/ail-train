@@ -1,0 +1,45 @@
+## Keyword-in-context concordance: each hit with W tokens of context on both sides.
+fn is_punct(c char) bool
+    ".,;:!?\"'()".contains(c)
+
+fn norm(tok str) str
+    cs := tok.to_lower().chars()
+    mut a := 0
+    mut b := cs.len()
+    while a < b and is_punct(cs[a])
+        a += 1
+    while b > a and is_punct(cs[b - 1])
+        b -= 1
+    cs.slice(a, b).join("")
+
+fn main()
+    lines := io.read_all().lines()
+    if lines.len() < 2
+        print("bad input")
+        return
+    key := norm(lines[0].trim())
+    if key.is_empty()
+        print("bad input")
+        return
+    w := lines[1].trim().to_int() else -1
+    if w < 0
+        print("bad width")
+        return
+    mut toks := List[str]()
+    for k in 2..lines.len()
+        for t in lines[k].words()
+            toks.push(t)
+    mut hits := 0
+    for i in 0..toks.len()
+        if norm(toks[i]) == key
+            hits += 1
+            lo := (i - w).max(0)
+            hi := (i + 1 + w).min(toks.len())
+            mut parts := toks.slice(lo, i)
+            parts.push("[{toks[i]}]")
+            parts.extend(toks.slice(i + 1, hi))
+            print("{i + 1}: {parts.join(" ")}")
+    if hits == 0
+        print("no matches")
+    else
+        print("matches={hits}")

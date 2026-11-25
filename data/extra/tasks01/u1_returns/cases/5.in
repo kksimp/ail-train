@@ -1,0 +1,10 @@
+sale a Z 4 10
+sale a Y 4 20
+return a Z 1
+return a Z 1
+return a Y 4 damaged
+return a Z 2
+return a Z 1
+sale b Y 1 5
+return b Y 1
+return b Y 1

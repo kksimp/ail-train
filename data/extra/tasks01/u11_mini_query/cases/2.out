@@ -1,0 +1,32 @@
+> select item where qty > 5 order price desc
+clip
+bolt
+washer
+(3 rows)
+> select item,price order price
+washer,1
+bolt,3
+nut,3
+screw,12
+clip,12
+(5 rows)
+> select item where price = 3
+bolt
+nut
+(2 rows)
+> select qty,item order item desc
+100,washer
+-2,screw
+5,nut
+10,clip
+10,bolt
+(5 rows)
+> select item where qty <= -2
+screw
+(1 rows)
+> select * where item != nut order qty desc
+washer,100,1
+bolt,10,3
+clip,10,12
+screw,-2,12
+(4 rows)

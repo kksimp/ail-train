@@ -1,0 +1,7 @@
+bin A-1
+  R 1
+  X 7
+  Y 1
+bin NOBIN
+  Q 5
+lines 4 units 14

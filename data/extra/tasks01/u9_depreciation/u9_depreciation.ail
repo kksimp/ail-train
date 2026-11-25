@@ -1,0 +1,63 @@
+## Prints straight-line and declining-balance depreciation schedules in integer cents.
+## Declining balance rounds each year half up and the last year lands exactly on the salvage value.
+fn money(c int) str
+    "{c / 100}.{c % 100:0>2}"
+
+struct Asset
+    name str
+    cost int
+    salvage int
+    life int
+    method str
+    rate int
+
+fn parse(line str) Asset?
+    w := line.words()
+    if w.len() < 5 or w.len() > 6
+        return none
+    cost := w[1].to_int() else return none
+    salvage := w[2].to_int() else return none
+    life := w[3].to_int() else return none
+    if salvage < 0 or cost < salvage or cost > 100000000 or life < 1 or life > 30
+        return none
+    mut rate := 0
+    if w[4] == "SL"
+        if w.len() != 5
+            return none
+    elif w[4] == "DB"
+        if w.len() != 6
+            return none
+        rate = w[5].to_int() else return none
+        if rate < 1 or rate > 100
+            return none
+    else
+        return none
+    Asset(name: w[0], cost: cost, salvage: salvage, life: life, method: w[4], rate: rate)
+
+fn depreciation(a Asset, year int, book int) int
+    if a.method == "SL"
+        total := a.cost - a.salvage
+        base := total / a.life
+        extra := total % a.life
+        return if year <= extra then base + 1 else base
+    if year == a.life
+        return book - a.salvage
+    d := (book * a.rate + 50) / 100
+    d.min(book - a.salvage)
+
+fn main()
+    mut k := 0
+    for line in io.read_all().lines()
+        if line.trim().is_empty()
+            continue
+        k += 1
+        a := parse(line) else
+            print("line {k}: bad input")
+            continue
+        label := if a.method == "SL" then "SL" else "DB {a.rate}%"
+        print("{a.name} ({label})")
+        mut book := a.cost
+        for y in 1..=a.life
+            d := depreciation(a, y, book)
+            book -= d
+            print("year {y}: depreciation {money(d)} book {money(book)}")

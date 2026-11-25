@@ -1,0 +1,13 @@
+add -10 -5
+add -3 3
+add 20 30
+add 40 50
+add -6 25
+show
+total
+query -6
+query 25
+query 30
+query 50
+remove -2 1
+show

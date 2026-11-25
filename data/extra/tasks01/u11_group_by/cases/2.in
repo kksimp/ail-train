@@ -1,0 +1,12 @@
+dept,pay
+eng,100
+ops,50
+eng,-30
+hr,50
+ops,20
+hr,20
+
+count dept byvalue
+sum pay dept byvalue
+sum pay dept
+count pay

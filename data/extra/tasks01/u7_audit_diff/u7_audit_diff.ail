@@ -1,0 +1,69 @@
+## Diff two user-record snapshots (@before / @after) and print, per user,
+## what was added, removed or changed, field by field.
+
+fn main()
+    mut before := Map[str, Map[str, str]]()
+    mut after := Map[str, Map[str, str]]()
+    mut cur := 0
+    mut saw_before := false
+    mut saw_after := false
+    mut bad := 0
+    for l in io.read_all().lines()
+        if l.is_empty()
+            continue
+        if l.starts_with("@")
+            if l == "@before" and not saw_before
+                saw_before = true
+                cur = 1
+            elif l == "@after" and not saw_after
+                saw_after = true
+                cur = 2
+            else
+                bad += 1
+            continue
+        f := l.split(" ", 3)
+        if cur == 0 or f.len() < 3 or f[0].is_empty() or f[1].is_empty() or f[2].is_empty()
+            bad += 1
+            continue
+        if cur == 1
+            if not before.contains(f[0])
+                before[f[0]] = Map[str, str]()
+            before[f[0]][f[1]] = f[2]
+        else
+            if not after.contains(f[0])
+                after[f[0]] = Map[str, str]()
+            after[f[0]][f[1]] = f[2]
+    mut users := Set[str]()
+    for u in before.keys()
+        users.add(u)
+    for u in after.keys()
+        users.add(u)
+    mut unchanged := 0
+    for u in users.sorted()
+        if not before.contains(u)
+            print("{u}: added")
+        elif not after.contains(u)
+            print("{u}: removed")
+        else
+            a := before[u]
+            b := after[u]
+            mut fields := Set[str]()
+            for k in a.keys()
+                fields.add(k)
+            for k in b.keys()
+                fields.add(k)
+            mut changed := false
+            for k in fields.sorted()
+                if not a.contains(k)
+                    print("{u}: +{k} {b[k]}")
+                    changed = true
+                elif not b.contains(k)
+                    print("{u}: -{k} {a[k]}")
+                    changed = true
+                elif a[k] != b[k]
+                    print("{u}: {k} {a[k]} -> {b[k]}")
+                    changed = true
+            if not changed
+                unchanged += 1
+    print("unchanged: {unchanged}")
+    print("malformed: {bad}")

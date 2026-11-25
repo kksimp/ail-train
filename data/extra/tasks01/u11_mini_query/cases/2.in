@@ -1,0 +1,13 @@
+item,qty,price
+bolt,10,3
+nut,5,3
+screw,-2,12
+washer,100,1
+clip,10,12
+
+select item where qty > 5 order price desc
+select item,price order price
+select item where price = 3
+select qty,item order item desc
+select item where qty <= -2
+select * where item != nut order qty desc

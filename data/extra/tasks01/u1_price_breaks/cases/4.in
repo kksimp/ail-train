@@ -1,0 +1,13 @@
+price A 0 5
+price A 1
+price A x 5
+price A 2 -5
+price  2 5
+buy A
+buy A 0
+buy A 2 3
+buy
+sell A 1
+
+price A 3 7
+buy A 3

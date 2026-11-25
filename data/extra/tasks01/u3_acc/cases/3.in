@@ -1,0 +1,3 @@
+top:
+ADD 1
+JMP top

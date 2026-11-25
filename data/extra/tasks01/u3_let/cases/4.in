@@ -1,0 +1,11 @@
+let a = 3 in let b = a * a in b - a - 1
+- - 4
+10 - 3 - 2
+100 / 5 / 2
+2 * 3 % 4
+x
+in
+let in = 1 in 2
+1234567
+let x = 4 in x * x * x * x * x
+   7

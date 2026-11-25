@@ -1,0 +1,11 @@
+1 a fail
+2 b fail
+3 a ok
+4 a fail
+5 b locked
+6 a locked
+10 b ok
+11 b fail
+12 b locked
+lockouts: 3
+malformed: 3

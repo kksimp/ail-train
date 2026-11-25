@@ -1,0 +1,8 @@
+expr: a b
+syntax error
+expr: x & y # z
+syntax error
+expr: a &
+syntax error
+expr: )a(
+syntax error

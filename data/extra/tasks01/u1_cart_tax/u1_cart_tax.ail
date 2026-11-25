@@ -1,0 +1,53 @@
+## Cart totals with mixed tax rates: tax each line at its category's basis-point rate, rounding half up.
+## Prints per-item, per-category and whole-cart net, tax and total.
+struct Row
+    name str
+    cat str
+    net int
+
+fn digits(s str, lo int) int
+    if s.is_empty()
+        return lo - 1
+    for c in s.chars()
+        if not c.is_digit()
+            return lo - 1
+    n := s.to_int() else lo - 1
+    if n >= lo then n else lo - 1
+
+fn main()
+    mut lines := io.read_all().split("\n")
+    if (lines.last() else "x") == ""
+        lines.pop()
+    mut out := List[str]()
+    mut rates := Map[str, int]()
+    mut rows := List[Row]()
+    for k in 0..lines.len()
+        line := lines[k]
+        if line.is_empty()
+            continue
+        f := line.split(" ")
+        if f[0] == "tax" and f.len() == 3 and not f[1].is_empty() and digits(f[2], 0) >= 0 and digits(f[2], 0) <= 10000
+            rates[f[1]] = digits(f[2], 0)
+        elif f[0] == "item" and f.len() == 5 and not f[1].is_empty() and not f[2].is_empty() and digits(f[3], 0) >= 0 and digits(f[4], 1) >= 1
+            rows.push(Row(name: f[1], cat: f[2], net: digits(f[3], 0) * digits(f[4], 1)))
+        else
+            out.push("bad {k + 1}")
+    mut cat_net := Map[str, int]()
+    mut cat_tax := Map[str, int]()
+    mut tn := 0
+    mut tt := 0
+    for r in rows
+        bps := rates.get(r.cat) else 0
+        t := (r.net * bps + 5000) / 10000
+        note := if rates.contains(r.cat) then "" else " no rate"
+        out.push("{r.name} net {r.net} tax {t}{note}")
+        cat_net[r.cat] += r.net
+        cat_tax[r.cat] += t
+        tn += r.net
+        tt += t
+    for cat in cat_net.keys().sorted()
+        out.push("cat {cat} net {cat_net[cat]} tax {cat_tax[cat]}")
+    out.push("net {tn}")
+    out.push("tax {tt}")
+    out.push("total {tn + tt}")
+    print(out.join("\n"))

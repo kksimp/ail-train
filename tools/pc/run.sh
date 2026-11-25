@@ -307,7 +307,7 @@ serve)
     # 6144), all layers on the GPU, flash attention, f16 KV cache. Detached; log in ~/ail-train-work/llama-server.log.
     llama_build
     g="$(gguf_of "$which")"; [ -s "$g" ] || die "no GGUF at $g (run export first, or set GGUF)"
-    pkill -f "llama-server" 2>/dev/null; sleep 2
+    pkill -x llama-server 2>/dev/null; sleep 2
     slots="${SLOTS:-6}"; ctx=$(( slots * ${CTX:-6144} ))
     nohup setsid "$lc/build/bin/llama-server" -m "$g" -ngl 99 -c "$ctx" -np "$slots" -fa on --port "${PORT:-8080}" \
         --host 127.0.0.1 --no-webui > "$work/llama-server.log" 2>&1 < /dev/null &
@@ -318,7 +318,7 @@ serve)
     ;;
 
 serve-stop)
-    pkill -f "llama-server" && echo "llama-server stopped" || echo "no llama-server running"
+    pkill -x llama-server && echo "llama-server stopped" || echo "no llama-server running"
     ;;
 
 *) sed -n 2,14p "$0"; exit 2 ;;

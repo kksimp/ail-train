@@ -1,0 +1,79 @@
+## Single-elimination bracket: applies WINNER LOSER results round by round and prints the rounds.
+struct Match
+    a str
+    b str
+    w str
+
+fn make(ps List[str]) List[Match]
+    mut ms := List[Match]()
+    mut i := 0
+    while i + 1 < ps.len()
+        ms.push(Match(a: ps[i], b: ps[i + 1], w: ""))
+        i += 2
+    if ps.len() % 2 == 1
+        last := ps[ps.len() - 1]
+        ms.push(Match(a: last, b: "", w: last))
+    ms
+
+fn fmt(ms List[Match]) List[str]
+    mut out := List[str]()
+    for m in ms
+        if m.b == ""
+            out.push("  {m.a} bye")
+        else
+            out.push("  {m.a} vs {m.b} -> {if m.w == "" then "pending" else m.w}")
+    out
+
+fn all_done(ms List[Match]) bool
+    ms.all(|m| m.w != "")
+
+fn main()
+    lines := io.read_all().lines()
+    players := [p.trim() for p in (lines.first() else "").split(",")]
+    if players.len() < 2
+        print("error: need 2 players")
+        return
+    mut seen := Set[str]()
+    for p in players
+        if not seen.add(p)
+            print("error: duplicate player {p}")
+            return
+    mut cur := make(players)
+    mut done := List[List[str]]()
+    mut champ := ""
+    mut ign := 0
+    for line in lines.skip(1)
+        f := line.words()
+        if f.is_empty()
+            continue
+        if champ != "" or f.len() != 2
+            ign += 1
+            continue
+        mut hit := false
+        for i in 0..cur.len()
+            m := cur[i]
+            if not hit and m.w == "" and ((m.a == f[0] and m.b == f[1]) or (m.a == f[1] and m.b == f[0]))
+                cur[i].w = f[0]
+                hit = true
+        if not hit
+            ign += 1
+            continue
+        if all_done(cur)
+            done.push(fmt(cur))
+            ws := [m.w for m in cur]
+            if ws.len() == 1
+                champ = ws[0]
+                cur = []
+            else
+                cur = make(ws)
+    for i in 0..done.len()
+        print("Round {i + 1}:")
+        for l in done[i]
+            print(l)
+    if not cur.is_empty()
+        print("Round {done.len() + 1}:")
+        for l in fmt(cur)
+            print(l)
+    print("Champion: {if champ == "" then "none yet" else champ}")
+    if ign > 0
+        print("ignored results: {ign}")

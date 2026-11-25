@@ -1,0 +1,10 @@
+SAVE20 ok
+BULK rejected conflict
+FIVER ok
+SAVE10 rejected conflict
+FREESHIP ok
+SAVE20 rejected duplicate
+subtotal 10000
+discount 2500
+shipping 0
+total 7500

@@ -1,0 +1,15 @@
+0-1 A
+1-2 B
+2-3 A
+3-4 C
+4-5 B
+5-6 A
+20-21 D
+21-22 E
+22-23 D
+A finish=6 turnaround=6 wait=3
+B finish=5 turnaround=5 wait=3
+C finish=4 turnaround=2 wait=1
+D finish=23 turnaround=3 wait=1
+E finish=22 turnaround=2 wait=1
+ignored 0

@@ -1,0 +1,47 @@
+## Missing-value report for a small table: per column, per row, or the rows missing one column.
+fn miss(v str) bool
+    ["", "na", "n/a", "null", "none", "-"].contains(v.trim().to_lower())
+
+fn exec(h List[str], rows List[List[str]], q str) List[str] ! str
+    t := q.words()
+    if t.is_empty() or t[0] != "missing" or t.len() > 2
+        return "error: bad query"
+    mut out := List[str]()
+    if t.len() == 1
+        for i in 0..h.len()
+            n := rows.count(|r| miss(r[i]))
+            p := if rows.is_empty() then 0 else n * 100 / rows.len()
+            out.push("{h[i]}: {n}/{rows.len()} ({p}%)")
+        return out
+    if t[1] == "rows"
+        for r in rows
+            cols := [h[i] for i in 0..h.len() if miss(r[i])]
+            if not cols.is_empty()
+                out.push("{r[0]}: {cols.join(",")}")
+        if out.is_empty()
+            out.push("(complete)")
+        return out
+    i := h.index_of(t[1]) else return "error: unknown column {t[1]}"
+    ids := [r[0] for r in rows if miss(r[i])]
+    body := if ids.is_empty() then "-" else ids.join(", ")
+    ["{t[1]}: {body}"]
+
+fn main()
+    lines := io.read_all().lines()
+    if lines.is_empty()
+        return
+    h := lines[0].split(",")
+    mut rows := List[List[str]]()
+    mut k := 1
+    while k < lines.len() and lines[k] != ""
+        rows.push(lines[k].split(","))
+        k += 1
+    for j in k..lines.len()
+        q := lines[j].trim()
+        if q.is_empty()
+            continue
+        print("> {q}")
+        out := exec(h, rows, q) else err
+            [err]
+        for l in out
+            print(l)

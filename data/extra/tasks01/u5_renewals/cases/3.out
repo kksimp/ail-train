@@ -1,0 +1,11 @@
+dan annual 2025-10 lapsed 2027-11 154
+cat monthly 2026-01 lapsed 2026-12 16
+bob quarterly 2026-02 lapsed 2027-02 44
+ann annual 2026-09 lapsed 2027-11 140
+ann2 annual 2026-09 lapsed 2027-11 140
+zed monthly 2026-11 expiring 2026-12 15
+guy quarterly 2027-01 expiring 2027-04 40
+fay annual 2027-02 active - 0
+eve life - active - 0
+due: 549 (7 renewals)
+skipped: 4

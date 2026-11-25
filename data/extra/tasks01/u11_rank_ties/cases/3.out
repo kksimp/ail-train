@@ -1,0 +1,16 @@
+> rank v
+error: bad query
+> rank v tied
+error: bad query
+> rank v dense desc
+error: bad query
+> rank v dense asc extra
+error: bad query
+> rank z dense
+error: unknown column z
+> rank v standard
+1 a 1
+> order v dense
+error: bad query
+> rank
+error: bad query

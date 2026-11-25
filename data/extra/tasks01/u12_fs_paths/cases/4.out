@@ -1,0 +1,7 @@
+? pwd extra
+? rm x
+? mkdir
+? cd a b
+? ls a b
+? touch
+? PWD

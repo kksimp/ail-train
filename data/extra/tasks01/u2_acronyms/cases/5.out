@@ -1,0 +1,12 @@
+HTTP 1 1
+TLS 1 1
+TCP 1 1
+IP 1 1
+RFC 1 1
+IETF 1 1
+USD 1 2
+EU 1 2
+EUR 1 2
+UK 1 2
+GBP 1 2
+total=11 distinct=11

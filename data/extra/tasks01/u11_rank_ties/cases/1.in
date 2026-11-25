@@ -1,0 +1,10 @@
+id,score
+a,90
+b,85
+c,90
+d,70
+
+rank score standard
+rank score dense asc
+rank score dense
+rank score standard asc

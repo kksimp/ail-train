@@ -1,0 +1,53 @@
+## Columnar transposition cipher: each line is `E|D KEY TEXT`, KEY of 2 to 10 letters.
+fn is_ascii_letter(c char) bool
+    (c >= 'A' and c <= 'Z') or (c >= 'a' and c <= 'z')
+
+## Column indexes in reading order: alphabetical by key letter, ties left to right.
+fn column_order(key str) List[int]
+    letters := [c.to_upper().code() for c in key.chars()]
+    cols := [i for i in 0..letters.len()]
+    cols.sorted(by: |i| (letters[i], i))
+
+fn encrypt(key str, text str) str
+    k := key.len()
+    cs := text.chars()
+    mut out := List[char]()
+    for c in column_order(key)
+        mut i := c
+        while i < cs.len()
+            out.push(cs[i])
+            i += k
+    out.join("")
+
+fn decrypt(key str, text str) str
+    k := key.len()
+    cs := text.chars()
+    n := cs.len()
+    mut cols := Map[int, List[char]]()
+    mut pos := 0
+    for c in column_order(key)
+        size := n / k + (if c < n % k then 1 else 0)
+        cols[c] = cs.slice(pos, pos + size)
+        pos += size
+    mut out := List[char]()
+    for i in 0..n
+        out.push(cols[i % k][i / k])
+    out.join("")
+
+fn main()
+    for line in io.read_all().lines()
+        if line.is_empty()
+            continue
+        parts := line.split(" ", 3)
+        if parts.len() < 2 or (parts[0] != "E" and parts[0] != "D")
+            print("bad command")
+            continue
+        key := parts[1]
+        text := if parts.len() > 2 then parts[2] else ""
+        if key.len() < 2 or key.len() > 10 or not key.chars().all(|c| is_ascii_letter(c))
+            print("bad key")
+            continue
+        if parts[0] == "E"
+            print(encrypt(key, text))
+        else
+            print(decrypt(key, text))

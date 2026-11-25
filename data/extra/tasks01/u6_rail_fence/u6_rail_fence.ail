@@ -1,0 +1,49 @@
+## Rail fence (zigzag) cipher: each line is `E|D N TEXT` with N rails from 2 to 10.
+
+## The rail of position i in a zigzag over n rails.
+fn rail_of(i int, n int) int
+    cycle := 2 * (n - 1)
+    r := i % cycle
+    if r < n
+        r
+    else
+        cycle - r
+
+## Positions in reading order: rail 0 first, each rail left to right.
+fn reading_order(length int, n int) List[int]
+    mut out := List[int]()
+    for k in 0..n
+        for i in 0..length
+            if rail_of(i, n) == k
+                out.push(i)
+    out
+
+fn encrypt(text str, n int) str
+    cs := text.chars()
+    reading_order(cs.len(), n).map(|i| cs[i]).join("")
+
+fn decrypt(text str, n int) str
+    cs := text.chars()
+    mut res := cs
+    order := reading_order(cs.len(), n)
+    for j in 0..order.len()
+        res[order[j]] = cs[j]
+    res.join("")
+
+fn main()
+    for line in io.read_all().lines()
+        if line.is_empty()
+            continue
+        parts := line.split(" ", 3)
+        if parts.len() < 2 or (parts[0] != "E" and parts[0] != "D")
+            print("bad command")
+            continue
+        n := parts[1].to_int() else 0
+        if n < 2 or n > 10
+            print("bad rails")
+            continue
+        text := if parts.len() > 2 then parts[2] else ""
+        if parts[0] == "E"
+            print(encrypt(text, n))
+        else
+            print(decrypt(text, n))

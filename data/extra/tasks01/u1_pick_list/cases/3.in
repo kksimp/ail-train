@@ -1,0 +1,9 @@
+pick o1 X 3
+pick o2 X 4
+loc X Z-1
+loc Y A-1
+pick o3 Y 1
+loc X A-1
+pick o4 Q 5
+pick o5 R 1
+loc R A-1

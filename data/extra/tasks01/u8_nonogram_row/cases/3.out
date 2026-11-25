@@ -1,0 +1,4 @@
+bad: got 1 1 1 want 1 2
+bad: got 1 want none
+ok
+invalid

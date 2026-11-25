@@ -1,0 +1,74 @@
+## Ordered multiset kept as a sorted list, using binary search (lower/upper
+## bound) for add, remove, count, rank, kth, floor and ceil queries.
+fn lower_bound(xs List[int], x int) int
+    mut lo := 0
+    mut hi := xs.len()
+    while lo < hi
+        mid := (lo + hi) / 2
+        if xs[mid] < x
+            lo = mid + 1
+        else
+            hi = mid
+    lo
+
+fn upper_bound(xs List[int], x int) int
+    mut lo := 0
+    mut hi := xs.len()
+    while lo < hi
+        mid := (lo + hi) / 2
+        if xs[mid] <= x
+            lo = mid + 1
+        else
+            hi = mid
+    lo
+
+fn num(w List[str], i int) int?
+    if i >= w.len()
+        return none
+    w[i].to_int()
+
+fn main()
+    mut xs := List[int]()
+    for line in io.read_all().lines()
+        w := line.words()
+        if w.is_empty()
+            continue
+        cmd := w[0]
+        known := cmd == "add" or cmd == "remove" or cmd == "count" or cmd == "rank" or cmd == "kth" or cmd == "floor" or cmd == "ceil"
+        if known and w.len() == 2 and num(w, 1) != none
+            x := num(w, 1) else 0
+            if cmd == "add"
+                xs.insert(lower_bound(xs, x), x)
+                print("ok")
+            elif cmd == "remove"
+                i := lower_bound(xs, x)
+                if i < xs.len() and xs[i] == x
+                    xs.remove_at(i)
+                    print("ok")
+                else
+                    print("missing")
+            elif cmd == "count"
+                print(upper_bound(xs, x) - lower_bound(xs, x))
+            elif cmd == "rank"
+                print(lower_bound(xs, x))
+            elif cmd == "kth"
+                if x >= 1 and x <= xs.len()
+                    print(xs[x - 1])
+                else
+                    print("none")
+            elif cmd == "floor"
+                i := upper_bound(xs, x)
+                if i > 0
+                    print(xs[i - 1])
+                else
+                    print("none")
+            else
+                i := lower_bound(xs, x)
+                if i < xs.len()
+                    print(xs[i])
+                else
+                    print("none")
+        elif cmd == "size" and w.len() == 1
+            print(xs.len())
+        else
+            print("error")

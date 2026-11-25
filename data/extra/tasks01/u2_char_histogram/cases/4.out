@@ -1,0 +1,8 @@
+upper     13 ####################
+lower      0
+digit      0
+space      2 ####
+newline    1 ##
+punct      0
+other      0
+total=16

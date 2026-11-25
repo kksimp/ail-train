@@ -50,7 +50,7 @@ class ServerGen:
     def one(self, msgs, seed):
         body = {"messages": msgs, "temperature": self.temp, "top_p": 1.0, "min_p": 0.0, "max_tokens": self.max_tokens,
                 "seed": seed, "top_k": self.extra["top_k"], "repeat_penalty": self.extra["repeat_penalty"],
-                "repeat_last_n": -1, "stream": False}
+                "repeat_last_n": 8192, "stream": False}  # the server takes no -1; 8192 covers any slot's context
         req = urllib.request.Request(self.url, data=json.dumps(body).encode("utf-8"),
                                      headers={"Content-Type": "application/json"})
         for attempt in range(3):

@@ -1,0 +1,8 @@
+set 2 3 5
+add 2 3 -2
+set 2 7 4
+rowsum 2
+get 2 3
+nnz
+set 2 7 0
+nnz

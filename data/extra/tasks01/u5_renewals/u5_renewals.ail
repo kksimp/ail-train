@@ -1,0 +1,82 @@
+## Club membership renewals: status, renewal month and fee per member, with a late surcharge.
+struct Row
+    key int
+    name str
+    plan str
+    exp str
+    status str
+    renews str
+    fee int
+
+fn dg(s str, lo int, hi int) bool
+    s.len() >= lo and s.len() <= hi and s.chars().all(|c| c.is_digit())
+
+fn ym(s str) int?
+    p := s.split("-")
+    if p.len() != 2 or not dg(p[0], 4, 4) or not dg(p[1], 2, 2)
+        return none
+    m := p[1].to_int() else 0
+    if m < 1 or m > 12
+        return none
+    (p[0].to_int() else 0) * 12 + m
+
+fn fm(i int) str
+    y := (i - 1) / 12
+    m := (i - 1) % 12 + 1
+    "{y:04}-{m:02}"
+
+fn main()
+    lines := io.read_all().lines()
+    h := (lines.first() else "").words()
+    if h.len() != 2 or h[0] != "today"
+        print("error: bad date")
+        return
+    today := ym(h[1]) else
+        print("error: bad date")
+        return
+    terms := {"monthly": 1, "quarterly": 3, "annual": 12}
+    bases := {"monthly": 15, "quarterly": 40, "annual": 140}
+    mut rows := List[Row]()
+    mut bad := 0
+    for line in lines.skip(1)
+        f := line.words()
+        if f.is_empty()
+            continue
+        if f.len() != 3 or (f[1] != "life" and not terms.contains(f[1]))
+            bad += 1
+            continue
+        if f[1] == "life"
+            if f[2] != "-"
+                bad += 1
+                continue
+            rows.push(Row(key: 1000000000, name: f[0], plan: f[1], exp: "-", status: "active", renews: "-", fee: 0))
+            continue
+        e := ym(f[2]) else
+            bad += 1
+            continue
+        term := terms[f[1]]
+        base := bases[f[1]]
+        d := e - today
+        mut status := "active"
+        mut renews := "-"
+        mut fee := 0
+        if d < 0
+            status = "lapsed"
+            renews = fm(today + term)
+            fee = base + (if d < -3 then base * 10 / 100 else 0)
+        elif d <= 2
+            status = "expiring"
+            renews = fm(e + term)
+            fee = base
+        rows.push(Row(key: e, name: f[0], plan: f[1], exp: f[2], status: status, renews: renews, fee: fee))
+    sorted_rows := rows.sorted(by: |r| (r.key, r.name))
+    for r in sorted_rows
+        print("{r.name} {r.plan} {r.exp} {r.status} {r.renews} {r.fee}")
+    if sorted_rows.is_empty()
+        print("no members")
+    else
+        due := sorted_rows.fold(0, |acc, r| acc + r.fee)
+        n := sorted_rows.count(|r| r.status != "active")
+        print("due: {due} ({n} renewals)")
+    if bad > 0
+        print("skipped: {bad}")

@@ -1,0 +1,74 @@
+## Pivot table of a small table: count rows or sum an integer column by a row key and a column key.
+fn exec(h List[str], rows List[List[str]], q str) List[str] ! str
+    t := q.words()
+    if t.is_empty() or t[0] != "pivot"
+        return "error: bad query"
+    is_sum := t.len() == 5 and t[3] == "sum"
+    if not is_sum and not (t.len() == 4 and t[3] == "count")
+        return "error: bad query"
+    ri := h.index_of(t[1]) else return "error: unknown column {t[1]}"
+    ci := h.index_of(t[2]) else return "error: unknown column {t[2]}"
+    mut vi := 0
+    if is_sum
+        vi = h.index_of(t[4]) else return "error: unknown column {t[4]}"
+    mut cells := Map[(str, str), int]()
+    mut rset := Set[str]()
+    mut cset := Set[str]()
+    for r in rows
+        mut add := 1
+        if is_sum
+            add = r[vi].to_int() else continue
+        cells[(r[ri], r[ci])] += add
+        rset.add(r[ri])
+        cset.add(r[ci])
+    if cells.is_empty()
+        return ["(empty)"]
+    rs := rset.sorted()
+    cs := cset.sorted()
+    mut head := [t[1]]
+    for c in cs
+        head.push(c)
+    head.push("total")
+    mut out := [head.join(",")]
+    mut coltot := [0 for _ in cs]
+    mut grand := 0
+    for r in rs
+        mut line := [r]
+        mut rt := 0
+        for j in 0..cs.len()
+            if cells.contains((r, cs[j]))
+                v := cells[(r, cs[j])]
+                line.push("{v}")
+                rt += v
+                coltot[j] += v
+            else
+                line.push(".")
+        grand += rt
+        line.push("{rt}")
+        out.push(line.join(","))
+    mut last := ["total"]
+    for x in coltot
+        last.push("{x}")
+    last.push("{grand}")
+    out.push(last.join(","))
+    out
+
+fn main()
+    lines := io.read_all().lines()
+    if lines.is_empty()
+        return
+    h := lines[0].split(",")
+    mut rows := List[List[str]]()
+    mut k := 1
+    while k < lines.len() and lines[k] != ""
+        rows.push(lines[k].split(","))
+        k += 1
+    for j in k..lines.len()
+        q := lines[j].trim()
+        if q.is_empty()
+            continue
+        print("> {q}")
+        out := exec(h, rows, q) else err
+            [err]
+        for l in out
+            print(l)

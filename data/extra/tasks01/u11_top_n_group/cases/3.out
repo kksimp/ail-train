@@ -1,0 +1,20 @@
+> top 0 v by g
+error: bad query
+> top -1 v by g
+error: bad query
+> top x v by g
+error: bad query
+> top 1 v g
+error: bad query
+> top 1 v by
+error: bad query
+> top 1 z by g
+error: unknown column z
+> top 1 v by z
+error: unknown column z
+> top 1 z by z
+error: unknown column z
+> best 1 v by g
+error: bad query
+> top 1 v on g
+error: bad query

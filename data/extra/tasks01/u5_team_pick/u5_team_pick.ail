@@ -1,0 +1,48 @@
+## Team selection: greedy balancing of two teams by rating sum with a size cap.
+struct P
+    neg int
+    name str
+
+fn dg(s str, lo int, hi int) bool
+    s.len() >= lo and s.len() <= hi and s.chars().all(|c| c.is_digit())
+
+fn main()
+    mut ps := List[P]()
+    mut seen := Set[str]()
+    mut bad := 0
+    for line in io.read_all().lines()
+        f := line.words()
+        if f.is_empty()
+            continue
+        if f.len() != 2 or not dg(f[1], 1, 3) or seen.contains(f[0])
+            bad += 1
+            continue
+        r := f[1].to_int() else 0
+        if r < 1 or r > 100
+            bad += 1
+            continue
+        seen.add(f[0])
+        ps.push(P(neg: -r, name: f[0]))
+    sorted_ps := ps.sorted(by: |p| (p.neg, p.name))
+    if sorted_ps.len() < 2
+        print("need at least 2 players")
+    else
+        cap := (sorted_ps.len() + 1) / 2
+        mut ta := List[str]()
+        mut tb := List[str]()
+        mut sa := 0
+        mut sb := 0
+        for p in sorted_ps
+            to_a := if ta.len() == cap then false elif tb.len() == cap then true elif sa < sb then true elif sb < sa then false else ta.len() <= tb.len()
+            if to_a
+                ta.push(p.name)
+                sa += -p.neg
+            else
+                tb.push(p.name)
+                sb += -p.neg
+        print("Team A: {ta.join(" ")} (total {sa})")
+        print("Team B: {tb.join(" ")} (total {sb})")
+        diff := if sa > sb then sa - sb else sb - sa
+        print("difference: {diff}")
+    if bad > 0
+        print("invalid: {bad}")

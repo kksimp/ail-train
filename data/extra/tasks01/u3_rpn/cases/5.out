@@ -1,0 +1,7 @@
+error: division by zero
+3 3 3
+error: unknown variable foo
+error: bad token A
+error: stack underflow
+error: bad token =Z
+15

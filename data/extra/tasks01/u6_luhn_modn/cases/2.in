@@ -1,0 +1,6 @@
+gen 10 0
+gen 10 9
+gen 10 00000
+gen 16 ffff
+gen 36 zzzzzz
+gen 36 hello1world

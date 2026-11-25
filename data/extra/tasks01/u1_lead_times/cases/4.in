@@ -1,0 +1,13 @@
+po a
+po a p1 x
+po a p1 5
+po b p1 6
+recv p1 4
+recv p1 5
+recv p1 7
+recv zz 1
+recv p1
+
+ship p1
+po  p2 3
+recv p1 -1

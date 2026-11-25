@@ -1,0 +1,7 @@
+> distinct x
+x (0): -
+> distinct y sorted
+y (0): -
+> distinct *
+x: 0
+y: 0

@@ -1,0 +1,50 @@
+## Rebuild user sessions from timestamped events using an idle timeout.
+## A gap larger than the timeout starts a new session; bad lines are counted.
+
+fn all_digits(s str) bool
+    if s.is_empty()
+        return false
+    for ch in s.chars()
+        if ch.code() < 48 or ch.code() > 57
+            return false
+    true
+
+fn header(lines List[str]) int?
+    if lines.is_empty()
+        return none
+    h := lines[0].split(" ")
+    if h.len() != 2 or h[0] != "timeout" or not all_digits(h[1])
+        return none
+    h[1].to_int()
+
+fn main()
+    mut lines := []
+    for l in io.read_all().lines()
+        if not l.is_empty()
+            lines.push(l)
+    limit := header(lines) else
+        print("error: bad header")
+        return
+    mut users := Map[str, List[int]]()
+    mut skipped := 0
+    for l in lines.skip(1)
+        f := l.split(" ")
+        if f.len() != 2 or not all_digits(f[0]) or f[1].is_empty()
+            skipped += 1
+            continue
+        users.push(f[1], f[0].to_int() else 0)
+    for u in users.keys().sorted()
+        ts := users[u].sorted()
+        mut start := ts[0]
+        mut prev := ts[0]
+        mut n := 1
+        for t in ts.skip(1)
+            if t - prev <= limit
+                n += 1
+            else
+                print("{u} {start} {prev} {n}")
+                start = t
+                n = 1
+            prev = t
+        print("{u} {start} {prev} {n}")
+    print("skipped: {skipped}")

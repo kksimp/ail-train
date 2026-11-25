@@ -1,0 +1,51 @@
+## Round-robin scheduler: a queue of (name, remaining) processes, a time
+## quantum, and add/run/status/clock commands that print each slice.
+struct Proc
+    name str
+    left int
+
+fn num(w List[str], i int) int?
+    if i >= w.len()
+        return none
+    w[i].to_int()
+
+fn main()
+    lines := io.read_all().lines()
+    q := (lines.first()?.trim().to_int() else 0)
+    if lines.is_empty() or q < 1 or q > 100
+        print("bad quantum")
+        return
+    mut queue := Deque[Proc]()
+    mut clock := 0
+    for k in 1..lines.len()
+        w := lines[k].words()
+        if w.is_empty()
+            continue
+        cmd := w[0]
+        if cmd == "add" and w.len() == 3 and num(w, 2) != none and (num(w, 2) else 0) >= 1 and (num(w, 2) else 0) <= 1000
+            burst := num(w, 2) else 0
+            if queue.to_list().any(|p| p.name == w[1])
+                print("dup")
+            else
+                queue.push_back(Proc(name: w[1], left: burst))
+                print("ok")
+        elif cmd == "run" and w.len() == 2 and num(w, 1) != none and (num(w, 1) else -1) >= 0
+            n := num(w, 1) else 0
+            for i in 0..n
+                p := queue.pop_front() else
+                    print("idle")
+                    break
+                t := q.min(p.left)
+                clock += t
+                print("{p.name} ran {t}")
+                if p.left - t == 0
+                    print("{p.name} done")
+                else
+                    queue.push_back(Proc(name: p.name, left: p.left - t))
+        elif cmd == "status" and w.len() == 1
+            items := queue.to_list()
+            print(if items.is_empty() then "empty" else [("{p.name}:{p.left}") for p in items].join(" "))
+        elif cmd == "clock" and w.len() == 1
+            print(clock)
+        else
+            print("error")

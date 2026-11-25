@@ -1,0 +1,13 @@
+emp,dept,salary,city
+e1,eng,120,nyc
+e2,eng,150,sf
+e3,ops,90,nyc
+e4,ops,90,sf
+e5,ops,95,nyc
+e6,hr,70,sf
+e7,eng,150,nyc
+e8,hr,n/a,sf
+
+top 2 salary by dept
+top 1 salary by city
+top 3 salary by city

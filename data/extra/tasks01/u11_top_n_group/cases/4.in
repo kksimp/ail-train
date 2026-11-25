@@ -1,0 +1,7 @@
+id,g,v
+a,x,no
+b,y,
+c,y,-
+
+top 3 v by g
+top 3 id by g

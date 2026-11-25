@@ -1,0 +1,10 @@
+ship a
+reject b short
+arrived a
+reject b unknown
+ship c
+reject d short
+ship d
+shelf s2 W 6
+transit c s3 s1 V 9
+transit d s3 s1 V 1

@@ -1,0 +1,11 @@
+policy 3 5 10
+1 a fail
+2 a fail
+7 a fail
+8 a fail
+9 b fail
+9 a fail
+10 a fail
+18 a fail
+19 a ok
+20 a fail

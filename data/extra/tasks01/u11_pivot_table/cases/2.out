@@ -1,0 +1,24 @@
+> pivot region quarter sum sales
+region,q1,q2,q3,total
+east,100,150,.,250
+north,.,40,.,40
+west,90,.,-20,70
+total,190,190,-20,360
+> pivot quarter region count
+quarter,east,north,west,total
+q1,2,.,2,4
+q2,1,1,.,2
+q3,.,.,1,1
+total,3,1,3,7
+> pivot rep quarter sum sales
+rep,q1,q2,q3,total
+ann,100,150,.,250
+bob,90,.,-20,70
+dee,.,40,.,40
+total,190,190,-20,360
+> pivot region rep sum sales
+region,ann,bob,dee,total
+east,250,.,.,250
+north,.,.,40,40
+west,.,70,.,70
+total,250,70,40,360

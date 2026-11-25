@@ -1,0 +1,4 @@
+a incomplete have=3/5 missing=1,2
+b incomplete have=1/2 missing=0
+c incomplete have=3/4 missing=3
+malformed=0 duplicates=1

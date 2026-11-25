@@ -1,0 +1,50 @@
+## Splits a restaurant bill with a tip among diners in integer cents; the tip rounds by an explicit mode
+## (half, up, down) and the leftover cents go to the first diners.
+fn money(c int) str
+    "{c / 100}.{c % 100:0>2}"
+
+struct Bill
+    total int
+    pct int
+    people int
+    mode str
+
+fn parse(line str) Bill?
+    w := line.words()
+    if w.len() != 4
+        return none
+    total := w[0].to_int() else return none
+    pct := w[1].to_int() else return none
+    people := w[2].to_int() else return none
+    if total < 0 or total > 100000000 or pct < 0 or pct > 100 or people < 1 or people > 20
+        return none
+    if not (w[3] == "half" or w[3] == "up" or w[3] == "down")
+        return none
+    Bill(total: total, pct: pct, people: people, mode: w[3])
+
+fn tip(b Bill) int
+    raw := b.total * b.pct
+    q := raw / 100
+    r := raw % 100
+    match b.mode
+        "down" => q
+        "up" => if r > 0 then q + 1 else q
+        _ => if r >= 50 then q + 1 else q
+
+fn main()
+    mut k := 0
+    for line in io.read_all().lines()
+        if line.trim().is_empty()
+            continue
+        k += 1
+        b := parse(line) else
+            print("bill {k}: bad input")
+            continue
+        t := tip(b)
+        grand := b.total + t
+        print("bill {k}: tip {money(t)} total {money(grand)}")
+        base := grand / b.people
+        extra := grand % b.people
+        for i in 0..b.people
+            share := if i < extra then base + 1 else base
+            print("person {i + 1}: {money(share)}")

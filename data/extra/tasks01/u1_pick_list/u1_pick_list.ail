@@ -1,0 +1,41 @@
+## Warehouse pick list: add up the picks per SKU, group SKUs by their bin and print them in bin order.
+## Unplaced SKUs go in the pseudo bin NOBIN, last.
+fn qty(s str) int
+    if s.is_empty()
+        return 0
+    n := s.to_int() else 0
+    if n >= 1 then n else 0
+
+fn main()
+    mut lines := io.read_all().split("\n")
+    if (lines.last() else "x") == ""
+        lines.pop()
+    mut loc := Map[str, str]()
+    mut need := Map[str, int]()
+    mut out := List[str]()
+    for k in 0..lines.len()
+        line := lines[k]
+        if line.is_empty()
+            continue
+        f := line.split(" ")
+        if f[0] == "loc" and f.len() == 3 and not f[1].is_empty() and not f[2].is_empty()
+            loc[f[1]] = f[2]
+        elif f[0] == "pick" and f.len() == 4 and not f[1].is_empty() and not f[2].is_empty() and qty(f[3]) > 0
+            need[f[2]] = (need.get(f[2]) else 0) + qty(f[3])
+        else
+            out.push("bad {k + 1}")
+    mut rows := List[(str, str, int)]()
+    for sku, q in need
+        rows.push((loc.get(sku) else "~", sku, q))
+    rows.sort()
+    mut last := ""
+    mut units := 0
+    for r in rows
+        if r.0 != last
+            name := if r.0 == "~" then "NOBIN" else r.0
+            out.push("bin {name}")
+            last = r.0
+        out.push("  {r.1} {r.2}")
+        units += r.2
+    out.push("lines {rows.len()} units {units}")
+    print(out.join("\n"))

@@ -1,0 +1,9 @@
+a net 1 tax 0
+b net 1 tax 0
+c net 3 tax 1
+d net 0 tax 0
+cat x net 5 tax 1
+cat y net 0 tax 0
+net 5
+tax 1
+total 6

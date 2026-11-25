@@ -1,0 +1,13 @@
+interval 3
+end 4
+beat 5
+beat 5
+beat 4
+beat 8
+beat x
+ping 9
+beat 20
+end 19
+end 22
+beat 23
+end 30

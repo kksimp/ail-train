@@ -1,0 +1,45 @@
+## Multi-source BFS distance map over a grid with walls ('#') and sources ('S').
+fn main()
+    mut g := List[List[char]]()
+    for l in io.read_all().lines()
+        if l != ""
+            g.push(l.chars())
+    rows := g.len()
+    cols := if rows > 0 then g[0].len() else 0
+    mut dist := [[-1 for c in 0..cols] for r in 0..rows]
+    mut queue := Deque[(int, int)]()
+    for r in 0..rows
+        for c in 0..cols
+            if g[r][c] == 'S'
+                dist[r][c] = 0
+                queue.push_back((r, c))
+    if queue.is_empty()
+        print("no sources")
+        return
+    dr := [1, -1, 0, 0]
+    dc := [0, 0, 1, -1]
+    while cell := queue.pop_front()
+        for d in 0..4
+            nr := cell.0 + dr[d]
+            nc := cell.1 + dc[d]
+            if nr >= 0 and nr < rows and nc >= 0 and nc < cols and g[nr][nc] != '#' and dist[nr][nc] < 0
+                dist[nr][nc] = dist[cell.0][cell.1] + 1
+                queue.push_back((nr, nc))
+    mut reach := 0
+    mut unreach := 0
+    mut far := 0
+    for r in 0..rows
+        mut cells := List[str]()
+        for c in 0..cols
+            if g[r][c] == '#'
+                cells.push("#")
+            elif dist[r][c] < 0
+                cells.push("-")
+                unreach += 1
+            else
+                cells.push("{dist[r][c]}")
+                if g[r][c] != 'S'
+                    reach += 1
+                far = far.max(dist[r][c])
+        print(cells.join(" "))
+    print("reachable {reach} unreachable {unreach} farthest {far}")

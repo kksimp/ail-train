@@ -1,0 +1,14 @@
+runner,secs,age
+r1,310,30
+r2,295,25
+r3,295,41
+r4,295,22
+r5,340,35
+r6,310,28
+r7,-5,50
+r8,x,19
+
+rank secs standard asc
+rank secs dense asc
+rank age standard
+rank age dense

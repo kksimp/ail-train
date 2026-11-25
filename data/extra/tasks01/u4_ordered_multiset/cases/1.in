@@ -1,0 +1,10 @@
+add 5
+add 3
+add 5
+add 9
+rank 5
+kth 3
+count 5
+remove 5
+floor 8
+ceil 6

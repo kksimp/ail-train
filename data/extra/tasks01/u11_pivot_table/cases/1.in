@@ -1,0 +1,8 @@
+r,c,v
+a,x,1
+a,y,2
+b,x,5
+a,x,3
+
+pivot r c sum v
+pivot r c count

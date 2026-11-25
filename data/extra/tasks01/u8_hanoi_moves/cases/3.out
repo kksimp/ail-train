@@ -1,0 +1,19 @@
+1 A C: 1 moves
+move 1 A C
+4 A B: 15 moves
+move 1 A C
+move 2 A B
+move 1 C B
+move 3 A C
+move 1 B A
+move 2 B C
+move 1 A C
+move 4 A B
+move 1 C B
+move 2 C A
+move 1 B A
+move 3 C B
+move 1 A C
+move 2 A B
+move 1 C B
+3 C C: 0 moves

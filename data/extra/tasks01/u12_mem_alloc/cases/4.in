@@ -1,0 +1,12 @@
+memory 64 strategy best
+  alloc A 64  
+free A
+free A
+bogus cmd here
+alloc B 0
+alloc C x
+alloc D 65
+alloc E 16
+alloc F 16
+free E
+free F

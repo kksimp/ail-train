@@ -1,0 +1,25 @@
+## Reports lines ending in spaces or tabs: count, kind and whether the line is blank.
+fn main()
+    lines := io.read_all().lines()
+    mut flagged := 0
+    for i, line in lines.enumerate()
+        cs := line.chars()
+        mut k := cs.len()
+        mut spaces := 0
+        mut tabs := 0
+        while k > 0 and (cs[k - 1] == ' ' or cs[k - 1] == '\t')
+            if cs[k - 1] == ' '
+                spaces += 1
+            else
+                tabs += 1
+            k -= 1
+        if spaces + tabs == 0
+            continue
+        flagged += 1
+        kind := if tabs == 0 then "spaces" elif spaces == 0 then "tabs" else "mixed"
+        suffix := if k == 0 then " (blank)" else ""
+        print("{i + 1}: {spaces + tabs} {kind}{suffix}")
+    if flagged == 0
+        print("clean")
+    else
+        print("flagged={flagged} of {lines.len()} lines")

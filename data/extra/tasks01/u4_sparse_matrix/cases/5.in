@@ -1,0 +1,12 @@
+add 5 1 100
+add 5 2 200
+add 6 1 -50
+add 7 3 1
+add 7 3 1
+rows
+rowsum 5
+colsum 1
+set 5 1 0
+rowsum 5
+colsum 1
+rows

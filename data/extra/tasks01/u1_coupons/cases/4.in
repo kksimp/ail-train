@@ -1,0 +1,11 @@
+item a 100 1
+item
+item b -1 2
+item c 5 0
+coupon
+coupon A B
+item d 7 3 x
+buy x
+
+coupon save10
+coupon SAVE10

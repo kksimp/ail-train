@@ -1,0 +1,61 @@
+## SCAN (elevator) disk scheduling: prints the service order, the head path and the
+## total head movement.
+fn parse_header(line str) List[int]
+    f := line.words()
+    if f.len() != 6 or f[0] != "disk" or f[2] != "head" or f[4] != "dir"
+        return []
+    if f[5] != "up" and f[5] != "down"
+        return []
+    c := f[1].to_int() else return []
+    h := f[3].to_int() else return []
+    if c < 1 or h < 0 or h >= c
+        return []
+    [c, h, if f[5] == "up" then 1 else 0]
+
+fn show(xs List[int]) str
+    xs.join(" ")
+
+fn main()
+    mut rows := List[str]()
+    for line in io.read_all().lines()
+        if not line.trim().is_empty()
+            rows.push(line)
+    hdr := parse_header(rows.first() else "")
+    if hdr.is_empty()
+        print("bad header")
+        return
+    c := hdr[0]
+    h := hdr[1]
+    up := hdr[2] == 1
+    mut reqs := List[int]()
+    mut skipped := 0
+    for line in rows.skip(1)
+        for tok in line.words()
+            v := tok.to_int() else
+                skipped += 1
+                continue
+            if v >= 0 and v < c
+                reqs.push(v)
+            else
+                skipped += 1
+    mut first := List[int]()
+    mut second := List[int]()
+    mut end := 0
+    if up
+        first = reqs.filter(|r| r >= h).sorted()
+        second = reqs.filter(|r| r < h).sorted().reversed()
+        end = c - 1
+    else
+        first = reqs.filter(|r| r <= h).sorted().reversed()
+        second = reqs.filter(|r| r > h).sorted()
+    mut path := [h]
+    path.extend(first)
+    if not second.is_empty()
+        path.push(end)
+        path.extend(second)
+    mut dist := 0
+    for i in 0..path.len() - 1
+        dist += (path[i + 1] - path[i]).abs()
+    print("order={show(first)}{if second.is_empty() then "" else " "}{show(second)}")
+    print("path={show(path)}")
+    print("movement={dist} skipped={skipped}")

@@ -1,0 +1,9 @@
+buy B 100 1
+buy A 1 99999
+buy B 100 2
+buy B 100 3
+sell B 250
+sell B 40
+sell B 11
+sell A 1
+buy C 1 5

@@ -1,0 +1,8 @@
+line 4: bad record
+line 5: bad record
+line 6: bad record
+line 7: bad record
+name	gross	pension	tax	social	net
+kim	3.33	0.17	0.32	0.21	2.63
+pam	0.03	0.00	0.00	0.00	0.03
+TOTAL	3.36	0.17	0.32	0.21	2.66

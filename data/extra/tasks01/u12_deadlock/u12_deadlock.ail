@@ -1,0 +1,70 @@
+## Deadlock detection on a wait-for graph: prints each deadlock group (cycle members
+## that reach each other), the processes blocked behind them, and a status line.
+fn name_char(ch char) bool
+    match ch
+        'a'..='z' => true
+        'A'..='Z' => true
+        '0'..='9' => true
+        '_' | '-' => true
+        _ => false
+
+fn valid_name(s str) bool
+    for ch in s.chars()
+        if not name_char(ch)
+            return false
+    not s.is_empty()
+
+fn reach(adj Map[str, List[str]], start str) Set[str]
+    mut seen := Set[str]()
+    mut stack := adj.get(start) else List[str]()
+    while n := stack.pop()
+        if seen.add(n)
+            for m in adj.get(n) else List[str]()
+                stack.push(m)
+    seen
+
+fn main()
+    mut adj := Map[str, List[str]]()
+    mut nodes := List[str]()
+    mut edges := Set[str]()
+    mut bad := 0
+    for raw in io.read_all().lines()
+        l := raw.trim()
+        if l.is_empty() or l.starts_with("#")
+            continue
+        w := l.words()
+        if w.len() != 3 or w[1] != "->" or not valid_name(w[0]) or not valid_name(w[2])
+            bad += 1
+            continue
+        for n in [w[0], w[2]]
+            if not adj.contains(n)
+                adj[n] = List[str]()
+                nodes.push(n)
+        if edges.add("{w[0]} {w[2]}")
+            adj[w[0]].push(w[2])
+    mut r := Map[str, Set[str]]()
+    for n in nodes
+        r[n] = reach(adj, n)
+    cyc := [n for n in nodes if r[n].contains(n)].sorted()
+    mut groups := List[List[str]]()
+    mut done := Set[str]()
+    for n in cyc
+        if done.contains(n)
+            continue
+        g := [m for m in cyc if m == n or (r[n].contains(m) and r[m].contains(n))].sorted()
+        for m in g
+            done.add(m)
+        groups.push(g)
+    mut blocked := List[str]()
+    for n in nodes
+        if not cyc.contains(n) and cyc.any(|m| r[n].contains(m))
+            blocked.push(n)
+    blocked.sort()
+    mut out := List[str]()
+    for i in 0..groups.len()
+        out.push("deadlock {i + 1}: {groups[i].join(" ")}")
+    if not blocked.is_empty()
+        out.push("blocked: {blocked.join(" ")}")
+    status := if groups.is_empty() then "ok" else "deadlock"
+    out.push("status={status} groups={groups.len()} deadlocked={cyc.len()} blocked={blocked.len()} ignored={bad}")
+    print(out.join("\n"))

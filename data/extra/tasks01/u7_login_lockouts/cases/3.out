@@ -1,0 +1,12 @@
+1 a fail
+2 a fail
+7 a fail
+8 a fail
+9 b fail
+9 a locked
+10 a denied
+18 a denied
+19 a ok
+20 a fail
+lockouts: 1
+malformed: 0
