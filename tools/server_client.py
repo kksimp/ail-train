@@ -24,6 +24,8 @@ def sampling_defaults(model_dir):
             out["top_k"] = int(g["top_k"])
         if g.get("repetition_penalty") is not None:
             out["repeat_penalty"] = float(g["repetition_penalty"])
+    if os.environ.get("AIL_REPEAT_PENALTY"):  # diagnostic override (e.g. 1.0 = off)
+        out["repeat_penalty"] = float(os.environ["AIL_REPEAT_PENALTY"])
     return out
 
 
