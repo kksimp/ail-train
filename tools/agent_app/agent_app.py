@@ -360,10 +360,11 @@ class Workspace:
         text = (out + ("\n[stderr]\n" + err if err.strip() else "")).replace(str(self.work), "work")
         text = text.replace(str(AIL_ROOT), "ail")
         rules = sorted(set(re.findall(r"error\[([a-z_]+(?:\.[a-z_0-9]+)+)\]", text)))
+        autofixed = sorted(set(re.findall(r"fixed .*?\[([a-z_]+(?:\.[a-z_0-9]+)+)\]", text)))
         changed = before is not None and before != after
         note = "\n[the compiler rewrote the file]" if changed and sub not in ("fmt", "fix") else ""
         return (clip(text or "(no output)") + f"\n[exit {code}]{note}", False,
-                {"exit": code, "rules": rules, "file_changed": changed, "secs": round(time.time() - t0, 1),
+                {"exit": code, "rules": rules, "autofixed": autofixed, "file_changed": changed, "secs": round(time.time() - t0, 1),
                  "first_error": next((l for l in text.splitlines() if "error[" in l), "")})
 
     def t_run_python(self, a):
@@ -594,6 +595,8 @@ def metrics(ws, lang):
             "compile_runs": len(checks),
             "compile_failures": len(fails),
             "rule_ids": dict(sorted(rules.items(), key=lambda kv: -kv[1])),
+            "autofixed_rule_ids": {r: sum(r in e.get("autofixed", []) for e in checks)
+                                   for r in sorted({r for e in checks for r in e.get("autofixed", [])})},
             "compiler_rewrote_file": sum(1 for e in ev if e.get("file_changed") and e["command"] not in ("fmt", "fix")),
             "runtime_traps": sum(1 for e in checks if e["command"] == "run" and e.get("exit") == 1),
             "first_clean_check_turn": next((e["turn"] for e in checks if e["command"] == "check" and e.get("exit") == 0), None),
@@ -772,7 +775,7 @@ AIL at the commit in .ail-version. {len(spec['hidden_cases'])} hidden cases, gra
 {table}
 AIL build read (category: count): {json.dumps(ail_m.get('reads_by_category', {}))}
 
-Compiler rule IDs hit: {json.dumps(ail_m.get('rule_ids', {}))}
+Compiler rule IDs hit: {json.dumps(ail_m.get('rule_ids', {}))}; fixed by the compiler itself: {json.dumps(ail_m.get('autofixed_rule_ids', {}))}
 
 ## Spend
 
