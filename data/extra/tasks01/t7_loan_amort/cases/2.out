@@ -1,0 +1,9 @@
+1: pay=450.00 interest=12.50 principal=437.50 balance=2062.50
+2: pay=450.00 interest=10.31 principal=439.69 balance=1622.81
+3: pay=450.00 interest=8.11 principal=441.89 balance=1180.92
+4: pay=450.00 interest=5.90 principal=444.10 balance=736.82
+5: pay=450.00 interest=3.68 principal=446.32 balance=290.50
+6: pay=291.95 interest=1.45 principal=290.50 balance=0.00
+months: 6
+total paid: 2541.95
+total interest: 41.95

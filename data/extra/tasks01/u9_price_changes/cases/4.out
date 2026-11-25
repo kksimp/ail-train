@@ -1,0 +1,7 @@
+line 1: bad line
+line 2: bad line
+line 3: bad line
+line 6: bad line
+line 7: bad line
+ok 123.45 -> 123.46 +0.01%
+up 1, down 0, same 0, n/a 0

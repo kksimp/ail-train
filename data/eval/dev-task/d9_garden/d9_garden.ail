@@ -1,0 +1,122 @@
+## Garden grid: plants grow when watered and die after three dry days.
+struct Cell
+    plant bool
+    h int
+    water int
+    dry int
+
+error enum CmdError
+    Unknown "unknown command"
+    Args "bad arguments"
+    Range "out of range"
+    Occupied "cell occupied"
+
+enum Cmd
+    Plant(r int, c int)
+    Water(r int, c int)
+    Day
+    Show
+
+struct Garden
+    rows int
+    cols int
+    cells List[Cell]
+    days int
+    blooms int
+    dead int
+
+fn digits(s str) int?
+    if s.is_empty() or not s.chars().all(|c| c.is_digit())
+        return none
+    s.to_int()
+
+fn parse(line str, g Garden) Cmd ! CmdError
+    w := line.words()
+    kind := w[0]
+    if kind != "plant" and kind != "water" and kind != "day" and kind != "show"
+        return Unknown
+    if kind == "day" or kind == "show"
+        if w.len() != 1
+            return Args
+        return if kind == "day" then Cmd.Day else Cmd.Show
+    if w.len() != 3
+        return Args
+    r := digits(w[1]) else return Args
+    c := digits(w[2]) else return Args
+    if r < 1 or r > g.rows or c < 1 or c > g.cols
+        return Range
+    if kind == "plant" then Cmd.Plant(r: r, c: c) else Cmd.Water(r: r, c: c)
+
+fn Garden.splash(mut self, r int, c int, amount int)
+    if r >= 1 and r <= self.rows and c >= 1 and c <= self.cols
+        self.cells[(r - 1) * self.cols + c - 1].water += amount
+
+fn Garden.water(mut self, r int, c int)
+    self.splash(r, c, 3)
+    self.splash(r - 1, c, 1)
+    self.splash(r + 1, c, 1)
+    self.splash(r, c - 1, 1)
+    self.splash(r, c + 1, 1)
+
+fn Garden.plant(mut self, r int, c int) ! CmdError
+    i := (r - 1) * self.cols + c - 1
+    if self.cells[i].plant
+        return Occupied
+    self.cells[i].plant = true
+    self.cells[i].h = 1
+    self.cells[i].dry = 0
+
+fn Garden.day(mut self)
+    mut grew := 0
+    mut died := 0
+    for i in 0..self.cells.len()
+        mut c := self.cells[i]
+        if c.plant and c.water >= 2
+            c.water -= 2
+            c.dry = 0
+            if c.h < 9
+                c.h += 1
+                grew += 1
+                if c.h == 9
+                    self.blooms += 1
+        elif c.plant
+            c.dry += 1
+            if c.dry >= 3
+                c = Cell(plant: false, h: 0, water: c.water, dry: 0)
+                died += 1
+        c.water = c.water / 2
+        self.cells[i] = c
+    self.days += 1
+    self.dead += died
+    print("day {self.days}: grew {grew} died {died}")
+
+fn Garden.show(self)
+    for r in 0..self.rows
+        row := [if self.cells[r * self.cols + c].plant then "{self.cells[r * self.cols + c].h}" else "." for c in 0..self.cols]
+        print(row.join(""))
+
+fn main()
+    lines := io.read_all().lines()
+    head := (lines.first() else "").words().map(|w| digits(w) else 0)
+    if head.len() != 2 or head[0] < 1 or head[0] > 8 or head[1] < 1 or head[1] > 8
+        print("bad header")
+        return
+    mut g := Garden(rows: head[0], cols: head[1], cells: [], days: 0, blooms: 0, dead: 0)
+    for _ in 0..head[0] * head[1]
+        g.cells.push(Cell(plant: false, h: 0, water: 0, dry: 0))
+    for i in 1..lines.len()
+        line := lines[i].trim()
+        if line.is_empty() or line.starts_with("#")
+            continue
+        cmd := parse(line, g) else err
+            print("error line {i + 1}: {err}")
+            continue
+        match cmd
+            Plant(r, c) =>
+                g.plant(r, c) else err
+                    print("error line {i + 1}: {err}")
+            Water(r, c) => g.water(r, c)
+            Day => g.day()
+            Show => g.show()
+    alive := g.cells.filter(|c| c.plant).len()
+    print("summary: blooms {g.blooms} dead {g.dead} alive {alive}")

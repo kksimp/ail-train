@@ -1,0 +1,71 @@
+## Matches texts against patterns with `.`, `[a-z]` classes and `*` / `?` quantifiers.
+struct Item
+    neg bool
+    ranges List[int]
+    q char
+
+fn Item.hits(self, c char) bool
+    mut inside := false
+    for k in 0..self.ranges.len() / 2
+        if c.code() >= self.ranges[2 * k] and c.code() <= self.ranges[2 * k + 1]
+            inside = true
+    inside != self.neg
+
+fn parse(p List[char]) List[Item]?
+    mut items := List[Item]()
+    mut i := 0
+    while i < p.len()
+        c := p[i]
+        i += 1
+        if c == '*' or c == '?'
+            if items.is_empty() or items[items.len() - 1].q != ' '
+                return none
+            items[items.len() - 1].q = c
+        elif c == '['
+            mut it := Item(neg: false, ranges: [], q: ' ')
+            if i < p.len() and p[i] == '^'
+                it.neg = true
+                i += 1
+            mut body := List[char]()
+            while i < p.len() and p[i] != ']'
+                body.push(p[i])
+                i += 1
+            if i >= p.len() or body.is_empty()
+                return none
+            i += 1
+            mut k := 0
+            while k < body.len()
+                isr := k + 2 < body.len() and body[k + 1] == '-'
+                hi := if isr then body[k + 2] else body[k]
+                if hi.code() < body[k].code()
+                    return none
+                it.ranges.push(body[k].code())
+                it.ranges.push(hi.code())
+                k += if isr then 3 else 1
+            items.push(it)
+        else
+            items.push(Item(neg: c == '.', ranges: if c == '.' then [] else [c.code(), c.code()], q: ' '))
+    items
+
+fn matches(items List[Item], i int, t List[char], j int) bool
+    if i == items.len()
+        return j == t.len()
+    it := items[i]
+    ok := j < t.len() and it.hits(t[j])
+    if it.q == '*'
+        return matches(items, i + 1, t, j) or (ok and matches(items, i, t, j + 1))
+    if it.q == '?' and matches(items, i + 1, t, j)
+        return true
+    ok and matches(items, i + 1, t, j + 1)
+
+fn main()
+    mut n := 0
+    for line in io.read_all().lines()
+        n += 1
+        sp := line.find(" ") else
+            print("{n}: bad line")
+            continue
+        items := parse(line.slice(0, sp).chars()) else
+            print("{n}: bad pattern")
+            continue
+        print("{n}: {if matches(items, 0, line.slice(sp + 1).chars(), 0) then "match" else "no match"}")

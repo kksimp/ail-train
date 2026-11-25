@@ -1,0 +1,9 @@
+uma total=$50000.01 commission=$3700.00
+vic total=$50000.00 commission=$3700.00
+Yan total=$10000.00 commission=$500.00
+wu total=$10000.01 commission=$500.00
+zoe total=$10000.00 commission=$500.00
+xi total=$9999.99 commission=$499.99
+tom total=-$5.00 commission=$0.00
+reps: 7
+payout: $9399.99

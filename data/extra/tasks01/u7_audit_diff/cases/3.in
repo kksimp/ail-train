@@ -1,0 +1,9 @@
+@before
+a x 1
+b x 1
+c x 1
+@after
+a x 1
+b x 2
+c x 1
+c y 9

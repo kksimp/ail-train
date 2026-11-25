@@ -1,0 +1,14 @@
+use sugar 3
+price sugar 95 1000
+recipe jam 3
+use sugar 1
+use fruit 10
+use fruit 5
+use zest 2
+recipe syrup 0
+recipe syrup 7
+use sugar 999
+price sugar 95 0
+price water 0 1
+use water 40
+recipe empty 2

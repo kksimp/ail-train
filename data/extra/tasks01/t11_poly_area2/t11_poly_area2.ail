@@ -1,0 +1,34 @@
+## Reads N and then vertices `X Y`; prints twice the polygon area (shoelace) and its orientation.
+fn parse_point(t str) (int, int)?
+    w := t.words()
+    if w.len() != 2
+        return none
+    x := w[0].to_int() else return none
+    y := w[1].to_int() else return none
+    (x, y)
+
+fn main()
+    mut n := 0
+    mut have_header := false
+    mut xs := List[int]()
+    mut ys := List[int]()
+    for line in io.read_all().lines()
+        t := line.trim()
+        if t.is_empty()
+            continue
+        if not have_header
+            have_header = true
+            n = (t.to_int() else 0).max(0)
+            continue
+        if xs.len() >= n
+            break
+        p := parse_point(t) else continue
+        xs.push(p.0)
+        ys.push(p.1)
+    mut s := 0
+    for i in 0..xs.len()
+        j := (i + 1) % xs.len()
+        s += xs[i] * ys[j] - xs[j] * ys[i]
+    orient := if s > 0 then "ccw" elif s < 0 then "cw" else "degenerate"
+    print("doubled_area {s.abs()}")
+    print("orientation {orient}")

@@ -1,0 +1,9 @@
+budget,food,-5
+plan,food,5
+budget,,5
+budget,food
+budget,food,1,2
+budget,food,abc
+
+ budget , food , 100
+actual, food ,  33

@@ -1,0 +1,9 @@
+path=/enc
+  name=J%C3%B6rg
+  ok=~~
+  bad=%G1
+  short=%4
+  end=%
+path=/enc
+  a=b
+  q=%41

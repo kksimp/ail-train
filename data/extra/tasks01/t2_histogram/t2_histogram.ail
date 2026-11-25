@@ -1,0 +1,52 @@
+## Fixed-width integer histogram: bucket = floor(v / width), empty buckets between extremes are shown.
+
+fn is_int(t str) bool
+    body := t.strip_prefix("-") else t
+    if body.is_empty()
+        return false
+    for c in body.chars()
+        if not c.is_digit()
+            return false
+    true
+
+## Floor division (the built-in `/` rounds toward zero).
+fn floor_div(a int, b int) int
+    q := a / b
+    if a % b != 0 and a < 0
+        return q - 1
+    q
+
+fn main()
+    text := io.read_all()
+    lines := text.split("\n")
+    first := lines[0].trim()
+    if not is_int(first) or first.starts_with("-")
+        print("error: bad width")
+        return
+    w := first.to_int() else 0
+    if w <= 0
+        print("error: bad width")
+        return
+    mut counts := Map[int, int]()
+    mut total := 0
+    mut invalid := 0
+    for line in lines.slice(1)
+        for tok in line.words()
+            if is_int(tok)
+                v := tok.to_int() else 0
+                counts[floor_div(v, w)] += 1
+                total += 1
+            else
+                invalid += 1
+    if not counts.is_empty()
+        ks := counts.keys().sorted()
+        lo := ks[0]
+        hi := ks[ks.len() - 1]
+        for b in lo..=hi
+            c := counts.get(b) else 0
+            head := "[{b * w}..{b * w + w - 1}] {c}"
+            if c > 0
+                print("{head} {"#".repeat(c)}")
+            else
+                print(head)
+    print("total {total} invalid {invalid}")

@@ -1,0 +1,15 @@
+inorder
+height
+min
+delete 4
+contains 4
+insert -2
+insert -9
+insert 0
+min
+delete -2
+inorder
+delete -9
+delete 0
+inorder
+height

@@ -1,0 +1,10 @@
+stock A 3
+stock B 10
+
+order x1 A 2
+order x2 A 4
+order x3 B 11
+order x4 A 1
+restock A 1
+restock A 6
+restock B 5

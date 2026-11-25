@@ -1,0 +1,10 @@
+> running amt by acct
+t1 a: 10 -> 10
+t2 b: 5 -> 5
+t3 a: -4 -> 6
+(skipped 1)
+> runmax amt by acct
+t1 a: 10 -> 10
+t2 b: 5 -> 5
+t3 a: -4 -> 10
+(skipped 1)

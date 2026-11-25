@@ -1,0 +1,9 @@
+OK big x 0-100
+REJECT s1 x 10-20 conflicts with big
+OK s2 x 100-101
+OK p y 1-2
+OK q y 2-3
+REJECT r y 1-3 conflicts with p
+REJECT s3 x 99-100 conflicts with big
+OK u y 0-1
+accepted 5 rejected 3 bad 0

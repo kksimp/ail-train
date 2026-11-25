@@ -1,0 +1,9 @@
+adjust c 12
+receive a 3
+receive b 30
+ship b 30
+ship c 2
+report
+low 13
+
+low 0

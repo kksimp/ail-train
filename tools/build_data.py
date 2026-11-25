@@ -14,6 +14,12 @@ function from its signature and the program around it). Splits are by group (one
 one agent task), so no program appears in two splits. quick-eval holds 10% of corpus programs and 10% of mistakes;
 valid holds 5% of the other groups except the agent tasks. Train items whose program shares more than 30% of its
 token 8-grams with a quick-eval program are dropped (5.3 rule 5).
+
+Run 3: `spec` is the write task plus the exact output the program must print (programs with a short .out), train
+split only; a train program with a spec item keeps its header-only write item for a hash-picked 20%. The spec items of
+held-out programs go to OUT/dev-spec.jsonl (every quick-eval corpus program plus hash-picked valid programs, 100 in
+all), a whole-program dev benchmark; train.jsonl, valid.jsonl and quick-eval.jsonl never hold them, and quick-eval and
+valid stay byte-identical to data/splits.sha256 (tools/pc/run.sh build checks it).
 """
 
 import argparse
@@ -34,6 +40,17 @@ CACHE = os.path.join(os.path.expanduser("~"), "ail-train-work", "build-cache")
 SHORT_SYSTEM = os.path.join(ROOT, "tools", "preflight", "short-system.txt")
 RULE = re.compile(r"error\[([a-z][a-z0-9_]*(?:\.[a-z0-9_]+)+)\]")
 SKIP_CASE_EXT = {".args", ".err", ".trap", ".stderr", ".rules", ".test", ".stdin", ".txt"}
+# spec (run 3): the write task plus the exact output, for programs whose output is short enough to state in the task.
+SPEC_SOURCES = {"corpus", "examples", "drills", "extra"}
+SPEC_MAX_LINES, SPEC_MAX_CHARS = 60, 2000
+SPEC_KEEP_WRITE_PCT = 20  # train programs with a spec item keep their header-only write item this often (hash-picked)
+DEV_SPEC_ITEMS = 100  # dev-spec.jsonl: every quick-eval corpus program plus hash-picked valid programs
+TRAIN_ONLY = ("apps/", "repair/", "behave/", "task2/")  # run 3 group prefixes: never valid or quick-eval
+TRIM_FIRST = ("repair-mut", "behave-mut")  # sources trimmed (by hash) when train is over --max-train-tokens
+
+
+def spec_ok(out):
+    return out.count("\n") <= SPEC_MAX_LINES and len(out) <= SPEC_MAX_CHARS
 
 
 def sha(*parts):
@@ -150,7 +167,7 @@ def program_sources(ail_root):
     extra = os.path.join(ROOT, "data", "extra")
     for grp in sorted(os.listdir(extra)):
         gdir = os.path.join(extra, grp)
-        if not os.path.isdir(gdir):
+        if not os.path.isdir(gdir) or grp.startswith("tasks"):  # tasksNN: input-driven tasks, family `task`
             continue
         for name in sorted(os.listdir(gdir)):
             base = os.path.join(gdir, name, name)
@@ -364,6 +381,11 @@ def grams(text, n=8):
     return {" ".join(toks[i:i + n]) for i in range(max(0, len(toks) - n + 1))}
 
 
+def spec_task(task, out):
+    """A write task made well-posed: the task text plus the exact output the program must print."""
+    return "{}\n\nIt must print exactly:\n\n```\n{}```".format(task, out if out.endswith("\n") else out + "\n")
+
+
 def pick(group, seed, pct):
     return int(sha(str(seed), group)[:8], 16) % 1000 < pct * 10
 
@@ -387,7 +409,22 @@ def main():
     ap.add_argument("--max-tokens", type=int, default=2048)
     ap.add_argument("--jobs", type=int, default=4)
     ap.add_argument("--seed", type=int, default=20261121)
+    ap.add_argument("--apps", default=os.path.join(os.path.expanduser("~"), "ail-train-work", "apps"))
+    ap.add_argument("--harvest", default=os.path.join(os.path.expanduser("~"), "ail-train-work", "harvest"))
+    ap.add_argument("--max-train-tokens", type=int, default=26000000)
+    ap.add_argument("--no-run3", action="store_true", help="leave out the run 3 families (apps, repair, behave)")
     args = ap.parse_args()
+
+    def split_of_group(g):
+        if g.startswith(TRAIN_ONLY):
+            return "train"
+        if g.startswith("corpus/") and pick(g, args.seed, 10):
+            return "quick-eval"
+        if g.startswith("mistakes/") and pick(g, args.seed, 10):
+            return "quick-eval"
+        if g.startswith(("task/", "rule/")):
+            return "train"
+        return "valid" if pick(g, args.seed + 1, 5) else "train"
 
     ail_root = os.path.abspath(args.ail)
     want = read(os.path.join(ROOT, ".ail-version")).strip()
@@ -460,6 +497,9 @@ def main():
             task = header_text(src)
             if task:
                 add("write:" + g, g, "write", source, src, task, fence(src))
+                if (source in SPEC_SOURCES and out is not None and out.count("\n") <= SPEC_MAX_LINES
+                        and len(out) <= SPEC_MAX_CHARS):
+                    add("spec:" + g, g, "spec", source, src, spec_task(task, out), fence(src))
             elif out is not None:
                 add("write:" + g, g, "write", source, src,
                     "Write an AIL program that prints exactly:\n\n```\n{}```".format(out), fence(src))
@@ -592,19 +632,47 @@ def main():
         add("explain:" + r, "rule/" + r, "explain", "explain", "",
             "Explain this AIL diagnostic and how to fix it:\n\n```\n{}\n```".format(diag_lines[r]), text)
 
+    # 6b. Run 3 families (tools/run3_build.py): real app code, repair and behave items, all train-only.
+    run3_notes = []
+    run3_stats = {}
+    if not args.no_run3:
+        import run3_build
+
+        run3_stats = run3_build.build({
+            "root": ROOT, "comp": comp, "res": res, "progs": progs, "drafts": drafts, "trials": trials, "seed": args.seed,
+            "ail_root": ail_root, "apps_dir": args.apps, "apps_lock": os.path.join(ROOT, "data", "apps.lock"),
+            "harvest_dir": args.harvest, "cache": CACHE, "train_group": lambda g: split_of_group(g) == "train",
+            "spec_ok": spec_ok, "spec_task": spec_task, "header_text": header_text, "add": add, "drop": drop,
+            "notes": run3_notes})
+
     # 7. Splits by group.
     def split_of(it):
-        g = it["group"]
-        if g.startswith("corpus/") and pick(g, args.seed, 10):
-            return "quick-eval"
-        if g.startswith("mistakes/") and pick(g, args.seed, 10):
-            return "quick-eval"
-        if g.startswith(("task/", "rule/")):
-            return "train"
-        return "valid" if pick(g, args.seed + 1, 5) else "train"
+        return split_of_group(it["group"])
 
     for it in items:
         it["split"] = split_of(it)
+
+    # 7b. spec items train only. Their non-train twins go to dev-spec.jsonl (every quick-eval corpus program plus
+    # hash-picked valid programs), so valid.jsonl and quick-eval.jsonl stay as they were. A train program with a spec
+    # item keeps its header-only write item only for a hash-picked SPEC_KEEP_WRITE_PCT%.
+    spec_groups = {it["group"] for it in items if it["family"] == "spec" and it["split"] == "train"}
+    dev_cands = [it for it in items if it["family"] == "spec" and it["split"] != "train"]
+    rest = []
+    for it in items:
+        if it["family"] == "spec" and it["split"] != "train":
+            continue
+        if (it["family"] == "write" and it["split"] == "train" and it["group"] in spec_groups
+                and not pick(it["group"], args.seed + 2, SPEC_KEEP_WRITE_PCT)):
+            drop(it["id"], "write replaced by spec")
+            continue
+        rest.append(it)
+    items = rest
+    dev = [it for it in dev_cands if it["split"] == "quick-eval" and it["group"].startswith("corpus/")]
+    more = sorted((it for it in dev_cands if it["split"] == "valid"), key=lambda it: sha(str(args.seed), "dev-spec",
+                                                                                          it["group"]))
+    dev += more[:max(0, DEV_SPEC_ITEMS - len(dev))]
+    for it in dev:
+        it["split"] = "dev-spec"
 
     # 8. Near-duplicate filter against quick-eval programs.
     index = {}
@@ -613,7 +681,21 @@ def main():
     for it in items:
         if it["split"] == "quick-eval" and it["prog"]:
             eval_prog.setdefault(it["group"], it["prog"])
-    for g in eval_groups:
+    # Run 3: dev-spec programs (quick-eval corpus programs and valid programs) are held out the same way.
+    for it in dev:
+        eval_prog.setdefault(it["group"], it["prog"])
+    # Held-out dev-task programs and specs (data/eval/dev-task, eval only): train items near them are dropped too.
+    dt_root = os.path.join(ROOT, "data", "eval", "dev-task")
+    dt_groups = []
+    for name in sorted(os.listdir(dt_root)) if os.path.isdir(dt_root) else []:
+        d = os.path.join(dt_root, name)
+        if os.path.isfile(os.path.join(d, name + ".ail")):
+            for part in (name + ".ail", "spec.md"):
+                g = "dev-task:{}/{}".format(name, part)
+                eval_prog[g] = read(os.path.join(d, part))
+                dt_groups.append(g)
+    qe_set = set(eval_groups)
+    for g in sorted(set(eval_groups) | {it["group"] for it in dev} | set(dt_groups)):
         for h in grams(eval_prog.get(g, "")):
             index.setdefault(h, set()).add(g)
     kept = []
@@ -622,14 +704,27 @@ def main():
             gs = grams(it["prog"])
             if gs:
                 counts = {}
+                # valid items are held out against quick-eval only, as before run 3 (so valid.jsonl stays as it
+                # was); train items against quick-eval and dev-spec programs.
+                allowed = qe_set if it["split"] == "valid" else None
                 for h in gs:
                     for g in index.get(h, ()):
-                        counts[g] = counts.get(g, 0) + 1
+                        if allowed is None or g in allowed:
+                            counts[g] = counts.get(g, 0) + 1
                 worst = max(counts.values()) if counts else 0
                 if worst / len(gs) > 0.30:
-                    drop(it["id"], "near-duplicate of a quick-eval program")
+                    near = {g for g, c in counts.items() if c / len(gs) > 0.30}
+                    drop(it["id"], "near-duplicate of a quick-eval program" if near & qe_set
+                         else ("near-duplicate of a dev-task program or spec" if any(
+                             g.startswith("dev-task:") for g in near) else "near-duplicate of a dev-spec program"))
                     continue
         kept.append(it)
+    # Guard: no dev-task spec or program may appear verbatim in any kept item.
+    for g in dt_groups:
+        needle = eval_prog[g].strip()
+        for it in kept:
+            if needle and any(needle in m["content"] for m in it["messages"]):
+                sys.exit("dev-task leak: {} appears in {}".format(g, it["id"]))
 
     # 9. Token lengths.
     tok = None
@@ -647,13 +742,25 @@ def main():
         return len(ids)
 
     final = []
-    for it in kept:
+    for it in kept + dev:
         n = length(it["messages"])
         if n > args.max_tokens:
             drop(it["id"], "longer than {} tokens".format(args.max_tokens))
             continue
         it["tokens"] = n
         final.append(it)
+    # Token cap on train: trim repair-mut, then behave-mut (by hash) until train fits --max-train-tokens.
+    total = sum(it["tokens"] for it in final if it["split"] == "train")
+    for src in TRIM_FIRST:
+        if total <= args.max_train_tokens:
+            break
+        for it in sorted((x for x in final if x["source"] == src), key=lambda x: sha(str(args.seed), "trim", x["id"])):
+            if total <= args.max_train_tokens:
+                break
+            it["trimmed"] = True
+            total -= it["tokens"]
+            drop(it["id"], "over the train token cap")
+    final = [it for it in final if not it.get("trimmed")]
 
     # 10. Write.
     os.makedirs(args.out, exist_ok=True)
@@ -670,10 +777,14 @@ def main():
         "dropped_counts": {},
         "dropped": sorted(dropped, key=lambda d: (d["reason"], d["id"])),
         "quick_eval_groups": eval_groups,
+        "dev_spec_groups": sorted(it["group"] for it in final if it["split"] == "dev-spec"),
+        "max_train_tokens": args.max_train_tokens,
+        "run3": run3_stats,
+        "run3_notes": run3_notes,
     }
     for d in dropped:
         manifest["dropped_counts"][d["reason"]] = manifest["dropped_counts"].get(d["reason"], 0) + 1
-    for split in ("train", "valid", "quick-eval"):
+    for split in ("train", "valid", "quick-eval", "dev-spec"):
         rows = sorted((it for it in final if it["split"] == split), key=lambda it: it["id"])
         with open(os.path.join(args.out, split + ".jsonl"), "w", encoding="utf-8") as f:
             for it in rows:

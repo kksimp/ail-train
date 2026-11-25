@@ -1,0 +1,53 @@
+## Budget vs actual: sums budget and actual spending per category and reports the difference,
+## percent used and an OVER/UNDER/MET status, then totals for all categories.
+struct Rec
+    kind str
+    cat str
+    cents int
+
+fn money(c int) str
+    sign := if c < 0 then "-" else ""
+    a := c.abs()
+    "{sign}{a / 100}.{a % 100:0>2}"
+
+fn parse_rec(line str) Rec?
+    f := line.split(",")
+    if f.len() != 3
+        return none
+    kind := f[0].trim()
+    cat := f[1].trim()
+    if (kind != "budget" and kind != "actual") or cat.is_empty()
+        return none
+    c := f[2].trim().to_int() else return none
+    if c < 0
+        return none
+    Rec(kind: kind, cat: cat, cents: c)
+
+fn main()
+    mut bud := Map[str, int]()
+    mut act := Map[str, int]()
+    mut cats := Set[str]()
+    mut n := 0
+    for line in io.read_all().lines()
+        n += 1
+        if line.trim().is_empty()
+            continue
+        r := parse_rec(line) else
+            print("line {n}: invalid")
+            continue
+        if r.kind == "budget"
+            bud[r.cat] += r.cents
+        else
+            act[r.cat] += r.cents
+        cats.add(r.cat)
+    mut tb := 0
+    mut ta := 0
+    for c in cats.sorted()
+        b := bud.get(c) else 0
+        a := act.get(c) else 0
+        used := if b == 0 then "n/a" else "{a * 100 / b}%"
+        st := if a > b then "OVER" elif a < b then "UNDER" else "MET"
+        print("{c}: budget={money(b)} actual={money(a)} diff={money(b - a)} used={used} {st}")
+        tb += b
+        ta += a
+    print("total: budget={money(tb)} actual={money(ta)} diff={money(tb - ta)}")

@@ -1,0 +1,9 @@
+1: invalid
+0: invalid
+-8: invalid
+abc: invalid
+10000000000000: invalid
++9: invalid
+2.5: invalid
+1 000: invalid
+243 = 3^5

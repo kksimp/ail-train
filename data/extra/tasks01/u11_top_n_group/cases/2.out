@@ -1,0 +1,10 @@
+> top 2 salary by dept
+eng: e2=150, e7=150
+hr: e6=70
+ops: e5=95, e3=90
+> top 1 salary by city
+nyc: e7=150
+sf: e2=150
+> top 3 salary by city
+nyc: e7=150, e1=120, e5=95
+sf: e2=150, e4=90, e6=70

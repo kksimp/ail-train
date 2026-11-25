@@ -1,0 +1,26 @@
+## Splits odometer readings into trips; a repeated reading ends a trip.
+fn show(n int, dist int, legs int)
+    print("trip {n}: {dist} km in {legs} legs")
+
+fn main()
+    mut prev := -1
+    mut dist := 0
+    mut legs := 0
+    mut n := 0
+    while true
+        line := io.read_line() else break
+        r := line.trim().to_int() else continue
+        if r < 0 or r < prev
+            continue
+        if r == prev and legs > 0
+            n += 1
+            show(n, dist, legs)
+            dist = 0
+            legs = 0
+        elif r > prev and prev >= 0
+            dist += r - prev
+            legs += 1
+        prev = r
+    if legs > 0
+        show(n + 1, dist, legs)
+    print("trips {n + (if legs > 0 then 1 else 0)}")

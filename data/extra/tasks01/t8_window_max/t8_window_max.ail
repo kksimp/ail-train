@@ -1,0 +1,41 @@
+## Computes the maximum of every window of K numbers with a monotonic deque of indices.
+## Prints the maxima, then the overall largest one; invalid input prints a message.
+fn main()
+    lines := io.read_all().lines()
+    if lines.len() < 1
+        print("invalid input")
+        return
+    head := lines[0].trim()
+    k := head.to_int() else
+        print("invalid input")
+        return
+    if k < 1
+        print("invalid input")
+        return
+    mut xs := List[int]()
+    if lines.len() > 1
+        for w in lines[1].words()
+            n := w.to_int() else
+                print("invalid input")
+                return
+            xs.push(n)
+    if xs.len() < k
+        print("window too large")
+        return
+    mut dq := Deque[int]()
+    mut out := List[int]()
+    for i in 0..xs.len()
+        while not dq.is_empty()
+            tail := dq.last() else 0
+            if xs[tail] > xs[i]
+                break
+            _ := dq.pop_back()
+        dq.push_back(i)
+        head_i := dq.first() else 0
+        if head_i <= i - k
+            _ := dq.pop_front()
+        if i >= k - 1
+            front := dq.first() else 0
+            out.push(xs[front])
+    print(out.join(" "))
+    print("overall: {out.max() else 0}")

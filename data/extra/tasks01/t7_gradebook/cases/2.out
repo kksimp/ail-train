@@ -1,0 +1,8 @@
+vic: avg=100.0 grade=A
+walt: avg=89.5 grade=B
+uma: avg=89.0 grade=B
+tom: avg=79.5 grade=C
+xia: avg=70.0 grade=C
+yan: avg=60.5 grade=D
+zoe: avg=59.0 grade=F
+grades: A=1 B=2 C=2 D=1 F=1

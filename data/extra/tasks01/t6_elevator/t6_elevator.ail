@@ -1,0 +1,55 @@
+## Elevator simulation: requests (time, floor) arrive; the elevator sweeps up and down, printing each stop.
+struct Req
+    t int
+    floor int
+
+fn parse_pair(line str) (int, int)?
+    p := line.words()
+    if p.len() != 2
+        return none
+    a := p[0].to_int() else return none
+    b := p[1].to_int() else return none
+    (a, b)
+
+fn main()
+    mut lines := io.read_all().split("\n")
+    if (lines.last() else "x") == ""
+        lines.pop()
+    head := parse_pair(lines.first() else "") else
+        print("bad header")
+        return
+    floors, start := head
+    if start < 1 or start > floors
+        print("bad header")
+        return
+    mut reqs := List[Req]()
+    mut last := 0
+    for k in 1..lines.len()
+        q := parse_pair(lines[k]) else continue
+        if q.0 < 0 or q.1 < 1 or q.1 > floors
+            continue
+        reqs.push(Req(t: q.0, floor: q.1))
+        last = last.max(q.0)
+    mut pos := start
+    mut dir := 1
+    mut t := 0
+    mut moves := 0
+    mut pending := List[int]()
+    while true
+        for r in reqs
+            if r.t == t and not pending.contains(r.floor)
+                pending.push(r.floor)
+        if pending.contains(pos)
+            pending = pending.filter(|f| f != pos)
+            print("t={t} floor={pos}")
+        if pending.is_empty() and t >= last
+            break
+        if not pending.is_empty()
+            if dir == 1 and not pending.any(|f| f > pos)
+                dir = -1
+            elif dir == -1 and not pending.any(|f| f < pos)
+                dir = 1
+            pos += dir
+            moves += 1
+        t += 1
+    print("moves={moves}")

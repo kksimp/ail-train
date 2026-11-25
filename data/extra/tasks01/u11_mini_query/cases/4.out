@@ -1,0 +1,33 @@
+> select id order score desc
+5
+1
+2
+4
+3
+6
+(6 rows)
+> select tag,id where score != 9 order id desc
+f,6
+e,5
+c,3
+(3 rows)
+> select id where tag > c order score
+6
+4
+5
+(3 rows)
+> select id,score order score
+3,7
+6,7
+1,9
+2,9
+4,9
+5,12
+(6 rows)
+> select score where score < 10 order tag desc
+7
+9
+7
+9
+9
+(5 rows)

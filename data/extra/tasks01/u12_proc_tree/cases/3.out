@@ -1,0 +1,5 @@
+1 root
+  2 kid
+  3 ok one
+orphans: 4 5 6
+processes=6 depth=2 ignored=5

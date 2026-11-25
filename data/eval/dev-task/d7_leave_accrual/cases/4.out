@@ -1,0 +1,6 @@
+zed accrued=264 taken=300 balance=-36 OVERDRAWN
+amy accrued=2936 taken=5000 balance=-2064 OVERDRAWN
+bo accrued=80 taken=80 balance=0
+cat accrued=80 taken=81 balance=-1 OVERDRAWN
+employees: 4
+total balance: -2101

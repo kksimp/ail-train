@@ -1,0 +1,58 @@
+## Parses `PATH?QUERY#FRAGMENT` lines; prints the path and each decoded `KEY=VALUE`.
+## Decoding: `+` is a space, `%XY` below 128 is that ASCII character, other `%` stay.
+fn hex_val(c char) int?
+    c.to_digit(16)
+
+## Decodes `+` and `%XY` escapes in one key or value.
+fn decode(s str) str
+    cs := s.chars()
+    n := cs.len()
+    mut out := List[char]()
+    mut i := 0
+    while i < n
+        c := cs[i]
+        if c == '+'
+            out.push(' ')
+            i += 1
+        elif c == '%' and i + 2 < n
+            hi := hex_val(cs[i + 1])
+            lo := hex_val(cs[i + 2])
+            if hi != none and lo != none
+                code := (hi else 0) * 16 + (lo else 0)
+                if code < 128
+                    out.push(char.from_code(code) else c)
+                    i += 3
+                    continue
+            out.push(c)
+            i += 1
+        else
+            out.push(c)
+            i += 1
+    out.join("")
+
+fn show_query(query str)
+    for piece in query.split("&")
+        if piece.is_empty()
+            continue
+        e := piece.find("=")
+        if e == none
+            print("  {decode(piece)}=")
+        else
+            at := e else 0
+            print("  {decode(piece.slice(0, at))}={decode(piece.slice(at + 1))}")
+
+fn main()
+    for line in io.read_all().lines()
+        mut u := line.trim()
+        if u.is_empty()
+            continue
+        h := u.find("#")
+        if h != none
+            u = u.slice(0, h else 0)
+        q := u.find("?")
+        if q == none
+            print("path={u}")
+        else
+            at := q else 0
+            print("path={u.slice(0, at)}")
+            show_query(u.slice(at + 1))

@@ -1,0 +1,7 @@
+line 4: bad value for 'port': '12=34'
+line 5: unknown key 'url'
+line 6: bad value for 'host': ''
+line 8: duplicate key 'debug'
+missing required key 'host'
+missing required key 'port'
+errors: 6

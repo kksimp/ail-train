@@ -1,0 +1,44 @@
+## Classifies numbers as perfect, abundant or deficient using the sum of proper divisors.
+fn is_digits(s str) bool
+    not s.is_empty() and s.chars().all(|c| c.is_digit())
+
+fn divisor_sum(n int) int
+    if n == 1
+        return 0
+    mut s := 1
+    mut d := 2
+    while d * d <= n
+        if n % d == 0
+            s += d
+            other := n / d
+            if other != d
+                s += other
+        d += 1
+    s
+
+fn main()
+    mut perfect := 0
+    mut abundant := 0
+    mut deficient := 0
+    mut invalid := 0
+    for line in io.read_all().lines()
+        t := line.trim()
+        if t.is_empty()
+            continue
+        n := if is_digits(t) and t.len() <= 9 then t.to_int() else none
+        v := n else 0
+        if v < 1 or v > 1000000
+            print("{t} invalid")
+            invalid += 1
+            continue
+        s := divisor_sum(v)
+        if s == v
+            print("{v} perfect {s}")
+            perfect += 1
+        elif s > v
+            print("{v} abundant {s}")
+            abundant += 1
+        else
+            print("{v} deficient {s}")
+            deficient += 1
+    print("perfect {perfect} abundant {abundant} deficient {deficient} invalid {invalid}")

@@ -1,0 +1,56 @@
+## String rewriting: apply the first matching rule at its leftmost occurrence, up to N steps.
+struct Rule
+    lhs str
+    rhs str
+
+## Index of the first rule that applies to `s`, or none.
+fn pick(rules List[Rule], s str) int?
+    for i in 0..rules.len()
+        if s.contains(rules[i].lhs)
+            return i
+    none
+
+fn main()
+    lines := io.read_all().lines()
+    if lines.len() < 2
+        print("bad input")
+        return
+    head := lines[0]
+    if head.is_empty() or head.len() > 3 or not head.chars().all(|c| c.is_digit())
+        print("bad input")
+        return
+    n := head.to_int() else 0
+    if n > 40
+        print("bad input")
+        return
+    mut s := lines[1]
+    mut rules := List[Rule]()
+    for k in 2..lines.len()
+        line := lines[k]
+        if line.is_empty()
+            continue
+        i := line.find("=>") else
+            print("bad rule line {k + 1}")
+            return
+        if i == 0
+            print("bad rule line {k + 1}")
+            return
+        rules.push(Rule(lhs: line.slice(0, i), rhs: line.slice(i + 2)))
+    print("0: [{s}]")
+    mut steps := 0
+    while steps < n
+        r := pick(rules, s) else break
+        rule := rules[r]
+        at := s.find(rule.lhs) else 0
+        head2 := s.slice(0, at)
+        tail := s.slice(at + rule.lhs.len())
+        s = "{head2}{rule.rhs}{tail}"
+        steps += 1
+        if s.len() > 60
+            print("too long at step {steps}")
+            return
+        print("{steps}: [{s}]")
+    if pick(rules, s) == none
+        print("halted after {steps} steps")
+    else
+        print("step limit {n} reached")

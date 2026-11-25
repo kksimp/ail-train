@@ -1,0 +1,58 @@
+## Binary and Gray code converter: bin, dec, gray and ungray commands, one per line.
+fn parse_num(s str) int?
+    if s.len() < 1 or s.len() > 10 or not s.chars().all(|c| c.is_digit())
+        return none
+    n := s.to_int() else return none
+    if n > 4294967295
+        return none
+    n
+
+fn parse_bits(s str) int?
+    if s.len() < 1 or s.len() > 32 or not s.chars().all(|c| c == '0' or c == '1')
+        return none
+    s.to_int(2)
+
+fn to_binary(n int) str
+    if n == 0
+        return "0"
+    mut digits := List[str]()
+    mut m := n
+    while m > 0
+        digits.push(if (m & 1) == 1 then "1" else "0")
+        m = m >> 1
+    digits.reversed().join("")
+
+fn from_gray(g int) int
+    mut n := g
+    mut s := g >> 1
+    while s != 0
+        n ^= s
+        s = s >> 1
+    n
+
+fn main()
+    for line in io.read_all().lines()
+        if line.is_empty()
+            continue
+        parts := line.split(" ")
+        cmd := parts[0]
+        if parts.len() != 2 or not (cmd == "bin" or cmd == "dec" or cmd == "gray" or cmd == "ungray")
+            print("bad command")
+            continue
+        arg := parts[1]
+        if cmd == "bin" or cmd == "gray"
+            n := parse_num(arg) else
+                print("error")
+                continue
+            if cmd == "bin"
+                print(to_binary(n))
+            else
+                print(to_binary(n ^ (n >> 1)))
+        else
+            v := parse_bits(arg) else
+                print("error")
+                continue
+            if cmd == "dec"
+                print(v)
+            else
+                print(from_gray(v))

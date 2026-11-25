@@ -1,0 +1,9 @@
+order a1 W 3
+order a2 W 2
+order a3 V 1
+stock V 1
+restock W 4
+restock W 4
+restock V 9
+stock b 2
+order z b 2

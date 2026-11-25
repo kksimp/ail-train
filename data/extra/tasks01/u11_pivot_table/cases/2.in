@@ -1,0 +1,13 @@
+region,quarter,sales,rep
+east,q1,100,ann
+east,q2,150,ann
+west,q1,80,bob
+west,q3,-20,bob
+east,q1,n/a,cy
+north,q2,40,dee
+west,q1,10,bob
+
+pivot region quarter sum sales
+pivot quarter region count
+pivot rep quarter sum sales
+pivot region rep sum sales

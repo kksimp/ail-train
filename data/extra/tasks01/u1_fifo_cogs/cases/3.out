@@ -1,0 +1,8 @@
+sold X 3 cogs 150
+sold X 4 cogs 165
+sold Y 2 cogs 1400
+short Y
+short Z
+sold X 3 cogs 0
+stock Y 1 999
+cogs 1715

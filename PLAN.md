@@ -239,6 +239,17 @@ report in the thread and its checkboxes updated here.
   holds it), `preflight` (peak VRAM and tok/s for the ~1.5B at rank 16/64/128 and sequence 3072/4096, and for the big
   model at 4 bits), a short A/B of rank 16 vs 64 (ChatGPT note: higher rank on all linear layers), then the long runs
   after Kaleb's go. Export: merge in bf16, then `tools/import_mlx.sh` on the Mac (or GGUF from llama.cpp).
+- **Run 3 (PC, 2026-11-25): whole-program correctness.** Data v3 (23,807 items, 22.34M tokens): new families appfn,
+  appfile, testfn from real AIL applications, repair and behave (including 131 minimal fixes of the run 1 ~7B's own
+  harvested failures), spec, and `task` (263 input-driven programs with a Python reference and five checked stdin
+  cases). Fresh ~7B adapter, the run 1 recipe, 1 epoch (1,488 steps, 8.7 h, val 0.1585 → 0.1438). Evals moved to a
+  llama.cpp server path (GGUF Q4_K_M, 6 slots, about 9x faster; not comparable with the NF4 rows), and a new held-out
+  set, dev-task (61 input-driven tasks in `data/eval/dev-task/`, eval only, hash in `data/splits.sha256`, guarded in
+  the builder), replaces dev-spec as the whole-program measure. Result (RESULTS.md, run 3): level on the quick eval
+  (50.5 vs 51.8; 54.1 vs 54.4 with the compiler loop), better one-shot whole programs on dev-task (pass@1 1.1 → 4.4,
+  pass@3 1.6 → 8.2), no gain in recovery from compiler feedback, large programs unsolved. Open: the Mac 4-bit reference
+  numbers for both models (quick eval and dev-task); training on correction transcripts, so the model changes its
+  program when a diagnostic repeats; more and larger input-driven tasks; why `complete` scores lower on the server path.
 - **M2 (plan).** `tools/build_data.py` as in 5.4; Mac job against ail 0.2.0. Done when: manifest counts
   reported, every kept item passed `ail check`, and the deterministic rebuild matches.
 - **M3 Fresh eval tasks** (separate lane, must not read `data/`). 12-20 tasks in agentbench format, AIL reference

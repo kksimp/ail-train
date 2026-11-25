@@ -1,0 +1,5 @@
+0 set=0 miss
+4 set=1 miss
+8 set=0 miss
+0 set=0 miss
+hits=0 misses=4 ratio=0.00 skipped=0

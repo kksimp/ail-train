@@ -1,0 +1,10 @@
+1/0: zero denominator
+5: invalid
+a/b: invalid
+1/2/3: invalid
++1/2: invalid
+1/ 2: invalid
+1000000001/2: invalid
+--1/2: invalid
+3/-0: zero denominator
+/: invalid

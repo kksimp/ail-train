@@ -1,0 +1,39 @@
+## Rain water trapped by each height map line, with prefix and suffix maxima.
+fn trapped(h List[int]) int
+    n := h.len()
+    mut left := List[int]()
+    mut hi := 0
+    for x in h
+        hi = hi.max(x)
+        left.push(hi)
+    mut total := 0
+    hi = 0
+    for k in 0..n
+        i := n - 1 - k
+        hi = hi.max(h[i])
+        total += left[i].min(hi) - h[i]
+    total
+
+fn parse(line str) List[int]?
+    mut h := List[int]()
+    for t in line.words()
+        for ch in t.chars()
+            if not ch.is_digit()
+                return none
+        v := t.to_int() else return none
+        h.push(v)
+    h
+
+fn main()
+    mut best := -1
+    for line in io.read_all().lines()
+        h := parse(line) else
+            print("bad")
+            continue
+        t := trapped(h)
+        print(t)
+        best = best.max(t)
+    if best < 0
+        print("max none")
+    else
+        print("max {best}")

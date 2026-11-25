@@ -1,0 +1,9 @@
+# comment
+A -> B
+A => B
+A ->
+x y z
+A -> B -> C
+b@d -> C
+
+  B  ->  A  

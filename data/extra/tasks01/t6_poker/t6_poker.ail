@@ -1,0 +1,54 @@
+## Poker hand ranking: classifies each five-card line (e.g. `2H 2D 2C KD KS` is `full house`) or says `invalid`.
+RANKS := "23456789TJQKA"
+SUITS := "SHDC"
+
+fn classify(line str) str
+    cards := line.words()
+    if cards.len() != 5
+        return "invalid"
+    mut rs := List[int]()
+    mut suits := Set[str]()
+    mut seen := Set[str]()
+    for c in cards
+        if c.len() != 2
+            return "invalid"
+        r := RANKS.find(c.slice(0, 1)) else return "invalid"
+        if not SUITS.contains(c.slice(1, 2))
+            return "invalid"
+        if not seen.add(c)
+            return "invalid"
+        rs.push(r)
+        suits.add(c.slice(1, 2))
+    mut counts := Map[int, int]()
+    for r in rs
+        counts[r] += 1
+    shape := counts.values().sorted().reversed()
+    flush := suits.len() == 1
+    distinct := rs.sorted()
+    mut straight := false
+    if counts.len() == 5
+        straight = distinct[4] - distinct[0] == 4 or distinct == [0, 1, 2, 3, 12]
+    if straight and flush
+        return "straight flush"
+    if shape == [4, 1]
+        return "four of a kind"
+    if shape == [3, 2]
+        return "full house"
+    if flush
+        return "flush"
+    if straight
+        return "straight"
+    if shape == [3, 1, 1]
+        return "three of a kind"
+    if shape == [2, 2, 1]
+        return "two pair"
+    if shape == [2, 1, 1, 1]
+        return "pair"
+    "high card"
+
+fn main()
+    mut lines := io.read_all().split("\n")
+    if (lines.last() else "x") == ""
+        lines.pop()
+    for l in lines
+        print(classify(l))

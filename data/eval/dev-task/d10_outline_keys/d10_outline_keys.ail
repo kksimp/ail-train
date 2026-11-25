@@ -1,0 +1,21 @@
+## Flattens an indentation outline into dotted key paths with values.
+fn main()
+    mut path := List[str]()
+    mut n := 0
+    for line in io.read_all().lines()
+        n += 1
+        t := line.trim()
+        if t.is_empty()
+            continue
+        sp := line.len() - line.trim_start().len()
+        colon := t.find(":") else -1
+        if colon < 1 or sp % 2 != 0 or sp / 2 > path.len()
+            print("bad line {n}")
+            continue
+        while path.len() > sp / 2
+            _ := path.pop()
+        path.push(t.slice(0, colon).trim())
+        val := t.slice(colon + 1).trim()
+        if not val.is_empty()
+            print("{path.join(".")}={val}")
+            _ := path.pop()

@@ -1,0 +1,6 @@
+r3 total=$1000000.00 commission=$117700.00
+r1 total=$24999.00 commission=$1699.92
+r2 total=$24999.00 commission=$1699.92
+r4 total=-$0.01 commission=$0.00
+reps: 4
+payout: $121099.84

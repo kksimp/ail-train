@@ -1,0 +1,7 @@
+ann: -mail a@x.org
+ann: role user -> admin
+ann: +team ops
+bob: removed
+cy: added
+unchanged: 0
+malformed: 0

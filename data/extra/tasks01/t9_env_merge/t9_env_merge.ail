@@ -1,0 +1,54 @@
+## Merges two environment-file blocks separated by a `---` line: the override block sets
+## values, appends new keys or deletes keys (`-KEY`). Prints KEY=VALUE lines in map order.
+fn valid_key(k str) bool
+    cs := k.chars()
+    if cs.is_empty()
+        return false
+    first := cs[0]
+    if not (first.is_alpha() or first == '_')
+        return false
+    cs.all(|c| c.is_alnum() or c == '_')
+
+fn is_ascii_word(k str) bool
+    k.chars().all(|c| c.code() < 128)
+
+## Applies one block to `env`; returns the number of malformed lines.
+fn apply_block(block List[str], is_override bool, mut env Map[str, str]) int
+    mut bad := 0
+    for raw in block
+        if raw.trim().is_empty() or raw.starts_with("#")
+            continue
+        line := if raw.starts_with("export ") then raw.slice(7) else raw
+        if eq := line.find("=")
+            key := line.slice(0, eq).trim()
+            if valid_key(key) and is_ascii_word(key)
+                env[key] = line.slice(eq + 1).trim()
+            else
+                bad += 1
+        elif is_override and line.starts_with("-") and valid_key(line.slice(1).trim()) and is_ascii_word(line.slice(1).trim())
+            env.remove(line.slice(1).trim())
+        else
+            bad += 1
+    bad
+
+fn main()
+    mut lines := io.read_all().split("\n")
+    if (lines.last() else "x") == ""
+        lines.pop()
+    mut base := List[str]()
+    mut over := List[str]()
+    mut in_over := false
+    for line in lines
+        if not in_over and line == "---"
+            in_over = true
+        elif in_over
+            over.push(line)
+        else
+            base.push(line)
+    mut env := Map[str, str]()
+    mut bad := apply_block(base, false, mut env)
+    bad += apply_block(over, true, mut env)
+    for k, v in env
+        print("{k}={v}")
+    if bad > 0
+        print("# skipped {bad}")

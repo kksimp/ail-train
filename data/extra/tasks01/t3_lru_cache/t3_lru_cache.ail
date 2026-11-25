@@ -1,0 +1,57 @@
+## LRU cache driven by commands: put/get/peek/keys/stats with a fixed capacity.
+## `order` lists keys from least to most recently used.
+
+fn touch(mut order List[str], key str)
+    for i in 0..order.len()
+        if order[i] == key
+            order.remove_at(i)
+            break
+    order.push(key)
+
+fn main()
+    first := io.read_line() else ""
+    cap := first.trim().to_int() else 0
+    if cap < 1
+        print("bad capacity")
+        return
+    mut vals := Map[str, str]()
+    mut order := List[str]()
+    mut hits := 0
+    mut misses := 0
+    mut evictions := 0
+    while true
+        line := io.read_line() else break
+        w := line.words()
+        if w.is_empty()
+            continue
+        cmd := w[0]
+        if cmd == "put" and w.len() == 3
+            key := w[1]
+            was := vals.contains(key)
+            vals[key] = w[2]
+            touch(mut order, key)
+            if was
+                print("updated {key}")
+            else
+                print("stored {key}")
+                if order.len() > cap
+                    old := order.remove_at(0)
+                    vals.remove(old)
+                    evictions += 1
+                    print("evict {old}")
+        elif cmd == "get" and w.len() == 2
+            if v := vals.get(w[1])
+                hits += 1
+                touch(mut order, w[1])
+                print(v)
+            else
+                misses += 1
+                print("miss")
+        elif cmd == "peek" and w.len() == 2
+            print(vals.get(w[1]) else "miss")
+        elif cmd == "keys" and w.len() == 1
+            print(if order.is_empty() then "(empty)" else order.reversed().join(" "))
+        elif cmd == "stats" and w.len() == 1
+            print("hits {hits} misses {misses} evictions {evictions}")
+        else
+            print("error: bad command")

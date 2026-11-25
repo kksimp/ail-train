@@ -1,0 +1,60 @@
+## Count, sum, min, max, truncated mean, median and mode of integers read from stdin.
+
+fn is_value(t str) bool
+    body := t.strip_prefix("-") else t
+    if body.is_empty() or body.len() > 9
+        return false
+    for c in body.chars()
+        if not c.is_digit()
+            return false
+    true
+
+fn mean_text(s int, n int) str
+    h := s.abs() * 100 / n
+    sign := if s < 0 and h > 0 then "-" else ""
+    "{sign}{h / 100}.{(h % 100):02}"
+
+## Median of a sorted list: exact, with `.5` for an odd pair sum.
+fn median_text(v List[int]) str
+    n := v.len()
+    if n % 2 == 1
+        return "{v[n / 2]}"
+    t := v[n / 2 - 1] + v[n / 2]
+    if t % 2 == 0
+        return "{t / 2}"
+    sign := if t < 0 then "-" else ""
+    "{sign}{t.abs() / 2}.5"
+
+fn main()
+    mut vals := List[int]()
+    mut skipped := 0
+    for t in io.read_all().words()
+        if is_value(t)
+            vals.push(t.to_int() else 0)
+        else
+            skipped += 1
+    if vals.is_empty()
+        print("no values")
+        print("skipped {skipped}")
+        return
+    n := vals.len()
+    s := vals.sum()
+    v := vals.sorted()
+    mut counts := Map[int, int]()
+    for x in vals
+        counts[x] += 1
+    mut best := v[0]
+    mut best_count := 0
+    for x in v
+        c := counts[x]
+        if c > best_count
+            best = x
+            best_count = c
+    print("count {n}")
+    print("sum {s}")
+    print("min {v[0]}")
+    print("max {v[n - 1]}")
+    print("mean {mean_text(s, n)}")
+    print("median {median_text(v)}")
+    print("mode {best} (x{best_count})")
+    print("skipped {skipped}")

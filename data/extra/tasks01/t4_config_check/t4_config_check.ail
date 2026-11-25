@@ -1,0 +1,62 @@
+## Validates a `key = value` config read from standard input against a fixed schema.
+## Reports one problem per bad line, missing required keys, then `ok` or `errors: N`.
+fn all_digits(s str) bool
+    if s.is_empty()
+        return false
+    for ch in s.chars()
+        if ch < '0' or ch > '9'
+            return false
+    true
+
+## True if `v` is an integer in lo..=hi written with digits only.
+fn in_range(v str, lo int, hi int) bool
+    if not all_digits(v) or v.len() > 9
+        return false
+    n := v.to_int() else return false
+    n >= lo and n <= hi
+
+fn is_known(k str) bool
+    k == "host" or k == "port" or k == "workers" or k == "debug" or k == "mode"
+
+fn valid(k str, v str) bool
+    match k
+        "host" => not v.is_empty() and not v.contains(" ")
+        "port" => in_range(v, 1, 65535)
+        "workers" => in_range(v, 1, 64)
+        "debug" => v == "true" or v == "false"
+        "mode" => v == "dev" or v == "test" or v == "prod"
+        _ => false
+
+fn main()
+    mut problems := List[str]()
+    mut seen := Set[str]()
+    mut n := 0
+    for raw in io.read_all().lines()
+        n += 1
+        line := raw.trim()
+        if line.is_empty() or line.starts_with("#")
+            continue
+        eq := line.find("=") else
+            problems.push("line {n}: missing '='")
+            continue
+        k := line.slice(0, eq).trim()
+        v := line.slice(eq + 1).trim()
+        if k.is_empty()
+            problems.push("line {n}: empty key")
+        elif not is_known(k)
+            problems.push("line {n}: unknown key '{k}'")
+        elif seen.contains(k)
+            problems.push("line {n}: duplicate key '{k}'")
+        elif not valid(k, v)
+            problems.push("line {n}: bad value for '{k}': '{v}'")
+        else
+            seen.add(k)
+    for k in ["host", "port"]
+        if not seen.contains(k)
+            problems.push("missing required key '{k}'")
+    for p in problems
+        print(p)
+    if problems.is_empty()
+        print("ok")
+    else
+        print("errors: {problems.len()}")

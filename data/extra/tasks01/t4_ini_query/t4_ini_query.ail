@@ -1,0 +1,37 @@
+## Reads an INI document, a `---` line, then `section.key` queries; prints each value.
+## Prints `(missing)` for an unset key and `(bad query)` for a query without a dot.
+fn parse_ini(lines List[str]) Map[str, str]
+    mut data := Map[str, str]()
+    mut sec := ""
+    for raw in lines
+        l := raw.trim()
+        if l.is_empty() or l.starts_with(";") or l.starts_with("#")
+            continue
+        if l.starts_with("[") and l.ends_with("]")
+            sec = l.slice(1, l.len() - 1).trim()
+            continue
+        idx := l.find("=") else continue
+        key := l.slice(0, idx).trim()
+        if key.is_empty()
+            continue
+        data["{sec}.{key}"] = l.slice(idx + 1).trim()
+    data
+
+fn main()
+    all := io.read_all().lines()
+    mut split_at := -1
+    for i in 0..all.len()
+        if all[i].trim() == "---"
+            split_at = i
+            break
+    if split_at < 0
+        return
+    data := parse_ini(all.slice(0, split_at))
+    for q in all.slice(split_at + 1)
+        query := q.trim()
+        if query.is_empty()
+            continue
+        if not query.contains(".")
+            print("(bad query)")
+        else
+            print(data.get(query) else "(missing)")

@@ -1,0 +1,23 @@
+line 1: unknown command
+line 2: wrong number of arguments
+line 3: bad number
+line 4: bad number
+line 5: wrong number of arguments
+line 6: wrong number of arguments
+line 7: bad status
+line 8: bad fare
+line 9: bad number
+line 10: bad number
+line 11: wrong number of arguments
+line 13: duplicate passenger z
+line 14: unknown passenger q
+line 16: already requested z
+line 17: wrong number of arguments
+line 18: wrong number of arguments
+line 19: unknown command
+run 1: seats 0 waiting 1
+W 1 z
+run 2: seats 5 waiting 1
+U z
+run 3: seats 4 waiting 0
+summary: 1 upgraded, 0 waiting

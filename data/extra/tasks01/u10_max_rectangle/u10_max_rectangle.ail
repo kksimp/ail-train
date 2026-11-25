@@ -1,0 +1,38 @@
+## Largest all-ones rectangle in a binary grid, ties broken by top-left position then height.
+fn main()
+    mut g := List[str]()
+    for l in io.read_all().lines()
+        if l != ""
+            g.push(l)
+    for l in g
+        for ch in l.chars()
+            if ch != '0' and ch != '1'
+                print("error: bad grid")
+                return
+    rows := g.len()
+    cols := if rows > 0 then g[0].len() else 0
+    mut best := 0
+    mut br := 0
+    mut bc := 0
+    mut bh := 0
+    mut bw := 0
+    for r in 0..rows
+        for c in 0..cols
+            mut w := cols - c
+            for h in 1..=rows - r
+                mut k := 0
+                while k < w and g[r + h - 1].char_at(c + k) == '1'
+                    k += 1
+                w = k
+                if w == 0
+                    break
+                if h * w > best
+                    best = h * w
+                    br = r
+                    bc = c
+                    bh = h
+                    bw = w
+    if best == 0
+        print("area 0")
+    else
+        print("area {best} at {br},{bc} size {bh}x{bw}")

@@ -1,0 +1,11 @@
+po p x 20 1000
+recv p x 5
+inv a p x 5 1020
+inv b p x 1 1020
+recv p x 15
+inv c p x 15 1021
+inv d p x 1 1000
+inv e p x 14 980
+inv f p x 6 979
+recv p x 1
+inv g p x 1 1000

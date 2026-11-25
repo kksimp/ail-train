@@ -1,0 +1,38 @@
+## Merges overlapping or touching closed intervals and prints them with the total covered length.
+## Invalid lines are reported first as `bad line N`.
+fn parse(line str) (int, int)?
+    w := line.words()
+    if w.len() != 2
+        return none
+    a := w[0].to_int() else return none
+    b := w[1].to_int() else return none
+    if a > b
+        return none
+    (a, b)
+
+fn main()
+    lines := io.read_all().lines()
+    mut ivs := List[(int, int)]()
+    for k in 0..lines.len()
+        if lines[k].trim().is_empty()
+            continue
+        iv := parse(lines[k]) else
+            print("bad line {k + 1}")
+            continue
+        ivs.push(iv)
+    ivs.sort()
+    mut covered := 0
+    if not ivs.is_empty()
+        mut start := ivs[0].0
+        mut end := ivs[0].1
+        for i in 1..ivs.len()
+            if ivs[i].0 <= end
+                end = end.max(ivs[i].1)
+            else
+                print("{start}-{end}")
+                covered += end - start + 1
+                start = ivs[i].0
+                end = ivs[i].1
+        print("{start}-{end}")
+        covered += end - start + 1
+    print("covered: {covered}")

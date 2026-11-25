@@ -1,0 +1,68 @@
+## Parking lot: park/leave/status with numbered spots and hourly fees.
+## Spots are a list of plates (empty string = free) with parallel arrival times.
+
+fn digits_only(s str) bool
+    if s.is_empty()
+        return false
+    for ch in s.chars()
+        if not ch.is_digit()
+            return false
+    true
+
+fn spot_of(spots List[str], plate str) int?
+    spots.index_of(plate)
+
+fn main()
+    head := (io.read_line() else "").words()
+    n := if head.len() == 2 and head[0] == "capacity" and digits_only(head[1]) then (head[1].to_int() else 0) else 0
+    if n < 1 or n > 99
+        print("bad header")
+        return
+    mut spots := ["" for _ in 0..n]
+    mut since := [0 for _ in 0..n]
+    mut revenue := 0
+    while true
+        line := io.read_line() else break
+        w := line.words()
+        if w.is_empty()
+            continue
+        cmd := w[0]
+        if cmd == "status" and w.len() == 1
+            mut rows := List[str]()
+            for i in 0..n
+                if spots[i] != ""
+                    rows.push("{i + 1} {spots[i]}")
+            print("free {n - rows.len()} of {n}")
+            for r in rows
+                print(r)
+            continue
+        ok := w.len() == 3 and (cmd == "park" or cmd == "leave") and digits_only(w[1])
+        if not ok
+            print("error: bad command")
+            continue
+        t := w[1].to_int() else 0
+        plate := w[2]
+        cur := spot_of(spots, plate)
+        if cmd == "park"
+            if cur != none
+                print("error: already parked {plate}")
+            elif free := spot_of(spots, "")
+                spots[free] = plate
+                since[free] = t
+                print("{plate} spot {free + 1}")
+            else
+                print("{plate} rejected: full")
+        else
+            i := cur else
+                print("error: not parked {plate}")
+                continue
+            dur := t - since[i]
+            if dur < 0
+                print("error: time went backwards")
+                continue
+            fee := 2 * (1).max((dur + 59) / 60)
+            revenue += fee
+            spots[i] = ""
+            print("{plate} left spot {i + 1} fee {fee}")
+    print("revenue {revenue}")
+    print("occupied {spots.count(|s| s != "")}")

@@ -1,0 +1,23 @@
+## Reports warehouse cycle-count variances and their money value.
+fn money(c int) str
+    sign := if c < 0 then "-$" else "+$"
+    a := c.abs()
+    "{sign}{a / 100}.{a % 100:0>2}"
+
+fn main()
+    mut net := 0
+    mut gross := 0
+    for line in io.read_all().lines()
+        f := line.split(",")
+        if f.len() != 4
+            continue
+        sys := f[1].to_int() else continue
+        counted := f[2].to_int() else continue
+        cost := f[3].to_int() else continue
+        v := counted - sys
+        if v != 0
+            print("{f[0]} {v:+} {money(v * cost)}")
+            net += v * cost
+            gross += (v * cost).abs()
+    print("net: {money(net)}")
+    print("gross: {money(gross)}")

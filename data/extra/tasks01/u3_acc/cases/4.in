@@ -1,0 +1,4 @@
+LOAD 4
+PRINT
+  start:
+ADD  1

@@ -1,0 +1,85 @@
+## Buckets open invoices by days overdue relative to a report date (current, 1-30, 31-60, 61-90, 90+).
+## Dates are validated and converted to day numbers; amounts are integer cents.
+fn money(c int) str
+    "{c / 100}.{c % 100:0>2}"
+
+fn all_digits(s str) bool
+    if s.is_empty()
+        return false
+    for ch in s.chars()
+        if not ch.is_digit()
+            return false
+    true
+
+fn leap(y int) bool
+    (y % 4 == 0 and y % 100 != 0) or y % 400 == 0
+
+fn month_days(y int, m int) int
+    if m == 2
+        return if leap(y) then 29 else 28
+    if m == 4 or m == 6 or m == 9 or m == 11
+        return 30
+    31
+
+## Day number of a valid date, counted from a fixed epoch (civil-from-days algorithm).
+fn day_number(y int, m int, d int) int
+    yy := if m <= 2 then y - 1 else y
+    era := yy / 400
+    yoe := yy - era * 400
+    mp := (m + 9) % 12
+    doy := (153 * mp + 2) / 5 + d - 1
+    doe := yoe * 365 + yoe / 4 - yoe / 100 + doy
+    era * 146097 + doe
+
+fn parse_date(s str) int?
+    p := s.split("-")
+    if p.len() != 3
+        return none
+    if p[0].len() != 4 or p[1].len() != 2 or p[2].len() != 2
+        return none
+    if not (all_digits(p[0]) and all_digits(p[1]) and all_digits(p[2]))
+        return none
+    y := p[0].to_int() else return none
+    m := p[1].to_int() else return none
+    d := p[2].to_int() else return none
+    if y < 1900 or y > 2100 or m < 1 or m > 12 or d < 1 or d > month_days(y, m)
+        return none
+    day_number(y, m, d)
+
+fn bucket(overdue int) int
+    if overdue <= 0
+        return 0
+    if overdue <= 30
+        return 1
+    if overdue <= 60
+        return 2
+    if overdue <= 90
+        return 3
+    4
+
+fn main()
+    lines := io.read_all().lines()
+    asof := parse_date((lines.first() else "").trim()) else
+        print("error: bad date")
+        return
+    labels := ["current", "1-30", "31-60", "61-90", "90+"]
+    mut counts := [0, 0, 0, 0, 0]
+    mut sums := [0, 0, 0, 0, 0]
+    for k in 1..lines.len()
+        w := lines[k].words()
+        if w.is_empty()
+            continue
+        if w.len() != 3
+            print("line {k + 1}: bad invoice")
+            continue
+        amt := w[1].to_int() else 0
+        due := parse_date(w[2]) else -1
+        if amt < 1 or amt > 1000000000 or due < 0
+            print("line {k + 1}: bad invoice")
+            continue
+        b := bucket(asof - due)
+        counts[b] += 1
+        sums[b] += amt
+    for i in 0..5
+        print("{labels[i]}: {counts[i]} invoices, {money(sums[i])}")
+    print("total: {counts.sum()} invoices, {money(sums.sum())}")

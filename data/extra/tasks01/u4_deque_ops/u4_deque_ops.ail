@@ -1,0 +1,61 @@
+## Deque driven by commands: push/pop at both ends, front/back peeks,
+## rotate by K (modulo the size), reverse and show.
+fn num(w List[str], i int) int?
+    if i >= w.len()
+        return none
+    w[i].to_int()
+
+fn main()
+    mut d := Deque[int]()
+    for line in io.read_all().lines()
+        w := line.words()
+        if w.is_empty()
+            continue
+        cmd := w[0]
+        if (cmd == "push_front" or cmd == "push_back" or cmd == "rotate") and w.len() == 2 and num(w, 1) != none
+            x := num(w, 1) else 0
+            if cmd == "push_front"
+                d.push_front(x)
+            elif cmd == "push_back"
+                d.push_back(x)
+            else
+                n := d.to_list().len()
+                if n > 0
+                    mut k := x % n
+                    if k < 0
+                        k += n
+                    for i in 0..k
+                        v := d.pop_front() else break
+                        d.push_back(v)
+            print("ok")
+        elif cmd == "pop_front" and w.len() == 1
+            v := d.pop_front() else
+                print("empty")
+                continue
+            print(v)
+        elif cmd == "pop_back" and w.len() == 1
+            v := d.pop_back() else
+                print("empty")
+                continue
+            print(v)
+        elif cmd == "front" and w.len() == 1
+            v := d.first() else
+                print("empty")
+                continue
+            print(v)
+        elif cmd == "back" and w.len() == 1
+            v := d.last() else
+                print("empty")
+                continue
+            print(v)
+        elif cmd == "reverse" and w.len() == 1
+            items := d.to_list()
+            d = Deque[int]()
+            for x in items
+                d.push_front(x)
+            print("ok")
+        elif cmd == "show" and w.len() == 1
+            items := d.to_list()
+            print(if items.is_empty() then "empty" else items.join(" "))
+        else
+            print("error")

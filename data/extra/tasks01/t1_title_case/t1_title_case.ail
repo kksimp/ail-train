@@ -1,0 +1,35 @@
+## Title-casing: small words stay lower case unless first or last; other words get capitalized,
+## including each hyphen-separated part. Spaces collapse (spec.md).
+SMALL := ["a", "an", "and", "as", "at", "but", "by", "for", "in", "nor", "of", "on", "or", "the", "to", "up"]
+
+fn is_small(w str) bool
+    SMALL.contains(w.to_lower())
+
+## Lower-cases `s`, then upper-cases its first character (a no-op for non-letters).
+fn capitalize(s str) str
+    lower := s.to_lower()
+    if lower.is_empty()
+        return ""
+    "{lower.slice(0, 1).to_upper()}{lower.slice(1)}"
+
+fn title_word(w str) str
+    parts := w.split("-")
+    [capitalize(p) for p in parts].join("-")
+
+fn title_line(line str) str
+    words := line.words()
+    mut out := List[str]()
+    for i, w in words.enumerate()
+        edge := i == 0 or i == words.len() - 1
+        if is_small(w) and not edge
+            out.push(w.to_lower())
+        else
+            out.push(title_word(w))
+    out.join(" ")
+
+fn main()
+    mut lines := io.read_all().split("\n")
+    if (lines.last() else "x") == ""
+        lines.pop()
+    for line in lines
+        print(title_line(line))

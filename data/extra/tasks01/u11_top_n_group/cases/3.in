@@ -1,0 +1,13 @@
+id,g,v
+a,x,1
+
+top 0 v by g
+top -1 v by g
+top x v by g
+top 1 v g
+top 1 v by
+top 1 z by g
+top 1 v by z
+top 1 z by z
+best 1 v by g
+top 1 v on g

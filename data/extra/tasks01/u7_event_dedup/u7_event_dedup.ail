@@ -1,0 +1,48 @@
+## Drop repeated events with the same key that occur within a window of the
+## last kept event for that key; print kept events and drop statistics.
+
+fn all_digits(s str) bool
+    if s.is_empty()
+        return false
+    for ch in s.chars()
+        if ch.code() < 48 or ch.code() > 57
+            return false
+    true
+
+fn main()
+    mut lines := []
+    for l in io.read_all().lines()
+        if not l.is_empty()
+            lines.push(l)
+    h := (lines.first() else "").split(" ")
+    if h.len() != 2 or h[0] != "window" or not all_digits(h[1]) or (h[1].to_int() else 0) < 1
+        print("error: bad header")
+        return
+    w := h[1].to_int() else 1
+    mut anchor := Map[str, int]()
+    mut drops := Map[str, int]()
+    mut kept := 0
+    mut dropped := 0
+    mut bad := 0
+    mut last := 0
+    for l in lines.skip(1)
+        f := l.split(" ", 3)
+        if f.len() < 2 or not all_digits(f[0]) or f[1].is_empty()
+            bad += 1
+            continue
+        t := f[0].to_int() else 0
+        if t < last
+            bad += 1
+            continue
+        last = t
+        k := f[1]
+        if anchor.contains(k) and t - anchor[k] < w
+            dropped += 1
+            drops[k] += 1
+        else
+            anchor[k] = t
+            kept += 1
+            print(l)
+    print("kept: {kept} dropped: {dropped} malformed: {bad}")
+    for k in drops.keys().sorted()
+        print("{k} {drops[k]}")

@@ -1,0 +1,88 @@
+## d1_waitlist: seat restaurant parties at tables, with a first-come waitlist.
+struct Table
+    id str
+    seats int
+    party str
+
+struct Party
+    name str
+    size int
+
+fn number(s str) int?
+    if s.is_empty() or s.len() > 6 or not s.chars().all(|c| c.is_digit())
+        return none
+    s.to_int()
+
+fn seat_waiting(mut tables List[Table], mut waiting List[Party], t int)
+    for i in 0..waiting.len()
+        if waiting[i].size <= tables[t].seats
+            tables[t].party = waiting[i].name
+            print("{waiting[i].name} seated at {tables[t].id}")
+            waiting.remove_at(i)
+            return
+
+fn seated_at(tables List[Table], name str) int
+    for i in 0..tables.len()
+        if tables[i].party == name
+            return i
+    -1
+
+fn waiting_at(waiting List[Party], name str) int
+    for i in 0..waiting.len()
+        if waiting[i].name == name
+            return i
+    -1
+
+fn show(items List[str]) str
+    if items.is_empty()
+        "none"
+    else
+        items.join(", ")
+
+fn main()
+    mut tables := List[Table]()
+    mut waiting := List[Party]()
+    mut k := 0
+    for line in io.read_all().lines()
+        k += 1
+        w := line.words()
+        if w.is_empty()
+            continue
+        s := (if w.len() == 3 then number(w[2]) else none) else 0
+        name := if w.len() >= 2 then w[1] else ""
+        at := seated_at(tables, name)
+        wi := waiting_at(waiting, name)
+        if w[0] == "table" and w.len() == 3 and s > 0 and not tables.any(|t| t.id == name)
+            tables.push(Table(id: name, seats: s, party: ""))
+            print("table {name} added")
+            seat_waiting(mut tables, mut waiting, tables.len() - 1)
+        elif w[0] == "arrive" and w.len() == 3 and s > 0
+            if at >= 0 or wi >= 0
+                print("{name} already here")
+            elif s > (tables.map(|t| t.seats).max() else 0)
+                print("{name} too large")
+            else
+                mut best := -1
+                for i in 0..tables.len()
+                    if tables[i].party == "" and tables[i].seats >= s and (best < 0 or tables[i].seats < tables[best].seats)
+                        best = i
+                if best >= 0
+                    tables[best].party = name
+                    print("{name} seated at {tables[best].id}")
+                else
+                    waiting.push(Party(name: name, size: s))
+                    print("{name} waits (position {waiting.len()})")
+        elif w[0] == "leave" and w.len() == 2
+            if at >= 0
+                tables[at].party = ""
+                print("{name} left")
+                seat_waiting(mut tables, mut waiting, at)
+            elif wi >= 0
+                waiting.remove_at(wi)
+                print("{name} removed from waitlist")
+            else
+                print("{name} not found")
+        else
+            print("line {k}: bad line")
+    print("waiting: {show(waiting.map(|p| "{p.name}({p.size})"))}")
+    print("free tables: {show(tables.filter(|t| t.party == "").map(|t| t.id))}")

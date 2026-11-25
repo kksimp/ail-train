@@ -1,0 +1,69 @@
+## Register machine over registers a-d: set/inc/dec/jnz/halt, with a 200 step limit.
+struct Ins
+    op str
+    r int
+    n int
+
+fn reg(s str) int?
+    if s.len() != 1
+        return none
+    "abcd".find(s)
+
+fn parse(line str) Ins?
+    w := line.words()
+    if w.len() == 0
+        return none
+    op := w[0]
+    if op == "halt" and w.len() == 1
+        return Ins(op: "halt", r: 0, n: 0)
+    if (op == "inc" or op == "dec") and w.len() == 2
+        r := reg(w[1]) else return none
+        return Ins(op: op, r: r, n: 0)
+    if op == "set" and w.len() == 3
+        r := reg(w[1]) else return none
+        n := w[2].to_int() else return none
+        return Ins(op: op, r: r, n: n)
+    if op == "jnz" and w.len() == 3
+        r := reg(w[1]) else return none
+        n := w[2].to_int() else return none
+        if n < 0 or w[2].starts_with("-")
+            return none
+        return Ins(op: op, r: r, n: n)
+    none
+
+fn main()
+    mut prog := List[Ins]()
+    mut k := 0
+    for raw in io.read_all().lines()
+        k += 1
+        line := raw.trim()
+        if line.is_empty() or line.starts_with("#")
+            continue
+        ins := parse(line) else
+            print("error line {k}")
+            return
+        prog.push(ins)
+    mut regs := [0, 0, 0, 0]
+    mut pc := 0
+    mut steps := 0
+    mut state := "halted"
+    while pc >= 0 and pc < prog.len()
+        if steps == 200
+            state = "limit"
+            break
+        ins := prog[pc]
+        steps += 1
+        if ins.op == "halt"
+            break
+        if ins.op == "set"
+            regs[ins.r] = ins.n
+        elif ins.op == "inc"
+            regs[ins.r] += 1
+        elif ins.op == "dec"
+            regs[ins.r] -= 1
+        elif ins.op == "jnz" and regs[ins.r] != 0
+            pc = ins.n
+            continue
+        pc += 1
+    print("{state} steps={steps}")
+    print("a={regs[0]} b={regs[1]} c={regs[2]} d={regs[3]}")

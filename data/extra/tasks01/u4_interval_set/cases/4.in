@@ -1,0 +1,11 @@
+add 5 5
+add 6 2
+remove 1 1
+add x 3
+add 1
+remove 1 2 3
+query
+total 1
+nope
+add 3 4
+show

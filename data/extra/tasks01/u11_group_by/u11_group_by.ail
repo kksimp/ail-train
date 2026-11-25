@@ -1,0 +1,62 @@
+## Group-by over a small table: count rows or sum an integer column per key, with an optional order by value.
+fn exec(h List[str], rows List[List[str]], q str) List[str] ! str
+    t := q.words()
+    if t.is_empty() or not (t[0] == "count" or t[0] == "sum")
+        return "error: bad query"
+    is_sum := t[0] == "sum"
+    mut pos := 1
+    mut vcol := ""
+    if is_sum
+        if t.len() < 3
+            return "error: bad query"
+        vcol = t[1]
+        pos = 2
+    if pos >= t.len()
+        return "error: bad query"
+    gcol := t[pos]
+    pos += 1
+    mut byval := false
+    if pos < t.len() and t[pos] == "byvalue"
+        byval = true
+        pos += 1
+    if pos != t.len()
+        return "error: bad query"
+    gi := h.index_of(gcol) else return "error: unknown column {gcol}"
+    mut vi := 0
+    if is_sum
+        vi = h.index_of(vcol) else return "error: unknown column {vcol}"
+    mut m := Map[str, int]()
+    mut skipped := 0
+    for r in rows
+        if is_sum
+            v := r[vi].to_int() else
+                skipped += 1
+                continue
+            m[r[gi]] += v
+        else
+            m[r[gi]] += 1
+    keys := if byval then m.keys().sorted(by: |k| (-m[k], k)) else m.keys().sorted()
+    mut out := [ "{k} {m[k]}" for k in keys ]
+    if skipped > 0
+        out.push("(skipped {skipped})")
+    out
+
+fn main()
+    lines := io.read_all().lines()
+    if lines.is_empty()
+        return
+    h := lines[0].split(",")
+    mut rows := List[List[str]]()
+    mut k := 1
+    while k < lines.len() and lines[k] != ""
+        rows.push(lines[k].split(","))
+        k += 1
+    for j in k..lines.len()
+        q := lines[j].trim()
+        if q.is_empty()
+            continue
+        print("> {q}")
+        out := exec(h, rows, q) else err
+            [err]
+        for l in out
+            print(l)

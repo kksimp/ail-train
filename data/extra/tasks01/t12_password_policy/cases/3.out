@@ -1,0 +1,5 @@
+12345678: FAIL no-upper,no-lower,no-symbol
+!!!!!!!!!!: FAIL no-upper,no-lower,no-digit,repeat
+aA1!: FAIL short
+aA1! aA1!: FAIL space
+zzzZZZ111!!!: FAIL repeat

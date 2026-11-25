@@ -1,0 +1,9 @@
+new accrued=0 taken=0 balance=0
+a accrued=120 taken=120 balance=0
+b accrued=132 taken=132 balance=0
+c accrued=696 taken=720 balance=-24 OVERDRAWN
+d accrued=712 taken=736 balance=-24 OVERDRAWN
+e accrued=712 taken=737 balance=-25 OVERDRAWN
+f accrued=728 taken=0 balance=240 CAPPED
+employees: 7
+total balance: 167

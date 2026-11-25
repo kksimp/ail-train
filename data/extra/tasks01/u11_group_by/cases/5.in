@@ -1,0 +1,11 @@
+Name,score
+b,1
+B,2
+a,3
+b,4
+,5
+a,6
+
+
+  count Name
+sum score Name byvalue

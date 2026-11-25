@@ -1,0 +1,22 @@
+> dups
+error: bad query
+> dups n extra
+error: bad query
+> dups n:alpha
+error: bad query
+> dups n:
+error: bad query
+> dups :digits
+error: bad query
+> dups n,
+error: bad query
+> dups z
+error: unknown column z
+> dups n,z
+error: unknown column z
+> dups n:digits,z
+error: unknown column z
+> find n
+error: bad query
+> dups n
+(no duplicates)

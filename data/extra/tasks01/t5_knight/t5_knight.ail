@@ -1,0 +1,45 @@
+## Knight move distances on an N by N board, one breadth-first search per query.
+fn knight_dist(n int, sr int, sc int, tr int, tc int) int
+    dr := [1, 2, 2, 1, -1, -2, -2, -1]
+    dc := [2, 1, -1, -2, -2, -1, 1, 2]
+    mut dist := [-1 for i in 0..n * n]
+    mut queue := [sr * n + sc]
+    dist[sr * n + sc] = 0
+    mut head := 0
+    while head < queue.len()
+        cur := queue[head]
+        head += 1
+        r := cur / n
+        c := cur % n
+        for k in 0..8
+            nr := r + dr[k]
+            nc := c + dc[k]
+            if nr < 0 or nr >= n or nc < 0 or nc >= n
+                continue
+            nxt := nr * n + nc
+            if dist[nxt] < 0
+                dist[nxt] = dist[cur] + 1
+                queue.push(nxt)
+    dist[tr * n + tc]
+
+fn main()
+    lines := [l.trim() for l in io.read_all().lines() if not l.trim().is_empty()]
+    n := (if lines.is_empty() then "x" else lines[0]).to_int() else 0
+    if n < 1
+        print("bad board")
+        return
+    for i in 1..lines.len()
+        w := lines[i].words()
+        if w.len() != 4
+            print("bad")
+            continue
+        mut v := List[int]()
+        for s in w
+            x := s.to_int() else -1
+            v.push(x)
+        lo := v.min() else -1
+        hi := v.max() else n
+        if lo < 0 or hi >= n
+            print("bad")
+        else
+            print(knight_dist(n, v[0], v[1], v[2], v[3]))

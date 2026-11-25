@@ -1,0 +1,47 @@
+## Answers find/lower/upper/count queries over a sorted list using binary search.
+## Invalid query lines print `error line N`.
+fn lower_bound(xs List[int], x int) int
+    mut lo := 0
+    mut hi := xs.len()
+    while lo < hi
+        mid := (lo + hi) / 2
+        if xs[mid] < x
+            lo = mid + 1
+        else
+            hi = mid
+    lo
+
+fn upper_bound(xs List[int], x int) int
+    mut lo := 0
+    mut hi := xs.len()
+    while lo < hi
+        mid := (lo + hi) / 2
+        if xs[mid] <= x
+            lo = mid + 1
+        else
+            hi = mid
+    lo
+
+fn main()
+    lines := io.read_all().lines()
+    if lines.is_empty()
+        return
+    xs := [w.to_int() else 0 for w in lines[0].words()]
+    for k in 1..lines.len()
+        line := lines[k]
+        if line.trim().is_empty()
+            continue
+        parts := line.words()
+        if parts.len() != 2
+            print("error line {k + 1}")
+            continue
+        x := parts[1].to_int() else
+            print("error line {k + 1}")
+            continue
+        lo := lower_bound(xs, x)
+        match parts[0]
+            "find" => print(if lo < xs.len() and xs[lo] == x then lo else -1)
+            "lower" => print(lo)
+            "upper" => print(upper_bound(xs, x))
+            "count" => print(upper_bound(xs, x) - lo)
+            _ => print("error line {k + 1}")

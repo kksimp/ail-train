@@ -1,0 +1,10 @@
+has 0 READ
+has 255 LINK
+has 64 TEMP
+has 64 HIDDEN
+toggle 0 LINK
+toggle 255 LINK
+toggle 7 NOPE
+toggle 300 READ
+toggle x READ
+has 1

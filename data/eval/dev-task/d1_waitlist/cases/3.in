@@ -1,0 +1,17 @@
+arrive solo 1
+table a 6
+table b 2
+table a 3
+arrive big 5
+arrive p2 2
+arrive p6 6
+arrive p1 1
+arrive q 2
+leave q
+arrive r 5
+leave big
+leave p2
+table c 3
+leave nobody
+book x 2
+  table   d   2  

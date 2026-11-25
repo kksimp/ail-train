@@ -1,0 +1,6 @@
+A K: blackjack 21
+A 6: 17 soft
+7 8 9: bust 24
+A A 9: 21 soft
+5 5 T A: 21 hard
+Q 10: invalid

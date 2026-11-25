@@ -1,0 +1,44 @@
+## Magic square check: reads an N x N grid and reports "magic S" or the first
+## row, column or diagonal whose sum is wrong.
+
+## Parses the rows; none when any token is not an integer.
+fn parse_grid(text str) List[List[int]]?
+    mut g := List[List[int]]()
+    for line in text.lines()
+        if line.trim().is_empty()
+            continue
+        mut row := List[int]()
+        for w in line.words()
+            n := w.to_int() else return none
+            row.push(n)
+        g.push(row)
+    g
+
+fn verdict(g List[List[int]]) str
+    n := g.len()
+    if n == 0 or g.any(|r| r.len() != n)
+        return "invalid"
+    flat := g.flatten()
+    if flat.sorted() != [i for i in 1..=n * n]
+        return "not magic: numbers"
+    target := n * (n * n + 1) / 2
+    for r in 0..n
+        if g[r].sum() != target
+            return "not magic: row {r + 1}"
+    for c in 0..n
+        col := [g[r][c] for r in 0..n]
+        if col.sum() != target
+            return "not magic: column {c + 1}"
+    diag := [g[i][i] for i in 0..n]
+    if diag.sum() != target
+        return "not magic: diagonal"
+    anti := [g[i][n - 1 - i] for i in 0..n]
+    if anti.sum() != target
+        return "not magic: anti-diagonal"
+    "magic {target}"
+
+fn main()
+    g := parse_grid(io.read_all()) else
+        print("invalid")
+        return
+    print(verdict(g))

@@ -1,0 +1,11 @@
+a1 shipped 0 backorder 3
+a2 shipped 0 backorder 2
+a3 shipped 0 backorder 1
+fill a1 3
+fill a2 1
+fill a2 1
+fill a3 1
+z shipped 2 backorder 0
+on-hand V 9
+on-hand W 3
+on-hand b 0

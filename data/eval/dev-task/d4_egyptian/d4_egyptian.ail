@@ -1,0 +1,42 @@
+## Egyptian fractions: greedy expansion of each a/b into distinct unit fractions.
+fn gcd(a int, b int) int
+    mut x := a
+    mut y := b
+    while y != 0
+        t := x % y
+        x = y
+        y = t
+    x
+
+fn expand(a0 int, b0 int) List[int]?
+    mut a := a0
+    mut b := b0
+    mut out := List[int]()
+    while a > 0
+        if b > 1000000000
+            return none
+        d := (b + a - 1) / a
+        out.push(d)
+        a = a * d - b
+        b = b * d
+        g := gcd(a, b)
+        a /= g
+        b /= g
+    out
+
+fn main()
+    while line := io.read_line()
+        t := line.trim()
+        if t.is_empty()
+            continue
+        parts := t.split("/")
+        a := parts[0].to_int() else 0
+        b := (parts.skip(1).first() else "").to_int() else 0
+        if parts.len() != 2 or a < 1 or b > 1000 or a >= b
+            print("{t}: invalid")
+            continue
+        terms := expand(a, b) else
+            print("{a}/{b}: denominator too large")
+            continue
+        text := ["1/{d}" for d in terms].join(" + ")
+        print("{a}/{b} = {text}")

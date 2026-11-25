@@ -1,0 +1,56 @@
+## Page replacement: counts faults for FIFO and LRU over a reference string and
+## prints the hit/fault trace and the final resident pages.
+struct Run
+    faults int
+    trace str
+    mem List[int]
+
+fn simulate(refs List[int], n int, lru bool) Run
+    mut mem := List[int]()
+    mut trace := List[str]()
+    mut faults := 0
+    for r in refs
+        if mem.contains(r)
+            trace.push("H")
+            if lru
+                mem.remove_at(mem.index_of(r) else 0)
+                mem.push(r)
+        else
+            trace.push("F")
+            faults += 1
+            if mem.len() == n
+                mem.remove_at(0)
+            mem.push(r)
+    Run(faults: faults, trace: trace.join(""), mem: mem)
+
+fn parse_frames(line str) int
+    f := line.words()
+    if f.len() != 2 or f[0] != "frames"
+        return 0
+    f[1].to_int() else 0
+
+fn report(name str, r Run, total int)
+    print("{name} faults={r.faults} hits={total - r.faults}")
+    print("{name} trace={r.trace}")
+    print("{name} frames=[{r.mem.join(" ")}]")
+
+fn main()
+    mut rows := List[str]()
+    for line in io.read_all().lines()
+        if not line.trim().is_empty()
+            rows.push(line)
+    n := parse_frames(rows.first() else "")
+    if n < 1
+        print("bad frames")
+        return
+    mut refs := List[int]()
+    mut skipped := 0
+    for line in rows.skip(1)
+        for tok in line.words()
+            if v := tok.to_int()
+                refs.push(v)
+            else
+                skipped += 1
+    report("FIFO", simulate(refs, n, false), refs.len())
+    report("LRU", simulate(refs, n, true), refs.len())
+    print("skipped {skipped}")

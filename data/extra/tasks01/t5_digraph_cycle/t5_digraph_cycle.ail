@@ -1,0 +1,40 @@
+## Directed cycle detection by depth-first search with a deterministic visiting order.
+## Prints `cycle: a b a` for the first cycle found, or `acyclic`.
+fn visit(u str, adj Map[str, List[str]], mut color Map[str, int], mut path List[str]) List[str]
+    color[u] = 1
+    path.push(u)
+    for v in (adj.get(u) else List[str]()).sorted()
+        state := color.get(v) else 0
+        if state == 1
+            start := path.index_of(v) else 0
+            mut cyc := path.slice(start)
+            cyc.push(v)
+            return cyc
+        elif state == 0
+            found := visit(v, adj, mut color, mut path)
+            if not found.is_empty()
+                return found
+    _ := path.pop()
+    color[u] = 2
+    List[str]()
+
+fn main()
+    mut adj := Map[str, List[str]]()
+    mut nodes := Set[str]()
+    for line in io.read_all().lines()
+        w := line.words()
+        if w.len() != 2
+            continue
+        nodes.add(w[0])
+        nodes.add(w[1])
+        adj.push(w[0], w[1])
+    mut color := Map[str, int]()
+    mut path := List[str]()
+    for n in nodes.sorted()
+        if (color.get(n) else 0) != 0
+            continue
+        found := visit(n, adj, mut color, mut path)
+        if not found.is_empty()
+            print("cycle: {found.join(" ")}")
+            return
+    print("acyclic")

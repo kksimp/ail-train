@@ -1,0 +1,51 @@
+## Replay a change log (set, del, rename, incr) into a key/value store and
+## print the final state plus the line numbers of rejected commands.
+
+fn is_int(s str) bool
+    digits := if s.starts_with("-") then s.slice(1) else s
+    if digits.is_empty()
+        return false
+    for ch in digits.chars()
+        if ch.code() < 48 or ch.code() > 57
+            return false
+    true
+
+fn apply(mut store Map[str, str], f List[str]) bool
+    cmd := f[0]
+    if cmd == "set"
+        if f.len() == 3 and not f[1].is_empty() and not f[2].is_empty()
+            store[f[1]] = f[2]
+            return true
+    elif cmd == "del"
+        if f.len() == 2 and store.contains(f[1])
+            store.remove(f[1])
+            return true
+    elif cmd == "rename"
+        if f.len() == 3 and store.contains(f[1]) and not store.contains(f[2]) and f[1] != f[2] and not f[2].is_empty() and not f[2].contains(" ")
+            store[f[2]] = store[f[1]]
+            store.remove(f[1])
+            return true
+    elif cmd == "incr"
+        if f.len() == 3 and not f[1].is_empty() and is_int(f[2]) and (not store.contains(f[1]) or is_int(store[f[1]]))
+            cur := (store.get(f[1]) else "0").to_int() else 0
+            delta := f[2].to_int() else 0
+            store[f[1]] = "{cur + delta}"
+            return true
+    false
+
+fn main()
+    mut store := Map[str, str]()
+    mut rejected := List[int]()
+    mut n := 0
+    for l in io.read_all().lines()
+        n += 1
+        if l.is_empty()
+            continue
+        if not apply(mut store, l.split(" ", 3))
+            rejected.push(n)
+    print("state:")
+    for k in store.keys().sorted()
+        print("{k}={store[k]}")
+    print("rejected: {rejected.len()}")
+    for r in rejected
+        print("line {r}")

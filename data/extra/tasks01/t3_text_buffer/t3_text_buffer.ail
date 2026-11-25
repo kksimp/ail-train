@@ -1,0 +1,47 @@
+## Text buffer with undo/redo: append, delete, undo, redo, show.
+## Two stacks of earlier buffer states hold the history.
+
+fn digits_only(s str) bool
+    if s.is_empty()
+        return false
+    for ch in s.chars()
+        if not ch.is_digit()
+            return false
+    true
+
+fn main()
+    mut buf := ""
+    mut undo := List[str]()
+    mut redo := List[str]()
+    while true
+        line := io.read_line() else break
+        if line.trim().is_empty()
+            continue
+        p := line.split(" ", 2)
+        cmd := p[0]
+        if cmd == "append" and p.len() == 2 and p[1] != ""
+            undo.push(buf)
+            redo.clear()
+            buf = "{buf}{p[1]}"
+        elif cmd == "delete" and p.len() == 2 and digits_only(p[1]) and (p[1].to_int() else 0) >= 1
+            undo.push(buf)
+            redo.clear()
+            n := p[1].to_int() else 0
+            buf = if n >= buf.len() then "" else buf.slice(0, buf.len() - n)
+        elif cmd == "undo" and p.len() == 1
+            if prev := undo.pop()
+                redo.push(buf)
+                buf = prev
+            else
+                print("error: nothing to undo")
+        elif cmd == "redo" and p.len() == 1
+            if next := redo.pop()
+                undo.push(buf)
+                buf = next
+            else
+                print("error: nothing to redo")
+        elif cmd == "show" and p.len() == 1
+            print("[{buf}]")
+        else
+            print("error: bad command")
+    print("edits: {undo.len()}")

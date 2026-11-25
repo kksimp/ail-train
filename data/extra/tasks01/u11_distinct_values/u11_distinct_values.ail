@@ -1,0 +1,59 @@
+## Distinct values per column of a small table, in first-seen or sorted order.
+fn uniq(vals List[str]) List[str]
+    mut seen := Set[str]()
+    mut out := List[str]()
+    for v in vals
+        if seen.add(v)
+            out.push(v)
+    out
+
+fn shown(v str) str
+    if v.is_empty()
+        "<empty>"
+    else
+        v
+
+fn all_int(vals List[str]) bool
+    vals.all(|v| v.to_int() != none)
+
+fn exec(h List[str], rows List[List[str]], q str) List[str] ! str
+    t := q.words()
+    if t.len() < 2 or t.len() > 3 or t[0] != "distinct"
+        return "error: bad query"
+    if t.len() == 3 and (t[2] != "sorted" or t[1] == "*")
+        return "error: bad query"
+    if t[1] == "*"
+        mut out := List[str]()
+        for i in 0..h.len()
+            n := uniq([r[i] for r in rows]).len()
+            out.push("{h[i]}: {n}")
+        return out
+    i := h.index_of(t[1]) else return "error: unknown column {t[1]}"
+    mut vals := uniq([r[i] for r in rows])
+    if t.len() == 3
+        if not rows.is_empty() and all_int(vals)
+            vals = vals.sorted(by: |v| v.to_int() else 0)
+        else
+            vals = vals.sorted()
+    body := if vals.is_empty() then "-" else vals.map(|v| shown(v)).join(", ")
+    ["{t[1]} ({vals.len()}): {body}"]
+
+fn main()
+    lines := io.read_all().lines()
+    if lines.is_empty()
+        return
+    h := lines[0].split(",")
+    mut rows := List[List[str]]()
+    mut k := 1
+    while k < lines.len() and lines[k] != ""
+        rows.push(lines[k].split(","))
+        k += 1
+    for j in k..lines.len()
+        q := lines[j].trim()
+        if q.is_empty()
+            continue
+        print("> {q}")
+        out := exec(h, rows, q) else err
+            [err]
+        for l in out
+            print(l)

@@ -1,0 +1,53 @@
+## IPv4 address validator: prints "valid CLASS" or "invalid (REASON)" for each
+## input line.
+
+fn all_digits(s str) bool
+    s.chars().all(|c| c.code() >= 48 and c.code() <= 57)
+
+## Returns the reason a single part is bad, or none when it is a number 0-255.
+fn part_problem(p str) str?
+    if p.is_empty()
+        return "empty part"
+    if not all_digits(p)
+        return "non-digit"
+    if p.len() > 1 and p.starts_with("0")
+        return "leading zero"
+    if p.len() > 3
+        return "out of range"
+    n := p.to_int() else 0
+    if n > 255
+        return "out of range"
+    none
+
+fn classify(o List[int]) str
+    a := o[0]
+    b := o[1]
+    if a == 127
+        "loopback"
+    elif a == 10 or (a == 172 and b >= 16 and b <= 31) or (a == 192 and b == 168)
+        "private"
+    elif a == 169 and b == 254
+        "link-local"
+    elif a >= 224 and a <= 239
+        "multicast"
+    elif o.all(|x| x == 0)
+        "unspecified"
+    else
+        "public"
+
+fn check(line str) str
+    parts := line.split(".")
+    if parts.len() != 4
+        return "invalid (wrong part count)"
+    for p in parts
+        why := part_problem(p) else continue
+        return "invalid ({why})"
+    octets := [p.to_int() else 0 for p in parts]
+    "valid {classify(octets)}"
+
+fn main()
+    for line in io.read_all().lines()
+        t := line.trim()
+        if t.is_empty()
+            continue
+        print("{t}: {check(t)}")

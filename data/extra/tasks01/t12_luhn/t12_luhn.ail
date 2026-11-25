@@ -1,0 +1,43 @@
+## Luhn checksum validator: reads card numbers one per line and prints
+## VALID, INVALID or MALFORMED for each.
+
+fn clean(s str) str
+    kept := s.trim().chars().filter(|c| c != ' ' and c != '-')
+    kept.join("")
+
+fn all_digits(s str) bool
+    for ch in s.chars()
+        if ch.code() < 48 or ch.code() > 57
+            return false
+    true
+
+fn luhn(digits str) bool
+    mut total := 0
+    mut dbl := false
+    for ch in digits.chars().reversed()
+        d := ch.to_digit(10) else 0
+        mut v := d
+        if dbl
+            v = d * 2
+            if v > 9
+                v -= 9
+        total += v
+        dbl = not dbl
+    total % 10 == 0
+
+fn classify(line str) str
+    digits := clean(line)
+    n := digits.len()
+    if n < 12 or n > 19 or not all_digits(digits)
+        return "MALFORMED"
+    if luhn(digits)
+        "VALID"
+    else
+        "INVALID"
+
+fn main()
+    for line in io.read_all().lines()
+        t := line.trim()
+        if t.is_empty()
+            continue
+        print("{t}: {classify(t)}")

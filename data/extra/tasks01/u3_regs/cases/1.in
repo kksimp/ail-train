@@ -1,0 +1,4 @@
+set a 3
+dec a
+inc b
+jnz a 1

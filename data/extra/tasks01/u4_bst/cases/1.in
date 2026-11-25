@@ -1,0 +1,8 @@
+insert 5
+insert 3
+insert 8
+insert 3
+inorder
+delete 5
+inorder
+height

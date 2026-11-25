@@ -1,0 +1,10 @@
+1
+add x 2
+add y 1
+add x 5
+run 2
+add x 5
+status
+run 0
+run 7
+clock

@@ -1,0 +1,75 @@
+## Priority task scheduler: add/next/bump/cancel/list; priority 9 first, ties by add order.
+## Pending tasks live in a list; the run order is a stable sort by negated priority.
+
+struct Job
+    name str
+    prio int
+    seq int
+
+fn arity(cmd str) int
+    match cmd
+        "add" => 3
+        "next" => 1
+        "bump" => 3
+        "cancel" => 2
+        "list" => 1
+        _ => 0
+
+fn ordered(tasks List[Job]) List[Job]
+    tasks.sorted(by: |t| (-t.prio, t.seq))
+
+fn index_of(tasks List[Job], name str) int?
+    for i in 0..tasks.len()
+        if tasks[i].name == name
+            return i
+    none
+
+fn main()
+    mut tasks := List[Job]()
+    mut seq := 0
+    while true
+        line := io.read_line() else break
+        w := line.words()
+        if w.is_empty()
+            continue
+        cmd := w[0]
+        if arity(cmd) != w.len()
+            print("error: bad command")
+        elif cmd == "add"
+            p := w[2].to_int() else 0
+            if p < 1 or p > 9
+                print("error: bad priority")
+            elif index_of(tasks, w[1]) != none
+                print("error: duplicate {w[1]}")
+            else
+                seq += 1
+                tasks.push(Job(name: w[1], prio: p, seq: seq))
+                print("added {w[1]}")
+        elif cmd == "next"
+            if tasks.is_empty()
+                print("idle")
+            else
+                best := ordered(tasks)[0]
+                i := index_of(tasks, best.name) else 0
+                tasks.remove_at(i)
+                print("run {best.name} {best.prio}")
+        elif cmd == "bump"
+            n := w[2].to_int() else 0
+            if n < 1
+                print("error: bad priority")
+            elif i := index_of(tasks, w[1])
+                tasks[i].prio = (tasks[i].prio + n).min(9)
+                print("{w[1]} now {tasks[i].prio}")
+            else
+                print("error: no such task {w[1]}")
+        elif cmd == "cancel"
+            if i := index_of(tasks, w[1])
+                tasks.remove_at(i)
+                print("cancelled {w[1]}")
+            else
+                print("error: no such task {w[1]}")
+        else
+            if tasks.is_empty()
+                print("empty")
+            for t in ordered(tasks)
+                print("{t.name}:{t.prio}")

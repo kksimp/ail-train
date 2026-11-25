@@ -1,0 +1,8 @@
+id,acct,amt
+t1,a,10
+t2,b,5
+t3,a,-4
+t4,a,x
+
+running amt by acct
+runmax amt by acct

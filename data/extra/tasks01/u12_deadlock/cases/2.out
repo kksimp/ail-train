@@ -1,0 +1,5 @@
+deadlock 1: P1 P2
+deadlock 2: P3 P4 P5
+deadlock 3: P9
+blocked: P10 P7 P8
+status=deadlock groups=3 deadlocked=6 blocked=3 ignored=0

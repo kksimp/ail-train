@@ -1,0 +1,84 @@
+## Robot on a grid: reads the grid, start, obstacles, then command lines of F B L R and prints the pose after each.
+struct Robot
+    x int
+    y int
+    d int
+
+fn parse_ints(line str, n int) List[int]?
+    w := line.words()
+    if w.len() != n
+        return none
+    mut out := List[int]()
+    for t in w
+        v := t.to_int() else return none
+        out.push(v)
+    out
+
+fn Robot.face(self) str
+    ["N", "E", "S", "W"][self.d]
+
+fn main()
+    mut lines := io.read_all().split("\n")
+    if (lines.last() else "x") == ""
+        lines.pop()
+    if lines.len() < 3
+        print("bad input")
+        return
+    wh := parse_ints(lines[0], 2) else
+        print("bad input")
+        return
+    st := lines[1].words()
+    if wh[0] < 1 or wh[1] < 1 or st.len() != 3
+        print("bad input")
+        return
+    d0 := ["N", "E", "S", "W"].index_of(st[2]) else
+        print("bad input")
+        return
+    sx := st[0].to_int() else
+        print("bad input")
+        return
+    sy := st[1].to_int() else
+        print("bad input")
+        return
+    k := lines[2].trim().to_int() else
+        print("bad input")
+        return
+    if k < 0 or lines.len() < 3 + k
+        print("bad input")
+        return
+    mut obs := Set[(int, int)]()
+    for i in 0..k
+        o := parse_ints(lines[3 + i], 2) else
+            print("bad input")
+            return
+        obs.add((o[0], o[1]))
+    w := wh[0]
+    h := wh[1]
+    if sx < 0 or sx >= w or sy < 0 or sy >= h or obs.contains((sx, sy))
+        print("bad input")
+        return
+    dx := [0, 1, 0, -1]
+    dy := [1, 0, -1, 0]
+    mut r := Robot(x: sx, y: sy, d: d0)
+    for ci in (3 + k)..lines.len()
+        cmd := lines[ci]
+        if cmd.chars().any(|c| not "FBLR".contains(c))
+            print("bad command")
+            continue
+        mut bumps := 0
+        for c in cmd.chars()
+            if c == 'L'
+                r.d = (r.d + 3) % 4
+            elif c == 'R'
+                r.d = (r.d + 1) % 4
+            else
+                s := if c == 'F' then 1 else -1
+                nx := r.x + s * dx[r.d]
+                ny := r.y + s * dy[r.d]
+                if nx >= 0 and nx < w and ny >= 0 and ny < h and not obs.contains((nx, ny))
+                    r.x = nx
+                    r.y = ny
+                else
+                    bumps += 1
+        print("{r.x} {r.y} {r.face()} bumps={bumps}")
+    print("final {r.x} {r.y} {r.face()}")

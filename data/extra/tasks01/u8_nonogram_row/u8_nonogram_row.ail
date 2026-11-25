@@ -1,0 +1,53 @@
+## Checks nonogram rows (`CLUES ROW`) by comparing the row's runs of `#` with the clues.
+## Prints ok, a bad report with both run lists, or invalid.
+fn runs(row str) List[int]
+    mut out := List[int]()
+    mut n := 0
+    for ch in row.chars()
+        if ch == '#'
+            n += 1
+        else
+            if n > 0
+                out.push(n)
+            n = 0
+    if n > 0
+        out.push(n)
+    out
+
+fn show(xs List[int]) str
+    if xs.is_empty()
+        return "none"
+    xs.join(" ")
+
+fn parse_clues(s str) List[int]?
+    if s == "0"
+        return List[int]()
+    mut out := List[int]()
+    for item in s.split(",")
+        n := item.to_int() else return none
+        if n <= 0
+            return none
+        out.push(n)
+    out
+
+fn check(line str) str
+    parts := line.split(" ")
+    if parts.len() != 2
+        return "invalid"
+    row := parts[1]
+    if row.is_empty()
+        return "invalid"
+    for ch in row.chars()
+        if ch != '#' and ch != '.'
+            return "invalid"
+    clues := parse_clues(parts[0]) else return "invalid"
+    got := runs(row)
+    if got == clues
+        return "ok"
+    "bad: got {show(got)} want {show(clues)}"
+
+fn main()
+    for raw in io.read_all().lines()
+        line := raw.trim()
+        if not line.is_empty()
+            print(check(line))

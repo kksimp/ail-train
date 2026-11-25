@@ -1,0 +1,21 @@
+added low
+added mid
+added high
+added mid2
+low now 9
+mid now 8
+low:9
+high:9
+mid:8
+mid2:5
+run low 9
+run high 9
+error: duplicate mid
+mid:8
+mid2:5
+error: no such task high
+run mid 8
+run mid2 5
+idle
+idle
+empty

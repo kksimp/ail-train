@@ -1,0 +1,57 @@
+## Connect four: replays each line of column digits and prints who won, `draw`, `in progress` or `invalid`.
+COLS := 7
+ROWS := 6
+
+## Length of the run of piece `p` through (r, c) along direction (dr, dc), both ways.
+fn run_len(b List[str], r int, c int, dr int, dc int, p str) int
+    mut cnt := 1
+    for s in [1, -1]
+        mut rr := r + s * dr
+        mut cc := c + s * dc
+        while rr >= 0 and rr < ROWS and cc >= 0 and cc < COLS and b[rr * COLS + cc] == p
+            cnt += 1
+            rr += s * dr
+            cc += s * dc
+    cnt
+
+fn verdict(line str) str
+    mut b := List[str]()
+    for i in 0..(ROWS * COLS)
+        b.push(".")
+    mut won := false
+    mut winner := ""
+    mut at := 0
+    mut n := 0
+    for ch in line.chars()
+        if won
+            return "invalid"
+        col := ch.to_digit(10) else return "invalid"
+        if col < 1 or col > 7
+            return "invalid"
+        c := col - 1
+        mut r := 0
+        while r < ROWS and b[r * COLS + c] != "."
+            r += 1
+        if r == ROWS
+            return "invalid"
+        p := if n % 2 == 0 then "R" else "Y"
+        b[r * COLS + c] = p
+        n += 1
+        for dir in [(0, 1), (1, 0), (1, 1), (1, -1)]
+            if run_len(b, r, c, dir.0, dir.1, p) >= 4
+                won = true
+        if won
+            winner = p
+            at = n
+    if won
+        return "{winner} wins at move {at}"
+    if n == ROWS * COLS
+        return "draw"
+    "in progress"
+
+fn main()
+    mut lines := io.read_all().split("\n")
+    if (lines.last() else "x") == ""
+        lines.pop()
+    for l in lines
+        print(verdict(l))

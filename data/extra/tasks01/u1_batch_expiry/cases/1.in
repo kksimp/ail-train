@@ -1,0 +1,7 @@
+lot milk m1 10 5
+lot milk m2 6 9
+lot egg e1 3 40
+asof 6
+sell milk 12
+sell milk 5
+asof 10

@@ -1,0 +1,6 @@
+OK ann A 1-4
+OK bob A 4-6
+REJECT cy A 3-5 conflicts with ann
+OK dee B 3-5
+BAD line 5
+accepted 3 rejected 1 bad 1

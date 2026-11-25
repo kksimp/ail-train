@@ -1,0 +1,11 @@
+credit=100
+credit=200
+no change
+refund 100+100
+credit=5
+refund 5
+rejected 3
+rejected 1000
+refund none
+credit=0
+stock tea 5

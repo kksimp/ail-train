@@ -1,0 +1,21 @@
+solo too large
+table a added
+table b added
+line 4: bad line
+big seated at a
+p2 seated at b
+p6 waits (position 1)
+p1 waits (position 2)
+q waits (position 3)
+q removed from waitlist
+r waits (position 3)
+big left
+p6 seated at a
+p2 left
+p1 seated at b
+table c added
+nobody not found
+line 16: bad line
+table d added
+waiting: r(5)
+free tables: c, d

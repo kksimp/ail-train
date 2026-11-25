@@ -1,0 +1,12 @@
+set x p q
+set y q r
+set z
+union u x y
+inter v u z
+subset z u
+subset u z
+diff w y x
+names
+del y
+union t x y
+inter v v

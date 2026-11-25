@@ -1,0 +1,58 @@
+## Classifies query points as inside, on the boundary of, or outside an axis-aligned rectangle.
+fn ints(t str) List[int]?
+    mut out := List[int]()
+    for w in t.words()
+        v := w.to_int() else return none
+        out.push(v)
+    out
+
+fn main()
+    mut lo_x := 0
+    mut hi_x := 0
+    mut lo_y := 0
+    mut hi_y := 0
+    mut have := false
+    mut a := 0
+    mut b := 0
+    mut c := 0
+    mut d := 0
+    for line in io.read_all().lines()
+        t := line.trim()
+        if t.is_empty()
+            continue
+        if not have
+            v := ints(t) else
+                print("no rectangle")
+                return
+            if v.len() != 4
+                print("no rectangle")
+                return
+            have = true
+            lo_x = v[0].min(v[2])
+            hi_x = v[0].max(v[2])
+            lo_y = v[1].min(v[3])
+            hi_y = v[1].max(v[3])
+            continue
+        q := ints(t) else
+            print("bad")
+            d += 1
+            continue
+        if q.len() != 2
+            print("bad")
+            d += 1
+            continue
+        x := q[0]
+        y := q[1]
+        if x < lo_x or x > hi_x or y < lo_y or y > hi_y
+            print("outside")
+            c += 1
+        elif x == lo_x or x == hi_x or y == lo_y or y == hi_y
+            print("boundary")
+            b += 1
+        else
+            print("inside")
+            a += 1
+    if not have
+        print("no rectangle")
+        return
+    print("inside {a} boundary {b} outside {c} bad {d}")

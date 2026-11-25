@@ -1,0 +1,15 @@
+funnel: view,cart,pay
+1 ann view
+2 ann cart
+3 ann pay
+1 bob view
+5 bob cart
+4 bob pay
+2 cy cart
+3 cy view
+2 dee view
+badrow
+10 dee cart
+7 eve view
+
+9 eve Cart

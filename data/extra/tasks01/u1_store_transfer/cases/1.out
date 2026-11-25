@@ -1,0 +1,7 @@
+ship t1
+reject t2 same
+reject t3 short
+arrived t1
+reject t1 done
+shelf east A 4
+shelf main A 6

@@ -1,0 +1,6 @@
+loc A1 B-02
+loc C9 B-01
+pick o1 A1 2
+pick o2 C9 1
+pick o3 A1 3
+pick o3 Z 4

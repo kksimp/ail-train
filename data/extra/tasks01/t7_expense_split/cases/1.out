@@ -1,0 +1,7 @@
+balances:
+  ann: +17.50
+  bob: -7.50
+  cy: -10.00
+settlements:
+  cy pays ann 10.00
+  bob pays ann 7.50

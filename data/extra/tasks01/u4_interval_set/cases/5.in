@@ -1,0 +1,14 @@
+add 0 100
+remove 10 20
+remove 30 40
+remove 50 60
+show
+total
+add 15 35
+show
+remove 0 5
+remove 95 100
+show
+total
+query 5
+query 99

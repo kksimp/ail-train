@@ -1,0 +1,63 @@
+## Interval set stored as sorted, disjoint, non-touching half-open runs.
+## add merges overlapping/touching runs, remove splits them, plus query/total/show.
+struct Run
+    lo int
+    hi int
+
+fn add_run(runs List[Run], l int, r int) List[Run]
+    mut out := List[Run]()
+    mut lo := l
+    mut hi := r
+    for run in runs
+        if run.hi < lo or run.lo > hi
+            out.push(run)
+        else
+            lo = lo.min(run.lo)
+            hi = hi.max(run.hi)
+    out.push(Run(lo: lo, hi: hi))
+    out.sorted(by: |x| x.lo)
+
+fn remove_run(runs List[Run], l int, r int) List[Run]
+    mut out := List[Run]()
+    for run in runs
+        if run.hi <= l or run.lo >= r
+            out.push(run)
+            continue
+        if run.lo < l
+            out.push(Run(lo: run.lo, hi: l))
+        if run.hi > r
+            out.push(Run(lo: r, hi: run.hi))
+    out
+
+fn num(w List[str], i int) int?
+    if i >= w.len()
+        return none
+    w[i].to_int()
+
+fn main()
+    mut runs := List[Run]()
+    for line in io.read_all().lines()
+        w := line.words()
+        if w.is_empty()
+            continue
+        cmd := w[0]
+        if (cmd == "add" or cmd == "remove") and w.len() == 3 and num(w, 1) != none and num(w, 2) != none
+            l := num(w, 1) else 0
+            r := num(w, 2) else 0
+            if l >= r
+                print("bad")
+            else
+                runs = if cmd == "add" then add_run(runs, l, r) else remove_run(runs, l, r)
+                print("ok")
+        elif cmd == "query" and w.len() == 2 and num(w, 1) != none
+            x := num(w, 1) else 0
+            print(if runs.any(|run| run.lo <= x and x < run.hi) then "yes" else "no")
+        elif cmd == "total" and w.len() == 1
+            print(runs.fold(0, |acc, run| acc + run.hi - run.lo))
+        elif cmd == "show" and w.len() == 1
+            if runs.is_empty()
+                print("empty")
+            else
+                print(["[{run.lo},{run.hi})" for run in runs].join(" "))
+        else
+            print("error")

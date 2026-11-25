@@ -1,0 +1,12 @@
+name,dept,age
+ann,eng,31
+bob,ops,27
+cy,eng,45
+dee,ops,27
+eve,hr,52
+
+select *
+select name,age where dept = eng order age desc
+select name order age
+select name,dept where age >= 31 order name desc
+select dept where age < 30

@@ -1,0 +1,21 @@
+## Converts a 2-space indented outline from stdin into a dotted numbered list (1, 1.1, 1.2.1).
+## Lines with odd or too-deep indentation are reported and skipped.
+fn main()
+    mut counts := List[int]()
+    mut k := 0
+    for line in io.read_all().lines()
+        k += 1
+        text := line.trim()
+        if text.is_empty()
+            continue
+        spaces := line.len() - line.trim_start().len()
+        level := spaces / 2
+        if spaces % 2 == 1 or level > counts.len()
+            print("error: line {k}: bad indent")
+            continue
+        while counts.len() > level + 1
+            counts.pop()
+        if counts.len() == level
+            counts.push(0)
+        counts[level] += 1
+        print("{counts.join(".")} {text}")

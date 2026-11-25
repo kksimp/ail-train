@@ -1,0 +1,54 @@
+## Grade book: averages each student's scores (dropping the lowest when there are 4 or more),
+## assigns a letter grade and prints the ranking and a grade distribution.
+struct Student
+    name str
+    avg int
+
+fn parse_student(line str) Student?
+    f := line.split(",")
+    if f.len() < 2
+        return none
+    name := f[0].trim()
+    if name.is_empty()
+        return none
+    mut scores := List[int]()
+    for k in 1..f.len()
+        s := f[k].trim().to_int() else return none
+        if s < 0 or s > 100
+            return none
+        scores.push(s)
+    mut sum := scores.sum()
+    mut n := scores.len()
+    if n >= 4
+        sum -= scores.min() else 0
+        n -= 1
+    Student(name: name, avg: (sum * 20 + n) / (2 * n))
+
+fn letter(avg int) str
+    if avg >= 900
+        return "A"
+    if avg >= 800
+        return "B"
+    if avg >= 700
+        return "C"
+    if avg >= 600
+        return "D"
+    "F"
+
+fn main()
+    mut students := List[Student]()
+    mut n := 0
+    for line in io.read_all().lines()
+        n += 1
+        if line.trim().is_empty()
+            continue
+        s := parse_student(line) else
+            print("line {n}: invalid")
+            continue
+        students.push(s)
+    mut counts := {"A": 0, "B": 0, "C": 0, "D": 0, "F": 0}
+    for s in students.sorted(by: |s| (-s.avg, s.name))
+        g := letter(s.avg)
+        counts[g] += 1
+        print("{s.name}: avg={s.avg / 10}.{s.avg % 10} grade={g}")
+    print("grades: A={counts["A"]} B={counts["B"]} C={counts["C"]} D={counts["D"]} F={counts["F"]}")

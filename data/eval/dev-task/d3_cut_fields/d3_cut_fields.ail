@@ -1,0 +1,34 @@
+## cut: print chosen fields of each line, split on a one-character delimiter
+fn parse_fields(spec str) List[int]
+    mut out := List[int]()
+    for part in spec.split(",")
+        if part.contains("-")
+            ends := part.split("-")
+            lo := ends[0].to_int() else 1
+            hi := ends[1].to_int() else 0
+            for k in lo..=hi
+                out.push(k)
+        else
+            out.push(part.to_int() else 1)
+    out
+
+fn pick(cols List[str], f int) str
+    if f <= cols.len()
+        cols[f - 1]
+    else
+        ""
+
+fn main()
+    mut lines := io.read_all().split("\n")
+    if (lines.last() else "x") == ""
+        lines.pop()
+    if lines.is_empty()
+        return
+    delim := lines[0].slice(2, 3)
+    fields := parse_fields(lines[0].slice(6))
+    for line in lines[1..]
+        if not line.contains(delim)
+            print(line)
+            continue
+        cols := line.split(delim)
+        print(fields.map(|f| pick(cols, f)).join(delim))

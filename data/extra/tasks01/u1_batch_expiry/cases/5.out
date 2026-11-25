@@ -1,0 +1,9 @@
+sold r1 3
+short r1
+sold r3 1
+sold r3 1
+short r3
+expired r4 f 1 99
+expired r1 b 3 100
+soon r2 c 9 105
+expired units 4

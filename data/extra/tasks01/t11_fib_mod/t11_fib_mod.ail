@@ -1,0 +1,34 @@
+## Fibonacci numbers modulo M for huge N, by the fast-doubling method.
+## Returns (F(n) mod m, F(n+1) mod m).
+fn fib_pair(n int, m int) (int, int)
+    if n == 0
+        return (0, 1 % m)
+    p := fib_pair(n / 2, m)
+    a := p.0
+    b := p.1
+    c := a * ((2 * b - a + m) % m) % m
+    d := (a * a + b * b) % m
+    if n % 2 == 0
+        (c, d)
+    else
+        (d, (c + d) % m)
+
+fn main()
+    for line in io.read_all().lines()
+        t := line.trim()
+        if t.is_empty()
+            continue
+        w := t.words()
+        if w.len() != 2
+            print("error")
+            continue
+        n := w[0].to_int() else
+            print("error")
+            continue
+        m := w[1].to_int() else
+            print("error")
+            continue
+        if n < 0 or n > 1000000000000000000 or m < 1 or m > 1000000000
+            print("error")
+            continue
+        print("{n} {m} {fib_pair(n, m).0}")

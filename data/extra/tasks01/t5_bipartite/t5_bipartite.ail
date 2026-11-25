@@ -1,0 +1,42 @@
+## Bipartite check by two-colouring with breadth-first search, in a fixed visiting order.
+## Prints the two sides, or the first conflicting edge.
+fn side_line(label str, names List[str]) str
+    if names.is_empty()
+        "{label}:"
+    else
+        "{label}: {names.join(" ")}"
+
+fn main()
+    mut adj := Map[str, List[str]]()
+    mut nodes := Set[str]()
+    for line in io.read_all().lines()
+        w := line.words()
+        if w.len() != 2
+            continue
+        nodes.add(w[0])
+        nodes.add(w[1])
+        adj.push(w[0], w[1])
+        adj.push(w[1], w[0])
+    mut color := Map[str, int]()
+    for root in nodes.sorted()
+        if color.contains(root)
+            continue
+        color[root] = 0
+        mut queue := [root]
+        mut head := 0
+        while head < queue.len()
+            u := queue[head]
+            head += 1
+            for v in (adj.get(u) else List[str]()).sorted()
+                if not color.contains(v)
+                    color[v] = 1 - color[u]
+                    queue.push(v)
+                elif color[v] == color[u]
+                    print("not bipartite")
+                    print("conflict: {u} {v}")
+                    return
+    left := [n for n in nodes.sorted() if color[n] == 0]
+    right := [n for n in nodes.sorted() if color[n] == 1]
+    print("bipartite")
+    print(side_line("left", left))
+    print(side_line("right", right))

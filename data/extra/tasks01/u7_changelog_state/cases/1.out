@@ -1,0 +1,5 @@
+state:
+a=42
+c=hello world
+rejected: 1
+line 5

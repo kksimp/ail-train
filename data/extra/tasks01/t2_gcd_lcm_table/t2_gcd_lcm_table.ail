@@ -1,0 +1,48 @@
+## Pairwise gcd and lcm table for up to 8 positive integers, plus the gcd and lcm of all of them.
+
+fn gcd(a int, b int) int
+    mut x := a
+    mut y := b
+    while y != 0
+        t := x % y
+        x = y
+        y = t
+    x
+
+fn lcm(a int, b int) int
+    a / gcd(a, b) * b
+
+fn is_number(t str) bool
+    if t.is_empty() or t.len() > 7
+        return false
+    for c in t.chars()
+        if not c.is_digit()
+            return false
+    v := t.to_int() else 0
+    v >= 1 and v <= 1000000
+
+fn main()
+    mut nums := List[int]()
+    mut ignored := 0
+    for t in io.read_all().words()
+        if is_number(t) and nums.len() < 8
+            nums.push(t.to_int() else 0)
+        else
+            ignored += 1
+    if nums.is_empty()
+        print("numbers: none")
+    else
+        print("numbers: {nums.join(" ")}")
+    for i in 0..nums.len()
+        for j in (i + 1)..nums.len()
+            a := nums[i]
+            b := nums[j]
+            print("gcd({a},{b})={gcd(a, b)} lcm({a},{b})={lcm(a, b)}")
+    if nums.len() >= 2
+        mut g := nums[0]
+        mut l := nums[0]
+        for x in nums.slice(1)
+            g = gcd(g, x)
+            l = lcm(l, x)
+        print("all gcd={g} all lcm={l}")
+    print("ignored {ignored}")

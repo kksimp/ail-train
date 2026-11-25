@@ -1,0 +1,43 @@
+## quartiles and IQR-fence outliers of an integer series, in exact quarter units
+fn median2(v List[int]) int
+    n := v.len()
+    if n % 2 == 1
+        2 * v[n / 2]
+    else
+        v[n / 2 - 1] + v[n / 2]
+
+fn quarters(q int) str
+    sign := if q < 0 then "-" else ""
+    a := q.abs()
+    "{sign}{a / 4}.{(a % 4) * 25:0>2}"
+
+fn main()
+    mut xs := List[int]()
+    for w in io.read_all().words()
+        n := w.to_int() else -1
+        if n < 0 or w.starts_with("-")
+            print("bad value: {w}")
+            return
+        xs.push(n)
+    if xs.len() < 4
+        print("need at least 4 values")
+        return
+    s := xs.sorted()
+    h := s.len() / 2
+    q1 := 2 * median2(s.slice(0, h))
+    q3 := 2 * median2(s.slice(s.len() - h))
+    iqr2 := (q3 - q1) / 2
+    lo := q1 - 3 * iqr2
+    hi := q3 + 3 * iqr2
+    print("n: {s.len()}")
+    print("q1: {quarters(q1)}")
+    print("q3: {quarters(q3)}")
+    print("iqr: {quarters(q3 - q1)}")
+    print("fences: {quarters(lo)} {quarters(hi)}")
+    mut found := 0
+    for i, x in xs.enumerate()
+        if 4 * x < lo or 4 * x > hi
+            print("outlier: {i + 1} {x}")
+            found += 1
+    if found == 0
+        print("outliers: none")

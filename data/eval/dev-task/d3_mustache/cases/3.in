@@ -1,0 +1,19 @@
+a=1
+---
+ok {{a}}
+bad {{b}} and {{a}}
+open {{a
+weird {{ a b }}
+nested {{{a}}}
+empty tag {{}}
+{{else}}
+{{/if}}
+{{#if a}}
+x
+{{else}}
+y
+{{else}}
+z
+{{/if}}
+{{#unless q}}
+never closed {{a}}

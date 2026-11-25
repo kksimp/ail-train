@@ -1,0 +1,10 @@
+error: line 1: bad record
+error: line 2: bad record
+error: line 3: bad record
+error: line 4: bad record
+error: line 5: bad record
+error: line 6: bad record
+ f accrued=30 taken=1 balance=29
+g accrued=30 taken=1 balance=29
+employees: 2
+total balance: 58

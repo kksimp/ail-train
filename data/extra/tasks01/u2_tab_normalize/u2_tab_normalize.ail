@@ -1,0 +1,29 @@
+## Expands tabs to the next tab stop (width on the first line) and counts the changed lines.
+fn expand(line str, w int) str
+    mut out := List[str]()
+    mut col := 0
+    for c in line.chars()
+        if c == '\t'
+            pad := w - col % w
+            out.push(" ".repeat(pad))
+            col += pad
+        else
+            out.push("{c}")
+            col += 1
+    out.join("")
+
+fn main()
+    lines := io.read_all().lines()
+    if lines.is_empty()
+        print("no input")
+        return
+    w := lines[0].trim().to_int() else 0
+    if w < 1 or w > 8
+        print("bad width")
+        return
+    mut changed := 0
+    for k in 1..lines.len()
+        if lines[k].contains("\t")
+            changed += 1
+        print(expand(lines[k], w))
+    print("changed={changed}")

@@ -1,0 +1,18 @@
+3 4
+plant 1 1
+plant 2 2
+plant 3 4
+show
+water 1 2
+water 2 2
+day
+show
+water 2 2
+water 3 3
+day
+water 3 4
+day
+show
+day
+day
+show

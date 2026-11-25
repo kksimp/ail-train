@@ -1,0 +1,8 @@
+@before
+ann role user
+ann mail a@x.org
+bob role admin
+@after
+ann role admin
+ann team ops
+cy role user

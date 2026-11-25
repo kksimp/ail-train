@@ -1,0 +1,42 @@
+## Top N rows per group by an integer column, ties kept in table order.
+fn exec(h List[str], rows List[List[str]], q str) List[str] ! str
+    t := q.words()
+    if t.len() != 5 or t[0] != "top" or t[3] != "by"
+        return "error: bad query"
+    n := t[1].to_int() else return "error: bad query"
+    if n <= 0
+        return "error: bad query"
+    vi := h.index_of(t[2]) else return "error: unknown column {t[2]}"
+    gi := h.index_of(t[4]) else return "error: unknown column {t[4]}"
+    mut groups := Map[str, List[(int, int)]]()
+    for idx in 0..rows.len()
+        v := rows[idx][vi].to_int() else continue
+        groups.push(rows[idx][gi], (v, idx))
+    if groups.is_empty()
+        return ["(none)"]
+    mut out := List[str]()
+    for g in groups.keys().sorted()
+        best := groups[g].sorted(by: |p| (-p.0, p.1)).take(n)
+        items := best.map(|p| "{rows[p.1][0]}={p.0}")
+        out.push("{g}: {items.join(", ")}")
+    out
+
+fn main()
+    lines := io.read_all().lines()
+    if lines.is_empty()
+        return
+    h := lines[0].split(",")
+    mut rows := List[List[str]]()
+    mut k := 1
+    while k < lines.len() and lines[k] != ""
+        rows.push(lines[k].split(","))
+        k += 1
+    for j in k..lines.len()
+        q := lines[j].trim()
+        if q.is_empty()
+            continue
+        print("> {q}")
+        out := exec(h, rows, q) else err
+            [err]
+        for l in out
+            print(l)

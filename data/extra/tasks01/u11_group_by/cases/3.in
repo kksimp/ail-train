@@ -1,0 +1,10 @@
+k,v
+a,1
+
+count z
+sum v z
+sum z k
+count
+sum v
+sum v k byvalue extra
+total v k

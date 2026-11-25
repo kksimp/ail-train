@@ -1,0 +1,12 @@
+a,b,n
+x,y,1
+
+pivot a b
+pivot a b avg n
+pivot a b sum
+pivot a z count
+pivot z b count
+pivot a b sum q
+pivot a b sum n extra
+sum a b n
+pivot a b count extra

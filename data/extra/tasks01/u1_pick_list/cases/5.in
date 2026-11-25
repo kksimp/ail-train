@@ -1,0 +1,10 @@
+loc S1 R-10
+loc S2 R-9
+loc S3 R-10
+loc S4 A-1
+pick a S1 1
+pick a S2 1
+pick a S3 1
+pick b S4 12
+pick b S1 1
+pick c S3 007

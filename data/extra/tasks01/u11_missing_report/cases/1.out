@@ -1,0 +1,9 @@
+> missing
+id: 0/3 (0%)
+a: 1/3 (33%)
+b: 1/3 (33%)
+> missing rows
+r1: b
+r2: a
+> missing b
+b: r1

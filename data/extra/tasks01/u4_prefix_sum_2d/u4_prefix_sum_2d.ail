@@ -1,0 +1,70 @@
+## 2D prefix sums over a small grid: rectangle sums by inclusion-exclusion,
+## point set/add updates (prefix table rebuilt), total and per-row sums.
+fn ints(s str) List[int]?
+    mut out := List[int]()
+    for t in s.words()
+        v := t.to_int() else return none
+        out.push(v)
+    out
+
+fn build(g List[List[int]], rows int, cols int) List[List[int]]
+    mut p := [[0 for j in 0..cols + 1] for i in 0..rows + 1]
+    for i in 0..rows
+        for j in 0..cols
+            p[i + 1][j + 1] = g[i][j] + p[i][j + 1] + p[i + 1][j] - p[i][j]
+    p
+
+fn bad() never
+    print("bad grid")
+    io.exit(0)
+
+fn main()
+    lines := io.read_all().lines()
+    if lines.is_empty()
+        bad()
+    h := ints(lines[0]) else bad()
+    if h.len() != 2
+        bad()
+    rows := h[0]
+    cols := h[1]
+    if rows < 1 or rows > 20 or cols < 1 or cols > 20 or lines.len() < 1 + rows
+        bad()
+    mut g := List[List[int]]()
+    for i in 0..rows
+        row := ints(lines[1 + i]) else bad()
+        if row.len() != cols
+            bad()
+        g.push(row)
+    mut p := build(g, rows, cols)
+    for k in 1 + rows..lines.len()
+        w := lines[k].words()
+        if w.is_empty()
+            continue
+        cmd := w[0]
+        nums := ints(lines[k].words().skip(1).join(" ")) else List[int]()
+        ok := (nums.len() + 1 == w.len())
+        if cmd == "sum" and w.len() == 5 and ok
+            r1 := nums[0]
+            c1 := nums[1]
+            r2 := nums[2]
+            c2 := nums[3]
+            if r1 >= 0 and r1 <= r2 and r2 < rows and c1 >= 0 and c1 <= c2 and c2 < cols
+                print(p[r2 + 1][c2 + 1] - p[r1][c2 + 1] - p[r2 + 1][c1] + p[r1][c1])
+            else
+                print("out of range")
+        elif (cmd == "set" or cmd == "add") and w.len() == 4 and ok
+            r := nums[0]
+            c := nums[1]
+            v := nums[2]
+            if r >= 0 and r < rows and c >= 0 and c < cols
+                g[r][c] = if cmd == "set" then v else g[r][c] + v
+                p = build(g, rows, cols)
+                print("ok")
+            else
+                print("out of range")
+        elif cmd == "total" and w.len() == 1
+            print(p[rows][cols])
+        elif cmd == "rowsums" and w.len() == 1
+            print([row.sum() for row in g].join(" "))
+        else
+            print("error")

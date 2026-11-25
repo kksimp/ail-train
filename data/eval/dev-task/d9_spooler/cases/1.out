@@ -1,0 +1,22 @@
+printing: none
+queued: memo:5:4 report:3:14 photo:3:8
+finished 0 cancelled 0
+  start memo
+  done memo
+  start report
+tick: 10 pages
+printing: report (8 left)
+queued: photo:3:8
+finished 1 cancelled 0
+  done report
+  start urgent
+tick: 10 pages
+  done urgent
+  start photo
+  done photo
+tick: 9 pages
+printing: none
+queued: none
+finished 4 cancelled 0
+tick: 0 pages
+summary: finished 4 cancelled 0 pending 0

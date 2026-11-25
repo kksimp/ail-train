@@ -1,0 +1,63 @@
+## Sudoku grid validator: reads a 9x9 grid (digits and dots) and reports the
+## first row, column or box conflict, or whether the grid is valid.
+
+struct Unit
+    label str
+    cells List[char]
+
+fn first_dup(cells List[char]) char?
+    mut seen := Set[char]()
+    for c in cells
+        if c == '.'
+            continue
+        if not seen.add(c)
+            return c
+    none
+
+fn build_units(g List[List[char]]) List[Unit]
+    mut units := List[Unit]()
+    for r in 0..9
+        units.push(Unit(label: "row {r + 1}", cells: g[r]))
+    for c in 0..9
+        units.push(Unit(label: "column {c + 1}", cells: [g[r][c] for r in 0..9]))
+    for b in 0..9
+        r0 := b / 3 * 3
+        c0 := b % 3 * 3
+        mut cells := List[char]()
+        for r in r0..r0 + 3
+            for c in c0..c0 + 3
+                cells.push(g[r][c])
+        units.push(Unit(label: "box {b + 1}", cells: cells))
+    units
+
+fn valid_cell(c char) bool
+    c == '.' or (c.code() >= 49 and c.code() <= 57)
+
+fn well_formed(rows List[str]) bool
+    if rows.len() != 9
+        return false
+    for row in rows
+        if row.len() != 9 or not row.chars().all(|c| valid_cell(c))
+            return false
+    true
+
+fn report(rows List[str]) str
+    if not well_formed(rows)
+        return "BAD INPUT"
+    g := [row.chars() for row in rows]
+    for u in build_units(g)
+        d := first_dup(u.cells) else continue
+        return "INVALID {u.label} digit {d}"
+    empties := g.fold(0, |acc, row| acc + row.count(|c| c == '.'))
+    if empties == 0
+        "VALID complete"
+    else
+        "VALID incomplete"
+
+fn main()
+    mut rows := List[str]()
+    for line in io.read_all().lines()
+        t := line.trim()
+        if not t.is_empty()
+            rows.push(t)
+    print(report(rows))

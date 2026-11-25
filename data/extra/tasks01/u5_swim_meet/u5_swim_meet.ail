@@ -1,0 +1,82 @@
+## Swim meet results: ranks swimmers per event with ties, splits points among ties, totals per team.
+struct Entry
+    name str
+    team str
+    t int
+    raw str
+
+fn dg(s str, lo int, hi int) bool
+    s.len() >= lo and s.len() <= hi and s.chars().all(|c| c.is_digit())
+
+fn parse_time(s str) int?
+    parts := s.split(":")
+    if parts.len() > 2
+        return none
+    sec := parts[parts.len() - 1]
+    mut mins := 0
+    if parts.len() == 2
+        if not dg(parts[0], 1, 2)
+            return none
+        mins = parts[0].to_int() else 0
+    sp := sec.split(".")
+    if sp.len() != 2 or not dg(sp[1], 2, 2)
+        return none
+    if parts.len() == 2
+        if not dg(sp[0], 2, 2)
+            return none
+    elif not dg(sp[0], 1, 2)
+        return none
+    w := sp[0].to_int() else 0
+    if w >= 60
+        return none
+    t := (mins * 60 + w) * 100 + (sp[1].to_int() else 0)
+    if t > 0
+        return t
+    none
+
+fn main()
+    table := [9, 7, 6, 5, 4, 3, 2, 1]
+    mut events := Map[str, List[Entry]]()
+    mut bad := 0
+    for line in io.read_all().lines()
+        f := line.words()
+        if f.is_empty()
+            continue
+        if f.len() != 4
+            bad += 1
+            continue
+        t := parse_time(f[3]) else
+            bad += 1
+            continue
+        mut es := events.get(f[0]) else List[Entry]()
+        if es.any(|e| e.name == f[1])
+            bad += 1
+            continue
+        es.push(Entry(name: f[1], team: f[2], t: t, raw: f[3]))
+        events[f[0]] = es
+    if events.len() == 0
+        print("no results")
+    mut teams := Map[str, int]()
+    for ev, list in events
+        print("== {ev} ==")
+        es := list.sorted(by: |e| (e.t, e.name))
+        mut i := 0
+        while i < es.len()
+            mut j := i
+            while j < es.len() and es[j].t == es[i].t
+                j += 1
+            mut total := 0
+            for p in i..j
+                if p < 8
+                    total += table[p]
+            pts := total / (j - i)
+            for k in i..j
+                print("{i + 1} {es[k].name} {es[k].team} {es[k].raw} pts={pts}")
+                teams[es[k].team] += pts
+            i = j
+    if events.len() > 0
+        print("== teams ==")
+        for tm in teams.keys().sorted(by: |k| (-teams[k], k))
+            print("{tm} {teams[tm]}")
+    if bad > 0
+        print("malformed: {bad}")

@@ -1,0 +1,25 @@
+## Temperature log statistics; readings are integer tenths of a degree.
+fn tenths(v int) str
+    sign := if v < 0 then "-" else ""
+    "{sign}{v.abs() / 10}.{v.abs() % 10}"
+
+fn main()
+    mut vals := List[int]()
+    mut bad := 0
+    for line in io.read_all().lines()
+        if line.trim().is_empty()
+            continue
+        v := line.trim().to_int() else
+            bad += 1
+            continue
+        vals.push(v)
+    print("count {vals.len()}")
+    print("skipped {bad}")
+    if vals.is_empty()
+        return
+    total := vals.sum()
+    q := (total.abs() * 2 + vals.len()) / (2 * vals.len())
+    mean := if total < 0 then -q else q
+    print("range {tenths(vals.min() else 0)} {tenths(vals.max() else 0)}")
+    print("mean {tenths(mean)}")
+    print("above {vals.count(|x| x > mean)}")

@@ -1,0 +1,116 @@
+## Binary search tree kept in parallel lists (index-based nodes, -1 = none):
+## insert, delete (successor replacement), contains, inorder, height, min.
+struct Tree
+    keys List[int]
+    left List[int]
+    right List[int]
+    root int
+
+fn Tree.new_node(mut self, k int) int
+    self.keys.push(k)
+    self.left.push(-1)
+    self.right.push(-1)
+    self.keys.len() - 1
+
+fn Tree.contains(self, k int) bool
+    mut n := self.root
+    while n != -1
+        if k == self.keys[n]
+            return true
+        n = if k < self.keys[n] then self.left[n] else self.right[n]
+    false
+
+fn Tree.insert(mut self, k int) bool
+    if self.contains(k)
+        return false
+    id := self.new_node(k)
+    if self.root == -1
+        self.root = id
+        return true
+    mut n := self.root
+    while true
+        if k < self.keys[n]
+            if self.left[n] == -1
+                self.left[n] = id
+                break
+            n = self.left[n]
+        else
+            if self.right[n] == -1
+                self.right[n] = id
+                break
+            n = self.right[n]
+    true
+
+fn Tree.remove_at(mut self, n int, k int) int
+    if n == -1
+        return -1
+    if k < self.keys[n]
+        self.left[n] = self.remove_at(self.left[n], k)
+        return n
+    if k > self.keys[n]
+        self.right[n] = self.remove_at(self.right[n], k)
+        return n
+    if self.left[n] == -1
+        return self.right[n]
+    if self.right[n] == -1
+        return self.left[n]
+    mut m := self.right[n]
+    while self.left[m] != -1
+        m = self.left[m]
+    succ := self.keys[m]
+    self.keys[n] = succ
+    self.right[n] = self.remove_at(self.right[n], succ)
+    n
+
+fn Tree.collect(self, n int, mut out List[int])
+    if n == -1
+        return
+    self.collect(self.left[n], mut out)
+    out.push(self.keys[n])
+    self.collect(self.right[n], mut out)
+
+fn Tree.height_at(self, n int) int
+    if n == -1
+        return 0
+    1 + self.height_at(self.left[n]).max(self.height_at(self.right[n]))
+
+fn num(w List[str], i int) int?
+    if i >= w.len()
+        return none
+    w[i].to_int()
+
+fn main()
+    mut t := Tree(keys: [], left: [], right: [], root: -1)
+    for line in io.read_all().lines()
+        w := line.words()
+        if w.is_empty()
+            continue
+        cmd := w[0]
+        if (cmd == "insert" or cmd == "delete" or cmd == "contains") and w.len() == 2 and num(w, 1) != none
+            k := num(w, 1) else 0
+            if cmd == "insert"
+                print(if t.insert(k) then "ok" else "dup")
+            elif cmd == "delete"
+                if t.contains(k)
+                    t.root = t.remove_at(t.root, k)
+                    print("ok")
+                else
+                    print("missing")
+            else
+                print(if t.contains(k) then "yes" else "no")
+        elif cmd == "inorder" and w.len() == 1
+            mut out := List[int]()
+            t.collect(t.root, mut out)
+            print(if out.is_empty() then "empty" else out.join(" "))
+        elif cmd == "height" and w.len() == 1
+            print(t.height_at(t.root))
+        elif cmd == "min" and w.len() == 1
+            if t.root == -1
+                print("empty")
+            else
+                mut m := t.root
+                while t.left[m] != -1
+                    m = t.left[m]
+                print(t.keys[m])
+        else
+            print("error")

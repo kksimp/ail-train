@@ -1,0 +1,10 @@
+4
+add p1 10
+add p2 3
+add p3 6
+run 2
+status
+run 10
+status
+clock
+run 1

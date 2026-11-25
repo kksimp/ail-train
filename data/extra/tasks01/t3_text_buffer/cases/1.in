@@ -1,0 +1,8 @@
+append hello
+append  world
+show
+undo
+show
+redo
+delete 3
+show

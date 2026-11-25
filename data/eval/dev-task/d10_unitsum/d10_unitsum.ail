@@ -1,0 +1,24 @@
+## Sums length lines such as "3 km" and prints the total in metres.
+fn factor(u str) int
+    match u
+        "mm" => 1
+        "cm" => 10
+        "m" => 1000
+        "km" => 1000000
+        _ => 0
+
+fn main()
+    mut total := 0
+    mut n := 0
+    for line in io.read_all().lines()
+        n += 1
+        w := line.words()
+        if w.is_empty()
+            continue
+        f := if w.len() == 2 then factor(w[1]) else 0
+        v := w[0].to_int() else -1
+        if f == 0 or v < 0
+            print("error: line {n}")
+            continue
+        total += v * f
+    print("total: {total / 1000}.{total % 1000:0>3} m")

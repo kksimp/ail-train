@@ -1,0 +1,34 @@
+## Reads key=value lines from stdin, groups them by the text before the first dot in the key,
+## and prints each group sorted by group and sub-key. Malformed lines are counted at the end.
+fn main()
+    mut entries := Map[(str, str), str]()
+    mut bad := 0
+    for line in io.read_all().lines()
+        if line.is_empty() or line.starts_with("#")
+            continue
+        eq := line.find("=") else
+            bad += 1
+            continue
+        key := line.slice(0, eq).trim()
+        value := line.slice(eq + 1).trim()
+        if key.is_empty()
+            bad += 1
+            continue
+        if dot := key.find(".")
+            entries[(key.slice(0, dot), key.slice(dot + 1))] = value
+        else
+            entries[("default", key)] = value
+    mut groups := Set[str]()
+    for k in entries.keys()
+        groups.add(k.0)
+    mut blocks := List[str]()
+    for g in groups.sorted()
+        mut lines := ["[{g}]"]
+        for k in entries.keys().sorted()
+            if k.0 == g
+                lines.push("{k.1} = {entries[k]}")
+        blocks.push(lines.join("\n"))
+    if bad > 0
+        blocks.push("skipped: {bad}")
+    if not blocks.is_empty()
+        print(blocks.join("\n\n"))

@@ -1,0 +1,81 @@
+## Time log: parses durations like 1h30m, totals minutes per category and per
+## date, and prints a percentage report plus the busiest date.
+
+struct Entry
+    date str
+    cat str
+    mins int
+
+fn all_digits(s str) bool
+    if s.is_empty()
+        return false
+    for c in s.chars()
+        if not c.is_digit()
+            return false
+    true
+
+fn valid_date(d str) bool
+    p := d.split("-")
+    if p.len() != 3 or p[0].len() != 4 or p[1].len() != 2 or p[2].len() != 2
+        return false
+    all_digits(p[0]) and all_digits(p[1]) and all_digits(p[2])
+
+## Minutes for XhYm / Xh / Ym, or none when malformed or zero.
+fn duration(s str) int?
+    mut rest := s
+    mut hours := 0
+    mut minutes := 0
+    if h := rest.find("h")
+        part := rest.slice(0, h)
+        if not all_digits(part)
+            return none
+        hours = part.to_int() else return none
+        rest = rest.slice(h + 1)
+    if not rest.is_empty()
+        body := rest.strip_suffix("m") else return none
+        if not all_digits(body)
+            return none
+        minutes = body.to_int() else return none
+    total := hours * 60 + minutes
+    if total < 1
+        return none
+    total
+
+fn parse(line str) Entry?
+    f := line.split(" ")
+    if f.len() != 3 or not valid_date(f[0])
+        return none
+    m := duration(f[2]) else return none
+    Entry(date: f[0], cat: f[1].to_lower(), mins: m)
+
+fn hm(m int) str
+    "{m / 60}h{m % 60:0>2}m"
+
+fn main()
+    mut entries := List[Entry]()
+    mut n := 0
+    for line in io.read_all().lines()
+        n += 1
+        if line.trim().is_empty()
+            continue
+        e := parse(line) else
+            print("bad line {n}")
+            continue
+        entries.push(e)
+    if entries.is_empty()
+        print("no entries")
+        return
+    mut by_cat := Map[str, int]()
+    mut by_day := Map[str, int]()
+    mut total := 0
+    for e in entries
+        by_cat[e.cat] += e.mins
+        by_day[e.date] += e.mins
+        total += e.mins
+    cats := by_cat.keys().sorted(by: |c str| (-by_cat[c], c))
+    for c in cats
+        m := by_cat[c]
+        print("{c} {m}m ({hm(m)}) {100 * m / total}%")
+    print("total {total}m ({hm(total)})")
+    days := by_day.keys().sorted(by: |d str| (-by_day[d], d))
+    print("busiest {days[0]} {by_day[days[0]]}m")

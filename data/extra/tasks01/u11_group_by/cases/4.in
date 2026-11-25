@@ -1,0 +1,6 @@
+k,v
+a,x
+b,y
+
+sum v k
+count k byvalue

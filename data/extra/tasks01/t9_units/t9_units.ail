@@ -1,0 +1,73 @@
+## Normalizes lines like "5 km" or "250g" to base units (m, g, s) using exact integer
+## arithmetic in thousandths, then prints a total per category (length, mass, time).
+struct Unit
+    cat int
+    factor int
+
+fn lookup(name str) Unit?
+    match name
+        "mm" => Unit(cat: 0, factor: 1)
+        "cm" => Unit(cat: 0, factor: 10)
+        "m" => Unit(cat: 0, factor: 1000)
+        "km" => Unit(cat: 0, factor: 1000000)
+        "mg" => Unit(cat: 1, factor: 1)
+        "g" => Unit(cat: 1, factor: 1000)
+        "kg" => Unit(cat: 1, factor: 1000000)
+        "ms" => Unit(cat: 2, factor: 1)
+        "s" => Unit(cat: 2, factor: 1000)
+        "min" => Unit(cat: 2, factor: 60000)
+        "h" => Unit(cat: 2, factor: 3600000)
+        _ => none
+
+fn fmt(thousandths int) str
+    whole := thousandths / 1000
+    frac := thousandths % 1000
+    if frac == 0
+        return "{whole}"
+    mut digits := "{frac:03}"
+    while digits.ends_with("0")
+        digits = digits.slice(0, digits.len() - 1)
+    "{whole}.{digits}"
+
+fn is_ascii_letter(c char) bool
+    (c >= 'a' and c <= 'z') or (c >= 'A' and c <= 'Z')
+
+fn main()
+    base := ["m", "g", "s"]
+    names := ["length", "mass", "time"]
+    mut totals := [0, 0, 0]
+    mut seen := [false, false, false]
+    for raw in io.read_all().lines()
+        text := raw.trim()
+        if text.is_empty()
+            continue
+        mut digits := List[char]()
+        mut unit := List[char]()
+        mut ok := true
+        mut phase := 0
+        for c in text.chars()
+            if phase == 0 and c >= '0' and c <= '9'
+                digits.push(c)
+            elif c == ' ' and phase < 2 and not digits.is_empty()
+                phase = 1
+            elif is_ascii_letter(c) and not digits.is_empty()
+                phase = 2
+                unit.push(c)
+            else
+                ok = false
+        if digits.is_empty() or digits.len() > 12 or unit.is_empty()
+            ok = false
+        u := lookup(unit.join("")) else
+            print("{text} = invalid")
+            continue
+        if not ok
+            print("{text} = invalid")
+            continue
+        small := digits.join("").to_int() else 0
+        small2 := small * u.factor
+        totals[u.cat] += small2
+        seen[u.cat] = true
+        print("{text} = {fmt(small2)} {base[u.cat]}")
+    for i in 0..3
+        if seen[i]
+            print("total {names[i]}: {fmt(totals[i])} {base[i]}")

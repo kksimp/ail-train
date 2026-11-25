@@ -1,0 +1,38 @@
+## Prints the Collatz step count and peak value for each input number, plus the longest chain seen.
+fn is_digits(s str) bool
+    not s.is_empty() and s.chars().all(|c| c.is_digit())
+
+fn collatz(start int) (int, int)
+    mut n := start
+    mut steps := 0
+    mut peak := start
+    while n != 1
+        if n % 2 == 0
+            n = n / 2
+        else
+            n = 3 * n + 1
+        steps += 1
+        peak = peak.max(n)
+    (steps, peak)
+
+fn main()
+    mut best_n := 0
+    mut best_steps := -1
+    for line in io.read_all().lines()
+        t := line.trim()
+        if t.is_empty()
+            continue
+        n := if is_digits(t) and t.len() <= 9 then t.to_int() else none
+        v := n else 0
+        if v < 1 or v > 1000000
+            print("{t} invalid")
+            continue
+        r := collatz(v)
+        print("{v} steps {r.0} peak {r.1}")
+        if r.0 > best_steps or (r.0 == best_steps and v < best_n)
+            best_steps = r.0
+            best_n = v
+    if best_steps < 0
+        print("longest none")
+    else
+        print("longest {best_n} steps {best_steps}")

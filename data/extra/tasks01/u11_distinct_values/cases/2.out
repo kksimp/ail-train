@@ -1,0 +1,14 @@
+> distinct team
+team (3): red, blue, green
+> distinct team sorted
+team (3): blue, green, red
+> distinct score
+score (4): 9, 10, -3, 2
+> distinct score sorted
+score (4): -3, 2, 9, 10
+> distinct name sorted
+name (6): ann, bob, cy, dee, eve, fay
+> distinct *
+name: 6
+team: 3
+score: 4

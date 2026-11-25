@@ -1,0 +1,91 @@
+## Contiguous memory allocator with first-fit or best-fit placement; handles alloc and
+## free commands, merges adjacent holes and prints the final layout.
+struct Block
+    start int
+    size int
+    name str
+
+fn parse_header(line str) (int, str)
+    f := line.words()
+    if f.len() != 4 or f[0] != "memory" or f[2] != "strategy"
+        return (0, "")
+    if f[3] != "first" and f[3] != "best"
+        return (0, "")
+    n := f[1].to_int() else return (0, "")
+    (n, f[3])
+
+fn find_hole(blocks List[Block], n int, best bool) int
+    mut pick := -1
+    for i in 0..blocks.len()
+        b := blocks[i]
+        if b.name == "" and b.size >= n
+            if not best
+                return i
+            if pick < 0 or b.size < blocks[pick].size
+                pick = i
+    pick
+
+fn merge_holes(mut blocks List[Block])
+    mut i := 0
+    while i + 1 < blocks.len()
+        if blocks[i].name == "" and blocks[i + 1].name == ""
+            blocks[i].size += blocks[i + 1].size
+            blocks.remove_at(i + 1)
+        else
+            i += 1
+
+fn index_of_name(blocks List[Block], name str) int
+    for i in 0..blocks.len()
+        if blocks[i].name == name
+            return i
+    -1
+
+fn main()
+    mut rows := List[str]()
+    for line in io.read_all().lines()
+        if not line.trim().is_empty()
+            rows.push(line.trim())
+    size, strat := parse_header(rows.first() else "")
+    if size < 1
+        print("bad header")
+        return
+    best := strat == "best"
+    mut blocks := [Block(start: 0, size: size, name: "")]
+    mut out := List[str]()
+    for line in rows.skip(1)
+        f := line.words()
+        n := if f.len() == 3 then (f[2].to_int() else 0) else 0
+        if f.len() == 3 and f[0] == "alloc" and n >= 1
+            name := f[1]
+            if index_of_name(blocks, name) >= 0
+                out.push("alloc {name} {n} -> exists")
+                continue
+            p := find_hole(blocks, n, best)
+            if p < 0
+                out.push("alloc {name} {n} -> fail")
+                continue
+            addr := blocks[p].start
+            if blocks[p].size > n
+                blocks.insert(p + 1, Block(start: addr + n, size: blocks[p].size - n, name: ""))
+            blocks[p].size = n
+            blocks[p].name = name
+            out.push("alloc {name} {n} -> {addr}")
+        elif f.len() == 2 and f[0] == "free"
+            i := index_of_name(blocks, f[1])
+            if i < 0
+                out.push("free {f[1]} -> unknown")
+            else
+                blocks[i].name = ""
+                merge_holes(mut blocks)
+                out.push("free {f[1]} -> ok")
+        else
+            out.push("? {line}")
+    out.push("layout")
+    mut big := 0
+    for b in blocks
+        label := if b.name == "" then "free" else b.name
+        out.push("{b.start}-{b.start + b.size - 1} {label}")
+        if b.name == "" and b.size > big
+            big = b.size
+    out.push("largest free={big}")
+    print(out.join("\n"))

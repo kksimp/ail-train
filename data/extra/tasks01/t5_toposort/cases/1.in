@@ -1,0 +1,4 @@
+build -> test
+lint
+build -> package
+test -> package

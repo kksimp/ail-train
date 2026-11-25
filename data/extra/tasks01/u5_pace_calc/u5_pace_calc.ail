@@ -1,0 +1,56 @@
+## Running pace calculator: pace per km and speed from distance in meters and a finish time.
+fn dg(s str, lo int, hi int) bool
+    s.len() >= lo and s.len() <= hi and s.chars().all(|c| c.is_digit())
+
+fn num(s str) int
+    s.to_int() else 0
+
+fn secs(t str) int?
+    p := t.split(":")
+    if p.len() == 2
+        if not (dg(p[0], 1, 2) and dg(p[1], 2, 2))
+            return none
+        if num(p[0]) >= 60 or num(p[1]) >= 60
+            return none
+        return num(p[0]) * 60 + num(p[1])
+    if p.len() == 3
+        if not (dg(p[0], 1, 2) and dg(p[1], 2, 2) and dg(p[2], 2, 2))
+            return none
+        if num(p[1]) >= 60 or num(p[2]) >= 60
+            return none
+        return num(p[0]) * 3600 + num(p[1]) * 60 + num(p[2])
+    none
+
+fn main()
+    mut best_t := 0
+    mut best_m := 0
+    mut best_pace := 0
+    mut best_line := 0
+    mut k := 0
+    for line in io.read_all().lines()
+        k += 1
+        f := line.words()
+        if f.is_empty()
+            continue
+        if f.len() != 2 or not dg(f[0], 1, 6) or num(f[0]) < 1
+            print("line {k}: invalid")
+            continue
+        t := secs(f[1]) else
+            print("line {k}: invalid")
+            continue
+        if t == 0
+            print("line {k}: invalid")
+            continue
+        m := num(f[0])
+        pace := (t * 2000 + m) / (2 * m)
+        tenths := (m * 72 + t) / (2 * t)
+        print("{m}m {f[1]} -> {pace / 60}:{(pace % 60):02}/km {tenths / 10}.{tenths % 10} km/h")
+        if best_line == 0 or t * best_m < best_t * m
+            best_t = t
+            best_m = m
+            best_pace = pace
+            best_line = k
+    if best_line == 0
+        print("no runs")
+    else
+        print("fastest: {best_pace / 60}:{(best_pace % 60):02}/km (line {best_line})")

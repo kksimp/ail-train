@@ -1,0 +1,35 @@
+## Finds 4-connected same-letter regions of a grid and prints area and perimeter of each.
+fn main()
+    mut g := List[str]()
+    for l in io.read_all().lines()
+        if l != ""
+            g.push(l)
+    rows := g.len()
+    cols := if rows > 0 then g[0].len() else 0
+    mut seen := [[false for c in 0..cols] for r in 0..rows]
+    dys := [1, -1, 0, 0]
+    dxs := [0, 0, 1, -1]
+    mut n := 0
+    for r in 0..rows
+        for c in 0..cols
+            if seen[r][c]
+                continue
+            ch := g[r].char_at(c) else ' '
+            mut stack := [(r, c)]
+            seen[r][c] = true
+            mut area := 0
+            mut per := 0
+            while cell := stack.pop()
+                area += 1
+                for d in 0..4
+                    ny := cell.0 + dys[d]
+                    nx := cell.1 + dxs[d]
+                    if ny >= 0 and ny < rows and nx >= 0 and nx < cols and g[ny].char_at(nx) == ch
+                        if not seen[ny][nx]
+                            seen[ny][nx] = true
+                            stack.push((ny, nx))
+                    else
+                        per += 1
+            print("{ch} {area} {per}")
+            n += 1
+    print("regions {n}")

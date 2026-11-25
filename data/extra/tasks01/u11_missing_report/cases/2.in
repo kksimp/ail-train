@@ -1,0 +1,15 @@
+id,name,email,age,city
+1,ann,ann@x.org,31,oslo
+2,bob,,27,NULL
+3,cy,cy@x.org,None,rome
+4,,,-,-
+5,eve,eve@x.org,45,paris
+6,fay,na,,Oslo
+7,gus,gus@x.org,50,oslo
+
+missing
+missing rows
+missing email
+missing age
+missing city
+missing name

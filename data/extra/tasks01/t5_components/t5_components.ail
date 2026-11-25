@@ -1,0 +1,38 @@
+## Connected components of an undirected graph with N numbered nodes, using union-find.
+## Prints the component count, then each component's nodes in increasing order.
+fn find(mut parent List[int], x int) int
+    mut r := x
+    while parent[r] != r
+        parent[r] = parent[parent[r]]
+        r = parent[r]
+    r
+
+fn main()
+    lines := [l.trim() for l in io.read_all().lines() if not l.trim().is_empty()]
+    if lines.is_empty()
+        print("bad header")
+        return
+    n := lines[0].to_int() else -1
+    if n < 0
+        print("bad header")
+        return
+    mut parent := [i for i in 0..n]
+    for i in 1..lines.len()
+        w := lines[i].words()
+        if w.len() != 2
+            continue
+        u := w[0].to_int() else -1
+        v := w[1].to_int() else -1
+        if u < 0 or v < 0 or u >= n or v >= n
+            continue
+        ru := find(mut parent, u)
+        rv := find(mut parent, v)
+        if ru != rv
+            parent[ru] = rv
+    mut groups := Map[int, List[int]]()
+    for i in 0..n
+        root := find(mut parent, i)
+        groups.push(root, i)
+    print("components: {groups.len()}")
+    for root, members in groups
+        print(members.join(" "))

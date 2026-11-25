@@ -1,0 +1,19 @@
+capacity 3
+park 5 A
+park 5 A
+park x B
+park 6
+leave 4 A
+leave 5 A
+leave 5 Z
+status
+park 7 B
+park 8 C
+park 9 D
+park 10 E
+leave 70 B
+park 71 E
+status
+foo
+leave 130 C
+leave 200 D

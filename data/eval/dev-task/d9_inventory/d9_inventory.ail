@@ -1,0 +1,41 @@
+## Daily inventory simulation with a reorder point and order lead time.
+struct Order
+    day int
+    qty int
+
+fn main()
+    lines := io.read_all().lines()
+    head := (lines.first() else "").words().map(|w| w.to_int() else -1)
+    if head.len() != 4 or head.any(|x| x < 0) or head[2] < 1 or head[3] < 1
+        print("bad header")
+        return
+    mut stock := head[0]
+    mut pending := List[Order]()
+    mut day := 0
+    mut sold := 0
+    mut lost := 0
+    mut orders := 0
+    for i in 1..lines.len()
+        t := lines[i].trim()
+        if t.is_empty()
+            continue
+        demand := t.to_int() else -1
+        if demand < 0
+            print("line {i + 1}: bad demand")
+            continue
+        day += 1
+        for o in pending.filter(|o| o.day == day)
+            stock += o.qty
+            print("  received {o.qty}")
+        pending = pending.filter(|o| o.day != day)
+        take := demand.min(stock)
+        stock -= take
+        sold += take
+        lost += demand - take
+        print("day {day}: demand {demand} sold {take} lost {demand - take} stock {stock}")
+        if stock + pending.fold(0, |a, o| a + o.qty) <= head[1]
+            pending.push(Order(day: day + head[3], qty: head[2]))
+            orders += 1
+            print("  ordered {head[2]} arriving day {day + head[3]}")
+    print("total sold {sold} lost {lost} orders {orders}")
+    print("final stock {stock}")

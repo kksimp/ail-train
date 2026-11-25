@@ -1,0 +1,13 @@
+meet a Mon 1 2
+meet a Mon 2 1
+meet a Mon x 3
+meet a Mon 1
+meet b mon 1 2
+meet b Tue 1 2
+enrol
+enrol q
+join q a
+enrol q a
+enrol q b
+enrol q c
+enrol r c

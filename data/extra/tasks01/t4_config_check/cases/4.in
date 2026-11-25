@@ -1,0 +1,11 @@
+host=my host
+host = ok.example
+host = again
+port
+= 5
+port = 0
+port = +80
+port = 65535
+workers = 64
+workers = 65
+mode = Prod

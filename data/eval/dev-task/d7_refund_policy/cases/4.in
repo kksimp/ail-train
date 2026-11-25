@@ -1,0 +1,12 @@
+s1,software,50000,0,sealed
+s2,software,50001,0,sealed
+s3,software,50001,28,defective
+s4,software,50000,28,defective
+s5,software,50000,29,defective
+s6,software,100,7,sealed
+s7,software,100,8,sealed
+s8,software,100,0,opened
+s9,grocery,1,0,opened
+s10,grocery,1,14,defective
+s11,grocery,1,15,defective
+s12,widget,1,1,defective

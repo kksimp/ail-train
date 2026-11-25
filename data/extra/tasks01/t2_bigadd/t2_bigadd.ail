@@ -1,0 +1,49 @@
+## Schoolbook addition of decimal digit strings, line by line, plus a running total of the sums.
+
+fn is_digits(t str) bool
+    if t.is_empty()
+        return false
+    for c in t.chars()
+        if not c.is_digit()
+            return false
+    true
+
+fn strip_zeros(t str) str
+    mut s := t
+    while s.len() > 1 and s.starts_with("0")
+        s = s.slice(1)
+    s
+
+## Sum of two digit strings, processed from the least significant digit.
+fn add(a0 str, b0 str) str
+    a := strip_zeros(a0).chars().reversed()
+    b := strip_zeros(b0).chars().reversed()
+    n := a.len().max(b.len())
+    mut out := List[str]()
+    mut carry := 0
+    for i in 0..n
+        da := if i < a.len() then (a[i].to_digit(10) else 0) else 0
+        db := if i < b.len() then (b[i].to_digit(10) else 0) else 0
+        s := da + db + carry
+        out.push("{s % 10}")
+        carry = s / 10
+    if carry > 0
+        out.push("{carry}")
+    out.reversed().join("")
+
+fn main()
+    mut lines := io.read_all().split("\n")
+    if (lines.last() else "x") == ""
+        lines.pop()
+    mut total := "0"
+    for i in 0..lines.len()
+        f := lines[i].words()
+        if f.is_empty()
+            continue
+        if f.len() != 2 or not is_digits(f[0]) or not is_digits(f[1])
+            print("line {i + 1}: invalid")
+            continue
+        s := add(f[0], f[1])
+        print(s)
+        total = add(total, s)
+    print("sum of sums: {total}")

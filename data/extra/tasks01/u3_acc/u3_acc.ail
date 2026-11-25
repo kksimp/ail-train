@@ -1,0 +1,114 @@
+## Accumulator machine with labels, memory cells, PRINT, a 1000 step limit and an overflow guard.
+struct Ins
+    op str
+    n int
+    lab str
+
+fn is_ident(s str) bool
+    if s.is_empty()
+        return false
+    cs := s.chars()
+    if not (cs[0].is_lower() or cs[0] == '_')
+        return false
+    cs.all(|c| c.is_lower() or c.is_digit() or c == '_')
+
+fn is_num(s str) bool
+    body := s.strip_prefix("-") else s
+    body.len() >= 1 and body.len() <= 6 and body.chars().all(|c| c.is_digit())
+
+fn parse(line str) Ins?
+    w := line.split(" ")
+    op := w[0]
+    if (op == "PRINT" or op == "HALT") and w.len() == 1
+        return Ins(op: op, n: 0, lab: "")
+    if w.len() != 2
+        return none
+    arg := w[1]
+    if op == "LOAD" or op == "ADD" or op == "SUB" or op == "MUL"
+        if not is_num(arg)
+            return none
+        n := arg.to_int() else return none
+        return Ins(op: op, n: n, lab: "")
+    if op == "STORE" or op == "LOADM" or op == "ADDM" or op == "SUBM" or op == "MULM"
+        if arg.len() != 1 or not arg.chars().all(|c| c.is_digit())
+            return none
+        n := arg.to_int() else return none
+        return Ins(op: op, n: n, lab: "")
+    if (op == "JMP" or op == "JZ" or op == "JNEG") and is_ident(arg)
+        return Ins(op: op, n: 0, lab: arg)
+    none
+
+fn is_jump(op str) bool
+    op == "JMP" or op == "JZ" or op == "JNEG"
+
+fn main()
+    mut prog := List[Ins]()
+    mut labels := Map[str, int]()
+    mut k := 0
+    for raw in io.read_all().lines()
+        k += 1
+        line := raw.trim()
+        if line.is_empty() or line.starts_with("#")
+            continue
+        if line.ends_with(":")
+            name := line.slice(0, line.len() - 1)
+            if is_ident(name) and not labels.contains(name)
+                labels[name] = prog.len()
+                continue
+            print("error line {k}")
+            return
+        ins := parse(line) else
+            print("error line {k}")
+            return
+        prog.push(ins)
+    for ins in prog
+        if is_jump(ins.op) and not labels.contains(ins.lab)
+            print("error label {ins.lab}")
+            return
+    mut acc := 0
+    mut mem := [0 for i in 0..10]
+    mut pc := 0
+    mut steps := 0
+    mut out := List[str]()
+    mut final := ""
+    while pc < prog.len()
+        if steps == 1000
+            final = "limit acc={acc} steps={steps}"
+            break
+        ins := prog[pc]
+        steps += 1
+        pc += 1
+        if ins.op == "HALT"
+            break
+        if ins.op == "PRINT"
+            out.push("{acc}")
+        elif ins.op == "LOAD"
+            acc = ins.n
+        elif ins.op == "STORE"
+            mem[ins.n] = acc
+        elif ins.op == "LOADM"
+            acc = mem[ins.n]
+        elif ins.op == "JMP"
+            pc = labels[ins.lab]
+        elif ins.op == "JZ"
+            if acc == 0
+                pc = labels[ins.lab]
+        elif ins.op == "JNEG"
+            if acc < 0
+                pc = labels[ins.lab]
+        else
+            v := if ins.op == "ADD" or ins.op == "SUB" or ins.op == "MUL" then ins.n else mem[ins.n]
+            if ins.op == "ADD" or ins.op == "ADDM"
+                acc += v
+            elif ins.op == "SUB" or ins.op == "SUBM"
+                acc -= v
+            else
+                acc *= v
+            if acc.abs() > 1000000000
+                final = "error overflow steps={steps}"
+                break
+    if final.is_empty()
+        final = "acc={acc} steps={steps}"
+    for v in out
+        print(v)
+    print(final)

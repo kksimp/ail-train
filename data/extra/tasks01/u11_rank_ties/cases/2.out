@@ -1,0 +1,34 @@
+> rank secs standard asc
+1 r7 -5
+2 r2 295
+2 r3 295
+2 r4 295
+5 r1 310
+5 r6 310
+7 r5 340
+> rank secs dense asc
+1 r7 -5
+2 r2 295
+2 r3 295
+2 r4 295
+3 r1 310
+3 r6 310
+4 r5 340
+> rank age standard
+1 r7 50
+2 r3 41
+3 r5 35
+4 r1 30
+5 r6 28
+6 r2 25
+7 r4 22
+8 r8 19
+> rank age dense
+1 r7 50
+2 r3 41
+3 r5 35
+4 r1 30
+5 r6 28
+6 r2 25
+7 r4 22
+8 r8 19

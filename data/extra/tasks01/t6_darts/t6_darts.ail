@@ -1,0 +1,63 @@
+## Darts 301 with double out: prints where each game of darts ended, or `invalid`.
+
+## Points and whether the dart is a double, or none for a bad token.
+fn dart(t str) (int, bool)?
+    if t == "B"
+        return (50, true)
+    if t == "M"
+        return (0, false)
+    if t == "25"
+        return (25, false)
+    if t.len() < 2 or t.len() > 3
+        return none
+    mult := match t.slice(0, 1)
+        "S" => 1
+        "D" => 2
+        "T" => 3
+        _ => return none
+    digits := t.slice(1)
+    for ch in digits.chars()
+        if not ch.is_digit()
+            return none
+    n := digits.to_int() else return none
+    if n < 1 or n > 20 or digits.starts_with("0")
+        return none
+    (n * mult, mult == 2)
+
+fn game(line str) str
+    toks := line.words()
+    mut rem := 301
+    mut start := 301
+    mut inturn := 0
+    mut bust := false
+    mut finished := 0
+    for i in 0..toks.len()
+        if finished > 0
+            return "invalid"
+        d := dart(toks[i]) else return "invalid"
+        pts, dbl := d
+        if not bust
+            left := rem - pts
+            if left < 0 or left == 1 or (left == 0 and not dbl)
+                bust = true
+                rem = start
+            elif left == 0
+                rem = 0
+                finished = i + 1
+            else
+                rem = left
+        inturn += 1
+        if inturn == 3
+            inturn = 0
+            bust = false
+            start = rem
+    if finished > 0
+        return "finished in {finished} darts"
+    "remaining {rem} after {toks.len()} darts"
+
+fn main()
+    mut lines := io.read_all().split("\n")
+    if (lines.last() else "x") == ""
+        lines.pop()
+    for l in lines
+        print(game(l))

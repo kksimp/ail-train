@@ -1,0 +1,82 @@
+## cohort retention table from "USER MONTH" activity events
+error enum LineError
+    Format "bad format"
+    User "bad user"
+    Month "bad month"
+
+struct Event
+    user str
+    month int
+
+fn in_set(s str, lo int, hi int) bool
+    for ch in s.chars()
+        if ch.code() < lo or ch.code() > hi
+            return false
+    true
+
+fn valid_user(s str) bool
+    if s.len() < 1 or s.len() > 8
+        return false
+    for ch in s.chars()
+        ok := (ch.code() >= 97 and ch.code() <= 122) or (ch.code() >= 48 and ch.code() <= 57)
+        if not ok
+            return false
+    true
+
+fn parse(line str) Event ! LineError
+    f := line.split(" ")
+    if f.len() != 2
+        return Format
+    if not valid_user(f[0])
+        return User
+    if f[1].len() < 1 or f[1].len() > 2 or not in_set(f[1], 48, 57)
+        return Month
+    m := f[1].to_int() else return Month
+    if m < 1 or m > 24
+        return Month
+    Event(user: f[0], month: m)
+
+fn pct(part int, whole int) int
+    (part * 200 + whole) / (2 * whole)
+
+fn main()
+    mut lines := io.read_all().split("\n")
+    if (lines.last() else "x") == ""
+        lines.pop()
+    mut months := Map[str, List[int]]()
+    for k in 0..lines.len()
+        if lines[k].is_empty()
+            continue
+        e := parse(lines[k]) else err
+            print("line {k + 1}: {err}")
+            continue
+        mut ms := months.get(e.user) else List[int]()
+        if not ms.contains(e.month)
+            ms.push(e.month)
+        months[e.user] = ms
+    if months.is_empty()
+        print("no events")
+        return
+    mut lo := 100
+    mut hi := 0
+    mut size := Map[int, int]()
+    mut active := Map[int, int]()
+    for u, ms in months
+        c := ms.min() else 0
+        size[c] += 1
+        lo = lo.min(c)
+        hi = hi.max(ms.max() else 0)
+        for m in ms
+            active[c * 100 + m - c] += 1
+    mut head := ["cohort", "users"]
+    for o in 0..(hi - lo + 1)
+        head.push("+{o}")
+    print(head.join("\t"))
+    for c in size.keys().sorted()
+        mut row := ["m{c}", "{size[c]}"]
+        for o in 0..(hi - lo + 1)
+            if c + o > hi
+                row.push("-")
+            else
+                row.push("{pct(active.get(c * 100 + o) else 0, size[c])}%")
+        print(row.join("\t"))

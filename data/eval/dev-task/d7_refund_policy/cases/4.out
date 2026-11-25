@@ -1,0 +1,16 @@
+s1 APPROVE cash 50000
+s2 REVIEW 50001
+s3 REVIEW 50001
+s4 APPROVE cash 50000
+s5 REJECT window expired
+s6 APPROVE cash 100
+s7 APPROVE credit 100
+s8 REJECT opened software
+s9 REJECT opened grocery
+s10 APPROVE cash 1
+s11 REJECT window expired
+s12 REJECT unknown category
+approved: 5 cash=100101 credit=100
+review: 2 amount=100002
+rejected: 5
+malformed: 0

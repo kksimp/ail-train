@@ -1,0 +1,10 @@
+> pivot r c sum v
+r,x,y,total
+a,4,2,6
+b,5,.,5
+total,9,2,11
+> pivot r c count
+r,x,y,total
+a,2,1,3
+b,1,.,1
+total,3,1,4

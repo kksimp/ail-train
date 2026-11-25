@@ -1,0 +1,22 @@
+id tag n
+a1 x 5
+a2 y 10
+a3 x 007
+short x
+a4 xx 9 extra
+a5 Y -3
+
+n < 7
+n = 7
+n > 9
+tag < y
+tag >= x and n != 5
+id ~
+n >
+n < 3 and
+colour = red
+n = 5 and shade = dark
+n = 5 xor n = 10
+tag ~ x or n < 0
+
+n ~ 0

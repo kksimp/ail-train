@@ -1,0 +1,15 @@
+submit x 0 5
+submit x 10 5
+submit x 5 0
+submit x 5 -3
+submit x 5
+submit x 5 abc 6
+print x
+tick now
+status extra
+cancel
+cancel a b
+
+submit x 5 5
+submit x 6 6
+tick

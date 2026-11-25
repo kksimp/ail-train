@@ -1,0 +1,10 @@
+0 k 10 allow left=0
+1 k 3 allow left=0
+1 k 1 deny left=0
+2 k 4 deny left=3
+2 j 1 allow left=9
+5 j 2 allow left=8
+5 k 9 allow left=1
+9 k 9 allow left=1
+k allowed=4 denied=2
+j allowed=2 denied=0

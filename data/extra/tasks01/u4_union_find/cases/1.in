@@ -1,0 +1,7 @@
+5
+union 0 1
+union 1 2
+find 0 2
+size 2
+count
+union 0 2

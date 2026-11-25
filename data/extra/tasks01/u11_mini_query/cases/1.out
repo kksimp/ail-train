@@ -1,0 +1,27 @@
+> select *
+ann,eng,31
+bob,ops,27
+cy,eng,45
+dee,ops,27
+eve,hr,52
+(5 rows)
+> select name,age where dept = eng order age desc
+cy,45
+ann,31
+(2 rows)
+> select name order age
+bob
+dee
+ann
+cy
+eve
+(5 rows)
+> select name,dept where age >= 31 order name desc
+eve,hr
+cy,eng
+ann,eng
+(3 rows)
+> select dept where age < 30
+ops
+ops
+(2 rows)

@@ -1,0 +1,16 @@
+> distinct c sorted
+c (3): B, Z, a
+> distinct c
+c (3): Z, a, B
+> distinct * sorted
+error: bad query
+> distinct
+error: bad query
+> distinct c sorted more
+error: bad query
+> distinct c up
+error: bad query
+> count c
+error: bad query
+> distinct d
+error: unknown column d

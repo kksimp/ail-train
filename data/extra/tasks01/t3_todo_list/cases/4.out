@@ -1,0 +1,19 @@
+added 1
+added 2
+added 3
+removed 2
+added 4
+[ ] 1 a
+[ ] 3 c
+[ ] 4 d
+3 done
+4 done
+[ ] 1 a
+cleared 2
+[ ] 1 a
+added 5
+[ ] 1 a
+[ ] 5  spaced out
+error: no item 3
+error: no item 3
+open 2 done 0

@@ -1,0 +1,8 @@
+path=/search
+  q=hello world
+  page=2
+  flag=
+path=/plain
+path=/a/b
+  x=A+%zz
+  y==1

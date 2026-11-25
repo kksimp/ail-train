@@ -1,0 +1,12 @@
+> select k order v
+y
+x
+z
+(3 rows)
+> select k where v > 0
+x
+z
+(2 rows)
+> select v where k = y
+
+(1 rows)

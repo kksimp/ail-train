@@ -1,0 +1,10 @@
+stock tea 40 5
+coin 100
+coin 100
+select tea
+refund
+coin 5
+refund
+coin 3
+coin 1000
+refund

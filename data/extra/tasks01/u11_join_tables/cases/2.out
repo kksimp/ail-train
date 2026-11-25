@@ -1,0 +1,14 @@
+> inner sku
+sku,qty,code,price
+a1,5,x,10
+a1,5,z,30
+b2,0,y,20
+(3 rows)
+> left code
+error: no column code
+> inner price
+error: no column price
+> left
+error: bad query
+> join sku
+error: bad query

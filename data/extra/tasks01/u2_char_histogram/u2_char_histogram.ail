@@ -1,0 +1,38 @@
+## Counts characters by class (upper, lower, digit, space, newline, punct, other) and draws bars.
+fn class_of(c char) int
+    code := c.code()
+    if code >= 65 and code <= 90
+        0
+    elif code >= 97 and code <= 122
+        1
+    elif code >= 48 and code <= 57
+        2
+    elif code == 32 or code == 9
+        3
+    elif code == 10
+        4
+    elif code >= 33 and code <= 126
+        5
+    else
+        6
+
+fn main()
+    text := io.read_all()
+    if text.is_empty()
+        print("no input")
+        return
+    names := ["upper", "lower", "digit", "space", "newline", "punct", "other"]
+    mut cnt := [0, 0, 0, 0, 0, 0, 0]
+    mut total := 0
+    for c in text.chars()
+        cnt[class_of(c)] += 1
+        total += 1
+    m := cnt.max() else 1
+    for k in 0..7
+        base := "{names[k]:<8}{cnt[k]:>4}"
+        if cnt[k] > 0
+            bar := "#".repeat((cnt[k] * 20 + m - 1) / m)
+            print("{base} {bar}")
+        else
+            print(base)
+    print("total={total}")

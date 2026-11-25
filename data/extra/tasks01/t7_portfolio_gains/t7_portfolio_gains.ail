@@ -1,0 +1,76 @@
+## Portfolio gains with average-cost accounting: BUY/SELL/MARK events per symbol.
+## Reports shares, cost basis, market value, unrealized and realized gains, and totals.
+struct Pos
+    qty int
+    cost int
+    real int
+    last int
+    mark int
+    marked bool
+
+fn money(c int) str
+    sign := if c < 0 then "-" else ""
+    a := c.abs()
+    "{sign}{a / 100}.{a % 100:0>2}"
+
+fn num(s str) int?
+    if s.is_empty()
+        return none
+    for ch in s.chars()
+        if not ch.is_digit()
+            return none
+    s.to_int()
+
+fn main()
+    mut pos := Map[str, Pos]()
+    mut n := 0
+    for line in io.read_all().lines()
+        n += 1
+        w := line.words()
+        if w.is_empty()
+            continue
+        kind := w[0]
+        if kind == "MARK" and w.len() == 3 and num(w[2]) != none
+            sym := w[1]
+            mut p := pos.get(sym) else Pos(qty: 0, cost: 0, real: 0, last: 0, mark: 0, marked: false)
+            p.mark = num(w[2]) else 0
+            p.marked = true
+            pos[sym] = p
+            continue
+        if not ((kind == "BUY" or kind == "SELL") and w.len() == 4 and num(w[2]) != none and num(w[3]) != none)
+            print("line {n}: invalid")
+            continue
+        q := num(w[2]) else 0
+        price := num(w[3]) else 0
+        if q < 1
+            print("line {n}: invalid")
+            continue
+        sym := w[1]
+        mut p := pos.get(sym) else Pos(qty: 0, cost: 0, real: 0, last: 0, mark: 0, marked: false)
+        if kind == "BUY"
+            p.qty += q
+            p.cost += q * price
+            p.last = price
+        else
+            if q > p.qty
+                print("line {n}: oversell")
+                pos[sym] = p
+                continue
+            removed := p.cost * q / p.qty
+            p.real += q * price - removed
+            p.cost -= removed
+            p.qty -= q
+            p.last = price
+        pos[sym] = p
+    mut tc := 0
+    mut tv := 0
+    mut tr := 0
+    for sym in pos.keys().sorted()
+        p := pos[sym]
+        cur := if p.marked then p.mark else p.last
+        value := p.qty * cur
+        print("{sym}: qty={p.qty} cost={money(p.cost)} value={money(value)} unrealized={money(value - p.cost)} realized={money(p.real)}")
+        tc += p.cost
+        tv += value
+        tr += p.real
+    print("total: cost={money(tc)} value={money(tv)} unrealized={money(tv - tc)} realized={money(tr)}")

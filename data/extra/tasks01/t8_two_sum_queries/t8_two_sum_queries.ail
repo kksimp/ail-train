@@ -1,0 +1,25 @@
+## For each target, finds the pair of positions summing to it (smallest second position, then smallest first).
+## Uses a map from value to its earliest position; bad queries print `bad query`.
+fn find_pair(xs List[int], target int) str
+    mut first := Map[int, int]()
+    for j in 0..xs.len()
+        want := target - xs[j]
+        if first.contains(want)
+            return "{first[want]} {j}"
+        if not first.contains(xs[j])
+            first[xs[j]] = j
+    "none"
+
+fn main()
+    lines := io.read_all().lines()
+    if lines.is_empty()
+        return
+    xs := [w.to_int() else 0 for w in lines[0].words()]
+    for k in 1..lines.len()
+        t := lines[k].trim()
+        if t.is_empty()
+            continue
+        target := t.to_int() else
+            print("bad query")
+            continue
+        print(find_pair(xs, target))

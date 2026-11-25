@@ -1,0 +1,11 @@
+
+set k
+set  v
+set k v
+set k  two spaces
+foo bar
+del
+del k extra
+set e 5 6 7
+incr e
+incr k 1 2

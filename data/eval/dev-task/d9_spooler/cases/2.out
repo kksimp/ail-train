@@ -1,0 +1,22 @@
+  start b
+tick: 10 pages
+cancelled c
+cancelled b (printing)
+printing: none
+queued: d:4:3 a:2:25
+finished 0 cancelled 2
+  start d
+  done d
+  start a
+tick: 10 pages
+cancelled a (printing)
+error line 12: job a not active
+error line 13: unknown job zzz
+error line 14: duplicate job c
+  start e
+  done e
+tick: 1 pages
+printing: none
+queued: none
+finished 2 cancelled 3
+summary: finished 2 cancelled 3 pending 0

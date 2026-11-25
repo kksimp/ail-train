@@ -1,0 +1,9 @@
+deal 1
+P1: TH 3S 6C JS 5S
+P2: 4H JD TS 6H 5D
+P3: KS 3C 2S AS QC
+P4: TC QH QD 4D 7H
+left=32
+deal 2
+P1: AS
+left=51

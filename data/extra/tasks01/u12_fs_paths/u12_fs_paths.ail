@@ -1,0 +1,74 @@
+## In-memory file system: runs mkdir, touch, cd, pwd and ls commands on a tree,
+## resolving relative paths lexically.
+fn norm(cwd str, p str) str
+    mut parts := List[str]()
+    if not p.starts_with("/")
+        for x in cwd.split("/")
+            if x != ""
+                parts.push(x)
+    for x in p.split("/")
+        if x == "" or x == "."
+            continue
+        if x == ".."
+            parts.pop()
+        else
+            parts.push(x)
+    "/{parts.join("/")}"
+
+fn base(p str) str
+    i := p.rfind("/") else 0
+    p.slice(i + 1)
+
+fn parent(p str) str
+    i := p.rfind("/") else 0
+    if i == 0
+        "/"
+    else
+        p.slice(0, i)
+
+fn main()
+    mut tree := {"/": "d"}
+    mut cwd := "/"
+    mut out := List[str]()
+    for raw in io.read_all().lines()
+        line := raw.trim()
+        if line.is_empty()
+            continue
+        w := line.words()
+        cmd := w[0]
+        if cmd == "pwd" and w.len() == 1
+            out.push(cwd)
+        elif cmd == "cd" and w.len() == 2
+            p := norm(cwd, w[1])
+            if (tree.get(p) else "") == "d"
+                cwd = p
+            else
+                out.push("cd: no such directory")
+        elif (cmd == "mkdir" or cmd == "touch") and w.len() == 2
+            p := norm(cwd, w[1])
+            if tree.contains(p)
+                if cmd == "mkdir"
+                    out.push("mkdir: exists")
+                elif tree[p] == "d"
+                    out.push("touch: is a directory")
+            elif (tree.get(parent(p)) else "") != "d"
+                out.push("{cmd}: no such directory")
+            else
+                tree[p] = if cmd == "mkdir" then "d" else "f"
+        elif cmd == "ls" and w.len() <= 2
+            p := if w.len() == 2 then norm(cwd, w[1]) else cwd
+            if not tree.contains(p)
+                out.push("ls: no such file or directory")
+            elif tree[p] == "f"
+                out.push(base(p))
+            else
+                mut names := List[str]()
+                for k, kind in tree
+                    if k != "/" and parent(k) == p
+                        names.push("{base(k)}{if kind == "d" then "/" else ""}")
+                names.sort()
+                out.push(if names.is_empty() then "(empty)" else names.join(" "))
+        else
+            out.push("? {line}")
+    if not out.is_empty()
+        print(out.join("\n"))

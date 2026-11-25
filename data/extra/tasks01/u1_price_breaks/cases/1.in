@@ -1,0 +1,7 @@
+price A 1 500
+price A 10 450
+price A 100 300
+buy A 4
+buy A 10
+buy A 150
+buy B 2

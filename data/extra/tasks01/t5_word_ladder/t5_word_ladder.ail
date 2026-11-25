@@ -1,0 +1,53 @@
+## Word ladder: shortest chain of one-letter changes through a dictionary, found by BFS.
+## Neighbours are visited in sorted order so the printed path is unique.
+fn adjacent(a str, b str) bool
+    if a.len() != b.len()
+        return false
+    ca := a.chars()
+    cb := b.chars()
+    mut diff := 0
+    for i in 0..ca.len()
+        if ca[i] != cb[i]
+            diff += 1
+    diff == 1
+
+fn main()
+    lines := [l.trim() for l in io.read_all().lines() if not l.trim().is_empty()]
+    first := if lines.is_empty() then List[str]() else lines[0].words()
+    if first.len() != 2
+        print("bad input")
+        return
+    start := first[0]
+    goal := first[1]
+    mut words := Set[str]()
+    words.add(start)
+    for i in 1..lines.len()
+        words.add(lines[i])
+    if not words.contains(goal)
+        print("no ladder")
+        return
+    all := words.sorted()
+    mut parent := Map[str, str]()
+    mut seen := Set[str]()
+    seen.add(start)
+    mut queue := [start]
+    mut head := 0
+    while head < queue.len() and not seen.contains(goal)
+        cur := queue[head]
+        head += 1
+        for w in all
+            if not seen.contains(w) and adjacent(cur, w)
+                seen.add(w)
+                parent[w] = cur
+                queue.push(w)
+    if not seen.contains(goal)
+        print("no ladder")
+        return
+    mut path := [goal]
+    mut at := goal
+    while at != start
+        at = parent[at]
+        path.push(at)
+    path.reverse()
+    print("length: {path.len()}")
+    print("path: {path.join(" -> ")}")

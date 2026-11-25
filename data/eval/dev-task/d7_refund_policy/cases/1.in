@@ -1,0 +1,12 @@
+R1,electronics,20000,10,sealed
+R2,electronics,20000,10,opened
+R3,clothing,5999,45,sealed
+R4,grocery,899,3,opened
+R5,software,4900,20,defective
+R6,software,4900,29,defective
+R7,toys,1000,1,sealed
+R8,electronics,90000,5,defective
+R9,clothing,3000,x,sealed
+R10,clothing,3000,61,sealed
+
+R11,software,2500,14,opened

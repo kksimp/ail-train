@@ -1,0 +1,15 @@
+  ATG=M  
+TTT=F
+TTT=L
+ATG=*
+GCC=a
+gcc=A
+GCC=A=
+AAAA=K
+AAA=KK
+x
+---
+ TTTATGTTT 
+ATG
+
+TTT

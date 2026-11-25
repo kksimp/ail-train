@@ -1,0 +1,19 @@
+table x added
+a seated at x
+b waits (position 1)
+c waits (position 2)
+d waits (position 3)
+b removed from waitlist
+a left
+c seated at x
+e waits (position 2)
+table y added
+e seated at y
+table z added
+d seated at z
+line 11: bad line
+d left
+c left
+line 14: bad line
+waiting: none
+free tables: x, z

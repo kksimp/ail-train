@@ -1,0 +1,22 @@
+## moving average with window K over a series of non-negative integers
+fn main()
+    lines := io.read_all().lines()
+    k := (lines.first() else "").trim().to_int() else 0
+    if k < 1
+        print("bad window")
+        return
+    mut xs := List[int]()
+    for line in lines.slice(1)
+        for w in line.words()
+            n := w.to_int() else -1
+            if n < 0 or w.starts_with("-")
+                print("bad value")
+                return
+            xs.push(n)
+    if xs.len() < k
+        print("none")
+        return
+    mut out := List[str]()
+    for i in 0..(xs.len() - k + 1)
+        out.push("{xs.slice(i, i + k).sum() / k}")
+    print(out.join(" "))

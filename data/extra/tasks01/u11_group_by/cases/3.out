@@ -1,0 +1,14 @@
+> count z
+error: unknown column z
+> sum v z
+error: unknown column z
+> sum z k
+error: unknown column z
+> count
+error: bad query
+> sum v
+error: bad query
+> sum v k byvalue extra
+error: bad query
+> total v k
+error: bad query

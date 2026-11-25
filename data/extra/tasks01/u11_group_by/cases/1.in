@@ -1,0 +1,11 @@
+city,amt,kind
+oslo,5,a
+rome,x,b
+oslo,7,a
+paris,3,b
+rome,10,a
+
+count city
+sum amt city
+count kind
+sum amt kind byvalue

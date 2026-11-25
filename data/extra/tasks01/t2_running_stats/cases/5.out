@@ -1,0 +1,11 @@
+1: sum=100 min=100 max=100 mean=100.00
+2: sum=0 min=-100 max=100 mean=0.00
+3: sum=-1 min=-100 max=100 mean=-0.33
+4: sum=-2 min=-100 max=100 mean=-0.50
+5: sum=999999997 min=-100 max=999999999 mean=199999999.40
+6: sum=-2 min=-999999999 max=999999999 mean=-0.33
+7: sum=1 min=-999999999 max=999999999 mean=0.14
+bad line 8
+bad line 9
+8: sum=3 min=-999999999 max=999999999 mean=0.37
+done 8

@@ -1,0 +1,8 @@
+opened a
+opened b
+a: 50
+error: insufficient funds
+a->b 20
+a 30
+b 20
+total 50

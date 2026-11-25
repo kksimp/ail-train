@@ -1,0 +1,46 @@
+## Stack machine: runs one instruction per line and prints the final stack.
+fn need(op str) int
+    match op
+        "push" => 0
+        "dup" | "pop" | "print" => 1
+        "add" | "sub" | "mul" | "swap" => 2
+        _ => -1
+
+fn step(mut st List[int], w List[str]) str
+    op := w[0]
+    n := need(op)
+    if n < 0 or (op != "push" and w.len() != 1)
+        return "unknown instruction"
+    if op == "push"
+        if w.len() != 2
+            return "bad operand"
+        v := w[1].to_int() else return "bad operand"
+        st.push(v)
+        return ""
+    if st.len() < n
+        return "stack underflow"
+    match op
+        "dup" => st.push(st[st.len() - 1])
+        "pop" => _ := st.pop()
+        "print" => print(st[st.len() - 1])
+        "swap" => st.swap(st.len() - 1, st.len() - 2)
+        _ =>
+            b := st.pop() else 0
+            a := st.pop() else 0
+            st.push(if op == "add" then a + b elif op == "sub" then a - b else a * b)
+    ""
+
+fn main()
+    mut st := List[int]()
+    mut n := 0
+    for line in io.read_all().lines()
+        n += 1
+        w := line.words()
+        if w.is_empty()
+            continue
+        msg := step(mut st, w)
+        if msg != ""
+            print("error: line {n}: {msg}")
+            return
+    shown := if st.is_empty() then "empty" else st.join(" ")
+    print("stack: {shown}")

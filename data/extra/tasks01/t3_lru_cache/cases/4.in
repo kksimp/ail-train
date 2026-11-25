@@ -1,0 +1,20 @@
+3
+keys
+put a 1
+put b 2
+put c 3
+put a 9
+put d 4
+keys
+peek b
+peek c
+keys
+get c
+keys
+get zz
+put
+get
+bogus
+stats
+
+stats extra

@@ -1,0 +1,9 @@
+# Real AIL application repos used by the run 3 builder (families appfn, appfile, testfn). Read-only clones in
+# ~/ail-train-work/apps/REPO at exactly these commits; tools/build_data.py refuses a clone at another commit.
+# Columns: directory, GitHub repo, commit, package entry file. compiler/, std/ and tools/ come from the pinned ail
+# checkout (.ail-version).
+Husk	kksimp/Husk	1cf7134b92db052a03960c5c0ed59ce2e05597ad	husk.ail
+ail-edit	kksimp/ail-edit	ab3411bcdeb48356ffd29233dff924e42b07a62c	edit.ail
+clove	kksimp/clove	5ed56a34e23271c438e782dd3f710bc4f17d53d1	clove.ail
+garlic	kksimp/garlic	d3ee9d9175ddbc7a8da2c2f6a0bf68051a008b63	garlic.ail
+garlic-press	kksimp/garlic-press	622d2993c9ee728fa46c645e58ea5da55ee47080	pdf.ail

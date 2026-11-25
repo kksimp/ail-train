@@ -1,0 +1,12 @@
+ok 1
+error: line 2: undefined b
+error: line 3: unclosed tag
+error: line 4: bad tag
+error: line 5: bad tag
+error: line 6: bad tag
+error: line 7: unexpected else
+error: line 8: unexpected /if
+x
+error: line 13: duplicate else
+never closed 1
+error: unclosed block

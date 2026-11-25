@@ -1,0 +1,20 @@
+## Length conversion through micrometres, rounded half up.
+fn factor(u str) int
+    i := ["um", "mm", "cm", "m", "km", "in", "ft", "yd", "mi"].index_of(u) else return 0
+    [1, 1000, 10000, 1000000, 1000000000, 25400, 304800, 914400, 1609344000][i]
+
+fn main()
+    for k, line in io.read_all().lines().enumerate()
+        w := line.words()
+        if w.is_empty()
+            continue
+        if w.len() != 3 or w[0].len() > 9 or not w[0].chars().all(|c| c.is_digit())
+            print("line {k + 1}: bad")
+            continue
+        n := w[0].to_int() else 0
+        a := factor(w[1])
+        b := factor(w[2])
+        if a == 0 or b == 0
+            print("line {k + 1}: bad")
+            continue
+        print("{n} {w[1]} = {(n * a * 2 + b) / (2 * b)} {w[2]}")

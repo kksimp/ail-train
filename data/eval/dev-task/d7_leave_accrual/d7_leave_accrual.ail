@@ -1,0 +1,42 @@
+## Computes capped leave balances from tenure and hours taken.
+struct Rec
+    name str
+    tenure int
+    taken int
+
+fn digits(s str) int?
+    if s.starts_with("-") or s.starts_with("+")
+        return none
+    s.to_int()
+
+fn parse(line str) Rec?
+    f := line.split(",")
+    if f.len() != 3 or f[0].is_empty()
+        return none
+    t := digits(f[1])?
+    h := digits(f[2])?
+    Rec(name: f[0], tenure: t, taken: h)
+
+fn accrued(t int) int
+    10 * t.min(12) + 12 * (t.min(60) - t.min(12)) + 16 * (t - 60).max(0)
+
+fn main()
+    mut count := 0
+    mut sum := 0
+    mut k := 0
+    for line in io.read_all().lines()
+        k += 1
+        if line.is_empty()
+            continue
+        r := parse(line) else
+            print("error: line {k}: bad record")
+            continue
+        a := accrued(r.tenure)
+        raw := a - r.taken
+        flag := if raw > 240 then " CAPPED" elif raw < 0 then " OVERDRAWN" else ""
+        bal := raw.min(240)
+        print("{r.name} accrued={a} taken={r.taken} balance={bal}{flag}")
+        count += 1
+        sum += bal
+    print("employees: {count}")
+    print("total balance: {sum}")

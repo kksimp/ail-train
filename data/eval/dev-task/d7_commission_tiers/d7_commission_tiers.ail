@@ -1,0 +1,46 @@
+## Totals sales per rep and applies marginal commission tiers.
+struct Pay
+    name str
+    total int
+    comm int
+
+fn money(c int) str
+    sign := if c < 0 then "-$" else "$"
+    a := c.abs()
+    "{sign}{a / 100}.{a % 100:0>2}"
+
+fn tier(base int, lo int, hi int, bps int) int
+    portion := (base.min(hi) - lo).max(0)
+    portion * bps / 10000
+
+fn commission(total int) int
+    base := total.max(0)
+    tier(base, 0, 1000000, 500) + tier(base, 1000000, 5000000, 800) + tier(base, 5000000, base, 1200)
+
+fn parse(line str) (str, int)?
+    f := line.split(",")
+    if f.len() != 2 or f[0].is_empty() or f[1].starts_with("+")
+        return none
+    n := f[1].to_int()?
+    (f[0], n)
+
+fn main()
+    mut totals := Map[str, int]()
+    mut k := 0
+    for line in io.read_all().lines()
+        k += 1
+        if line.is_empty()
+            continue
+        rec := parse(line) else
+            print("error: line {k}: bad sale")
+            continue
+        totals[rec.0] += rec.1
+    mut pays := List[Pay]()
+    for name, t in totals
+        pays.push(Pay(name: name, total: t, comm: commission(t)))
+    mut payout := 0
+    for p in pays.sorted(by: |p| (-p.comm, p.name))
+        print("{p.name} total={money(p.total)} commission={money(p.comm)}")
+        payout += p.comm
+    print("reps: {pays.len()}")
+    print("payout: {money(payout)}")

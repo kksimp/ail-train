@@ -1,0 +1,6 @@
+1 protein=MAAMA len=5 end=stop
+2 protein=MAM len=3 end=stop
+3 invalid
+4 invalid
+5 protein=MA len=2 end=open
+6 protein=M len=1 end=open

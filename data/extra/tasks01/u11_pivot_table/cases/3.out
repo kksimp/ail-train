@@ -1,0 +1,18 @@
+> pivot a b
+error: bad query
+> pivot a b avg n
+error: bad query
+> pivot a b sum
+error: bad query
+> pivot a z count
+error: unknown column z
+> pivot z b count
+error: unknown column z
+> pivot a b sum q
+error: unknown column q
+> pivot a b sum n extra
+error: bad query
+> sum a b n
+error: bad query
+> pivot a b count extra
+error: bad query

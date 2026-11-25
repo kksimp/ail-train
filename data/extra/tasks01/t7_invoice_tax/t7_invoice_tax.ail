@@ -1,0 +1,59 @@
+## Invoice with tax lines: each item has a tax code (A/B/C/D) with a rate in basis points.
+## Prints per-line net and tax, then subtotal, tax per code and the grand total.
+struct Item
+    desc str
+    qty int
+    unit int
+    code str
+
+fn money(c int) str
+    "{c / 100}.{c % 100:0>2}"
+
+fn rate_bp(code str) int?
+    if code == "A"
+        return 0
+    if code == "B"
+        return 500
+    if code == "C"
+        return 825
+    if code == "D"
+        return 1000
+    none
+
+fn parse_item(line str) Item?
+    f := line.split(",")
+    if f.len() != 4
+        return none
+    desc := f[0].trim()
+    if desc.is_empty()
+        return none
+    q := f[1].trim().to_int() else return none
+    u := f[2].trim().to_int() else return none
+    code := f[3].trim()
+    if q < 1 or u < 0 or rate_bp(code) == none
+        return none
+    Item(desc: desc, qty: q, unit: u, code: code)
+
+fn main()
+    mut sub := 0
+    mut tax := Map[str, int]()
+    mut n := 0
+    for line in io.read_all().lines()
+        n += 1
+        if line.trim().is_empty()
+            continue
+        it := parse_item(line) else
+            print("line {n}: invalid")
+            continue
+        net := it.qty * it.unit
+        bp := rate_bp(it.code) else 0
+        t := (net * bp + 5000) / 10000
+        print("{it.desc}: net={money(net)} tax={money(t)} ({it.code})")
+        sub += net
+        tax[it.code] += t
+    print("subtotal: {money(sub)}")
+    mut all := sub
+    for code in tax.keys().sorted()
+        print("tax {code}: {money(tax[code])}")
+        all += tax[code]
+    print("total: {money(all)}")

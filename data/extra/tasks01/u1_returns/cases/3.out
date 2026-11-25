@@ -1,0 +1,10 @@
+refund 1 X 2 2000
+refund 1 X 3 3000
+reject 1 X excess
+refund 1 Y 2 0
+refund 2 X 1 999
+reject 2 Y none
+reject 1 Y excess
+restocked X 3
+restocked Y 2
+refunds 5999

@@ -1,0 +1,62 @@
+## Bit flags: pack flag names into an integer, unpack, toggle and test bits (pack, unpack, toggle, has).
+NAMES := ["READ", "WRITE", "EXEC", "HIDDEN", "SYSTEM", "ARCHIVE", "TEMP", "LINK"]
+
+## Parses a number from 0 to 255, or gives the error text to print.
+fn parse_n(s str) int ! str
+    if s.len() > 13
+        return "error number"
+    n := s.to_int() else return "error number"
+    if n < 0 or n > 255
+        return "error range"
+    n
+
+fn bit_of(name str) int ! str
+    i := NAMES.index_of(name) else return "error unknown {name}"
+    1 << i
+
+fn pack(names List[str]) int ! str
+    mut v := 0
+    for name in names
+        v |= bit_of(name)?
+    v
+
+fn unpack(n int) str
+    mut found := List[str]()
+    for i in 0..8
+        if ((n >> i) & 1) == 1
+            found.push(NAMES[i])
+    if found.is_empty()
+        "none"
+    else
+        found.join(",")
+
+fn main()
+    for line in io.read_all().lines()
+        if line.is_empty()
+            continue
+        parts := line.split(" ")
+        cmd := parts[0]
+        args := parts.slice(1)
+        if cmd == "pack"
+            v := pack(args) else e
+                print(e)
+                continue
+            print("{v} 0x{v:02x}")
+        elif cmd == "unpack" and args.len() == 1
+            n := parse_n(args[0]) else e
+                print(e)
+                continue
+            print(unpack(n))
+        elif (cmd == "toggle" or cmd == "has") and args.len() == 2
+            n := parse_n(args[0]) else e
+                print(e)
+                continue
+            bit := bit_of(args[1]) else e
+                print(e)
+                continue
+            if cmd == "toggle"
+                print(n ^ bit)
+            else
+                print(if (n & bit) != 0 then "yes" else "no")
+        else
+            print("bad command")

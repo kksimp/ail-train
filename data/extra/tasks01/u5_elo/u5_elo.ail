@@ -1,0 +1,54 @@
+## Chess Elo updates: simplified integer expected-score table, K by games played, half-away-from-zero rounding.
+struct Player
+    rating int
+    games int
+
+## n / d rounded to the nearest integer, halves away from zero (d > 0).
+fn rdiv(n int, d int) int
+    a := if n < 0 then -n else n
+    q := (2 * a + d) / (2 * d)
+    if n < 0
+        -q
+    else
+        q
+
+fn kfactor(games int) int
+    if games < 10
+        32
+    else
+        16
+
+fn main()
+    mut pl := Map[str, Player]()
+    mut ok := 0
+    mut k := 0
+    for line in io.read_all().lines()
+        k += 1
+        f := line.words()
+        if f.is_empty()
+            continue
+        if f.len() != 3 or f[0] == f[1] or not (f[2] == "W" or f[2] == "L" or f[2] == "D")
+            print("line {k}: invalid")
+            continue
+        a := pl.get(f[0]) else Player(rating: 1500, games: 0)
+        b := pl.get(f[1]) else Player(rating: 1500, games: 0)
+        d := a.rating - b.rating
+        absd := if d < 0 then -d else d
+        hi := 50 + (if absd > 400 then 400 else absd) / 10
+        ea := if d >= 0 then hi else 100 - hi
+        sa := match f[2]
+            "W" => 100
+            "D" => 50
+            _ => 0
+        na := a.rating + rdiv(kfactor(a.games) * (sa - ea), 100)
+        nb := b.rating + rdiv(kfactor(b.games) * ((100 - sa) - (100 - ea)), 100)
+        fa := if na < 100 then 100 else na
+        fb := if nb < 100 then 100 else nb
+        print("{f[0]} {a.rating}->{fa} {f[1]} {b.rating}->{fb}")
+        pl[f[0]] = Player(rating: fa, games: a.games + 1)
+        pl[f[1]] = Player(rating: fb, games: b.games + 1)
+        ok += 1
+    for n in pl.keys().sorted(by: |x| (-pl[x].rating, x))
+        print("{n} {pl[n].rating} {pl[n].games}")
+    if ok == 0
+        print("no games")

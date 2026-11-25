@@ -1,0 +1,8 @@
+quantum 4
+X 10 3
+Y 0 2
+
+bad line
+Z 5 x
+W 11 6
+V -1 3

@@ -1,0 +1,13 @@
+id,k,v
+1,A1b,x
+2,a 1 b,x
+3,a1B,y
+4,a1b,X
+5,Z,1-2
+6,z,12
+7,Zz,12
+
+  dups k
+dups k,v
+dups v:digits
+dups k,v:digits

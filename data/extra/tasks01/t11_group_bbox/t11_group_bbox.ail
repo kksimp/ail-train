@@ -1,0 +1,41 @@
+## Computes the bounding box and point count of every named group, in first-appearance order.
+struct Box
+    name str
+    minx int
+    miny int
+    maxx int
+    maxy int
+    count int
+
+fn main()
+    mut boxes := List[Box]()
+    mut index := Map[str, int]()
+    mut skipped := 0
+    for line in io.read_all().lines()
+        t := line.trim()
+        if t.is_empty()
+            continue
+        w := t.words()
+        if w.len() != 3
+            skipped += 1
+            continue
+        x := w[1].to_int() else
+            skipped += 1
+            continue
+        y := w[2].to_int() else
+            skipped += 1
+            continue
+        name := w[0]
+        if index.contains(name)
+            i := index[name]
+            boxes[i].minx = boxes[i].minx.min(x)
+            boxes[i].miny = boxes[i].miny.min(y)
+            boxes[i].maxx = boxes[i].maxx.max(x)
+            boxes[i].maxy = boxes[i].maxy.max(y)
+            boxes[i].count += 1
+        else
+            index[name] = boxes.len()
+            boxes.push(Box(name: name, minx: x, miny: y, maxx: x, maxy: y, count: 1))
+    for b in boxes
+        print("{b.name} {b.minx} {b.miny} {b.maxx} {b.maxy} {b.count}")
+    print("skipped {skipped}")

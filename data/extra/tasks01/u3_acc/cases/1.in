@@ -1,0 +1,19 @@
+# factorial of 5
+LOAD 5
+STORE 0
+LOAD 1
+STORE 1
+loop:
+LOADM 0
+JZ end
+LOADM 1
+MULM 0
+STORE 1
+LOADM 0
+SUB 1
+STORE 0
+JMP loop
+end:
+LOADM 1
+PRINT
+HALT

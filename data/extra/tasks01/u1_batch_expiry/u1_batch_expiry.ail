@@ -1,0 +1,65 @@
+## Batch expiry report: sell soonest-expiring unexpired batches first (FEFO), then list the batches that
+## have expired and those expiring within a week of the final date.
+struct Batch
+    qty int
+    exp int
+
+fn digits(s str, lo int) int
+    if s.is_empty()
+        return lo - 1
+    for c in s.chars()
+        if not c.is_digit()
+            return lo - 1
+    n := s.to_int() else lo - 1
+    if n >= lo then n else lo - 1
+
+fn main()
+    mut lines := io.read_all().split("\n")
+    if (lines.last() else "x") == ""
+        lines.pop()
+    mut out := List[str]()
+    mut lots := Map[(str, str), Batch]()
+    mut today := 0
+    for k in 0..lines.len()
+        line := lines[k]
+        if line.is_empty()
+            continue
+        f := line.split(" ")
+        if f[0] == "lot" and f.len() == 5 and not f[1].is_empty() and not f[2].is_empty() and digits(f[3], 1) >= 1 and digits(f[4], 0) >= 0 and not lots.contains((f[1], f[2]))
+            lots[(f[1], f[2])] = Batch(qty: digits(f[3], 1), exp: digits(f[4], 0))
+        elif f[0] == "asof" and f.len() == 2 and digits(f[1], 0) >= 0
+            today = digits(f[1], 0)
+        elif f[0] == "sell" and f.len() == 3 and not f[1].is_empty() and digits(f[2], 1) >= 1
+            mut need := digits(f[2], 1)
+            mut live := List[(int, str)]()
+            mut avail := 0
+            for key, b in lots
+                if key.0 == f[1] and b.exp >= today and b.qty > 0
+                    live.push((b.exp, key.1))
+                    avail += b.qty
+            if avail < need
+                out.push("short {f[1]}")
+                continue
+            live.sort()
+            for e in live
+                t := need.min(lots[(f[1], e.1)].qty)
+                lots[(f[1], e.1)].qty -= t
+                need -= t
+            out.push("sold {f[1]} {f[2]}")
+        else
+            out.push("bad {k + 1}")
+    mut rows := List[(int, str, str, int)]()
+    for key, b in lots
+        if b.qty > 0
+            rows.push((b.exp, key.0, key.1, b.qty))
+    rows.sort()
+    mut gone := 0
+    for r in rows
+        if r.0 < today
+            out.push("expired {r.1} {r.2} {r.3} {r.0}")
+            gone += r.3
+    for r in rows
+        if r.0 >= today and r.0 <= today + 7
+            out.push("soon {r.1} {r.2} {r.3} {r.0}")
+    out.push("expired units {gone}")
+    print(out.join("\n"))

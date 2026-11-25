@@ -1,0 +1,106 @@
+## Recurring events: expands daily/weekly/monthly/yearly rules into dated
+## occurrences (month ends clamp) and prints them in date order.
+
+struct Rule
+    name str
+    y int
+    m int
+    d int
+    freq str
+    count int
+
+struct Occ
+    date str
+    name str
+    seq int
+
+fn is_leap(y int) bool
+    (y % 4 == 0 and y % 100 != 0) or y % 400 == 0
+
+fn month_days(y int, m int) int
+    match m
+        2 => if is_leap(y) then 29 else 28
+        4 | 6 | 9 | 11 => 30
+        _ => 31
+
+fn digits(s str, n int) int?
+    if s.len() != n
+        return none
+    for c in s.chars()
+        if not c.is_digit()
+            return none
+    s.to_int()
+
+fn parse(line str) Rule?
+    f := line.split(" ")
+    if f.len() != 4
+        return none
+    p := f[1].split("-")
+    if p.len() != 3
+        return none
+    y := digits(p[0], 4) else return none
+    m := digits(p[1], 2) else return none
+    d := digits(p[2], 2) else return none
+    if y < 1970 or y > 2100 or m < 1 or m > 12 or d < 1 or d > month_days(y, m)
+        return none
+    if f[2] != "daily" and f[2] != "weekly" and f[2] != "monthly" and f[2] != "yearly"
+        return none
+    k := f[3].to_int() else return none
+    if k < 1 or k > 20
+        return none
+    Rule(name: f[0], y: y, m: m, d: d, freq: f[2], count: k)
+
+fn to_days(y int, m int, d int) int
+    yy := if m <= 2 then y - 1 else y
+    era := yy / 400
+    yoe := yy - era * 400
+    mp := if m > 2 then m - 3 else m + 9
+    doy := (153 * mp + 2) / 5 + d - 1
+    era * 146097 + yoe * 365 + yoe / 4 - yoe / 100 + doy - 719468
+
+fn from_days(n int) str
+    z := n + 719468
+    era := z / 146097
+    doe := z - era * 146097
+    yoe := (doe - doe / 1460 + doe / 36524 - doe / 146096) / 365
+    doy := doe - (365 * yoe + yoe / 4 - yoe / 100)
+    mp := (5 * doy + 2) / 153
+    d := doy - (153 * mp + 2) / 5 + 1
+    m := if mp < 10 then mp + 3 else mp - 9
+    y := yoe + era * 400 + (if m <= 2 then 1 else 0)
+    fmt(y, m, d)
+
+fn fmt(y int, m int, d int) str
+    "{y:0>4}-{m:0>2}-{d:0>2}"
+
+fn occurrence(r Rule, k int) str
+    if r.freq == "daily"
+        return from_days(to_days(r.y, r.m, r.d) + k)
+    if r.freq == "weekly"
+        return from_days(to_days(r.y, r.m, r.d) + 7 * k)
+    months := if r.freq == "monthly" then k else 12 * k
+    total := r.y * 12 + (r.m - 1) + months
+    y := total / 12
+    m := total % 12 + 1
+    fmt(y, m, r.d.min(month_days(y, m)))
+
+fn main()
+    mut occs := List[Occ]()
+    mut bad := List[int]()
+    mut seq := 0
+    mut n := 0
+    for line in io.read_all().lines()
+        n += 1
+        if line.trim().is_empty()
+            continue
+        r := parse(line) else
+            bad.push(n)
+            continue
+        for k in 0..r.count
+            occs.push(Occ(date: occurrence(r, k), name: r.name, seq: seq))
+            seq += 1
+    for o in occs.sorted(by: |o Occ| (o.date, o.name, o.seq))
+        print("{o.date} {o.name}")
+    print("total {occs.len()}")
+    for b in bad
+        print("bad line {b}")

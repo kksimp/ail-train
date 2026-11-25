@@ -1,0 +1,16 @@
+table t1 2
+table t2 4
+table t3 4
+arrive ann 3
+arrive bob 2
+arrive cy 4
+arrive dee 4
+arrive eve 2
+arrive fay 9
+arrive eve 1
+
+arrive gus 0
+leave bob
+leave ann
+leave zed
+leave dee

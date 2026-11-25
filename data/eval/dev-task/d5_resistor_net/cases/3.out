@@ -1,0 +1,16 @@
+line 1: error: expected value at column 3
+line 2: error: expected value at column 3
+line 3: error: expected ',' or ')' at column 5
+line 4: error: expected ',' or ')' at column 6
+line 5: error: trailing input at column 7
+line 6: error: out of range at column 3
+line 7: error: out of range at column 3
+line 8: error: expected '(' at column 3
+line 9: error: expected value at column 1
+line 10: error: trailing input at column 4
+line 11: error: expected value at column 5
+line 12: error: expected value at column 1
+line 13: error: trailing input at column 7
+line 14: 0.007 ohm depth=0 leaves=1
+line 15: 0.001 ohm depth=1 leaves=2
+line 16: error: expected value at column 5

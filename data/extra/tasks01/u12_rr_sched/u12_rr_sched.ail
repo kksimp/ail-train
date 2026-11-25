@@ -1,0 +1,73 @@
+## Round-robin CPU scheduler with a time quantum: prints the slices, then per-process
+## finish, turnaround and wait times.
+struct Proc
+    name str
+    arrival int
+    burst int
+
+fn parse_proc(line str) Proc?
+    f := line.words()
+    if f.len() != 3
+        return none
+    a := f[1].to_int() else return none
+    b := f[2].to_int() else return none
+    if a < 0 or b < 1
+        return none
+    Proc(name: f[0], arrival: a, burst: b)
+
+fn parse_quantum(line str) int
+    f := line.words()
+    if f.len() != 2 or f[0] != "quantum"
+        return 0
+    f[1].to_int() else 0
+
+fn main()
+    mut rows := List[str]()
+    for line in io.read_all().lines()
+        if not line.trim().is_empty()
+            rows.push(line)
+    q := parse_quantum(rows.first() else "")
+    if q < 1
+        print("bad quantum")
+        return
+    mut procs := List[Proc]()
+    mut bad := 0
+    for line in rows.skip(1)
+        if p := parse_proc(line)
+            procs.push(p)
+        else
+            bad += 1
+    n := procs.len()
+    mut order := [i for i in 0..n]
+    order.sort(by: |i| procs[i].arrival)
+    mut rem := [p.burst for p in procs]
+    mut fin := [0 for i in 0..n]
+    mut t := 0
+    mut nxt := 0
+    mut queue := Deque[int]()
+    mut out := List[str]()
+    while true
+        if queue.is_empty()
+            if nxt == n
+                break
+            t = t.max(procs[order[nxt]].arrival)
+        while nxt < n and procs[order[nxt]].arrival <= t
+            queue.push_back(order[nxt])
+            nxt += 1
+        i := queue.pop_front() else break
+        run := q.min(rem[i])
+        out.push("{t}-{t + run} {procs[i].name}")
+        t += run
+        rem[i] -= run
+        while nxt < n and procs[order[nxt]].arrival <= t
+            queue.push_back(order[nxt])
+            nxt += 1
+        if rem[i] > 0
+            queue.push_back(i)
+        else
+            fin[i] = t
+    for i in 0..n
+        ta := fin[i] - procs[i].arrival
+        out.push("{procs[i].name} finish={fin[i]} turnaround={ta} wait={ta - procs[i].burst}")
+    out.push("ignored {bad}")
+    print(out.join("\n"))

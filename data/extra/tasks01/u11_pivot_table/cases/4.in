@@ -1,0 +1,6 @@
+a,b,n
+x,y,oops
+x,z,
+
+pivot a b sum n
+pivot a b count

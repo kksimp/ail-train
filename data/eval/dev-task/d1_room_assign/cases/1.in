@@ -1,0 +1,13 @@
+inventory single 2
+inventory suite 1
+rate single 80
+rate suite 200
+
+book ann single 3
+book bob suite 7
+book cy suite 2
+book dee single 1
+book eve single 5
+book fay villa 2
+book gus single 0
+move x 3

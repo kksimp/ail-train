@@ -1,0 +1,24 @@
+## Palindromic lines report: ignoring case and non-alphanumerics, lists palindromic lines with numbers.
+## Prints the matches, then `palindromes: K` and `total lines: T` (spec.md).
+fn alnum(c char) bool
+    code := c.code()
+    (code >= 48 and code <= 57) or (code >= 65 and code <= 90) or (code >= 97 and code <= 122)
+
+fn normalize(line str) List[char]
+    line.to_lower().chars().filter(|c| alnum(c))
+
+fn is_palindrome(line str) bool
+    cs := normalize(line)
+    not cs.is_empty() and cs == cs.reversed()
+
+fn main()
+    mut lines := io.read_all().split("\n")
+    if (lines.last() else "x") == ""
+        lines.pop()
+    mut found := 0
+    for i, line in lines.enumerate()
+        if is_palindrome(line)
+            print("{i + 1}: {line}")
+            found += 1
+    print("palindromes: {found}")
+    print("total lines: {lines.len()}")

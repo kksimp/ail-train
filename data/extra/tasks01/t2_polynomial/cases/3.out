@@ -1,0 +1,9 @@
+p(x) = 2x^3 - 3x^2 + 5
+p'(x) = 6x^2 - 6x
+x=0 p=5 dp=0
+x=1 p=4 dp=0
+x=-100 p=-2029995 dp=60600
+x=100 p=1970005 dp=59400
+line 6: bad point
+line 7: bad point
+x=7 p=544 dp=252

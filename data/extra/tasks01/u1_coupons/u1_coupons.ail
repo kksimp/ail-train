@@ -1,0 +1,77 @@
+## Coupon application rules: judge each coupon code against the cart, then print the discounted totals.
+## One percent coupon at most; minimums, duplicates and unknown codes are rejected with a reason.
+fn digits(s str, lo int) int
+    if s.is_empty()
+        return lo - 1
+    for c in s.chars()
+        if not c.is_digit()
+            return lo - 1
+    n := s.to_int() else lo - 1
+    if n >= lo then n else lo - 1
+
+fn percent_of(code str) int
+    match code
+        "SAVE10" => 10
+        "SAVE20" => 20
+        "BULK" => 15
+        _ => 0
+
+fn why_not(code str, sub int, units int, accepted Set[str], percent int) str
+    known := ["SAVE10", "SAVE20", "BULK", "FIVER", "FREESHIP"]
+    if not known.contains(code)
+        "unknown"
+    elif accepted.contains(code)
+        "duplicate"
+    elif percent_of(code) > 0 and percent > 0
+        "conflict"
+    elif (code == "SAVE20" and sub < 10000) or (code == "FIVER" and sub < 2000)
+        "minimum"
+    elif code == "BULK" and units < 10
+        "units"
+    else
+        ""
+
+fn main()
+    mut lines := io.read_all().split("\n")
+    if (lines.last() else "x") == ""
+        lines.pop()
+    mut out := List[str]()
+    mut coupons := List[str]()
+    mut sub := 0
+    mut units := 0
+    for k in 0..lines.len()
+        line := lines[k]
+        if line.is_empty()
+            continue
+        f := line.split(" ")
+        if f[0] == "item" and f.len() == 4 and not f[1].is_empty() and digits(f[2], 0) >= 0 and digits(f[3], 1) >= 1
+            sub += digits(f[2], 0) * digits(f[3], 1)
+            units += digits(f[3], 1)
+        elif f[0] == "coupon" and f.len() == 2 and not f[1].is_empty()
+            coupons.push(f[1])
+        else
+            out.push("bad {k + 1}")
+    mut accepted := Set[str]()
+    mut percent := 0
+    mut fixed := 0
+    mut free := false
+    for c in coupons
+        why := why_not(c, sub, units, accepted, percent)
+        if not why.is_empty()
+            out.push("{c} rejected {why}")
+            continue
+        accepted.add(c)
+        if percent_of(c) > 0
+            percent = percent_of(c)
+        elif c == "FIVER"
+            fixed = 500
+        else
+            free = true
+        out.push("{c} ok")
+    disc := (sub * percent / 100 + fixed).min(sub)
+    ship := if free or sub >= 5000 then 0 else 599
+    out.push("subtotal {sub}")
+    out.push("discount {disc}")
+    out.push("shipping {ship}")
+    out.push("total {sub - disc + ship}")
+    print(out.join("\n"))

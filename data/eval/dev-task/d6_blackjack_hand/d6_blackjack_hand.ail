@@ -1,0 +1,31 @@
+## Blackjack hand totals with soft aces.
+fn card(c str) int?
+    if c.len() != 1
+        return none
+    match c.chars()[0]
+        '2'..='9' => c.to_int()
+        'T' | 'J' | 'Q' | 'K' => 10
+        'A' => 11
+        _ => none
+
+fn main()
+    for line in io.read_all().lines()
+        cards := line.words()
+        if cards.is_empty()
+            continue
+        vals := cards.map(|c| card(c))
+        text := cards.join(" ")
+        if vals.any(|v| v == none)
+            print("{text}: invalid")
+            continue
+        mut total := 0
+        mut aces := 0
+        for c in cards
+            total += card(c) else 0
+            if c == "A"
+                aces += 1
+        while total > 21 and aces > 0
+            total -= 10
+            aces -= 1
+        status := if cards.len() == 2 and total == 21 then "blackjack 21" elif total > 21 then "bust {total}" elif aces > 0 then "{total} soft" else "{total} hard"
+        print("{text}: {status}")

@@ -1,0 +1,9 @@
+name=World
+count=3
+empty=
+---
+Hello, {{name}}!
+You have {{ count }} new {{unit|messages}}.
+Empty is [{{empty}}] and [{{empty|none}}].
+Missing with default: {{who | nobody }}
+{{name}}{{count}}{{name}}

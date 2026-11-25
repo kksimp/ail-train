@@ -1,0 +1,17 @@
+# cancel handling
+submit a 2 25
+submit b 7 16
+submit c 7 2
+submit d 4 3
+tick
+cancel c
+cancel b
+status
+tick
+cancel a
+cancel a
+cancel zzz
+submit c 1 1
+submit e 1 1
+tick
+status

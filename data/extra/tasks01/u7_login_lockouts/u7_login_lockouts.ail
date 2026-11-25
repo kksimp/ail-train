@@ -1,0 +1,67 @@
+## Replay login attempts against a lockout policy: F failures inside W
+## seconds lock the user for L seconds; locked attempts are denied.
+
+fn all_digits(s str) bool
+    if s.is_empty()
+        return false
+    for ch in s.chars()
+        if ch.code() < 48 or ch.code() > 57
+            return false
+    true
+
+struct Policy
+    fails int
+    window int
+    lock int
+
+fn parse_policy(lines List[str]) Policy?
+    h := (lines.first() else "").split(" ")
+    if h.len() != 4 or h[0] != "policy"
+        return none
+    for x in h.skip(1)
+        if not all_digits(x) or (x.to_int() else 0) < 1
+            return none
+    Policy(fails: h[1].to_int() else 1, window: h[2].to_int() else 1, lock: h[3].to_int() else 1)
+
+fn main()
+    mut lines := []
+    for l in io.read_all().lines()
+        if not l.is_empty()
+            lines.push(l)
+    pol := parse_policy(lines) else
+        print("error: bad header")
+        return
+    mut fails := Map[str, List[int]]()
+    mut until := Map[str, int]()
+    mut last := 0
+    mut bad := 0
+    mut locks := 0
+    for l in lines.skip(1)
+        f := l.split(" ")
+        if f.len() != 3 or not all_digits(f[0]) or f[1].is_empty() or not (f[2] == "ok" or f[2] == "fail")
+            bad += 1
+            continue
+        t := f[0].to_int() else 0
+        if t < last
+            bad += 1
+            continue
+        last = t
+        u := f[1]
+        if (until.get(u) else 0) > t
+            print("{t} {u} denied")
+        elif f[2] == "ok"
+            fails[u] = []
+            print("{t} {u} ok")
+        else
+            mut recent := (fails.get(u) else List[int]()).filter(|x| t - x < pol.window)
+            recent.push(t)
+            if recent.len() >= pol.fails
+                until[u] = t + pol.lock
+                fails[u] = []
+                locks += 1
+                print("{t} {u} locked")
+            else
+                fails[u] = recent
+                print("{t} {u} fail")
+    print("lockouts: {locks}")
+    print("malformed: {bad}")

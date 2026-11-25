@@ -174,8 +174,12 @@ def main():
     ap.add_argument("--temp", type=float, default=0.2)
     ap.add_argument("--max-tokens", type=int, default=1024)
     ap.add_argument("--limit", type=int, default=0)
-    ap.add_argument("--backend", default="mlx", choices=["mlx", "hf"])
+    ap.add_argument("--backend", default="mlx", choices=["mlx", "hf", "server"])
     ap.add_argument("--load-4bit", action="store_true")
+    ap.add_argument("--resume", action="store_true",
+                    help="keep the items OUT/answers.jsonl already holds in full and continue after them")
+    ap.add_argument("--server-url", default="http://127.0.0.1:8080", help="--backend server: the llama-server")
+    ap.add_argument("--workers", type=int, default=8, help="--backend server: items in flight at once")
     args = ap.parse_args()
 
     ail = os.path.join(os.path.abspath(args.ail), "ail")
@@ -188,36 +192,84 @@ def main():
     rows = [json.loads(l) for l in open(args.data, encoding="utf-8")]
     if args.limit:
         rows = rows[:args.limit]
-    gen = (hf_generator if args.backend == "hf" else mlx_generator)(args)
+    if args.backend == "server":
+        from server_client import ServerGen
+
+        sg = ServerGen(args.server_url, args.temp, args.max_tokens, args.model)
+
+        def gen(msgs, seed):
+            return sg.gen(msgs, seed, args.samples)[0]
+    else:
+        gen = (hf_generator if args.backend == "hf" else mlx_generator)(args)
     os.makedirs(args.out, exist_ok=True)
 
     results = []
     t0 = time.time()
-    with open(os.path.join(args.out, "answers.jsonl"), "w", encoding="utf-8") as out:
-        for i, row in enumerate(rows):
-            user = row["messages"][1]["content"]
-            ref_answer = row["messages"][2]["content"]
-            fam = family(user)
-            ref_src = program_for(fam, user, code_of(ref_answer), ref_answer)
-            ok, want, err = compile_and_run(ail, ref_src)
-            if not ok or want is None:
-                results.append({"i": i, "family": fam, "skip": "reference fails: " + err[:200]})
-                continue
-            texts = gen([{"role": "system", "content": system}, {"role": "user", "content": user}], 1000 * i)
-            verdicts = []
-            for s, text in enumerate(texts):
-                src = program_for(fam, user, code_of(text), text)
-                compiled, got, err = compile_and_run(ail, src)
-                passed = compiled and got == want
-                verdicts.append({"compiled": compiled, "passed": passed})
-                out.write(json.dumps({"i": i, "family": fam, "sample": s, "compiled": compiled, "passed": passed,
-                                      "answer": text, "error": err[:1000]}, ensure_ascii=False) + "\n")
-                out.flush()
-            results.append({"i": i, "family": fam, "verdicts": verdicts})
-            print("{}/{} {} {}  ({:.0f} min)".format(i + 1, len(rows), fam,
+    done = {}  # --resume: item -> its answer rows, for items with every sample written
+    apath = os.path.join(args.out, "answers.jsonl")
+    if args.resume and os.path.isfile(apath):
+        for line in open(apath, encoding="utf-8"):
+            try:
+                a = json.loads(line)
+            except ValueError:
+                break
+            done.setdefault(a["i"], []).append(a)
+        done = {i: v for i, v in done.items() if len(v) == args.samples}
+    def do_item(i, row):
+        """(result, answer rows) of one item: generate the samples, then compile and run each."""
+        user = row["messages"][1]["content"]
+        ref_answer = row["messages"][2]["content"]
+        fam = family(user)
+        ref_src = program_for(fam, user, code_of(ref_answer), ref_answer)
+        ok, want, err = compile_and_run(ail, ref_src)
+        if not ok or want is None:
+            return {"i": i, "family": fam, "skip": "reference fails: " + err[:200]}, []
+        texts = gen([{"role": "system", "content": system}, {"role": "user", "content": user}], 1000 * i)
+        verdicts, lines = [], []
+        for s, text in enumerate(texts):
+            src = program_for(fam, user, code_of(text), text)
+            compiled, got, err = compile_and_run(ail, src)
+            passed = compiled and got == want
+            verdicts.append({"compiled": compiled, "passed": passed})
+            lines.append({"i": i, "family": fam, "sample": s, "compiled": compiled, "passed": passed,
+                          "answer": text, "error": err[:1000]})
+        return {"i": i, "family": fam, "verdicts": verdicts}, lines
+
+    def report(i, r):
+        if "verdicts" in r:
+            print("{}/{} {} {}  ({:.0f} min)".format(i + 1, len(rows), r["family"],
                                                      "".join("P" if v["passed"] else ("c" if v["compiled"] else ".")
-                                                             for v in verdicts), (time.time() - t0) / 60),
+                                                             for v in r["verdicts"]), (time.time() - t0) / 60),
                   file=sys.stderr)
+
+    with open(apath, "w", encoding="utf-8") as out:
+        for i in sorted(done):
+            for a in done[i]:
+                out.write(json.dumps(a, ensure_ascii=False) + "\n")
+            results.append({"i": i, "family": done[i][0]["family"],
+                            "verdicts": [{"compiled": a["compiled"], "passed": a["passed"]} for a in done[i]]})
+        todo = [(i, row) for i, row in enumerate(rows) if i not in done]
+        if args.backend == "server":
+            # Many items at once: the server batches the generations, the checks run in these threads too.
+            import concurrent.futures
+            with concurrent.futures.ThreadPoolExecutor(args.workers) as ex:
+                futs = {ex.submit(do_item, i, row): i for i, row in todo}
+                for fut in concurrent.futures.as_completed(futs):
+                    r, lines = fut.result()
+                    for a in lines:
+                        out.write(json.dumps(a, ensure_ascii=False) + "\n")
+                    out.flush()
+                    results.append(r)
+                    report(futs[fut], r)
+        else:
+            for i, row in todo:
+                r, lines = do_item(i, row)
+                for a in lines:
+                    out.write(json.dumps(a, ensure_ascii=False) + "\n")
+                out.flush()
+                results.append(r)
+                report(i, r)
+    results.sort(key=lambda r: r["i"])
 
     table = {}
     for r in results:

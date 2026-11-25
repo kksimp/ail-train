@@ -1,0 +1,16 @@
+## tr: replace each character of SET1 by the character at the same place in SET2
+fn main()
+    mut lines := io.read_all().split("\n")
+    if (lines.last() else "x") == ""
+        lines.pop()
+    if lines.is_empty()
+        return
+    sets := lines[0].split(" ")
+    src := sets[0].chars()
+    dst := sets[1].chars()
+    mut m := Map[char, char]()
+    for i in 0..src.len()
+        if not m.contains(src[i])
+            m[src[i]] = if i < dst.len() then dst[i] else dst[dst.len() - 1]
+    for line in lines[1..]
+        print(line.chars().map(|c| m.get(c) else c).join(""))

@@ -1,0 +1,37 @@
+## Vigenere cipher tool: each line is `E|D KEY TEXT`; letters shift by the key, other characters pass through.
+fn is_ascii_letter(c char) bool
+    (c >= 'A' and c <= 'Z') or (c >= 'a' and c <= 'z')
+
+## Shifts one ASCII letter by k places (k may be negative), keeping its case.
+fn shift(c char, k int) char
+    base := if c.is_upper() then 65 else 97
+    char.from_code((c.code() - base + k + 26) % 26 + base) else c
+
+## Encrypts (sign 1) or decrypts (sign -1) the text with the key's letters.
+fn crypt(sign int, key str, text str) str
+    shifts := [c.to_upper().code() - 65 for c in key.chars()]
+    mut out := List[char]()
+    mut j := 0
+    for c in text.chars()
+        if is_ascii_letter(c)
+            out.push(shift(c, sign * shifts[j % shifts.len()]))
+            j += 1
+        else
+            out.push(c)
+    out.join("")
+
+fn main()
+    for line in io.read_all().lines()
+        if line.is_empty()
+            continue
+        parts := line.split(" ", 3)
+        if parts.len() < 2 or (parts[0] != "E" and parts[0] != "D")
+            print("bad command")
+            continue
+        key := parts[1]
+        text := if parts.len() > 2 then parts[2] else ""
+        if key.is_empty() or not key.chars().all(|c| is_ascii_letter(c))
+            print("bad key")
+            continue
+        sign := if parts[0] == "E" then 1 else -1
+        print(crypt(sign, key, text))

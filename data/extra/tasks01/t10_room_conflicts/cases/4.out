@@ -1,0 +1,9 @@
+OK a r1 5-6
+REJECT b r1 5-6 conflicts with a
+OK c r1 6-7
+OK d r1 4-5
+BAD line 5
+BAD line 6
+BAD line 7
+OK h r2 5-6
+accepted 4 rejected 1 bad 3

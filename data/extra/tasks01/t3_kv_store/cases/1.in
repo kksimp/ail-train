@@ -1,0 +1,7 @@
+set name Ada Lovelace
+get name
+incr hits
+incr hits
+del name
+count
+get name

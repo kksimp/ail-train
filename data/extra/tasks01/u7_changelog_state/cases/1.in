@@ -1,0 +1,5 @@
+set a 1
+set b hello world
+incr a 41
+rename b c
+del zzz

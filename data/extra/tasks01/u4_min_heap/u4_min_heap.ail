@@ -1,0 +1,73 @@
+## Min-heap of integers stored in a list (sift up / sift down), driven by
+## push/pop/peek/size/drain commands read from standard input.
+struct MinHeap
+    items List[int]
+
+fn MinHeap.push(mut self, x int)
+    self.items.push(x)
+    mut i := self.items.len() - 1
+    while i > 0
+        p := (i - 1) / 2
+        if self.items[p] <= self.items[i]
+            break
+        self.items.swap(p, i)
+        i = p
+
+fn MinHeap.pop(mut self) int?
+    if self.items.is_empty()
+        return none
+    top := self.items[0]
+    last := self.items.pop() else return none
+    if not self.items.is_empty()
+        self.items[0] = last
+        n := self.items.len()
+        mut i := 0
+        while true
+            l := 2 * i + 1
+            r := l + 1
+            mut m := i
+            if l < n and self.items[l] < self.items[m]
+                m = l
+            if r < n and self.items[r] < self.items[m]
+                m = r
+            if m == i
+                break
+            self.items.swap(m, i)
+            i = m
+    top
+
+fn num(w List[str], i int) int?
+    if i >= w.len()
+        return none
+    w[i].to_int()
+
+fn main()
+    mut h := MinHeap(items: [])
+    for line in io.read_all().lines()
+        w := line.words()
+        if w.is_empty()
+            continue
+        cmd := w[0]
+        if cmd == "push" and w.len() == 2 and num(w, 1) != none
+            x := num(w, 1) else 0
+            h.push(x)
+            print("ok")
+        elif cmd == "pop" and w.len() == 1
+            v := h.pop() else
+                print("empty")
+                continue
+            print(v)
+        elif cmd == "peek" and w.len() == 1
+            if h.items.is_empty()
+                print("empty")
+            else
+                print(h.items[0])
+        elif cmd == "size" and w.len() == 1
+            print(h.items.len())
+        elif cmd == "drain" and w.len() == 1
+            mut out := List[str]()
+            while v := h.pop()
+                out.push("{v}")
+            print(if out.is_empty() then "empty" else out.join(" "))
+        else
+            print("error")

@@ -1,0 +1,6 @@
+stock main A 10
+transfer t1 main east A 4
+transfer t2 main main A 1
+transfer t3 east main A 1
+receive t1
+receive t1

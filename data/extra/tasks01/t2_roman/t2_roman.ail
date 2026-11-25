@@ -1,0 +1,77 @@
+## Decimal to Roman numeral and back, rejecting non-canonical numerals.
+
+SYMBOLS := ["M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I"]
+VALUES := [1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1]
+
+fn to_roman(n0 int) str
+    mut n := n0
+    mut out := List[str]()
+    for i in 0..SYMBOLS.len()
+        while n >= VALUES[i]
+            out.push(SYMBOLS[i])
+            n -= VALUES[i]
+    out.join("")
+
+fn letter_value(c char) int
+    match c
+        'I' => 1
+        'V' => 5
+        'X' => 10
+        'L' => 50
+        'C' => 100
+        'D' => 500
+        'M' => 1000
+        _ => 0
+
+fn from_roman(t str) int
+    cs := t.chars()
+    mut total := 0
+    for i in 0..cs.len()
+        v := letter_value(cs[i])
+        if i + 1 < cs.len() and letter_value(cs[i + 1]) > v
+            total -= v
+        else
+            total += v
+    total
+
+fn all_digits(t str) bool
+    for c in t.chars()
+        if not c.is_digit()
+            return false
+    not t.is_empty()
+
+fn all_roman(t str) bool
+    for c in t.chars()
+        if letter_value(c) == 0
+            return false
+    not t.is_empty()
+
+fn main()
+    mut lines := io.read_all().split("\n")
+    if (lines.last() else "x") == ""
+        lines.pop()
+    mut done := 0
+    for i in 0..lines.len()
+        k := i + 1
+        t := lines[i].trim()
+        if t.is_empty()
+            continue
+        if all_digits(t)
+            mut body := t
+            while body.len() > 1 and body.starts_with("0")
+                body = body.slice(1)
+            if body.len() > 6 or (body.to_int() else 0) < 1 or (body.to_int() else 0) > 3999
+                print("line {k}: out of range")
+            else
+                print(to_roman(body.to_int() else 0))
+                done += 1
+        elif all_roman(t)
+            v := from_roman(t)
+            if v >= 1 and to_roman(v) == t
+                print(v)
+                done += 1
+            else
+                print("line {k}: not canonical {t}")
+        else
+            print("line {k}: invalid")
+    print("converted {done}")

@@ -1,0 +1,7 @@
+bin B-01
+  C9 1
+bin B-02
+  A1 5
+bin NOBIN
+  Z 4
+lines 3 units 10

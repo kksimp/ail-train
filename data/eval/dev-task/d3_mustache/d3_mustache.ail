@@ -1,0 +1,116 @@
+## mustache-like templates: {{name}}, {{name|default}}, and #if / #unless / else blocks
+error enum RenderError
+    Undefined(name str) "undefined {name}"
+    Unclosed "unclosed tag"
+    BadTag "bad tag"
+
+enum Ctl
+    If(name str)
+    Unless(name str)
+    Else
+    End
+
+struct Block
+    parent bool
+    cond bool
+    seen_else bool
+
+fn Block.active(self) bool
+    if self.seen_else
+        self.parent and not self.cond
+    else
+        self.parent and self.cond
+
+fn is_name(s str) bool
+    if s.is_empty()
+        return false
+    for c in s.chars()
+        if not (c.is_alnum() or c == '_')
+            return false
+    true
+
+fn truthy(vars Map[str, str], name str) bool
+    (vars.get(name) else "") != ""
+
+fn control(line str) Ctl?
+    t := line.trim()
+    if t == r"{{else}}"
+        return Ctl.Else
+    if t == r"{{/if}}"
+        return Ctl.End
+    if t.starts_with(r"{{#if ") and t.ends_with(r"}}")
+        return Ctl.If(name: t.slice(6, t.len() - 2).trim())
+    if t.starts_with(r"{{#unless ") and t.ends_with(r"}}")
+        return Ctl.Unless(name: t.slice(10, t.len() - 2).trim())
+    none
+
+fn expand(tag str, vars Map[str, str]) str ! RenderError
+    parts := tag.trim().split("|", 2)
+    name := parts[0].trim()
+    if not is_name(name)
+        return BadTag
+    val := vars.get(name) else ""
+    if val != ""
+        return val
+    if parts.len() == 2
+        return parts[1].trim()
+    if vars.contains(name)
+        return ""
+    return Undefined(name: name)
+
+fn render(line str, vars Map[str, str]) str ! RenderError
+    mut out := List[str]()
+    mut rest := line
+    while rest.contains(r"{{")
+        at := rest.find(r"{{") else 0
+        out.push(rest.slice(0, at))
+        after := rest.slice(at + 2)
+        close := after.find(r"}}") else return Unclosed
+        out.push(expand(after.slice(0, close), vars)?)
+        rest = after.slice(close + 2)
+    out.push(rest)
+    out.join("")
+
+fn main()
+    mut lines := io.read_all().split("\n")
+    if (lines.last() else "x") == ""
+        lines.pop()
+    mut vars := Map[str, str]()
+    mut k := 0
+    while k < lines.len() and lines[k] != "---"
+        line := lines[k]
+        k += 1
+        if line.trim().is_empty()
+            continue
+        parts := line.split("=", 2)
+        if parts.len() < 2 or not is_name(parts[0].trim())
+            print("error: definition {k}: malformed")
+            continue
+        vars[parts[0].trim()] = parts[1]
+    tmpl := if k < lines.len() then lines[k + 1..] else List[str]()
+    mut stack := List[Block]()
+    mut t := 0
+    for line in tmpl
+        t += 1
+        on := stack.last()?.active() else true
+        if c := control(line)
+            match c
+                If(name) => stack.push(Block(parent: on, cond: truthy(vars, name), seen_else: false))
+                Unless(name) => stack.push(Block(parent: on, cond: not truthy(vars, name), seen_else: false))
+                Else =>
+                    if stack.is_empty()
+                        print("error: line {t}: unexpected else")
+                    elif stack[stack.len() - 1].seen_else
+                        print("error: line {t}: duplicate else")
+                    else
+                        stack[stack.len() - 1].seen_else = true
+                End =>
+                    if stack.pop() == none
+                        print("error: line {t}: unexpected /if")
+        elif on
+            text := render(line, vars) else err
+                print("error: line {t}: {err}")
+                continue
+            print(text)
+    if not stack.is_empty()
+        print("error: unclosed block")

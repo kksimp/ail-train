@@ -1,0 +1,31 @@
+## Checks each line for balanced (), [] and {}; reports the first problem with columns.
+## Output per line: `ok`, `unmatched C at N`, `mismatch at N: ...` or `unclosed O at N`.
+struct Open
+    ch char
+    col int
+
+fn partner(c char) char
+    match c
+        ')' => '('
+        ']' => '['
+        _ => '{'
+
+fn check(line str) str
+    mut stack := List[Open]()
+    mut col := 0
+    for c in line.chars()
+        col += 1
+        if c == '(' or c == '[' or c == '{'
+            stack.push(Open(ch: c, col: col))
+        elif c == ')' or c == ']' or c == '}'
+            top := stack.last() else return "unmatched {c} at {col}"
+            if top.ch != partner(c)
+                return "mismatch at {col}: found {c} but {top.ch} from {top.col} is open"
+            stack.pop()
+    if top := stack.last()
+        return "unclosed {top.ch} at {top.col}"
+    "ok"
+
+fn main()
+    for line in io.read_all().lines()
+        print(check(line))

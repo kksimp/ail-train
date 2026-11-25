@@ -1,0 +1,31 @@
+## Class attendance summary: counts P/L/A/E per student and prints the attendance rate.
+## Malformed lines are counted and reported at the end.
+fn valid(s str) bool
+    s == "P" or s == "L" or s == "A" or s == "E"
+
+fn main()
+    mut counts := Map[str, List[int]]()
+    mut bad := 0
+    for line in io.read_all().lines()
+        f := line.words()
+        if f.is_empty()
+            continue
+        if f.len() != 2 or not valid(f[1])
+            bad += 1
+            continue
+        mut c := counts.get(f[0]) else [0, 0, 0, 0]
+        idx := match f[1]
+            "P" => 0
+            "L" => 1
+            "A" => 2
+            _ => 3
+        c[idx] += 1
+        counts[f[0]] = c
+    if counts.len() == 0 and bad == 0
+        print("no records")
+    for name, c in counts
+        d := c[0] + c[1] + c[2]
+        rate := if d == 0 then "n/a" else "{(c[0] + c[1]) * 100 / d}%"
+        print("{name} P={c[0]} L={c[1]} A={c[2]} E={c[3]} RATE={rate}")
+    if bad > 0
+        print("malformed: {bad}")

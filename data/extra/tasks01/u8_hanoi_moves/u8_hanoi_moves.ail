@@ -1,0 +1,39 @@
+## Prints the optimal Tower of Hanoi moves for each `N [FROM TO]` request.
+## Invalid requests are echoed as `invalid: TEXT`.
+fn hanoi(n int, a str, b str, c str, mut out List[str])
+    if n == 0
+        return
+    hanoi(n - 1, a, c, b, mut out)
+    out.push("move {n} {a} {c}")
+    hanoi(n - 1, b, a, c, mut out)
+
+fn is_peg(s str) bool
+    s == "A" or s == "B" or s == "C"
+
+fn spare(f str, t str) str
+    for p in ["A", "B", "C"]
+        if p != f and p != t
+            return p
+    "A"
+
+fn main()
+    for raw in io.read_all().lines()
+        line := raw.trim()
+        if line.is_empty()
+            continue
+        mut parts := line.split(" ")
+        if parts.len() == 1
+            parts.push("A")
+            parts.push("C")
+        n := parts[0].to_int() else 0
+        if parts.len() != 3 or n < 1 or n > 5 or not is_peg(parts[1]) or not is_peg(parts[2])
+            print("invalid: {line}")
+            continue
+        f := parts[1]
+        t := parts[2]
+        mut out := List[str]()
+        if f != t
+            hanoi(n, f, spare(f, t), t, mut out)
+        print("{n} {f} {t}: {out.len()} moves")
+        for m in out
+            print(m)

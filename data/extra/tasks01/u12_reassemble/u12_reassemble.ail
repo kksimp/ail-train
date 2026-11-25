@@ -1,0 +1,46 @@
+## Reassembles fragmented messages from out-of-order packets, reporting complete
+## messages, missing fragments, malformed lines and duplicates.
+struct Message
+    total int
+    parts Map[int, str]
+
+fn main()
+    mut msgs := Map[str, Message]()
+    mut bad := 0
+    mut dup := 0
+    for raw in io.read_all().lines()
+        if raw.trim().is_empty()
+            continue
+        w := raw.words()
+        if w.len() != 4
+            bad += 1
+            continue
+        seq := w[1].to_int() else
+            bad += 1
+            continue
+        total := w[2].to_int() else
+            bad += 1
+            continue
+        if total < 1 or seq < 0 or seq >= total
+            bad += 1
+            continue
+        id := w[0]
+        if not msgs.contains(id)
+            msgs[id] = Message(total: total, parts: Map[int, str]())
+        elif msgs[id].total != total
+            bad += 1
+            continue
+        if msgs[id].parts.contains(seq)
+            dup += 1
+        else
+            msgs[id].parts[seq] = w[3]
+    mut out := List[str]()
+    for id, m in msgs
+        if m.parts.len() == m.total
+            data := [m.parts[i] for i in 0..m.total].join("")
+            out.push("{id} complete data={data}")
+        else
+            miss := [i for i in 0..m.total if not m.parts.contains(i)]
+            out.push("{id} incomplete have={m.parts.len()}/{m.total} missing={miss.join(",")}")
+    out.push("malformed={bad} duplicates={dup}")
+    print(out.join("\n"))

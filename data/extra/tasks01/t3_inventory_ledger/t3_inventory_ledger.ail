@@ -1,0 +1,76 @@
+## Inventory ledger: receive/ship/adjust/stock/low/report over per-SKU stock counts.
+## Errors print `line K: MESSAGE` and leave the ledger unchanged.
+
+struct Item
+    onhand int
+    received int
+    shipped int
+
+fn quantity(s str, lo int) int ! str
+    n := s.to_int() else return "bad quantity"
+    if n < lo
+        return "bad quantity"
+    n
+
+fn arity(cmd str) int
+    match cmd
+        "receive" => 3
+        "ship" => 3
+        "adjust" => 3
+        "stock" => 2
+        "low" => 2
+        "report" => 1
+        _ => 0
+
+fn run(mut book Map[str, Item], w List[str]) str ! Fail
+    cmd := w[0]
+    if arity(cmd) != w.len()
+        return Fail(msg: "bad command")
+    if cmd == "report"
+        mut out := List[str]()
+        for sku in book.keys().sorted()
+            it := book[sku]
+            out.push("{sku} {it.onhand} {it.received} {it.shipped}")
+        out.push("skus {book.len()}")
+        return out.join("\n")
+    if cmd == "low"
+        n := quantity(w[1], 0)?
+        mut out := List[str]()
+        for sku in book.keys().sorted()
+            if book[sku].onhand < n
+                out.push("{sku} {book[sku].onhand}")
+        return if out.is_empty() then "none" else out.join("\n")
+    sku := w[1]
+    if cmd == "stock"
+        it := book.get(sku) else return Fail(msg: "unknown SKU")
+        return "{sku}: {it.onhand}"
+    q := quantity(w[2], if cmd == "adjust" then 0 else 1)?
+    if cmd == "ship"
+        have := book.get(sku) else return Fail(msg: "unknown SKU")
+        if have.onhand < q
+            return Fail(msg: "short {sku}: have {have.onhand}, need {q}")
+    if not book.contains(sku)
+        book[sku] = Item(onhand: 0, received: 0, shipped: 0)
+    if cmd == "receive"
+        book[sku].onhand += q
+        book[sku].received += q
+    elif cmd == "ship"
+        book[sku].onhand -= q
+        book[sku].shipped += q
+    else
+        book[sku].onhand = q
+    "{sku}: {book[sku].onhand}"
+
+fn main()
+    mut book := Map[str, Item]()
+    mut k := 0
+    while true
+        line := io.read_line() else break
+        k += 1
+        w := line.words()
+        if w.is_empty()
+            continue
+        msg := run(mut book, w) else err
+            print("line {k}: {err.msg}")
+            continue
+        print(msg)

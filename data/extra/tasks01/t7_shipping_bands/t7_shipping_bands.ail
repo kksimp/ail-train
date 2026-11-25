@@ -1,0 +1,77 @@
+## Shipping cost by weight band and zone: base price from the band, scaled by a zone percentage.
+## Prints one line per parcel, a subtotal for each band used, and the grand total.
+struct Parcel
+    id str
+    grams int
+    zone int
+
+fn money(c int) str
+    "{c / 100}.{c % 100:0>2}"
+
+fn parse_parcel(line str) Parcel?
+    f := line.split(",")
+    if f.len() != 3
+        return none
+    id := f[0].trim()
+    if id.is_empty()
+        return none
+    g := f[1].trim().to_int() else return none
+    z := f[2].trim().to_int() else return none
+    if g < 1 or z < 1 or z > 3
+        return none
+    Parcel(id: id, grams: g, zone: z)
+
+fn band(g int) str
+    if g <= 500
+        return "S"
+    if g <= 2000
+        return "M"
+    if g <= 5000
+        return "L"
+    if g <= 20000
+        return "X"
+    "H"
+
+fn base_price(g int) int
+    if g <= 500
+        return 500
+    if g <= 2000
+        return 900
+    if g <= 5000
+        return 1500
+    if g <= 20000
+        return 3000
+    3000 + 200 * ((g - 20000 + 999) / 1000)
+
+fn percent(zone int) int
+    if zone == 1
+        return 100
+    if zone == 2
+        return 125
+    160
+
+fn main()
+    mut cnt := Map[str, int]()
+    mut sums := Map[str, int]()
+    mut all := 0
+    mut n := 0
+    for line in io.read_all().lines()
+        n += 1
+        if line.trim().is_empty()
+            continue
+        p := parse_parcel(line) else
+            print("line {n}: invalid")
+            continue
+        if p.grams > 50000
+            print("line {n}: too heavy")
+            continue
+        b := band(p.grams)
+        cost := (base_price(p.grams) * percent(p.zone) + 50) / 100
+        print("{p.id}: band={b} zone={p.zone} cost={money(cost)}")
+        cnt[b] += 1
+        sums[b] += cost
+        all += cost
+    for b in ["S", "M", "L", "X", "H"]
+        if cnt.contains(b)
+            print("band {b}: {cnt[b]} parcels, {money(sums[b])}")
+    print("total: {money(all)}")

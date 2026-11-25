@@ -1,0 +1,19 @@
+table t1 added
+table t2 added
+table t3 added
+ann seated at t2
+bob seated at t1
+cy seated at t3
+dee waits (position 1)
+eve waits (position 2)
+fay too large
+eve already here
+line 12: bad line
+bob left
+eve seated at t1
+ann left
+dee seated at t2
+zed not found
+dee left
+waiting: none
+free tables: t2

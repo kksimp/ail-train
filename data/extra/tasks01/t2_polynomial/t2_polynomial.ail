@@ -1,0 +1,65 @@
+## Prints an integer polynomial and its derivative, then evaluates both at given points (Horner's rule).
+
+fn ok_int(t str) bool
+    body := t.strip_prefix("-") else t
+    if body.is_empty() or body.len() > 3
+        return false
+    for c in body.chars()
+        if not c.is_digit()
+            return false
+    v := t.to_int() else 1000
+    v >= -100 and v <= 100
+
+## Written form of a polynomial given highest degree first.
+fn render(cs List[int]) str
+    deg := cs.len() - 1
+    mut out := ""
+    for i in 0..cs.len()
+        c := cs[i]
+        e := deg - i
+        if c == 0
+            continue
+        a := c.abs()
+        body := if e == 0 then "{a}" else "{if a == 1 then "" else "{a}"}{if e == 1 then "x" else "x^{e}"}"
+        if out.is_empty()
+            out = "{if c < 0 then "-" else ""}{body}"
+        else
+            out = "{out}{if c < 0 then " - " else " + "}{body}"
+    if out.is_empty()
+        return "0"
+    out
+
+fn deriv(cs List[int]) List[int]
+    deg := cs.len() - 1
+    mut out := List[int]()
+    for i in 0..deg
+        out.push(cs[i] * (deg - i))
+    if out.is_empty()
+        out.push(0)
+    out
+
+fn eval(cs List[int], x int) int
+    mut v := 0
+    for c in cs
+        v = v * x + c
+    v
+
+fn main()
+    lines := io.read_all().split("\n")
+    toks := lines[0].words()
+    if toks.is_empty() or toks.len() > 7 or not toks.all(|t| ok_int(t))
+        print("error: bad coefficients")
+        return
+    cs := toks.map(|t| t.to_int() else 0)
+    ds := deriv(cs)
+    print("p(x) = {render(cs)}")
+    print("p'(x) = {render(ds)}")
+    for i in 1..lines.len()
+        t := lines[i].trim()
+        if t.is_empty()
+            continue
+        if not ok_int(t)
+            print("line {i + 1}: bad point")
+            continue
+        x := t.to_int() else 0
+        print("x={x} p={eval(cs, x)} dp={eval(ds, x)}")

@@ -1,0 +1,8 @@
+HOST=localhost
+PORT=80
+export DEBUG=1
+---
+PORT=8080
+-DEBUG
+NAME="demo app"
+bad line

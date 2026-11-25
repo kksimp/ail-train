@@ -1,0 +1,12 @@
+title = Report
+no equals sign
+=value
+bad name=1
+
+title=Final Report
+eq=a=b=c
+---
+
+{{title}}
+{{eq}}
+  {{ title | x }}

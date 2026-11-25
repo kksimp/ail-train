@@ -1,0 +1,17 @@
+alloc A 10 -> 0
+alloc B 20 -> 10
+alloc C 10 -> 30
+alloc D 30 -> 40
+free B -> ok
+free D -> ok
+alloc E 15 -> 10
+alloc F 5 -> 25
+alloc E 1 -> exists
+free Z -> unknown
+layout
+0-9 A
+10-24 E
+25-29 F
+30-39 C
+40-99 free
+largest free=60

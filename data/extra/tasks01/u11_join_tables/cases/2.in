@@ -1,0 +1,14 @@
+sku,qty
+a1,5
+b2,0
+--
+code,sku,price
+x,a1,10
+y,b2,20
+z,a1,30
+--
+inner sku
+left code
+inner price
+left
+join sku

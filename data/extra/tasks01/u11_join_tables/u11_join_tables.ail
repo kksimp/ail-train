@@ -1,0 +1,59 @@
+## Join two comma-separated tables on a shared key column: inner or left join.
+fn exec(ha List[str], ra List[List[str]], hb List[str], rb List[List[str]], q str) List[str] ! str
+    t := q.words()
+    if t.len() != 2 or not (t[0] == "inner" or t[0] == "left")
+        return "error: bad query"
+    key := t[1]
+    ia := ha.index_of(key) else return "error: no column {key}"
+    ib := hb.index_of(key) else return "error: no column {key}"
+    keep := [i for i in 0..hb.len() if i != ib]
+    mut hdr := ha
+    for i in keep
+        hdr.push(hb[i])
+    mut out := [hdr.join(",")]
+    mut n := 0
+    for a in ra
+        mut hit := false
+        for b in rb
+            if a[ia] == b[ib]
+                hit = true
+                mut row := a
+                for i in keep
+                    row.push(b[i])
+                out.push(row.join(","))
+                n += 1
+        if not hit and t[0] == "left"
+            mut row := a
+            for _ in keep
+                row.push("")
+            out.push(row.join(","))
+            n += 1
+    out.push("({n} rows)")
+    out
+
+fn main()
+    lines := io.read_all().lines()
+    mut cuts := List[int]()
+    for i in 0..lines.len()
+        if lines[i] == "--"
+            cuts.push(i)
+    if cuts.len() < 2
+        return
+    ta := lines.slice(0, cuts[0])
+    tb := lines.slice(cuts[0] + 1, cuts[1])
+    qs := lines.slice(cuts[1] + 1)
+    if ta.is_empty() or tb.is_empty()
+        return
+    ha := ta[0].split(",")
+    ra := [l.split(",") for l in ta.slice(1)]
+    hb := tb[0].split(",")
+    rb := [l.split(",") for l in tb.slice(1)]
+    for q0 in qs
+        q := q0.trim()
+        if q.is_empty()
+            continue
+        print("> {q}")
+        out := exec(ha, ra, hb, rb, q) else err
+            [err]
+        for l in out
+            print(l)

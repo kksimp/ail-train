@@ -1,0 +1,23 @@
+A spot 1
+error: already parked A
+error: bad command
+error: bad command
+error: time went backwards
+A left spot 1 fee 2
+error: not parked Z
+free 3 of 3
+B spot 1
+C spot 2
+D spot 3
+E rejected: full
+B left spot 1 fee 4
+E spot 1
+free 0 of 3
+1 E
+2 C
+3 D
+error: bad command
+C left spot 2 fee 6
+D left spot 3 fee 8
+revenue 20
+occupied 1

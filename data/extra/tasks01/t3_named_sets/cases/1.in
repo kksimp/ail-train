@@ -1,0 +1,6 @@
+set a x y z
+set b y z w
+inter c a b
+diff d a b
+subset c a
+names

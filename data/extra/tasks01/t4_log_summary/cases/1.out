@@ -1,0 +1,7 @@
+ERROR 2
+WARN 1
+INFO 1
+DEBUG 0
+malformed 1
+span 2024-05-01 10:00:00 .. 2024-05-01 10:02:00
+first error: disk full on /dev/sda

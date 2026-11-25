@@ -1,0 +1,4 @@
+push 7
+print
+push +4
+print

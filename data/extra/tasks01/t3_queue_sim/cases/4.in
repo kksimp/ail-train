@@ -1,0 +1,15 @@
+servers 3
+arrive 0 a 10
+arrive 0 b 2
+arrive 1 c 2
+
+arrive 1 d 1
+arrive 0 e 1
+arrive x f 1
+arrive 3 g 0
+arrive 3 h
+leave 3 i 1
+arrive 4 j 5
+arrive 4 k 5
+arrive 4 l 5
+arrive 100 m 1

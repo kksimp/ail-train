@@ -1,0 +1,83 @@
+## Working days (Mon-Fri, minus holidays) between two dates, inclusive.
+## Dates are converted to day numbers with a civil-calendar formula.
+
+fn is_leap(y int) bool
+    (y % 4 == 0 and y % 100 != 0) or y % 400 == 0
+
+fn month_days(y int, m int) int
+    match m
+        2 => if is_leap(y) then 29 else 28
+        4 | 6 | 9 | 11 => 30
+        _ => 31
+
+fn all_digits(s str) bool
+    if s.is_empty()
+        return false
+    for ch in s.chars()
+        if not ch.is_digit()
+            return false
+    true
+
+## Day number counted from 1970-01-01 = 0, or none for an invalid date.
+fn day_number(s str) int?
+    p := s.split("-")
+    if p.len() != 3 or p[0].len() != 4 or p[1].len() != 2 or p[2].len() != 2
+        return none
+    if not (all_digits(p[0]) and all_digits(p[1]) and all_digits(p[2]))
+        return none
+    y := p[0].to_int() else return none
+    m := p[1].to_int() else return none
+    d := p[2].to_int() else return none
+    if y < 1970 or y > 2100 or m < 1 or m > 12 or d < 1 or d > month_days(y, m)
+        return none
+    yy := if m <= 2 then y - 1 else y
+    era := yy / 400
+    yoe := yy - era * 400
+    mp := if m > 2 then m - 3 else m + 9
+    doy := (153 * mp + 2) / 5 + d - 1
+    doe := yoe * 365 + yoe / 4 - yoe / 100 + doy
+    era * 146097 + doe - 719468
+
+## 0 = Monday ... 6 = Sunday (1970-01-01 was a Thursday).
+fn weekday(n int) int
+    (n + 3) % 7
+
+fn count_working(a int, b int, holidays Set[int]) int
+    mut total := 0
+    for n in a..=b
+        if weekday(n) < 5 and not holidays.contains(n)
+            total += 1
+    total
+
+fn main()
+    lines := io.read_all().lines()
+    mut holidays := Set[int]()
+    for line in lines
+        f := line.split(" ")
+        if f.len() == 2 and f[0] == "holiday"
+            if n := day_number(f[1])
+                holidays.add(n)
+    mut k := 0
+    for line in lines
+        k += 1
+        if line.trim().is_empty()
+            continue
+        f := line.split(" ")
+        if f.len() != 2
+            print("bad line {k}")
+            continue
+        if f[0] == "holiday"
+            if day_number(f[1]) == none
+                print("bad line {k}")
+            continue
+        a := day_number(f[0])
+        b := day_number(f[1])
+        if a == none or b == none
+            print("{f[0]} {f[1]}: invalid")
+            continue
+        lo := a else 0
+        hi := b else 0
+        if hi < lo
+            print("{f[0]} {f[1]}: reversed")
+        else
+            print("{f[0]} {f[1]}: {count_working(lo, hi, holidays)}")

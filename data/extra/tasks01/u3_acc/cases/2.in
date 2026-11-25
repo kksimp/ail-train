@@ -1,0 +1,7 @@
+# jump to nowhere
+LOAD 1
+JZ skip
+JMP missing
+
+skip:
+HALT

@@ -1,0 +1,59 @@
+## Order rule checks with credit limits: applies limit/order/pay/report commands
+## and prints one decision per command.
+
+struct Account
+    limit int
+    used int
+
+fn parse_amount(s str) int?
+    n := s.to_int() else return none
+    if n <= 0
+        return none
+    n
+
+fn report(accts Map[str, Account]) List[str]
+    if accts.is_empty()
+        return ["no customers"]
+    mut out := List[str]()
+    for name in accts.keys().sorted()
+        a := accts[name]
+        out.push("{name} {a.used}/{a.limit}")
+    out
+
+fn handle(mut accts Map[str, Account], n int, line str) List[str]
+    w := line.words()
+    cmd := w[0]
+    if cmd == "report" and w.len() == 1
+        return report(accts)
+    if w.len() != 3 or not (cmd == "limit" or cmd == "order" or cmd == "pay")
+        return ["ERROR line {n}: bad command"]
+    amt := parse_amount(w[2]) else return ["ERROR line {n}: bad amount"]
+    name := w[1]
+    if cmd == "limit"
+        if accts.contains(name)
+            accts[name].limit = amt
+        else
+            accts[name] = Account(limit: amt, used: 0)
+        return ["LIMIT {name} {amt}"]
+    if not accts.contains(name)
+        return ["REJECT {name}: unknown customer"]
+    acct := accts[name]
+    if cmd == "order"
+        total := acct.used + amt
+        if total > acct.limit
+            return ["REJECT {name} {amt}: over limit by {total - acct.limit}"]
+        accts[name].used = total
+        return ["ACCEPT {name} {amt} balance {total}/{acct.limit}"]
+    if amt > acct.used
+        return ["REJECT {name} {amt}: overpayment"]
+    left := acct.used - amt
+    accts[name].used = left
+    ["PAID {name} {amt} balance {left}/{acct.limit}"]
+
+fn main()
+    mut accts := Map[str, Account]()
+    for i, line in io.read_all().lines().enumerate()
+        if line.trim().is_empty()
+            continue
+        for out in handle(mut accts, i + 1, line)
+            print(out)

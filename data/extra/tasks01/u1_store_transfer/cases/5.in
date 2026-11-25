@@ -1,0 +1,11 @@
+stock s1 W 3
+stock s2 W 3
+stock s3 V 9
+transfer a s1 s2 W 3
+transfer b s2 s3 W 6
+receive a
+receive b
+transfer c s3 s1 V 9
+transfer d s3 s1 V 1
+stock s3 V 1
+transfer d s3 s1 V 1

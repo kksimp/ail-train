@@ -1,0 +1,67 @@
+## Set-associative cache simulation with LRU or FIFO replacement: per-access hit/miss
+## lines and the overall hit ratio.
+struct Config
+    sets int
+    ways int
+    block int
+    lru bool
+
+fn parse_header(line str) Config?
+    f := line.words()
+    if f.len() != 6 or f[0] != "cache" or f[4] != "policy"
+        return none
+    if f[5] != "lru" and f[5] != "fifo"
+        return none
+    s := f[1].to_int() else return none
+    w := f[2].to_int() else return none
+    b := f[3].to_int() else return none
+    if s < 1 or w < 1 or b < 1
+        return none
+    Config(sets: s, ways: w, block: b, lru: f[5] == "lru")
+
+fn all_digits(tok str) bool
+    for c in tok.chars()
+        if c < '0' or c > '9'
+            return false
+    not tok.is_empty()
+
+fn main()
+    mut rows := List[str]()
+    for line in io.read_all().lines()
+        if not line.trim().is_empty()
+            rows.push(line)
+    cfg := parse_header(rows.first() else "") else
+        print("bad header")
+        return
+    mut cache := [List[int]() for i in 0..cfg.sets]
+    mut hits := 0
+    mut misses := 0
+    mut skipped := 0
+    mut out := List[str]()
+    for line in rows.skip(1)
+        for tok in line.words()
+            if not all_digits(tok)
+                skipped += 1
+                continue
+            a := tok.to_int() else
+                skipped += 1
+                continue
+            b := a / cfg.block
+            s := b % cfg.sets
+            tag := b / cfg.sets
+            if cache[s].contains(tag)
+                hits += 1
+                if cfg.lru
+                    cache[s].remove_at(cache[s].index_of(tag) else 0)
+                    cache[s].push(tag)
+                out.push("{a} set={s} hit")
+            else
+                misses += 1
+                if cache[s].len() == cfg.ways
+                    cache[s].remove_at(0)
+                cache[s].push(tag)
+                out.push("{a} set={s} miss")
+    total := hits + misses
+    v := if total > 0 then hits * 10000 / total else 0
+    out.push("hits={hits} misses={misses} ratio={v / 100}.{(v % 100):02} skipped={skipped}")
+    print(out.join("\n"))

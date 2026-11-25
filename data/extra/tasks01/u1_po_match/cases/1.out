@@ -1,0 +1,6 @@
+i1 match 500
+i2 hold qty
+i3 hold price
+i4 reject nopo
+matched 500
+held 2

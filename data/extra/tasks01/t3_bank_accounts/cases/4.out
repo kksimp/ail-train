@@ -1,0 +1,14 @@
+opened zed
+opened Amy
+opened bob
+zed: 100
+Amy: 7
+zed->bob 40
+bob: 0
+error: insufficient funds
+error: bad amount
+Amy 7
+bob 0
+zed 60
+total 67
+error: bad command

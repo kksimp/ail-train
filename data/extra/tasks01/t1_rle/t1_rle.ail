@@ -1,0 +1,49 @@
+## Run-length encoding and decoding, line by line; the first line picks `encode` or `decode`.
+## A line that cannot be converted prints `error` (spec.md).
+fn is_digit(c char) bool
+    c.code() >= 48 and c.code() <= 57
+
+fn encode(line str) str?
+    chars := line.chars()
+    mut out := List[str]()
+    mut i := 0
+    while i < chars.len()
+        c := chars[i]
+        if is_digit(c)
+            return none
+        mut j := i
+        while j < chars.len() and chars[j] == c
+            j += 1
+        out.push("{j - i}{c}")
+        i = j
+    out.join("")
+
+fn decode(line str) str?
+    mut out := List[str]()
+    mut count := List[char]()
+    for c in line.chars()
+        if is_digit(c)
+            if count.is_empty() and c == '0'
+                return none
+            count.push(c)
+        else
+            if count.is_empty()
+                return none
+            n := count.join("").to_int() else return none
+            out.push("{c}".repeat(n))
+            count.clear()
+    if not count.is_empty()
+        return none
+    out.join("")
+
+fn main()
+    mut lines := io.read_all().split("\n")
+    if (lines.last() else "x") == ""
+        lines.pop()
+    mode := lines.first() else ""
+    if mode != "encode" and mode != "decode"
+        print("bad mode")
+        return
+    for line in lines.skip(1)
+        res := if mode == "encode" then encode(line) else decode(line)
+        print(res else "error")

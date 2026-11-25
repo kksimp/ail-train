@@ -1,0 +1,24 @@
+## d1_tip_pool: split a tip pool among staff in proportion to hours worked.
+fn main()
+    lines := io.read_all().lines().filter(|l| not l.trim().is_empty())
+    total := (lines.first() else "").trim().to_int() else 0
+    mut names := List[str]()
+    mut hours := List[int]()
+    for l in lines.skip(1)
+        w := l.words()
+        h := if w.len() == 2 then (w[1].to_int() else -1) else -1
+        if h >= 0
+            names.push(w[0])
+            hours.push(h)
+    sum_h := hours.sum()
+    if sum_h == 0
+        print("no hours")
+        return
+    mut shares := hours.map(|h| total * h / sum_h)
+    mut left := total - shares.sum()
+    for i in 0..shares.len()
+        if left > 0 and hours[i] > 0
+            shares[i] += 1
+            left -= 1
+    for i in 0..names.len()
+        print("{names[i]}: {shares[i]}")

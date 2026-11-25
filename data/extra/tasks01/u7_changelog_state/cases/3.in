@@ -1,0 +1,14 @@
+set x 1
+set y 2
+rename x y
+rename x x
+rename q r
+rename x z
+incr z -5
+incr z abc
+set s text
+incr s 1
+incr n 7
+incr n -7
+del n
+del n

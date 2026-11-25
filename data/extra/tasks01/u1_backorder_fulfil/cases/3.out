@@ -1,0 +1,10 @@
+x1 shipped 2 backorder 0
+x2 shipped 1 backorder 3
+x3 shipped 10 backorder 1
+x4 shipped 0 backorder 1
+fill x2 1
+fill x2 2
+fill x4 1
+fill x3 1
+on-hand A 3
+on-hand B 4

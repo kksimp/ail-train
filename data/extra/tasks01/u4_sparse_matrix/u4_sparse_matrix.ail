@@ -1,0 +1,60 @@
+## Sparse matrix stored as a map from (row, col) to a non-zero value, with
+## set/add updates and row/column sums over the stored cells.
+fn num(w List[str], i int) int?
+    if i >= w.len()
+        return none
+    w[i].to_int()
+
+fn idx(w List[str], i int) int?
+    v := num(w, i)?
+    if v < 0 or v > 999999
+        return none
+    v
+
+fn main()
+    mut cells := Map[(int, int), int]()
+    for line in io.read_all().lines()
+        w := line.words()
+        if w.is_empty()
+            continue
+        cmd := w[0]
+        if (cmd == "set" or cmd == "add") and w.len() == 4 and idx(w, 1) != none and idx(w, 2) != none and num(w, 3) != none
+            r := idx(w, 1) else 0
+            c := idx(w, 2) else 0
+            v := num(w, 3) else 0
+            key := (r, c)
+            old := cells.get(key) else 0
+            nv := if cmd == "set" then v else old + v
+            if nv == 0
+                if cells.contains(key)
+                    cells.remove(key)
+            else
+                cells[key] = nv
+            print("ok")
+        elif cmd == "get" and w.len() == 3 and idx(w, 1) != none and idx(w, 2) != none
+            r := idx(w, 1) else 0
+            c := idx(w, 2) else 0
+            print(cells.get((r, c)) else 0)
+        elif cmd == "rowsum" and w.len() == 2 and idx(w, 1) != none
+            r := idx(w, 1) else 0
+            mut total := 0
+            for k, v in cells
+                if k.0 == r
+                    total += v
+            print(total)
+        elif cmd == "colsum" and w.len() == 2 and idx(w, 1) != none
+            c := idx(w, 1) else 0
+            mut total := 0
+            for k, v in cells
+                if k.1 == c
+                    total += v
+            print(total)
+        elif cmd == "nnz" and w.len() == 1
+            print(cells.len())
+        elif cmd == "rows" and w.len() == 1
+            mut seen := Set[int]()
+            for k, v in cells
+                seen.add(k.0)
+            print(if seen.is_empty() then "none" else seen.sorted().join(" "))
+        else
+            print("error")

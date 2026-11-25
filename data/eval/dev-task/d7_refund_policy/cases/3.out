@@ -1,0 +1,14 @@
+line 1: malformed request
+line 2: malformed request
+line 3: malformed request
+line 4: malformed request
+line 5: malformed request
+x REJECT unknown category
+line 7: malformed request
+line 8: malformed request
+line 9: malformed request
+y APPROVE cash 100
+approved: 1 cash=100 credit=0
+review: 0 amount=0
+rejected: 1
+malformed: 8

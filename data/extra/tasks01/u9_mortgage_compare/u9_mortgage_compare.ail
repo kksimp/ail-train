@@ -1,0 +1,74 @@
+## Compares loan offers: finds the smallest level monthly payment (in cents) that repays the loan within the term by
+## binary search over a month-by-month simulation, then ranks the offers by total interest.
+fn money(c int) str
+    "{c / 100}.{c % 100:0>2}"
+
+struct Offer
+    name str
+    principal int
+    rate int
+    years int
+
+struct Plan
+    name str
+    payment int
+    months int
+    interest int
+    paid int
+
+fn parse(line str) Offer?
+    w := line.words()
+    if w.len() != 4
+        return none
+    p := w[1].to_int() else return none
+    r := w[2].to_int() else return none
+    y := w[3].to_int() else return none
+    if p < 1 or p > 500000000 or r < 0 or r > 3000 or y < 1 or y > 40
+        return none
+    Offer(name: w[0], principal: p, rate: r, years: y)
+
+## Runs the schedule with a fixed payment; returns the plan, with months 0 when the balance is not cleared in time.
+fn simulate(o Offer, pay int) Plan
+    n := o.years * 12
+    mut bal := o.principal
+    mut months := 0
+    mut interest := 0
+    mut paid := 0
+    while bal > 0 and months < n
+        i := (bal * o.rate + 60000) / 120000
+        due := bal + i
+        p := due.min(pay)
+        interest += i
+        paid += p
+        bal = due - p
+        months += 1
+    Plan(name: o.name, payment: pay, months: if bal > 0 then 0 else months, interest: interest, paid: paid)
+
+fn plan_for(o Offer) Plan
+    mut lo := 1
+    mut hi := o.principal * 2 + 1
+    while lo < hi
+        mid := (lo + hi) / 2
+        if simulate(o, mid).months > 0
+            hi = mid
+        else
+            lo = mid + 1
+    simulate(o, lo)
+
+fn main()
+    mut plans := List[Plan]()
+    mut k := 0
+    for line in io.read_all().lines()
+        k += 1
+        if line.trim().is_empty()
+            continue
+        o := parse(line) else
+            print("line {k}: bad offer")
+            continue
+        plans.push(plan_for(o))
+    ranked := plans.sorted(by: |p| p.interest)
+    for i in 0..ranked.len()
+        p := ranked[i]
+        print("{i + 1}. {p.name} payment {money(p.payment)} months {p.months} interest {money(p.interest)} total {money(p.paid)}")
+    spread := if ranked.is_empty() then 0 else ranked[ranked.len() - 1].interest - ranked[0].interest
+    print("spread: {money(spread)}")

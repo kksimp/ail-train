@@ -1,0 +1,7 @@
+line 2: malformed
+line 8: unknown field Name
+name: ok
+age: out of range
+email: invalid
+zip: ok
+RESULT invalid (2)

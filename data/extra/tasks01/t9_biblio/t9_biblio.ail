@@ -1,0 +1,53 @@
+## Converts "AUTHORS | TITLE | YEAR | VENUE" lines into citation strings such as
+## "Knuth, D. E. (1968). Title. Venue." sorted by byte order; bad entries are listed at the end.
+fn format_author(a str) str?
+    comma := a.find(",") else return none
+    last := a.slice(0, comma).trim()
+    names := a.slice(comma + 1).words()
+    if last.is_empty() or names.is_empty()
+        return none
+    initials := names.map(|n| "{n.slice(0, 1).to_upper()}.")
+    "{last}, {initials.join(" ")}"
+
+fn author_list(authors List[str]) str
+    n := authors.len()
+    if n == 1
+        return authors[0]
+    if n == 2
+        return "{authors[0]} & {authors[1]}"
+    "{authors.slice(0, n - 1).join(", ")}, & {authors[n - 1]}"
+
+fn all_digits(s str) bool
+    s.chars().all(|c| c >= '0' and c <= '9')
+
+fn citation(line str) str?
+    fields := line.split("|").map(|f| f.trim())
+    if fields.len() != 4
+        return none
+    mut authors := List[str]()
+    for raw in fields[0].split(";")
+        a := format_author(raw) else return none
+        authors.push(a)
+    title := fields[1]
+    year := fields[2]
+    venue := fields[3]
+    if title.is_empty() or venue.is_empty() or year.len() != 4 or not all_digits(year)
+        return none
+    "{author_list(authors)} ({year}). {title}. {venue}."
+
+fn main()
+    mut good := List[str]()
+    mut bad := List[int]()
+    mut k := 0
+    for line in io.read_all().lines()
+        k += 1
+        if line.trim().is_empty()
+            continue
+        c := citation(line) else
+            bad.push(k)
+            continue
+        good.push(c)
+    for c in good.sorted()
+        print(c)
+    for n in bad
+        print("error: line {n}: bad entry")

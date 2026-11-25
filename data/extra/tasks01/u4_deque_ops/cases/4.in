@@ -1,0 +1,9 @@
+push_front
+push_front x
+push_back 1 2
+rotate
+rotate 1.5
+pop_front now
+sideways 3
+push_back 4
+show

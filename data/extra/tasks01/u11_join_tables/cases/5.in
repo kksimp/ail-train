@@ -1,0 +1,13 @@
+k,a,b
+1,x,y
+01,z,w
+1,,
+--
+b,k
+q,1
+r,01
+s,
+--
+  left k
+
+inner k

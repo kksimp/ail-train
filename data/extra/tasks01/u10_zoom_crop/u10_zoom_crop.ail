@@ -1,0 +1,78 @@
+## Applies crop / zoom / shrink commands to a character grid read from stdin.
+fn num(t str, lo int, hi int) int?
+    for ch in t.chars()
+        if not ch.is_digit()
+            return none
+    v := t.to_int() else return none
+    if v < lo or v > hi
+        return none
+    v
+
+fn crop(g List[str], r int, c int, h int, w int) List[str]
+    mut out := List[str]()
+    for y in r..r + h
+        out.push(g[y].slice(c, c + w))
+    out
+
+fn zoom(g List[str], k int) List[str]
+    mut out := List[str]()
+    for row in g
+        mut wide := List[str]()
+        for ch in row.chars()
+            wide.push(ch.to_str().repeat(k))
+        line := wide.join("")
+        for _ in 0..k
+            out.push(line)
+    out
+
+fn shrink(g List[str], k int) List[str]
+    mut out := List[str]()
+    mut y := 0
+    while y < g.len()
+        mut cs := List[char]()
+        cs2 := g[y].chars()
+        mut x := 0
+        while x < cs2.len()
+            cs.push(cs2[x])
+            x += k
+        out.push(cs.join(""))
+        y += k
+    out
+
+## Runs one command; gives the new grid, or none when the command is bad.
+fn run(g List[str], cmd str) List[str]?
+    toks := cmd.words()
+    big := 1000000
+    if toks[0] == "crop" and toks.len() == 5
+        r := num(toks[1], 0, big)?
+        c := num(toks[2], 0, big)?
+        h := num(toks[3], 1, big)?
+        w := num(toks[4], 1, big)?
+        if g.is_empty() or r + h > g.len() or c + w > g[0].len()
+            return none
+        return crop(g, r, c, h, w)
+    if toks[0] == "zoom" and toks.len() == 2
+        k := num(toks[1], 1, 9)?
+        return zoom(g, k)
+    if toks[0] == "shrink" and toks.len() == 2
+        k := num(toks[1], 1, 9)?
+        return shrink(g, k)
+    none
+
+fn main()
+    lines := io.read_all().lines()
+    mut g := List[str]()
+    mut i := 0
+    while i < lines.len() and lines[i] != ""
+        g.push(lines[i])
+        i += 1
+    for n in i + 1..lines.len()
+        if lines[n].words().is_empty()
+            continue
+        g = run(g, lines[n]) else
+            print("error: line {n + 1}: bad command")
+            return
+    for row in g
+        print(row)
+    w := if g.is_empty() then 0 else g[0].len()
+    print("size {g.len()}x{w}")

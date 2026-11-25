@@ -1,0 +1,41 @@
+## Toll charges per trip by time band, with a per-trip cap.
+fn num(s str) int
+    if s.is_empty() or s.len() > 6 or s.chars().any(|c| c.code() < 48 or c.code() > 57)
+        return -1
+    s.to_int() else -1
+
+fn band(mins int) str
+    if mins < 360
+        return "night"
+    if (mins >= 420 and mins < 600) or (mins >= 960 and mins < 1140)
+        return "peak"
+    "day"
+
+fn money(c int) str
+    "{c / 100}.{c % 100:0>2}"
+
+fn main()
+    mut total := 0
+    mut k := 0
+    while true
+        line := io.read_line() else break
+        k += 1
+        w := line.words()
+        if w.is_empty()
+            continue
+        t := w[0].split(":")
+        if w.len() != 2 or t.len() != 2 or t[0].len() != 2 or t[1].len() != 2
+            print("line {k}: bad")
+            continue
+        h := num(t[0])
+        m := num(t[1])
+        km := num(w[1])
+        if h < 0 or h > 23 or m < 0 or m > 59 or km < 0
+            print("line {k}: bad")
+            continue
+        b := band(h * 60 + m)
+        per := if b == "night" then 5 elif b == "peak" then 15 else 10
+        c := (km * per).min(2500)
+        total += c
+        print("{w[0]} {km} {b} {money(c)}")
+    print("total {money(total)}")

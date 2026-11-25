@@ -1,0 +1,17 @@
+a,b
+1,x
+2,y
+3,x
+
+select a where b = x
+select a where a > two
+select b where b > x
+select a where c = 1
+select z
+select a order q
+select a where a = 1 order a desc extra
+select
+order a
+select a where a ~ 1
+select a order
+select a where a =

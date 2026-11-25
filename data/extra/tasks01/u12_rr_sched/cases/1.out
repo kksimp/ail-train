@@ -1,0 +1,8 @@
+0-2 A
+2-4 B
+4-6 A
+6-7 B
+7-8 A
+A finish=8 turnaround=8 wait=3
+B finish=7 turnaround=6 wait=3
+ignored 0

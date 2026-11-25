@@ -1,0 +1,8 @@
+upper     12 ########
+lower     34 ####################
+digit     12 ########
+space     13 ########
+newline    2 ##
+punct      8 #####
+other      0
+total=81

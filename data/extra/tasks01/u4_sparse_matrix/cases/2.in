@@ -1,0 +1,13 @@
+set 0 0 1
+set 0 5 2
+set 3 5 10
+set 999999 999999 -7
+add 3 5 4
+rowsum 0
+rowsum 3
+colsum 5
+colsum 999999
+rows
+nnz
+get 3 5
+get 4 4

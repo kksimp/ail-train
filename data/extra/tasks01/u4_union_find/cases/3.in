@@ -1,0 +1,10 @@
+3
+union 0 3
+union -1 1
+find 1 x
+size 9
+count
+largest
+union 1 2
+size
+find 0 1 2

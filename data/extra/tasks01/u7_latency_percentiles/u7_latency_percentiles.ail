@@ -1,0 +1,38 @@
+## Per-endpoint request latency percentiles (P50, P90, P99, max) using the
+## nearest-rank method, plus an ALL row over every sample.
+
+fn all_digits(s str) bool
+    if s.is_empty()
+        return false
+    for ch in s.chars()
+        if ch.code() < 48 or ch.code() > 57
+            return false
+    true
+
+fn rank(xs List[int], p int) int
+    r := (p * xs.len() + 99) / 100
+    xs[r - 1]
+
+fn row(name str, samples List[int]) str
+    xs := samples.sorted()
+    "{name} {xs.len()} {rank(xs, 50)} {rank(xs, 90)} {rank(xs, 99)} {xs[xs.len() - 1]}"
+
+fn main()
+    mut groups := Map[str, List[int]]()
+    mut every := List[int]()
+    mut bad := 0
+    for l in io.read_all().lines()
+        if l.is_empty()
+            continue
+        f := l.split(" ")
+        if f.len() != 2 or f[0].is_empty() or not all_digits(f[1])
+            bad += 1
+            continue
+        v := f[1].to_int() else 0
+        groups.push(f[0], v)
+        every.push(v)
+    for name in groups.keys().sorted()
+        print(row(name, groups[name]))
+    if not every.is_empty()
+        print(row("ALL", every))
+    print("malformed: {bad}")

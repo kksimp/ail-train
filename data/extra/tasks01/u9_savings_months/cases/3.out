@@ -1,0 +1,3 @@
+scenario 1: 0 months, balance 10.00
+scenario 2: unreachable in 600 months
+scenario 3: 40 months, balance 0.50

@@ -1,0 +1,17 @@
+line 2: bad arguments
+line 5: bad arguments
+line 6: bad amount
+line 7: bad amount
+line 8: bad amount
+line 9: bad amount
+line 10: bad arguments
+line 11: bad amount
+line 12: unknown command
+line 13: refund exceeds spend
+line 14: bad arguments
+line 15: unknown project y
+line 16: unknown project y
+line 17: unknown project y
+months: 1
+x budget=100 spent=0 left=100 used=0% OK runway=inf
+projects: 1 budget=100 spent=0

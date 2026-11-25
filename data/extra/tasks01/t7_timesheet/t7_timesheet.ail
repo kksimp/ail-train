@@ -1,0 +1,73 @@
+## Timesheet totals: shifts as `name,date,start,end`, 30 unpaid minutes off shifts over 6 hours.
+## Prints per-person paid time, distinct days and shift count, then the grand total.
+struct Shift
+    name str
+    date str
+    paid int
+
+fn digits(s str, n int) bool
+    if s.len() != n
+        return false
+    for ch in s.chars()
+        if not ch.is_digit()
+            return false
+    true
+
+fn parse_time(s str) int?
+    p := s.split(":")
+    if p.len() != 2 or not digits(p[0], 2) or not digits(p[1], 2)
+        return none
+    h := p[0].to_int() else return none
+    m := p[1].to_int() else return none
+    if h > 23 or m > 59
+        return none
+    h * 60 + m
+
+fn valid_date(s str) bool
+    p := s.split("-")
+    if p.len() != 3 or not digits(p[0], 4) or not digits(p[1], 2) or not digits(p[2], 2)
+        return false
+    mo := p[1].to_int() else 0
+    d := p[2].to_int() else 0
+    mo >= 1 and mo <= 12 and d >= 1 and d <= 31
+
+fn parse_shift(line str) Shift?
+    f := line.split(",")
+    if f.len() != 4
+        return none
+    name := f[0].trim()
+    date := f[1].trim()
+    if name.is_empty() or not valid_date(date)
+        return none
+    a := parse_time(f[2].trim()) else return none
+    b := parse_time(f[3].trim()) else return none
+    if b <= a
+        return none
+    paid := if b - a > 360 then b - a - 30 else b - a
+    Shift(name: name, date: date, paid: paid)
+
+fn hm(m int) str
+    "{m / 60}:{m % 60:0>2}"
+
+fn main()
+    mut mins := Map[str, int]()
+    mut days := Map[str, int]()
+    mut shifts := Map[str, int]()
+    mut seen := Set[str]()
+    mut n := 0
+    for line in io.read_all().lines()
+        n += 1
+        if line.trim().is_empty()
+            continue
+        s := parse_shift(line) else
+            print("line {n}: invalid")
+            continue
+        mins[s.name] += s.paid
+        shifts[s.name] += 1
+        if seen.add("{s.name}|{s.date}")
+            days[s.name] += 1
+    mut all := 0
+    for name in mins.keys().sorted()
+        print("{name}: {hm(mins[name])} over {days[name]} days ({shifts[name]} shifts)")
+        all += mins[name]
+    print("all: {hm(all)}")

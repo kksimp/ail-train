@@ -1,0 +1,5 @@
+# server
+host = example.org
+port = 70000
+debug = yes
+colour = red

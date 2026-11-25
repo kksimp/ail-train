@@ -1,0 +1,4 @@
+0 cpu 2 40 10 30
+0 mem 1 -4 -4 -4
+60 cpu 1 7 7 7
+malformed: 0

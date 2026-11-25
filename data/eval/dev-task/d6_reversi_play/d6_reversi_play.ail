@@ -1,0 +1,96 @@
+## Reversi: validate and apply a series of moves, alternating players.
+error enum MoveError
+    BadCell "bad cell"
+    Occupied "occupied"
+    NoFlips "no flips"
+
+error enum SetupError
+    Player "invalid player"
+    Board "invalid board"
+
+struct Game
+    grid List[List[char]]
+    turn char
+
+fn other(p char) char
+    if p == 'B' then 'W' else 'B'
+
+fn cell_name(r int, c int) str
+    col := char.from_code(97 + c) else '?'
+    "{col}{r + 1}"
+
+fn parse_cell(s str) (int, int) ! MoveError
+    cs := s.chars()
+    if cs.len() != 2 or cs[0] < 'a' or cs[0] > 'h' or cs[1] < '1' or cs[1] > '8'
+        return BadCell
+    (cs[1].code() - 49, cs[0].code() - 97)
+
+fn Game.ray(self, r int, c int, dr int, dc int) List[(int, int)]
+    mut found := List[(int, int)]()
+    mut y := r + dr
+    mut x := c + dc
+    while y >= 0 and y < 8 and x >= 0 and x < 8
+        cell := self.grid[y][x]
+        if cell == self.turn
+            return found
+        if cell == '.'
+            return []
+        found.push((y, x))
+        y += dr
+        x += dc
+    []
+
+fn Game.flips(self, cell str) List[(int, int)] ! MoveError
+    r, c := parse_cell(cell)?
+    if self.grid[r][c] != '.'
+        return Occupied
+    mut all := List[(int, int)]()
+    for dr in -1..=1
+        for dc in -1..=1
+            if dr != 0 or dc != 0
+                all.extend(self.ray(r, c, dr, dc))
+    if all.is_empty()
+        return NoFlips
+    all.sorted()
+
+fn Game.apply(mut self, cell str, flips List[(int, int)])
+    r, c := parse_cell(cell) else (0, 0)
+    self.grid[r][c] = self.turn
+    for f in flips
+        self.grid[f.0][f.1] = self.turn
+    self.turn = other(self.turn)
+
+fn load(lines List[str]) Game ! SetupError
+    first := (lines.first() else "").trim()
+    if first != "B" and first != "W"
+        return Player
+    if lines.len() < 9
+        return Board
+    mut grid := List[List[char]]()
+    for k in 1..9
+        row := lines[k].trim().chars()
+        if row.len() != 8 or not row.all(|c| c == '.' or c == 'B' or c == 'W')
+            return Board
+        grid.push(row)
+    Game(grid: grid, turn: first.chars()[0])
+
+fn main()
+    lines := io.read_all().lines()
+    mut g := load(lines) else err
+        print("{err}")
+        return
+    for k in 9..lines.len()
+        cell := lines[k].trim()
+        if cell.is_empty()
+            continue
+        who := g.turn
+        fl := g.flips(cell) else err
+            print("{cell} {who}: illegal ({err})")
+            continue
+        g.apply(cell, fl)
+        names := fl.map(|p| cell_name(p.0, p.1))
+        print("{cell} {who}: flipped {fl.len()}: {names.join(" ")}")
+    for row in g.grid
+        print(row.join(""))
+    all := g.grid.flatten()
+    print("B={all.count(|c| c == 'B')} W={all.count(|c| c == 'W')} next={g.turn}")

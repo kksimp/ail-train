@@ -1,0 +1,9 @@
+k v
+one 1
+two 2
+three 3
+
+k = one or k = two or k = three
+k != one and k != two and k != three
+v >= 2 and v <= 2
+v < 10 and v > 0 or k = zzz

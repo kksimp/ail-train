@@ -1,0 +1,6 @@
+dec %
+dec %%41
+dec a%
+dec +++
+dec %20%20
+enc "quoted" <tag> {braces} [x] |pipe| \\ back

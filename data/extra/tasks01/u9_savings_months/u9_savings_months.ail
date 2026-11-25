@@ -1,0 +1,44 @@
+## Counts the months until a savings balance reaches a goal, with monthly interest rounded half up, then a deposit.
+## One scenario per input line; prints months and final balance, `unreachable in 600 months`, or `bad input`.
+fn money(c int) str
+    sign := if c < 0 then "-" else ""
+    a := c.abs()
+    "{sign}{a / 100}.{a % 100:0>2}"
+
+fn parse(line str) List[int]?
+    w := line.words()
+    if w.len() != 4
+        return none
+    mut out := List[int]()
+    for x in w
+        v := x.to_int() else return none
+        out.push(v)
+    if out[0] < 1 or out[0] > 1000000000 or out[1] < 0 or out[1] > 1000000000
+        return none
+    if out[2] < 0 or out[2] > 1000000000 or out[3] < 0 or out[3] > 2000
+        return none
+    out
+
+fn describe(v List[int]) str
+    goal := v[0]
+    mut bal := v[1]
+    mut months := 0
+    while bal < goal and months < 600
+        bal += (bal * v[3] + 60000) / 120000
+        bal += v[2]
+        months += 1
+    if bal >= goal
+        "{months} months, balance {money(bal)}"
+    else
+        "unreachable in 600 months"
+
+fn main()
+    mut k := 0
+    for line in io.read_all().lines()
+        if line.trim().is_empty()
+            continue
+        k += 1
+        v := parse(line) else
+            print("scenario {k}: bad input")
+            continue
+        print("scenario {k}: {describe(v)}")

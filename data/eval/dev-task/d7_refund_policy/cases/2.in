@@ -1,0 +1,13 @@
+a,electronics,30000,15,sealed
+b,electronics,30000,16,sealed
+c,electronics,30000,30,sealed
+d,electronics,30000,31,sealed
+e,electronics,30000,60,defective
+f,electronics,30000,61,defective
+g,grocery,100,3,sealed
+h,grocery,100,4,sealed
+i,grocery,100,7,sealed
+j,grocery,100,8,sealed
+k,clothing,66667,60,opened
+l,clothing,55555,0,opened
+m,electronics,333,0,opened

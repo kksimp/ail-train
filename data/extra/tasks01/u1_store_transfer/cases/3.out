@@ -1,0 +1,12 @@
+ship t1
+reject t2 short
+ship t3
+ship t4
+arrived t1
+reject t9 unknown
+reject t5 short
+reject t5 unknown
+arrived t3
+shelf b X 5
+shelf c Y 2
+transit t4 b a X 1

@@ -1,0 +1,56 @@
+## Purchase order matching: an invoice matches when its quantity was received and not yet billed, and its
+## price is within 2% of the order price. Prints a verdict per invoice, then totals.
+struct Line
+    price int
+    recv int
+    matched int
+
+fn digits(s str, lo int) int
+    if s.is_empty()
+        return lo - 1
+    for c in s.chars()
+        if not c.is_digit()
+            return lo - 1
+    n := s.to_int() else lo - 1
+    if n >= lo then n else lo - 1
+
+fn main()
+    mut lines := io.read_all().split("\n")
+    if (lines.last() else "x") == ""
+        lines.pop()
+    mut out := List[str]()
+    mut book := Map[(str, str), Line]()
+    mut total := 0
+    mut held := 0
+    for k in 0..lines.len()
+        line := lines[k]
+        if line.is_empty()
+            continue
+        f := line.split(" ")
+        if f[0] == "po" and f.len() == 5 and not f[1].is_empty() and not f[2].is_empty() and digits(f[3], 1) >= 1 and digits(f[4], 0) >= 0 and not book.contains((f[1], f[2]))
+            book[(f[1], f[2])] = Line(price: digits(f[4], 0), recv: 0, matched: 0)
+        elif f[0] == "recv" and f.len() == 4 and digits(f[3], 1) >= 1 and book.contains((f[1], f[2]))
+            book[(f[1], f[2])].recv += digits(f[3], 1)
+        elif f[0] == "inv" and f.len() == 6 and not f[1].is_empty() and not f[2].is_empty() and not f[3].is_empty() and digits(f[4], 1) >= 1 and digits(f[5], 0) >= 0
+            q := digits(f[4], 1)
+            p := digits(f[5], 0)
+            key := (f[2], f[3])
+            if not book.contains(key)
+                out.push("{f[1]} reject nopo")
+                continue
+            ln := book[key]
+            if q > ln.recv - ln.matched
+                out.push("{f[1]} hold qty")
+                held += 1
+            elif (p - ln.price).abs() * 100 > ln.price * 2
+                out.push("{f[1]} hold price")
+                held += 1
+            else
+                book[key].matched += q
+                total += q * p
+                out.push("{f[1]} match {q * p}")
+        else
+            out.push("bad {k + 1}")
+    out.push("matched {total}")
+    out.push("held {held}")
+    print(out.join("\n"))

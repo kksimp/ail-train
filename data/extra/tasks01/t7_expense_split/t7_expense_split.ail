@@ -1,0 +1,73 @@
+## Expense splitting: equal shares with remainder cents to the first participants, then net balances
+## and a greedy list of who pays whom to settle up.
+struct Expense
+    payer str
+    amount int
+    people List[str]
+
+fn money(c int) str
+    "{c / 100}.{c % 100:0>2}"
+
+fn signed(c int) str
+    if c > 0
+        return "+{money(c)}"
+    if c < 0
+        return "-{money(-c)}"
+    "0.00"
+
+fn parse_expense(line str) Expense?
+    f := line.split(",")
+    if f.len() != 3
+        return none
+    payer := f[0].trim()
+    if payer.is_empty()
+        return none
+    amt := f[1].trim().to_int() else return none
+    if amt < 1
+        return none
+    mut people := List[str]()
+    for p in f[2].split(";")
+        name := p.trim()
+        if name.is_empty() or people.contains(name)
+            return none
+        people.push(name)
+    Expense(payer: payer, amount: amt, people: people)
+
+fn main()
+    mut bal := Map[str, int]()
+    mut n := 0
+    for line in io.read_all().lines()
+        n += 1
+        if line.trim().is_empty()
+            continue
+        e := parse_expense(line) else
+            print("line {n}: invalid")
+            continue
+        k := e.people.len()
+        bal[e.payer] += e.amount
+        for j in 0..k
+            owe := e.amount / k + (if j < e.amount % k then 1 else 0)
+            bal[e.people[j]] -= owe
+    names := bal.keys().sorted()
+    print("balances:")
+    for name in names
+        print("  {name}: {signed(bal[name])}")
+    print("settlements:")
+    mut any_pay := false
+    while true
+        mut d := ""
+        mut c := ""
+        for name in names
+            if bal[name] < 0 and (d == "" or bal[name] < bal[d])
+                d = name
+            if bal[name] > 0 and (c == "" or bal[name] > bal[c])
+                c = name
+        if d == "" or c == ""
+            break
+        x := (-bal[d]).min(bal[c])
+        print("  {d} pays {c} {money(x)}")
+        bal[d] += x
+        bal[c] -= x
+        any_pay = true
+    if not any_pay
+        print("  none")

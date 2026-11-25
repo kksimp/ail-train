@@ -1,0 +1,4 @@
+zed P=0 L=0 A=0 E=2 RATE=n/a
+amy P=0 L=1 A=2 E=0 RATE=33%
+bo P=1 L=0 A=0 E=0 RATE=100%
+malformed: 3

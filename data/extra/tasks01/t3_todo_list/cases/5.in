@@ -1,0 +1,12 @@
+add x
+done 1
+open
+clear
+clear
+list
+add y
+list
+done 2
+undo 2
+undo 2
+count

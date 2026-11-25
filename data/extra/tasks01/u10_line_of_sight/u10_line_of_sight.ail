@@ -1,0 +1,48 @@
+## Line of sight on a grid: marks open cells ('.') visible from '@' with '*'.
+fn sign(x int) int
+    if x > 0
+        1
+    elif x < 0
+        -1
+    else
+        0
+
+fn main()
+    mut g := List[List[char]]()
+    for l in io.read_all().lines()
+        if l != ""
+            g.push(l.chars())
+    mut r0 := 0
+    mut c0 := 0
+    mut viewers := 0
+    for r in 0..g.len()
+        for c in 0..g[r].len()
+            if g[r][c] == '@'
+                r0 = r
+                c0 = c
+                viewers += 1
+    if viewers != 1
+        print("error: need exactly one @")
+        return
+    mut out := g
+    mut k := 0
+    for r in 0..g.len()
+        for c in 0..g[r].len()
+            if g[r][c] != '.'
+                continue
+            dr := r - r0
+            dc := c - c0
+            n := dr.abs().max(dc.abs())
+            mut ok := true
+            for i in 1..n
+                rr := r0 + sign(dr) * ((2 * dr.abs() * i + n) / (2 * n))
+                cc := c0 + sign(dc) * ((2 * dc.abs() * i + n) / (2 * n))
+                if g[rr][cc] == '#'
+                    ok = false
+                    break
+            if ok
+                out[r][c] = '*'
+                k += 1
+    for row in out
+        print(row.join(""))
+    print("visible {k}")

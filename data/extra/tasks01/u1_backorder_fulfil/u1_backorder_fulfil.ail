@@ -1,0 +1,54 @@
+## Order fulfilment with backorders: ship what is on hand, queue the rest, fill the queue on restock.
+## Reads stock/order/restock events on stdin and prints per-event lines, then stock and open backorders.
+struct Back
+    id str
+    sku str
+    left int
+
+fn qty(s str) int
+    if s.is_empty()
+        return 0
+    n := s.to_int() else 0
+    if n >= 1 then n else 0
+
+fn main()
+    mut lines := io.read_all().split("\n")
+    if (lines.last() else "x") == ""
+        lines.pop()
+    mut onhand := Map[str, int]()
+    mut backs := List[Back]()
+    mut out := List[str]()
+    for k in 0..lines.len()
+        line := lines[k]
+        if line.is_empty()
+            continue
+        f := line.split(" ")
+        if f[0] == "stock" and f.len() == 3 and not f[1].is_empty() and qty(f[2]) > 0
+            onhand[f[1]] = (onhand.get(f[1]) else 0) + qty(f[2])
+        elif f[0] == "order" and f.len() == 4 and not f[1].is_empty() and not f[2].is_empty() and qty(f[3]) > 0
+            q := qty(f[3])
+            have := onhand.get(f[2]) else 0
+            ship := have.min(q)
+            onhand[f[2]] = have - ship
+            if q > ship
+                backs.push(Back(id: f[1], sku: f[2], left: q - ship))
+            out.push("{f[1]} shipped {ship} backorder {q - ship}")
+        elif f[0] == "restock" and f.len() == 3 and not f[1].is_empty() and qty(f[2]) > 0
+            sku := f[1]
+            onhand[sku] = (onhand.get(sku) else 0) + qty(f[2])
+            for mut b in backs
+                avail := onhand[sku]
+                if b.sku == sku and b.left > 0 and avail > 0
+                    n := avail.min(b.left)
+                    b.left -= n
+                    onhand[sku] = avail - n
+                    out.push("fill {b.id} {n}")
+        else
+            out.push("bad {k + 1}")
+    for sku in onhand.keys().sorted()
+        out.push("on-hand {sku} {onhand[sku]}")
+    for b in backs
+        if b.left > 0
+            out.push("open {b.id} {b.sku} {b.left}")
+    if not out.is_empty()
+        print(out.join("\n"))

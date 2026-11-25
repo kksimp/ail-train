@@ -1,0 +1,5 @@
+line 1: malformed
+ -> : 0
+abc -> : 3
+intention -> execution: 5
+pairs: 3, malformed: 1

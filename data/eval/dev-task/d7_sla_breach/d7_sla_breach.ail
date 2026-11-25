@@ -1,0 +1,24 @@
+## Reports helpdesk tickets that exceeded their SLA limit.
+fn limit(p str) int
+    match p
+        "P1" => 60
+        "P2" => 240
+        _ => 1440
+
+fn main()
+    lines := io.read_all().lines()
+    now := (lines.first() else "0").trim().to_int() else 0
+    mut total := 0
+    mut hits := 0
+    for line in lines.skip(1)
+        if line.trim().is_empty()
+            continue
+        f := line.trim().split(",")
+        total += 1
+        opened := f[2].to_int() else 0
+        end := f[3].to_int() else now
+        over := end - opened - limit(f[1])
+        if over > 0
+            hits += 1
+            print("{f[0]} over by {over}")
+    print("breaches: {hits} of {total}")

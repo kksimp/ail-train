@@ -1,0 +1,29 @@
+## Prints the Adler-32 and CRC-8 (poly 0x07) checksums of every input line, then the line count.
+fn adler32(text str) int
+    mut a := 1
+    mut b := 0
+    for c in text.chars()
+        a = (a + c.code()) % 65521
+        b = (b + a) % 65521
+    (b << 16) | a
+
+fn crc8(text str) int
+    mut crc := 0
+    for c in text.chars()
+        crc ^= c.code()
+        for _ in 0..8
+            if (crc & 128) != 0
+                crc = ((crc << 1) ^ 7) & 255
+            else
+                crc = (crc << 1) & 255
+    crc
+
+fn main()
+    mut lines := io.read_all().split("\n")
+    if (lines.last() else "x") == ""
+        lines.pop()
+    for line in lines
+        a := adler32(line)
+        c := crc8(line)
+        print("adler32={a:08x} crc8={c:02x}")
+    print("lines={lines.len()}")

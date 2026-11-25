@@ -1,0 +1,9 @@
+gen 8 123
+gen 10 12a
+gen 16 ABC
+gen 10
+gen 10 
+foo 10 123
+gen 10 1 2
+chk 36 hello
+

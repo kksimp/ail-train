@@ -1,0 +1,37 @@
+## Reports words missing from a dictionary given before a `---` line, with line:column positions.
+fn main()
+    lines := io.read_all().lines()
+    mut sep := -1
+    for k in 0..lines.len()
+        if lines[k].trim() == "---"
+            sep = k
+            break
+    if sep < 0
+        print("bad input")
+        return
+    mut dict := Set[str]()
+    for k in 0..sep
+        w := lines[k].trim().to_lower()
+        if not w.is_empty()
+            dict.add(w)
+    mut bad := 0
+    mut uniq := Set[str]()
+    for k in (sep + 1)..lines.len()
+        cs := lines[k].chars()
+        mut i := 0
+        while i < cs.len()
+            if cs[i].is_alpha()
+                start := i
+                while i < cs.len() and cs[i].is_alpha()
+                    i += 1
+                w := cs.slice(start, i).join("")
+                if not dict.contains(w.to_lower())
+                    print("{k - sep}:{start + 1} {w}")
+                    bad += 1
+                    uniq.add(w.to_lower())
+            else
+                i += 1
+    if bad == 0
+        print("all words ok")
+    else
+        print("misspelled={bad} unique={uniq.len()}")

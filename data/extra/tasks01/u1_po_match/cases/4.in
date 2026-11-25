@@ -1,0 +1,15 @@
+po a x
+po a x 0 5
+po a x 1 -5
+po a x 5 5
+po a x 9 9
+recv a y 1
+recv b x 1
+recv a x 0
+recv a x 1 1
+inv 1 a x 1
+inv 1 a x 0 1
+inv 1 a x 1 x
+
+foo
+inv  a x 1 1

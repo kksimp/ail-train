@@ -1,0 +1,11 @@
+invalid: 0
+invalid: 6
+invalid: 2 A
+invalid: 2 A D
+invalid: x C A
+2 C A: 3 moves
+move 1 C B
+move 2 C A
+move 1 B A
+1 B C: 1 moves
+move 1 B C

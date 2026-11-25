@@ -1,0 +1,45 @@
+## Sums `h:mm:ss` durations from standard input.
+## Prints the total, the count of valid lines and the count of invalid ones.
+fn all_digits(s str) bool
+    if s.is_empty()
+        return false
+    for ch in s.chars()
+        if ch < '0' or ch > '9'
+            return false
+    true
+
+## Seconds in a valid `h:mm:ss` duration, or `none`.
+fn parse_duration(t str) int?
+    parts := t.split(":")
+    if parts.len() != 3
+        return none
+    h := parts[0]
+    m := parts[1]
+    s := parts[2]
+    if h.len() < 1 or h.len() > 5 or m.len() != 2 or s.len() != 2
+        return none
+    if not (all_digits(h) and all_digits(m) and all_digits(s))
+        return none
+    hv := h.to_int() else return none
+    mv := m.to_int() else return none
+    sv := s.to_int() else return none
+    if mv > 59 or sv > 59
+        return none
+    hv * 3600 + mv * 60 + sv
+
+fn main()
+    mut total := 0
+    mut valid := 0
+    mut invalid := 0
+    for line in io.read_all().lines()
+        t := line.trim()
+        if t.is_empty()
+            continue
+        secs := parse_duration(t) else
+            invalid += 1
+            continue
+        valid += 1
+        total += secs
+    print("total {total / 3600}:{total % 3600 / 60:02}:{total % 60:02}")
+    print("valid {valid}")
+    print("invalid {invalid}")

@@ -1,0 +1,12 @@
+> pivot k1 k2 sum n
+k1,B,a,b,total
+A,.,3,.,3
+B,.,7,1,8
+a,-3,.,.,-3
+total,-3,10,1,8
+> pivot k2 k1 count
+k2,A,B,a,total
+B,.,.,2,2
+a,1,1,.,2
+b,.,1,.,1
+total,1,2,2,5

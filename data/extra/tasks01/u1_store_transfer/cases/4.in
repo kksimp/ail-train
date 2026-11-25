@@ -1,0 +1,12 @@
+stock a X
+stock a X 0
+stock a X -1
+transfer t1 a b X
+transfer t1 a b X 0
+receive
+receive a b
+move t1
+
+stock a X 2
+transfer t1 a b X 1
+transfer t1 a b X 1

@@ -1,0 +1,7 @@
+> distinct a
+a (2): x, y
+> distinct b sorted
+b (3): <empty>, 1, 10
+> distinct *
+a: 2
+b: 3

@@ -1,0 +1,8 @@
+pack READ FLY WRITE BOGUS
+pack read
+unpack 256
+unpack -1
+unpack abc
+unpack 1x
+unpack
+unpack 1 2

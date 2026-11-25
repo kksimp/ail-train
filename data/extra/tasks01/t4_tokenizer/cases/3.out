@@ -1,0 +1,5 @@
+1:1 IDENT say
+1:5 STRING "hello world"
+1:19 OP +
+1:21 ERROR "oops
+2:1 IDENT ok

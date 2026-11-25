@@ -1,0 +1,9 @@
+100 0 systemd
+300 100 dbus daemon
+200 100 login
+250 200 bash
+260 250 vim file.txt
+261 250 ls
+999 5 lost proc
+1000 999 child of lost
+50 0 kthreadd

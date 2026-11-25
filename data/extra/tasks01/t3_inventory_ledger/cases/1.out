@@ -1,0 +1,5 @@
+bolt: 10
+bolt: 6
+line 3: short bolt: have 6, need 9
+bolt 6 10 4
+skus 1

@@ -1,0 +1,14 @@
+no customers
+REJECT bob: unknown customer
+REJECT bob: unknown customer
+LIMIT bob 100
+LIMIT cy 40
+ACCEPT bob 100 balance 100/100
+REJECT bob 1: over limit by 1
+REJECT bob 101: overpayment
+PAID bob 100 balance 0/100
+REJECT cy 41: over limit by 1
+LIMIT bob 20
+REJECT bob 21: over limit by 1
+bob 0/20
+cy 0/40

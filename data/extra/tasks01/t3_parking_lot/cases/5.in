@@ -1,0 +1,11 @@
+capacity 1
+park 0 X
+leave 60 X
+park 100 X
+leave 161 X
+park 200 Y
+leave 200 Y
+park 300 Z
+status
+
+park -1 Q

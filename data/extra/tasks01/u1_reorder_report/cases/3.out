@@ -1,0 +1,4 @@
+c onhand 1 point 10 short 9 order 4
+d onhand 10 point 10 short 0 order 0
+e onhand 0 point 0 short 0 order 0
+reorder 3 of 5

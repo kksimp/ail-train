@@ -1,0 +1,11 @@
+push 3
+push 4
+add
+dup
+print
+push 10
+swap
+sub
+print
+push -2
+mul

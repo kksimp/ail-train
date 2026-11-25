@@ -1,0 +1,12 @@
+OK alpha lab 0-10
+REJECT beta lab 2-3 conflicts with alpha
+OK gamma lab 10-12
+REJECT delta lab 9-11 conflicts with alpha
+OK eps hall 5-8
+BAD line 7
+BAD line 8
+OK eta hall 8-9
+REJECT theta hall 1-20 conflicts with eps
+OK iota hall 0-5
+REJECT kappa hall 0-6 conflicts with eps
+accepted 5 rejected 4 bad 2

@@ -1,0 +1,22 @@
+## Digital root chains: prints the digit-sum chain and persistence for each input number.
+fn digit_sum(n int) int
+    if n < 10
+        return n
+    n % 10 + digit_sum(n / 10)
+
+fn main()
+    while line := io.read_line()
+        t := line.trim()
+        n := t.to_int() else -1
+        if t.is_empty()
+            continue
+        if n < 0 or t.len() > 18 or t.starts_with("-")
+            print("{t}: invalid")
+            continue
+        mut m := n
+        mut chain := ["{m}"]
+        while m >= 10
+            m = digit_sum(m)
+            chain.push("{m}")
+        text := chain.join(" -> ")
+        print("{n}: {text} steps={chain.len() - 1}")

@@ -1,0 +1,34 @@
+## Matcher for patterns made of literals, `.` and `x*`, anchored at both ends; one verdict per text line.
+
+## True when a `*` is first in the pattern or directly follows another `*`.
+fn invalid(p List[char]) bool
+    for i in 0..p.len()
+        if p[i] == '*' and (i == 0 or p[i - 1] == '*')
+            return true
+    false
+
+## Does the pattern from item `i` match the text from position `j` to its end?
+fn m(p List[char], i int, t List[char], j int) bool
+    if i == p.len()
+        return j == t.len()
+    first := j < t.len() and (p[i] == '.' or p[i] == t[j])
+    if i + 1 < p.len() and p[i + 1] == '*'
+        # zero copies of the item, or one more copy when the text allows it
+        return m(p, i + 2, t, j) or (first and m(p, i, t, j + 1))
+    first and m(p, i + 1, t, j + 1)
+
+fn verdict(p List[char], text str) str
+    word := if m(p, 0, text.chars(), 0) then "yes" else "no"
+    "\"{text}\": {word}"
+
+fn main()
+    lines := io.read_all().lines()
+    if lines.is_empty()
+        print("no pattern")
+        return
+    p := lines[0].chars()
+    if invalid(p)
+        print("invalid pattern")
+        return
+    for k in 1..lines.len()
+        print(verdict(p, lines[k]))

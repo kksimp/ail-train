@@ -1,0 +1,124 @@
+## Flight upgrade queue: seats go to the best status, then fare class, then miles, then request order.
+enum Status
+    PLAT
+    GOLD
+    SILVER
+    BASIC
+
+enum Fare
+    Y
+    B
+    M
+    K
+
+error enum CmdError
+    Unknown "unknown command"
+    Arity "wrong number of arguments"
+    BadStatus "bad status"
+    BadFare "bad fare"
+    BadNumber "bad number"
+    Duplicate(name str) "duplicate passenger {name}"
+    NoPax(name str) "unknown passenger {name}"
+    Queued(name str) "already requested {name}"
+
+struct Pax
+    name str
+    status Status
+    fare Fare
+    miles int
+    seq int
+    up bool
+
+struct Flight
+    seats int
+    runs int
+    reqs int
+    order List[str]
+    pax Map[str, Pax]
+
+fn num(s str) int
+    if s.is_empty() or s.len() > 7 or s.chars().any(|c| c.code() < 48 or c.code() > 57)
+        return -1
+    s.to_int() else -1
+
+fn Pax.key(self) (int, int, int, int)
+    st := Status.variants().index_of(self.status) else 9
+    fr := Fare.variants().index_of(self.fare) else 9
+    (st, fr, -self.miles, self.seq)
+
+fn Flight.run(mut self)
+    self.runs += 1
+    mut queue := List[Pax]()
+    for n in self.order
+        p := self.pax[n]
+        if p.seq > 0 and not p.up
+            queue.push(p)
+    ranked := queue.sorted(by: |p| p.key())
+    print("run {self.runs}: seats {self.seats} waiting {ranked.len()}")
+    mut used := 0
+    for i in 0..ranked.len()
+        name := ranked[i].name
+        if i < self.seats
+            print("U {name}")
+            self.pax[name].up = true
+            used += 1
+        else
+            print("W {i - self.seats + 1} {name}")
+    self.seats -= used
+
+fn Flight.apply(mut self, w List[str]) ! CmdError
+    cmd := w[0]
+    if cmd == "SEATS"
+        if w.len() != 2
+            return Arity
+        n := num(w[1])
+        if n < 0
+            return BadNumber
+        self.seats = n
+    elif cmd == "PAX"
+        if w.len() != 5
+            return Arity
+        st := Status.from_str(w[2]) else return BadStatus
+        fr := Fare.from_str(w[3]) else return BadFare
+        miles := num(w[4])
+        if miles < 0
+            return BadNumber
+        if self.pax.contains(w[1])
+            return Duplicate(name: w[1])
+        self.pax[w[1]] = Pax(name: w[1], status: st, fare: fr, miles: miles, seq: 0, up: false)
+        self.order.push(w[1])
+    elif cmd == "REQ"
+        if w.len() != 2
+            return Arity
+        p := self.pax.get(w[1]) else return NoPax(name: w[1])
+        if p.seq > 0
+            return Queued(name: w[1])
+        self.reqs += 1
+        self.pax[w[1]].seq = self.reqs
+    elif cmd == "RUN"
+        if w.len() != 1
+            return Arity
+        self.run()
+    else
+        return Unknown
+
+fn main()
+    mut f := Flight(seats: 0, runs: 0, reqs: 0, order: [], pax: {})
+    mut k := 0
+    while true
+        line := io.read_line() else break
+        k += 1
+        w := line.words()
+        if w.is_empty()
+            continue
+        f.apply(w) else err
+            print("line {k}: {err}")
+    mut up := 0
+    mut wait := 0
+    for n in f.order
+        p := f.pax[n]
+        if p.up
+            up += 1
+        elif p.seq > 0
+            wait += 1
+    print("summary: {up} upgraded, {wait} waiting")

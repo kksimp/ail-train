@@ -1,0 +1,9 @@
+alloc A 30 -> 0
+alloc B 50 -> 30
+free A -> ok
+alloc C 40 -> fail
+layout
+0-29 free
+30-79 B
+80-99 free
+largest free=30

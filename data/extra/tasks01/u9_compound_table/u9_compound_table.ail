@@ -1,0 +1,38 @@
+## Prints a yearly compound interest table for a principal in cents, with half-up rounding of each year's interest.
+## Reads "PRINCIPAL RATE_BPS YEARS" on the first line; prints `error: bad input` for an invalid line.
+fn money(c int) str
+    sign := if c < 0 then "-" else ""
+    a := c.abs()
+    "{sign}{a / 100}.{a % 100:0>2}"
+
+fn parse(line str) List[int]?
+    w := line.words()
+    if w.len() != 3
+        return none
+    mut out := List[int]()
+    for x in w
+        v := x.to_int() else return none
+        out.push(v)
+    out
+
+fn valid(v List[int]) bool
+    v[0] >= 0 and v[0] <= 10000000 and v[1] >= 0 and v[1] <= 2000 and v[2] >= 1 and v[2] <= 40
+
+fn main()
+    text := io.read_all()
+    first := text.lines().first() else ""
+    v := parse(first) else
+        print("error: bad input")
+        return
+    if not valid(v)
+        print("error: bad input")
+        return
+    rate := v[1]
+    mut bal := v[0]
+    mut total := 0
+    for y in 1..=v[2]
+        interest := (bal * rate + 5000) / 10000
+        bal += interest
+        total += interest
+        print("year {y}: interest {money(interest)} balance {money(bal)}")
+    print("total interest: {money(total)}")

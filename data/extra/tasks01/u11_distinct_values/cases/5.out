@@ -1,0 +1,6 @@
+> distinct k sorted
+k (3): <empty>, a, b
+> distinct n sorted
+n (3): <empty>, 10, 2
+> distinct n
+n (3): 2, <empty>, 10

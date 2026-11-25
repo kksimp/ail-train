@@ -1,3 +1,4 @@
 # Keep LF in every working tree, Windows included. tools/pc/run.ps1 copies the Windows checkout into WSL, where bash
 # fails on CRLF scripts and CRLF in data/raw would change the built data (and its hashes) against the Mac's build.
 * text=auto eol=lf
+data/eval/** -text

@@ -1,0 +1,5 @@
+1: sum=5 min=5 max=5 mean=5.00
+2: sum=-3 min=-8 max=5 mean=-1.50
+bad line 3
+3: sum=1 min=-8 max=5 mean=0.33
+done 3

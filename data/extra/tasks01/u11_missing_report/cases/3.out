@@ -1,0 +1,12 @@
+> missing y
+error: unknown column y
+> missing x y
+error: bad query
+> miss x
+error: bad query
+> missing rows x
+error: bad query
+> rows
+error: bad query
+> missing id
+id: -

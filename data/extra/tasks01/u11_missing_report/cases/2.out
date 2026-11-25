@@ -1,0 +1,19 @@
+> missing
+id: 0/7 (0%)
+name: 1/7 (14%)
+email: 3/7 (42%)
+age: 3/7 (42%)
+city: 2/7 (28%)
+> missing rows
+2: email,city
+3: age
+4: name,email,age,city
+6: email,age
+> missing email
+email: 2, 4, 6
+> missing age
+age: 3, 4, 6
+> missing city
+city: 2, 4
+> missing name
+name: 4

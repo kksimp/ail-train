@@ -1,0 +1,3 @@
+food: budget=500.00 actual=320.50 diff=179.50 used=64% UNDER
+fun: budget=0.00 actual=15.00 diff=-15.00 used=n/a OVER
+total: budget=500.00 actual=335.50 diff=164.50

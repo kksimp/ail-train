@@ -1,0 +1,7 @@
+> inner k
+k,v,w
+(0 rows)
+> left k
+k,v,w
+1,a,
+(1 rows)

@@ -1,0 +1,7 @@
+big onhand 100 point 110 short 10 order 0
+widget onhand 12 point 19 short 7 order 48
+gadget onhand 2 point 7 short 5 order 12
+ant onhand 19 point 19 short 0 order 0
+doohickey onhand 19 point 19 short 0 order 21
+zed onhand 0 point 0 short 0 order 0
+reorder 6 of 6

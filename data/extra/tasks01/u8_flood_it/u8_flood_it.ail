@@ -1,0 +1,62 @@
+## Simulates Flood-It: each move recolours the top-left region and reports its size.
+## Prints `flooded` when the whole grid is one region at the end.
+fn region(grid List[List[char]]) List[int]
+    rows := grid.len()
+    cols := grid[0].len()
+    col := grid[0][0]
+    mut seen := Set[int]()
+    mut order := List[int]()
+    mut stack := [0]
+    seen.add(0)
+    order.push(0)
+    while cur := stack.pop()
+        r := cur / cols
+        c := cur % cols
+        for d in 0..4
+            nr := r + (if d == 0 then 1 elif d == 1 then -1 else 0)
+            nc := c + (if d == 2 then 1 elif d == 3 then -1 else 0)
+            if nr < 0 or nr >= rows or nc < 0 or nc >= cols
+                continue
+            if grid[nr][nc] != col
+                continue
+            id := nr * cols + nc
+            if seen.add(id)
+                order.push(id)
+                stack.push(id)
+    order
+
+fn valid(grid List[List[char]]) bool
+    if grid.is_empty()
+        return false
+    for row in grid
+        if row.len() != grid[0].len()
+            return false
+        for ch in row
+            if not ch.is_digit()
+                return false
+    true
+
+fn main()
+    lines := io.read_all().split("\n")
+    mut grid := List[List[char]]()
+    mut i := 0
+    while i < lines.len() and not lines[i].trim().is_empty()
+        grid.push(lines[i].trim().chars())
+        i += 1
+    if not valid(grid)
+        print("invalid grid")
+        return
+    moves_line := if i + 1 < lines.len() then lines[i + 1].trim() else ""
+    cols := grid[0].len()
+    if not moves_line.is_empty()
+        mut k := 0
+        for m in moves_line.split(" ")
+            k += 1
+            cs := m.chars()
+            if cs.len() != 1 or not cs[0].is_digit()
+                print("invalid move {k}")
+                continue
+            for id in region(grid)
+                grid[id / cols][id % cols] = cs[0]
+            print("move {k} colour {m} region {region(grid).len()}")
+    print(if region(grid).len() == grid.len() * cols then "flooded" else "not flooded")

@@ -1,0 +1,10 @@
+add 12 5
+add - 5
+add  5
+add , 1 2
+strip 5 15
+strip ab 1
+
+add ; 1000000000
+strip ; -1;000;000;000
+ADD , 1

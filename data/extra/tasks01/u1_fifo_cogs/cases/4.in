@@ -1,0 +1,14 @@
+buy A 0 5
+buy A 5
+buy A 5 -1
+buy A x 3
+sell A
+sell A 0
+sell
+foo bar
+
+buy  1 1
+buy A 5 10
+sell A 1 2
+sell A 5
+sell A 1

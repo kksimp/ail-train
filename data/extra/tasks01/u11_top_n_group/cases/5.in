@@ -1,0 +1,11 @@
+id,g,v
+a,B,-5
+b,a,-7
+c,B,-5
+d,a,0
+e,B,-9
+f,,3
+
+  top 2 v by g
+top 5 v by g
+top 1 v by id

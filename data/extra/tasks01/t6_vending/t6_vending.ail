@@ -1,0 +1,80 @@
+## Vending machine: stock, coins, selections and refunds with greedy change from a limited coin bank.
+DENOMS := [100, 25, 10, 5]
+
+## Coins (largest first) paying `amount` exactly the greedy way, or none.
+fn pay(amount int, bank Map[int, int]) List[int]?
+    mut left := amount
+    mut out := List[int]()
+    for d in DENOMS
+        k := (left / d).min(bank[d])
+        for i in 0..k
+            out.push(d)
+        left -= k * d
+    if left == 0
+        return out
+    none
+
+fn coin_text(cs List[int]) str
+    if cs.is_empty()
+        return "none"
+    cs.join("+")
+
+fn main()
+    mut lines := io.read_all().split("\n")
+    if (lines.last() else "x") == ""
+        lines.pop()
+    mut bank := {100: 0, 25: 0, 10: 0, 5: 0}
+    mut price := Map[str, int]()
+    mut qty := Map[str, int]()
+    mut credit := 0
+    for line in lines
+        w := line.words()
+        cmd := w.first() else ""
+        if cmd == "stock" and w.len() == 4
+            p := w[2].to_int() else 0
+            q := w[3].to_int() else 0
+            if p > 0 and q >= 1
+                price[w[1]] = p
+                qty[w[1]] = (qty.get(w[1]) else 0) + q
+            else
+                print("bad command")
+        elif cmd == "coin" and w.len() == 2
+            c := w[1].to_int() else
+                print("bad command")
+                continue
+            if bank.contains(c)
+                bank[c] += 1
+                credit += c
+                print("credit={credit}")
+            else
+                print("rejected {c}")
+        elif cmd == "select" and w.len() == 2
+            n := w[1]
+            if not price.contains(n)
+                print("unknown {n}")
+            elif qty[n] == 0
+                print("sold out {n}")
+            elif credit < price[n]
+                print("need {price[n] - credit} more")
+            else
+                cs := pay(credit - price[n], bank) else
+                    print("no change")
+                    continue
+                for c in cs
+                    bank[c] -= 1
+                qty[n] -= 1
+                credit = 0
+                print("vend {n} change={coin_text(cs)}")
+        elif cmd == "refund" and w.len() == 1
+            cs := pay(credit, bank) else
+                print("no change")
+                continue
+            for c in cs
+                bank[c] -= 1
+            credit = 0
+            print("refund {coin_text(cs)}")
+        else
+            print("bad command")
+    print("credit={credit}")
+    for n in price.keys().sorted()
+        print("stock {n} {qty[n]}")

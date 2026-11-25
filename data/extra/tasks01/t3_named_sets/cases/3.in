@@ -1,0 +1,14 @@
+names
+show q
+set e
+show e
+size e
+subset e e
+union r e q
+union r q e
+size
+frob a
+del q
+del e
+names
+set

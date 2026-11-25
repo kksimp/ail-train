@@ -1,0 +1,60 @@
+## Free slots in a day: merge busy intervals, then print the gaps of at least
+## a minimum length together with their total.
+
+struct Day
+    open int
+    close int
+    minlen int
+
+fn ints(line str) List[int]?
+    mut out := List[int]()
+    for w in line.split(" ")
+        out.push(w.to_int() else return none)
+    out
+
+fn parse_header(line str) Day?
+    v := ints(line) else return none
+    if v.len() != 3 or v[0] >= v[1] or v[2] < 1
+        return none
+    Day(open: v[0], close: v[1], minlen: v[2])
+
+fn parse_busy(line str) (int, int)?
+    v := ints(line) else return none
+    if v.len() != 2 or v[0] >= v[1]
+        return none
+    (v[0], v[1])
+
+fn main()
+    lines := io.read_all().lines()
+    if lines.is_empty()
+        print("bad header")
+        return
+    day := parse_header(lines[0]) else
+        print("bad header")
+        return
+    mut busy := List[(int, int)]()
+    mut skipped := 0
+    for line in lines.skip(1)
+        if line.trim().is_empty()
+            continue
+        b := parse_busy(line) else
+            skipped += 1
+            continue
+        busy.push(b)
+    busy.sort()
+    mut cursor := day.open
+    mut total := 0
+    for b in busy
+        a, e := b
+        if a > cursor and a - cursor >= day.minlen
+            hi := a.min(day.close)
+            if hi - cursor >= day.minlen
+                print("{cursor}-{hi}")
+                total += hi - cursor
+        if e > cursor
+            cursor = e
+    if day.close - cursor >= day.minlen
+        print("{cursor}-{day.close}")
+        total += day.close - cursor
+    print("free total {total}")
+    print("skipped {skipped}")

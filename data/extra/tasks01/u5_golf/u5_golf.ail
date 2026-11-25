@@ -1,0 +1,62 @@
+## Golf scorecards: totals, score vs par, hole-type counts and ranking with shared ranks.
+struct Row
+    topar int
+    name str
+    total int
+    cnt List[int]
+
+fn dg(s str, lo int, hi int) bool
+    s.len() >= lo and s.len() <= hi and s.chars().all(|c| c.is_digit())
+
+fn topar_text(x int) str
+    if x == 0
+        return "E"
+    if x > 0
+        return "+{x}"
+    "{x}"
+
+fn main()
+    lines := io.read_all().lines()
+    pw := (lines.first() else "").words()
+    if pw.len() < 1 or pw.len() > 36 or not pw.all(|p| dg(p, 1, 1) and (p.to_int() else 0) >= 3 and (p.to_int() else 0) <= 6)
+        print("error: bad pars")
+        return
+    pars := [p.to_int() else 0 for p in pw]
+    n := pars.len()
+    total_par := pars.sum()
+    mut rows := List[Row]()
+    mut names := Set[str]()
+    mut bad := 0
+    for line in lines.skip(1)
+        f := line.words()
+        if f.is_empty()
+            continue
+        sc := f.skip(1)
+        if sc.len() != n or names.contains(f[0]) or not sc.all(|s| s == "-" or (dg(s, 1, 2) and (s.to_int() else 0) >= 1))
+            bad += 1
+            continue
+        names.add(f[0])
+        mut cnt := [0, 0, 0, 0, 0]
+        mut total := 0
+        for i in 0..n
+            stroke := if sc[i] == "-" then pars[i] + 3 else (sc[i].to_int() else 0)
+            total += stroke
+            d := stroke - pars[i]
+            idx := if d <= -2 then 0 elif d == -1 then 1 elif d == 0 then 2 elif d == 1 then 3 else 4
+            cnt[idx] += 1
+        rows.push(Row(topar: total - total_par, name: f[0], total: total, cnt: cnt))
+    sorted_rows := rows.sorted(by: |r| (r.topar, r.name))
+    if sorted_rows.is_empty()
+        print("no scorecards")
+    mut i := 0
+    while i < sorted_rows.len()
+        mut j := i
+        while j < sorted_rows.len() and sorted_rows[j].topar == sorted_rows[i].topar
+            j += 1
+        for k in i..j
+            r := sorted_rows[k]
+            rk := if j - i > 1 then "T{i + 1}" else "{i + 1}"
+            print("{rk} {r.name} {r.total} {topar_text(r.topar)} {r.cnt.join("/")}")
+        i = j
+    if bad > 0
+        print("skipped: {bad}")

@@ -1,0 +1,17 @@
+add low 1
+add mid 5
+add high 9
+add mid2 5
+bump low 100
+bump mid 3
+list
+next
+next
+add mid 2
+list
+cancel high
+next
+next
+next
+next
+list

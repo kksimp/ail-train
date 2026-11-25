@@ -1,0 +1,5 @@
+set a 5
+inc b
+bogus c
+
+halt

@@ -1,0 +1,47 @@
+## Translates DNA reads into proteins using a codon table given before a `---` line.
+fn is_dna(s str) bool
+    not s.is_empty() and s.chars().all(|c| c == 'A' or c == 'C' or c == 'G' or c == 'T')
+
+fn add_entry(mut table Map[str, str], line str)
+    parts := line.split("=")
+    if parts.len() != 2 or not is_dna(parts[0]) or parts[0].len() != 3 or parts[1].len() != 1
+        return
+    aa := parts[1].chars()[0]
+    if aa.is_upper() or aa == '*'
+        table[parts[0]] = parts[1]
+
+fn translate(table Map[str, str], seq str, k int) str
+    if not is_dna(seq)
+        return "{k} invalid"
+    start := seq.find("ATG") else return "{k} no start"
+    mut protein := ""
+    mut count := 0
+    mut end := "open"
+    mut i := start
+    while i + 3 <= seq.len()
+        codon := seq.slice(i, i + 3)
+        aa := table.get(codon) else
+            end = "unknown:{codon}"
+            break
+        if aa == "*"
+            end = "stop"
+            break
+        protein = "{protein}{aa}"
+        count += 1
+        i += 3
+    "{k} protein={protein} len={count} end={end}"
+
+fn main()
+    lines := [l.trim() for l in io.read_all().lines()]
+    sep := lines.index_of("---") else
+        print("error: missing separator")
+        return
+    mut table := Map[str, str]()
+    for l in lines.slice(0, sep)
+        add_entry(mut table, l)
+    mut k := 0
+    for l in lines.slice(sep + 1)
+        if l.is_empty()
+            continue
+        k += 1
+        print(translate(table, l, k))

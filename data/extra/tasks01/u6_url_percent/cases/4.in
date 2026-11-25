@@ -1,0 +1,5 @@
+dec q=hello+world&lang=en%2Dus
+enc q=hello world&lang=en-us
+
+unknown cmd
+ENC x

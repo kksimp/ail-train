@@ -1,0 +1,6 @@
+servers 1
+arrive 0 a 3
+arrive 0 b 3
+arrive 10 c 1
+arrive 10 d 1
+bogus

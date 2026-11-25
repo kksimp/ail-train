@@ -1,0 +1,44 @@
+## One-dimensional cellular automaton with wraparound: rule number 0-255, up to 30 steps.
+fn show(cells List[int]) str
+    cells.map(|c| if c == 1 then "#" else ".").join("")
+
+fn all_digits(s str) bool
+    not s.is_empty() and s.chars().all(|c| c.is_digit())
+
+## One generation: each cell looks up bit 4*l + 2*c + r of the rule.
+fn step(cells List[int], rule int) List[int]
+    n := cells.len()
+    mut next := List[int]()
+    for i in 0..n
+        l := cells[(i + n - 1) % n]
+        r := cells[(i + 1) % n]
+        idx := 4 * l + 2 * cells[i] + r
+        next.push((rule >> idx) & 1)
+    next
+
+fn main()
+    lines := io.read_all().lines()
+    if lines.len() < 2
+        print("bad input")
+        return
+    w := lines[0].split(" ")
+    row := lines[1]
+    if w.len() != 2 or not all_digits(w[0]) or not all_digits(w[1])
+        print("bad input")
+        return
+    if w[0].len() > 3 or w[1].len() > 2
+        print("bad input")
+        return
+    rule := w[0].to_int() else 0
+    steps := w[1].to_int() else 0
+    if rule > 255 or steps > 30 or row.is_empty() or row.len() > 40
+        print("bad input")
+        return
+    if not row.chars().all(|c| c == '0' or c == '1')
+        print("bad input")
+        return
+    mut cells := row.chars().map(|c| if c == '1' then 1 else 0)
+    print(show(cells))
+    for i in 0..steps
+        cells = step(cells, rule)
+        print(show(cells))

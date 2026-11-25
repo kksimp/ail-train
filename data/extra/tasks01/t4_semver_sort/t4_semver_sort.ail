@@ -1,0 +1,63 @@
+## Sorts semantic versions (MAJOR.MINOR.PATCH[-PRE]) by precedence, then lists invalid lines.
+## Pre-release versions sort before the release; numeric identifiers sort before text ones.
+struct Ver
+    text str
+    key (int, int, int, int, List[(int, int, str)])
+
+fn all_digits(s str) bool
+    if s.is_empty()
+        return false
+    for ch in s.chars()
+        if ch < '0' or ch > '9'
+            return false
+    true
+
+fn all_alnum(s str) bool
+    if s.is_empty()
+        return false
+    for ch in s.chars()
+        if not (ch.is_digit() or (ch >= 'a' and ch <= 'z') or (ch >= 'A' and ch <= 'Z'))
+            return false
+    true
+
+fn num_field(p str) int?
+    if not all_digits(p) or p.len() > 9
+        return none
+    p.to_int()
+
+fn parse_version(t str) Ver?
+    dash := t.find("-")
+    core := if dash == none then t else t.slice(0, dash else 0)
+    parts := core.split(".")
+    if parts.len() != 3
+        return none
+    major := num_field(parts[0])?
+    minor := num_field(parts[1])?
+    patch := num_field(parts[2])?
+    mut ids := List[(int, int, str)]()
+    if dash != none
+        for ident in t.slice((dash else 0) + 1).split(".")
+            if not all_alnum(ident)
+                return none
+            if all_digits(ident)
+                ids.push((0, ident.to_int() else 0, ""))
+            else
+                ids.push((1, 0, ident))
+    rank := if dash == none then 1 else 0
+    Ver(text: t, key: (major, minor, patch, rank, ids))
+
+fn main()
+    mut valid := List[Ver]()
+    mut bad := List[str]()
+    for line in io.read_all().lines()
+        t := line.trim()
+        if t.is_empty()
+            continue
+        if v := parse_version(t)
+            valid.push(v)
+        else
+            bad.push(t)
+    for v in valid.sorted(by: |v| v.key)
+        print(v.text)
+    for t in bad
+        print("invalid: {t}")

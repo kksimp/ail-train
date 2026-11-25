@@ -1,0 +1,10 @@
+line 12: refund exceeds spend
+line 13: insufficient budget
+line 15: same project
+line 16: unknown project z
+line 17: unknown project z
+months: 3
+a budget=900 spent=800 left=100 used=88% WARN runway=0
+b budget=1000 spent=300 left=700 used=30% OK runway=7
+c budget=103 spent=3 left=100 used=2% OK runway=100
+projects: 3 budget=2003 spent=1103

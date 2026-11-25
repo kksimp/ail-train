@@ -1,0 +1,46 @@
+## Turns a minefield of `*` and `.` into a grid of neighbour mine counts.
+## Prints `invalid field` for ragged or foreign-character input.
+fn is_mine(grid List[List[char]], r int, c int) bool
+    if r < 0 or r >= grid.len() or c < 0 or c >= grid[0].len()
+        return false
+    grid[r][c] == '*'
+
+fn count_near(grid List[List[char]], r int, c int) int
+    mut n := 0
+    for dr in -1..=1
+        for dc in -1..=1
+            if (dr != 0 or dc != 0) and is_mine(grid, r + dr, c + dc)
+                n += 1
+    n
+
+fn valid(grid List[List[char]]) bool
+    for row in grid
+        if row.len() != grid[0].len()
+            return false
+        for ch in row
+            if ch != '*' and ch != '.'
+                return false
+    true
+
+fn main()
+    mut grid := List[List[char]]()
+    for raw in io.read_all().lines()
+        t := raw.trim()
+        if not t.is_empty()
+            grid.push(t.chars())
+    if grid.is_empty()
+        return
+    if not valid(grid)
+        print("invalid field")
+        return
+    mut mines := 0
+    for r in 0..grid.len()
+        mut out := List[str]()
+        for c in 0..grid[0].len()
+            if grid[r][c] == '*'
+                out.push("*")
+                mines += 1
+            else
+                out.push("{count_near(grid, r, c)}")
+        print(out.join(""))
+    print("mines: {mines}")

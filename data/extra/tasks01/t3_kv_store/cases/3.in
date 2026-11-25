@@ -1,0 +1,12 @@
+set a
+set
+get
+get a b
+foo bar
+count x
+keys
+set k 1
+set k  two  spaces
+get k
+incr k
+keys

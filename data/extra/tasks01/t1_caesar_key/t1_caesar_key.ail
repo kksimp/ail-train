@@ -1,0 +1,36 @@
+## Caesar / ROT cipher: the first line is `enc K` or `dec K`; later lines are shifted letter by letter.
+## Non-letters pass through; case is kept (spec.md).
+fn shift_char(c char, k int) char
+    code := c.code()
+    if code >= 65 and code <= 90
+        return char.from_code(65 + (code - 65 + k) % 26) else c
+    if code >= 97 and code <= 122
+        return char.from_code(97 + (code - 97 + k) % 26) else c
+    c
+
+fn shift_line(line str, k int) str
+    [shift_char(c, k) for c in line.chars()].join("")
+
+## Normalizes any integer shift into 0..25.
+fn norm(k int) int
+    ((k % 26) + 26) % 26
+
+fn parse_key(line str) int?
+    parts := line.split(" ")
+    if parts.len() != 2
+        return none
+    k := parts[1].to_int() else return none
+    match parts[0]
+        "enc" => norm(k)
+        "dec" => norm(-k)
+        _ => none
+
+fn main()
+    mut lines := io.read_all().split("\n")
+    if (lines.last() else "x") == ""
+        lines.pop()
+    k := parse_key(lines.first() else "") else
+        print("bad key")
+        return
+    for line in lines.skip(1)
+        print(shift_line(line, k))

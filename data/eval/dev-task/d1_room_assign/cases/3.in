@@ -1,0 +1,15 @@
+rate double 120
+book ann double 2
+inventory double 1
+book ann double 10
+book bo double 1
+inventory double 3
+book bo double 007
+book cy   double   30
+rate double 100
+book di double 8
+book ed double
+inventory double x
+inventory twin 0
+rate twin 50
+book fy twin 1

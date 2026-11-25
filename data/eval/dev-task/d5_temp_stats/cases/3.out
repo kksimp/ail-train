@@ -1,0 +1,5 @@
+count 5
+skipped 4
+range -10.0 999999.9
+mean 199999.0
+above 1

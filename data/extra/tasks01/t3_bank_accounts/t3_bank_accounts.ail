@@ -1,0 +1,77 @@
+## Bank accounts: open/deposit/withdraw/transfer/balance/report with ordered error checks.
+## Each command returns its output text, or fails with the message.
+
+fn amount(s str) int ! str
+    n := s.to_int() else return "bad amount"
+    if n < 1
+        return "bad amount"
+    n
+
+fn need(acc Map[str, int], name str) int ! str
+    acc.get(name) else return "no such account {name}"
+
+fn arity(cmd str) int
+    match cmd
+        "open" => 2
+        "deposit" => 3
+        "withdraw" => 3
+        "transfer" => 4
+        "balance" => 2
+        "report" => 1
+        _ => 0
+
+fn report(acc Map[str, int]) str
+    mut out := List[str]()
+    mut total := 0
+    for name in acc.keys().sorted()
+        out.push("{name} {acc[name]}")
+        total += acc[name]
+    out.push("total {total}")
+    out.join("\n")
+
+fn run(mut acc Map[str, int], w List[str]) str ! Fail
+    cmd := w[0]
+    if arity(cmd) != w.len()
+        return Fail(msg: "bad command")
+    if cmd == "report"
+        return report(acc)
+    name := w[1]
+    if cmd == "open"
+        if acc.contains(name)
+            return Fail(msg: "exists {name}")
+        acc[name] = 0
+        return "opened {name}"
+    if cmd == "balance"
+        bal := need(acc, name)?
+        return "{name}: {bal}"
+    amt := amount(w[w.len() - 1])?
+    from := need(acc, name)?
+    if cmd == "deposit"
+        acc[name] = from + amt
+        return "{name}: {from + amt}"
+    if cmd == "withdraw"
+        if from < amt
+            return Fail(msg: "insufficient funds")
+        acc[name] = from - amt
+        return "{name}: {from - amt}"
+    to := w[2]
+    dest := need(acc, to)?
+    if name == to
+        return Fail(msg: "same account")
+    if from < amt
+        return Fail(msg: "insufficient funds")
+    acc[name] = from - amt
+    acc[to] = dest + amt
+    "{name}->{to} {amt}"
+
+fn main()
+    mut acc := Map[str, int]()
+    while true
+        line := io.read_line() else break
+        w := line.words()
+        if w.is_empty()
+            continue
+        msg := run(mut acc, w) else err
+            print("error: {err.msg}")
+            continue
+        print(msg)

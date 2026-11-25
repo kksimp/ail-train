@@ -1,0 +1,10 @@
+a 2 -
+b 2 -
+c 3 a,b
+c 9 -
+d x -
+e 1 c extra
+f 0 c
+
+g 4 f
+h 4 f

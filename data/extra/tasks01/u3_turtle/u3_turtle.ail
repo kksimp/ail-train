@@ -1,0 +1,49 @@
+## Turtle on a 12x6 character grid: F n, R, L, U, D; prints the grid and the final state.
+fn main()
+    w := 12
+    h := 6
+    mut cells := ["." for i in 0..w * h]
+    cells[0] = "#"
+    dxs := [0, 1, 0, -1]
+    dys := [-1, 0, 1, 0]
+    mut x := 0
+    mut y := 0
+    mut d := 1
+    mut pen := true
+    mut bad := 0
+    for line in io.read_all().lines()
+        ws := line.words()
+        if ws.is_empty()
+            continue
+        c := ws[0]
+        if c == "F" and ws.len() == 2
+            n := ws[1].to_int() else
+                bad += 1
+                continue
+            if n < 0 or ws[1].starts_with("-")
+                bad += 1
+                continue
+            for i in 0..n
+                nx := x + dxs[d]
+                ny := y + dys[d]
+                if nx < 0 or nx >= w or ny < 0 or ny >= h
+                    break
+                x = nx
+                y = ny
+                if pen
+                    cells[y * w + x] = "#"
+        elif c == "R" and ws.len() == 1
+            d = (d + 1) % 4
+        elif c == "L" and ws.len() == 1
+            d = (d + 3) % 4
+        elif c == "U" and ws.len() == 1
+            pen = false
+        elif c == "D" and ws.len() == 1
+            pen = true
+            cells[y * w + x] = "#"
+        else
+            bad += 1
+    for r in 0..h
+        print(cells.slice(r * w, r * w + w).join(""))
+    dir := "NESW".slice(d, d + 1)
+    print("pos={x},{y} dir={dir} bad={bad}")

@@ -1,0 +1,11 @@
+set 1 2
+set a 2 3
+set 1000000 0 1
+set -1 0 1
+get 1
+add 0 0 x
+rowsum
+colsum 1 2
+bogus
+set 0 0 9
+get 0 0

@@ -1,0 +1,6 @@
+open a
+open b
+deposit a 50
+transfer a b 70
+transfer a b 20
+report

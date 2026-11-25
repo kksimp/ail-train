@@ -1,0 +1,19 @@
+## Finds the longest word sequence occurring at least twice (overlaps allowed).
+fn main()
+    mut words := List[str]()
+    for w in io.read_all().words()
+        words.push(w.to_lower())
+    n := words.len()
+    mut l := n - 1
+    while l >= 1
+        mut seen := Map[str, List[int]]()
+        for i in 0..=(n - l)
+            seen.push(words.slice(i, i + l).join(" "), i + 1)
+        for g, pos in seen
+            if pos.len() >= 2
+                print("length={l}")
+                print("text={g}")
+                print("starts={pos.join(",")}")
+                return
+        l -= 1
+    print("none")

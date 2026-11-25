@@ -1,0 +1,9 @@
+SAVE10 ok
+BULK rejected conflict
+FIVER ok
+FIVER rejected duplicate
+HALF rejected unknown
+subtotal 4000
+discount 900
+shipping 599
+total 3699

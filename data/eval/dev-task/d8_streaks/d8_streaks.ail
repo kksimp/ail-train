@@ -1,0 +1,20 @@
+## longest win and loss streaks of a W/L record
+fn main()
+    line := (io.read_all().lines().first() else "").trim()
+    if line.is_empty()
+        print("no games")
+        return
+    mut best := {'W': 0, 'L': 0}
+    mut run := 0
+    mut prev := ' '
+    for c in line.chars()
+        if c != 'W' and c != 'L'
+            print("bad result: {c}")
+            return
+        run = if c == prev then run + 1 else 1
+        prev = c
+        best[c] = best[c].max(run)
+    print("games: {line.len()}")
+    print("longest W: {best['W']}")
+    print("longest L: {best['L']}")
+    print("current: {prev} {run}")

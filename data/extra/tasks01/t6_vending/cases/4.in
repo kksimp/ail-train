@@ -1,0 +1,13 @@
+coin
+select
+stock x y 3
+stock x 10
+stock x 0 2
+stock x 10 0
+bogus
+
+coin abc
+refund now
+select a b
+stock bun 20 2
+stock bun 25 1

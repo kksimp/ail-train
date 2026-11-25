@@ -1,0 +1,58 @@
+## Tape machine with 16 cells, brackets and a 5000 step limit; prints the output values and a status line.
+fn main()
+    first := io.read_all().lines().first() else ""
+    prog := first.chars().filter(|c| "<>+-.[]".contains(c))
+    mut jump := [0 for i in 0..prog.len()]
+    mut stack := List[int]()
+    mut bad := false
+    for i in 0..prog.len()
+        if prog[i] == '['
+            stack.push(i)
+        elif prog[i] == ']'
+            j := stack.pop() else
+                bad = true
+                break
+            jump[i] = j
+            jump[j] = i
+    if not stack.is_empty()
+        bad = true
+    if bad
+        print("error brackets")
+        return
+    mut tape := [0 for i in 0..16]
+    mut ptr := 0
+    mut pc := 0
+    mut steps := 0
+    mut status := "ok"
+    mut out := List[str]()
+    while pc < prog.len()
+        if steps == 5000
+            status = "limit"
+            break
+        c := prog[pc]
+        steps += 1
+        if c == '>'
+            if ptr == 15
+                status = "pointer"
+                break
+            ptr += 1
+        elif c == '<'
+            if ptr == 0
+                status = "pointer"
+                break
+            ptr -= 1
+        elif c == '+'
+            tape[ptr] = (tape[ptr] + 1) % 256
+        elif c == '-'
+            tape[ptr] = (tape[ptr] + 255) % 256
+        elif c == '.'
+            out.push(" {tape[ptr]}")
+        elif c == '['
+            if tape[ptr] == 0
+                pc = jump[pc]
+        elif c == ']'
+            if tape[ptr] != 0
+                pc = jump[pc]
+        pc += 1
+    print("out:{out.join("")}")
+    print("{status} steps={steps}")

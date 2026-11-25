@@ -1,0 +1,5 @@
+LOAD 3
+l:
+MUL 9
+PRINT
+JMP l

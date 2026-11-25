@@ -1,0 +1,7 @@
+FIFO faults=15 hits=6
+FIFO trace=FFFFHFFFFFFHHFFHHHFFF
+FIFO frames=[7 0 1]
+LRU faults=12 hits=9
+LRU trace=FFFFHFHFFFFHHFHHFHFHH
+LRU frames=[7 0 1]
+skipped 0

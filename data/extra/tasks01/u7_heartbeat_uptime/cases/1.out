@@ -1,0 +1,7 @@
+beats: 3
+down 20 45
+down 55 60
+downtime: 30
+observed: 60
+uptime: 50%
+malformed: 0

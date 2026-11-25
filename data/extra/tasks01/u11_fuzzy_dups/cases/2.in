@@ -1,0 +1,12 @@
+id,first,last,zip
+a1,Mary-Ann,O'Brien,02134
+a2,maryann,obrien,2134
+a3,Mary Ann,OBrien,02134
+a4,Mary,Ann Obrien,02134
+a5,Joe,Black,
+a6,joe,BLACK,
+
+dups first,last
+dups last,zip:digits
+dups first,last,zip:digits
+dups zip:digits

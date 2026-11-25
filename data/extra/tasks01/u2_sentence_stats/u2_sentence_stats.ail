@@ -1,0 +1,27 @@
+## Splits text into sentences at . ! ? and prints per-sentence word and character counts.
+fn keep(words List[str], mut out List[List[str]])
+    if not words.is_empty()
+        out.push(words)
+
+fn main()
+    text := io.read_all()
+    mut sents := List[List[str]]()
+    mut piece := List[char]()
+    for ch in text.chars()
+        if ch == '.' or ch == '!' or ch == '?'
+            keep(piece.join("").words(), mut sents)
+            piece = List[char]()
+        else
+            piece.push(ch)
+    keep(piece.join("").words(), mut sents)
+    if sents.is_empty()
+        print("no sentences")
+        return
+    mut total := 0
+    mut longest := 0
+    for i, ws in sents.enumerate()
+        c := ws.join(" ").len()
+        print("{i + 1}: {ws.len()} words, {c} chars")
+        total += ws.len()
+        longest = longest.max(ws.len())
+    print("sentences={sents.len()} words={total} longest={longest}")

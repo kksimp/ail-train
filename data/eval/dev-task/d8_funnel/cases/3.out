@@ -1,0 +1,11 @@
+line 17: bad time
+line 18: bad user
+line 19: bad format
+line 20: bad time
+step	users	of_first	of_prev
+land	4	100%	-
+signup	3	75%	75%
+trial	2	50%	67%
+paid	1	25%	50%
+users: 4
+completed: 1

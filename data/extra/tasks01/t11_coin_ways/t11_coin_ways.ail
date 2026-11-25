@@ -1,0 +1,38 @@
+## Counts, for each query amount, the unordered ways to make it from the given coin values.
+LIMIT := 5000
+
+fn is_digits(s str) bool
+    not s.is_empty() and s.chars().all(|c| c.is_digit())
+
+fn main()
+    mut coins := Set[int]()
+    mut have_coins := false
+    mut queries := List[str]()
+    for line in io.read_all().lines()
+        t := line.trim()
+        if t.is_empty()
+            continue
+        if not have_coins
+            have_coins = true
+            for w in t.words()
+                if is_digits(w)
+                    v := w.to_int() else continue
+                    if v > 0
+                        coins.add(v)
+            continue
+        queries.push(t)
+    mut dp := List[int]()
+    for i in 0..(LIMIT + 1)
+        dp.push(if i == 0 then 1 else 0)
+    for c in coins.sorted()
+        for a in c..=LIMIT
+            dp[a] += dp[a - c]
+    for q in queries
+        if is_digits(q) and q.len() <= 9
+            a := q.to_int() else 0
+            if a > LIMIT
+                print("{a} too large")
+            else
+                print("{a} {dp[a]}")
+        else
+            print("{q} invalid")

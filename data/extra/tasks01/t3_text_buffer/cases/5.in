@@ -1,0 +1,14 @@
+append abcdef
+delete 2
+delete 2
+show
+undo
+undo
+show
+redo
+redo
+redo
+show
+
+delete 99999999999
+show

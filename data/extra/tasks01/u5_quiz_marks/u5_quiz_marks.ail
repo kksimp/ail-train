@@ -1,0 +1,68 @@
+## Quiz scoring: +4 right, -1 wrong, 0 skipped; ranking with shared ranks and a rounded mean.
+struct Row
+    neg int
+    name str
+    c int
+    w int
+    s int
+    ans str
+
+fn main()
+    lines := io.read_all().lines()
+    keyline := lines.first() else ""
+    key := keyline.chars()
+    if keyline.words().len() != 1 or key.len() < 1 or key.len() > 30 or not key.all(|c| c == 'A' or c == 'B' or c == 'C' or c == 'D')
+        print("error: bad key")
+        return
+    n := key.len()
+    mut rows := List[Row]()
+    mut seen := Set[str]()
+    mut bad := 0
+    for line in lines.skip(1)
+        f := line.words()
+        if f.is_empty()
+            continue
+        if f.len() != 2 or f[1].len() != n or seen.contains(f[0])
+            bad += 1
+            continue
+        ans := f[1].chars()
+        if not ans.all(|c| c == 'A' or c == 'B' or c == 'C' or c == 'D' or c == '-')
+            bad += 1
+            continue
+        seen.add(f[0])
+        mut c := 0
+        mut s := 0
+        for i in 0..n
+            if ans[i] == key[i]
+                c += 1
+            elif ans[i] == '-'
+                s += 1
+        w := n - c - s
+        rows.push(Row(neg: -(4 * c - w), name: f[0], c: c, w: w, s: s, ans: f[1]))
+    if rows.is_empty()
+        print("no submissions")
+    else
+        sorted_rows := rows.sorted(by: |r| (r.neg, r.name))
+        mut i := 0
+        while i < sorted_rows.len()
+            mut j := i
+            while j < sorted_rows.len() and sorted_rows[j].neg == sorted_rows[i].neg
+                j += 1
+            for k in i..j
+                r := sorted_rows[k]
+                print("{i + 1} {r.name} {-r.neg} {r.c}/{r.w}/{r.s}")
+            i = j
+        mut per := List[str]()
+        for q in 0..n
+            cnt := rows.count(|r| r.ans.chars()[q] == key[q])
+            per.push("{cnt}")
+        print("correct per question: {per.join(" ")}")
+        tot := -rows.fold(0, |acc, r| acc + r.neg)
+        cnt := rows.len()
+        num := tot * 10
+        absn := if num < 0 then -num else num
+        v := (2 * absn + cnt) / (2 * cnt)
+        sign := if num < 0 and v != 0 then "-" else ""
+        print("mean: {sign}{v / 10}.{v % 10}")
+    if bad > 0
+        print("invalid: {bad}")
