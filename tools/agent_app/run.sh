@@ -45,10 +45,33 @@ echo "warming the AIL compiler (the first build can take a few minutes)"
 "$ail_root/ail" check "$ail_root/examples/hello.ail" >/dev/null 2>&1 || "$ail_root/ail" check "$ail_root/examples/hello.ail" \
     || die "ail check on examples/hello.ail failed"
 
-venv="$work/venv-agent-app"
-if [ ! -x "$venv/bin/python" ]; then
-    python3 -m venv "$venv" || die "could not make $venv"
+# The current anthropic SDK needs Python 3.10 or newer; macOS ships 3.9. Use a newer one, installing it with Homebrew if needed.
+py_ok() { "$1" -c 'import sys; sys.exit(0 if sys.version_info >= (3, 10) else 1)' 2>/dev/null; }
+find_py() {
+    for p in python3.14 python3.13 python3.12 python3.11 python3.10 /opt/homebrew/bin/python3 /usr/local/bin/python3 python3; do
+        c="$(command -v "$p" 2>/dev/null)" || continue
+        py_ok "$c" && { echo "$c"; return 0; }
+    done
+    return 1
+}
+py="$(find_py)"
+if [ -z "$py" ]; then
+    brew="$(command -v brew || echo /opt/homebrew/bin/brew)"
+    [ -x "$brew" ] || die "needs Python 3.10 or newer and no Homebrew to install it; install Python from python.org"
+    echo "installing Python 3.12 with Homebrew"
+    "$brew" install python@3.12 >/dev/null || die "brew install python@3.12 failed"
+    py="$(find_py)" || true
+    [ -n "$py" ] || py="$("$brew" --prefix python@3.12)/bin/python3.12"
+    py_ok "$py" || die "no Python 3.10 or newer after installing"
 fi
+venv="$work/venv-agent-app"
+if [ -x "$venv/bin/python" ] && ! py_ok "$venv/bin/python"; then
+    rm -rf "$venv"
+fi
+if [ ! -x "$venv/bin/python" ]; then
+    "$py" -m venv "$venv" || die "could not make $venv"
+fi
+"$venv/bin/python" -m pip -q install --upgrade pip >/dev/null 2>&1 || true
 "$venv/bin/python" -m pip -q install --upgrade "anthropic>=2.14" >/dev/null || die "could not install the anthropic SDK"
 
 run_dir="${RUN_DIR:-$root/runs/agent-app/$(date +%Y%m%d-%H%M%S)}"
