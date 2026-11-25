@@ -16,6 +16,7 @@ Only train-split tasks are ever used (harvest-tasks.jsonl comes from train.jsonl
 """
 
 import argparse
+import difflib
 import hashlib
 import json
 import os
@@ -66,7 +67,8 @@ def cmd_todo(args):
     os.makedirs(os.path.join(args.out, "fixed"), exist_ok=True)
     want_cache = {}
     auto, todo = [], 0
-    stats = {"samples": len(revs), "passed": 0, "auto_items": 0, "todo_repair": 0, "todo_behave": 0}
+    stats = {"samples": len(revs), "passed": 0, "auto_items": 0, "todo_repair": 0, "todo_behave": 0,
+             "skip_behave_far": 0}
     for r in revs:
         row = tasks[r["i"]]
         user, ref = row["messages"][1]["content"], code_of(row["messages"][2]["content"])
@@ -87,11 +89,23 @@ def cmd_todo(args):
             continue
         item = {"id": rid, "i": r["i"], "task": user, "want": want, "reference": ref, "source": last["source"]}
         if r["final_compiled"]:
-            got = run_prog(ail, last["source"], ["run"])
-            item.update(family="behave", got=got["stdout"], trap=trap_of(got["stderr"]))
+            got = run_prog(ail, last["source"], ["run", "--timeout", "20000", "--max-memory", "1024"])
+            trap = trap_of(got["stderr"])
+            close = difflib.SequenceMatcher(None, got["stdout"], want, autojunk=False).ratio()
+            if close < 0.5 and not trap:
+                stats["skip_behave_far"] += 1  # invented its own data or format: the spec family covers that
+                continue
+            item.update(family="behave", got=got["stdout"], trap=trap, output_ratio=round(close, 3))
             stats["todo_behave"] += 1
         else:
             item.update(family="repair", diag=last["check_output"].strip())
+            # The repeat note is added only when the previous round of this same sample really failed with a
+            # rule the last round still reports.
+            if len(r["revisions"]) >= 2 and not r["revisions"][-2]["check_ok"]:
+                common = sorted(set(r["revisions"][-2]["codes"]) & set(last["codes"]))
+                common = [c for c in common if "." in c and " " not in c]
+                if common:
+                    item["repeat_rule"] = common[0]
             stats["todo_repair"] += 1
         with open(os.path.join(args.out, "todo", rid + ".json"), "w", encoding="utf-8") as f:
             json.dump(item, f, ensure_ascii=False, indent=1)
@@ -129,7 +143,7 @@ def cmd_items(args):
             bad.append((rid, "output differs"))
             continue
         if t["family"] == "repair":
-            user = repair_prompt(t["task"], t["source"], t["diag"], rid)
+            user = repair_prompt(t["task"], t["source"], t["diag"], rid, t.get("repeat_rule"))
         else:
             user = behave_prompt(task_with_output(t["task"], t["want"]), t["source"], t["got"], t.get("trap", ""))
         out.append({"id": rid, "family": t["family"], "prog": fixed, "user": user, "answer": fence(fixed)})
