@@ -4,7 +4,7 @@
 # Needs: config.local (untracked) setting BUILDER_MODEL and HELPER_MODEL; an Anthropic API key in ANTHROPIC_API_KEY or
 # in ~/.config/ail-train/anthropic-key (asked once and saved there, mode 600, never in git).
 # Optional environment: CAP_TOTAL (USD, default 15), RUN_DIR (resume a run), AIL_ROOT (default ~/ail-train-work/ail-pinned).
-# Results: runs/agent-app/STAMP/REPORT.md (runs/ is not in git). Rerunning with RUN_DIR set skips finished phases.
+# Results: runs/agent-app/STAMP/REPORT.md (runs/ is not in git). A rerun resumes the newest unfinished run, skipping finished phases.
 set -u
 root="$(cd "$(dirname "$0")/../.." && pwd)"
 work="$HOME/ail-train-work"
@@ -74,6 +74,9 @@ fi
 "$venv/bin/python" -m pip -q install --upgrade pip >/dev/null 2>&1 || true
 "$venv/bin/python" -m pip -q install --upgrade "anthropic>=2.14" >/dev/null || die "could not install the anthropic SDK"
 
+# Resume the newest run that has no REPORT.md yet (its spend.json keeps counting toward the cap), else start a new one.
+last="$(ls -d "$root"/runs/agent-app/*/ 2>/dev/null | tail -1)"
+if [ -z "${RUN_DIR:-}" ] && [ -n "$last" ] && [ ! -f "$last/REPORT.md" ]; then RUN_DIR="${last%/}"; echo "resuming $RUN_DIR"; fi
 run_dir="${RUN_DIR:-$root/runs/agent-app/$(date +%Y%m%d-%H%M%S)}"
 mkdir -p "$run_dir"
 echo "run folder: $run_dir"

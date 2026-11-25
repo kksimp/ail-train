@@ -32,10 +32,10 @@ BUILDER = os.environ["BUILDER_MODEL"]
 HELPER = os.environ["HELPER_MODEL"]
 CAP_TOTAL = float(os.environ.get("CAP_TOTAL", "15"))
 CAPS = {
-    "spec": float(os.environ.get("CAP_SPEC", "1.5")),
-    "ail": float(os.environ.get("CAP_AIL", "6.5")),
-    "py": float(os.environ.get("CAP_PY", "3.0")),
-    "judge": float(os.environ.get("CAP_JUDGE", "2.0")),
+    "spec": float(os.environ.get("CAP_SPEC", "3.5")),
+    "ail": float(os.environ.get("CAP_AIL", "6.0")),
+    "py": float(os.environ.get("CAP_PY", "2.5")),
+    "judge": float(os.environ.get("CAP_JUDGE", "1.8")),
 }
 MAX_TURNS = {"ail": int(os.environ.get("TURNS_AIL", "60")), "py": int(os.environ.get("TURNS_PY", "35"))}
 REPORT_RESERVE = 0.9  # kept back in a build phase for the self-report call
@@ -183,6 +183,8 @@ Write a spec for one small, realistic command-line app:
   (for example 1234 -> "12.34", -5 -> "-0.05"), sort orders and tie-breaks, what happens on duplicates, empty
   input and unknown commands. Include one worked example (input and its exact output) in the spec.
 - Pick something other than a todo list. Keep the name short.
+- Be decisive and economical: settle the design quickly, keep the spec under 1,200 words and the reference under
+  250 lines. Your whole answer has a hard output limit, thinking included.
 
 Then write python_reference: a Python 3 (standard library only) program that implements the spec exactly,
 reading sys.stdin. It is the source of truth for expected outputs, so it must follow the spec to the byte.
@@ -198,10 +200,12 @@ def phase_spec():
     out = RUN_DIR / "spec.json"
     if out.exists():
         return json.loads(out.read_text())
+    if not can_spend("spec"):
+        sys.exit("spec: no budget left for the spec")
     log("spec: asking the helper model for the task")
     msg = call("spec", HELPER, system="You design fair, exactly-graded programming tasks.",
                messages=[{"role": "user", "content": SPEC_PROMPT}],
-               output_format={"type": "json_schema", "schema": SPEC_SCHEMA})
+               output_format={"type": "json_schema", "schema": SPEC_SCHEMA}, effort="medium", max_tokens=56000)
     if msg.stop_reason != "end_turn":
         sys.exit(f"spec: stopped with {msg.stop_reason}")
     spec = json.loads(text_of(msg))
@@ -754,7 +758,7 @@ a builder that knows Python far better. Say what experiment would settle the que
 ## Code review (short: correctness risks and idiom in each program)
 """
         msg = call("judge", HELPER, system="You are a careful, skeptical evaluator of programming-language experiments.",
-                   messages=[{"role": "user", "content": prompt}], max_tokens=24000)
+                   messages=[{"role": "user", "content": prompt}], effort="medium", max_tokens=40000)
         analysis = text_of(msg)
     led = ledger()
     cost = "\n".join(f"- {k}: ${v['usd']:.2f} ({v['calls']} calls)" for k, v in led["phases"].items())
