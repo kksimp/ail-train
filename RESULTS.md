@@ -369,8 +369,9 @@ Error recurrence and unchanged revisions as in arm B. Passes by correction round
 4; run 3 338, 11, 3, 2.
 
 - **No gain in recovery.** Run 3 recovers its compile failures no better than the baseline and repeats itself more:
-  more recurring diagnostics, and more revisions returned unchanged (58% against 38% on the quick eval). It was not
-  trained on correction transcripts.
+  more recurring diagnostics, and more revisions returned unchanged (58% against 38% on the quick eval). Its 2,061
+  repair items use the loop's correction prompt but are single-round, mostly injected faults; only 36 come from the
+  model's own failures, and none are multi-round transcripts.
 - The loop costs about 2.7x the tokens and 4.6x the time per sample on the quick eval, 4.5 to 5x on dev-spec.
 
 ### Where it fails
