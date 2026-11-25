@@ -1,0 +1,16 @@
+add a 4
+add b 4
+add c 4
+bump c 1
+bump a 1
+bump b 1
+list
+bump a 8
+list
+next
+add a 1
+list
+next
+next
+next
+next

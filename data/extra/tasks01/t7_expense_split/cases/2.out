@@ -1,0 +1,11 @@
+balances:
+  dee: -16.73
+  eli: -16.66
+  fay: -26.61
+  gus: +80.00
+  hal: -20.00
+settlements:
+  fay pays gus 26.61
+  hal pays gus 20.00
+  dee pays gus 16.73
+  eli pays gus 16.66

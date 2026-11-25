@@ -1,0 +1,49 @@
+## Shortest path through a character maze with breadth-first search.
+## Reads grid lines (# wall, . open, S start, E end) and prints the step count, `no path` or `invalid`.
+fn main()
+    lines := [l for l in io.read_all().lines() if not l.trim().is_empty()]
+    rows := lines.len()
+    if rows == 0
+        print("invalid")
+        return
+    grid := [l.chars() for l in lines]
+    cols := grid[0].len()
+    mut start := -1
+    mut goal := -1
+    for r in 0..rows
+        for c in 0..cols
+            ch := grid[r][c]
+            if ch == 'S'
+                start = r * cols + c
+            elif ch == 'E'
+                goal = r * cols + c
+    if start < 0 or goal < 0
+        print("invalid")
+        return
+    mut dist := [-1 for i in 0..rows * cols]
+    mut queue := [start]
+    dist[start] = 0
+    mut head := 0
+    dr := [-1, 1, 0, 0]
+    dc := [0, 0, -1, 1]
+    while head < queue.len()
+        cur := queue[head]
+        head += 1
+        r := cur / cols
+        c := cur % cols
+        for k in 0..4
+            nr := r + dr[k]
+            nc := c + dc[k]
+            if nr < 0 or nr >= rows or nc < 0 or nc >= cols
+                continue
+            if grid[nr][nc] == '#'
+                continue
+            nxt := nr * cols + nc
+            if dist[nxt] >= 0
+                continue
+            dist[nxt] = dist[cur] + 1
+            queue.push(nxt)
+    if dist[goal] < 0
+        print("no path")
+    else
+        print(dist[goal])

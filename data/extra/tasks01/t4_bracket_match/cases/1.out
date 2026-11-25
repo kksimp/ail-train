@@ -1,0 +1,4 @@
+ok
+mismatch at 3: found ] but ( from 1 is open
+unmatched ) at 2
+unclosed ( at 4

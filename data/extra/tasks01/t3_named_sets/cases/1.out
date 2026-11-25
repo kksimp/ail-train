@@ -1,0 +1,6 @@
+a = {x y z}
+b = {w y z}
+c = {y z}
+d = {x}
+yes
+a b c d

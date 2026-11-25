@@ -1,0 +1,16 @@
+append one
+append two
+undo
+undo
+redo
+append X
+redo
+show
+undo
+show
+undo
+undo
+redo
+redo
+redo
+show

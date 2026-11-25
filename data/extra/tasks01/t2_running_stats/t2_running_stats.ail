@@ -1,0 +1,49 @@
+## Running sum, min, max and truncated mean over integers read one per line.
+## Lines that are not integers are reported and skipped.
+
+fn all_digits(t str) bool
+    if t.is_empty() or t.len() > 9
+        return false
+    for c in t.chars()
+        if not c.is_digit()
+            return false
+    true
+
+fn parse_int(t str) int?
+    body := t.strip_prefix("-") else t
+    if not all_digits(body)
+        return none
+    t.to_int()
+
+fn mean_text(s int, k int) str
+    h := s.abs() * 100 / k
+    sign := if s < 0 and h > 0 then "-" else ""
+    "{sign}{h / 100}.{(h % 100):02}"
+
+fn main()
+    mut k := 0
+    mut sum := 0
+    mut lo := 0
+    mut hi := 0
+    mut n := 0
+    for raw in io.read_all().lines()
+        n += 1
+        t := raw.trim()
+        if t.is_empty()
+            continue
+        v := parse_int(t) else
+            print("bad line {n}")
+            continue
+        if k == 0
+            lo = v
+            hi = v
+        else
+            lo = lo.min(v)
+            hi = hi.max(v)
+        k += 1
+        sum += v
+        print("{k}: sum={sum} min={lo} max={hi} mean={mean_text(sum, k)}")
+    if k == 0
+        print("no data")
+    else
+        print("done {k}")

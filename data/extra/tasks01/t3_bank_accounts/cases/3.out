@@ -1,0 +1,14 @@
+opened x
+error: exists x
+error: no such account y
+error: bad amount
+error: bad amount
+error: insufficient funds
+x: 0
+error: no such account z
+error: bad command
+error: bad command
+error: bad command
+error: same account
+error: no such account q
+error: no such account q

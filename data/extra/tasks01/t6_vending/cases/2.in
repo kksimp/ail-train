@@ -1,0 +1,11 @@
+stock chips 50 1
+stock gum 15 3
+coin 25
+coin 25
+coin 10
+select chips
+select chips
+select gum
+select gum
+refund
+select candy

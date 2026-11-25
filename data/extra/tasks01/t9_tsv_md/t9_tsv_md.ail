@@ -1,0 +1,37 @@
+## Converts tab-separated stdin into a markdown table. Header cells may start with `>` (right)
+## or `^` (center) to choose alignment; rows are padded or cut to the header width.
+fn cell(s str) str
+    s.trim().replace("|", r"\|")
+
+fn bar_line(cells List[str]) str
+    "| {cells.join(" | ")} |"
+
+fn main()
+    mut lines := List[str]()
+    for line in io.read_all().lines()
+        if not line.is_empty()
+            lines.push(line)
+    if lines.is_empty()
+        return
+    mut names := List[str]()
+    mut aligns := List[str]()
+    for raw in lines[0].split("\t")
+        h := raw.trim()
+        if h.starts_with(">")
+            aligns.push("---:")
+            names.push(cell(h.slice(1)))
+        elif h.starts_with("^")
+            aligns.push(":---:")
+            names.push(cell(h.slice(1)))
+        else
+            aligns.push("---")
+            names.push(cell(h))
+    print(bar_line(names))
+    print(bar_line(aligns))
+    n := names.len()
+    for i in 1..lines.len()
+        parts := lines[i].split("\t")
+        mut cells := List[str]()
+        for c in 0..n
+            cells.push(if c < parts.len() then cell(parts[c]) else "")
+        print(bar_line(cells))

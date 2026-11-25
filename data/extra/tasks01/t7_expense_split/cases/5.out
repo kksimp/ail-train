@@ -1,0 +1,11 @@
+balances:
+  Bob: +2.50
+  ann: -0.59
+  bob: -0.33
+  cy: -0.33
+  zed: -1.25
+settlements:
+  zed pays Bob 1.25
+  ann pays Bob 0.59
+  bob pays Bob 0.33
+  cy pays Bob 0.33

@@ -1,0 +1,5 @@
+a1: band=S zone=1 cost=5.00
+b2: band=H zone=2 cost=42.50
+band S: 1 parcels, 5.00
+band H: 1 parcels, 42.50
+total: 47.50

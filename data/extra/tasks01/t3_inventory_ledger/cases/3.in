@@ -1,0 +1,13 @@
+receive nut 5
+receive nut 0
+receive nut x
+ship washer 1
+stock washer
+stock nut
+adjust nut -1
+adjust nut 0
+low 1
+low 2
+low z
+bogus
+stock

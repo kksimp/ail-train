@@ -1,0 +1,47 @@
+## Splits stdin at the first `---` line into blocks A and B and prints a line diff
+## (longest-common-subsequence based) followed by a `+added -removed =same` summary.
+fn main()
+    mut lines := io.read_all().split("\n")
+    if (lines.last() else "x") == ""
+        lines.pop()
+    mut a := List[str]()
+    mut b := List[str]()
+    mut in_b := false
+    for line in lines
+        if not in_b and line == "---"
+            in_b = true
+        elif in_b
+            b.push(line)
+        else
+            a.push(line)
+    n := a.len()
+    m := b.len()
+    mut table := Grid.fill(n + 1, m + 1, 0)
+    for i in 0..n
+        ii := n - 1 - i
+        for j in 0..m
+            jj := m - 1 - j
+            if a[ii] == b[jj]
+                table[ii, jj] = table[ii + 1, jj + 1] + 1
+            else
+                table[ii, jj] = table[ii + 1, jj].max(table[ii, jj + 1])
+    mut i := 0
+    mut j := 0
+    mut added := 0
+    mut removed := 0
+    mut same := 0
+    while i < n or j < m
+        if i < n and j < m and a[i] == b[j]
+            print("  {a[i]}")
+            i += 1
+            j += 1
+            same += 1
+        elif j == m or (i < n and table[i + 1, j] >= table[i, j + 1])
+            print("- {a[i]}")
+            i += 1
+            removed += 1
+        else
+            print("+ {b[j]}")
+            j += 1
+            added += 1
+    print("+{added} -{removed} ={same}")

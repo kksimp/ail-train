@@ -1,0 +1,10 @@
+open a
+open b
+open c
+deposit a 1000000000000
+transfer a b 999999999999
+transfer b c 3
+balance b
+balance c
+report
+withdraw a 2

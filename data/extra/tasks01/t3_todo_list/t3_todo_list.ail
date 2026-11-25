@@ -1,0 +1,73 @@
+## Todo list manager: add/done/undo/rm/list/open/clear/count with never-reused ids.
+
+struct Item
+    id int
+    text str
+    done bool
+
+fn line_of(it Item) str
+    mark := if it.done then "x" else " "
+    "[{mark}] {it.id} {it.text}"
+
+fn find(items List[Item], id int) int?
+    for i in 0..items.len()
+        if items[i].id == id
+            return i
+    none
+
+fn digits_only(s str) bool
+    if s.is_empty()
+        return false
+    for ch in s.chars()
+        if not ch.is_digit()
+            return false
+    true
+
+fn show(items List[Item], only_open bool, none_text str)
+    mut n := 0
+    for it in items
+        if only_open and it.done
+            continue
+        print(line_of(it))
+        n += 1
+    if n == 0
+        print(none_text)
+
+fn main()
+    mut items := List[Item]()
+    mut next_id := 1
+    while true
+        line := io.read_line() else break
+        if line.trim().is_empty()
+            continue
+        p := line.split(" ", 2)
+        cmd := p[0]
+        two := p.len() == 2
+        if cmd == "add" and two and p[1] != ""
+            items.push(Item(id: next_id, text: p[1], done: false))
+            print("added {next_id}")
+            next_id += 1
+        elif (cmd == "done" or cmd == "undo" or cmd == "rm") and two and digits_only(p[1]) and (p[1].to_int() else 0) >= 1
+            id := p[1].to_int() else 0
+            if i := find(items, id)
+                if cmd == "rm"
+                    items.remove_at(i)
+                    print("removed {id}")
+                else
+                    items[i].done = cmd == "done"
+                    print(if cmd == "done" then "{id} done" else "{id} open")
+            else
+                print("error: no item {id}")
+        elif cmd == "list" and not two
+            show(items, false, "(empty)")
+        elif cmd == "open" and not two
+            show(items, true, "(none open)")
+        elif cmd == "clear" and not two
+            before := items.len()
+            items = items.filter(|it| not it.done)
+            print("cleared {before - items.len()}")
+        elif cmd == "count" and not two
+            d := items.count(|it| it.done)
+            print("open {items.len() - d} done {d}")
+        else
+            print("error: bad command")

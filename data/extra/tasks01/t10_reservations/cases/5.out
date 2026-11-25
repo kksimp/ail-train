@@ -1,0 +1,13 @@
+seats: 1=-
+x: booked 1
+y: waitlisted for 1
+x: already booked
+y: already booked
+y: left waitlist
+y: waitlisted for 1
+seats: 1=x
+x: cancelled 1
+y: promoted to 1
+seats: 1=y
+y: cancelled 1
+seats: 1=-

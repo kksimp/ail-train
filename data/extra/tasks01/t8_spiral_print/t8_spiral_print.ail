@@ -1,0 +1,47 @@
+## Prints a matrix of integers in clockwise spiral order, shrinking four borders inwards.
+## Empty, invalid and ragged inputs print a single word.
+fn main()
+    mut rows := List[List[int]]()
+    mut bad := false
+    for line in io.read_all().lines()
+        if line.trim().is_empty()
+            continue
+        mut row := List[int]()
+        for w in line.words()
+            n := w.to_int() else
+                bad = true
+                continue
+            row.push(n)
+        rows.push(row)
+    if bad
+        print("invalid")
+        return
+    if rows.is_empty()
+        print("empty")
+        return
+    cols := rows[0].len()
+    for r in rows
+        if r.len() != cols
+            print("ragged")
+            return
+    mut top := 0
+    mut bottom := rows.len() - 1
+    mut left := 0
+    mut right := cols - 1
+    mut out := List[int]()
+    while top <= bottom and left <= right
+        for c in left..=right
+            out.push(rows[top][c])
+        top += 1
+        for r in top..=bottom
+            out.push(rows[r][right])
+        right -= 1
+        if top <= bottom
+            for c in [i for i in left..=right].reversed()
+                out.push(rows[bottom][c])
+            bottom -= 1
+        if left <= right
+            for r in [i for i in top..=bottom].reversed()
+                out.push(rows[r][left])
+            left += 1
+    print(out.join(" "))

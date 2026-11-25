@@ -1,0 +1,58 @@
+## League table from match results `HOME,AWAY,HG,AG`; prints the ranked table, then the numbers of bad lines.
+struct Team
+    name str
+    p int
+    w int
+    d int
+    l int
+    gf int
+    ga int
+
+fn Team.pts(self) int
+    3 * self.w + self.d
+
+fn Team.gd(self) int
+    self.gf - self.ga
+
+fn all_digits(s str) bool
+    if s.is_empty()
+        return false
+    for ch in s.chars()
+        if ch.code() < 48 or ch.code() > 57
+            return false
+    true
+
+fn record(mut t Map[str, Team], name str, gf int, ga int)
+    if not t.contains(name)
+        t[name] = Team(name: name, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0)
+    t[name].p += 1
+    t[name].gf += gf
+    t[name].ga += ga
+    if gf > ga
+        t[name].w += 1
+    elif gf == ga
+        t[name].d += 1
+    else
+        t[name].l += 1
+
+fn main()
+    mut lines := io.read_all().split("\n")
+    if (lines.last() else "x") == ""
+        lines.pop()
+    mut teams := Map[str, Team]()
+    mut bad := List[int]()
+    for k in 0..lines.len()
+        f := lines[k].split(",")
+        if f.len() != 4 or f[0].is_empty() or f[1].is_empty() or f[0] == f[1] or not all_digits(f[2]) or not all_digits(f[3])
+            bad.push(k + 1)
+            continue
+        hg := f[2].to_int() else 0
+        ag := f[3].to_int() else 0
+        record(mut teams, f[0], hg, ag)
+        record(mut teams, f[1], ag, hg)
+    rows := teams.values().sorted(by: |t| (-t.pts(), -t.gd(), -t.gf, t.name))
+    for i in 0..rows.len()
+        t := rows[i]
+        print("{i + 1:>2}. {t.name:<10} {t.p:>2} {t.w:>2} {t.d:>2} {t.l:>2} {t.gf:>3} {t.ga:>3} {t.gd():>4} {t.pts():>3}")
+    for k in bad
+        print("bad line {k}")

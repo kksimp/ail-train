@@ -1,0 +1,6 @@
+c: avg=80.5 grade=B
+a: avg=80.0 grade=B
+b: avg=80.0 grade=B
+a: avg=66.7 grade=D
+c: avg=10.0 grade=F
+grades: A=0 B=3 C=0 D=1 F=1

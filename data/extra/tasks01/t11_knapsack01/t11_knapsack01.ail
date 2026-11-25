@@ -1,0 +1,55 @@
+## 0/1 knapsack by dynamic programming over capacity; prints best value and the least weight reaching it.
+LIMIT := 10000
+
+fn main()
+    mut cap := -1
+    mut have_cap := false
+    mut ws := List[int]()
+    mut vs := List[int]()
+    mut skipped := 0
+    for line in io.read_all().lines()
+        t := line.trim()
+        if t.is_empty()
+            continue
+        if not have_cap
+            have_cap = true
+            cap = t.to_int() else -1
+            continue
+        w := t.words()
+        if w.len() != 2
+            skipped += 1
+            continue
+        a := w[0].to_int() else
+            skipped += 1
+            continue
+        b := w[1].to_int() else
+            skipped += 1
+            continue
+        if a < 1 or b < 0
+            skipped += 1
+            continue
+        ws.push(a)
+        vs.push(b)
+    if cap < 0 or cap > LIMIT
+        print("bad capacity")
+        return
+    mut dp := List[int]()
+    for _ in 0..(cap + 1)
+        dp.push(0)
+    for i in 0..ws.len()
+        mut c := cap
+        while c >= ws[i]
+            cand := dp[c - ws[i]] + vs[i]
+            if cand > dp[c]
+                dp[c] = cand
+            c -= 1
+    best := dp[cap]
+    mut weight := 0
+    for c in 0..(cap + 1)
+        if dp[c] == best
+            weight = c
+            break
+    print("items {ws.len()}")
+    print("skipped {skipped}")
+    print("best {best}")
+    print("weight {weight}")

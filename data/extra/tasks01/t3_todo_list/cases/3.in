@@ -1,0 +1,18 @@
+list
+open
+clear
+count
+add
+add x
+done
+done 0
+done -1
+done abc
+done 9
+rm 9
+undo 1
+list extra
+what
+done 1
+undo 1
+open

@@ -1,0 +1,46 @@
+## Lexicographically smallest topological order of a dependency graph (Kahn's algorithm).
+## Prints `order: ...`, or `cycle: ...` listing the nodes that could not be placed.
+fn clean(s str) bool
+    not s.is_empty() and not s.contains(" ")
+
+fn main()
+    mut nodes := Set[str]()
+    mut seen := Set[str]()
+    mut after := Map[str, List[str]]()
+    mut indeg := Map[str, int]()
+    for raw in io.read_all().lines()
+        line := raw.trim()
+        if line.is_empty()
+            continue
+        parts := line.split(" -> ")
+        if parts.len() == 2 and clean(parts[0]) and clean(parts[1])
+            a := parts[0]
+            b := parts[1]
+            nodes.add(a)
+            nodes.add(b)
+            if seen.add("{a} {b}")
+                after.push(a, b)
+                indeg[b] += 1
+        elif parts.len() == 1 and clean(line)
+            nodes.add(line)
+    mut ready := List[str]()
+    for n in nodes.sorted()
+        if (indeg.get(n) else 0) == 0
+            ready.push(n)
+    mut order := List[str]()
+    while not ready.is_empty()
+        m := ready.min() else break
+        ready.remove_at(ready.index_of(m) else 0)
+        order.push(m)
+        for nb in after.get(m) else List[str]()
+            indeg[nb] -= 1
+            if indeg[nb] == 0
+                ready.push(nb)
+    if order.len() == nodes.len()
+        if order.is_empty()
+            print("order:")
+        else
+            print("order: {order.join(" ")}")
+    else
+        stuck := [n for n in nodes.sorted() if not order.contains(n)]
+        print("cycle: {stuck.join(" ")}")

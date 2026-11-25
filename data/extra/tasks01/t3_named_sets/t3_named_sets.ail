@@ -1,0 +1,65 @@
+## Named set operations: set/union/inter/diff/show/size/subset/del/names over word sets.
+## Sets print with elements in ascending byte order.
+
+fn fmt(s Set[str]) str
+    "\{{s.sorted().join(" ")}}"
+
+fn arity(cmd str) int
+    match cmd
+        "union" => 4
+        "inter" => 4
+        "diff" => 4
+        "show" => 2
+        "size" => 2
+        "subset" => 3
+        "del" => 2
+        "names" => 1
+        _ => 0
+
+fn main()
+    mut sets := Map[str, Set[str]]()
+    while true
+        line := io.read_line() else break
+        w := line.words()
+        if w.is_empty()
+            continue
+        cmd := w[0]
+        if cmd == "set" and w.len() >= 2
+            mut s := Set[str]()
+            for e in w.slice(2)
+                s.add(e)
+            sets[w[1]] = s
+            print("{w[1]} = {fmt(s)}")
+            continue
+        if arity(cmd) != w.len()
+            print("error: bad command")
+            continue
+        if cmd == "names"
+            print(if sets.is_empty() then "(none)" else sets.keys().sorted().join(" "))
+            continue
+        operands := if cmd == "union" or cmd == "inter" or cmd == "diff" then w.slice(2) else w.slice(1)
+        mut missing := ""
+        for n in operands
+            if missing == "" and not sets.contains(n)
+                missing = n
+        if missing != ""
+            print("error: unknown set {missing}")
+            continue
+        if cmd == "union" or cmd == "inter" or cmd == "diff"
+            a := sets[w[2]]
+            b := sets[w[3]]
+            r := match cmd
+                "union" => a.union(b)
+                "inter" => a.intersect(b)
+                _ => a.difference(b)
+            sets[w[1]] = r
+            print("{w[1]} = {fmt(r)}")
+        elif cmd == "show"
+            print(fmt(sets[w[1]]))
+        elif cmd == "size"
+            print(sets[w[1]].len())
+        elif cmd == "subset"
+            print(if sets[w[1]].is_subset(sets[w[2]]) then "yes" else "no")
+        else
+            sets.remove(w[1])
+            print("deleted {w[1]}")

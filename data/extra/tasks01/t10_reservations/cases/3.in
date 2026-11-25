@@ -1,0 +1,14 @@
+seats 2
+book a 1
+book b 1
+book c 1
+book d 1
+cancel b
+show
+cancel a
+show
+cancel c
+show
+cancel d
+show
+cancel d

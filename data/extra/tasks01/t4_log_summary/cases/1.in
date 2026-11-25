@@ -1,0 +1,5 @@
+2024-05-01 10:00:00 INFO started
+2024-05-01 10:00:05 ERROR disk full on /dev/sda
+garbage
+2024-05-01 10:01:00 WARN slow response
+2024-05-01 10:02:00 ERROR timeout

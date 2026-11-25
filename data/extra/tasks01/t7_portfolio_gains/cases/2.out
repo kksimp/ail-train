@@ -1,0 +1,5 @@
+line 7: oversell
+line 8: oversell
+ABC: qty=7 cost=23.31 value=21.00 unrealized=-2.31 realized=0.00
+XYZ: qty=0 cost=0.00 value=0.00 unrealized=0.00 realized=-60.00
+total: cost=23.31 value=21.00 unrealized=-2.31 realized=-60.00

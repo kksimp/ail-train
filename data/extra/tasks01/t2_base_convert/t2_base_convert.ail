@@ -1,0 +1,62 @@
+## Base conversion queries `FROM TO VALUE`, bases 2..36, lower-case output.
+
+DIGITS := "0123456789abcdefghijklmnopqrstuvwxyz"
+
+fn is_dec(t str) bool
+    if t.is_empty() or t.len() > 6
+        return false
+    for c in t.chars()
+        if not c.is_digit()
+            return false
+    true
+
+## Digit value of a lower-case character, or -1.
+fn digit_of(c char) int
+    DIGITS.find("{c}") else -1
+
+fn to_base(n int, b int) str
+    if n == 0
+        return "0"
+    mut rest := n
+    mut out := List[char]()
+    while rest > 0
+        out.push(DIGITS.char_at(rest % b) else '?')
+        rest /= b
+    out.reversed().join("")
+
+fn main()
+    mut lines := io.read_all().split("\n")
+    if (lines.last() else "x") == ""
+        lines.pop()
+    mut ok := 0
+    mut errors := 0
+    for i in 0..lines.len()
+        k := i + 1
+        f := lines[i].words()
+        if f.is_empty()
+            continue
+        if f.len() != 3 or not is_dec(f[0]) or not is_dec(f[1])
+            print("line {k}: bad format")
+            errors += 1
+            continue
+        a := f[0].to_int() else 0
+        b := f[1].to_int() else 0
+        if a < 2 or a > 36 or b < 2 or b > 36
+            print("line {k}: bad base")
+            errors += 1
+            continue
+        mut v := 0
+        mut bad := none
+        for c in f[2].to_lower().chars()
+            d := digit_of(c)
+            if d < 0 or d >= a
+                bad = c
+                break
+            v = v * a + d
+        if bad != none
+            print("line {k}: bad digit {bad else '?'}")
+            errors += 1
+            continue
+        print(to_base(v, b))
+        ok += 1
+    print("ok {ok} errors {errors}")

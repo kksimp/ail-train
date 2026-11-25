@@ -1,0 +1,71 @@
+## Timetable clash finder: for each student, find pairs of enrolled courses
+## whose weekly meetings overlap, reporting the earliest weekday of a clash.
+
+struct Meeting
+    day int
+    start int
+    end int
+
+fn day_index(s str) int?
+    days := ["Mon", "Tue", "Wed", "Thu", "Fri"]
+    days.index_of(s)
+
+fn day_name(i int) str
+    ["Mon", "Tue", "Wed", "Thu", "Fri"][i]
+
+fn clash_day(a List[Meeting], b List[Meeting]) int?
+    mut best := 9
+    for x in a
+        for y in b
+            if x.day == y.day and x.start < y.end and y.start < x.end
+                if best > x.day
+                    best = x.day
+    if best == 9
+        return none
+    best
+
+fn main()
+    mut meets := Map[str, List[Meeting]]()
+    mut enrols := List[(str, str)]()
+    mut seen := Set[str]()
+    mut n := 0
+    for line in io.read_all().lines()
+        n += 1
+        if line.trim().is_empty()
+            continue
+        f := line.split(" ")
+        if f.len() == 5 and f[0] == "meet"
+            day := day_index(f[2]) else
+                print("bad line {n}")
+                continue
+            s := f[3].to_int() else
+                print("bad line {n}")
+                continue
+            e := f[4].to_int() else
+                print("bad line {n}")
+                continue
+            if s >= e
+                print("bad line {n}")
+                continue
+            meets.push(f[1], Meeting(day: day, start: s, end: e))
+        elif f.len() == 3 and f[0] == "enrol"
+            if seen.add("{f[1]} {f[2]}")
+                enrols.push((f[1], f[2]))
+        else
+            print("bad line {n}")
+    mut by_student := Map[str, List[str]]()
+    for e in enrols
+        student, course := e
+        if meets.contains(course)
+            by_student.push(student, course)
+        else
+            print("unknown course {course} for {student}")
+    mut count := 0
+    for student in by_student.keys().sorted()
+        courses := by_student[student].sorted()
+        for i in 0..courses.len()
+            for j in (i + 1)..courses.len()
+                if d := clash_day(meets[courses[i]], meets[courses[j]])
+                    print("{student}: {courses[i]} clashes with {courses[j]} on {day_name(d)}")
+                    count += 1
+    print("clashes {count}")

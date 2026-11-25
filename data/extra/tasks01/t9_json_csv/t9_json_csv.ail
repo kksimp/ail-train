@@ -1,0 +1,118 @@
+## Converts lines of flat JSON-like objects (strings without escapes, integers, true, false, null)
+## from stdin into CSV. Invalid lines are skipped and listed after the table.
+fn skip_ws(cs List[char], from int) int
+    mut i := from
+    while i < cs.len() and cs[i].is_space()
+        i += 1
+    i
+
+struct Quoted
+    text str
+    next int
+
+## Reads a quoted string starting at the opening quote; returns the text and the next index.
+fn read_str(cs List[char], from int) Quoted?
+    if from >= cs.len() or cs[from] != '"'
+        return none
+    mut i := from + 1
+    mut text := List[char]()
+    while i < cs.len() and cs[i] != '"'
+        if cs[i].code() == 92   # a backslash
+            return none
+        text.push(cs[i])
+        i += 1
+    if i >= cs.len()
+        return none
+    Quoted(text: text.join(""), next: i + 1)
+
+fn is_int(tok str) bool
+    cs := tok.chars()
+    start := if not cs.is_empty() and cs[0] == '-' then 1 else 0
+    if start >= cs.len()
+        return false
+    for i in start..cs.len()
+        if not cs[i].is_digit()
+            return false
+    true
+
+fn csv_field(s str) str
+    if s.contains(",")
+        return "\"{s}\""
+    s
+
+## Parses one object line into (key, field) pairs, or none when the line is not valid.
+fn parse_line(line str) List[(str, str)]?
+    cs := line.chars()
+    mut i := skip_ws(cs, 0)
+    if i >= cs.len() or cs[i] != '{'
+        return none
+    i = skip_ws(cs, i + 1)
+    mut pairs := List[(str, str)]()
+    if i < cs.len() and cs[i] == '}'
+        i = skip_ws(cs, i + 1)
+        if i != cs.len()
+            return none
+        return pairs
+    while true
+        i = skip_ws(cs, i)
+        key := read_str(cs, i) else return none
+        i = skip_ws(cs, key.next)
+        if i >= cs.len() or cs[i] != ':'
+            return none
+        i = skip_ws(cs, i + 1)
+        mut value := ""
+        if i < cs.len() and cs[i] == '"'
+            text := read_str(cs, i) else return none
+            value = text.text
+            i = text.next
+        else
+            mut tok := List[char]()
+            while i < cs.len() and cs[i] != ',' and cs[i] != '}' and not cs[i].is_space()
+                tok.push(cs[i])
+                i += 1
+            word := tok.join("")
+            if word == "null"
+                value = ""
+            elif word == "true" or word == "false" or is_int(word)
+                value = word
+            else
+                return none
+        pairs.push((key.text, value))
+        i = skip_ws(cs, i)
+        if i >= cs.len()
+            return none
+        if cs[i] == ','
+            i += 1
+        elif cs[i] == '}'
+            i = skip_ws(cs, i + 1)
+            if i != cs.len()
+                return none
+            break
+        else
+            return none
+    pairs
+
+fn main()
+    mut cols := List[str]()
+    mut rows := List[Map[str, str]]()
+    mut skipped := List[int]()
+    mut k := 0
+    for line in io.read_all().lines()
+        k += 1
+        if line.is_empty()
+            continue
+        pairs := parse_line(line) else
+            skipped.push(k)
+            continue
+        mut obj := Map[str, str]()
+        for p in pairs
+            obj[p.0] = p.1
+            if not cols.contains(p.0)
+                cols.push(p.0)
+        rows.push(obj)
+    if not rows.is_empty()
+        print(cols.map(|c| csv_field(c)).join(","))
+        for obj in rows
+            print(cols.map(|c| csv_field(obj.get(c) else "")).join(","))
+    for n in skipped
+        print("skipped line {n}")

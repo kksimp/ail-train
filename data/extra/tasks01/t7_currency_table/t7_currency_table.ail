@@ -1,0 +1,54 @@
+## Currency table with fixed rates (units per USD in ten-thousandths).
+## Converts `AMOUNT FROM TO` lines and `table AMOUNT FROM` lines, with half-up rounding in cents.
+fn rate(code str) int?
+    rates := {"USD": 10000, "EUR": 9200, "GBP": 7900, "JPY": 1500000, "CAD": 13600}
+    rates.get(code)
+
+fn money(c int) str
+    "{c / 100}.{c % 100:0>2}"
+
+fn digits(s str) bool
+    if s.is_empty()
+        return false
+    for ch in s.chars()
+        if not ch.is_digit()
+            return false
+    true
+
+fn conv(a int, rf int, rt int) int
+    (2 * a * rt + rf) / (2 * rf)
+
+fn main()
+    codes := ["CAD", "EUR", "GBP", "JPY", "USD"]
+    mut totals := Map[str, int]()
+    mut n := 0
+    for line in io.read_all().lines()
+        n += 1
+        w := line.words()
+        if w.is_empty()
+            continue
+        if w[0] == "table" and w.len() == 3 and digits(w[1])
+            rf := rate(w[2]) else
+                print("line {n}: unknown currency")
+                continue
+            a := w[1].to_int() else 0
+            print("{money(a)} {w[2]}:")
+            for c in codes
+                rt := rate(c) else 1
+                print("  {c}: {money(conv(a, rf, rt))}")
+            continue
+        if w.len() != 3 or not digits(w[0])
+            print("line {n}: invalid")
+            continue
+        rf := rate(w[1]) else
+            print("line {n}: unknown currency")
+            continue
+        rt := rate(w[2]) else
+            print("line {n}: unknown currency")
+            continue
+        a := w[0].to_int() else 0
+        r := conv(a, rf, rt)
+        print("{money(a)} {w[1]} = {money(r)} {w[2]}")
+        totals[w[2]] += r
+    for c in totals.keys().sorted()
+        print("total {c}: {money(totals[c])}")

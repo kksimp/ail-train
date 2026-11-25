@@ -1,0 +1,11 @@
+set a 1 2 3 2 1
+set b 3 4
+union a a b
+show a
+size a
+subset b a
+subset a b
+diff a a a
+show a
+set a B b A a
+show a

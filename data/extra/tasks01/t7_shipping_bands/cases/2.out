@@ -1,0 +1,15 @@
+p1: band=S zone=1 cost=5.00
+p2: band=M zone=1 cost=9.00
+p3: band=M zone=2 cost=11.25
+p4: band=L zone=3 cost=24.00
+p5: band=L zone=3 cost=24.00
+p6: band=X zone=2 cost=37.50
+p7: band=X zone=1 cost=30.00
+p8: band=H zone=1 cost=32.00
+p9: band=H zone=3 cost=144.00
+band S: 1 parcels, 5.00
+band M: 2 parcels, 20.25
+band L: 2 parcels, 48.00
+band X: 2 parcels, 67.50
+band H: 2 parcels, 176.00
+total: 316.75

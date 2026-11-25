@@ -1,0 +1,39 @@
+## Licence plate classifier: reduces each plate to a letter/digit shape and
+## matches it against the known pattern classes.
+
+fn shape_char(c char) char
+    if c.code() >= 65 and c.code() <= 90
+        'L'
+    elif c.code() >= 48 and c.code() <= 57
+        'D'
+    else
+        c
+
+fn shape_of(plate str) str
+    plate.chars().map(|c| shape_char(c)).join("")
+
+fn is_vanity(shape str) bool
+    n := shape.len()
+    if n < 2 or n > 7
+        return false
+    shape.starts_with("L") and shape.chars().all(|c| c == 'L' or c == 'D')
+
+fn classify(plate str) str
+    shape := shape_of(plate)
+    if shape == "LLL-DDD"
+        "classic"
+    elif shape == "LL-DD-LL"
+        "euro"
+    elif shape == "DLLLDDD"
+        "californian"
+    elif is_vanity(shape)
+        "vanity"
+    else
+        "invalid"
+
+fn main()
+    for line in io.read_all().lines()
+        t := line.trim()
+        if t.is_empty()
+            continue
+        print("{t}: {classify(t)}")

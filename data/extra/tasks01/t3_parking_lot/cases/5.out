@@ -1,0 +1,12 @@
+X spot 1
+X left spot 1 fee 2
+X spot 1
+X left spot 1 fee 4
+Y spot 1
+Y left spot 1 fee 2
+Z spot 1
+free 0 of 1
+1 Z
+error: bad command
+revenue 8
+occupied 1

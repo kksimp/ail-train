@@ -1,0 +1,8 @@
+[db]
+host = localhost
+port = 5433
+
+[default]
+name = demo
+
+skipped: 1

@@ -1,0 +1,16 @@
+line 1: invalid
+line 2: invalid
+line 3: invalid
+line 4: invalid
+line 5: invalid
+line 6: invalid
+line 7: invalid
+line 8: invalid
+line 9: invalid
+balances:
+  ann: +1.00
+  bob: -0.50
+  cy: -0.50
+settlements:
+  bob pays ann 0.50
+  cy pays ann 0.50

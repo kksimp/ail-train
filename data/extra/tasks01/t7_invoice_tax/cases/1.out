@@ -1,0 +1,6 @@
+widget: net=59.97 tax=3.00 (B)
+manual: net=5.00 tax=0.00 (A)
+subtotal: 64.97
+tax A: 0.00
+tax B: 3.00
+total: 67.97

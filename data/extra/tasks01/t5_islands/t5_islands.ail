@@ -1,0 +1,33 @@
+## Count the islands (4-connected groups of 1s) in a grid and report the size of the largest.
+fn is_land(grid List[List[char]], r int, c int) bool
+    if r < 0 or r >= grid.len()
+        return false
+    if c < 0 or c >= grid[r].len()
+        return false
+    grid[r][c] == '1'
+
+fn main()
+    grid := [l.chars() for l in io.read_all().lines() if not l.trim().is_empty()]
+    mut seen := Set[str]()
+    mut count := 0
+    mut largest := 0
+    dr := [-1, 1, 0, 0]
+    dc := [0, 0, -1, 1]
+    for r in 0..grid.len()
+        for c in 0..grid[r].len()
+            if not is_land(grid, r, c) or seen.contains("{r},{c}")
+                continue
+            count += 1
+            mut size := 0
+            seen.add("{r},{c}")
+            mut stack := [(r, c)]
+            while cell := stack.pop()
+                size += 1
+                for k in 0..4
+                    nr := cell.0 + dr[k]
+                    nc := cell.1 + dc[k]
+                    if is_land(grid, nr, nc) and seen.add("{nr},{nc}")
+                        stack.push((nr, nc))
+            largest = largest.max(size)
+    print("islands: {count}")
+    print("largest: {largest}")

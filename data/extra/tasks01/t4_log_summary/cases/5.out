@@ -1,0 +1,7 @@
+ERROR 3
+WARN 0
+INFO 1
+DEBUG 0
+malformed 1
+span 2023-12-31 23:59:59 .. 2024-01-01 00:00:02
+first error: (no message)

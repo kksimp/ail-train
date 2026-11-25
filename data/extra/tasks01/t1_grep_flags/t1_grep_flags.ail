@@ -1,0 +1,56 @@
+## Grep-like filter: the first line is `FLAGS PATTERN`, later lines are searched for the literal pattern.
+## Flags: i (ignore case), v (invert), n (line numbers), c (count only) (spec.md).
+struct Opts
+    nocase bool
+    invert bool
+    numbered bool
+    count_only bool
+
+fn parse_flags(flags str) Opts?
+    if flags == "-"
+        return Opts(nocase: false, invert: false, numbered: false, count_only: false)
+    if flags.is_empty()
+        return none
+    mut o := Opts(nocase: false, invert: false, numbered: false, count_only: false)
+    for c in flags.chars()
+        match c
+            'i' => o.nocase = true
+            'v' => o.invert = true
+            'n' => o.numbered = true
+            'c' => o.count_only = true
+            _ => return none
+    o
+
+fn Opts.selects(self, line str, pattern str) bool
+    hit := if self.nocase then line.to_lower().contains(pattern.to_lower()) else line.contains(pattern)
+    hit != self.invert
+
+fn main()
+    mut lines := io.read_all().split("\n")
+    if (lines.last() else "x") == ""
+        lines.pop()
+    head := lines.first() else ""
+    sp := head.find(" ") else
+        print("bad pattern")
+        return
+    pattern := head.slice(sp + 1)
+    if pattern.is_empty()
+        print("bad pattern")
+        return
+    opts := parse_flags(head.slice(0, sp)) else
+        print("bad flags")
+        return
+    mut count := 0
+    data := lines.skip(1)
+    for i, line in data.enumerate()
+        if not opts.selects(line, pattern)
+            continue
+        count += 1
+        if opts.count_only
+            continue
+        if opts.numbered
+            print("{i + 1}:{line}")
+        else
+            print(line)
+    if opts.count_only
+        print(count)

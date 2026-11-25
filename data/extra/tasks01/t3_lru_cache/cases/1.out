@@ -1,0 +1,8 @@
+stored a
+stored b
+1
+stored c
+evict b
+c a
+miss
+hits 1 misses 1 evictions 1

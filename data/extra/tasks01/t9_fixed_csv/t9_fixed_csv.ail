@@ -1,0 +1,38 @@
+## Converts fixed-width records (widths on the first line) from stdin to CSV,
+## trimming each field and quoting fields that contain a comma or a double quote.
+fn csv_field(f str) str
+    if f.contains(",") or f.contains("\"")
+        return "\"{f.replace("\"", "\"\"")}\""
+    f
+
+fn parse_widths(line str) List[int]?
+    mut out := List[int]()
+    for tok in line.split(" ")
+        n := tok.to_int() else return none
+        if n <= 0
+            return none
+        out.push(n)
+    out
+
+fn main()
+    mut lines := io.read_all().split("\n")
+    if (lines.last() else "x") == ""
+        lines.pop()
+    if lines.is_empty()
+        return
+    widths := parse_widths(lines[0]) else
+        print("error: bad widths")
+        return
+    for k in 1..lines.len()
+        rec := lines[k]
+        if rec.is_empty()
+            continue
+        n := rec.len()
+        mut pos := 0
+        mut fields := List[str]()
+        for w in widths
+            lo := pos.min(n)
+            hi := (pos + w).min(n)
+            fields.push(csv_field(rec.slice(lo, hi).trim()))
+            pos += w
+        print(fields.join(","))

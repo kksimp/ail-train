@@ -1,0 +1,35 @@
+## De-duplicate lines keeping the first of each key; the first input line picks the key mode.
+## Modes: exact, nocase, trim. Prints the kept lines and a summary line (spec.md).
+enum Mode
+    Exact
+    NoCase
+    Trim
+
+fn parse_mode(s str) Mode?
+    match s
+        "exact" => Mode.Exact
+        "nocase" => Mode.NoCase
+        "trim" => Mode.Trim
+        _ => none
+
+fn key_of(mode Mode, line str) str
+    match mode
+        Exact => line
+        NoCase => line.to_lower()
+        Trim => line.trim()
+
+fn main()
+    mut lines := io.read_all().split("\n")
+    if (lines.last() else "x") == ""
+        lines.pop()
+    mode := parse_mode(lines.first() else "") else
+        print("bad option")
+        return
+    mut seen := Set[str]()
+    mut kept := 0
+    data := lines.skip(1)
+    for line in data
+        if seen.add(key_of(mode, line))
+            print(line)
+            kept += 1
+    print("kept {kept} of {data.len()}, dropped {data.len() - kept}")

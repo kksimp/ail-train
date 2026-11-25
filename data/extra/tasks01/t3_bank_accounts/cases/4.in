@@ -1,0 +1,12 @@
+open zed
+open Amy
+open bob
+deposit zed 100
+deposit Amy 7
+transfer zed bob 40
+withdraw bob 40
+withdraw bob 1
+deposit bob -5
+report
+
+report extra

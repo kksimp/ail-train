@@ -1,0 +1,9 @@
+line 1: bad value for 'host': 'my host'
+line 3: duplicate key 'host'
+line 4: missing '='
+line 5: empty key
+line 6: bad value for 'port': '0'
+line 7: bad value for 'port': '+80'
+line 10: duplicate key 'workers'
+line 11: bad value for 'mode': 'Prod'
+errors: 8

@@ -1,0 +1,70 @@
+## Shift rotation roster: each person follows a repeating pattern from their own
+## offset; reports rosters, uncovered day/night shifts and days worked.
+
+struct Person
+    name str
+    offset int
+
+fn valid_pattern(p str) bool
+    if p.is_empty()
+        return false
+    for c in p.chars()
+        if c != 'D' and c != 'N' and c != 'O'
+            return false
+    true
+
+fn letter(pat List[char], offset int, day int) char
+    pat[(day - 1 + offset) % pat.len()]
+
+fn roster(pat List[char], offset int, days int) List[char]
+    [letter(pat, offset, d) for d in 1..=days]
+
+fn parse_person(line str) Person?
+    f := line.split(" ")
+    if f.len() != 2
+        return none
+    off := f[1].to_int() else return none
+    if off < 0
+        return none
+    Person(name: f[0], offset: off)
+
+fn header(lines List[str]) (List[char], int)?
+    if lines.len() < 2
+        return none
+    a := lines[0].split(" ")
+    b := lines[1].split(" ")
+    if a.len() != 2 or a[0] != "pattern" or not valid_pattern(a[1])
+        return none
+    if b.len() != 2 or b[0] != "days"
+        return none
+    k := b[1].to_int() else return none
+    if k < 1 or k > 60
+        return none
+    (a[1].chars(), k)
+
+fn main()
+    lines := io.read_all().lines()
+    h := header(lines) else
+        print("bad header")
+        return
+    pat, days := h
+    mut people := List[Person]()
+    mut rosters := List[List[char]]()
+    for i in 2..lines.len()
+        if lines[i].trim().is_empty()
+            continue
+        p := parse_person(lines[i]) else
+            print("bad line {i + 1}")
+            continue
+        r := roster(pat, p.offset, days)
+        print("{p.name} {r.join("")}")
+        people.push(p)
+        rosters.push(r)
+    for d in 0..days
+        for shift in ['D', 'N']
+            covered := rosters.any(|r| r[d] == shift)
+            if not covered
+                print("uncovered day {d + 1} shift {shift}")
+    for i in 0..people.len()
+        worked := rosters[i].count(|c| c != 'O')
+        print("worked {people[i].name} {worked}")

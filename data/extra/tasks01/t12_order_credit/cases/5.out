@@ -1,0 +1,14 @@
+LIMIT zed 1000
+LIMIT amy 250
+LIMIT moe 75
+ACCEPT zed 999 balance 999/1000
+ACCEPT amy 250 balance 250/250
+REJECT moe 76: over limit by 1
+REJECT moe 5: overpayment
+ACCEPT moe 75 balance 75/75
+PAID amy 250 balance 0/250
+ACCEPT amy 100 balance 100/250
+ERROR line 11: bad command
+amy 100/250
+moe 75/75
+zed 999/1000

@@ -1,0 +1,11 @@
+bad line 4
+bad line 5
+bad line 6
+a 0 2
+b 0 2
+c 2 5
+f 5 5
+g 5 9
+h 5 9
+length 9
+critical: a -> c -> f -> g

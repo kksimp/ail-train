@@ -1,0 +1,10 @@
+strip , 0
+strip , 0,123
+strip , 012
+strip , -999,999
+strip , 1,000,000
+strip , 12,3456
+strip . 1,000
+strip . 1.000.00
+strip , ,123
+strip , 1,

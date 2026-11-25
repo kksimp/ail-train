@@ -1,0 +1,33 @@
+## Word frequency table: prints the 5 most frequent ASCII-letter words, ties alphabetical.
+## Reads all of stdin; prints `no words` when there are none.
+fn is_letter(c char) bool
+    code := c.code()
+    (code >= 65 and code <= 90) or (code >= 97 and code <= 122)
+
+fn tokens(text str) List[str]
+    mut out := List[str]()
+    mut cur := List[char]()
+    for c in text.to_lower().chars()
+        if is_letter(c)
+            cur.push(c)
+        elif not cur.is_empty()
+            out.push(cur.join(""))
+            cur.clear()
+    if not cur.is_empty()
+        out.push(cur.join(""))
+    out
+
+fn main()
+    words := tokens(io.read_all())
+    if words.is_empty()
+        print("no words")
+        return
+    mut counts := Map[str, int]()
+    for w in words
+        counts[w] += 1
+    mut pairs := List[(str, int)]()
+    for w, n in counts
+        pairs.push((w, n))
+    ranked := pairs.sorted(by: |p| (-p.1, p.0))
+    for p in ranked.take(5)
+        print("{p.0} {p.1}")

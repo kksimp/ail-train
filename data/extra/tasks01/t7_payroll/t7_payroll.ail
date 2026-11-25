@@ -1,0 +1,44 @@
+## Payroll with overtime: the first 40 hours are regular, hours above 40 are paid at 1.5x.
+## Reads `name,hours,rate_cents` lines, prints one pay line per valid record and a total.
+struct Emp
+    name str
+    hours int
+    rate int
+
+fn money(c int) str
+    "{c / 100}.{c % 100:0>2}"
+
+fn nonneg(s str) int?
+    n := s.trim().to_int() else return none
+    if n < 0
+        return none
+    n
+
+fn parse_emp(line str) Emp?
+    f := line.split(",")
+    if f.len() != 3
+        return none
+    name := f[0].trim()
+    if name.is_empty()
+        return none
+    h := nonneg(f[1]) else return none
+    r := nonneg(f[2]) else return none
+    Emp(name: name, hours: h, rate: r)
+
+fn main()
+    mut total := 0
+    mut count := 0
+    mut n := 0
+    for line in io.read_all().lines()
+        n += 1
+        if line.trim().is_empty()
+            continue
+        e := parse_emp(line) else
+            print("line {n}: invalid")
+            continue
+        reg := e.hours.min(40) * e.rate
+        ot := (e.hours - 40).max(0) * e.rate * 3 / 2
+        print("{e.name}: reg={money(reg)} ot={money(ot)} gross={money(reg + ot)}")
+        total += reg + ot
+        count += 1
+    print("total: {count} employees gross={money(total)}")

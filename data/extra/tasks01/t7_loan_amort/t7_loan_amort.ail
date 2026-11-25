@@ -1,0 +1,54 @@
+## Loan amortization with a fixed monthly payment: interest is rounded half up each month.
+## Prints the schedule (at most 36 months) and the totals, or why no schedule exists.
+struct Loan
+    principal int
+    rate int
+    payment int
+
+fn money(c int) str
+    "{c / 100}.{c % 100:0>2}"
+
+fn parse_loan(text str) Loan?
+    for line in text.lines()
+        if line.trim().is_empty()
+            continue
+        f := line.split(",")
+        if f.len() != 3
+            return none
+        p := f[0].trim().to_int() else return none
+        r := f[1].trim().to_int() else return none
+        pay := f[2].trim().to_int() else return none
+        if p <= 0 or r < 0 or pay <= 0
+            return none
+        return Loan(principal: p, rate: r, payment: pay)
+    none
+
+fn interest(bal int, rate int) int
+    (bal * rate + 60000) / 120000
+
+fn main()
+    loan := parse_loan(io.read_all()) else
+        print("invalid input")
+        return
+    mut bal := loan.principal
+    if loan.payment <= interest(bal, loan.rate)
+        print("payment too small")
+        return
+    mut paid := 0
+    mut tot_int := 0
+    mut month := 0
+    while bal > 0 and month < 36
+        month += 1
+        i := interest(bal, loan.rate)
+        due := bal + i
+        pay := due.min(loan.payment)
+        bal = due - pay
+        paid += pay
+        tot_int += i
+        print("{month}: pay={money(pay)} interest={money(i)} principal={money(pay - i)} balance={money(bal)}")
+    if bal > 0
+        print("not repaid after 36 months")
+    else
+        print("months: {month}")
+        print("total paid: {money(paid)}")
+        print("total interest: {money(tot_int)}")

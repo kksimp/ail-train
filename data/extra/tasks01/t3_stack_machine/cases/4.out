@@ -1,0 +1,8 @@
+line 1: bad number
+line 2: bad number
+line 3: unknown command
+line 4: unknown command
+line 8: division by zero
+0
+line 12: underflow
+stack:

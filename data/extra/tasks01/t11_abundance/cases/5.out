@@ -1,0 +1,7 @@
+100 abundant 117
+220 abundant 284
+284 deficient 220
+1000001 invalid
+12345678901234567890 invalid
+9973 deficient 1
+perfect 0 abundant 2 deficient 2 invalid 2

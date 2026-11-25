@@ -1,0 +1,14 @@
+Zed: 1
+apple: 2
+Apple: 3
+apple: 0
+line 5: short apple: have 0, need 1
+apple: 9
+Apple 3 3 0
+Zed 1 1 0
+apple 9 2 2
+skus 3
+Zed: 0
+line 9: short Zed: have 0, need 1
+Apple 3
+Zed 0

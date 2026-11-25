@@ -1,0 +1,5 @@
+LIMIT ann 500
+ACCEPT ann 300 balance 300/500
+REJECT ann 250: over limit by 50
+PAID ann 100 balance 200/500
+ann 200/500

@@ -1,0 +1,57 @@
+## Form field validation report: reads key=value lines, validates the four
+## known fields and prints a status per field plus an overall result.
+
+fn all_digits(s str) bool
+    s.chars().all(|c| c.code() >= 48 and c.code() <= 57)
+
+fn email_ok(s str) bool
+    if s.contains(" ") or s.count("@") != 1
+        return false
+    parts := s.split("@")
+    if parts[0].is_empty()
+        return false
+    domain := parts[1].split(".")
+    domain.len() >= 2 and domain.all(|p| not p.is_empty())
+
+fn status(field str, v str) str
+    if v.is_empty()
+        return "missing"
+    if field == "name"
+        if v.len() > 20
+            return "too long"
+    elif field == "age"
+        if not all_digits(v)
+            return "not a number"
+        if v.len() > 3 or (v.to_int() else 0) > 120
+            return "out of range"
+    elif field == "email"
+        if not email_ok(v)
+            return "invalid"
+    elif not (v.len() == 5 and all_digits(v))
+        return "invalid"
+    "ok"
+
+fn main()
+    fields := ["name", "age", "email", "zip"]
+    mut values := Map[str, str]()
+    for i, line in io.read_all().lines().enumerate()
+        if line.trim().is_empty()
+            continue
+        eq := line.find("=") else
+            print("line {i + 1}: malformed")
+            continue
+        key := line.slice(0, eq).trim()
+        if not fields.contains(key)
+            print("line {i + 1}: unknown field {key}")
+            continue
+        values[key] = line.slice(eq + 1).trim()
+    mut bad := 0
+    for f in fields
+        st := status(f, values.get(f) else "")
+        if st != "ok"
+            bad += 1
+        print("{f}: {st}")
+    if bad == 0
+        print("RESULT valid")
+    else
+        print("RESULT invalid ({bad})")

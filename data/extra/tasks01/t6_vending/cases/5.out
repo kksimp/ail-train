@@ -1,0 +1,13 @@
+credit=25
+credit=50
+credit=75
+no change
+credit=80
+credit=180
+vend b change=100+25+25+25
+need 5 more
+refund none
+need 5 more
+credit=0
+stock a 1
+stock b 1

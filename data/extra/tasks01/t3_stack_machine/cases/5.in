@@ -1,0 +1,14 @@
+push 1
+push 2
+push 3
+swap
+sub
+mul
+push -9
+push 4
+div
+push 10
+push -3
+div
+print
+  push   7  

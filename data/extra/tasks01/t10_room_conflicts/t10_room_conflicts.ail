@@ -1,0 +1,49 @@
+## Room booking conflicts: accept or reject requests in order, per room,
+## using half-open slot ranges [start, end).
+
+struct Booking
+    room str
+    start int
+    end int
+    name str
+
+fn parse(line str) Booking?
+    f := line.split(" ")
+    if f.len() != 4
+        return none
+    s := f[1].to_int() else return none
+    e := f[2].to_int() else return none
+    if s < 0 or s >= e
+        return none
+    Booking(room: f[0], start: s, end: e, name: f[3])
+
+fn overlaps(a Booking, b Booking) bool
+    a.room == b.room and a.start < b.end and b.start < a.end
+
+fn first_conflict(accepted List[Booking], b Booking) str?
+    for x in accepted
+        if overlaps(x, b)
+            return x.name
+    none
+
+fn main()
+    mut accepted := List[Booking]()
+    mut rejected := 0
+    mut bad := 0
+    mut n := 0
+    for line in io.read_all().lines()
+        n += 1
+        if line.trim().is_empty()
+            continue
+        b := parse(line) else
+            print("BAD line {n}")
+            bad += 1
+            continue
+        span := "{b.start}-{b.end}"
+        if c := first_conflict(accepted, b)
+            print("REJECT {b.name} {b.room} {span} conflicts with {c}")
+            rejected += 1
+        else
+            print("OK {b.name} {b.room} {span}")
+            accepted.push(b)
+    print("accepted {accepted.len()} rejected {rejected} bad {bad}")

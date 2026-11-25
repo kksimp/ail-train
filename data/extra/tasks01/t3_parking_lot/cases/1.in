@@ -1,0 +1,6 @@
+capacity 2
+park 0 AAA
+park 10 BBB
+park 20 CCC
+leave 130 AAA
+status

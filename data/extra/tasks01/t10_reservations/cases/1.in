@@ -1,0 +1,10 @@
+seats 3
+book ann 2
+book bob 2
+book cy 1
+book ann 3
+show
+cancel ann
+cancel zed
+show
+book dee 9

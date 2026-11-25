@@ -1,0 +1,11 @@
+127.0.0.1: valid loopback
+10.0.0.1: valid private
+172.16.5.4: valid private
+172.32.0.1: valid public
+172.31.255.255: valid private
+169.254.10.10: valid link-local
+224.0.0.1: valid multicast
+239.255.255.250: valid multicast
+240.0.0.1: valid public
+0.0.0.0: valid unspecified
+8.8.4.4: valid public

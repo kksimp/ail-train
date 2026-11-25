@@ -1,0 +1,65 @@
+## Stack machine: runs push/pop/dup/swap/add/sub/mul/div/print lines on an int stack.
+## A failing line prints `line K: ERR` and changes nothing.
+
+fn binary(mut st List[int], op str) str?
+    if st.len() < 2
+        return "underflow"
+    b := st[st.len() - 1]
+    a := st[st.len() - 2]
+    if op == "div" and b == 0
+        return "division by zero"
+    st.pop()
+    st.pop()
+    r := match op
+        "add" => a + b
+        "sub" => a - b
+        "mul" => a * b
+        _ => a / b
+    st.push(r)
+    none
+
+fn step(mut st List[int], w List[str]) str?
+    cmd := w[0]
+    if cmd == "push"
+        if w.len() == 1
+            return "bad number"
+        if w.len() > 2
+            return "unknown command"
+        n := w[1].to_int() else return "bad number"
+        st.push(n)
+        return none
+    if w.len() != 1
+        return "unknown command"
+    if cmd == "add" or cmd == "sub" or cmd == "mul" or cmd == "div"
+        return binary(mut st, cmd)
+    if cmd == "pop" or cmd == "dup" or cmd == "print"
+        top := st.last() else return "underflow"
+        if cmd == "pop"
+            st.pop()
+        elif cmd == "dup"
+            st.push(top)
+        else
+            print(top)
+        return none
+    if cmd == "swap"
+        if st.len() < 2
+            return "underflow"
+        st.swap(st.len() - 1, st.len() - 2)
+        return none
+    "unknown command"
+
+fn main()
+    mut st := List[int]()
+    mut k := 0
+    while true
+        line := io.read_line() else break
+        k += 1
+        w := line.words()
+        if w.is_empty()
+            continue
+        if err := step(mut st, w)
+            print("line {k}: {err}")
+    if st.is_empty()
+        print("stack:")
+    else
+        print("stack: {st.join(" ")}")

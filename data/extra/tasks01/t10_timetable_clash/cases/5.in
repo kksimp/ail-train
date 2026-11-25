@@ -1,0 +1,13 @@
+meet c1 Fri 1 5
+meet c2 Fri 2 3
+meet c3 Fri 5 6
+meet c4 Mon 1 9
+meet c4 Fri 4 5
+enrol joe c3
+enrol joe c2
+enrol joe c1
+enrol joe c4
+enrol Ann c1
+enrol Ann c3
+
+enrol Ann c2

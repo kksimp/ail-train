@@ -1,0 +1,14 @@
+-5 -3 -3 0 4 4 4 10
+find -3
+count 4
+lower -100
+upper 100
+find
+find 1 2
+
+find x
+lower -3
+find 10
+count -5
+upper 4
+sum 3

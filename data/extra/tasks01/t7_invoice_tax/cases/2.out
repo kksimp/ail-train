@@ -1,0 +1,9 @@
+lamp: net=91.00 tax=7.51 (C)
+desk: net=1299.00 tax=129.90 (D)
+pen: net=17.88 tax=0.00 (A)
+cable: net=44.95 tax=3.71 (C)
+subtotal: 1452.83
+tax A: 0.00
+tax C: 11.22
+tax D: 129.90
+total: 1593.95

@@ -1,0 +1,63 @@
+## Subscription proration: a mid-cycle plan change bills the old plan for the days before the change
+## and the new plan from the change day, each part rounded half up to a cent.
+struct Change
+    who str
+    old str
+    new str
+    day int
+    cycle int
+
+fn money(c int) str
+    sign := if c < 0 then "-" else ""
+    a := c.abs()
+    "{sign}{a / 100}.{a % 100:0>2}"
+
+fn price(plan str) int?
+    if plan == "basic"
+        return 1000
+    if plan == "pro"
+        return 2500
+    if plan == "team"
+        return 6000
+    none
+
+fn part(p int, days int, cyc int) int
+    (p * days * 2 + cyc) / (2 * cyc)
+
+fn parse_change(line str) Change?
+    f := line.split(",")
+    if f.len() != 5
+        return none
+    who := f[0].trim()
+    old := f[1].trim()
+    new := f[2].trim()
+    if who.is_empty() or price(old) == none or price(new) == none
+        return none
+    day := f[3].trim().to_int() else return none
+    cyc := f[4].trim().to_int() else return none
+    if cyc < 28 or cyc > 31 or day < 1 or day > cyc
+        return none
+    Change(who: who, old: old, new: new, day: day, cycle: cyc)
+
+fn main()
+    mut billed := 0
+    mut net := 0
+    mut n := 0
+    for line in io.read_all().lines()
+        n += 1
+        if line.trim().is_empty()
+            continue
+        c := parse_change(line) else
+            print("line {n}: invalid")
+            continue
+        old_price := price(c.old) else 0
+        new_price := price(c.new) else 0
+        o := part(old_price, c.day - 1, c.cycle)
+        nw := part(new_price, c.cycle - c.day + 1, c.cycle)
+        total := o + nw
+        delta := total - old_price
+        print("{c.who}: old={money(o)} new={money(nw)} total={money(total)} delta={money(delta)}")
+        billed += total
+        net += delta
+    print("billed: {money(billed)}")
+    print("net change: {money(net)}")

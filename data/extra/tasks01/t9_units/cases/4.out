@@ -1,0 +1,8 @@
+km = invalid
+12 = invalid
+5 KM = invalid
+-3 m = invalid
+1.5 kg = invalid
+1234567890123 m = invalid
+1 mm = 0.001 m
+total length: 0.001 m

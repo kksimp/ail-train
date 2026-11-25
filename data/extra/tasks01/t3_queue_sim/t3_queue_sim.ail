@@ -1,0 +1,55 @@
+## Queue simulator: FCFS customers on N servers, each with a service time.
+## Prints each customer's server, start, end and wait, then a summary.
+
+fn earliest(free List[int]) int
+    mut m := free[0]
+    for f in free
+        if f < m
+            m = f
+    m
+
+fn pick(free List[int], start int) int
+    for i in 0..free.len()
+        if free[i] <= start
+            return i
+    free.index_of(earliest(free)) else 0
+
+fn main()
+    head := (io.read_line() else "").words()
+    n := if head.len() == 2 and head[0] == "servers" then (head[1].to_int() else 0) else 0
+    if n < 1 or n > 9
+        print("bad header")
+        return
+    mut free := [0 for _ in 0..n]
+    mut last := 0
+    mut served := 0
+    mut total_wait := 0
+    mut max_wait := 0
+    mut finish := 0
+    mut k := 1
+    while true
+        line := io.read_line() else break
+        k += 1
+        w := line.words()
+        if w.is_empty()
+            continue
+        shaped := w.len() == 4 and w[0] == "arrive"
+        t := if shaped then (w[1].to_int() else -1) else -1
+        s := if shaped then (w[3].to_int() else 0) else 0
+        if t < 0 or s < 1
+            print("line {k}: bad line")
+            continue
+        if t < last
+            print("line {k}: out of order")
+            continue
+        last = t
+        start := t.max(earliest(free))
+        i := pick(free, start)
+        free[i] = start + s
+        wait := start - t
+        served += 1
+        total_wait += wait
+        max_wait = max_wait.max(wait)
+        finish = finish.max(start + s)
+        print("{w[2]} server {i + 1} start {start} end {start + s} wait {wait}")
+    print("served {served} total_wait {total_wait} max_wait {max_wait} finish {finish}")

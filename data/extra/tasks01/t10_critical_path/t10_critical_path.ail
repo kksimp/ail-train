@@ -1,0 +1,88 @@
+## Critical path: earliest start/finish per task from dependencies and durations,
+## the total project length and one longest chain of tasks.
+
+struct Item
+    name str
+    dur int
+    deps List[str]
+
+fn parse(line str) Item?
+    f := line.split(" ")
+    if f.len() != 3
+        return none
+    d := f[1].to_int() else return none
+    if d < 0
+        return none
+    deps := if f[2] == "-" then List[str]() else f[2].split(",")
+    Item(name: f[0], dur: d, deps: deps)
+
+## The name with the largest finish time, smallest name on ties.
+fn pick(cands List[str], finish Map[str, int]) str?
+    mut best := cands.first() else return none
+    for c in cands
+        if finish[c] > finish[best] or (finish[c] == finish[best] and c < best)
+            best = c
+    best
+
+fn main()
+    mut items := Map[str, Item]()
+    mut names := List[str]()
+    mut n := 0
+    for line in io.read_all().lines()
+        n += 1
+        if line.trim().is_empty()
+            continue
+        it := parse(line) else
+            print("bad line {n}")
+            continue
+        if items.contains(it.name)
+            print("bad line {n}")
+            continue
+        items[it.name] = it
+        names.push(it.name)
+    for name in names
+        for d in items[name].deps
+            if not items.contains(d)
+                print("error: unknown dependency {d} in {name}")
+                return
+    mut left := Map[str, int]()
+    mut users := Map[str, List[str]]()
+    mut ready := List[str]()
+    for name in names
+        left[name] = items[name].deps.len()
+        for d in items[name].deps
+            users.push(d, name)
+        if left[name] == 0
+            ready.push(name)
+    mut start := Map[str, int]()
+    mut finish := Map[str, int]()
+    mut done := List[str]()
+    while not ready.is_empty()
+        cur := ready.min() else break
+        ready.remove_at(ready.index_of(cur) else 0)
+        it := items[cur]
+        s := it.deps.map(|d| finish[d]).max() else 0
+        start[cur] = s
+        finish[cur] = s + it.dur
+        done.push(cur)
+        for u in users.get(cur) else List[str]()
+            left[u] -= 1
+            if left[u] == 0
+                ready.push(u)
+    if done.len() < names.len()
+        print("error: cycle")
+        return
+    for name in done
+        print("{name} {start[name]} {finish[name]}")
+    last := pick(names, finish)
+    length := if e := last then finish[e] else 0
+    print("length {length}")
+    mut chain := List[str]()
+    mut cur := last
+    while c := cur
+        chain.push(c)
+        cur = pick(items[c].deps, finish)
+    if chain.is_empty()
+        print("critical: none")
+    else
+        print("critical: {chain.reversed().join(" -> ")}")

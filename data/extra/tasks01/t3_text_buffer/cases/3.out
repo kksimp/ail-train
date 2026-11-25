@@ -1,0 +1,15 @@
+error: nothing to undo
+error: nothing to redo
+[]
+error: bad command
+error: bad command
+error: bad command
+error: bad command
+error: bad command
+error: bad command
+[abc def]
+[]
+[abc def]
+error: nothing to undo
+[]
+edits: 0

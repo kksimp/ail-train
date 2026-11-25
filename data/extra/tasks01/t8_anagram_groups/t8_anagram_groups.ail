@@ -1,0 +1,24 @@
+## Groups input words into anagram groups and prints each group of two or more distinct words.
+## Words are lowercased; groups and their lines are printed in sorted order, or `none`.
+fn sort_key(w str) str
+    w.chars().sorted().join("")
+
+fn main()
+    mut groups := Map[str, List[str]]()
+    for line in io.read_all().lines()
+        w := line.trim().to_lower()
+        if w.is_empty()
+            continue
+        k := sort_key(w)
+        have := groups.get(k) else List[str]()
+        if not have.contains(w)
+            groups.push(k, w)
+    mut out := List[str]()
+    for k, ws in groups
+        if ws.len() >= 2
+            out.push(ws.sorted().join(" "))
+    if out.is_empty()
+        print("none")
+    else
+        for l in out.sorted()
+            print(l)

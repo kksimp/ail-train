@@ -1,0 +1,12 @@
+push x
+push
+push 1 2
+foo
+push 0
+push 4
+swap
+div
+print
+pop
+pop
+pop

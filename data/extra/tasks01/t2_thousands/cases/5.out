@@ -1,0 +1,10 @@
+line 1: bad command
+line 2: bad command
+line 3: bad command
+line 4: bad command
+line 5: bad command
+line 6: bad command
+1;000;000;000
+-1000000000
+line 10: bad command
+done 2 errors 7

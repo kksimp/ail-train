@@ -1,0 +1,11 @@
+salary:desc,name:asc
+zed,ops,10
+amy,dev,10
+
+bob,dev,-5
+x,,3
+carl,ops,abc
+al,ops,+4
+dee,ops,20
+,ops,1
+q,ops,7,8

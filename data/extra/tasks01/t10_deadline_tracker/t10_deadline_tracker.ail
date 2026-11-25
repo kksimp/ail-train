@@ -1,0 +1,90 @@
+## Deadline tracker: reads a reference date and tasks, then prints an overdue
+## report and a due-soon report for the open tasks.
+
+struct Job
+    date str
+    name str
+    days int
+
+fn is_leap(y int) bool
+    (y % 4 == 0 and y % 100 != 0) or y % 400 == 0
+
+fn month_days(y int, m int) int
+    match m
+        2 => if is_leap(y) then 29 else 28
+        4 | 6 | 9 | 11 => 30
+        _ => 31
+
+fn digits(s str, n int) int?
+    if s.len() != n
+        return none
+    for c in s.chars()
+        if not c.is_digit()
+            return none
+    s.to_int()
+
+fn day_number(s str) int?
+    p := s.split("-")
+    if p.len() != 3
+        return none
+    y := digits(p[0], 4) else return none
+    m := digits(p[1], 2) else return none
+    d := digits(p[2], 2) else return none
+    if y < 1970 or y > 2100 or m < 1 or m > 12 or d < 1 or d > month_days(y, m)
+        return none
+    yy := if m <= 2 then y - 1 else y
+    era := yy / 400
+    yoe := yy - era * 400
+    mp := if m > 2 then m - 3 else m + 9
+    doy := (153 * mp + 2) / 5 + d - 1
+    era * 146097 + yoe * 365 + yoe / 4 - yoe / 100 + doy
+
+fn plural(k int) str
+    if k == 1
+        "1 day"
+    else
+        "{k} days"
+
+fn show(t Job, k int) str
+    label := if k == 0 then "today" else plural(k)
+    "  {label}: {t.name} ({t.date})"
+
+fn section(title str, tasks List[Job], overdue bool)
+    print(title)
+    if tasks.is_empty()
+        print("  none")
+    for t in tasks
+        print(show(t, if overdue then -t.days else t.days))
+
+fn main()
+    lines := io.read_all().lines()
+    first := (lines.first() else "").split(" ")
+    if first.len() != 2 or first[0] != "today"
+        print("no today line")
+        return
+    today := day_number(first[1]) else
+        print("no today line")
+        return
+    mut open := List[Job]()
+    mut done := 0
+    mut bad := List[int]()
+    for i in 1..lines.len()
+        if lines[i].trim().is_empty()
+            continue
+        f := lines[i].split(" ", 3)
+        n := if f.len() == 3 then day_number(f[0]) else none
+        valid := n != none and (f[1] == "open" or f[1] == "done") and not f[2].trim().is_empty()
+        if not valid
+            bad.push(i + 1)
+            continue
+        if f[1] == "done"
+            done += 1
+        else
+            open.push(Job(date: f[0], name: f[2], days: (n else 0) - today))
+    late := open.filter(|t| t.days < 0).sorted(by: |t| (t.days, t.name))
+    soon := open.filter(|t| t.days >= 0 and t.days <= 3).sorted(by: |t| (t.days, t.name))
+    section("OVERDUE", late, true)
+    section("DUE SOON", soon, false)
+    print("done {done} open {open.len()} overdue {late.len()}")
+    for b in bad
+        print("bad line {b}")

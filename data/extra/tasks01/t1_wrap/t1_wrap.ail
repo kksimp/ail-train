@@ -1,0 +1,51 @@
+## Text wrapping: greedy wrap of each paragraph to the width on the first input line.
+## Paragraphs are separated by blank lines; over-long words stay unbroken (spec.md).
+fn wrap_words(words List[str], width int) List[str]
+    mut out := List[str]()
+    mut cur := List[str]()
+    mut cur_len := 0
+    for w in words
+        if cur.is_empty()
+            cur.push(w)
+            cur_len = w.len()
+        elif cur_len + 1 + w.len() > width
+            out.push(cur.join(" "))
+            cur.clear()
+            cur.push(w)
+            cur_len = w.len()
+        else
+            cur.push(w)
+            cur_len += 1 + w.len()
+    if not cur.is_empty()
+        out.push(cur.join(" "))
+    out
+
+fn paragraphs(lines List[str]) List[List[str]]
+    mut paras := List[List[str]]()
+    mut cur := List[str]()
+    for line in lines
+        ws := line.words()
+        if ws.is_empty()
+            if not cur.is_empty()
+                paras.push(cur)
+                cur.clear()
+        else
+            cur.extend(ws)
+    if not cur.is_empty()
+        paras.push(cur)
+    paras
+
+fn main()
+    mut lines := io.read_all().split("\n")
+    if (lines.last() else "x") == ""
+        lines.pop()
+    width := (lines.first() else "").to_int() else 0
+    if width < 1
+        print("bad width")
+        return
+    paras := paragraphs(lines.skip(1))
+    for i, p in paras.enumerate()
+        if i > 0
+            print("")
+        for l in wrap_words(p, width)
+            print(l)

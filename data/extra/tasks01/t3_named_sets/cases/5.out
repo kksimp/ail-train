@@ -1,0 +1,12 @@
+x = {p q}
+y = {q r}
+z = {}
+u = {p q r}
+v = {}
+yes
+no
+w = {r}
+u v w x y z
+deleted y
+error: unknown set y
+error: bad command

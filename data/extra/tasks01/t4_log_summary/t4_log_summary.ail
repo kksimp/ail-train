@@ -1,0 +1,48 @@
+## Summarises log lines `DATE TIME LEVEL MESSAGE`: counts per level, malformed lines,
+## the time span of valid lines and the first ERROR message.
+fn shape(s str, pat str) bool
+    a := s.chars()
+    b := pat.chars()
+    if a.len() != b.len()
+        return false
+    for i in 0..a.len()
+        if b[i] == 'd'
+            if a[i] < '0' or a[i] > '9'
+                return false
+        elif a[i] != b[i]
+            return false
+    true
+
+fn main()
+    mut counts := {"ERROR": 0, "WARN": 0, "INFO": 0, "DEBUG": 0}
+    mut malformed := 0
+    mut first := ""
+    mut last := ""
+    mut seen := false
+    mut first_err := ""
+    mut has_err := false
+    for line in io.read_all().lines()
+        t := line.trim()
+        if t.is_empty()
+            continue
+        parts := t.split(" ", 4)
+        if parts.len() < 3 or not shape(parts[0], "dddd-dd-dd") or not shape(parts[1], "dd:dd:dd") or not counts.contains(parts[2])
+            malformed += 1
+            continue
+        counts[parts[2]] += 1
+        stamp := "{parts[0]} {parts[1]}"
+        if not seen
+            first = stamp
+            seen = true
+        last = stamp
+        if parts[2] == "ERROR" and not has_err
+            msg := if parts.len() == 4 then parts[3].trim() else ""
+            has_err = true
+            first_err = if msg.is_empty() then "(no message)" else msg
+    for level in ["ERROR", "WARN", "INFO", "DEBUG"]
+        print("{level} {counts[level]}")
+    print("malformed {malformed}")
+    if seen
+        print("span {first} .. {last}")
+    if has_err
+        print("first error: {first_err}")

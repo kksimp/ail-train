@@ -1,0 +1,13 @@
+seats 4
+book a x
+book a 0
+book a 5
+book a -1
+hello
+book a
+book b 4 extra
+
+cancel
+cancel a b
+show now
+show

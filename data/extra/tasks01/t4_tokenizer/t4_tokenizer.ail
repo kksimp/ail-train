@@ -1,0 +1,75 @@
+## Splits each input line into tokens and prints `LINE:COL KIND TEXT` for each.
+## Kinds: KEYWORD IDENT INT FLOAT STRING OP PUNCT ERROR.
+fn is_digit(c char) bool
+    c >= '0' and c <= '9'
+
+fn is_ident_start(c char) bool
+    (c >= 'a' and c <= 'z') or (c >= 'A' and c <= 'Z') or c == '_'
+
+fn is_ident_char(c char) bool
+    is_ident_start(c) or is_digit(c)
+
+fn is_keyword(t str) bool
+    t == "if" or t == "else" or t == "while" or t == "return"
+
+## Returns the text of the characters from `a` up to (not including) `b`.
+fn text_of(cs List[char], a int, b int) str
+    cs.slice(a, b).join("")
+
+fn emit(ln int, col int, kind str, text str)
+    print("{ln}:{col} {kind} {text}")
+
+fn scan_line(ln int, cs List[char])
+    n := cs.len()
+    mut i := 0
+    while i < n
+        c := cs[i]
+        if c == ' ' or c == '\t'
+            i += 1
+            continue
+        mut j := i
+        mut kind := "ERROR"
+        if is_ident_start(c)
+            while j < n and is_ident_char(cs[j])
+                j += 1
+            kind = if is_keyword(text_of(cs, i, j)) then "KEYWORD" else "IDENT"
+        elif is_digit(c)
+            while j < n and is_digit(cs[j])
+                j += 1
+            kind = "INT"
+            if j + 1 < n and cs[j] == '.' and is_digit(cs[j + 1])
+                j += 1
+                while j < n and is_digit(cs[j])
+                    j += 1
+                kind = "FLOAT"
+        elif c == '"'
+            j = i + 1
+            while j < n and cs[j] != '"'
+                j += 1
+            if j >= n
+                emit(ln, i + 1, "ERROR", text_of(cs, i, n))
+                return
+            j += 1
+            kind = "STRING"
+        elif i + 1 < n and (c == '=' or c == '!' or c == '<' or c == '>') and cs[i + 1] == '='
+            j = i + 2
+            kind = "OP"
+        elif c == '-' and i + 1 < n and cs[i + 1] == '>'
+            j = i + 2
+            kind = "OP"
+        elif "+-*/%<>=!".contains(c)
+            j = i + 1
+            kind = "OP"
+        elif "()\{},;:".contains(c)
+            j = i + 1
+            kind = "PUNCT"
+        else
+            j = i + 1
+        emit(ln, i + 1, kind, text_of(cs, i, j))
+        i = j
+
+fn main()
+    mut ln := 0
+    for line in io.read_all().lines()
+        ln += 1
+        scan_line(ln, line.chars())

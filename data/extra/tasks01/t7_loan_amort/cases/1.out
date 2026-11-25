@@ -1,0 +1,5 @@
+1: pay=510.00 interest=10.00 principal=500.00 balance=500.00
+2: pay=505.00 interest=5.00 principal=500.00 balance=0.00
+months: 2
+total paid: 1015.00
+total interest: 15.00

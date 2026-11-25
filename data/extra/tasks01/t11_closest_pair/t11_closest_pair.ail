@@ -1,0 +1,38 @@
+## Brute-force closest pair of points by squared distance, ties broken by the smallest indexes.
+fn parse_point(t str) (int, int)?
+    w := t.words()
+    if w.len() != 2
+        return none
+    x := w[0].to_int() else return none
+    y := w[1].to_int() else return none
+    (x, y)
+
+fn main()
+    mut pts := List[(int, int)]()
+    mut skipped := 0
+    for line in io.read_all().lines()
+        t := line.trim()
+        if t.is_empty()
+            continue
+        p := parse_point(t) else
+            skipped += 1
+            continue
+        pts.push(p)
+    print("points {pts.len()}")
+    print("skipped {skipped}")
+    if pts.len() < 2
+        print("closest none")
+        return
+    mut best := -1
+    mut bi := 0
+    mut bj := 0
+    for i in 0..pts.len()
+        for j in (i + 1)..pts.len()
+            dx := pts[i].0 - pts[j].0
+            dy := pts[i].1 - pts[j].1
+            d := dx * dx + dy * dy
+            if best < 0 or d < best
+                best = d
+                bi = i + 1
+                bj = j + 1
+    print("closest {bi} {bj} {best}")

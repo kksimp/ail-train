@@ -1,0 +1,75 @@
+## Inserts or removes thousands separators: `add SEP NUMBER` and `strip SEP NUMBER`.
+
+fn is_digits(t str) bool
+    if t.is_empty()
+        return false
+    for c in t.chars()
+        if not c.is_digit()
+            return false
+    true
+
+## The digits without leading zeros (`0` for all zeros).
+fn strip_zeros(t str) str
+    mut s := t
+    while s.len() > 1 and s.starts_with("0")
+        s = s.slice(1)
+    s
+
+fn add_sep(num str, sep str) str
+    neg := num.starts_with("-")
+    mut digits := strip_zeros(num.strip_prefix("-") else num)
+    sign := if neg and digits != "0" then "-" else ""
+    mut groups := List[str]()
+    while digits.len() > 3
+        groups.push(digits.slice(digits.len() - 3))
+        digits = digits.slice(0, digits.len() - 3)
+    groups.push(digits)
+    "{sign}{groups.reversed().join(sep)}"
+
+## The plain digits of a correctly grouped number, or none.
+fn strip_sep(num str, sep str) str?
+    neg := num.starts_with("-")
+    body := num.strip_prefix("-") else num
+    parts := body.split(sep)
+    first := parts[0]
+    if first.len() > 3 or not is_digits(first)
+        return none
+    if first.starts_with("0") and (first != "0" or parts.len() > 1)
+        return none
+    for p in parts.slice(1)
+        if p.len() != 3 or not is_digits(p)
+            return none
+    sign := if neg then "-" else ""
+    "{sign}{parts.join("")}"
+
+fn main()
+    mut lines := io.read_all().split("\n")
+    if (lines.last() else "x") == ""
+        lines.pop()
+    mut ok := 0
+    mut errors := 0
+    for i in 0..lines.len()
+        f := lines[i].split(" ").filter(|x| not x.is_empty())
+        if f.is_empty()
+            continue
+        k := i + 1
+        sep := if f.len() == 3 then f[1] else ""
+        if f.len() != 3 or (f[0] != "add" and f[0] != "strip") or sep.len() != 1 or "0123456789- ".contains(sep)
+            print("line {k}: bad command")
+            errors += 1
+            continue
+        num := f[2]
+        mut res := none
+        if f[0] == "add"
+            body := num.strip_prefix("-") else num
+            if is_digits(body) and body.len() <= 18
+                res = add_sep(num, sep)
+        else
+            res = strip_sep(num, sep)
+        text := res else
+            print("line {k}: bad number")
+            errors += 1
+            continue
+        print(text)
+        ok += 1
+    print("done {ok} errors {errors}")

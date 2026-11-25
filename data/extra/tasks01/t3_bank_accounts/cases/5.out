@@ -1,0 +1,13 @@
+opened a
+opened b
+opened c
+a: 1000000000000
+a->b 999999999999
+b->c 3
+b: 999999999996
+c: 3
+a 1
+b 999999999996
+c 3
+total 1000000000000
+error: insufficient funds

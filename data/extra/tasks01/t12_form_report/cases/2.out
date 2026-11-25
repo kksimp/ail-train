@@ -1,0 +1,5 @@
+name: too long
+age: out of range
+email: invalid
+zip: invalid
+RESULT invalid (4)

@@ -1,0 +1,13 @@
+seats 1
+show
+book x 1
+book y 1
+book x 1
+book y 1
+cancel y
+book y 1
+show
+cancel x
+show
+cancel y
+show

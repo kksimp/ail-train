@@ -1,0 +1,55 @@
+## Column alignment of a `|`-separated table; the first line gives per-column alignment (l, r, c).
+## Cells are trimmed, padded to the column width and joined with ` | ` (spec.md).
+enum Align
+    Left
+    Right
+    Center
+
+fn parse_aligns(line str) List[Align]?
+    mut out := List[Align]()
+    for tok in line.words()
+        match tok
+            "l" => out.push(Align.Left)
+            "r" => out.push(Align.Right)
+            "c" => out.push(Align.Center)
+            _ => return none
+    out
+
+fn pad(cell str, width int, a Align) str
+    gap := width - cell.len()
+    match a
+        Left => "{cell}{" ".repeat(gap)}"
+        Right => "{" ".repeat(gap)}{cell}"
+        Center => "{" ".repeat(gap / 2)}{cell}{" ".repeat(gap - gap / 2)}"
+
+fn main()
+    mut lines := io.read_all().split("\n")
+    if (lines.last() else "x") == ""
+        lines.pop()
+    if lines.is_empty()
+        return
+    aligns := parse_aligns(lines[0]) else
+        print("bad spec")
+        return
+    mut rows := List[List[str]]()
+    for line in lines.skip(1)
+        if line.words().is_empty()
+            continue
+        rows.push([c.trim() for c in line.split("|")])
+    mut ncols := 0
+    for r in rows
+        ncols = ncols.max(r.len())
+    mut widths := List[int]()
+    for j in 0..ncols
+        mut w := 0
+        for r in rows
+            if j < r.len()
+                w = w.max(r[j].len())
+        widths.push(w)
+    for r in rows
+        mut cells := List[str]()
+        for j in 0..ncols
+            cell := if j < r.len() then r[j] else ""
+            a := if j < aligns.len() then aligns[j] else Align.Left
+            cells.push(pad(cell, widths[j], a))
+        print(cells.join(" | ").trim_end())

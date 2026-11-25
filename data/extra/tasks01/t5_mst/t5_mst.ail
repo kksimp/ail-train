@@ -1,0 +1,36 @@
+## Minimum spanning forest weight with Kruskal's algorithm and union-find over named nodes.
+## Prints the total weight, the number of chosen edges and the number of components.
+fn find(mut parent Map[str, str], x str) str
+    mut r := x
+    while parent[r] != r
+        parent[r] = parent[parent[r]]
+        r = parent[r]
+    r
+
+fn main()
+    mut edges := List[(int, str, str)]()
+    mut parent := Map[str, str]()
+    for line in io.read_all().lines()
+        w := line.words()
+        if w.len() != 3
+            continue
+        weight := w[2].to_int() else continue
+        edges.push((weight, w[0], w[1]))
+        parent[w[0]] = w[0]
+        parent[w[1]] = w[1]
+    mut total := 0
+    mut chosen := 0
+    for e in edges.sorted()
+        ra := find(mut parent, e.1)
+        rb := find(mut parent, e.2)
+        if ra != rb
+            parent[ra] = rb
+            total += e.0
+            chosen += 1
+    mut comps := 0
+    for name in parent.keys()
+        if find(mut parent, name) == name
+            comps += 1
+    print("total: {total}")
+    print("edges: {chosen}")
+    print("components: {comps}")

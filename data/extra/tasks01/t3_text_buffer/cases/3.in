@@ -1,0 +1,18 @@
+undo
+redo
+show
+append
+delete
+delete 0
+delete x
+undo now
+foo
+append abc def
+show
+delete 99
+show
+undo
+show
+undo
+undo
+show

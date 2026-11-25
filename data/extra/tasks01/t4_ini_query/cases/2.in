@@ -1,0 +1,17 @@
+; comment
+# another
+
+[ server ]
+  host  =  example.org  
+host = override.org
+empty =
+url = a=b=c
+[x]
+=novalue
+junkline
+---
+server.host
+server.empty
+server.url
+x.novalue
+x.junkline

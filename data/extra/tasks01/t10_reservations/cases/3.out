@@ -1,0 +1,15 @@
+a: booked 1
+b: waitlisted for 1
+c: waitlisted for 1
+d: waitlisted for 1
+b: left waitlist
+seats: 1=a 2=-
+a: cancelled 1
+c: promoted to 1
+seats: 1=c 2=-
+c: cancelled 1
+d: promoted to 1
+seats: 1=d 2=-
+d: cancelled 1
+seats: 1=- 2=-
+d: no reservation

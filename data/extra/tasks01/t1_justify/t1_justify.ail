@@ -1,0 +1,57 @@
+## Full justification: greedy line breaking, then pad gaps so every line but the last is N wide.
+## Extra spaces go to the leftmost gaps (spec.md).
+fn break_lines(words List[str], width int) List[List[str]]
+    mut rows := List[List[str]]()
+    mut cur := List[str]()
+    mut cur_len := 0
+    for w in words
+        if cur.is_empty()
+            cur.push(w)
+            cur_len = w.len()
+        elif cur_len + 1 + w.len() > width
+            rows.push(cur)
+            cur.clear()
+            cur.push(w)
+            cur_len = w.len()
+        else
+            cur.push(w)
+            cur_len += 1 + w.len()
+    if not cur.is_empty()
+        rows.push(cur)
+    rows
+
+fn justify(row List[str], width int) str
+    if row.len() == 1
+        return row[0]
+    letters := row.fold(0, |acc, w| acc + w.len())
+    gaps := row.len() - 1
+    spaces := width - letters
+    if spaces < gaps
+        return row.join(" ")
+    base := spaces / gaps
+    extra := spaces % gaps
+    mut pieces := List[str]()
+    for i in 0..row.len()
+        pieces.push(row[i])
+        if i < gaps
+            n := if i < extra then base + 1 else base
+            pieces.push(" ".repeat(n))
+    pieces.join("")
+
+fn main()
+    mut lines := io.read_all().split("\n")
+    if (lines.last() else "x") == ""
+        lines.pop()
+    width := (lines.first() else "").to_int() else 0
+    if width < 1
+        print("bad width")
+        return
+    mut words := List[str]()
+    for line in lines.skip(1)
+        words.extend(line.words())
+    rows := break_lines(words, width)
+    for i, row in rows.enumerate()
+        if i == rows.len() - 1
+            print(row.join(" "))
+        else
+            print(justify(row, width))

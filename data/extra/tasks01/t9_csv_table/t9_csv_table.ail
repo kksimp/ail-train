@@ -1,0 +1,27 @@
+## Reads a simple comma-separated table from stdin and prints it as an aligned text table
+## with a rule line under the header. Short rows are padded with empty cells.
+fn pad_row(row List[str], widths List[int]) str
+    mut cells := List[str]()
+    for c in 0..widths.len()
+        cell := if c < row.len() then row[c] else ""
+        cells.push(cell.pad_right(widths[c], ' '))
+    cells.join(" | ").trim_end()
+
+fn main()
+    mut rows := List[List[str]]()
+    for line in io.read_all().lines()
+        if line.is_empty()
+            continue
+        rows.push(line.split(","))
+    if rows.is_empty()
+        return
+    mut widths := List[int]()
+    for row in rows
+        for c in 0..row.len()
+            if c >= widths.len()
+                widths.push(0)
+            widths[c] = widths[c].max(row[c].len())
+    print(pad_row(rows[0], widths))
+    print(widths.map(|w| "-".repeat(w)).join("-+-"))
+    for i in 1..rows.len()
+        print(pad_row(rows[i], widths))

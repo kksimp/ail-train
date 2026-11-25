@@ -1,0 +1,9 @@
+path=/x
+  a=1
+  b=2
+  a=3
+path=/y
+path=/z
+path=
+  lonely=1
+path=

@@ -1,0 +1,14 @@
+report
+order bob 10
+pay bob 10
+limit bob 100
+limit cy 40
+
+order bob 100
+order bob 1
+pay bob 101
+pay bob 100
+order cy 41
+limit bob 20
+order bob 21
+report

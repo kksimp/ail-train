@@ -1,0 +1,6 @@
+2024-5-01 10:00:00 INFO bad date
+2024-05-01 10:00 INFO bad time
+2024-05-01 10:00:00 error lower
+2024-05-01 10:00:00 FATAL nope
+2024-05-01  10:00:00 INFO double space
+INFO only

@@ -1,0 +1,6 @@
+ERROR 0
+WARN 1
+INFO 1
+DEBUG 2
+malformed 0
+span 2024-05-01 10:00:00 .. 2024-05-03 23:59:59

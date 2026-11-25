@@ -1,0 +1,35 @@
+## Splits input into blank-line separated groups of words and prints each group's longest common prefix.
+## Ends with the length of the longest prefix found.
+fn common(a str, b str) str
+    xs := a.chars()
+    ys := b.chars()
+    mut n := 0
+    while n < xs.len() and n < ys.len() and xs[n] == ys[n]
+        n += 1
+    a.slice(0, n)
+
+fn prefix_of(words List[str]) str
+    mut p := words[0]
+    for i in 1..words.len()
+        p = common(p, words[i])
+    p
+
+fn main()
+    mut groups := List[List[str]]()
+    mut cur := List[str]()
+    for line in io.read_all().lines()
+        w := line.trim()
+        if w.is_empty()
+            if not cur.is_empty()
+                groups.push(cur)
+                cur = List[str]()
+        else
+            cur.push(w)
+    if not cur.is_empty()
+        groups.push(cur)
+    mut longest := 0
+    for i in 0..groups.len()
+        p := prefix_of(groups[i])
+        print("group {i + 1}: \"{p}\"")
+        longest = longest.max(p.len())
+    print("longest: {longest}")

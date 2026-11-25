@@ -1,0 +1,38 @@
+## Tic-tac-toe judge: reads one game per line (cells 0-8 in play order) and prints the verdict.
+## Verdicts: `X wins`, `O wins`, `draw`, `in progress` or `invalid`.
+WIN_LINES := [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]]
+
+fn winner(b List[str]) str
+    for l in WIN_LINES
+        if b[l[0]] != "." and b[l[0]] == b[l[1]] and b[l[1]] == b[l[2]]
+            return b[l[0]]
+    ""
+
+fn judge(line str) str
+    mut b := List[str]()
+    for i in 0..9
+        b.push(".")
+    mut turn := 0
+    mut done := false
+    for tok in line.words()
+        if done
+            return "invalid"
+        n := tok.to_int() else return "invalid"
+        if n < 0 or n > 8 or b[n] != "."
+            return "invalid"
+        b[n] = if turn % 2 == 0 then "X" else "O"
+        turn += 1
+        if winner(b) != ""
+            done = true
+    if done
+        return "{winner(b)} wins"
+    if turn == 9
+        return "draw"
+    "in progress"
+
+fn main()
+    mut lines := io.read_all().split("\n")
+    if (lines.last() else "x") == ""
+        lines.pop()
+    for l in lines
+        print(judge(l))

@@ -1,0 +1,3 @@
+Abcdef1!x: OK
+abc: FAIL short,no-upper,no-digit,no-symbol
+Aaa111!!!z: FAIL repeat

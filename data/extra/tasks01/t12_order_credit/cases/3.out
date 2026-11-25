@@ -1,0 +1,13 @@
+ERROR line 1: bad amount
+ERROR line 2: bad amount
+ERROR line 3: bad amount
+ERROR line 4: bad command
+ERROR line 5: bad command
+ERROR line 6: bad command
+ERROR line 7: bad command
+ERROR line 8: bad amount
+LIMIT ann 10
+ACCEPT ann 10 balance 10/10
+LIMIT ann 5
+REJECT ann 1: over limit by 6
+ann 10/5

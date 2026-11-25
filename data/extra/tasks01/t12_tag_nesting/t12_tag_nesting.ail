@@ -1,0 +1,45 @@
+## Tag nesting check: for each line of HTML-like markup prints OK or the first
+## nesting problem found (stack based).
+
+fn valid_name(s str) bool
+    not s.is_empty() and s.chars().all(|c| c.is_lower() or c.is_digit())
+
+fn check(line str) str
+    cs := line.chars()
+    mut stack := List[str]()
+    mut count := 0
+    mut i := 0
+    while i < cs.len()
+        if cs[i] != '<'
+            i += 1
+            continue
+        mut j := i + 1
+        while j < cs.len() and cs[j] != '>'
+            j += 1
+        if j >= cs.len()
+            return "unterminated tag"
+        tag := cs[i + 1..j].join("")
+        count += 1
+        i = j + 1
+        if tag.starts_with("/")
+            name := tag.slice(1)
+            if not valid_name(name)
+                return "bad tag {count}"
+            top := stack.pop() else return "unexpected close {name} at tag {count}"
+            if top != name
+                return "mismatch at tag {count}: expected {top} got {name}"
+        elif tag.ends_with("/")
+            if not valid_name(tag.slice(0, tag.len() - 1))
+                return "bad tag {count}"
+        else
+            if not valid_name(tag)
+                return "bad tag {count}"
+            stack.push(tag)
+    innermost := stack.last() else return "OK"
+    "unclosed {innermost}"
+
+fn main()
+    for n, line in io.read_all().lines().enumerate()
+        if line.trim().is_empty()
+            continue
+        print("{n + 1}: {check(line)}")

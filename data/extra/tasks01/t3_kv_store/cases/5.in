@@ -1,0 +1,12 @@
+set x 99999
+incr x
+incr y
+incr y
+incr y
+get y
+del x
+del y
+count
+keys
+set a b c d e
+get a

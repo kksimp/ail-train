@@ -1,0 +1,16 @@
+add a
+add b
+add c
+rm 2
+add d
+list
+done 3
+done 4
+open
+clear
+list
+add  spaced out
+list
+rm 3
+rm 3
+count

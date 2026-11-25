@@ -1,0 +1,8 @@
+1A: invalid
+7: invalid
+Z: invalid
+123-ABC: invalid
+AB-123: invalid
+ABC 123: invalid
+AB-12-cd: invalid
+ÄBC-123: invalid

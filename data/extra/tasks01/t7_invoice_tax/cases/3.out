@@ -1,0 +1,12 @@
+line 1: invalid
+line 2: invalid
+line 3: invalid
+line 4: invalid
+line 5: invalid
+line 6: invalid
+ok item: net=0.01 tax=0.00 (B)
+spaced: net=21.00 tax=2.10 (D)
+subtotal: 21.01
+tax B: 0.00
+tax D: 2.10
+total: 23.11

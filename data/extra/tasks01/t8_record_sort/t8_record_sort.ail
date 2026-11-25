@@ -1,0 +1,80 @@
+## Sorts name,dept,salary records by a multi-key specification given on the first line.
+## Malformed records are reported as `skip N`; the sort is stable.
+struct Key
+    field str
+    desc bool
+
+struct Rec
+    name str
+    dept str
+    salary int
+
+fn parse_spec(line str) List[Key]?
+    mut keys := List[Key]()
+    for part in line.split(",")
+        bits := part.split(":")
+        if bits.len() != 2
+            return none
+        if bits[0] != "name" and bits[0] != "dept" and bits[0] != "salary"
+            return none
+        if bits[1] != "asc" and bits[1] != "desc"
+            return none
+        keys.push(Key(field: bits[0], desc: bits[1] == "desc"))
+    keys
+
+fn all_digits(s str) bool
+    if s.is_empty()
+        return false
+    for ch in s.chars()
+        if not ch.is_digit()
+            return false
+    true
+
+fn parse_rec(line str) Rec?
+    f := line.split(",")
+    if f.len() != 3 or f[0].is_empty() or f[1].is_empty()
+        return none
+    digits := if f[2].starts_with("-") then f[2].slice(1) else f[2]
+    if not all_digits(digits)
+        return none
+    n := f[2].to_int() else return none
+    Rec(name: f[0], dept: f[1], salary: n)
+
+fn cmp_field(a Rec, b Rec, field str) int
+    if field == "salary"
+        return if a.salary < b.salary then -1 elif a.salary > b.salary then 1 else 0
+    x := if field == "name" then a.name else a.dept
+    y := if field == "name" then b.name else b.dept
+    if x < y then -1 elif x > y then 1 else 0
+
+fn before(a Rec, b Rec, keys List[Key]) bool
+    for k in keys
+        c := cmp_field(a, b, k.field)
+        if c != 0
+            return if k.desc then c > 0 else c < 0
+    false
+
+fn main()
+    lines := io.read_all().lines()
+    if lines.is_empty()
+        print("bad spec")
+        return
+    keys := parse_spec(lines[0]) else
+        print("bad spec")
+        return
+    mut recs := List[Rec]()
+    for k in 1..lines.len()
+        if lines[k].is_empty()
+            continue
+        r := parse_rec(lines[k]) else
+            print("skip {k + 1}")
+            continue
+        recs.push(r)
+    mut sorted := List[Rec]()
+    for r in recs
+        mut pos := sorted.len()
+        while pos > 0 and before(r, sorted[pos - 1], keys)
+            pos -= 1
+        sorted.insert(pos, r)
+    for r in sorted
+        print("{r.name},{r.dept},{r.salary}")

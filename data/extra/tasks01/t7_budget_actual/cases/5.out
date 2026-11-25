@@ -1,0 +1,4 @@
+A: budget=0.03 actual=0.02 diff=0.01 used=66% UNDER
+a: budget=0.00 actual=0.01 diff=-0.01 used=n/a OVER
+b: budget=0.03 actual=0.01 diff=0.02 used=33% UNDER
+total: budget=0.06 actual=0.04 diff=0.02

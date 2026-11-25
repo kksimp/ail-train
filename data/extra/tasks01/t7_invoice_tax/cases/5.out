@@ -1,0 +1,8 @@
+tea: net=23.31 tax=1.17 (B)
+tea: net=0.01 tax=0.00 (C)
+tea: net=5.01 tax=0.50 (D)
+subtotal: 28.33
+tax B: 1.17
+tax C: 0.00
+tax D: 0.50
+total: 30.00

@@ -1,0 +1,17 @@
+next
+list
+add x 0
+add x 10
+add x abc
+add x
+add x 4
+add x 5
+bump y 1
+bump x 0
+bump x z
+cancel y
+cancel x
+cancel x
+add x 5
+bogus 1 2
+list

@@ -1,0 +1,31 @@
+## Reads `A|B` lines and prints the Levenshtein distance for each pair.
+## Lines without exactly one `|` are reported as malformed.
+fn distance(a str, b str) int
+    xs := a.chars()
+    ys := b.chars()
+    mut prev := [j for j in 0..=ys.len()]
+    for i in 1..=xs.len()
+        mut cur := [i]
+        for j in 1..=ys.len()
+            cost := if xs[i - 1] == ys[j - 1] then 0 else 1
+            best := (prev[j] + 1).min((cur[j - 1] + 1).min(prev[j - 1] + cost))
+            cur.push(best)
+        prev = cur
+    prev[ys.len()]
+
+fn main()
+    mut pairs := 0
+    mut bad := 0
+    lines := io.read_all().lines()
+    for k in 0..lines.len()
+        line := lines[k]
+        if line.is_empty()
+            continue
+        parts := line.split("|")
+        if parts.len() != 2
+            print("line {k + 1}: malformed")
+            bad += 1
+            continue
+        pairs += 1
+        print("{parts[0]} -> {parts[1]}: {distance(parts[0], parts[1])}")
+    print("pairs: {pairs}, malformed: {bad}")

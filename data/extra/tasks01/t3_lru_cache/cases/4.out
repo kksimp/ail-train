@@ -1,0 +1,19 @@
+(empty)
+stored a
+stored b
+stored c
+updated a
+stored d
+evict b
+d a c
+miss
+3
+d a c
+3
+c d a
+miss
+error: bad command
+error: bad command
+error: bad command
+hits 1 misses 1 evictions 1
+error: bad command

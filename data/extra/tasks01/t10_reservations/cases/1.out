@@ -1,0 +1,10 @@
+ann: booked 2
+bob: waitlisted for 2
+cy: booked 1
+ann: already booked
+seats: 1=cy 2=ann 3=-
+ann: cancelled 2
+bob: promoted to 2
+zed: no reservation
+seats: 1=cy 2=bob 3=-
+dee: invalid seat

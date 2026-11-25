@@ -1,0 +1,22 @@
+added a
+added b
+added c
+c now 5
+a now 5
+b now 5
+a:5
+b:5
+c:5
+a now 9
+a:9
+b:5
+c:5
+run a 9
+added a
+b:5
+c:5
+a:1
+run b 5
+run c 5
+run a 1
+idle

@@ -1,0 +1,38 @@
+## Prints the K most frequent words of the text after the first line, by count then alphabetically.
+## Words are runs of ASCII letters, lowercased.
+fn is_letter(c char) bool
+    (c >= 'a' and c <= 'z') or (c >= 'A' and c <= 'Z')
+
+fn words_of(text str) List[str]
+    mut out := List[str]()
+    mut cur := List[char]()
+    for c in text.chars()
+        if is_letter(c)
+            cur.push(c)
+        elif not cur.is_empty()
+            out.push(cur.join("").to_lower())
+            cur = List[char]()
+    if not cur.is_empty()
+        out.push(cur.join("").to_lower())
+    out
+
+fn main()
+    lines := io.read_all().lines()
+    if lines.is_empty()
+        print("bad k")
+        return
+    head := lines[0].trim()
+    k := head.to_int() else
+        print("bad k")
+        return
+    if k < 1 or head.starts_with("-")
+        print("bad k")
+        return
+    mut counts := Map[str, int]()
+    for w in words_of(lines[1..].join("\n"))
+        counts[w] += 1
+    mut pairs := List[(str, int)]()
+    for w, n in counts
+        pairs.push((w, n))
+    for p in pairs.sorted(by: |p| (-p.1, p.0)).take(k)
+        print("{p.0} {p.1}")

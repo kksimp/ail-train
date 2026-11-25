@@ -1,0 +1,45 @@
+## Phone number normalization: rewrites valid North American numbers as
+## +1-AAA-BBB-CCCC and prints INVALID for the rest.
+
+fn is_separator(c char) bool
+    c == ' ' or c == '-' or c == '.' or c == '(' or c == ')'
+
+## Returns the 10 national digits, or none when the number is invalid.
+fn national_digits(t str) str?
+    mut digits := List[char]()
+    mut plus := false
+    for i, c in t.chars().enumerate()
+        if c == '+'
+            if i != 0
+                return none
+            plus = true
+        elif c.code() >= 48 and c.code() <= 57
+            digits.push(c)
+        elif not is_separator(c)
+            return none
+    mut d := digits.join("")
+    if plus
+        if d.len() != 11 or not d.starts_with("1")
+            return none
+        d = d.slice(1)
+    elif d.len() == 11 and d.starts_with("1")
+        d = d.slice(1)
+    if d.len() != 10
+        return none
+    first_ok := d.char_at(0) != '0' and d.char_at(0) != '1'
+    second_ok := d.char_at(3) != '0' and d.char_at(3) != '1'
+    if first_ok and second_ok
+        d
+    else
+        none
+
+fn normalize(t str) str
+    d := national_digits(t) else return "INVALID"
+    "+1-{d.slice(0, 3)}-{d.slice(3, 6)}-{d.slice(6)}"
+
+fn main()
+    for line in io.read_all().lines()
+        t := line.trim()
+        if t.is_empty()
+            continue
+        print("{t} -> {normalize(t)}")

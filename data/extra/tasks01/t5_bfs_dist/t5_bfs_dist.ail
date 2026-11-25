@@ -1,0 +1,36 @@
+## Breadth-first distances from a start node over an undirected edge list.
+## First line is the start, later lines are `u v` edges; prints `name dist` per node (-1 if unreachable).
+fn main()
+    lines := [l.trim() for l in io.read_all().lines() if not l.trim().is_empty()]
+    if lines.is_empty()
+        return
+    start := lines[0]
+    mut adj := Map[str, List[str]]()
+    mut nodes := Set[str]()
+    nodes.add(start)
+    mut skipped := 0
+    for i in 1..lines.len()
+        w := lines[i].words()
+        if w.len() != 2
+            skipped += 1
+            continue
+        nodes.add(w[0])
+        nodes.add(w[1])
+        adj.push(w[0], w[1])
+        adj.push(w[1], w[0])
+    mut dist := Map[str, int]()
+    dist[start] = 0
+    mut queue := [start]
+    mut head := 0
+    while head < queue.len()
+        cur := queue[head]
+        head += 1
+        for nb in adj.get(cur) else List[str]()
+            if not dist.contains(nb)
+                dist[nb] = dist[cur] + 1
+                queue.push(nb)
+    for n in nodes.sorted()
+        d := dist.get(n) else -1
+        print("{n} {d}")
+    if skipped > 0
+        print("skipped {skipped}")

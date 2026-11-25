@@ -1,0 +1,10 @@
+a 1970-01-01 weekly 3
+b 1969-12-31 daily 2
+c 2024-01-01 hourly 2
+d 2024-01-01 daily 0
+e 2024-01-01 daily 21
+f 2024-01-01 daily
+g 2024-1-1 daily 2
+
+h 2023-02-28 yearly 3
+i 2100-02-28 yearly 2

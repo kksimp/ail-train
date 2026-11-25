@@ -1,0 +1,50 @@
+## Card dealing: shuffles a 52-card deck with a seeded LCG (Fisher-Yates) and deals round robin.
+MOD := 2147483648
+
+fn make_deck() List[str]
+    mut deck := List[str]()
+    for s in "SHDC".chars()
+        for r in "A23456789TJQK".chars()
+            deck.push("{r}{s}")
+    deck
+
+fn parse_request(line str) (int, int, int)?
+    w := line.words()
+    if w.len() != 3
+        return none
+    seed := w[0].to_int() else return none
+    players := w[1].to_int() else return none
+    cards := w[2].to_int() else return none
+    if seed < 0 or players < 1 or cards < 1 or players * cards > 52
+        return none
+    (seed, players, cards)
+
+fn main()
+    mut lines := io.read_all().split("\n")
+    if (lines.last() else "x") == ""
+        lines.pop()
+    for k in 0..lines.len()
+        req := parse_request(lines[k]) else
+            print("deal {k + 1}: bad request")
+            continue
+        seed, players, cards := req
+        mut deck := make_deck()
+        mut state := seed % MOD
+        mut i := 51
+        while i >= 1
+            state = (state * 1103515245 + 12345) % MOD
+            j := state % (i + 1)
+            deck.swap(i, j)
+            i -= 1
+        mut hands := List[List[str]]()
+        for p in 0..players
+            hands.push(List[str]())
+        mut pos := 0
+        for c in 0..cards
+            for p in 0..players
+                hands[p].push(deck[pos])
+                pos += 1
+        print("deal {k + 1}")
+        for p in 0..players
+            print("P{p + 1}: {hands[p].join(" ")}")
+        print("left={52 - pos}")

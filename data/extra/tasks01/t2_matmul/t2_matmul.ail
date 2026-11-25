@@ -1,0 +1,71 @@
+## Reads matrices A and B from stdin, prints A*B in aligned columns, then its trace or shape.
+
+struct Reader
+    toks List[str]
+    pos int
+
+## Next token as an integer, or none when missing or not an integer.
+fn Reader.next(mut self) int?
+    if self.pos >= self.toks.len()
+        return none
+    t := self.toks[self.pos]
+    self.pos += 1
+    t.to_int()
+
+## Reads `rows` x `cols` numbers; none on any problem.
+fn read_matrix(mut r Reader, rows int, cols int) List[List[int]]?
+    mut m := List[List[int]]()
+    for ri in 0..rows
+        mut row := List[int]()
+        for ci in 0..cols
+            v := r.next() else return none
+            row.push(v)
+        m.push(row)
+    m
+
+fn parse(mut r Reader) (List[List[int]], List[List[int]])?
+    r1 := r.next() else return none
+    c1 := r.next() else return none
+    if r1 < 1 or c1 < 1
+        return none
+    a := read_matrix(mut r, r1, c1) else return none
+    r2 := r.next() else return none
+    c2 := r.next() else return none
+    if r2 < 1 or c2 < 1
+        return none
+    b := read_matrix(mut r, r2, c2) else return none
+    (a, b)
+
+fn main()
+    mut r := Reader(toks: io.read_all().words(), pos: 0)
+    pair := parse(mut r) else
+        print("error: bad input")
+        return
+    a, b := pair
+    r1 := a.len()
+    c1 := a[0].len()
+    r2 := b.len()
+    c2 := b[0].len()
+    if c1 != r2
+        print("error: cannot multiply {r1}x{c1} by {r2}x{c2}")
+        return
+    mut p := List[List[int]]()
+    mut width := 0
+    for i in 0..r1
+        mut row := List[int]()
+        for j in 0..c2
+            mut s := 0
+            for k in 0..c1
+                s += a[i][k] * b[k][j]
+            row.push(s)
+            width = width.max("{s}".len())
+        p.push(row)
+    for row in p
+        print(row.map(|v| "{v}".pad_left(width, ' ')).join(" "))
+    if r1 == c2
+        mut t := 0
+        for i in 0..r1
+            t += p[i][i]
+        print("trace {t}")
+    else
+        print("shape {r1}x{c2}")

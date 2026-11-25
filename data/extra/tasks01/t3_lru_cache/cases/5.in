@@ -1,0 +1,9 @@
+1
+put x 1
+put y 2
+put y 3
+get x
+get y
+put z 4
+keys
+stats

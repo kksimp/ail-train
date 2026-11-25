@@ -1,0 +1,14 @@
+a server 1 start 0 end 10 wait 0
+b server 2 start 0 end 2 wait 0
+c server 3 start 1 end 3 wait 0
+d server 2 start 2 end 3 wait 1
+line 7: out of order
+line 8: bad line
+line 9: bad line
+line 10: bad line
+line 11: bad line
+j server 2 start 4 end 9 wait 0
+k server 3 start 4 end 9 wait 0
+l server 2 start 9 end 14 wait 5
+m server 1 start 100 end 101 wait 0
+served 8 total_wait 6 max_wait 5 finish 101

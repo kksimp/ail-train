@@ -1,0 +1,49 @@
+## CSV column totals: sums integer columns, marks others `-`, skips ragged rows.
+## Reads a header line plus rows from stdin (spec.md).
+fn is_int(s str) bool
+    digits := if s.starts_with("-") then s.slice(1) else s
+    if digits.is_empty()
+        return false
+    for c in digits.chars()
+        if c.code() < 48 or c.code() > 57
+            return false
+    true
+
+struct Column
+    name str
+    total int
+    numeric bool
+
+fn Column.take(mut self, cell str)
+    if not self.numeric
+        return
+    n := if is_int(cell) then cell.to_int() else none
+    if v := n
+        self.total += v
+    else
+        self.numeric = false
+
+fn Column.show(self) str
+    if self.numeric
+        "{self.name}: {self.total}"
+    else
+        "{self.name}: -"
+
+fn main()
+    lines := io.read_all().lines().filter(|l| not l.is_empty())
+    if lines.is_empty()
+        print("empty")
+        return
+    mut cols := [Column(name: h, total: 0, numeric: true) for h in lines[0].split(",")]
+    mut skipped := 0
+    for line in lines.skip(1)
+        cells := line.split(",")
+        if cells.len() != cols.len()
+            skipped += 1
+            continue
+        for i in 0..cols.len()
+            cols[i].take(cells[i])
+    for c in cols
+        print(c.show())
+    if skipped > 0
+        print("skipped: {skipped}")

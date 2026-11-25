@@ -1,0 +1,15 @@
+[A]
+x = 3
+
+[default]
+empty = 
+k = a=b
+top = 1 2
+
+[z]
+a = 2
+a.b = 5
+b = 1
+
+[z-q]
+k = 4

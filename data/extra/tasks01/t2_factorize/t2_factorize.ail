@@ -1,0 +1,57 @@
+## Prime factorization by trial division, one number per input line.
+
+fn all_digits(t str) bool
+    if t.is_empty()
+        return false
+    for c in t.chars()
+        if not c.is_digit()
+            return false
+    true
+
+## Prime factors with exponents, ascending.
+fn factor(n0 int) List[(int, int)]
+    mut n := n0
+    mut out := List[(int, int)]()
+    mut p := 2
+    while p * p <= n
+        if n % p == 0
+            mut e := 0
+            while n % p == 0
+                n /= p
+                e += 1
+            out.push((p, e))
+        p += if p == 2 then 1 else 2
+    if n > 1
+        out.push((n, 1))
+    out
+
+fn render(n int, f List[(int, int)]) str
+    if f.len() == 1 and f[0].1 == 1
+        return "{n} = {n} (prime)"
+    parts := f.map(|t| if t.1 > 1 then "{t.0}^{t.1}" else "{t.0}")
+    "{n} = {parts.join(" * ")}"
+
+fn main()
+    mut lines := io.read_all().split("\n")
+    if (lines.last() else "x") == ""
+        lines.pop()
+    limit := 1000000000000
+    mut done := 0
+    for i in 0..lines.len()
+        k := i + 1
+        t := lines[i].trim()
+        if t.is_empty()
+            continue
+        if not all_digits(t) or t.len() > 18
+            if all_digits(t)
+                print("line {k}: out of range")
+            else
+                print("line {k}: invalid")
+            continue
+        n := t.to_int() else 0
+        if n < 2 or n > limit
+            print("line {k}: out of range")
+            continue
+        print(render(n, factor(n)))
+        done += 1
+    print("factored {done}")

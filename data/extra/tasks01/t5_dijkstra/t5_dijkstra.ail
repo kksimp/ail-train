@@ -1,0 +1,55 @@
+## Dijkstra shortest route on a weighted undirected graph, with deterministic tie-breaking.
+## First line is `SRC DST`; later lines are `u v w` edges. Prints distance and path.
+struct Edge
+    to str
+    cost int
+
+fn main()
+    lines := [l.trim() for l in io.read_all().lines() if not l.trim().is_empty()]
+    first := if lines.is_empty() then List[str]() else lines[0].words()
+    if first.len() != 2
+        print("bad input")
+        return
+    src := first[0]
+    dst := first[1]
+    mut adj := Map[str, List[Edge]]()
+    for i in 1..lines.len()
+        w := lines[i].words()
+        if w.len() != 3
+            continue
+        cost := w[2].to_int() else continue
+        if cost < 0
+            continue
+        adj.push(w[0], Edge(to: w[1], cost: cost))
+        adj.push(w[1], Edge(to: w[0], cost: cost))
+    if not adj.contains(src) or not adj.contains(dst)
+        print("unknown node")
+        return
+    mut dist := Map[str, int]()
+    mut parent := Map[str, str]()
+    mut heap := Heap[(int, str)]()
+    dist[src] = 0
+    heap.push((0, src))
+    while item := heap.pop()
+        d := item.0
+        u := item.1
+        if d > dist[u]
+            continue
+        for e in adj[u]
+            nd := d + e.cost
+            old := dist.get(e.to) else -1
+            if old < 0 or nd < old
+                dist[e.to] = nd
+                parent[e.to] = u
+                heap.push((nd, e.to))
+    if not dist.contains(dst)
+        print("unreachable")
+        return
+    mut path := [dst]
+    mut at := dst
+    while at != src
+        at = parent[at]
+        path.push(at)
+    path.reverse()
+    print("distance: {dist[dst]}")
+    print("path: {path.join(" -> ")}")

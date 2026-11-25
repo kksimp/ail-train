@@ -1,0 +1,61 @@
+## Sales by region and month: sums signed cents per (region, month) and prints a block per region.
+## Also prints the grand total, the best month and how many bad lines were skipped.
+struct Sale
+    region str
+    month int
+    amount int
+
+fn money(c int) str
+    sign := if c < 0 then "-" else ""
+    a := c.abs()
+    "{sign}{a / 100}.{a % 100:0>2}"
+
+fn parse_sale(line str) Sale?
+    f := line.split(",")
+    if f.len() != 3
+        return none
+    region := f[0].trim()
+    if region.is_empty()
+        return none
+    m := f[1].trim().to_int() else return none
+    a := f[2].trim().to_int() else return none
+    if m < 1 or m > 12
+        return none
+    Sale(region: region, month: m, amount: a)
+
+fn mm(m int) str
+    "{m:0>2}"
+
+fn main()
+    mut cell := Map[str, int]()
+    mut rtotal := Map[str, int]()
+    mut mtotal := Map[int, int]()
+    mut skipped := 0
+    for line in io.read_all().lines()
+        if line.trim().is_empty()
+            continue
+        s := parse_sale(line) else
+            skipped += 1
+            continue
+        cell["{s.region}|{s.month}"] += s.amount
+        rtotal[s.region] += s.amount
+        mtotal[s.month] += s.amount
+    if rtotal.is_empty()
+        print("no sales")
+    else
+        mut all := 0
+        for r in rtotal.keys().sorted()
+            print("{r}: {money(rtotal[r])}")
+            all += rtotal[r]
+            for m in 1..=12
+                key := "{r}|{m}"
+                if cell.contains(key)
+                    print("  {mm(m)}: {money(cell[key])}")
+        print("all regions: {money(all)}")
+        mut best := 0
+        for m in 1..=12
+            if mtotal.contains(m) and (best == 0 or mtotal[m] > mtotal[best])
+                best = m
+        print("best month: {mm(best)} ({money(mtotal[best])})")
+    if skipped > 0
+        print("skipped: {skipped}")

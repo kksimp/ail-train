@@ -1,0 +1,10 @@
+stored x
+stored y
+evict x
+updated y
+miss
+3
+stored z
+evict y
+z
+hits 1 misses 1 evictions 2

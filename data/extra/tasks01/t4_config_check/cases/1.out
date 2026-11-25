@@ -1,0 +1,5 @@
+line 3: bad value for 'port': '70000'
+line 4: bad value for 'debug': 'yes'
+line 5: unknown key 'colour'
+missing required key 'port'
+errors: 4

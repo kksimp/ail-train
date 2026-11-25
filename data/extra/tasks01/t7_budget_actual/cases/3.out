@@ -1,0 +1,8 @@
+line 1: invalid
+line 2: invalid
+line 3: invalid
+line 4: invalid
+line 5: invalid
+line 6: invalid
+food: budget=1.00 actual=0.33 diff=0.67 used=33% UNDER
+total: budget=1.00 actual=0.33 diff=0.67

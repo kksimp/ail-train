@@ -1,0 +1,42 @@
+## Conway's Game of Life on a finite board for S generations.
+## First line is S, the rest is the grid (# alive, . dead); prints the final grid.
+fn live_neighbours(g List[List[int]], r int, c int) int
+    mut n := 0
+    for i in 0..3
+        for j in 0..3
+            if i == 1 and j == 1
+                continue
+            nr := r + i - 1
+            nc := c + j - 1
+            if nr >= 0 and nr < g.len() and nc >= 0 and nc < g[nr].len()
+                n += g[nr][nc]
+    n
+
+fn step(g List[List[int]]) List[List[int]]
+    mut out := List[List[int]]()
+    for r in 0..g.len()
+        mut row := List[int]()
+        for c in 0..g[r].len()
+            n := live_neighbours(g, r, c)
+            alive := if g[r][c] == 1 then n == 2 or n == 3 else n == 3
+            row.push(if alive then 1 else 0)
+        out.push(row)
+    out
+
+fn main()
+    lines := [l.trim() for l in io.read_all().lines() if not l.trim().is_empty()]
+    steps := (if lines.is_empty() then "x" else lines[0]).to_int() else -1
+    if steps < 0
+        print("bad steps")
+        return
+    mut width := 0
+    for i in 1..lines.len()
+        width = width.max(lines[i].len())
+    mut grid := List[List[int]]()
+    for i in 1..lines.len()
+        cs := lines[i].chars()
+        grid.push([if c < cs.len() and cs[c] == '#' then 1 else 0 for c in 0..width])
+    for s in 0..steps
+        grid = step(grid)
+    for row in grid
+        print([if v == 1 then "#" else "." for v in row].join(""))

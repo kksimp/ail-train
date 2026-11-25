@@ -1,0 +1,23 @@
+## Prints a hex dump of stdin: 16 bytes per line with an 8-digit offset, the hex bytes and a
+## printable-ASCII column, then a final line holding the total byte count.
+fn hex8(n int) str
+    "{n:08x}"
+
+fn main()
+    data := io.read_all().to_bytes()
+    total := data.len()
+    mut off := 0
+    while off < total
+        end := (off + 16).min(total)
+        mut hexes := List[str]()
+        mut asc := List[char]()
+        for i in off..end
+            b := data[i].to_int()
+            hexes.push("{b:02x}")
+            if b >= 32 and b <= 126
+                asc.push(char.from_code(b) else '.')
+            else
+                asc.push('.')
+        print("{hex8(off)}  {hexes.join(" ").pad_right(47, ' ')}  |{asc.join("")}|")
+        off += 16
+    print(hex8(total))

@@ -1,0 +1,39 @@
+## Text statistics: line, word and character counts, blank lines and the longest line.
+## Reads all of stdin and prints five fixed `name: value` lines (spec.md).
+struct Stats
+    lines int
+    words int
+    chars int
+    blank int
+    longest int
+    longest_at int
+
+fn Stats.empty() Stats
+    Stats(lines: 0, words: 0, chars: 0, blank: 0, longest: 0, longest_at: 0)
+
+fn Stats.add(mut self, line str)
+    self.lines += 1
+    n := line.words().len()
+    self.words += n
+    self.chars += line.len()
+    if n == 0
+        self.blank += 1
+    if line.len() > self.longest
+        self.longest = line.len()
+        self.longest_at = self.lines
+
+fn split_lines(text str) List[str]
+    mut parts := text.split("\n")
+    if (parts.last() else "x") == ""
+        parts.pop()
+    parts
+
+fn main()
+    mut st := Stats.empty()
+    for line in split_lines(io.read_all())
+        st.add(line)
+    print("lines: {st.lines}")
+    print("words: {st.words}")
+    print("chars: {st.chars}")
+    print("blank: {st.blank}")
+    print("longest: {st.longest} (line {st.longest_at})")

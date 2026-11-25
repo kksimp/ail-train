@@ -1,0 +1,16 @@
+# base
+A=1
+B = two words 
+-C
+1X=bad
+=novalue
+---
+-A
+A=again
+B=
+-Z
+export Q_1=x=y
+# note
+  
+---
+last=1

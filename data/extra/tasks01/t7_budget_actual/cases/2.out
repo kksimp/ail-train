@@ -1,0 +1,5 @@
+fuel: budget=80.00 actual=91.50 diff=-11.50 used=114% OVER
+gym: budget=30.00 actual=0.00 diff=30.00 used=0% UNDER
+rent: budget=1200.00 actual=1200.00 diff=0.00 used=100% MET
+travel: budget=0.00 actual=0.00 diff=0.00 used=n/a MET
+total: budget=1310.00 actual=1291.50 diff=18.50

@@ -1,0 +1,24 @@
+## Prints Pascal's triangle rows (0..60) with their sums, built with the multiplicative recurrence.
+fn is_digits(s str) bool
+    not s.is_empty() and s.chars().all(|c| c.is_digit())
+
+fn row(k int) List[int]
+    mut out := [1]
+    mut c := 1
+    for i in 0..k
+        c = c * (k - i) / (i + 1)
+        out.push(c)
+    out
+
+fn main()
+    for line in io.read_all().lines()
+        t := line.trim()
+        if t.is_empty()
+            continue
+        n := if is_digits(t) and t.len() <= 9 then t.to_int() else none
+        k := n else -1
+        if k < 0 or k > 60
+            print("{t} invalid")
+            continue
+        r := row(k)
+        print("{k}: {r.join(" ")} | sum {r.sum()}")

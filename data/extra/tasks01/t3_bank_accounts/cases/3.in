@@ -1,0 +1,14 @@
+open x
+open x
+deposit y 5
+deposit x 0
+deposit x abc
+withdraw x 1
+balance x
+balance z
+frobnicate
+open
+open a b
+transfer x x 1
+transfer x q 1
+transfer q x 1

@@ -1,0 +1,6 @@
+path=/spaced
+  k=v w
+path=/frag
+  a=1
+path=/two
+  q?x=1

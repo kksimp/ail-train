@@ -1,0 +1,10 @@
+receive Zed 1
+receive apple 2
+receive Apple 3
+ship apple 2
+ship apple 1
+adjust apple 9
+report
+ship Zed 1
+ship Zed 1
+low 4

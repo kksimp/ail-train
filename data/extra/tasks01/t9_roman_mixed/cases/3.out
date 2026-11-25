@@ -1,0 +1,11 @@
+49 XLIX
+1994 MCMXCIV Year
+3999 MMMCMXCIX Max
+invalid line 3: MMMM. too big
+invalid line 4: 0. zero
+invalid line 5: 4000. big
+invalid line 6: 01. lead
+invalid line 7: IIII. bad
+invalid line 8: VX. bad
+invalid line 9: IC. bad
+invalid line 11: no period

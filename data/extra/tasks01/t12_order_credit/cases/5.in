@@ -1,0 +1,12 @@
+limit zed 1000
+limit amy 250
+limit  moe   75
+order zed 999
+order amy 250
+order moe 76
+pay moe 5
+order moe 75
+pay amy 250
+order amy 100
+Order amy 5
+report

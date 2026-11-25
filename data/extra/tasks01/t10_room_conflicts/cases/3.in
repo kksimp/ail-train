@@ -1,0 +1,12 @@
+lab 0 10 alpha
+lab 2 3 beta
+lab 10 12 gamma
+lab 9 11 delta
+
+hall 5 8 eps
+hall x 9 zed
+hall 6 9
+hall 8 9 eta
+hall 1 20 theta
+hall 0 5 iota
+hall 0 6 kappa

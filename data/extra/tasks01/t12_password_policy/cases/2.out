@@ -1,0 +1,5 @@
+correcthorsebattery: FAIL no-upper,no-digit,no-symbol
+CORRECTHORSE1: FAIL no-lower,no-symbol
+Tr0ub4dor&3: OK
+my pass Word 9#: FAIL space
+ Lead1ng-space: FAIL space

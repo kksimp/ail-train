@@ -1,0 +1,6 @@
+numbers: 12 18 5
+gcd(12,18)=6 lcm(12,18)=36
+gcd(12,5)=1 lcm(12,5)=60
+gcd(18,5)=1 lcm(18,5)=90
+all gcd=1 all lcm=180
+ignored 1

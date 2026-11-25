@@ -1,0 +1,75 @@
+## Seat reservations with per-seat waiting lists: booking, cancelling with
+## automatic promotion, and a seat map on demand.
+
+struct Hall
+    size int
+    holder Map[int, str]
+    waits Map[int, List[str]]
+
+fn Hall.known(self, name str) bool
+    for s, who in holder
+        if who == name
+            return true
+    for s, q in waits
+        if q.contains(name)
+            return true
+    false
+
+fn Hall.book(mut self, name str, seat int) str
+    if seat < 1 or seat > size
+        return "{name}: invalid seat"
+    if self.known(name)
+        return "{name}: already booked"
+    if holder.contains(seat)
+        waits.push(seat, name)
+        return "{name}: waitlisted for {seat}"
+    holder[seat] = name
+    "{name}: booked {seat}"
+
+fn Hall.cancel(mut self, name str) List[str]
+    for seat in 1..=size
+        if (holder.get(seat) else "") == name
+            mut out := ["{name}: cancelled {seat}"]
+            q := waits.get(seat) else List[str]()
+            if q.is_empty()
+                holder.remove(seat)
+            else
+                holder[seat] = q[0]
+                waits[seat] = q.slice(1)
+                out.push("{q[0]}: promoted to {seat}")
+            return out
+        q := waits.get(seat) else List[str]()
+        if q.contains(name)
+            waits[seat] = q.filter(|w| w != name)
+            return ["{name}: left waitlist"]
+    ["{name}: no reservation"]
+
+fn Hall.show(self) str
+    mut parts := ["seats:"]
+    for seat in 1..=size
+        parts.push("{seat}={holder.get(seat) else "-"}")
+    parts.join(" ")
+
+fn main()
+    lines := io.read_all().lines()
+    head := (lines.first() else "").split(" ")
+    size := if head.len() == 2 and head[0] == "seats" then head[1].to_int() else none
+    if size == none or (size else 0) < 1 or (size else 0) > 50
+        print("bad header")
+        return
+    mut hall := Hall(size: size else 0, holder: Map[int, str](), waits: Map[int, List[str]]())
+    for i in 1..lines.len()
+        line := lines[i]
+        if line.trim().is_empty()
+            continue
+        f := line.split(" ")
+        if f.len() == 3 and f[0] == "book"
+            seat := f[2].to_int() else 0
+            print(hall.book(f[1], seat))
+        elif f.len() == 2 and f[0] == "cancel"
+            for msg in hall.cancel(f[1])
+                print(msg)
+        elif f.len() == 1 and f[0] == "show"
+            print(hall.show())
+        else
+            print("bad line {i + 1}")

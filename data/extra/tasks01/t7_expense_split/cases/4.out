@@ -1,0 +1,6 @@
+balances:
+  ann: 0.00
+  bob: +3.00
+  bob2: -3.00
+settlements:
+  bob2 pays bob 3.00
