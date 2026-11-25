@@ -420,6 +420,37 @@ the other server-path rows were not re-scored. Compare server-path rows with eac
 Run on the PC 2026-11-25. Results (summaries, every answer and revision, the failure digest) are on the share in
 `ail-train/pc-evals/run3/`; the merged model, its GGUF and the adapter in `ail-train/pc-run3-7b-final/`.
 
+## Agentic coding: one app in AIL and in Python (2026-11-25)
+
+Does AIL help an agent more than a mainstream language? First, single run, paid API (`tools/agent_app/run.sh`, Mac).
+A helper model wrote a language-neutral spec (`ledger`: a line-command account ledger with validation, error lines,
+multi-key sorting and a fixed-width report; integers only), a Python reference and 3 public + 8 hidden stdin cases.
+A stronger builder model then built it in AIL (tools: the pinned AIL checkout, ail-train data, the real compiler) and
+in Python (only `python3`), and was graded byte for byte. Names of the models are in `config.local`.
+
+| | AIL | Python |
+|---|---|---|
+| Hidden cases passed | **8/8** | **8/8** |
+| Public cases passed | 3/3 | 3/3 |
+| Model turns | 11 | 3 |
+| Compile or run attempts / failures | 5 / 0 (1 name auto-fixed by `ail check`) | 2 / 0 |
+| First clean `ail check` | turn 7 | - |
+| Program lines / tokens | 166 / 1,769 | 117 / 1,435 |
+| API cost | $0.25 | $0.11 |
+
+- **A model new to AIL wrote a correct app on its first compile**, from `ail card`, `llms.txt`, the language card and
+  one spec page. It never opened the examples or the ail-train data. The one slip (`to_string`) was rewritten by the
+  compiler's auto-fix.
+- **Python was cheaper on every process measure** (3 turns vs 11, 2.3x less cost, 19% fewer program tokens). Almost
+  all of AIL's extra turns were lookups of names and edge behaviour, a familiarity cost rather than a language defect.
+- **The task was too easy to separate the languages**: neither build had a bug for AIL's checker to catch. This run
+  shows AIL is learnable from its docs; it is not evidence that AIL is better for agents.
+- Doc gaps it found: what `pad_left`/`pad_right` do with a longer string, whether `is_alpha` is ASCII, what `words()`
+  counts as whitespace, `to_str` not named next to the `to_string` habit, and no `char` to digit method on the card.
+
+Cost of the whole run: $2.37 (spec $1.75 of which $1.29 was a first spec call cut off by its output limit). Report,
+spec and both programs: [results/agent-app/2026-11-25-ledger/](results/agent-app/2026-11-25-ledger/REPORT.md).
+
 ## Reproducing a row
 
 ```

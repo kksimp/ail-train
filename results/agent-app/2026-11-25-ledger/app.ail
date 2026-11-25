@@ -1,0 +1,166 @@
+struct Account
+    name str
+    kind str
+    balance int
+    posts int
+
+fn kind_index(k str) int
+    if k == "asset"
+        return 0
+    if k == "liability"
+        return 1
+    if k == "income"
+        return 2
+    if k == "expense"
+        return 3
+    -1
+
+fn valid_name(s str) bool
+    cs := s.chars()
+    if cs.len() < 1 or cs.len() > 12
+        return false
+    for i, c in cs.enumerate()
+        if i == 0
+            if not c.is_alpha()
+                return false
+        elif not (c.is_alnum() or c == '_' or c == '-')
+            return false
+    true
+
+fn parse_amount(s str) int?
+    cs := s.chars()
+    mut i := 0
+    mut neg := false
+    if cs.len() > 0 and cs[0] == '-'
+        neg = true
+        i = 1
+    mut whole := 0
+    mut nd := 0
+    while i < cs.len() and cs[i].is_digit()
+        whole = whole * 10 + cs[i].to_str().to_int()?
+        nd += 1
+        i += 1
+        if nd > 11
+            return none
+    if nd < 1
+        return none
+    mut frac := 0
+    if i < cs.len()
+        if cs[i] != '.'
+            return none
+        if cs.len() - i != 3
+            return none
+        a := cs[i + 1]
+        b := cs[i + 2]
+        if not (a.is_digit() and b.is_digit())
+            return none
+        frac = "{a}{b}".to_int()?
+    v := whole * 100 + frac
+    if v > 1000000000000
+        return none
+    if neg
+        return 0 - v
+    v
+
+fn fmt_cents(v int) str
+    mut a := v
+    mut sign := ""
+    if v < 0
+        a = 0 - v
+        sign = "-"
+    w := a / 100
+    f := a % 100
+    "{sign}{w}.{f:02}"
+
+fn row(a str, b str, c str, d str) str
+    "{a.pad_right(12, ' ')} {b.pad_right(9, ' ')} {c.pad_left(5, ' ')} {d.pad_left(16, ' ')}"
+
+fn main()
+    text := io.read_all()
+    lines := text.split("\n")
+    mut accts := Map[str, Account]()
+    mut ok := 0
+    mut errs := 0
+    for idx, line in lines.enumerate()
+        n := idx + 1
+        toks := line.words()
+        if toks.len() == 0
+            continue
+        if toks[0].starts_with("#")
+            continue
+        cmd := toks[0]
+        args := toks[1..]
+        mut err := ""
+        expected := if cmd == "OPEN"
+            2
+        elif cmd == "POST"
+            2
+        elif cmd == "MOVE"
+            3
+        elif cmd == "CLOSE"
+            1
+        elif cmd == "REPORT"
+            0
+        else
+            -1
+        if expected < 0
+            err = "unknown command"
+        elif args.len() != expected
+            err = "wrong argument count"
+        elif cmd == "OPEN"
+            if not valid_name(args[0])
+                err = "bad name"
+            elif kind_index(args[1]) < 0
+                err = "bad kind"
+            elif accts.contains(args[0])
+                err = "duplicate account"
+            else
+                accts[args[0]] = Account(name: args[0], kind: args[1], balance: 0, posts: 0)
+        elif cmd == "POST"
+            if not accts.contains(args[0])
+                err = "unknown account"
+            elif amt := parse_amount(args[1])
+                accts[args[0]].balance += amt
+                accts[args[0]].posts += 1
+            else
+                err = "bad amount"
+        elif cmd == "MOVE"
+            if not accts.contains(args[0])
+                err = "unknown account"
+            elif not accts.contains(args[1])
+                err = "unknown account"
+            elif args[0] == args[1]
+                err = "same account"
+            elif amt := parse_amount(args[2])
+                if amt <= 0
+                    err = "amount must be positive"
+                else
+                    accts[args[0]].balance -= amt
+                    accts[args[0]].posts += 1
+                    accts[args[1]].balance += amt
+                    accts[args[1]].posts += 1
+            else
+                err = "bad amount"
+        elif cmd == "CLOSE"
+            if not accts.contains(args[0])
+                err = "unknown account"
+            elif accts[args[0]].balance != 0
+                err = "nonzero balance"
+            else
+                accts.remove(args[0])
+        else
+            print(row("ACCOUNT", "KIND", "POSTS", "BALANCE"))
+            list := accts.values().sorted(by: |a| (kind_index(a.kind), 0 - a.balance, a.name))
+            mut tp := 0
+            mut tb := 0
+            for a in list
+                print(row(a.name, a.kind, "{a.posts}", fmt_cents(a.balance)))
+                tp += a.posts
+                tb += a.balance
+            print(row("TOTAL", "", "{tp}", fmt_cents(tb)))
+        if err == ""
+            ok += 1
+        else
+            errs += 1
+            print("line {n}: error: {err}")
+    print("ok={ok} errors={errs}")
