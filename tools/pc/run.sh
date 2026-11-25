@@ -12,6 +12,8 @@
 #   evalloop also ROUNDS (default 3) and FAMILIES (a,b). eval and evalloop: DATA (a .jsonl in the quick-eval
 #   format, default data/build/quick-eval.jsonl, e.g. data/build/dev-spec.jsonl) and OUT (the results folder);
 #   RESUME_EVAL=1 (with OUT: keep the finished items of OUT/answers.jsonl or revisions.jsonl and continue).
+#   BACKEND=server: generate through a running llama-server (`run.sh serve big`: GGUF of the merged model, SLOTS,
+#   CTX per slot, PORT) with WORKERS items in flight; `run.sh serve-stop` ends it. export: QUANTS (default Q4_K_M).
 #   eval and export: ADAPTER=best (default: adapter-best, the lowest-validation checkpoint) or ADAPTER=final.
 # Work folder: ~/ail-train-work/{venv,hf,ail-pinned,runs,export}. Runs: runs/train-small-STAMP/{summary.txt,log.jsonl,
 #   adapter-final/,checkpoint-*/}. Keeps 20 GB of disk free and stops on NaN loss or validation rising twice.
@@ -91,6 +93,25 @@ adapter_of() {
     if [ -n "$b" ] && [ -f "$b/adapter_config.json" ]; then echo "$b"; return 0; fi
     [ -d "$run/adapter-final" ] && echo "$run/adapter-final"
     return 0
+}
+
+# llama.cpp (MIT) in ~/ail-train-work/llama.cpp: llama-quantize and llama-server, with CUDA when nvcc is there.
+lc="$work/llama.cpp"
+llama_build() {
+    [ -x "$lc/build/bin/llama-server" ] && [ -x "$lc/build/bin/llama-quantize" ] && return 0
+    [ -d "$lc/.git" ] || git clone -q --depth 1 https://github.com/ggml-org/llama.cpp "$lc" || die "could not clone llama.cpp"
+    "$vpy" -m pip install -q gguf sentencepiece protobuf || die "gguf tools"
+    cuda=OFF; command -v nvcc >/dev/null && cuda=ON
+    cmake -S "$lc" -B "$lc/build" -DGGML_CUDA=$cuda -DCMAKE_CUDA_ARCHITECTURES=86 -DLLAMA_CURL=OFF >/dev/null \
+        && cmake --build "$lc/build" -j "$(nproc)" --target llama-quantize llama-server >/dev/null || die "llama.cpp build failed"
+    echo "llama.cpp built (CUDA $cuda)"
+}
+
+# The GGUF a server eval loads: GGUF=path, or model-Q4_K_M.gguf of the export of RUN (ADAPTER as for export).
+gguf_of() {
+    if [ -n "${GGUF:-}" ]; then echo "$GGUF"; return 0; fi
+    local run="${RUN:-$(ls -d "$work"/runs/train-"$1"-* 2>/dev/null | sort | tail -1)}"
+    echo "$work/export/$1-$(basename "$run")-${ADAPTER:-best}/model-Q4_K_M.gguf"
 }
 
 guard() {
@@ -220,13 +241,19 @@ eval)
         adapter_args="--adapter $adapter"; arm="C-${ADAPTER:-best}"
     fi
     q=""; [ "$which" = big ] && q="--load-4bit"
+    be="--backend hf"
+    if [ "${BACKEND:-hf}" = server ]; then
+        # The merged model as a GGUF in a running llama-server (`run.sh serve`): no adapter, no bitsandbytes.
+        be="--backend server --server-url http://127.0.0.1:${PORT:-8080} --workers ${WORKERS:-8}"
+        adapter_args=""; q=""; arm="$arm-srv"
+    fi
     tag=""; [ -n "${DATA:-}" ] && tag="-$(basename "$data" .jsonl)"
     out="${OUT:-$work/runs/eval-$which-$arm$tag-$(date -u +%Y%m%dT%H%M%SZ)}"
     # No expandable_segments for eval: generating on the longest prompt with the big model and its adapter needs a
     # little over 8 GB, and growing a segment then fails in WSL ("CUDA driver error: device not ready ... Failed to
     # create GPU mapping"); the classic allocator lets the driver spill the overflow to shared memory instead.
     # shellcheck disable=SC2086
-    env -u PYTORCH_CUDA_ALLOC_CONF "$vpy" "$root/tools/eval_quick.py" --backend hf --ail "$ail_root" --model "$mdir" $adapter_args $q --system short \
+    env -u PYTORCH_CUDA_ALLOC_CONF "$vpy" "$root/tools/eval_quick.py" $be --ail "$ail_root" --model "$mdir" $adapter_args $q --system short \
         --data "$data" --out "$out" --samples "${SAMPLES:-3}" --max-tokens "${MAX_GEN:-1536}" ${LIMIT:+--limit $LIMIT} \
         ${RESUME_EVAL:+--resume}
     echo "results: $out"
@@ -243,10 +270,14 @@ evalloop)
     [ -n "$adapter" ] || die "no finished adapter in ${run:-?}"
     echo "adapter: $adapter"
     q=""; [ "$which" = big ] && q="--load-4bit"
+    be="--backend hf --adapter $adapter"; srv=""
+    if [ "${BACKEND:-hf}" = server ]; then
+        be="--backend server --server-url http://127.0.0.1:${PORT:-8080} --workers ${WORKERS:-8}"; q=""; srv="-srv"
+    fi
     tag=""; [ -n "${DATA:-}" ] && tag="-$(basename "$data" .jsonl)"
-    out="${OUT:-$work/runs/evalloop-$which-${ADAPTER:-best}$tag-$(date -u +%Y%m%dT%H%M%SZ)}"
+    out="${OUT:-$work/runs/evalloop-$which-${ADAPTER:-best}$srv$tag-$(date -u +%Y%m%dT%H%M%SZ)}"
     # shellcheck disable=SC2086
-    env -u PYTORCH_CUDA_ALLOC_CONF "$vpy" "$root/tools/eval_loop.py" --ail "$ail_root" --model "$mdir" --adapter "$adapter" $q \
+    env -u PYTORCH_CUDA_ALLOC_CONF "$vpy" "$root/tools/eval_loop.py" --ail "$ail_root" --model "$mdir" $be $q \
         --data "$data" --out "$out" --rounds "${ROUNDS:-3}" --samples "${SAMPLES:-3}" --max-tokens "${MAX_GEN:-1536}" \
         ${LIMIT:+--limit $LIMIT} ${FAMILIES:+--families $FAMILIES} ${RESUME_EVAL:+--resume}
     echo "results: $out"
@@ -262,17 +293,32 @@ export)
     out="$work/export/$which-$(basename "$run")-${ADAPTER:-best}"
     "$vpy" "$root/tools/pc/export.py" --model "$mdir" --adapter "$adapter" --out "$out/merged" || die "merge failed"
     # GGUF through llama.cpp (MIT), built once in ~/ail-train-work/llama.cpp.
-    lc="$work/llama.cpp"
-    if [ ! -x "$lc/build/bin/llama-quantize" ]; then
-        [ -d "$lc/.git" ] || git clone -q --depth 1 https://github.com/ggml-org/llama.cpp "$lc" || die "could not clone llama.cpp"
-        "$vpy" -m pip install -q gguf sentencepiece protobuf || die "gguf tools"
-        cmake -S "$lc" -B "$lc/build" -DGGML_CUDA=OFF -DLLAMA_CURL=OFF >/dev/null && cmake --build "$lc/build" -j --target llama-quantize >/dev/null || die "llama.cpp build failed"
-    fi
+    llama_build
     "$vpy" "$lc/convert_hf_to_gguf.py" "$out/merged" --outtype bf16 --outfile "$out/model-bf16.gguf" >/dev/null || die "GGUF convert failed"
-    for q in Q8_0 Q4_K_M; do "$lc/build/bin/llama-quantize" "$out/model-bf16.gguf" "$out/model-$q.gguf" "$q" >/dev/null || die "quantize $q failed"; done
+    # QUANTS (default Q4_K_M; Q8_0 too for the small model). The server evals use Q4_K_M.
+    for q in ${QUANTS:-Q4_K_M}; do "$lc/build/bin/llama-quantize" "$out/model-bf16.gguf" "$out/model-$q.gguf" "$q" >/dev/null || die "quantize $q failed"; done
     rm -f "$out/model-bf16.gguf"
     ls -lh "$out" "$out/merged"
     echo "export: $out (merged/ for MLX on the Mac: tools/import_mlx.sh; model-*.gguf for llama.cpp)"
+    ;;
+
+serve)
+    # llama-server on the GPU for BACKEND=server evals: SLOTS parallel slots (default 6) of CTX tokens each (default
+    # 6144), all layers on the GPU, flash attention, f16 KV cache. Detached; log in ~/ail-train-work/llama-server.log.
+    llama_build
+    g="$(gguf_of "$which")"; [ -s "$g" ] || die "no GGUF at $g (run export first, or set GGUF)"
+    pkill -f "llama-server" 2>/dev/null; sleep 2
+    slots="${SLOTS:-6}"; ctx=$(( slots * ${CTX:-6144} ))
+    nohup setsid "$lc/build/bin/llama-server" -m "$g" -ngl 99 -c "$ctx" -np "$slots" -fa on --port "${PORT:-8080}" \
+        --host 127.0.0.1 --no-webui > "$work/llama-server.log" 2>&1 < /dev/null &
+    for _ in $(seq 1 120); do curl -sf "http://127.0.0.1:${PORT:-8080}/health" >/dev/null && break; sleep 2; done
+    curl -sf "http://127.0.0.1:${PORT:-8080}/health" >/dev/null || { tail -20 "$work/llama-server.log"; die "llama-server did not start"; }
+    echo "llama-server: $g, $slots slots x ${CTX:-6144} tokens, port ${PORT:-8080}"
+    nvidia-smi --query-gpu=memory.used --format=csv,noheader
+    ;;
+
+serve-stop)
+    pkill -f "llama-server" && echo "llama-server stopped" || echo "no llama-server running"
     ;;
 
 *) sed -n 2,14p "$0"; exit 2 ;;

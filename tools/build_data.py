@@ -45,7 +45,7 @@ SPEC_SOURCES = {"corpus", "examples", "drills", "extra"}
 SPEC_MAX_LINES, SPEC_MAX_CHARS = 60, 2000
 SPEC_KEEP_WRITE_PCT = 20  # train programs with a spec item keep their header-only write item this often (hash-picked)
 DEV_SPEC_ITEMS = 100  # dev-spec.jsonl: every quick-eval corpus program plus hash-picked valid programs
-TRAIN_ONLY = ("apps/", "repair/", "behave/")  # run 3 group prefixes: never valid or quick-eval
+TRAIN_ONLY = ("apps/", "repair/", "behave/", "task2/")  # run 3 group prefixes: never valid or quick-eval
 TRIM_FIRST = ("repair-mut", "behave-mut")  # sources trimmed (by hash) when train is over --max-train-tokens
 
 
@@ -167,7 +167,7 @@ def program_sources(ail_root):
     extra = os.path.join(ROOT, "data", "extra")
     for grp in sorted(os.listdir(extra)):
         gdir = os.path.join(extra, grp)
-        if not os.path.isdir(gdir):
+        if not os.path.isdir(gdir) or grp.startswith("tasks"):  # tasksNN: input-driven tasks, family `task`
             continue
         for name in sorted(os.listdir(gdir)):
             base = os.path.join(gdir, name, name)
@@ -639,7 +639,7 @@ def main():
         import run3_build
 
         run3_stats = run3_build.build({
-            "comp": comp, "res": res, "progs": progs, "drafts": drafts, "trials": trials, "seed": args.seed,
+            "root": ROOT, "comp": comp, "res": res, "progs": progs, "drafts": drafts, "trials": trials, "seed": args.seed,
             "ail_root": ail_root, "apps_dir": args.apps, "apps_lock": os.path.join(ROOT, "data", "apps.lock"),
             "harvest_dir": args.harvest, "cache": CACHE, "train_group": lambda g: split_of_group(g) == "train",
             "spec_ok": spec_ok, "spec_task": spec_task, "header_text": header_text, "add": add, "drop": drop,

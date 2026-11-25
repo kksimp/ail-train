@@ -56,6 +56,38 @@ def check_tools_programs(ail_root, ail, commit, cache):
     return out
 
 
+def stdin_cases_pass(ail, commit, cache, src, cases):
+    """Pinned `ail check`, then `ail run` (10 s, 512 MB) on each (stdin, expected stdout); cached by content."""
+    path = os.path.join(cache, sha("stdincases", commit, src, json.dumps(cases)) + ".json")
+    try:
+        with open(path, encoding="utf-8") as f:
+            return json.load(f)["ok"]
+    except (OSError, ValueError):
+        pass
+    tmp = tempfile.mkdtemp(prefix="ailtask-")
+    ok = True
+    try:
+        with open(os.path.join(tmp, "main.ail"), "w", encoding="utf-8") as f:
+            f.write(src)
+        env = dict(os.environ, AIL_FIX="0")
+        c = subprocess.run([ail, "check", "--no-fix", "main.ail"], cwd=tmp, capture_output=True, text=True, env=env,
+                           timeout=300)
+        ok = c.returncode == 0
+        for inp, want in cases if ok else []:
+            r = subprocess.run([ail, "run", "--timeout", "10000", "--max-memory", "512", "main.ail"], cwd=tmp,
+                               input=inp, capture_output=True, text=True, env=env, timeout=120)
+            if r.stdout != want or "trap[" in r.stderr:
+                ok = False
+                break
+    except subprocess.TimeoutExpired:
+        ok = False
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump({"ok": ok}, f)
+    return ok
+
+
 def pick_capped(cands, cap_of, total):
     """cands: tuples (hash, bucket, ...); in hash order keep at most cap_of(bucket) per bucket and TOTAL in all."""
     seen, out = {}, []
@@ -289,6 +321,42 @@ def build(ctx):
             fence(src))
     stats["behave_mut_candidates"] = len(bm)
     stats["behave_mut_kinds"] = kinds
+
+    # ---- task: input-driven programs (data/extra/tasksNN/NAME/{spec.md,NAME.ail,NAME.py,cases/N.in,N.out}).
+    # Kept only when the pinned check passes and the AIL program prints every case's .out (which the Python
+    # reference produced) for its .in. user = spec + two example cases, answer = the program.
+    extra = os.path.join(ctx["root"], "data", "extra")
+    n_task, bad_task = 0, []
+    for grp in sorted(os.listdir(extra)):
+        gdir = os.path.join(extra, grp)
+        if not grp.startswith("tasks") or not os.path.isdir(gdir):
+            continue
+        for name in sorted(os.listdir(gdir)):
+            d = os.path.join(gdir, name)
+            try:
+                spec = open(os.path.join(d, "spec.md"), encoding="utf-8").read().strip()
+                src = open(os.path.join(d, name + ".ail"), encoding="utf-8").read()
+                cases = []
+                for k in range(1, 6):
+                    cases.append((open(os.path.join(d, "cases", "{}.in".format(k)), encoding="utf-8").read(),
+                                  open(os.path.join(d, "cases", "{}.out".format(k)), encoding="utf-8").read()))
+            except OSError:
+                bad_task.append(name)
+                continue
+            if not stdin_cases_pass(comp.ail, comp.commit, ctx["cache"], src, cases):
+                bad_task.append(name)
+                drop("task:" + name, "task program fails its cases")
+                continue
+            ex = cases[:2]
+            user = spec + "\n\nExamples:\n\n" + "\n\n".join(
+                "Input:\n```\n{}```\nOutput:\n```\n{}```".format(i if i.endswith("\n") or not i else i + "\n",
+                                                               o if o.endswith("\n") or not o else o + "\n")
+                for i, o in ex)
+            add("task:{}/{}".format(grp, name), "task2/{}/{}".format(grp, name), "task", "tasks", src, user,
+                fence(src))
+            n_task += 1
+    stats["task_items"] = n_task
+    stats["task_rejected"] = bad_task
 
     # ---- harvest (phase 3): the model's own drafts on train tasks, corrected and confirmed by the pinned compiler
     hpath = os.path.join(ctx["harvest_dir"], "items.jsonl") if ctx["harvest_dir"] else ""

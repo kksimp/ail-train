@@ -132,6 +132,9 @@ def main():
     ap.add_argument("--load-4bit", action="store_true")
     ap.add_argument("--resume", action="store_true",
                     help="keep the items OUT/revisions.jsonl already holds in full and continue after them")
+    ap.add_argument("--backend", default="hf", choices=["hf", "server"])
+    ap.add_argument("--server-url", default="http://127.0.0.1:8080", help="--backend server: the llama-server")
+    ap.add_argument("--workers", type=int, default=8, help="--backend server: items in flight at once")
     args = ap.parse_args()
 
     ail = os.path.join(os.path.abspath(args.ail), "ail")
@@ -140,7 +143,12 @@ def main():
     if args.limit:
         rows = rows[:args.limit]
     only = set(f for f in args.families.split(",") if f)
-    gen = hf_model(args)
+    if args.backend == "server":
+        from server_client import ServerGen
+
+        gen = ServerGen(args.server_url, args.temp, args.max_tokens, args.model).gen
+    else:
+        gen = hf_model(args)
     os.makedirs(args.out, exist_ok=True)
 
     samples = []
@@ -155,26 +163,18 @@ def main():
                 break
             done.setdefault(rec["i"], []).append(rec)
         done = {i: v for i, v in done.items() if len(v) == args.samples}
-    with open(rpath, "w", encoding="utf-8") as out:
-        for i, row in enumerate(rows):
-            user = row["messages"][1]["content"]
-            fam = family(user)
-            if only and fam not in only:
-                continue
-            if i in done:
-                for rec in done[i]:
-                    out.write(json.dumps(rec, ensure_ascii=False) + "\n")
-                    samples.append(rec)
-                continue
-            ref_src = program_for(fam, user, code_of(row["messages"][2]["content"]), row["messages"][2]["content"])
-            ok, want, err = compile_and_run(ail, ref_src)
-            if not ok or want is None:
-                print("{}/{} {} skip: reference fails".format(i + 1, len(rows), fam), file=sys.stderr)
-                continue
-            # Round 0: arm A's call, unchanged (same messages, seed and batch of samples).
-            texts, p_tok, g_toks, secs = gen([{"role": "system", "content": system},
-                                              {"role": "user", "content": user}], 1000 * i, args.samples)
-            marks = []
+    def do_item(i, row, fam):
+        """The records of one item (one per sample), or None when the reference fails."""
+        user = row["messages"][1]["content"]
+        ref_src = program_for(fam, user, code_of(row["messages"][2]["content"]), row["messages"][2]["content"])
+        ok, want, err = compile_and_run(ail, ref_src)
+        if not ok or want is None:
+            return None
+        # Round 0: arm A's call, unchanged (same messages, seed and batch of samples).
+        texts, p_tok, g_toks, secs = gen([{"role": "system", "content": system},
+                                          {"role": "user", "content": user}], 1000 * i, args.samples)
+        recs = []
+        if True:
             for s, text in enumerate(texts):
                 src = program_for(fam, user, code_of(text), text)
                 c_ok, c_out = check_only(ail, src)
@@ -196,17 +196,48 @@ def main():
                 passed = compiled and got == want
                 a_compiled, a_got, _ = (compiled, got, None) if len(revs) == 1 else \
                     compile_and_run(ail, revs[0]["source"])
-                rec = {"i": i, "family": fam, "sample": s, "rounds_used": len(revs) - 1,
-                       "initial_compiled": revs[0]["check_ok"],
-                       "initial_passed": bool(a_compiled and a_got == want),
-                       "final_compiled": compiled, "passed": passed, "run_error": (run_err or "")[:1000],
-                       "revisions": revs}
-                out.write(json.dumps(rec, ensure_ascii=False) + "\n")
-                out.flush()
-                samples.append(rec)
-                marks.append(("P" if passed else ("c" if compiled else ".")) + str(len(revs) - 1))
-            print("{}/{} {} {}  ({:.0f} min)".format(i + 1, len(rows), fam, " ".join(marks),
-                                                     (time.time() - t_all) / 60), file=sys.stderr)
+                recs.append({"i": i, "family": fam, "sample": s, "rounds_used": len(revs) - 1,
+                             "initial_compiled": revs[0]["check_ok"],
+                             "initial_passed": bool(a_compiled and a_got == want),
+                             "final_compiled": compiled, "passed": passed, "run_error": (run_err or "")[:1000],
+                             "revisions": revs})
+        return recs
+
+    def emit(i, fam, recs, out):
+        if recs is None:
+            print("{}/{} {} skip: reference fails".format(i + 1, len(rows), fam), file=sys.stderr)
+            return
+        for rec in recs:
+            out.write(json.dumps(rec, ensure_ascii=False) + "\n")
+            samples.append(rec)
+        out.flush()
+        marks = [("P" if r["passed"] else ("c" if r["final_compiled"] else ".")) + str(r["rounds_used"]) for r in recs]
+        print("{}/{} {} {}  ({:.0f} min)".format(i + 1, len(rows), fam, " ".join(marks),
+                                                 (time.time() - t_all) / 60), file=sys.stderr)
+
+    with open(rpath, "w", encoding="utf-8") as out:
+        todo = []
+        for i, row in enumerate(rows):
+            fam = family(row["messages"][1]["content"])
+            if only and fam not in only:
+                continue
+            if i in done:
+                for rec in done[i]:
+                    out.write(json.dumps(rec, ensure_ascii=False) + "\n")
+                    samples.append(rec)
+                continue
+            todo.append((i, row, fam))
+        if args.backend == "server":
+            import concurrent.futures
+            with concurrent.futures.ThreadPoolExecutor(args.workers) as ex:
+                futs = {ex.submit(do_item, i, row, fam): (i, fam) for i, row, fam in todo}
+                for fut in concurrent.futures.as_completed(futs):
+                    i, fam = futs[fut]
+                    emit(i, fam, fut.result(), out)
+        else:
+            for i, row, fam in todo:
+                emit(i, fam, do_item(i, row, fam), out)
+    samples.sort(key=lambda r: (r["i"], r["sample"]))
 
     summary = {"model": os.path.basename(args.model.rstrip("/")), "adapter": args.adapter, "rounds": args.rounds,
                "samples": args.samples, "temp": args.temp, "max_tokens": args.max_tokens,
